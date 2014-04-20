@@ -1,0 +1,111 @@
+/**********************************************************************
+* $Id$		abstract.txt		2012-05-21
+*//**
+* @file		abstract.txt
+* @brief	Example description file
+* @version	1.1
+* @date		21. May. 2012
+* @author	NXP MCU SW Application Team
+*
+* Copyright(C) 2011, NXP Semiconductor
+* All rights reserved.
+*
+***********************************************************************
+* Software that is described herein is for illustrative purposes only
+* which provides customers with programming information regarding the
+* products. This software is supplied "AS IS" without any warranties.
+* NXP Semiconductors assumes no responsibility or liability for the
+* use of the software, conveys no license or title under any patent,
+* copyright, or mask work right to the product. NXP Semiconductors
+* reserves the right to make changes in the software without
+* notification. NXP Semiconductors also make no representation or
+* warranty that such application will be suitable for the specified
+* use without further testing or modification.
+* Permission to use, copy, modify, and distribute this software and its
+* documentation is hereby granted, under NXP Semiconductors'
+* relevant copyright in the software, without fee, provided that it
+* is used in conjunction with NXP Semiconductors microcontrollers.  This
+* copyright, permission, and disclaimer notice must appear in all copies of
+* this code.
+**********************************************************************/
+  
+@Example description:
+	Purpose:
+		This example describes how to use GPIO to blink LEDs. It also
+		shows how to run the part at its maximum speed and support
+		booting from Flash or SPIFI memories.
+	Process:
+		- Call routines (in RAM or Internal Flash) to reconfigure the
+		  EMC and SPIFI memory peripherals
+		- Configure the chip to run at 204 MHz
+		- Configure pin as GPIO function
+		- Configure system tick
+		- Depend on a limited tick value to turn on and turn off LED.
+        - Note: For all toolchains and SPIFI and Parallel Flash configurations,
+          this example is dependent on a custom linker script file to place
+          memory setup routines in internal SRAM.
+					
+@Directory contents:
+	\Keil:	includes Keil project and configuration files  
+	\IAR:	includes IAR project and configuration files
+	lpc18xx_libcfg.h: Library configuration file - include needed driver library for this example 
+	Gpio_LedBlinky.c: Main program
+
+@How to run:
+	Hardware configuration:		
+		This example was tested on:
+			Hitex LPC4350 Board
+
+	Running mode: Several "Build Targets" can be selected in most tools. The difference between the
+            build targets is the memory that the code will run from.
+						
+		Internal SRAM mode:    This example can be run from internal SRAM using a debugger. After
+            building, click the Keil or IAR tool's download and debug button. Booting from Internal
+            SRAM is not possible.
+            
+		SPIFI 64MB Debug mode: This example can be run from an external QSPI flash memory connected
+            to the SPIFI peripheral. After building the SPIFI build target, program the QSPI memory
+            using the Keil "Download to Flash" button or the IAR "Download and Debug" button. It will
+            now be possible to debug the code, or upon reset of the CPU it should start automatically.
+            A wide range of QSPI chips should be supported without having to modify the flash
+            programming drivers for IAR or Keil.
+            
+        Hitex Flash mode:      If you have a Hitex development board, this project can be programmed
+            into and run from the external flash memory on the board using the Keil "Download to Flash"
+            button or the IAR "Download and Debug" button.  It will now be possible to debug the code,
+            or upon reset of the CPU it should start automatically. The flash chip supported is the
+            SST39X320X connected to EMC chip select 0 with a 16-bit wide databus.
+            
+        Internal Flash mode:   If you are using an LPC1857 or other LPC1800 CPU with internal flash
+            memory, this project can be programmed into the internal flash and run from there. Note
+            that a correct vector table checksum is required to boot from internal flash memory. If
+            you are using Keil MDK, the flash driver will automatically program the checksum correctly
+            (sometimes resulting in a verify error). If you are using IAR, when you build the Internal
+            Flash target, it will generate an additional .out file containing the correct checksum.
+            Booting will be possible if IAR's Project, Download, Download File... menu is used to
+            program Gpio_LedBlinky_cksum.out which is the same as the linker output Gpio_LedBlinky.out
+            but also includes the correct checksum. Note that the internal flash must be erased on the
+            LPC1857 in order to enable booting from SPIFI or External Parallel Flash.
+
+		>IAR project:
+			Built the project (F7)
+			Internal SRAM mode:	This example can run on Internal SRAM mode.
+				Download and debug (CTRL + D)
+				Seclect Device Cortex M4 (if any)
+			Hitex Flash mode: This example can run on Hitex Flash (external parallel flash SST39X320X), SPIFI quad SPI flash (with or without debug)
+					Select "Project->Download->Download active application" to burn into flash
+
+	Step to run:
+		- Step 1: Build example.
+        - Step 2: Connect Jumper JP3. This enables LED D10.
+		- Step 3: Burn hex file into board (if run on Hitex Flash, SPIFI, or Internal Flash mode)
+		- Step 4: Run example and observe LED USB0_IND1 (LED D10) blinky
+		
+@Tip:
+	- Open \Keil\*.uvproj project file to run the example on Keil
+    - Open \EWARM\*.eww project file to run the example on IAR
+
+	- If you receive a flash Contents mismatch error at 0x1A00001C, 1D, 1E, or 1F these can be
+	  ignored. This is the valid boot image checksum area and the Keil flash driver automatically
+	  updates it with the correct checksum. To remove this error, you can edit startup_LPC18xx.s
+	  and change Sign_Value to match the value calculated by the flash programming driver.

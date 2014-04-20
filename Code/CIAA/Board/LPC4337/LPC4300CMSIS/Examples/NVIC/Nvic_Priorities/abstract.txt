@@ -1,0 +1,138 @@
+/**********************************************************************
+* $Id$		abstract.txt		2012-04-19
+*//**
+* @file		abstract.txt
+* @brief	Example description file
+* @version	1.1
+* @date		19. Apr. 2012
+* @author	NXP MCU SW Application Team
+*
+* Copyright(C) 2011, NXP Semiconductor
+* All rights reserved.
+*
+***********************************************************************
+* Software that is described herein is for illustrative purposes only
+* which provides customers with programming information regarding the
+* products. This software is supplied "AS IS" without any warranties.
+* NXP Semiconductors assumes no responsibility or liability for the
+* use of the software, conveys no license or title under any patent,
+* copyright, or mask work right to the product. NXP Semiconductors
+* reserves the right to make changes in the software without
+* notification. NXP Semiconductors also make no representation or
+* warranty that such application will be suitable for the specified
+* use without further testing or modification.
+* Permission to use, copy, modify, and distribute this software and its
+* documentation is hereby granted, under NXP Semiconductors'
+* relevant copyright in the software, without fee, provided that it
+* is used in conjunction with NXP Semiconductors microcontrollers.  This
+* copyright, permission, and disclaimer notice must appear in all copies of
+* this code.
+**********************************************************************/
+  
+@Example description:
+	Purpose:
+		This example describes how to configure NVIC priority grouping for testing 
+		tail-chaining/Late-arriving interrupt mode.
+	Process:
+		This example uses 2 interrupts as IRQ channels.
+		Defining "SAME_GROUP" to chose interrupt mode test.
+			- Define SAME_GROUP: Tail-chainning interrupt testing
+			WIC interrupt is assigned group-priority = 1, sub-priority = 7
+			DAC interrupt is assigned group-priority = 1, sub-priority = 2
+			Two IRQ channels has same group.So, new ISR can not pre-empt previous interrupt 
+			when it's executing even if new ISR has higher priority than curren ISR
+			
+			- Undefine SAME_GROUP: Late-arriving interrupt testing.
+			WIC interrupt is assigned group-priority = 0, sub-priority = 1
+			DAC interrupt is assigned group-priority = 1, sub-priority = 1
+			WIC interrupt has higher group-priority than DAC interrupt, so WIC interrupt can 
+			pre-empt DAC interrupt when it's executing
+		
+		In this example, WIC interrupt occurs when connecting WAKEUP0 pin to 3.3V. 
+		WIC interrupt will blink USB0_IND1 LED (D10) 5 times.
+		
+		DAC interrupt occurs periodly and toggles USB1_IND1 LED (D9) after 1000 interrupt times.	
+					
+@Directory contents:
+	\Keil:	includes Keil project and configuration files 
+	\IAR:	includes IAR project and configuration files
+	lpc43xx_libcfg.h: Library configuration file - include needed driver library for this example 
+	Nvic_Priorities.c: Main program
+
+@How to run:
+	Hardware configuration:		
+		This example was tested only on:
+			Hitex LPC4350EVA-A4-2 Board
+			U-Link2 on Keil
+			J-Link on IAR
+	Boot mode jumper settings:
+				+ Hitex Flash:
+					Select boot mode jumpers [BOOT4,BOOT3,BOOT2,BOOT1] to [LOW,LOW,HIGH,HIGH]
+				+ SPIFI quad SPI flash (SPIFI 64MB and 128MB):
+					Select boot mode jumpers [BOOT4,BOOT3,BOOT2,BOOT1] to [LOW,LOW,LOW,HIGH]
+
+		Jumper settings:
+			- JP3: close
+			- JP4: close
+			- SV6: pin 15-16 is open
+	Running mode:
+		On Keil
+			Internal SRAM mode:	This example can run on Internal SRAM mode.
+						All files must be build to .elf file, this file will be loaded into Internal SRAM through a
+						debugger tool before running
+			Hitex Flash mode: 	All files must be built to .hex file before burn into flash
+				+ This example can be run on external flash:
+					* SST39X320X:
+						- Burn by Keil's Load feature:
+							a) Copy all things in ..\..\..\Tools\Flash\Keil_Binaries to
+							   C:\Keil\ARM\Flash (Keil uVision 4)
+							b) Open Keil->Configure for flash compiling->Compile->Select debugger->Press LOAD 						
+					SPIFI 64MB Debug mode:
+				+ This example can be run on external SPIFI flash:
+						- Burn by Keil's Load feature:
+							a) Copy all things in ..\..\..\Tools\Flash\Keil_Binaries to
+							   C:\Keil\ARM\Flash (Keil uVision 4)
+							b) Open Keil->Configure for flash compiling->Compile->Select debugger->Press LOAD 
+					SPIFI 128MB mode:
+				+ This example can be run on external SPIFI flash:
+						- Burn by Keil's Load feature:
+							a) Copy all things in ..\..\..\Tools\Flash\Keil_Binaries to
+							   C:\Keil\ARM\Flash (Keil uVision 4)
+							b) Open Keil->Configure for flash compiling->Compile->Select debugger->Press LOADs 						
+
+		On IAR
+			Built the project (F7)
+			Internal SRAM mode: This example can run on Internal SRAM.
+				Download and debug (CTRL + D)
+				Seclect Device Cortex M4 (if any)
+			Hitex Flash mode: This example can run on 
+				Hitex Flash (SST39X320X external parallel flash):
+					Select "Project->Download->Download active application" to burn into flash
+				SPIFI quad SPI flash 128MB mode:
+					Select "Project->Download->Download active application" to burn into flash
+				SPIFI quad SPI flash 64MB Debug mode:
+					Download and debug (CTRL + D)
+	Step to run:
+		- Step 1: Build example.
+		- Step 2: Burn hex file into board (if run on Hitex Flash mode)
+		- Step 3: Run example
+				+ At the beginning, the DAC interrupt will normally happen and blink the USB1_IND1 LED (D9) in 1Hz
+				+ If WIC interrupt is occurred (by connecting WAKEUP0 pin to 3.3V), USB0_IND1 LED (D10) will blink 
+				5 times 
+				
+			- Test tail-chaining interrupt mode:
+				When USB1_IND1 LED (D9) is blinking (under the effect of DAC interrupt), if connecting WAKEUP0 pin 
+				to 3.3V the WIC interrupt will be generating to blink the USB0_IND1 LED (D10) 5 times right after 
+				an DAC interrupt is finished 
+				
+			- Test late-arriving interrupt mode:
+				When USB1_IND1 LED (D9) is blinking (under the effect of DAC interrupt), if connecting WAKEUP0 pin
+				to 3.3V the WIC interrupt will be generating to blink the USB0_IND1 LED (D10) 5 times immediately
+				without caring about the completion of the DAC interrupt. In this case, the WIC interrupt does 
+				pre-empt the DAC interrupt
+				After this WIC is completed, the DAC interrupt will re-start to blink the USB1_IND1 LED (D9) 
+				continuously because its interrupt occurence.					
+
+@Tip:
+	- Open \Keil\*.uvproj project file to run example on Keil
+	- Open \EWARM\*.eww project file to run example on IAR

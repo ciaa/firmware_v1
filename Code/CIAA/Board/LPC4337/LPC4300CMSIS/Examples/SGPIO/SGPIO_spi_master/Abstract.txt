@@ -1,0 +1,57 @@
+Introduction
+--------------
+
+This program provides an example of SPI master interface emulation using SGPIO
+It has been tested on the Keil MCB4300 board with Keil uVision + Ulink2.
+It runs out of internal ram.
+
+There are two emulated SPI interfaces available, called SPI_MASTER_0 and SPI_MASTER_0.
+Several test configurations are provided within the main.c file, like "spiMaster0Setup_chpa0_low_32bit".
+
+The master supports active high and active low clocks, and the two different SPI polarity modes.
+
+The interface is tested in loopback mode, so the MOSI output needs to be connected externally to the 
+MISO input via an external wire.
+
+USB_0_IND1 green led shall blink during a successful loopback test
+
+The SGPIO pins can be found on the MCB4300 prototyping connectors.
+
+Configuration
+---------------
+
+The user can customize the data receive (MISO) and data transmit (MOSI) slices within the 
+slice configuration structures in the sgpio_spi.c file
+
+Check for the USER SLICE ASSIGNMENT SECTION, there are DATA_OUT_CFG0, DATA_OUT_CFG1, DATA_IN_CFG0,
+DATA_IN_CFG1 structures and configure as desired.
+
+Note: in case of changes, the pin multiplexing for the SGPIO pins on the LPC4300 needs to be adapted.
+The assignment is done within the function SGPIO_spiOpen in sgpio_spi.c module.
+
+Additionally, in case the SGPIO clock speed is changed from the IRC 12MHz default, the definition
+"#define SGPIO_IP_CLOCK (12000000UL)" within the sgpio.h header needs to be changed accordingly.
+
+
+The default configuration is as follows:
+
+SPI MASTER 0
+----------
+
+CHIP SELECT 0		P9.0 : SGPIO0 (LED)
+MOSI 0 - DATA TX	P9.2 : SGPIO2 (LED)
+CLOCK 0				P2.3 : SGPIO12 (Uart3 Tx)
+MISO 0 - DATA RX	P7.2 : SGPIO6 
+
+
+SPI MASTER 1
+-------------
+
+CHIP SELECT 1		P4.10 : SGPIO15 (LCDVD10)
+MOSI 1 - DATA TX	PF.9  : SGPIO3 
+CLOCK 1				PC.14 : SGPIO13 (Joystick right)
+MISO 1 - DATA RX	PF.6  : SGPIO5 (TRACEDATA1)
+
+
+Compilation note: the compiler needs the --c99 switch, because of the used structure initialization convention
+

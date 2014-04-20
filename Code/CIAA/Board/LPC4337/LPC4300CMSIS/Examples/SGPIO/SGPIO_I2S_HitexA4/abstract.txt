@@ -1,0 +1,72 @@
+/**********************************************************************
+* $Id$		abstract.txt		2012-04-19
+*//**
+* @file		abstract.txt
+* @brief	Example description file
+* @version	1.1
+* @date		19. Apr. 2012
+* @author	NXP MCU SW Application Team
+*
+* Copyright(C) 2012, NXP Semiconductor
+* All rights reserved.
+*
+***********************************************************************
+* Software that is described herein is for illustrative purposes only
+* which provides customers with programming information regarding the
+* products. This software is supplied "AS IS" without any warranties.
+* NXP Semiconductors assumes no responsibility or liability for the
+* use of the software, conveys no license or title under any patent,
+* copyright, or mask work right to the product. NXP Semiconductors
+* reserves the right to make changes in the software without
+* notification. NXP Semiconductors also make no representation or
+* warranty that such application will be suitable for the specified
+* use without further testing or modification.
+* Permission to use, copy, modify, and distribute this software and its
+* documentation is hereby granted, under NXP Semiconductors'
+* relevant copyright in the software, without fee, provided that it
+* is used in conjunction with NXP Semiconductors microcontrollers.  This
+* copyright, permission, and disclaimer notice must appear in all copies of
+* this code.
+**********************************************************************/
+  
+@Example description:
+	Purpose:
+		This example demonstrates usage of the SGPIO peripheral to construct 
+		a 4-channel I2S TX interface. In addition the USB High Speed block is used.
+	
+	Process:
+		- Configure part to run at 204 MHz 
+		- Configure USB PLL0 (USB High Speed)
+		- Configure Audio PLL0
+		- Configure SGPIO for a 4-stereo-channel I2S interface
+		- Initialize UDA1380 CODEC
+		- Start USB stack to implement stereo audio device
+		- Distribute stereo signal onto four SGPIO-I2S channels
+					
+@Directory contents:
+	\Keil:	includes Keil project and configuration files  
+	lpc43xx_libcfg.h: Library configuration file - include needed driver library for this example 
+	USB audio profile files
+	Application and device files
+
+@How to run:
+	Hardware configuration:		
+		This example was tested on:
+            Hitex LPC4350 Board Rev A4
+			U-Link2 on Keil
+	Step to run:
+		- Step 1: Build example for Internal SRAM/SPIFI flash or external parallel flash 
+		- Step 2: Load file with the debugger or program file into flash
+		- Step 3: Connect USB port to PC
+		- Step 4: Play audio on PC
+
+	Known Issues:
+		- After reset there is a short period (~0.5s) where the audio output is distorted.
+		  This could be avoided by a convenient mute period of the UDA1380.
+		- When starting from the SPIFI a second reset is required to start code execution
+		  (known problem, look into chip errata)
+		- When there is a flash download problem the following procedure helps in most cases:
+		  o Press ISP button SW2, click RESET button SW1, release SW2
+		  o start flash download procedure
+@Tip:
+	- Open \Keil\*.uvproj project file to run example on Keil

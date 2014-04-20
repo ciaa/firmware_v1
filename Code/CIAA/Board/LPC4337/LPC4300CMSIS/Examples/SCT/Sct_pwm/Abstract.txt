@@ -1,0 +1,69 @@
+/**********************************************************************
+* $Id$		abstract.txt		2012-04-19
+*//**
+* @file		abstract.txt
+* @brief	Example description file
+* @version	1.1
+* @date		19. Apr. 2012
+* @author	NXP MCU SW Application Team
+*
+* Copyright(C) 2011, NXP Semiconductor
+* All rights reserved.
+*
+***********************************************************************
+* Software that is described herein is for illustrative purposes only
+* which provides customers with programming information regarding the
+* products. This software is supplied "AS IS" without any warranties.
+* NXP Semiconductors assumes no responsibility or liability for the
+* use of the software, conveys no license or title under any patent,
+* copyright, or mask work right to the product. NXP Semiconductors
+* reserves the right to make changes in the software without
+* notification. NXP Semiconductors also make no representation or
+* warranty that such application will be suitable for the specified
+* use without further testing or modification.
+* Permission to use, copy, modify, and distribute this software and its
+* documentation is hereby granted, under NXP Semiconductors'
+* relevant copyright in the software, without fee, provided that it
+* is used in conjunction with NXP Semiconductors microcontrollers.  This
+* copyright, permission, and disclaimer notice must appear in all copies of
+* this code.
+**********************************************************************/
+  
+@Example description:
+
+	Purpose:
+
+		This example software shows how to generate different PWM wavefor types based on 
+		an API interface configuring the SCT.
+
+	Process:
+
+		Within the main application file, there are several configuration structures provided which can be passed to the API
+		in order to setup the SCT.
+
+		During the run, LED on P9_0 will blink with a 1Hz frequency
+		
+		An oscilloscope or logic state analyzer is needed to observe the outputs.
+		
+		Refer to the single text documents for a description of the features supported by each configuration
+					
+					
+@ SCT configuration
+
+	The generation of the waveforms is based on three time based 'events': 
+		- one controls the period of the PWM signal
+		- one controls the beginning of the PWM event (rising edge of the PWM)
+		- one controls the end of the PWM event (fallig edge of the PWM)
+		
+	For the details on what each configuration supports, refer to the dedicated text files
+
+@How to run:
+
+	Hardware configuration:		
+		This example was tested on: Keil MCB4300 board with LPC4350 (flashless part)
+			
+	Running mode: This example can run from internal RAM. 
+		Note that using external flash requires modifying the pin multiplexing configuration within the mcb4300_lpc4350.c (setupMCB4350 function)
+		Because of some structure initialitation type, the code needs to be compiled with C99 support (--c99 on Keil toolchain)
+	
+	

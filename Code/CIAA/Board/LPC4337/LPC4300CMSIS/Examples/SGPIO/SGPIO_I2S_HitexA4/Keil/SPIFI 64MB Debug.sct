@@ -1,0 +1,45 @@
+; Scatter file for SGPIO-I2S demo running from SPIFI.
+;=======================================================
+;
+; For performance reasons some files get relocated to SRAM and executed from there
+;
+;
+; Memory layout for LPC1850/4350 Hitex board Rev A4
+;=======================================================
+;
+; CS0 Flash    0x1C00 0000    0x400000     SST39VF3201x
+; CS2 SRAM     0x1E00 0000    0x40000      IS62WV25616
+;
+; DYCS0 SDRAM  0x2800 0000    0x400000     IS42S16400
+; SPIFI        0x1400 0000    0x800000     S25FL129
+;
+; Memory layout for LPC1850/4350 
+;=======================================================
+; Local SRAM   0x1000 0000    0x20000      (0x18000 for LPC1850)
+; Local SRAM   0x1008 0000    0x12000      (0xA000 for LPC1850)
+; AHB SRAM     0x2000 0000    0x8000
+; AHB SRAM     0x2000 8000    0x4000
+; AHB SRAM     0x2000 C000    0x4000
+;
+; For compatibilty reasons the smaller memory sizes of the LPC1850 are used here, 
+; then the software runs on both platforms without any changes in this file.
+;
+
+LR_IROM1 0x14000000 0x00800000  {    ; load region size_region
+  ER_IROM1 0x14000000 0x00800000  {  ; load address = execution address
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+  RW_IRAM1 0x10000000 0x00018000  {  ; relocated objects
+    sgpio_i2s.o (+RO +ZI +RW)
+	usbd_adc.o (+RO +ZI +RW)
+    adc_desc.o (+RO +ZI +RW)
+    adc_user.o (+RO +ZI +RW)
+    codec.o (+RO +ZI +RW)
+  }
+  RW_IRAM2 0x10080000 0x0000A000  {  ; any RW
+   .ANY (+RW +ZI)
+  }
+}
+

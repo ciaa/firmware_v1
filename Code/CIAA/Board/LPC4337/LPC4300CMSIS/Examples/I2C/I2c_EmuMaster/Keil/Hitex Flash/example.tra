@@ -1,0 +1,29 @@
+*** Creating Trace Output File '.\Hitex Flash\example.tra' Ok.
+### Preparing for ADS-LD.
+### Creating ADS-LD Command Line
+### List of Objects: adding '".\hitex flash\startup_lpc43xx.o"'
+### List of Objects: adding '".\hitex flash\system_lpc43xx.o"'
+### List of Objects: adding '".\hitex flash\debug_frmwrk.o"'
+### List of Objects: adding '".\hitex flash\lpc43xx_uart.o"'
+### List of Objects: adding '".\hitex flash\lpc43xx_scu.o"'
+### List of Objects: adding '".\hitex flash\lpc43xx_cgu.o"'
+### List of Objects: adding '".\hitex flash\lpc43xx_gpio.o"'
+### List of Objects: adding '".\hitex flash\m24xx.o"'
+### List of Objects: adding '".\hitex flash\i2c_emumaster.o"'
+### List of Objects: adding '".\hitex flash\i2c_bitbanging.o"'
+### List of Objects: adding '".\hitex flash\pca9532.o"'
+### ADS-LD Command completed:
+--cpu Cortex-M4 ".\hitex flash\startup_lpc43xx.o" ".\hitex flash\system_lpc43xx.o" ".\hitex flash\debug_frmwrk.o" ".\hitex flash\lpc43xx_uart.o" ".\hitex flash\lpc43xx_scu.o" ".\hitex flash\lpc43xx_cgu.o" ".\hitex flash\lpc43xx_gpio.o" ".\hitex flash\m24xx.o" ".\hitex flash\i2c_emumaster.o" ".\hitex flash\i2c_bitbanging.o" ".\hitex flash\pca9532.o" --library_type=microlib --strict --scatter ".\Hitex Flash\example.sct" 
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols 
+--info sizes --info totals --info unused --info veneers 
+ --list ".\Hitex Flash\example.map" -o ".\Hitex Flash\example.axf"### Preparing Environment (PrepEnvAds)
+### ADS-LD Output File: '.\Hitex Flash\example.axf'
+### ADS-LD Command File: '.\Hitex Flash\example.lnp'
+### Checking for dirty Components...
+### Creating CmdFile '.\Hitex Flash\example.lnp', Handle=0x0000026C
+### Writing '.lnp' file
+### ADS-LD Command file '.\Hitex Flash\example.lnp' is ready.
+### ADS-LD: About to start ADS-LD Thread.
+### ADS-LD: executed with 0 errors
+### Updating obj list
+### LDADS_file() completed.

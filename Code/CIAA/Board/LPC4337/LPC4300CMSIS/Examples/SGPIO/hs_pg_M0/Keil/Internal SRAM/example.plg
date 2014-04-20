@@ -1,0 +1,357 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\hs_PG_M0.uvproj
+Project File Date:  05/22/2012
+
+<h2>Output:</h2>
+compiling main_M4.c...
+..\main_M4.c(30): warning:  #177-D: variable "i" was declared but never referenced
+..\main_M4.c - 0 Error(s), 1 Warning(s).
+compiling main_M4.c...
+..\main_M4.c - 0 Error(s), 0 Warning(s).
+compiling main_M4.c...
+..\main_M4.c(46): warning:  #177-D: variable "k" was declared but never referenced
+..\main_M4.c - 0 Error(s), 1 Warning(s).
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c(69): error:  #20: identifier "DMA_MEM" is undefined
+..\Sgpio_pg.c(114): error:  #20: identifier "DMA_MEM" is undefined
+..\Sgpio_pg.c - 2 Error(s), 0 Warning(s).
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c - 0 Error(s), 0 Warning(s).
+compiling main_M4.c...
+..\main_M4.c(24): error:  #20: identifier "__initial_sp" is undefined
+..\main_M4.c - 1 Error(s), 0 Warning(s).
+compiling main_M4.c...
+..\main_M4.c(28): warning:  #1295-D: Deprecated declaration start_m0 - give arg types
+..\main_M4.c - 0 Error(s), 1 Warning(s).
+compiling main_M4.c...
+..\main_M4.c - 0 Error(s), 0 Warning(s).
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c(61): error:  #268: declaration may not appear after executable statement in block
+..\Sgpio_pg.c - 1 Error(s), 0 Warning(s).
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c - 0 Error(s), 0 Warning(s).
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c - 0 Error(s), 0 Warning(s).
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c - 0 Error(s), 0 Warning(s).
+compiling main_M4.c...
+..\main_M4.c - 0 Error(s), 0 Warning(s).
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c - 0 Error(s), 0 Warning(s).
+compiling Sgpio_pg.c...
+..\..\..\..\Drivers\include\lpc43xx_scu.h(91): error:  #20: identifier "uint8_t" is undefined
+..\..\..\..\Drivers\include\lpc43xx_scu.h(91): error:  #20: identifier "uint8_t" is undefined
+..\..\..\..\Drivers\include\lpc43xx_scu.h(91): error:  #20: identifier "uint8_t" is undefined
+..\..\..\..\Drivers\include\lpc43xx_scu.h(91): error:  #20: identifier "uint8_t" is undefined
+..\Sgpio_pg.c - 4 Error(s), 0 Warning(s).
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c - 0 Error(s), 0 Warning(s).
+compiling Sgpio_pg.c...
+..\..\..\..\Drivers\include\lpc43xx_scu.h(91): error:  #20: identifier "uint8_t" is undefined
+..\..\..\..\Drivers\include\lpc43xx_scu.h(91): error:  #20: identifier "uint8_t" is undefined
+..\..\..\..\Drivers\include\lpc43xx_scu.h(91): error:  #20: identifier "uint8_t" is undefined
+..\..\..\..\Drivers\include\lpc43xx_scu.h(91): error:  #20: identifier "uint8_t" is undefined
+..\Sgpio_pg.c - 4 Error(s), 0 Warning(s).
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c - 0 Error(s), 0 Warning(s).
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c - 0 Error(s), 0 Warning(s).
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c - 0 Error(s), 0 Warning(s).
+Rebuild target 'Internal SRAM'
+assembling startup_LPC43xx.s...
+compiling system_LPC43xx.c...
+compiling lpc43xx_scu.c...
+compiling lpc43xx_cgu.c...
+compiling lpc43xx_gpdma.c...
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(109): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(110): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(111): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(112): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(113): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(114): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(115): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(116): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(117): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(118): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(119): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(120): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(121): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(122): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(124): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(125): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(127): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(128): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(129): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(130): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(131): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(132): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(133): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(134): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(135): warning:  #1296-D: extended constant initialiser used
+compiling Sgpio_pg.c...
+compiling main_M4.c...
+linking...
+.\Internal SRAM\example.axf: Error: L6200E: Symbol a multiply defined (by main_m4.o and sgpio_pg.o).
+.\Internal SRAM\example.axf: Error: L6200E: Symbol b multiply defined (by main_m4.o and sgpio_pg.o).
+.\Internal SRAM\example.axf: Error: L6200E: Symbol c multiply defined (by main_m4.o and sgpio_pg.o).
+.\Internal SRAM\example.axf: Error: L6200E: Symbol data1 multiply defined (by main_m4.o and sgpio_pg.o).
+.\Internal SRAM\example.axf: Error: L6200E: Symbol data2 multiply defined (by main_m4.o and sgpio_pg.o).
+.\Internal SRAM\example.axf: Error: L6200E: Symbol reg_address multiply defined (by main_m4.o and sgpio_pg.o).
+Target not created
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c - 0 Error(s), 0 Warning(s).
+Rebuild target 'Internal SRAM'
+assembling startup_LPC43xx.s...
+compiling system_LPC43xx.c...
+compiling lpc43xx_scu.c...
+compiling lpc43xx_cgu.c...
+compiling lpc43xx_gpdma.c...
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(109): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(110): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(111): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(112): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(113): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(114): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(115): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(116): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(117): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(118): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(119): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(120): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(121): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(122): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(124): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(125): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(127): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(128): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(129): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(130): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(131): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(132): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(133): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(134): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(135): warning:  #1296-D: extended constant initialiser used
+compiling Sgpio_pg.c...
+compiling main_M4.c...
+linking...
+.\Internal SRAM\example.sct(13): warning: L6314W: No section matches pattern main_M4.o(ZI).
+.\Internal SRAM\example.sct(17): warning: L6314W: No section matches pattern Sgpio_pg.o(ZI).
+Program Size: Code=3938 RO-data=1722 RW-data=128 ZI-data=512  
+FromELF: creating hex file...
+User command #1: fromelf --bin -o "C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\example.bin" "C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\example.axf"
+Error: Q0147E: Failed to create Directory C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\example.bin\ER_IROM1: File exists
+Finished: 0 information, 0 warning and 1 error messages.
+".\Internal SRAM\example.axf" - 0 Error(s), 27 Warning(s).
+Rebuild target 'Internal SRAM'
+assembling startup_LPC43xx.s...
+compiling system_LPC43xx.c...
+compiling lpc43xx_scu.c...
+compiling lpc43xx_cgu.c...
+compiling lpc43xx_gpdma.c...
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(109): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(110): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(111): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(112): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(113): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(114): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(115): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(116): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(117): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(118): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(119): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(120): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(121): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(122): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(124): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(125): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(127): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(128): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(129): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(130): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(131): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(132): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(133): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(134): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(135): warning:  #1296-D: extended constant initialiser used
+compiling Sgpio_pg.c...
+compiling main_M4.c...
+linking...
+.\Internal SRAM\example.sct(13): warning: L6314W: No section matches pattern main_M4.o(ZI).
+.\Internal SRAM\example.sct(17): warning: L6314W: No section matches pattern Sgpio_pg.o(ZI).
+Program Size: Code=3938 RO-data=1722 RW-data=128 ZI-data=512  
+FromELF: creating hex file...
+User command #1: fromelf --bin -o "C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\example.bin" "C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\example.axf"
+Error: Q0147E: Failed to create Directory C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\example.bin\ER_IROM1: File exists
+Finished: 0 information, 0 warning and 1 error messages.
+".\Internal SRAM\example.axf" - 0 Error(s), 27 Warning(s).
+compiling Sgpio_pg.c...
+..\Sgpio_pg.c - 0 Error(s), 0 Warning(s).
+Rebuild target 'Internal SRAM'
+assembling startup_LPC43xx.s...
+compiling system_LPC43xx.c...
+compiling lpc43xx_scu.c...
+compiling lpc43xx_cgu.c...
+compiling lpc43xx_gpdma.c...
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(109): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(110): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(111): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(112): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(113): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(114): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(115): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(116): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(117): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(118): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(119): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(120): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(121): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(122): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(124): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(125): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(127): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(128): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(129): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(130): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(131): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(132): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(133): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(134): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(135): warning:  #1296-D: extended constant initialiser used
+compiling Sgpio_pg.c...
+compiling main_M4.c...
+linking...
+.\Internal SRAM\example.sct(13): warning: L6314W: No section matches pattern main_M4.o(ZI).
+.\Internal SRAM\example.sct(17): warning: L6314W: No section matches pattern Sgpio_pg.o(ZI).
+Program Size: Code=3938 RO-data=1722 RW-data=128 ZI-data=512  
+FromELF: creating hex file...
+User command #1: fromelf --bin -o "C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\example.bin" "C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\example.axf"
+Error: Q0147E: Failed to create Directory C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\example.bin\ER_IROM1: File exists
+Finished: 0 information, 0 warning and 1 error messages.
+".\Internal SRAM\example.axf" - 0 Error(s), 27 Warning(s).
+Rebuild target 'Internal SRAM'
+assembling startup_LPC43xx.s...
+compiling system_LPC43xx.c...
+compiling lpc43xx_scu.c...
+compiling lpc43xx_cgu.c...
+compiling lpc43xx_gpdma.c...
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(109): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(110): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(111): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(112): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(113): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(114): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(115): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(116): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(117): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(118): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(119): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(120): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(121): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(122): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(124): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(125): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(127): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(128): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(129): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(130): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(131): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(132): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(133): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(134): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(135): warning:  #1296-D: extended constant initialiser used
+compiling Sgpio_pg.c...
+compiling main_M4.c...
+linking...
+.\Internal SRAM\example.sct(13): warning: L6314W: No section matches pattern main_M4.o(ZI).
+.\Internal SRAM\example.sct(17): warning: L6314W: No section matches pattern Sgpio_pg.o(ZI).
+Program Size: Code=3938 RO-data=1722 RW-data=128 ZI-data=512  
+FromELF: creating hex file...
+User command #1: fromelf --bin -o "C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\example.bin" "C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\example.axf"
+Error: Q0147E: Failed to create Directory C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\example.bin\ER_IROM1: File exists
+Finished: 0 information, 0 warning and 1 error messages.
+".\Internal SRAM\example.axf" - 0 Error(s), 27 Warning(s).
+Rebuild target 'Internal SRAM'
+assembling startup_LPC43xx.s...
+compiling system_LPC43xx.c...
+compiling lpc43xx_scu.c...
+compiling lpc43xx_cgu.c...
+compiling lpc43xx_gpdma.c...
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(109): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(110): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(111): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(112): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(113): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(114): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(115): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(116): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(117): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(118): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(119): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(120): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(121): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(122): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(124): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(125): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(127): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(128): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(129): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(130): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(131): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(132): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(133): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(134): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(135): warning:  #1296-D: extended constant initialiser used
+compiling Sgpio_pg.c...
+compiling main_M4.c...
+linking...
+.\Internal SRAM\sgpio_pg.sct(13): warning: L6314W: No section matches pattern main_M4.o(ZI).
+.\Internal SRAM\sgpio_pg.sct(17): warning: L6314W: No section matches pattern Sgpio_pg.o(ZI).
+Program Size: Code=3938 RO-data=1722 RW-data=128 ZI-data=512  
+FromELF: creating hex file...
+User command #1: fromelf --bin -o "C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\sgpio_pg.bin" "C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\sgpio_pg.axf"
+".\Internal SRAM\sgpio_pg.axf" - 0 Error(s), 27 Warning(s).
+Rebuild target 'Internal SRAM'
+assembling startup_LPC43xx.s...
+compiling system_LPC43xx.c...
+compiling lpc43xx_scu.c...
+compiling lpc43xx_cgu.c...
+compiling lpc43xx_gpdma.c...
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(109): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(110): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(111): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(112): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(113): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(114): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(115): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(116): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(117): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(118): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(119): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(120): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(121): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(122): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(124): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(125): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(127): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(128): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(129): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(130): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(131): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(132): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(133): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(134): warning:  #1296-D: extended constant initialiser used
+..\..\..\..\Drivers\source\lpc43xx_gpdma.c(135): warning:  #1296-D: extended constant initialiser used
+compiling Sgpio_pg.c...
+compiling main_M4.c...
+linking...
+.\Internal SRAM\sgpio_pg.sct(13): warning: L6314W: No section matches pattern main_M4.o(ZI).
+.\Internal SRAM\sgpio_pg.sct(17): warning: L6314W: No section matches pattern Sgpio_pg.o(ZI).
+Program Size: Code=3938 RO-data=1722 RW-data=128 ZI-data=512  
+FromELF: creating hex file...
+User command #1: fromelf --bin -o "C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\sgpio_pg.bin" "C:\lpc43xx-2012-01-25\lpc43xx\2012-01-25\Examples\SGPIO\hs_pg_M0\Keil\Internal SRAM\sgpio_pg.axf"
+".\Internal SRAM\sgpio_pg.axf" - 0 Error(s), 27 Warning(s).

@@ -1,0 +1,73 @@
+/**********************************************************************
+* $Id$		abstract.txt		2011-06-02
+*//**
+* @file		abstract.txt
+* @brief	Example description file
+* @version	1.0
+* @date		02. June. 2011
+* @author	NXP MCU SW Application Team
+*
+* Copyright(C) 2011, NXP Semiconductor
+* All rights reserved.
+*
+***********************************************************************
+* Software that is described herein is for illustrative purposes only
+* which provides customers with programming information regarding the
+* products. This software is supplied "AS IS" without any warranties.
+* NXP Semiconductors assumes no responsibility or liability for the
+* use of the software, conveys no license or title under any patent,
+* copyright, or mask work right to the product. NXP Semiconductors
+* reserves the right to make changes in the software without
+* notification. NXP Semiconductors also make no representation or
+* warranty that such application will be suitable for the specified
+* use without further testing or modification.
+* Permission to use, copy, modify, and distribute this software and its
+* documentation is hereby granted, under NXP Semiconductors'
+* relevant copyright in the software, without fee, provided that it
+* is used in conjunction with NXP Semiconductors microcontrollers.  This
+* copyright, permission, and disclaimer notice must appear in all copies of
+* this code.
+**********************************************************************/
+  
+@Example description:
+	Purpose:
+		This example demonstrates how to use the SPIFI library to read and write
+		to an external QSPI serial flash.
+	Process:
+		- Configure clock to SPIFI peripheral
+		- Initialize SPIFI driver
+		- Erase SPIFI flash with spifi_erase call
+		- Write to SPIFI with spifi_program call and then use memcmp to compare SPIFI memory
+		  with source buffer.
+		- Status is sent to the UART, and LED D10 (near USB connector X9) is lit if successful
+					
+@Directory contents:
+	\Keil:	includes Keil project and configuration files  
+	lpc43xx_libcfg.h: Library configuration file - include needed driver library for this example 
+	Spifi_Test.c: Main program
+
+@How to run:
+	Hardware configuration:		
+		This example was tested on:
+			Hitex LPC4300 Board
+						
+	Running mode:
+		RAM mode:   This example can be run on RAM mode with debugger. 
+					All files must be build to .elf file, this file will be loaded into RAM through a 
+					debugger tool before running 
+		ROM mode: 	All files must be built to .hex file before burn into flash
+			+ This example can be run on external flash:
+				* SST39X320X:
+					- Burn by Keil's Load feature:
+						a) Copy all things in ..\..\..\Tools\Flash\SST39X320X\Keil to
+						   C:\Keil\ARM\Flash (Keil uVision 4)
+						b) Open Keil->Configure for flash compiling->Compile->Select debugger->Press LOAD 						
+
+
+	Step to run:
+		- Step 1: Build example.
+		- Step 2: Burn hex file into board (if run on ROM mode)
+		- Step 3: Run example and observe LED 'run' from LED1 to LED8 then roll back
+		
+@Tip:
+	- Open \Keil\*.uvproj project file to run example on Keil

@@ -1,0 +1,165 @@
+/**********************************************************************
+* $Id$		abstract.txt		2012-04-19
+*//**
+* @file		abstract.txt
+* @brief	Example description file
+* @version	1.1
+* @date		19. Apr. 2012
+* @author	NXP MCU SW Application Team
+*
+* Copyright(C) 2011, NXP Semiconductor
+* All rights reserved.
+*
+***********************************************************************
+* Software that is described herein is for illustrative purposes only
+* which provides customers with programming information regarding the
+* products. This software is supplied "AS IS" without any warranties.
+* NXP Semiconductors assumes no responsibility or liability for the
+* use of the software, conveys no license or title under any patent,
+* copyright, or mask work right to the product. NXP Semiconductors
+* reserves the right to make changes in the software without
+* notification. NXP Semiconductors also make no representation or
+* warranty that such application will be suitable for the specified
+* use without further testing or modification.
+* Permission to use, copy, modify, and distribute this software and its
+* documentation is hereby granted, under NXP Semiconductors'
+* relevant copyright in the software, without fee, provided that it
+* is used in conjunction with NXP Semiconductors microcontrollers.  This
+* copyright, permission, and disclaimer notice must appear in all copies of
+* this code.
+**********************************************************************/
+  
+@Example description:
+	Purpose:
+		This example describes how to use USBDEV on LPC18xx to demo the virtual COM port.
+	Process:	           
+		If use USB Port 1, pls set Main Clock to 60Mhz in CGU_Init function       
+			                    
+		The PC will install a virtual COM port on the PC (see Driver Installation).
+		After installation an additional port "LPC18xx USB VCom Port(COMx)"
+		can be found under System/Hardware/Device Manager/Ports(COM&LPT).
+		Number "x" is not fixed as different PC configuration may have different 
+		"x" displayed on the device manager. The USB host driver assigns "x" 
+		dynamically based on the existing COM port configuration of the system.
+		
+		Testing the USB Virtual COM port with serial cable:
+
+  		Open two Hyperterminal windows. 
+      		One with "LPC18xx USB VCom Port(COMx)" 
+      		One with "Communications Port (COM1)".
+  		Connect PC port COM1 to the comport on the board and open "COM1" 
+  		and "COMx". Data from COM1 will be echoed on "COMx" and visa versa. 
+  		So, this is bi-directional communication between the physical COM
+  		port 1 on the board and the virtual COM port COMx on host PC.
+  		By default, COM PORT1 on the board is used for VirtualCOM port test.
+  		
+		
+@Driver Installation:
+     "Welcome to the Found New Hardware Wizard" appears
+     - select 'No, not this time'
+     - press  'Next'
+
+     - select 'Install from a list or specific location (Advanced)'
+     - press  'Next'
+
+     - select 'Search for the best driver in these locations'
+     - check  'include this location in the serach'
+     - set to <project folder>
+     - press 'Next'
+
+     "Hardware Installation" appears
+     "has not passed Windows Logo testing..."
+     - press 'Continue Anyway'
+
+     "Completing the Found New Hardware Wizard" appears
+     - press 'Finish'
+     		
+@Directory contents:
+	\Keil:	includes Keil project and configuration files 	
+	\IAR:	includes IAR project and configuration files
+	cdc.h: USB CDC (Communication Device) Definitions
+	cdcuser.h/.c: USB Communication Device Class User module
+	lpc43xx_libcfg.h: Library configuration file - include needed driver library for this example 
+	serial.h/.c: serial port handling for LPC18xx
+	usb.h:  USB Definitions
+	usbcfg.h: USB Custom Configuration
+	usbcore.h/.c: USB Core Module
+	usbdesc.h/.c: USB Descriptors
+	usbhw.h/.c: SB Hardware Layer Module
+	usbreg.h: USB Hardware Layer Definitions for NXP Semiconductors LPC 
+	usbuser.h/.c: USB Custom User Module
+	vcomdemo.h/.c: main program	
+	makefile: Example's makefile (to build with GNU toolchain)
+	lpc18xx-vom.inf: driver info for VCOM LPC18xx (used when Windows requires install driver)
+
+@How to run:
+	Hardware configuration:		
+		This example was tested only on:
+			Hitex LPC4350 Board
+			U-Link2 on Keil
+			J-Link on IAR
+	Boot mode jumper settings:
+				+ Hitex Flash:
+					Select boot mode jumpers [BOOT4,BOOT3,BOOT2,BOOT1] to [LOW,LOW,HIGH,HIGH]
+				+ SPIFI quad SPI flash (SPIFI 64MB and 128MB):
+					Select boot mode jumpers [BOOT4,BOOT3,BOOT2,BOOT1] to [LOW,LOW,LOW,HIGH]
+
+	
+	Running mode:
+		On Keil
+			Internal SRAM mode:	This example can run on Internal SRAM mode.
+						All files must be build to .elf file, this file will be loaded into Internal SRAM through a
+						debugger tool before running
+			Hitex Flash mode: 	All files must be built to .hex file before burn into flash
+				+ This example can be run on external flash:
+					* SST39X320X:
+						- Burn by Keil's Load feature:
+							a) Copy all things in ..\..\..\Tools\Flash\Keil_Binaries to
+							   C:\Keil\ARM\Flash (Keil uVision 4)
+							b) Open Keil->Configure for flash compiling->Compile->Select debugger->Press LOAD 						
+					SPIFI 64MB Debug mode:
+				+ This example can be run on external SPIFI flash:
+						- Burn by Keil's Load feature:
+							a) Copy all things in ..\..\..\Tools\Flash\Keil_Binaries to
+							   C:\Keil\ARM\Flash (Keil uVision 4)
+							b) Open Keil->Configure for flash compiling->Compile->Select debugger->Press LOAD 
+					SPIFI 128MB mode:
+				+ This example can be run on external SPIFI flash:
+						- Burn by Keil's Load feature:
+							a) Copy all things in ..\..\..\Tools\Flash\Keil_Binaries to
+							   C:\Keil\ARM\Flash (Keil uVision 4)
+							b) Open Keil->Configure for flash compiling->Compile->Select debugger->Press LOADs 						
+
+		On IAR
+			Built the project (F7)
+			Internal SRAM mode: This example can run on Internal SRAM.
+				Download and debug (CTRL + D)
+				Seclect Device Cortex M4 (if any)
+			Hitex Flash mode: This example can run on 
+				Hitex Flash (SST39X320X external parallel flash):
+					Select "Project->Download->Download active application" to burn into flash
+				SPIFI quad SPI flash 128MB mode:
+					Select "Project->Download->Download active application" to burn into flash
+				SPIFI quad SPI flash 64MB Debug mode:
+					Download and debug (CTRL + D)
+	Step to run:
+		- Step 1: Build example (if GNU build "ramusb" target).
+		- Step 3: Configure hardware as above instruction 
+		- Step 4: Run Debug (if GNU, use gdb_ramusb_init.jlink)
+		- Step 5: After see UGL(USB Good Link) led on board turn on, open Device Manager > Ports (COM & LPT)
+				  see if "LPC18xx USB Vcom Port (COMx)" appears or not. 
+		- Step 6: Open one HyperTerminal for COM1 and other for COMx with below configuration:
+					- 9600 bps
+					- 8 data bits
+					- none parity
+					- 1 stop bit
+					- None flow control
+		- Step 7: Sure that you already connected COM1 port on board with PC. Type any character on 
+				one HyperTerminal screen and see this character will be echoed in other screen and vice versa 
+		
+		(Pls see "LPC43xx Example Description" document - chapter "Examples > USBDEV > USBCDC"
+		for more details)
+		
+@Tip:
+	- Open \Keil\*.uvproj project file to run example on Keil
+	- Open \EWARM\*.eww project file to run example on IAR

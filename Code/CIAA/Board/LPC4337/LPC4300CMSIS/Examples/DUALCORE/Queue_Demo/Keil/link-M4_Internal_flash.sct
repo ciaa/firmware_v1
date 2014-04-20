@@ -1,0 +1,116 @@
+; note: this scatter file is much more complicated than it could be
+; this structure is kept for consistency with the flash and spifi versions
+; for which the advanced scatter loading is used
+LR_IRAM 0x1A000000 0x80000  {    
+
+  	; code
+	ER_ROM 0x1A000000 {  
+   		
+		; vector table
+		*.o (RESET, +FIRST)
+
+		; system reset vectors
+		*.o(SYSTEM_RESET_VECTORS) 
+		 
+	 	; used as an alias for the ARM library functions 
+		; (__main, __scatter, __dc, __*region$$Table etc)
+		*(InRoot$$Sections)	 
+		
+		; enable the fpu as soon as possible if present
+		fpu_enable.o(+RO)
+		
+		; the cmsis system init function
+		*.o(CMSIS_SYSTEM_INIT)
+
+		; this code copies the initialization routines in ram
+		; these are needed to change the PLL settings, the EMC settings	etc
+		; are executed from IRAM_SYSTEM_CODE
+		*.o(INIT_CODE_COPY)
+				
+		.ANY (+RO)
+	}
+
+  	; "SystemData_noInit" section  
+	; goes in ram
+	IRAM_SYSTEM_DATA 0x10000000 UNINIT {
+  	
+		system_LPC43xx.o (+RW, +ZI)
+		lpc43xx_cgu.o (+RW, +ZI)			  	
+	}
+	
+	; these are the runtime locations for the initialization routines
+	; which need to be executed from ram
+	ER_IRAM_SYSTEM_CODE +0 UNINIT { 
+
+		system_LPC43xx.o (+RO)
+		lpc43xx_cgu.o (+RO)
+	   	
+		; platform initialization routines which need to run from ram
+		;*.o(IRAM_INIT_CODE)
+
+		; cgu related functions
+		;lpc43xx_cgu.o (+RO)
+		
+	}
+
+	; these functions are used only during startup
+	; eventually this RAM area could be reused during the application's lifetime
+	ER_IRAM_INIT_CODE +0 UNINIT {
+
+	   ; routine for reallocating vector table (not used for ram project)
+	   *(VECTOR_TABLE_COPY +RO)
+	   *(INIT_CODE +RO)
+	   platform_init.o (+RO)
+	}
+	
+	ER_IRAM_DATA_REST +0 {
+	   
+	   	; any other data
+	   	.ANY(+RW)
+	   	.ANY(+ZI)
+	}
+
+
+
+	; setup a heap using default region name for arm lib "ARM_LIB_HEAP"
+	ARM_LIB_HEAP +0 EMPTY 0x100 {  
+
+	}
+
+	; setup the stack using default region name for arm lib "ARM_LIB_STACK" 
+	; is growing backwards so will overlap is no space is available
+	ARM_LIB_STACK 0x10008000 EMPTY -0x400 {	 
+
+	}
+
+	RW_IRAM_BUFFERS 0x20000000 0x4000 { ; rw buffers
+		*.o(lowerToUpper_sec)
+		*.o(reversed_sec)
+		*.o(power3_sec)  	
+  	}
+	
+  	; #define HOST_CMD_BLOCK_START	0x20008000
+  	RW_IRAM_HOST_CMD 0x20008000 0x2000  {
+   		ipc_cmd_buffer.o (cmdBuffer_section, +First)
+  	}
+
+  	;#define HOST_MSG_BLOCK_START	0x2000A000
+  	RW_IRAM_HOST_MSG 0x2000A000 0x2000  {
+   		ipc_msg_buffer.o (msgBuffer_section, +First) 	  
+  }
+}
+
+
+
+LR_IFLASH_BANK2 0x1B000000 0x80000  {  
+
+	M0_APPLICATION 0x1B000000 0x80000 { 
+  	
+		*(M0_SLAVE_IMAGE)
+  	}
+	
+}
+
+
+
+

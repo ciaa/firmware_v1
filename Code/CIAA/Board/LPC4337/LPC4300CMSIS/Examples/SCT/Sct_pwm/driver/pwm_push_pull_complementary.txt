@@ -1,0 +1,111 @@
+---------------------------
+Description
+---------------------------
+
+Static configuration:
+----------------------
+
+the following is the parameter configuration to be used with this PWM
+
+typedef struct PWM_pushPullOutputPair {
+	
+	SCT_OUT directOutput;
+	SCT_OUT complementaryOutput;	
+	
+} PWM_pushPullOutputPair;
+
+typedef struct PWM_pushPullPhases {
+	
+	uint8_t 				numPhases;
+	PWM_pushPullOutputPair* phasePairs; 
+	
+} PWM_pushPullPhases;
+
+typedef struct PWM_ComplementaryPushPull {
+
+	/* which outputs of type SCT_OUT should be steered in the odd period */
+	PWM_pushPullPhases		pwmPhasesOdd;				
+		
+	/* which outputs of type SCT_OUT should be steered in the even period */
+	PWM_pushPullPhases		pwmPhasesEven;				
+
+	/* on which SCT output (internal) the period shall be tracked */
+	/* this signal is reserved and cannot be used for the outputs */
+	SCT_OUT 		oddPeriod;
+	
+	/* which interrupts should be active */	
+	uint16_t  		interruptMask;			
+	
+	/* value in percentage per mil (n/1000) */
+	uint16_t 		dutyCycle;				
+	
+	/* value in Hz */
+	uint32_t 		period;					
+	
+	/* dead band applied on rising edge */
+	uint16_t		risingEdgeDeadband; 	
+	
+	/* dead band applied on rising edge */
+	uint16_t		fallingEdgeDeadband;	
+	
+	/* active high or active low */
+	PWM_polarity	polarity;				
+	
+	/* rising edge, falling edge, period event interrupt callbacks */
+	intCallback_t	risingEdgeInt;			
+	intCallback_t	fallingEdgeInt;		
+	intCallback_t	periodInt;			
+
+} PWM_ComplementaryPushPull;
+
+@pwmPhasesOdd
+@pwmPhasesEven
+	defines which outputs shall be driven on each direct and complementary signal
+	it is a structure including the number of signal pairs, and the structure defining which shall be 
+	paired as direct and complementary outputs.
+	Each output pair in pwmPhasesOdd is driven during odd periods, each output in 
+	pwmPhasesEven is driven in even periods
+
+@oddPeriod
+	internal output signal which is used to track in hardware the even and odd periods. One SCT output
+	signal needs to be reserved for this purpose
+	
+@outputMask
+	defines which outputs shall be driven and is a bit mask, bit zero relates to SCT_OUT0 and 
+	bit 15 to SCT_OUT_16
+
+@interruptMask
+	can take the values RISING_INT, FALLING_INT, PERIOD_INT or an OR combination of them
+
+@ duty cycle
+	is represented in per mil, so 1000 represents 100% duty cycle, 500 represents 50%, 101 represents 
+	10,1% and so on
+
+@ period
+	represents the base frequency in Herz at which the PWM is generated, i.e. the period frequency
+
+@polarity
+	defines if the PWM signal should start active high or low at the beginning of the period
+
+@risingEdgeDeadBand, fallingEdgeDeadBand
+	risingEdgeDeadBand defines the amount of dead band which is inserted between the direct output being switched on / the
+	complementary output being switched off when the rising edge event is fired (beginning of the period)
+	fallingEdgeDeadBand defines the amount of dead band which is inserted between the direct output being switched off / the
+	complementary output being switched on, when the falling edge event is fired
+	These are expressed in timer ticks, so have to be calculated referring to the PWM frequency period (1/period)
+	
+@risingEdgeInt, fallingEdgeInt, periodInt
+	interrupt callback functions related to the event interrupts. In case not used, define them as empty functions. 
+	Otherwise, these are executed in the SCT Interrupt context when the event generates the interrupt. The interrupt does not need
+	to be acknowledged (quit) within the callback function
+
+
+Dynamic configuration:
+----------------------
+
+Using the SCT_pwmIoctl API the user can change (at runtime):
+
+	- the duty cycle using the SET_DC command
+	- the active interrupt mask using the ENABLE_INT command
+	
+	

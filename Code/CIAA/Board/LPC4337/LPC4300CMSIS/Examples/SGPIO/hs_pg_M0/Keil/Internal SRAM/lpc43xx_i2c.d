@@ -1,0 +1,13 @@
+.\Internal SRAM\lpc43xx_i2c.o: ..\..\..\..\Drivers\source\lpc43xx_i2c.c
+.\Internal SRAM\lpc43xx_i2c.o: ..\..\..\..\Drivers\include\lpc43xx_i2c.h
+.\Internal SRAM\lpc43xx_i2c.o: ..\..\..\..\Core\Device\NXP\LPC43xx\Include\lpc43xx.h
+.\Internal SRAM\lpc43xx_i2c.o: ..\..\..\..\Core\CMSIS\Include\core_cm4.h
+.\Internal SRAM\lpc43xx_i2c.o: C:\Keil\ARM\RV31\Inc\stdint.h
+.\Internal SRAM\lpc43xx_i2c.o: ..\..\..\..\Core\CMSIS\Include\core_cmInstr.h
+.\Internal SRAM\lpc43xx_i2c.o: ..\..\..\..\Core\CMSIS\Include\core_cmFunc.h
+.\Internal SRAM\lpc43xx_i2c.o: ..\..\..\..\Core\CMSIS\Include\core_cm4_simd.h
+.\Internal SRAM\lpc43xx_i2c.o: ..\..\..\..\Core\Device\NXP\LPC43xx\Include\system_LPC43xx.h
+.\Internal SRAM\lpc43xx_i2c.o: ..\..\..\..\Drivers\include\lpc_types.h
+.\Internal SRAM\lpc43xx_i2c.o: ..\..\..\..\Drivers\include\lpc43xx_cgu.h
+.\Internal SRAM\lpc43xx_i2c.o: ..\..\..\..\Drivers\include\lpc43xx_scu.h
+.\Internal SRAM\lpc43xx_i2c.o: ..\..\..\..\Drivers\include\lpc43xx_libcfg_default.h

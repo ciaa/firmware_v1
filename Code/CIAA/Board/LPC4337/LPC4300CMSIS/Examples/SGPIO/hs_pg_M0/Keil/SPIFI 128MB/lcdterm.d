@@ -1,0 +1,16 @@
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Drivers\source\LCDTerm.c
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Drivers\include\lpc43xx_ssp.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Core\Device\NXP\LPC43xx\Include\lpc43xx.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Core\CMSIS\Include\core_cm4.h
+.\SPIFI 128MB\lcdterm.o: C:\Keil\ARM\RV31\Inc\stdint.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Core\CMSIS\Include\core_cmInstr.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Core\CMSIS\Include\core_cmFunc.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Core\CMSIS\Include\core_cm4_simd.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Core\Device\NXP\LPC43xx\Include\system_LPC43xx.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Drivers\include\lpc_types.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Drivers\include\lpc43xx_scu.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Drivers\include\lpc43xx_cgu.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Drivers\include\debug_frmwrk.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Drivers\include\lpc43xx_uart.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Drivers\include\lpc43xx_gpio.h
+.\SPIFI 128MB\lcdterm.o: ..\..\..\..\Drivers\include\LCDTerm.h

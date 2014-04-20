@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StateMachine>
+<Global key="Name" value="traffic_light"/>
+<Global key="Header in sct_user.h" value="LPC43xx.h"/>
+<Global key="Main output file" value="traffic_light.smd"/>
+<Input IMemento.internal.id="SmInput" Name="CROSS_REQUEST" Permissions="6" Source="CTIN_0" Type="0"/>
+<Input IMemento.internal.id="SmInput" Name="Input pin 1" Permissions="6" Source="CTIN_1" Type="0"/>
+<Input IMemento.internal.id="SmInput" Name="Input pin 2" Permissions="6" Source="CTIN_2" Type="0"/>
+<Input IMemento.internal.id="SmInput" Name="Input pin 3" Permissions="6" Source="CTIN_3" Type="0"/>
+<Input IMemento.internal.id="SmInput" Name="Input pin 4" Permissions="6" Source="CTIN_4" Type="0"/>
+<Input IMemento.internal.id="SmInput" Name="Input pin 5" Permissions="6" Source="CTIN_5" Type="0"/>
+<Input IMemento.internal.id="SmInput" Name="Input pin 6" Permissions="6" Source="CTIN_6" Type="0"/>
+<Input IMemento.internal.id="SmInput" Name="Input pin 7" Permissions="6" Source="CTIN_7" Type="0"/>
+<Input IMemento.internal.id="SmInput" Name="yellow_on_value" Permissions="0" Source="8238" Type="6"/>
+<Input IMemento.internal.id="SmInput" Name="yellow_off_value" Permissions="0" Source="8238" Type="6"/>
+<Input IMemento.internal.id="SmInput" Name="pedestrian_walk_value" Permissions="0" Source="16746" Type="6"/>
+<Input IMemento.internal.id="SmInput" Name="pedestrian_stop_value" Permissions="0" Source="8238" Type="6"/>
+<Input IMemento.internal.id="SmInput" Name="cross_timeout_value" Permissions="0" Source="2746" Type="6"/>
+<Input IMemento.internal.id="SmInput" Name="red_on_value" Permissions="0" Source="8238" Type="6"/>
+<Input IMemento.internal.id="SmInput" Name="red_off_value" Permissions="0" Source="8238" Type="6"/>
+<Input IMemento.internal.id="SmInput" Name="yellow_on" Permissions="0" Source="yellow_on_value" Type="7"/>
+<Input IMemento.internal.id="SmInput" Name="yellow_off" Permissions="0" Source="yellow_off_value" Type="7"/>
+<Input IMemento.internal.id="SmInput" Name="red_on" Permissions="0" Source="red_on_value" Type="7"/>
+<Input IMemento.internal.id="SmInput" Name="red_off" Permissions="0" Source="red_off_value" Type="7"/>
+<Input IMemento.internal.id="SmInput" Name="pedestrian_walk" Permissions="0" Source="pedestrian_walk_value" Type="7"/>
+<Input IMemento.internal.id="SmInput" Name="pedestrian_stop" Permissions="0" Source="pedestrian_stop_value" Type="7"/>
+<Input IMemento.internal.id="SmInput" Name="cross_timeout" Permissions="0" Source="cross_timeout_value" Type="8"/>
+<Output IMemento.internal.id="SmOutput" Name="Output pin 0" Permissions="6" Source="CTOUT_0" Type="0"/>
+<Output IMemento.internal.id="SmOutput" Name="Output pin 1" Permissions="6" Source="CTOUT_1" Type="0"/>
+<Output IMemento.internal.id="SmOutput" Name="GREEN_N" Permissions="6" Source="CTOUT_2" Type="0" preload="FALSE"/>
+<Output IMemento.internal.id="SmOutput" Name="RED_N" Permissions="6" Source="CTOUT_3" Type="0" preload="TRUE"/>
+<Output IMemento.internal.id="SmOutput" Name="BLUE_N" Permissions="6" Source="CTOUT_4" Type="0" preload="TRUE"/>
+<Output IMemento.internal.id="SmOutput" Name="REQUEST" Permissions="6" Source="CTOUT_5" Type="0" preload="FALSE"/>
+<Output IMemento.internal.id="SmOutput" Name="AUTO_CROSS" Permissions="6" Source="CTOUT_6" Type="0"/>
+<Output IMemento.internal.id="SmOutput" Name="Output pin 7" Permissions="6" Source="CTOUT_7" Type="0"/>
+<Output IMemento.internal.id="SmOutput" Name="Output pin 8" Permissions="6" Source="CTOUT_8" Type="0"/>
+<Output IMemento.internal.id="SmOutput" Name="Output pin 9" Permissions="6" Source="CTOUT_9" Type="0"/>
+<Output IMemento.internal.id="SmOutput" Name="Output pin 10" Permissions="6" Source="CTOUT_10" Type="0"/>
+<Output IMemento.internal.id="SmOutput" Name="Output pin 11" Permissions="6" Source="CTOUT_11" Type="0"/>
+<Output IMemento.internal.id="SmOutput" Name="Output pin 12" Permissions="6" Source="CTOUT_12" Type="0"/>
+<Output IMemento.internal.id="SmOutput" Name="Output pin 13" Permissions="6" Source="CTOUT_13" Type="0"/>
+<Output IMemento.internal.id="SmOutput" Name="Output pin 14" Permissions="6" Source="CTOUT_14" Type="0"/>
+<Output IMemento.internal.id="SmOutput" Name="Output pin 15" Permissions="6" Source="CTOUT_15" Type="0"/>
+<Output IMemento.internal.id="SmOutput" Name="Limit unified counter" Permissions="6" Source="U_LIMIT" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="Start unified counter" Permissions="6" Source="U_START" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="Stop unified counter" Permissions="6" Source="U_STOP" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="Halt unified counter" Permissions="6" Source="U_HALT" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="Limit low counter" Permissions="6" Source="L_LIMIT" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="Start low counter" Permissions="6" Source="L_START" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="Stop low counter" Permissions="6" Source="L_STOP" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="Halt low counter" Permissions="6" Source="L_HALT" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="Limit high counter" Permissions="6" Source="H_LIMIT" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="Start high counter" Permissions="6" Source="H_START" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="Stop high counter" Permissions="6" Source="H_STOP" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="Halt high counter" Permissions="6" Source="H_HALT" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="DMA0name" Permissions="6" Source="DMA0" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="DMA1name" Permissions="6" Source="DMA1" Type="2"/>
+<Output IMemento.internal.id="SmOutput" Name="crossingTimeout" Permissions="6" Source="IRQ" Type="2"/>
+<State h="60" name="L_ENTRY" w="96" x="92" y="145"/>
+<State h="64" name="H_ENTRY" w="124" x="60" y="468"/>
+<State h="46" name="GREEN_ON_State" w="96" x="345" y="32"/>
+<State h="69" name="YELLOW_ON_State" w="127" x="738" y="83"/>
+<State h="64" name="RED_ON_State" w="93" x="798" y="371"/>
+<State h="67" name="WALK_State" w="123" x="434" y="469"/>
+<Action description="" name="setGreen" numElements="0"/>
+<Action description="" name="setYellow" numElements="3">
+<ActionElement name="Limit low counter" op="2" order="1"/>
+<ActionElement name="GREEN_N" op="0" order="2"/>
+<ActionElement name="RED_N" op="0" order="3"/>
+</Action>
+<Action description="" name="setWalk" numElements="3">
+<ActionElement name="BLUE_N" op="0" order="1"/>
+<ActionElement name="RED_N" op="0" order="2"/>
+<ActionElement name="Limit low counter" op="2" order="3"/>
+</Action>
+<Action description="" name="clrWalk" numElements="3">
+<ActionElement name="BLUE_N" op="1" order="1"/>
+<ActionElement name="REQUEST" op="0" order="2"/>
+<ActionElement name="Limit low counter" op="2" order="3"/>
+</Action>
+<Action description="" name="clrYellow" numElements="6">
+<ActionElement name="GREEN_N" op="0" order="1"/>
+<ActionElement name="RED_N" op="1" order="2"/>
+<ActionElement name="Limit low counter" op="2" order="3"/>
+<ActionElement name="Limit high counter" op="2" order="4"/>
+<ActionElement name="Start high counter" op="2" order="5"/>
+<ActionElement name="AUTO_CROSS" op="0" order="6"/>
+</Action>
+<Action description="" name="autoCross_action" numElements="4">
+<ActionElement name="GREEN_N" op="0" order="1"/>
+<ActionElement name="Limit low counter" op="2" order="2"/>
+<ActionElement name="REQUEST" op="1" order="3"/>
+<ActionElement name="crossingTimeout" op="2" order="4"/>
+</Action>
+<Action description="" name="crossRequest_action" numElements="3">
+<ActionElement name="Limit low counter" op="2" order="1"/>
+<ActionElement name="REQUEST" op="1" order="2"/>
+<ActionElement name="GREEN_N" op="0" order="3"/>
+</Action>
+<Action description="" name="crossTimeout_action" numElements="2">
+<ActionElement name="Stop high counter" op="2" order="1"/>
+<ActionElement name="AUTO_CROSS" op="1" order="2"/>
+</Action>
+<Action description="" name="setRed" numElements="3">
+<ActionElement name="GREEN_N" op="1" order="1"/>
+<ActionElement name="RED_N" op="0" order="2"/>
+<ActionElement name="Limit low counter" op="2" order="3"/>
+</Action>
+<Action description="" name="clrRed" numElements="3">
+<ActionElement name="GREEN_N" op="0" order="1"/>
+<ActionElement name="RED_N" op="0" order="2"/>
+<ActionElement name="Limit low counter" op="2" order="3"/>
+</Action>
+<SmLogical IMemento.internal.id="SmSignal" SML_DESC="" SML_NAME="auto_cross_sig">
+<SmLogical IMemento.internal.id="SmLogicalBool" IOTYPE="1" SML_NAME="AUTO_CROSS" SML_TYPE="2"/>
+</SmLogical>
+<SmLogical IMemento.internal.id="SmSignal" SML_DESC="" SML_NAME="cross_req_sig">
+<SmLogical IMemento.internal.id="SmLogicalBool" IOTYPE="0" SML_NAME="CROSS_REQUEST" SML_TYPE="2"/>
+</SmLogical>
+<SmLogical IMemento.internal.id="SmSignal" SML_DESC="" SML_NAME="cross_timeout_sig">
+<SmLogical IMemento.internal.id="SmLogicalBool" IOTYPE="0" SML_NAME="cross_timeout" SML_TYPE="1"/>
+</SmLogical>
+<SmLogical IMemento.internal.id="SmSignal" SML_DESC="" SML_NAME="turn_yellow_on_sig">
+<SmLogical IMemento.internal.id="SmLogicalBool" IOTYPE="0" SML_NAME="yellow_on" SML_TYPE="1"/>
+</SmLogical>
+<SmLogical IMemento.internal.id="SmSignal" SML_DESC="" SML_NAME="turn_red_on_sig">
+<SmLogical IMemento.internal.id="SmLogicalBinOp" SML_TYPE="1">
+<SML_ARG1 IMemento.internal.id="SmLogicalBool" IOTYPE="0" SML_NAME="red_on" SML_TYPE="1"/>
+<SML_ARG2 IMemento.internal.id="SmLogicalBool" IOTYPE="1" SML_NAME="REQUEST" SML_TYPE="1"/>
+</SmLogical>
+</SmLogical>
+<SmLogical IMemento.internal.id="SmSignal" SML_DESC="" SML_NAME="pedestrian_walk_sig">
+<SmLogical IMemento.internal.id="SmLogicalBinOp" SML_TYPE="1">
+<SML_ARG1 IMemento.internal.id="SmLogicalBool" IOTYPE="0" SML_NAME="pedestrian_walk" SML_TYPE="1"/>
+<SML_ARG2 IMemento.internal.id="SmLogicalBool" IOTYPE="1" SML_NAME="REQUEST" SML_TYPE="1"/>
+</SmLogical>
+</SmLogical>
+<SmLogical IMemento.internal.id="SmSignal" SML_DESC="" SML_NAME="pedestrian_stop_sig">
+<SmLogical IMemento.internal.id="SmLogicalBool" IOTYPE="0" SML_NAME="pedestrian_stop" SML_TYPE="1"/>
+</SmLogical>
+<SmLogical IMemento.internal.id="SmSignal" SML_DESC="" SML_NAME="turn_red_off_sig">
+<SmLogical IMemento.internal.id="SmLogicalBinOp" SML_TYPE="1">
+<SML_ARG1 IMemento.internal.id="SmLogicalBool" IOTYPE="0" SML_NAME="red_off" SML_TYPE="1"/>
+<SML_ARG2 IMemento.internal.id="SmLogicalBool" IOTYPE="1" SML_NAME="REQUEST" SML_TYPE="0"/>
+</SmLogical>
+</SmLogical>
+<SmLogical IMemento.internal.id="SmSignal" SML_DESC="" SML_NAME="turn_yellow_off_sig">
+<SmLogical IMemento.internal.id="SmLogicalBinOp" SML_TYPE="1">
+<SML_ARG1 IMemento.internal.id="SmLogicalBool" IOTYPE="0" SML_NAME="yellow_off" SML_TYPE="1"/>
+<SML_ARG2 IMemento.internal.id="SmLogicalBool" IOTYPE="1" SML_NAME="REQUEST" SML_TYPE="0"/>
+</SmLogical>
+</SmLogical>
+<Transition action="crossRequest_action" current="L_ENTRY" h="75" next="GREEN_ON_State" priority="0" signal="cross_req_sig" w="131" x="102" y="30">
+<curve num="1">
+<point d1x="142" d1y="-78" d2x="-207" d2y="42" index="0" weight="0.5"/>
+</curve>
+</Transition>
+<Transition action="autoCross_action" current="L_ENTRY" h="90" next="GREEN_ON_State" priority="0" signal="auto_cross_sig" w="131" x="304" y="122">
+<curve num="1">
+<point d1x="173" d1y="-43" d2x="-122" d2y="68" index="0" weight="0.5"/>
+</curve>
+</Transition>
+<Transition action="crossTimeout_action" current="H_ENTRY" h="60" next="H_ENTRY" priority="0" signal="cross_timeout_sig" w="133" x="65" y="362">
+<curve num="3">
+<point d1x="0" d1y="-64" d2x="0" d2y="-64" index="0" weight="0.5"/>
+<point d1x="-37" d1y="-61" d2x="-37" d2y="-61" index="1" weight="0.5"/>
+<point d1x="-42" d1y="-38" d2x="-42" d2y="-38" index="2" weight="0.5"/>
+</curve>
+</Transition>
+<Transition action="setYellow" current="GREEN_ON_State" h="75" next="YELLOW_ON_State" priority="0" signal="turn_yellow_on_sig" w="131" x="560" y="118">
+<curve num="1">
+<point d1x="117" d1y="64" d2x="-183" d2y="-40" index="0" weight="0.5"/>
+</curve>
+</Transition>
+<Transition action="setRed" current="YELLOW_ON_State" h="75" next="RED_ON_State" priority="0" signal="turn_red_on_sig" w="131" x="884" y="26">
+<curve num="2">
+<point d1x="96" d1y="-4" d2x="68" d2y="-292" index="0" weight="0.5"/>
+<point d1x="128" d1y="68" d2x="74" d2y="-218" index="1" weight="0.5"/>
+</curve>
+</Transition>
+<Transition action="clrYellow" current="YELLOW_ON_State" h="120" next="L_ENTRY" priority="0" signal="turn_yellow_off_sig" w="148" x="290" y="273">
+<curve num="3">
+<point d1x="-194" d1y="134" d2x="416" d2y="86" index="0" weight="0.5"/>
+<point d1x="-534" d1y="138" d2x="76" d2y="90" index="1" weight="0.5"/>
+<point d1x="-617" d1y="95" d2x="-7" d2y="47" index="2" weight="0.5"/>
+</curve>
+</Transition>
+<Transition action="setWalk" current="RED_ON_State" h="75" next="WALK_State" priority="0" signal="pedestrian_walk_sig" w="176" x="795" y="484">
+<curve num="2">
+<point d1x="-96" d1y="91" d2x="273" d2y="44" index="0" weight="0.5"/>
+<point d1x="-202" d1y="97" d2x="110" d2y="26" index="1" weight="0.5"/>
+</curve>
+</Transition>
+<Transition action="clrRed" current="RED_ON_State" h="75" next="YELLOW_ON_State" priority="0" signal="turn_red_off_sig" w="131" x="664" y="292">
+<curve num="1">
+<point d1x="-61" d1y="-157" d2x="-33" d2y="131" index="0" weight="0.5"/>
+</curve>
+</Transition>
+<Transition action="clrWalk" current="WALK_State" h="75" next="RED_ON_State" priority="0" signal="pedestrian_stop_sig" w="131" x="495" y="361">
+<curve num="1">
+<point d1x="149" d1y="-38" d2x="-220" d2y="9" index="0" weight="0.5"/>
+</curve>
+</Transition>
+<SmSpecification IMemento.internal.id="SmSCTv1" isUnified="false"/>
+</StateMachine>

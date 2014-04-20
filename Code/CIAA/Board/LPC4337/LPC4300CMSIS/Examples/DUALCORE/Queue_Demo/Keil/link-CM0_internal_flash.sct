@@ -1,0 +1,49 @@
+
+; M0 image uses local addresses
+; absolute addresses are used only for shared buffers
+LR_IROM1 0x0  0x80000  {    ; load region size_region
+
+  	; physical address 0x1B000000 - 0x1B080000
+	; 512K code space
+	ER_IROM1 0x0 0x80000  {  
+   
+   		*.o (RESET, +First)
+   		*(InRoot$$Sections)		   
+   		.ANY (+RO)
+	}
+
+  	; physical address 0x10088000 - 0x1008A000
+	; 40 K data space
+	ER_IRAM1 0x10080000	0xA000 { 
+   		.ANY (+RW +ZI)
+	}
+
+
+	; setup a heap using default region name for arm lib "ARM_LIB_HEAP"
+	ARM_LIB_HEAP +0 EMPTY 0x400 {  
+
+	}
+
+	; setup the stack using default region name for arm lib "ARM_LIB_STACK" 
+	; is growing backwards so will overlap is no space is available
+	ARM_LIB_STACK 0x1008A000 EMPTY -0x800 {	 
+
+	}
+
+   	; these are specified with the physical address since are system level shared memory
+	ER_IRAM_BUFFERS 0x20004000 	0x4000 {
+		*.o(lowerCaseString_sec)
+		*.o(directString_sec)
+	}
+	
+	ER_IRAM_MBX 0x2000A000 0x2000 {
+   		*.o(Slave_mbxTable) 	; hold the mailbox system	
+	}
+}
+
+
+
+
+
+
+

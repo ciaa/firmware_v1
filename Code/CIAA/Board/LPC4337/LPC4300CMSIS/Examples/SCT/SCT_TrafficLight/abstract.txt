@@ -1,0 +1,106 @@
+/**********************************************************************
+* $Id$		abstract.txt		2012-04-19
+*//**
+* @file		abstract.txt
+* @brief	Example description file
+* @version	1.1
+* @date		19. Apr. 2012
+* @author	NXP MCU SW Application Team
+*
+* Copyright(C) 2011, NXP Semiconductor
+* All rights reserved.
+*
+***********************************************************************
+* Software that is described herein is for illustrative purposes only
+* which provides customers with programming information regarding the
+* products. This software is supplied "AS IS" without any warranties.
+* NXP Semiconductors assumes no responsibility or liability for the
+* use of the software, conveys no license or title under any patent,
+* copyright, or mask work right to the product. NXP Semiconductors
+* reserves the right to make changes in the software without
+* notification. NXP Semiconductors also make no representation or
+* warranty that such application will be suitable for the specified
+* use without further testing or modification.
+* Permission to use, copy, modify, and distribute this software and its
+* documentation is hereby granted, under NXP Semiconductors'
+* relevant copyright in the software, without fee, provided that it
+* is used in conjunction with NXP Semiconductors microcontrollers.  This
+* copyright, permission, and disclaimer notice must appear in all copies of
+* this code.
+**********************************************************************/
+  
+@Example description:
+
+	Purpose:
+		This example describes how to use the SCT (State Configurable
+		Timer) to implement a simple traffic light.
+
+	Process:
+
+		Install the SCT tools from www.lpcware.com and read the user guide and the 
+		getting started guide to understand how to use Fizzim for generating the SCT
+		 C code file (and integrate it into an IDE, for example into Keil uVision).
+		User guide and getting started guide are available within the SCt tools package.
+
+		- Configure SCT
+		- Go to sleep
+		- SCT continues to run and handles all buttons and LEDs
+		- SCT IRQ is used to calculate next random period for the automatic cross button
+					
+@Directory contents:
+	
+	includes Keil project and configuration files  
+	sct_fsm.c: SCT configuration
+	libcfg.h: Library configuration file - include needed driver library for this example 
+	SCT_TrafficLight.c: Main program
+
+@How to run:
+
+	Hardware configuration:		
+
+		This example was tested on:
+			Hitex LPC4350 Board
+						
+	Running mode: This example can run on RAM, external parallel flash, and SPIFI quad SPI flash.
+
+		RAM mode: 
+
+
+		ROM mode: 	All files must be built to .hex file before burn into flash
+		
+			+ Copy all things in ..\..\..\Tools\Flash\Keil_Binaries to
+				C:\Keil\ARM\Flash (Keil uVision 4)
+
+			* SST39X320X:
+				
+				- Select boot mode jumpers BOOT[4..1] to [LOW,LOW,LOW,LOW]	
+				- Burn flash using Keil load feature (load button)
+				- Select boot mode jumpers BOOT[4..1] to [LOW,LOW,HIGH,HIGH] to boot from NOR flash
+												
+			* SPIFI 64Mb Flash
+			 
+			 	- Select boot mode jumpers BOOT[4..1] to [LOW,LOW,LOW,LOW]	
+				- Burn flash using Keil load feature (load button)
+				- Select boot mode jumpers BOOT[4..1] to [LOW,LOW,LOW,HIGH] to boot from SPIFI and reset  						
+
+
+	Step to run:
+
+		- Step 1: Build example.
+		- Step 2: Burn hex file into board (if run on ROM mode)
+		- Step 3: Connect JP13 pin 1 with connector X19  pin2 to provide the external clock to the SCT
+		- Step 4: (optional) connect a user button to the CTIN0 pin (pin 1 on connector X19) to implement
+				  the pedestrian cross request button. 
+				  Either this button input, or a random timeout, will trigger the crossing sequence on the SCT
+				  This implies the example will run even without connecting an external button
+		- Step 5: Run example and observe the traffic light showing green. After pressing the button, 
+				  or after a random	timeout, the light will switch to yellow, then red. 
+				  The pedestrian walk light used is the blue led, which will show as "blueish" since 
+				  the red led will still be turned on.
+				  After the pedestrian led has turned off, the light sequence will roll back to the original state.
+		
+@Tip:
+	- Open \Keil\*.uvproj project file to run example on Keil
+	- refer to 	pedestrian tlight.png for a picture of the state machine setup
+
+

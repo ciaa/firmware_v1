@@ -1,0 +1,149 @@
+
+; the first 4 Mbyte chunk of SPIFI flash 
+LR_SPIFI_0_32MB 0x14000000 0x400000 {    
+
+  	; the table of reset vectors goes here
+	ER_FLASH_ROM_RESET_VECTOR_TABLE 0x14000000 {  
+   		*.o (RESET, +FIRST) 
+	}
+	
+	; this holds all code which needs to be available at boot
+	ER_FLASH_ROM_RESET_VECTOR +0 {			 
+	  		
+	 	; used as an alias for the ARM library functions 
+		; (__main, __scatter, __dc, __*region$$Table etc)
+		*(InRoot$$Sections)	 
+
+		; system reset vectors
+		*.o(SYSTEM_RESET_VECTORS) 
+				
+		; the cmsis system init function
+		*.o(CMSIS_SYSTEM_INIT)
+
+		; scu is used for pinmux 
+		lpc43xx_scu.o (+RO)
+
+		; enable the fpu as soon as possible if present
+		fpu_enable.o(+RO)
+		
+		; platform initialization function
+		platform_init.o(+RO)
+
+		; this code copies the initialization routines in ram
+		; these are needed to change the PLL settings, the EMC settings
+		; are executed from ER_IRAM_SYSTEM_CODE, ER_IRAM_BOOT_CODE 
+		*.o(INIT_CODE_COPY)
+
+		; routine for reallocating vector table (not used for ram project)
+	   	*.o(VECTOR_TABLE_COPY)
+  	}
+	
+  	; this region includes just the relocated vector table
+  	; 68 interrupt vectors @ 4 bytes each
+	; note: the vector table always needs to be aligned-up to a power of two
+	; for LPC4350 is 512 bytes 
+	; 53 user + 16 system = 69 int vectors, 69 * 4 = 276 bytes > round up to 512
+  	ER_IRAM_VECTOR_TABLE 0x10000000 UNINIT  {
+    	; reserved for the relocated irq vector table
+    	* (IRAM_ISR_TABLE)
+  	}
+
+	; these are the runtime locations for the initialization routines
+	; which need to be executed from ram
+	IRAM_SYSTEM_CODE +0 { 
+
+	   	; platform initialization routines which need to run from ram
+		*.o(IRAM_INIT_CODE)
+
+		; cgu related functions
+		lpc43xx_cgu.o (+RO)
+
+		; spifi related functions
+		spifi_rom_api.o (+RO) 
+		amic.o (+RO)
+		atmel.o (+RO)
+		chi.o (+RO)
+		eon.o (+RO)
+		esmt.o (+RO)
+		giga.o (+RO)
+		macronix.o (+RO)
+		numonyx.o (+RO)
+		spansion.o (+RO)
+		sst.o (+RO)
+		winbond.o (+RO)
+		memseta.o (+RO)
+		memcpya.o (+RO)		 
+		
+	}
+
+	ER_IRAM_DATA_REST +0 {
+
+	   	; any other data
+	   	.ANY(+RW)
+	   	.ANY(+ZI)
+	}
+
+	; "SystemData_noInit" section  
+	; this section is marked as UNINIT to avoid uLib re-initializing it
+	; during the __main() library call
+	; the global initialized and zero-initialized variables are configured by
+	; the application code
+	IRAM_SYSTEM_DATA +0 UNINIT {
+  	
+		*.o(IRAM_SYSTEM_DATA)
+	}
+
+}
+
+; second 16 Mbit chunk of SPIFI flash (4Mbyte)
+LR_SPIFI_32_64MB 0x14400000 400000 {
+
+	; place M0 image here
+	ER_M0_SLAVE_IMAGE 0x14400000 {
+	
+		*(M0_SLAVE_IMAGE) 
+	}
+
+	; anything else
+	ER_FLASH_REST +0 UNINIT {
+
+		.ANY (+RO)	 
+	}
+
+	; any RW data after first 16K
+	RW_IRAM_REST 0x10004000 {  
+
+		.ANY (+RW +ZI)
+
+  	}
+
+	; setup a heap using default region name for arm lib "ARM_LIB_HEAP"
+	ARM_LIB_HEAP +0 EMPTY 0x100 {  
+
+	}
+
+	; setup the stack using default region name for arm lib "ARM_LIB_STACK" 
+	; is growing backwards so will overlap if no space is available
+	ARM_LIB_STACK 0x10018000 EMPTY -0x400 {	 
+
+	}
+
+	; #define M4_BUF_START	0x20000000
+	; #define M4_BUF_LEN		0x4000
+  	RW_IRAM_BUFFERS 0x20000000 0x4000 { ; rw buffers
+		*.o(lowerToUpper_sec)
+		*.o(reversed_sec)
+		*.o(power3_sec) 
+
+  	}
+
+	; #define M4_MBX_START	0x20008000
+	; #define M4_MBX_LEN		0x2000
+	RW_IRAM_MBX 0x20008000 0x2000  {
+
+		*.o(Master_mbxTable)
+  } 
+
+
+}
+

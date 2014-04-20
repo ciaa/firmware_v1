@@ -1,0 +1,25 @@
+; memory map assignment
+; check with platform_config.h header
+; check the ranges
+LR_IROM1 0x10000000 0x10000  {    ; load region size_region
+
+  ER_IROM1 0x10000000 0x10000  {  ; load address = execution address
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+
+  RW_IRAM1 0x10010000 0x8000  {  ; RW data
+   .ANY (+RW +ZI)
+  }
+
+  RW_IRAM_BUFFERS 0x20000000 0x4000 { ; rw buffers
+  }
+
+}
+
+
+
+
+
+

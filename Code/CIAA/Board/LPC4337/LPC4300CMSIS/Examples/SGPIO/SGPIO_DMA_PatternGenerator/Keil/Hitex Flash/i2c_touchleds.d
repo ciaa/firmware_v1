@@ -1,0 +1,16 @@
+.\Hitex Flash\i2c_touchleds.o: ..\I2c_TouchLEDs.c
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Drivers\include\lpc43xx_i2c.h
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Core\Device\NXP\LPC43xx\Include\lpc43xx.h
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Core\CMSIS\Include\core_cm4.h
+.\Hitex Flash\i2c_touchleds.o: C:\Keil\ARM\RV31\Inc\stdint.h
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Core\CMSIS\Include\core_cmInstr.h
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Core\CMSIS\Include\core_cmFunc.h
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Core\CMSIS\Include\core_cm4_simd.h
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Core\Device\NXP\LPC43xx\Include\system_LPC43xx.h
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Drivers\include\lpc_types.h
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Drivers\include\lpc43xx_cgu.h
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Drivers\include\lpc43xx_gpio.h
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Drivers\include\lpc43xx_scu.h
+.\Hitex Flash\i2c_touchleds.o: ..\lpc43xx_libcfg.h
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Drivers\include\debug_frmwrk.h
+.\Hitex Flash\i2c_touchleds.o: ..\..\..\..\Drivers\include\lpc43xx_uart.h
