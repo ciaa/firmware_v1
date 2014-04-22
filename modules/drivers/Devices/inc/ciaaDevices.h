@@ -54,6 +54,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140422 v0.0.2 EzEs initial version
  * 20140420 v0.0.1 EzEs initial version
  */
 
@@ -70,9 +71,15 @@
  **/
 typedef enum
 {
-	ciaaDevices_EStatus_Open = 0,   /** < Device is open */
-	ciaaDevices_EStatus_Close = 1   /** < Device is close */
+	ciaaDevices_EStatus_Open = 0,    /** < Device is open */
+	ciaaDevices_EStatus_Close = 1,   /** < Device is close */
+	ciaaDevices_EStatus_Error = 2    /** < Device is open with errors */
 } ciaaDevices_Enum_Status;
+
+typedef enum
+{
+	ciaaDevices_EMode_ReadOnly = 0
+} ciaaDevices_Enum_Mode;
 
 /*==================[external data declaration]==============================*/
 /** \brief UART1 Device
@@ -90,10 +97,6 @@ extern char const * const ciaaDevices_UART2;
  **/
 extern char const * const ciaaDevices_I2C1;
 
-/** \brief TODO?
- **
- **/
-extern ciaaDevices_Enum_Status ciaaDevices_EStatus;
 
 /*==================[external functions declaration]=========================*/
 

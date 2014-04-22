@@ -56,10 +56,12 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140422 v0.0.2 EzEs initial version
  * 20140420 v0.0.1 EzEs initial version
  */
 
 /*==================[inclusions]=============================================*/
+#include <stdint.h>
 
 /*==================[macros]=================================================*/
 
@@ -68,6 +70,12 @@
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+
+int32_t ciaaUART_open (const char* pathName, int32_t flags);
+int32_t ciaaUART_close (int32_t fd);
+int32_t ciaaUART_ioctl (int32_t fd, int32_t arg, uint32_t size);
+int32_t ciaaUART_read (int32_t fd, uint8_t* buffer, uint32_t size);
+int32_t ciaaUART_write (int32_t fd, uint8_t* buffer, uint32_t size);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

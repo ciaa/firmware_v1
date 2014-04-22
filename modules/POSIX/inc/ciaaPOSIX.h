@@ -54,14 +54,22 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140422 v0.0.2 EzEs initial version
  * 20140420 v0.0.1 EzEs initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaDevices.h"
 #include "ciaaMemory.h"
+#include "ciaaErrorsCodeSystem.h"
+#include "ciaaMessagesCodeSystem.h"
+
+#include "ciaaUART.h"
 
 /*==================[macros]=================================================*/
+/** \brief Max devices available
+ **/
+#define ciaaPOSIX_MACRO_MaxDevices 				100
 
 /*==================[typedef]================================================*/
 /** \brief TODO
@@ -70,39 +78,45 @@
 typedef struct
 {
 	int32_t fd;
-	ciaaDevices_EStatus status;
+	char const * name;
+	ciaaDevices_Enum_Status status;
 	int32_t (*pOpen) (const char* pathName, int32_t flags);
 	int32_t (*pClose) (int32_t fd);
 	int32_t (*pIoctl) (int32_t fd, int32_t arg, uint32_t size);
 	int32_t (*pRead) (int32_t fd, uint8_t* buffer, uint32_t size);
 	int32_t (*pWrite) (int32_t fd, uint8_t* buffer, uint32_t size);
 	void* data;
-} ciaaPOSIX_TBase;
+} ciaaPOSIX_Type_Base;
 
-// TODO implement a generic list container
-// TODO move list definition and methods to System/Resources/ciaaGenericList.h
-struct ciaaPOSIX_Type_DeviceNode
+/** \brief ciaaPOSIX errors enum
+ ** Minimum allowed number: -1
+ ** Maximum allowed number: -1000
+ **/
+typedef enum
 {
-	struct ciaaPOSIX_Type_DeviceNode* pNext;
-	ciaaPOSIX_TBase* pData;
-};
-typedef struct ciaaPOSIX_TDeviceNode;
+	ciaaPOSIX_Enum_Errors_DeviceAlreadyOpen = ciaaPOSIX_MACRO_MinErrorCode,
+	ciaaPOSIX_Enum_Errors_DeviceNotAllocated = ciaaPOSIX_MACRO_MinErrorCode - 1,
+	ciaaPOSIX_Enum_Errors_BadFileDescriptor = ciaaPOSIX_MACRO_MinErrorCode - 2
+}; ciaaPOSIX_Enum_Errors;
 
-struct ciaaPOSIX_Type_DeviceList
+/** \brief ciaaPOSIX return message codes
+ ** Minimum allowed number: 1
+ ** Maximum allowed number: 1000
+ **/
+typedef enum
 {
-	ciaaPOSIX_Type_DeviceNode* pFirs;
-	uint32_t size;
-};
-typedef struct ciaaPOSIX_Type_DeviceList ciaaPOSIX_TDeviceList;
-
+	ciaaPOSIX_Enum_Messages_Example = ciaaPOSIX_MACRO_MinMessageCode,
+}; ciaaPOSIX_Enum_Messages;
 
 /*==================[external data declaration]==============================*/
 /** \brief List of posix devices
  **
  **/
-extern ciaaPOSIX_TDeviceList ciaaPOSIX_devices;
+extern ciaaPOSIX_Type_Base* ciaaPOSIX_devicesArray [];
+extern uint32_t ciaaPOSIX_devicesArraySize;
 
 /*==================[external functions declaration]=========================*/
+extern void ciaaPOSIX_init ();
 extern int32_t ciaaPOSIX_open (const char* pathName, int32_t flags);
 extern int32_t ciaaPOSIX_close (int32_t fd);
 extern int32_t ciaaPOSIX_ioctl (int32_t fd, int32_t arg, void* param);

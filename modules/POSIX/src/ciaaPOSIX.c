@@ -51,6 +51,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140422 v0.0.2 EzEs initial version
  * 20140420 v0.0.1 EzEs initial version
  */
 
@@ -67,57 +68,117 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-ciaaPOSIX_TDeviceList ciaaPOSIX_devices;
+ciaaPOSIX_Type_Base* ciaaPOSIX_devicesArray [ciaaPOSIX_MACRO_MaxDevices];
+uint32_t ciaaPOSIX_devicesArraySize;
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+void ciaaPOSIX_init ()
+{
+	uint32_t i;
+	for (i = 0; i < ciaaPOSIX_MACRO_MaxDevices; i++)
+		ciaaPOSIX_devicesArray[i] = NULL;
+
+	ciaaPOSIX_devicesArraySize = 0;
+}
+
 int32_t ciaaPOSIX_open (const char* pathName, int32_t flags)
 {
-	// TODO Search the device's status flag in ciaaPOSIX_devices list
+	uint32_t i;
+	uint32_t openCode;
 
-	// TODO Use GenericList to create new node and get the pointer
-
-	if (strcmp(pathName, "/dev/UART/UART1"))
+	// Search if the device is already open
+	for (i = 0; i < ciaaPOSIX_devicesArraySize; i++)
 	{
-		// TODO Add data to new node
-		// ciaaPOSIX_devices[ciaaPOSIX_requestedDevices].fd = ciaaPOSIX_requestedDevices;
-		// ciaaPOSIX_devices[ciaaPOSIX_requestedDevices].status = ciaaPOSIX_EStatus_Open;
-		// ciaaPOSIX_devices[ciaaPOSIX_requestedDevices].pOpen = ciaaPOSIX_open;
-		// ciaaPOSIX_devices[ciaaPOSIX_requestedDevices].pClose = ciaaUART_close;
-		// ciaaPOSIX_devices[ciaaPOSIX_requestedDevices].pIoctl = ciaaUART_ioctl;
-		// ciaaPOSIX_devices[ciaaPOSIX_requestedDevices].pRead = ciaaUART_read;
-		// ciaaPOSIX_devices[ciaaPOSIX_requestedDevices].pWrite = ciaaUART_write;
-
-		// ciaaPOSIX_devices[ciaaPOSIX_requestedDevices].pOpen (pathName, flags);
-	} else if (strcmp(pathName, "/dev/UART/UART2")) {
-
-	} else if (strcmp(pathName, "/dev/I2C/I2C1")) {
-
+		if (strcmp(ciaaPOSIX_devicesArray[i]->name, pathName))
+		{
+			if (ciaaPOSIX_devicesArray[i]->status != ciaaDevices_EStatus_Close)
+			{
+				return ciaaPOSIX_Enum_Errors_DeviceAlreadyOpen;
+			}
+		}
 	}
 
-	// TODO return ciaaPOSIX_devices size (file descriptor)
+	// Crate memory for the new device
+	ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize] = ciaaMemory_pfMalloc (sizeof(ciaaPOSIX_Type_Base));
+
+	// Load device pointer functions, data and open it
+	if (strcmp(pathName, ciaaDevices_UART1)) {
+		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->fd = ciaaPOSIX_devicesArraySize;
+		strcpy(ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->name, ciaaDevices_UART1);
+		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pOpen = ciaaUART_open;
+		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pClose = ciaaUART_close;
+		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pIoctl = ciaaUART_ioctl;
+		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pRead = ciaaUART_read;
+		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pWrite = ciaaUART_write;
+
+		openCode = ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pOpen (pathName, flags);
+		if (openCode > 0)
+			ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->status = ciaaDevices_EStatus_Open;
+		else
+			ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->status = ciaaDevices_EStatus_Error;
+	} else if (strcmp(pathName, "/dev/UART/UART2")) {
+		// TODO
+	} else if (strcmp(pathName, "/dev/I2C/I2C1")) {
+		// TODO
+	}
+
+	ciaaPOSIX_devicesArraySize++;
+
+	return openCode;
 }
 
 int32_t ciaaPOSIX_close (int32_t fd)
 {
-	// TODO search in ciaaPOSIX_devices by fd
-	// TODO close the device
+	if (fd >= 0) {
+		if (ciaaPOSIX_devicesArray[fd] != NULL) {
+			return ciaaPOSIX_devicesArray[fd]->pClose (fd);
+		} else {
+			return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
+		}
+	} else {
+		return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
+	}
 }
 
 int32_t ciaaPOSIX_ioctl (int32_t fd, int32_t arg, void* param)
 {
-
+	if (fd >= 0) {
+		if (ciaaPOSIX_devicesArray[fd] != NULL) {
+			return ciaaPOSIX_devicesArray[fd]->pIoctl (fd, arg, param);
+		} else {
+			return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
+		}
+	} else {
+		return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
+	}
 }
 
 int32_t ciaaPOSIX_read (int32_t fd, uint8_t* buffer, uint32_t size)
 {
-
+	if (fd >= 0) {
+		if (ciaaPOSIX_devicesArray[fd] != NULL) {
+			return ciaaPOSIX_devicesArray[fd]->pRead (fd, buffer, size);
+		} else {
+			return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
+		}
+	} else {
+		return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
+	}
 }
 
 int32_t ciaaPOSIX_write (int32_t fd, uint8_t* buffer, uint32_t size)
 {
-
+	if (fd >= 0) {
+		if (ciaaPOSIX_devicesArray[fd] != NULL) {
+			return ciaaPOSIX_devicesArray[fd]->pWrite (fd, buffer, size);
+		} else {
+			return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
+		}
+	} else {
+		return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
+	}
 }
 
 /** @} doxygen end group definition */

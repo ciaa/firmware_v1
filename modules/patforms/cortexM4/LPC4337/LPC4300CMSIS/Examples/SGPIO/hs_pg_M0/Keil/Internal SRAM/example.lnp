@@ -1,4 +1,0 @@
---cpu Cortex-M0 ".\internal sram\startup_lpc43xx.o" ".\internal sram\system_lpc43xx.o" ".\internal sram\lpc43xx_scu.o" ".\internal sram\lpc43xx_cgu.o" ".\internal sram\lpc43xx_gpdma.o" ".\internal sram\sgpio_pg.o" ".\internal sram\main_m4.o" --library_type=microlib --strict --scatter ".\Internal SRAM\example.sct" 
---summary_stderr --info summarysizes --map --xref --callgraph --symbols 
---info sizes --info totals --info unused --info veneers 
- --list ".\Internal SRAM\example.map" -o ".\Internal SRAM\example.axf"

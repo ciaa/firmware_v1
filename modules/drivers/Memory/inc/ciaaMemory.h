@@ -54,26 +54,16 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140422 v0.0.2 EzEs initial version
  * 20140420 v0.0.1 EzEs initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "stdin.h"
+#include "stdint.h"
 
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Devices Status
- **
- ** Describes the possible status of a device
- **
- **
- **/
-typedef enum
-{
-	ciaaDevices_EStatus_Open = 0,   /** < Device is open */
-	ciaaDevices_EStatus_Close = 1   /** < Device is close */
-} ciaaDevices_Enum_Status;
 
 /*==================[external data declaration]==============================*/
 /** \brief TODO
