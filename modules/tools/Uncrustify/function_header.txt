@@ -1,0 +1,10 @@
+/** \brief Short description of this function
+ **
+ ** Long description of this function
+ **
+ ** \param[in] 	  Param1 Description
+ ** \param[inout] Param2 Description
+ ** \param[out]   Param3 Description
+ ** \return E_OK  OK
+ ** \return E_OS_ERROR error
+ **/
