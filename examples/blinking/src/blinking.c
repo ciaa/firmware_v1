@@ -82,7 +82,7 @@ int main(void) {
 	ciaaWrapper_Init ();
 
 	// CIARR UART
-	int32_t uartFd = ciaaPOSIX_open (ciaaDevices_UART1, ciaaDevices_EMode_ReadOnly);
+	int32_t uartFd = ciaa_open (ciaaDevices_UART1, ciaaDevices_EMode_ReadOnly);
 
     // Force the counter to be placed into memory
     volatile static int i = 0 ;

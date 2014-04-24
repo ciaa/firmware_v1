@@ -8,7 +8,7 @@
 #ifndef CIAAWRAPPER_LPC4337_FREERTOS_H_
 #define CIAAWRAPPER_LPC4337_FREERTOS_H_
 
-	#include "ciaaPOSIX.h"
+	#include "ciaa_fctln.h"
 	#include "ciaaMemory.h"
 	#include "ciaaDevices.h"
 

@@ -32,99 +32,57 @@
  *
  */
 
-#ifndef _CIAAPOSIX_H_
-#define _CIAAPOSIX_H_
-/** \brief CIAA Posix header file
+#ifndef _KCIAA_H_
+#define _KCIAA_H_
+/** \brief Short description of this file
  **
- ** This header is the Posix header file.
+ ** Long description of this file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX Posix
+/** \addtogroup Modul Module Description
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * EzEs         Ezequiel Esposito
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140422 v0.0.2 EzEs initial version
- * 20140420 v0.0.1 EzEs initial version
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaDevices.h"
-#include "ciaaMemory.h"
-#include "ciaaErrorsCodeSystem.h"
-#include "ciaaMessagesCodeSystem.h"
-
-#include "ciaaUART.h"
+#include "ciaa_fctln.h"
 
 /*==================[macros]=================================================*/
-/** \brief Max devices available
+/** \brief Short description of this macro
+ **
+ ** Long description of this macro
+ **
  **/
-#define ciaaPOSIX_MACRO_MaxDevices 				100
+#define kciaa_malloc(size) ciaaMemory_pfMalloc(size)
+
+#define kciaa_atomicTrySetAndCheck(var, bit) 1
+
+#define kciaa_getSemaphore(semaphore)	1
+#define kciaa_releaseSempahore(sempahore) 1
+
+#define kciaa_init()	ciaa_fctlnInit()
 
 /*==================[typedef]================================================*/
-/** \brief TODO
- **
- **/
-typedef struct
-{
-	int32_t fd;
-	char const * name;
-	ciaaDevices_Enum_Status status;
-	int32_t (*pOpen) (const char* pathName, int32_t flags);
-	int32_t (*pClose) (int32_t fd);
-	int32_t (*pIoctl) (int32_t fd, int32_t arg, uint32_t size);
-	int32_t (*pRead) (int32_t fd, uint8_t* buffer, uint32_t size);
-	int32_t (*pWrite) (int32_t fd, uint8_t* buffer, uint32_t size);
-	void* data;
-} ciaaPOSIX_Type_Base;
-
-/** \brief ciaaPOSIX errors enum
- ** Minimum allowed number: -1
- ** Maximum allowed number: -1000
- **/
-typedef enum
-{
-	ciaaPOSIX_Enum_Errors_DeviceAlreadyOpen = ciaaPOSIX_MACRO_MinErrorCode,
-	ciaaPOSIX_Enum_Errors_DeviceNotAllocated = ciaaPOSIX_MACRO_MinErrorCode - 1,
-	ciaaPOSIX_Enum_Errors_BadFileDescriptor = ciaaPOSIX_MACRO_MinErrorCode - 2
-}; ciaaPOSIX_Enum_Errors;
-
-/** \brief ciaaPOSIX return message codes
- ** Minimum allowed number: 1
- ** Maximum allowed number: 1000
- **/
-typedef enum
-{
-	ciaaPOSIX_Enum_Messages_Example = ciaaPOSIX_MACRO_MinMessageCode,
-}; ciaaPOSIX_Enum_Messages;
+typedef unsigned char kciaa_semaphore;
 
 /*==================[external data declaration]==============================*/
-/** \brief List of posix devices
- **
- **/
-extern ciaaPOSIX_Type_Base* ciaaPOSIX_devicesArray [];
-extern uint32_t ciaaPOSIX_devicesArraySize;
 
 /*==================[external functions declaration]=========================*/
-extern void ciaaPOSIX_init ();
-extern int32_t ciaaPOSIX_open (const char* pathName, int32_t flags);
-extern int32_t ciaaPOSIX_close (int32_t fd);
-extern int32_t ciaaPOSIX_ioctl (int32_t fd, int32_t arg, void* param);
-extern int32_t ciaaPOSIX_read (int32_t fd, uint8_t* buffer, uint32_t size);
-extern int32_t ciaaPOSIX_write (int32_t fd, uint8_t* buffer, uint32_t size);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_H_ */
-
+#endif /* #ifndef _KCIAA_H_ */

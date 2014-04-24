@@ -1,5 +1,6 @@
 #include "ciaaWrapper.h"
 #include "ciaaWrapper_private.h"
+#include "kciaa.h"
 
 void ciaaWrapper_Config ()
 {
@@ -9,5 +10,5 @@ void ciaaWrapper_Config ()
 
 void ciaaWrapper_Init ()
 {
-	ciaaPOSIX_init ();
+	kciaa_init();
 }
