@@ -32,17 +32,17 @@
  *
  */
 
-#ifndef _KCIAA_H_
-#define _KCIAA_H_
-/** \brief Short description of this file
+#ifndef _STUB_STDLIB_H_
+#define _STUB_STDLIB_H_
+/** \brief Stub file for stdlib
  **
- ** Long description of this file
+ ** Stub file for stdlib
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Modul Module Description
+/** \addtogroup Stub Stub file
  ** @{ */
 
 /*
@@ -58,31 +58,20 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaa_fctln.h"
 
 /*==================[macros]=================================================*/
-/** \brief Short description of this macro
- **
- ** Long description of this macro
- **
- **/
-#define kciaa_malloc(size) ciaaMemory_pfMalloc(size)
-
-#define kciaa_atomicTrySetAndCheck(var, bit) 1
-
-#define kciaa_getSemaphore(semaphore)	1
-#define kciaa_releaseSempahore(sempahore) 1
-
-#define kciaa_init()	ciaa_fctlnInit()
 
 /*==================[typedef]================================================*/
-typedef unsigned char kciaa_semaphore;
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+void *stub_malloc(unsigned int size);
+
+void stub_free(void *ptr);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _KCIAA_H_ */
+#endif /* #ifndef _STUB_STDLIB_H_ */
+

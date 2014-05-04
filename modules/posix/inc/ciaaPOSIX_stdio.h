@@ -32,17 +32,17 @@
  *
  */
 
-#ifndef _CIAAPOSIX_H_
-#define _CIAAPOSIX_H_
-/** \brief CIAA Posix header file
+#ifndef _CIAAPOSIX_STDIO_H_
+#define _CIAAPOSIX_STDIO_H_
+/** \brief ciaa POSIX stdio header file
  **
- ** This header is the Posix header file.
+ ** ciaa POSIX stdio header file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX Posix
+/** \addtogroup posix POSIX Implementation
  ** @{ */
 
 /*
@@ -69,7 +69,16 @@
 /*==================[macros]=================================================*/
 /** \brief Max devices available
  **/
-#define ciaaPOSIX_MACRO_MaxDevices 				100
+#define ciaaPOSIX_MAX_DEVICES 				100
+
+/** \brief Open for read only */
+#define O_RDONLY            1
+
+/** \brief Open to write only */
+#define O_WRONLY            2
+
+/** \brief Open to read write */
+#define O_RDWR              4
 
 /*==================[typedef]================================================*/
 /** \brief TODO
@@ -94,10 +103,10 @@ typedef struct
  **/
 typedef enum
 {
-	ciaaPOSIX_Enum_Errors_DeviceAlreadyOpen = ciaaPOSIX_MACRO_MinErrorCode,
-	ciaaPOSIX_Enum_Errors_DeviceNotAllocated = ciaaPOSIX_MACRO_MinErrorCode - 1,
-	ciaaPOSIX_Enum_Errors_BadFileDescriptor = ciaaPOSIX_MACRO_MinErrorCode - 2
-}; ciaaPOSIX_Enum_Errors;
+	ciaaPOSIX_Enum_Errors_DeviceAlreadyOpen = ciaaPOSIX_MINERRORCODE,
+	ciaaPOSIX_Enum_Errors_DeviceNotAllocated = ciaaPOSIX_MINERRORCODE - 1,
+	ciaaPOSIX_Enum_Errors_BadFileDescriptor = ciaaPOSIX_MINERRORCODE - 2
+} ciaaPOSIX_Enum_Errors;
 
 /** \brief ciaaPOSIX return message codes
  ** Minimum allowed number: 1
@@ -106,7 +115,7 @@ typedef enum
 typedef enum
 {
 	ciaaPOSIX_Enum_Messages_Example = ciaaPOSIX_MACRO_MinMessageCode,
-}; ciaaPOSIX_Enum_Messages;
+} ciaaPOSIX_Enum_Messages;
 
 /*==================[external data declaration]==============================*/
 /** \brief List of posix devices
@@ -116,12 +125,71 @@ extern ciaaPOSIX_Type_Base* ciaaPOSIX_devicesArray [];
 extern uint32_t ciaaPOSIX_devicesArraySize;
 
 /*==================[external functions declaration]=========================*/
-extern void ciaa_init ();
-extern int32_t ciaa_open (const char* pathName, int32_t flags);
-extern int32_t ciaa_close (int32_t fd);
-extern int32_t ciaa_ioctl (int32_t fd, int32_t arg, void* param);
-extern int32_t ciaa_read (int32_t fd, uint8_t* buffer, uint32_t size);
-extern int32_t ciaa_write (int32_t fd, uint8_t* buffer, uint32_t size);
+/** \brief ciaaPOSIX Initialization
+ **
+ ** Performs the initialization of the ciaaPOSIX
+ **
+ **/
+extern void ciaaPOSIX_init(void);
+
+/** \brief Open a file
+ **
+ ** Opens a file or device path for read/write/readwrite depending on oflag.
+ **
+ ** \param[in] 	  path path of the device to be opened
+ ** \param[in]    oflag may take one of the following values:
+ **               O_RDONLY: opens files to read only
+ **               O_WRONLY: opens files to write only
+ **               O_RDWR: opens file to read and write
+ ** \return       a negative value if failed, a positive
+ **               value representing the file handler if success.
+ **/
+extern int32_t ciaaPOSIX_open(uint8_t const * const path, uint8_t const oflag);
+
+/** \brief Close a file descriptor
+ **
+ ** Closes the file descriptor fildes
+ **
+ ** \param[in]  fildes file descriptor to be closed
+ ** \return     a negative value if failed, a positive value
+ **             if success.
+ **/
+extern int32_t ciaaPOSIX_close (int32_t const fildes);
+
+/** \brief Control a stream device
+ **
+ ** Performs special control of a stream device
+ **
+ ** \param[in]  fildes file descriptor to be closed
+ ** \param[in]  request type of the request, depends on the device
+ ** \param[in]	param
+ ** \return     a negative value if failed, a positive value
+ **             if success.
+ **/
+extern int32_t ciaaPOSIX_ioctl (int32_t const fildes, int32_t request, void* param);
+
+/** \brief Reads from a file descriptor
+ **
+ ** Reads nbyte from the file descriptor fildes and store them in buf.
+ **
+ ** \param[in]  fildes  file descriptor to read from
+ ** \param[out] buf     buffer to store the read data
+ ** \param[in]  nbyte   count of bytes to be read
+ ** \return     the count of read bytes is returned
+ **
+ **/
+extern int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * const buf, uint32_t nbyte);
+
+/** \brief Writes to a file descriptor
+ **
+ ** Writes nbyte to the file descriptor fildes from the buffer buf
+ **
+ ** \param[in]  fildes  file descriptor to write to
+ ** \param[in]  buf     buffer with the data to be written
+ ** \param[in]  nbyte   count of bytes to be written
+ ** \return     the count of bytes written
+ **/
+extern int32_t ciaa_write (int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

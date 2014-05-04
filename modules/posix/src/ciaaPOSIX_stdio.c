@@ -56,9 +56,10 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "kciaa.h"
-#include "ciaa_fctln.h"
-#include "string.h"
+#include "ciaak.h"
+#include "ciaaPOSIX_stdio.h"
+#include "ciaaPOSIX_string.h"
+#include "ciaaPOSIX_stdlib.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -69,22 +70,28 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-ciaaPOSIX_Type_Base* ciaaPOSIX_devicesArray [ciaaPOSIX_MACRO_MaxDevices];
+ciaaPOSIX_Type_Base* ciaaPOSIX_devicesArray [ciaaPOSIX_MAX_DEVICES];
+
 uint32_t ciaaPOSIX_devicesArraySize;
+
+
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-void ciaa_fctlnInit ()
+void ciaaPOSIX_init(void)
 {
 	uint32_t i;
-	for (i = 0; i < ciaaPOSIX_MACRO_MaxDevices; i++)
+	/* init all posix devices */
+	for (i = 0; i < ciaaPOSIX_MAX_DEVICES; i++) {
 		ciaaPOSIX_devicesArray[i] = NULL;
+   }
 
+   /* set first device */
 	ciaaPOSIX_devicesArraySize = 0;
 }
 
-int32_t ciaa_open (const char* pathName, int32_t flags)
+int32_t ciaaPOSIX_open(uint8_t const * const path, uint8_t const oflag)
 {
 	uint32_t i;
 	uint32_t openCode;
@@ -93,7 +100,7 @@ int32_t ciaa_open (const char* pathName, int32_t flags)
 	// TODO add a found flag
 	for (i = 0; i < ciaaPOSIX_devicesArraySize; i++)
 	{
-		if (strcmp(ciaaPOSIX_devicesArray[i]->name, pathName))
+		if (ciaaPOSIX_strcmp(ciaaPOSIX_devicesArray[i]->name, path))
 		{
 			if ( kciaa_atomicTrySetAndCheck(ciaaPOSIX_devicesArray[i]->status, ciaaDevices_EStatus_Close))
 			{
@@ -108,23 +115,23 @@ int32_t ciaa_open (const char* pathName, int32_t flags)
 	ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize] = kciaa_malloc (sizeof(ciaaPOSIX_Type_Base));
 
 	// Load device pointer functions, data and open it
-	if (strcmp(pathName, ciaaDevices_UART1)) {
+	if (ciaaPOSIX_strcmp(path, ciaaDevices_UART1)) {
 		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->fd = ciaaPOSIX_devicesArraySize;
-		strcpy(ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->name, ciaaDevices_UART1);
+		ciaaPOSIX_strcpy(ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->name, ciaaDevices_UART1);
 		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pOpen = ciaaUART_open;
 		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pClose = ciaaUART_close;
 		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pIoctl = ciaaUART_ioctl;
 		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pRead = ciaaUART_read;
 		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pWrite = ciaaUART_write;
 
-		openCode = ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pOpen (pathName, flags);
+		openCode = ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pOpen (path, oflag);
 		if (openCode > 0)
 			ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->status = ciaaDevices_EStatus_Open;
 		else
 			ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->status = ciaaDevices_EStatus_Error;
-	} else if (strcmp(pathName, "/dev/UART/UART2")) {
+	} else if (ciaaPOSIX_strcmp(path, "/dev/UART/UART2")) {
 		// TODO
-	} else if (strcmp(pathName, "/dev/I2C/I2C1")) {
+	} else if (ciaaPOSIX_strcmp(path, "/dev/I2C/I2C1")) {
 		// TODO
 	}
 
@@ -148,7 +155,7 @@ int32_t ciaa_close (int32_t fd)
 	}
 }
 
-int32_t ciaa_ioctl (int32_t fd, int32_t arg, void* param)
+int32_t ciaaPOSIX_ioctl (int32_t fd, int32_t arg, void* param)
 {
 	if (fd >= 0) {
 		if (ciaaPOSIX_devicesArray[fd] != NULL) {
@@ -161,7 +168,7 @@ int32_t ciaa_ioctl (int32_t fd, int32_t arg, void* param)
 	}
 }
 
-int32_t ciaa_read (int32_t fd, uint8_t* buffer, uint32_t size)
+int32_t ciaaPOSIX_read (int32_t fd, uint8_t* buffer, uint32_t size)
 {
 	if (fd >= 0) {
 		if (ciaaPOSIX_devicesArray[fd] != NULL) {
@@ -174,7 +181,7 @@ int32_t ciaa_read (int32_t fd, uint8_t* buffer, uint32_t size)
 	}
 }
 
-int32_t ciaa_write (int32_t fd, uint8_t* buffer, uint32_t size)
+int32_t ciaaPOSIX_write (int32_t fd, uint8_t* buffer, uint32_t size)
 {
 	if (fd >= 0) {
 		if (ciaaPOSIX_devicesArray[fd] != NULL) {

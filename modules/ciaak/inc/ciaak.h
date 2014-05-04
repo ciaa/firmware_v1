@@ -32,63 +32,57 @@
  *
  */
 
-#ifndef _CIAAMEMORY_H_
-#define _CIAAMEMORY_H_
-/** \brief CIAA Memory header file
+#ifndef _CIAAK_H_
+#define _CIAAK_H_
+/** \brief Short description of this file
  **
- ** This header file describes the Devices.
+ ** Long description of this file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Memory Memory
+/** \addtogroup Modul Module Description
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * EzEs         Ezequiel Esposito
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140422 v0.0.2 EzEs initial version
- * 20140420 v0.0.1 EzEs initial version
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "stdint.h"
+#include "ciaaPOSIX_stdio.h"
 
 /*==================[macros]=================================================*/
+/** \brief Short description of this macro
+ **
+ ** Long description of this macro
+ **
+ **/
+#define kciaa_malloc(size) ciaaMemory_pfMalloc(size)
+
+#define kciaa_atomicTrySetAndCheck(var, bit) 1
+
+#define kciaa_getSemaphore(semaphore)	1
+#define kciaa_releaseSempahore(sempahore) 1
+
+#define kciaa_init()	ciaa_fctlnInit()
 
 /*==================[typedef]================================================*/
+typedef unsigned char kciaa_semaphore;
 
 /*==================[external data declaration]==============================*/
-/** \brief TODO
- **
- **/
-extern void* (*ciaaMemory_pfMalloc) (uint32_t size);
-
-/** \brief TODO
- **
- **/
-extern void (*ciaaMemory_pfFree) (void* pointer);
 
 /*==================[external functions declaration]=========================*/
-/** \brief TODO
- **
- **/
-extern void ciaaMemory_SetMalloc (void* (*pf) (uint32_t));
-
-/** \brief TODO
- **
- **/
-extern void ciaaMemory_SetFree (void (*pf) (void*));
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMEMORY_H_ */
-
+#endif /* #ifndef _KCIAA_H_ */

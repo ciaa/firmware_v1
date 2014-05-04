@@ -32,53 +32,47 @@
  *
  */
 
-#ifndef _CIAAUART_H_
-#define _CIAAUART_H_
-/** \brief CIAA Uart driver header file
+/** \brief ciaa POSIX stdlib source file
  **
- ** This files contains the header file of the CIAA UART driver
+ ** ciaa POSIX stdio source file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
- ** @{ */
-/** \addtogroup UART UART Drivers
+/** \addtogroup posix POSIX implementation
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * EzEs         Ezequiel Espósito
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140422 v0.0.2 EzEs initial version
- * 20140420 v0.0.1 EzEs initial version
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include <stdint.h>
+#include "ciaaPOSIX_stdlib.h"
 
-/*==================[macros]=================================================*/
+/*==================[macros and definitions]=================================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[internal data definition]===============================*/
 
-int32_t ciaaUART_open (const char* pathName, int32_t flags);
-int32_t ciaaUART_close (int32_t fd);
-int32_t ciaaUART_ioctl (int32_t fd, int32_t arg, uint32_t size);
-int32_t ciaaUART_read (int32_t fd, uint8_t* buffer, uint32_t size);
-int32_t ciaaUART_write (int32_t fd, uint8_t* buffer, uint32_t size);
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUART_H_ */
 
