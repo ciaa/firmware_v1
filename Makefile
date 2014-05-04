@@ -124,6 +124,11 @@ $(project) : $(LIBS) $(OBJ_FILES)
 	$(CC) $(OBJ_FILES) $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -o $(BIN_DIR)$(DS)$(project).bin
 #	$(LD) -lcrt1 -Map $(BIN_DIR)$(DS)$(project).map --library-path=$(LIB_DIR)$(DS) $(OBJ_FILES) $(foreach lib, $(LIB_DIR)$(DS)$(LIBS).a, $(lib)) -o $(BIN_DIR)$(DS)$(project).bin
 
+doxygen:
+	@echo running doxygen
+	doxygen modules/tools/doxygen/doxygen.cnf
+
+
 help:
 	@echo info.......: general information about the make environment
 	@echo info_\<mod\>.: same as info but reporting information of a library

@@ -42,7 +42,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Modul Module Description
+/** \addtogroup Kernel CIAA Kernel
  ** @{ */
 
 /*

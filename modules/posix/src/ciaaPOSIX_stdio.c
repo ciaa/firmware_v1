@@ -40,7 +40,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Posix Posix
+/** \addtogroup POSIX POSIX Implementation
  ** @{ */
 /*
  * Initials     Name

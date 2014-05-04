@@ -40,7 +40,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Modul Module Description
+/** \addtogroup Template Template to start a new module
  ** @{ */
 
 /*

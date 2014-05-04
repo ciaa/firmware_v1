@@ -41,7 +41,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX Posix
+/** \addtogroup POSIX POSIX Implementation
  ** @{ */
 /** \addtogroup ModuleTests Module Tests
  ** @{ */

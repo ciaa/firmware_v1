@@ -42,7 +42,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Modul Module Description
+/** \addtogroup Template Template to start a new module
  ** @{ */
 
 /*
@@ -98,3 +98,4 @@ extern ReturnType Module_FunctioName(Type Param1, Type Param2, Type Param3);
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef _TEMPLATE_FILE_H_ */
+

@@ -42,7 +42,9 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Stub Stub file
+/** \addtogroup POSIX POSIX Implementation
+ ** @{ */
+/** \addtogroup ModuleTests Module Tests
  ** @{ */
 
 /*
@@ -70,6 +72,7 @@ void *stub_malloc(unsigned int size);
 
 void stub_free(void *ptr);
 
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
