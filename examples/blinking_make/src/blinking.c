@@ -80,6 +80,9 @@ int main(void)
    /* open /dev/serial/uart0 for read and write */
    fildes = ciaaPOSIX_open("/dev/serial/uart0", O_RDWR);
 
+	/* to avoid compile error, the variable is not used */
+	(void)fildes;
+
 	return 0;
 }
 

@@ -59,14 +59,40 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[macros]=================================================*/
+#define ciaaDEVICES_MAXDEVICES		20
 
 /*==================[typedef]================================================*/
+/** \brief open function type */
+typedef int32_t (*ciaaDevice_open)(uint8_t const * const path, uint8_t const oflag);
+
+/** \brief close function type */
+typedef int32_t (*ciaaDevice_close)(int32_t fildes);
+
+/** \brief ioctl function type */
+typedef int32_t (*ciaaDevice_ioctl)(int32_t const fildes, int32_t request, void* param);
+
+/** \brief read function type */
+typedef int32_t (*ciaaDevice_read)(int32_t const fildes, uint8_t * const buf, uint32_t nbyte);
+
+/** \brief write function type */
+typedef int32_t (*ciaaDevice_write)(int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
+
+/** \brief Device Type */
+typedef struct {
+	char const * path; 			/** <- device path, eg. /dev/serlia/UART1 */
+	ciaaDevice_open open; 		/** <- pointer to open function */
+	ciaaDevice_close close;		/** <- pointer to close function */
+	ciaaDevice_read read;		/** <- pointer to read function */
+	ciaaDevice_ioctl ioctl;		/** <- pointer to ioctl function */
+	ciaaDevice_write write;		/** <- pointer to write function */
+} ciaaDevice_deviceType;
+
 /** \brief Devices Status
  **
  ** Describes the possible status of a device
- **
  **
  **/
 typedef enum
@@ -85,20 +111,39 @@ typedef enum
 /** \brief UART1 Device
  **
  **/
-extern char const * const ciaaDevices_UART1;
+char * ciaaDevices_UART1;
 
 /** \brief UART2 Device
  **
  **/
-extern char const * const ciaaDevices_UART2;
+char * ciaaDevices_UART2;
 
 /** \brief I2C1 Device
  **
  **/
-extern char const * const ciaaDevices_I2C1;
+char * ciaaDevices_I2C1;
 
 
 /*==================[external functions declaration]=========================*/
+/** \brief Init ciaa Devices
+ **
+ ** This function performs the initialization of ciaaDevices
+ **/
+extern void ciaaDevice_init(void);
+
+/** \brief add deivce
+ **
+ ** Adds the device device
+ **
+ ** \param[in] device device to be added
+ **/
+extern void ciaaDevice_addDevice(ciaaDevice_deviceType const * device);
+
+/** \brief get a device
+ **
+ ** Get the device with the indicated path
+ **/
+extern ciaaDevice_deviceType const * ciaaDevice_getDevice(char const * const path);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -65,9 +65,9 @@
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-extern uint8_t * ciaaPOSIX_strcpy(uint8_t * const s1, uint8_t const * const s2);
+extern uint8_t * ciaaPOSIX_strcpy(char * const s1, char const * const s2);
 
-extern uint8_t * ciaaPOSIX_strcmp(uint8_t const * const s1, uint8_t const * const s2);
+extern uint8_t * ciaaPOSIX_strcmp(char const * const s1, char const * const s2);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

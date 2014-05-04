@@ -32,31 +32,30 @@
  *
  */
 
-/** \brief ciaa POSIX stdlib source file
+/** \brief CIAA Devices source file
  **
- ** ciaa POSIX stdio source file
+ ** This header file describes the Devices.
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup posix POSIX implementation
+/** \addtogroup Devices Devives interface
  ** @{ */
-
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe			 Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140503 v0.0.1 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_string.h"
+#include "ciaaPOSIX_semaphore.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -71,15 +70,21 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern uint8_t * ciaaPOSIX_strcpy(char * const s1, char const * const s2)
+extern int8_t sem_init(sem_t * const sem)
 {
 	return 0;
 }
 
-extern uint8_t * ciaaPOSIX_strcmp(char const * const s1, char const * const s2)
+extern int8_t sem_wait(sem_t * const sem)
 {
 	return 0;
 }
+
+extern int8_t sem_post(sem_t * const sem)
+{
+	return 0;
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

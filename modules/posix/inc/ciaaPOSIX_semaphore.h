@@ -32,15 +32,17 @@
  *
  */
 
-/** \brief ciaa POSIX stdlib source file
+#ifndef _CIAAPOSIX_SEMAPHORE_H_
+#define _CIAAPOSIX_SEMAPHORE_H_
+/** \brief POSIX semaphore
  **
- ** ciaa POSIX stdio source file
+ ** POSIX semaphore header file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup posix POSIX implementation
+/** \addtogroup posix POSIX Implementation
  ** @{ */
 
 /*
@@ -56,31 +58,47 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_string.h"
+#include "ciaaPOSIX_stdint.h"
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
 
-/*==================[internal data declaration]==============================*/
+/*==================[typedef]================================================*/
+typedef struct {
+	uint8_t test;
+} sem_t;
 
-/*==================[internal functions declaration]=========================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[internal data definition]===============================*/
+/*==================[external functions declaration]=========================*/
+/** \brief Initialize a semaphore
+ **
+ ** Performs the initialization of the semaphroe sem
+ **
+ ** \return a positive value if success, negative if an error occurs
+ ** \param[in] sem sempahore to be initialized
+ **/
+extern int8_t sem_init(sem_t * const sem);
 
-/*==================[external data definition]===============================*/
+/** \brief Waits for a sempahore
+ **
+ ** Waits for the sempahore sem
+ **
+ ** \param[inout] sem sempahore to wait for
+ ** \return a possitive valie if success, negative if an erros occurs
+ **/
+extern int8_t sem_wait(sem_t * const sem);
 
-/*==================[internal functions definition]==========================*/
+/** \brief Returns for a sempahore
+ **
+ ** Returns the sempahore sem
+ **
+ ** \param[inout] sem sempahore to be returned
+ ** \return a possitive valie if success, negative if an erros occurs
+ **/
+extern int8_t sem_post(sem_t * const sem);
 
-/*==================[external functions definition]==========================*/
-extern uint8_t * ciaaPOSIX_strcpy(char * const s1, char const * const s2)
-{
-	return 0;
-}
-
-extern uint8_t * ciaaPOSIX_strcmp(char const * const s1, char const * const s2)
-{
-	return 0;
-}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CIAAPOSIX_SEMAPHORE_H_*/
 

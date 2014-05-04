@@ -91,62 +91,16 @@ void ciaaPOSIX_init(void)
 	ciaaPOSIX_devicesArraySize = 0;
 }
 
-int32_t ciaaPOSIX_open(uint8_t const * const path, uint8_t const oflag)
+extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
 {
-	uint32_t i;
-	uint32_t openCode;
-
-	// Search if the device is already open
-	// TODO add a found flag
-	for (i = 0; i < ciaaPOSIX_devicesArraySize; i++)
-	{
-		if (ciaaPOSIX_strcmp(ciaaPOSIX_devicesArray[i]->name, path))
-		{
-			if ( kciaa_atomicTrySetAndCheck(ciaaPOSIX_devicesArray[i]->status, ciaaDevices_EStatus_Close))
-			{
-				return ciaaPOSIX_Enum_Errors_DeviceAlreadyOpen;
-			}
-		}
-	}
-
-
-	// TODO check found flag
-	// Crate memory for the new device
-	ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize] = kciaa_malloc (sizeof(ciaaPOSIX_Type_Base));
-
-	// Load device pointer functions, data and open it
-	if (ciaaPOSIX_strcmp(path, ciaaDevices_UART1)) {
-		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->fd = ciaaPOSIX_devicesArraySize;
-		ciaaPOSIX_strcpy(ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->name, ciaaDevices_UART1);
-		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pOpen = ciaaUART_open;
-		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pClose = ciaaUART_close;
-		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pIoctl = ciaaUART_ioctl;
-		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pRead = ciaaUART_read;
-		ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pWrite = ciaaUART_write;
-
-		openCode = ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->pOpen (path, oflag);
-		if (openCode > 0)
-			ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->status = ciaaDevices_EStatus_Open;
-		else
-			ciaaPOSIX_devicesArray[ciaaPOSIX_devicesArraySize]->status = ciaaDevices_EStatus_Error;
-	} else if (ciaaPOSIX_strcmp(path, "/dev/UART/UART2")) {
-		// TODO
-	} else if (ciaaPOSIX_strcmp(path, "/dev/I2C/I2C1")) {
-		// TODO
-	}
-
-	// if error release memory and do not increment device array
-
-	ciaaPOSIX_devicesArraySize++;
-
-	return openCode;
+	return 0;
 }
 
-int32_t ciaa_close (int32_t fd)
+int32_t ciaaPOSIX_close(int32_t fildes)
 {
-	if (fd >= 0) {
-		if (ciaaPOSIX_devicesArray[fd] != NULL) {
-			return ciaaPOSIX_devicesArray[fd]->pClose (fd);
+	if (fildes >= 0) {
+		if (ciaaPOSIX_devicesArray[fildes] != NULL) {
+			return ciaaPOSIX_devicesArray[fildes]->pClose (fildes);
 		} else {
 			return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
 		}
@@ -181,11 +135,11 @@ int32_t ciaaPOSIX_read (int32_t fd, uint8_t* buffer, uint32_t size)
 	}
 }
 
-int32_t ciaaPOSIX_write (int32_t fd, uint8_t* buffer, uint32_t size)
+extern int32_t ciaaPOSIX_write (int32_t const fildes, uint8_t const * const buf, uint32_t nbyte)
 {
-	if (fd >= 0) {
-		if (ciaaPOSIX_devicesArray[fd] != NULL) {
-			return ciaaPOSIX_devicesArray[fd]->pWrite (fd, buffer, size);
+	if (fildes >= 0) {
+		if (ciaaPOSIX_devicesArray[fildes] != NULL) {
+			return ciaaPOSIX_devicesArray[fildes]->pWrite (fildes, buf, nbyte);
 		} else {
 			return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
 		}

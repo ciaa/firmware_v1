@@ -87,13 +87,13 @@
 typedef struct
 {
 	int32_t fd;
-	char const * name;
+	char * const name;
 	ciaaDevices_Enum_Status status;
 	int32_t (*pOpen) (const char* pathName, int32_t flags);
 	int32_t (*pClose) (int32_t fd);
-	int32_t (*pIoctl) (int32_t fd, int32_t arg, uint32_t size);
-	int32_t (*pRead) (int32_t fd, uint8_t* buffer, uint32_t size);
-	int32_t (*pWrite) (int32_t fd, uint8_t* buffer, uint32_t size);
+	int32_t (*pIoctl) (int32_t fd, int32_t arg, void* param);
+	int32_t (*pRead) (int32_t fd, uint8_t * const buffer, uint32_t size);
+	int32_t (*pWrite) (int32_t fd, uint8_t const * const buffer, uint32_t size);
 	void* data;
 } ciaaPOSIX_Type_Base;
 
@@ -144,7 +144,7 @@ extern void ciaaPOSIX_init(void);
  ** \return       a negative value if failed, a positive
  **               value representing the file handler if success.
  **/
-extern int32_t ciaaPOSIX_open(uint8_t const * const path, uint8_t const oflag);
+extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag);
 
 /** \brief Close a file descriptor
  **
@@ -189,7 +189,7 @@ extern int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * const buf, uint32
  ** \param[in]  nbyte   count of bytes to be written
  ** \return     the count of bytes written
  **/
-extern int32_t ciaa_write (int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
+extern int32_t ciaaPOSIX_write (int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

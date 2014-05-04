@@ -78,7 +78,7 @@ include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 
 # add include files
 INCLUDE += $(foreach LIB, $(LIBS), $($(LIB)_INC_PATH))
-CFLAGS  +=-ggdb
+CFLAGS  +=-ggdb -Wall -Werror
 CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
 
 

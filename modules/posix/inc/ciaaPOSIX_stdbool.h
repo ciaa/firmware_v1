@@ -32,15 +32,17 @@
  *
  */
 
-/** \brief ciaa POSIX stdlib source file
+#ifndef _CIAAPOSIX_STDBOOL_H_
+#define _CIAAPOSIX_STDBOOL_H_
+/** \brief ciaa POSIX stdbool header file
  **
- ** ciaa POSIX stdio source file
+ ** ciaa POSIX stdbool header file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup posix POSIX implementation
+/** \addtogroup posix POSIX Implementation
  ** @{ */
 
 /*
@@ -56,31 +58,24 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_string.h"
+#include "ciaaPOSIX_stdint.h"
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
+/** \brief true */
+#define true		1
+/** \brief false */
+#define false		0
 
-/*==================[internal data declaration]==============================*/
+/*==================[typedef]================================================*/
+/** \brief bool type definition */
+typedef uint8_t bool;
 
-/*==================[internal functions declaration]=========================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[internal data definition]===============================*/
+/*==================[external functions declaration]=========================*/
 
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-extern uint8_t * ciaaPOSIX_strcpy(char * const s1, char const * const s2)
-{
-	return 0;
-}
-
-extern uint8_t * ciaaPOSIX_strcmp(char const * const s1, char const * const s2)
-{
-	return 0;
-}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CIAAPOSIX_STDBOOL_H_ */
 
