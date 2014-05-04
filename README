@@ -3,7 +3,7 @@
  *
  * This includes following directories:
  *
- * Doc            -> contains the project documentation.
+ * doc            -> contains the project documentation.
  * examples       -> contains examples of how to use CIAA Firmware.
  * externals      -> contains extenral of this project, software not developed
  *                   by CIAA but used within. This externals may have different
