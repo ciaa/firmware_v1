@@ -60,6 +60,11 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*==================[macros]=================================================*/
 /** \brief true */
 #define true		1
@@ -74,6 +79,10 @@ typedef uint8_t bool;
 
 /*==================[external functions declaration]=========================*/
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

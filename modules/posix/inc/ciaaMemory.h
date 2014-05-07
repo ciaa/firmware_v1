@@ -61,6 +61,11 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
@@ -87,6 +92,10 @@ extern void ciaaMemory_SetMalloc (void* (*pf) (uint32_t));
  **/
 extern void ciaaMemory_SetFree (void (*pf) (void*));
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

@@ -58,6 +58,11 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
@@ -69,6 +74,10 @@ extern uint8_t * ciaaPOSIX_strcpy(char * const s1, char const * const s2);
 
 extern uint8_t * ciaaPOSIX_strcmp(char const * const s1, char const * const s2);
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

@@ -61,6 +61,11 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*==================[macros]=================================================*/
 #define ciaaDEVICES_MAXDEVICES		20
 
@@ -145,6 +150,10 @@ extern void ciaaDevice_addDevice(ciaaDevice_deviceType const * device);
  **/
 extern ciaaDevice_deviceType const * ciaaDevice_getDevice(char const * const path);
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

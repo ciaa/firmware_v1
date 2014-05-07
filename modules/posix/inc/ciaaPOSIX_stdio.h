@@ -66,6 +66,11 @@
 
 #include "ciaaUART.h"
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*==================[macros]=================================================*/
 /** \brief Max devices available
  **/
@@ -191,6 +196,10 @@ extern int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * const buf, uint32
  **/
 extern int32_t ciaaPOSIX_write (int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

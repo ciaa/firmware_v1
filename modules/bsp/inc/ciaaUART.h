@@ -62,6 +62,11 @@
 
 /*==================[inclusions]=============================================*/
 #include <ciaaPOSIX_stdint.h>
+ 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*==================[macros]=================================================*/
 
@@ -77,6 +82,10 @@ int32_t ciaaUART_ioctl (int32_t fd, int32_t arg, uint32_t size);
 int32_t ciaaUART_read (int32_t fd, uint8_t* buffer, uint32_t size);
 int32_t ciaaUART_write (int32_t fd, uint8_t* buffer, uint32_t size);
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

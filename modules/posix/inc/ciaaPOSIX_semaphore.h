@@ -60,6 +60,11 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
@@ -97,6 +102,10 @@ extern int8_t sem_wait(sem_t * const sem);
  **/
 extern int8_t sem_post(sem_t * const sem);
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

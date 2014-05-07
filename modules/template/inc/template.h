@@ -59,6 +59,11 @@
 
 /*==================[inclusions]=============================================*/
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*==================[macros]=================================================*/
 /** \brief maximum value for a int16_t type */
 #define INT16_MAX   32767
@@ -88,6 +93,10 @@ typedef signed int int32_t;
  **/
 extern int16_t Template_Sum16bits(int16_t const a, int16_t const b);
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

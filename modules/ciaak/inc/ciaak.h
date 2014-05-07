@@ -60,6 +60,11 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdio.h"
 
+/*==================[cplusplus]=*============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*==================[macros]=================================================*/
 /** \brief Short description of this macro
  **
@@ -82,6 +87,10 @@ typedef unsigned char kciaa_semaphore;
 
 /*==================[external functions declaration]=========================*/
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
