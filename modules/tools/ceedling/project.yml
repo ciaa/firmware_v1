@@ -1,0 +1,88 @@
+---
+
+# Notes:
+# Sample project C code is not presently written to produce a release artifact.
+# As such, release build options are disabled.
+# This sample, therefore, only demonstrates running a collection of unit tests.
+#
+# Create mock of a file
+# ruby externals/ceedling/vendor/cmock/lib/cmock.rb -oproject.yml summ/inc/summ.h
+#
+# Create runner
+# ruby externals/ceedling/vendor/unity/auto/generate_test_runner.rb summ/mtest/test_summ.c project.yml
+module: POSIX
+
+
+:project:
+  :use_exceptions: FALSE
+  :use_test_preprocessor: TRUE
+  :use_auxiliary_dependencies: TRUE
+  :build_root: out/ceedling
+  # :release_build: TRUE
+  :test_file_prefix: tst_
+
+#:release_build:
+#  :output: MyApp.out
+#  :use_assembly: FALSE
+
+:environment: []
+
+:extension:
+  :executable: .out
+
+:paths:
+  :test:
+    - modules/template/tst/src/**
+  :source:
+    - modules/template/src/**
+  :include:
+    - modules/template/inc/**
+  :support:
+    - out/ceedling/tst/support
+
+:defines:
+  # in order to add common defines:
+  #  1) remove the trailing [] from the :common: section
+  #  2) add entries to the :common: section (e.g. :test: has TEST defined)
+  :commmon: &common_defines []
+  :test:
+    - *common_defines
+    - TEST
+  :test_preprocess:
+    - *common_defines
+    - TEST
+
+:cmock:
+  :mock_prefix: mock_
+  :when_no_prototypes: :warn
+  :enforce_strict_ordering: TRUE
+  :mock_path:
+    out/ceedling/mocks
+  :treat_externs:
+    :include
+  :plugins:
+    - :ignore
+    - :callback
+  :treat_as:
+    uint8:    HEX8
+    uint16:   HEX16
+    uint32:   UINT32
+    int8:     INT8
+    bool:     UINT8
+
+#:tools:
+# Ceedling defaults to using gcc for compiling, linking, etc.
+# As [:tools] is blank, gcc will be used (so long as it's in your system path)
+# See documentation to configure a given toolchain for use
+
+:tools_test_linker:
+  :arguments:
+    - -lm
+
+:plugins:
+  :load_paths:
+    - externals/ceedling/plugins
+  :enabled:
+    - stdout_pretty_tests_report
+
+...

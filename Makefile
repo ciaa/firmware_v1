@@ -110,6 +110,26 @@ $(foreach LIB, $(LIBS), $(eval $(call librule, $(LIB), $($(LIB)_OBJ_FILES))) )
 
 $(foreach LIB, $(LIBS), $(eval $(LIB) : $(LIB_DIR)$(DS)$(LIB).a ) )
 
+#### START UNIT TEST PART OF MAKE FILE
+# Gets all Modules Names
+DIRS := $(sort $(dir $(wildcard modules$(DS)*$(DS))))
+DIRS := $(subst modules, , $(DIRS))
+DIRS := $(subst $(DS), , $(DIRS))
+
+# Define rule for testing
+define tstrule
+tmp = $(strip $(1))
+
+tst_$(tmp):
+	@echo ===============================================================================
+	@echo Testing $(1)
+endef
+
+# Creates all needed rules
+$(foreach TST, $(DIRS), $(eval $(call tstrule, $(TST))))
+
+#### END UNIT TEST PART OF MAKE FILE
+
 # compile rule
 %.o : %.c
 	@echo ===============================================================================
@@ -132,12 +152,14 @@ doxygen:
 help:
 	@echo info.......: general information about the make environment
 	@echo info_\<mod\>.: same as info but reporting information of a library
+	@echo tst_\<mod\>..: runs the tests of the indicated module
 
 info:
-	@echo modules....: $(MODS)
-	@echo includes...: $(INCLUDE)
-	@echo libraries..: $(LIBS)
-	@echo source.....: $(SRC_FILES)
+	@echo enable modules....: $(MODS)
+	@echo includes..........: $(INCLUDE)
+	@echo libraries.........: $(LIBS)
+	@echo source............: $(SRC_FILES)
+	@echo all modules.......: $(DIRS)
 
 .PHONY: clean
 clean:

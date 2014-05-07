@@ -71,12 +71,18 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-ReturnType Module_FunctionName
-(
-	type Param1
-)
+extern int16_t Template_Sum16bits(int16_t const a, int16_t const b)
 {
+    int16_t ret;
+    if (((int32_t)((int32_t)a+(int32_t)b)) > (int32_t)INT16_MAX) {
+        ret = INT16_MAX;
+    } else if (((int32_t)((int32_t)a+(int32_t)b)) < (int32_t)INT16_MIN) {
+        ret = INT16_MIN;
+    } else {
+        ret = a + b;
+    }
 
+    return ret;
 }
 
 /** @} doxygen end group definition */

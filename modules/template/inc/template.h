@@ -60,39 +60,33 @@
 /*==================[inclusions]=============================================*/
 
 /*==================[macros]=================================================*/
-/** \brief Short description of this macro
- **
- ** Long description of this macro
- **
- **/
-#define MACRO do
+/** \brief maximum value for a int16_t type */
+#define INT16_MAX   32767
+
+/** \brief minimum value for a int16_t type */
+#define INT16_MIN   -32768
 
 /*==================[typedef]================================================*/
-/** \brief Short description of this type
- **
- ** Long description of this type
- **/
-typedef unsigned char StatusType;
+/** \brief Signed integer 16 bits */
+typedef signed short int16_t;
+
+/** \brief Signed integer 32 bits type */
+typedef signed int int32_t;
 
 /*==================[external data declaration]==============================*/
-/** \brief Short description of this external declaration
- **
- ** Long description of this external declaration
- **/
-extern InterruptCounterType SuspendOSInterrupts_Counter ATTRIBUTES();
 
 /*==================[external functions declaration]=========================*/
-/** \brief Short description of this function
+/** \brief Adds 2 16 bits signed and return a 16 bits signed value
  **
- ** Long description of this function
+ ** If the result is bigger than the limit in 15 bits returns
+ ** INT16_MAX is lower than the limit in 15 bits returns
+ ** INT16_MIN
  **
- ** \param[in] 	  Param1 Description
- ** \param[inout] Param2 Description
- ** \param[out]   Param3 Description
- ** \return E_OK  OK
- ** \return E_OS_ERROR error
+ ** \param[in] 	  a first parameter to be added
+ ** \param[in]    b second parameter ot be added
+ ** \return E_OK  returns addition of a+b
  **/
-extern ReturnType Module_FunctioName(Type Param1, Type Param2, Type Param3);
+extern int16_t Template_Sum16bits(int16_t const a, int16_t const b);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
