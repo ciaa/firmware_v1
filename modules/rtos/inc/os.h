@@ -76,7 +76,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
+#include "Types.h"
 #include "Os_Cfg.h"
 #include "Os_Arch.h"
 

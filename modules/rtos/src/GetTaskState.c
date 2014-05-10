@@ -82,8 +82,6 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-#endif
-
 StatusType GetTaskState
 (
 	TaskType TaskID,
@@ -133,7 +131,7 @@ StatusType GetTaskState
 	{
 		SetError_Api(OSServiceId_GetTaskState);
 		SetError_Param1(TaskID);
-		SetError_Param2((unsigned int)State);
+		SetError_Param2((size_t)State);
 		SetError_Ret(ret);
 		SetError_Msg("GetTaskState returns != than E_OK");
 		SetError_ErrorHook();
@@ -142,8 +140,6 @@ StatusType GetTaskState
 
 	return ret;
 }
-
-#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

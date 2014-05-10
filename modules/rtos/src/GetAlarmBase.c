@@ -131,7 +131,7 @@ StatusType GetAlarmBase
 	{
 		SetError_Api(OSServiceId_GetAlarmBase);
 		SetError_Param1(AlarmID);
-		SetError_Param2((uint32)Info);
+		SetError_Param2((size_t)Info);
 		SetError_Ret(ret);
 		SetError_Msg("GetAlarmBase returns != than E_OK");
 		SetError_ErrorHook();
@@ -140,8 +140,6 @@ StatusType GetAlarmBase
 
 	return ret;
 }
-
-#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

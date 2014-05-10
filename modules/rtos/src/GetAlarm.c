@@ -127,10 +127,10 @@ StatusType GetAlarm
 	/* \req OSEK_ERR_1.3.1-12/xx The hook routine ErrorHook is not called if a
 	 ** system service is called from the ErrorHook itself. */
    if ( ( ret != E_OK ) && (ErrorHookRunning != 1))
-	{
-		SetError_Api(OSServiceId_GetAlarm);
+   {
+	  SetError_Api(OSServiceId_GetAlarm);
       SetError_Param1(AlarmID);
-		SetError_Param2((uint32)Tick);
+      SetError_Param2((size_t)Tick);
       SetError_Ret(ret);
       SetError_Msg("GetAlarm returns != than E_OK");
       SetError_ErrorHook();

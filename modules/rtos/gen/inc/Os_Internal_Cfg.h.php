@@ -288,9 +288,9 @@ else
 #define READYLISTS_COUNT <?php echo count($priority); ?>
 
 #define SetError_Api(api)   ( Osek_ErrorApi = (api) )
-#define SetError_Param1(param1) ( Osek_ErrorParam1 = (uint32)(param1) )
-#define SetError_Param2(param2) ( Osek_ErrorParam2 = (uint32)(param2) )
-#define SetError_Param3(param3) ( Osek_ErrorParam3 = (uint32)(param3) )
+#define SetError_Param1(param1) ( Osek_ErrorParam1 = (param1) )
+#define SetError_Param2(param2) ( Osek_ErrorParam2 = (param2) )
+#define SetError_Param3(param3) ( Osek_ErrorParam3 = (param3) )
 #define SetError_Ret(ret) ( Osek_ErrorRet = (uint32)(ret) )
 #define SetError_Msg(msg)
 /* { printf ("Error found in file: \"%s\" line \"%d\" ", __FILE__, __LINE__); printf(msg); } */
