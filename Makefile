@@ -210,4 +210,5 @@ info:
 clean:
 	rm -rf $(LIB_DIR)$(DS)*
 	rm -rf $(BIN_DIR)$(DS)*
+	rm -rf $(GENDIR)$(DS)*
 	find -name "*.o" -exec rm {} \;
