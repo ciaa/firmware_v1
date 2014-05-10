@@ -1,0 +1,434 @@
+OSEK OSEK {
+
+OS	ExampleOS {
+	STATUS = CT_STATUS;
+	PRETASKHOOK = FALSE;
+	POSTTASKHOOK = FALSE;
+   STARTUPHOOK = FALSE;
+   ERRORHOOK = FALSE;
+   SHUTDOWNHOOK = FALSE;
+	MEMMAP = FALSE;
+	USERESSCHEDULER = FALSE;
+};
+
+TASK Task1 {
+   PRIORITY = 16;
+   SCHEDULE = CT_SCHEDULING_TASK01;
+   ACTIVATION = 1;
+   AUTOSTART = TRUE {
+		APPMODE = AppMode1;
+	};
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task1_Event1;
+	EVENT = Task1_Event2;
+	EVENT = Task1_Event3;
+	EVENT = Task1_Event4;
+	EVENT = Task1_Event5;
+	EVENT = Task1_Event6;
+	EVENT = Task1_Event7;
+	EVENT = Task1_Event8;
+};
+
+TASK Task2 {
+   PRIORITY = 15;
+   SCHEDULE = CT_SCHEDULING_TASK02;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task2_Event1;
+	EVENT = Task2_Event2;
+	EVENT = Task2_Event3;
+	EVENT = Task2_Event4;
+	EVENT = Task2_Event5;
+	EVENT = Task2_Event6;
+	EVENT = Task2_Event7;
+	EVENT = Task2_Event8;
+};
+
+TASK Task3 {
+   PRIORITY = 14;
+   SCHEDULE = CT_SCHEDULING_TASK03;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task3_Event1;
+	EVENT = Task3_Event2;
+	EVENT = Task3_Event3;
+	EVENT = Task3_Event4;
+	EVENT = Task3_Event5;
+	EVENT = Task3_Event6;
+	EVENT = Task3_Event7;
+	EVENT = Task3_Event8;
+};
+
+TASK Task4 {
+   PRIORITY = 13;
+   SCHEDULE = CT_SCHEDULING_TASK04;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task4_Event1;
+	EVENT = Task4_Event2;
+	EVENT = Task4_Event3;
+	EVENT = Task4_Event4;
+	EVENT = Task4_Event5;
+	EVENT = Task4_Event6;
+	EVENT = Task4_Event7;
+	EVENT = Task4_Event8;
+};
+
+TASK Task5 {
+   PRIORITY = 12;
+   SCHEDULE = CT_SCHEDULING_TASK05;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task5_Event1;
+	EVENT = Task5_Event2;
+	EVENT = Task5_Event3;
+	EVENT = Task5_Event4;
+	EVENT = Task5_Event5;
+	EVENT = Task5_Event6;
+	EVENT = Task5_Event7;
+	EVENT = Task5_Event8;
+};
+
+TASK Task6 {
+   PRIORITY = 11;
+   SCHEDULE = CT_SCHEDULING_TASK06;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task6_Event1;
+	EVENT = Task6_Event2;
+	EVENT = Task6_Event3;
+	EVENT = Task6_Event4;
+	EVENT = Task6_Event5;
+	EVENT = Task6_Event6;
+	EVENT = Task6_Event7;
+	EVENT = Task6_Event8;
+};
+
+TASK Task7 {
+   PRIORITY = 10;
+   SCHEDULE = CT_SCHEDULING_TASK07;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task7_Event1;
+	EVENT = Task7_Event2;
+	EVENT = Task7_Event3;
+	EVENT = Task7_Event4;
+	EVENT = Task7_Event5;
+	EVENT = Task7_Event6;
+	EVENT = Task7_Event7;
+	EVENT = Task7_Event8;
+};
+
+TASK Task8 {
+   PRIORITY = 9;
+   SCHEDULE = CT_SCHEDULING_TASK08;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task8_Event1;
+	EVENT = Task8_Event2;
+	EVENT = Task8_Event3;
+	EVENT = Task8_Event4;
+	EVENT = Task8_Event5;
+	EVENT = Task8_Event6;
+	EVENT = Task8_Event7;
+	EVENT = Task8_Event8;
+};
+
+TASK Task9 {
+   PRIORITY = 8;
+   SCHEDULE = CT_SCHEDULING_TASK09;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task9_Event1;
+	EVENT = Task9_Event2;
+	EVENT = Task9_Event3;
+	EVENT = Task9_Event4;
+	EVENT = Task9_Event5;
+	EVENT = Task9_Event6;
+	EVENT = Task9_Event7;
+	EVENT = Task9_Event8;
+};
+
+TASK Task10 {
+   PRIORITY = 7;
+   SCHEDULE = CT_SCHEDULING_TASK10;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task10_Event1;
+	EVENT = Task10_Event2;
+	EVENT = Task10_Event3;
+	EVENT = Task10_Event4;
+	EVENT = Task10_Event5;
+	EVENT = Task10_Event6;
+	EVENT = Task10_Event7;
+	EVENT = Task10_Event8;
+};
+
+TASK Task11 {
+   PRIORITY = 6;
+   SCHEDULE = CT_SCHEDULING_TASK11;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task11_Event1;
+	EVENT = Task11_Event2;
+	EVENT = Task11_Event3;
+	EVENT = Task11_Event4;
+	EVENT = Task11_Event5;
+	EVENT = Task11_Event6;
+	EVENT = Task11_Event7;
+	EVENT = Task11_Event8;
+};
+
+TASK Task12 {
+   PRIORITY = 5;
+   SCHEDULE = CT_SCHEDULING_TASK12;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task12_Event1;
+	EVENT = Task12_Event2;
+	EVENT = Task12_Event3;
+	EVENT = Task12_Event4;
+	EVENT = Task12_Event5;
+	EVENT = Task12_Event6;
+	EVENT = Task12_Event7;
+	EVENT = Task12_Event8;
+};
+
+TASK Task13 {
+   PRIORITY = 4;
+   SCHEDULE = CT_SCHEDULING_TASK13;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task13_Event1;
+	EVENT = Task13_Event2;
+	EVENT = Task13_Event3;
+	EVENT = Task13_Event4;
+	EVENT = Task13_Event5;
+	EVENT = Task13_Event6;
+	EVENT = Task13_Event7;
+	EVENT = Task13_Event8;
+};
+
+TASK Task14 {
+   PRIORITY = 3;
+   SCHEDULE = CT_SCHEDULING_TASK14;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task14_Event1;
+	EVENT = Task14_Event2;
+	EVENT = Task14_Event3;
+	EVENT = Task14_Event4;
+	EVENT = Task14_Event5;
+	EVENT = Task14_Event6;
+	EVENT = Task14_Event7;
+	EVENT = Task14_Event8;
+};
+
+TASK Task15 {
+   PRIORITY = 2;
+   SCHEDULE = CT_SCHEDULING_TASK15;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task15_Event1;
+	EVENT = Task15_Event2;
+	EVENT = Task15_Event3;
+	EVENT = Task15_Event4;
+	EVENT = Task15_Event5;
+	EVENT = Task15_Event6;
+	EVENT = Task15_Event7;
+	EVENT = Task15_Event8;
+};
+
+TASK Task16 {
+   PRIORITY = 1;
+   SCHEDULE = CT_SCHEDULING_TASK16;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+	STACK = 256;
+	TYPE = EXTENDED;
+	EVENT = Task16_Event1;
+	EVENT = Task16_Event2;
+	EVENT = Task16_Event3;
+	EVENT = Task16_Event4;
+	EVENT = Task16_Event5;
+	EVENT = Task16_Event6;
+	EVENT = Task16_Event7;
+	EVENT = Task16_Event8;
+};
+
+APPMODE AppMode1;
+
+EVENT Task1_Event1;
+EVENT Task1_Event2;
+EVENT Task1_Event3;
+EVENT Task1_Event4;
+EVENT Task1_Event5;
+EVENT Task1_Event6;
+EVENT Task1_Event7;
+EVENT Task1_Event8;
+
+EVENT Task2_Event1;
+EVENT Task2_Event2;
+EVENT Task2_Event3;
+EVENT Task2_Event4;
+EVENT Task2_Event5;
+EVENT Task2_Event6;
+EVENT Task2_Event7;
+EVENT Task2_Event8;
+
+EVENT Task3_Event1;
+EVENT Task3_Event2;
+EVENT Task3_Event3;
+EVENT Task3_Event4;
+EVENT Task3_Event5;
+EVENT Task3_Event6;
+EVENT Task3_Event7;
+EVENT Task3_Event8;
+
+EVENT Task4_Event1;
+EVENT Task4_Event2;
+EVENT Task4_Event3;
+EVENT Task4_Event4;
+EVENT Task4_Event5;
+EVENT Task4_Event6;
+EVENT Task4_Event7;
+EVENT Task4_Event8;
+
+EVENT Task5_Event1;
+EVENT Task5_Event2;
+EVENT Task5_Event3;
+EVENT Task5_Event4;
+EVENT Task5_Event5;
+EVENT Task5_Event6;
+EVENT Task5_Event7;
+EVENT Task5_Event8;
+
+EVENT Task6_Event1;
+EVENT Task6_Event2;
+EVENT Task6_Event3;
+EVENT Task6_Event4;
+EVENT Task6_Event5;
+EVENT Task6_Event6;
+EVENT Task6_Event7;
+EVENT Task6_Event8;
+
+EVENT Task7_Event1;
+EVENT Task7_Event2;
+EVENT Task7_Event3;
+EVENT Task7_Event4;
+EVENT Task7_Event5;
+EVENT Task7_Event6;
+EVENT Task7_Event7;
+EVENT Task7_Event8;
+
+EVENT Task8_Event1;
+EVENT Task8_Event2;
+EVENT Task8_Event3;
+EVENT Task8_Event4;
+EVENT Task8_Event5;
+EVENT Task8_Event6;
+EVENT Task8_Event7;
+EVENT Task8_Event8;
+
+EVENT Task9_Event1;
+EVENT Task9_Event2;
+EVENT Task9_Event3;
+EVENT Task9_Event4;
+EVENT Task9_Event5;
+EVENT Task9_Event6;
+EVENT Task9_Event7;
+EVENT Task9_Event8;
+
+EVENT Task10_Event1;
+EVENT Task10_Event2;
+EVENT Task10_Event3;
+EVENT Task10_Event4;
+EVENT Task10_Event5;
+EVENT Task10_Event6;
+EVENT Task10_Event7;
+EVENT Task10_Event8;
+
+EVENT Task11_Event1;
+EVENT Task11_Event2;
+EVENT Task11_Event3;
+EVENT Task11_Event4;
+EVENT Task11_Event5;
+EVENT Task11_Event6;
+EVENT Task11_Event7;
+EVENT Task11_Event8;
+
+EVENT Task12_Event1;
+EVENT Task12_Event2;
+EVENT Task12_Event3;
+EVENT Task12_Event4;
+EVENT Task12_Event5;
+EVENT Task12_Event6;
+EVENT Task12_Event7;
+EVENT Task12_Event8;
+
+EVENT Task13_Event1;
+EVENT Task13_Event2;
+EVENT Task13_Event3;
+EVENT Task13_Event4;
+EVENT Task13_Event5;
+EVENT Task13_Event6;
+EVENT Task13_Event7;
+EVENT Task13_Event8;
+
+EVENT Task14_Event1;
+EVENT Task14_Event2;
+EVENT Task14_Event3;
+EVENT Task14_Event4;
+EVENT Task14_Event5;
+EVENT Task14_Event6;
+EVENT Task14_Event7;
+EVENT Task14_Event8;
+
+EVENT Task15_Event1;
+EVENT Task15_Event2;
+EVENT Task15_Event3;
+EVENT Task15_Event4;
+EVENT Task15_Event5;
+EVENT Task15_Event6;
+EVENT Task15_Event7;
+EVENT Task15_Event8;
+
+EVENT Task16_Event1;
+EVENT Task16_Event2;
+EVENT Task16_Event3;
+EVENT Task16_Event4;
+EVENT Task16_Event5;
+EVENT Task16_Event6;
+EVENT Task16_Event7;
+EVENT Task16_Event8;
+
+};

@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# Copyright 2014, ACSE & CADIEEL
+# Copyright 2014, Mariano Cerdeiro, ACSE, CADIEEL
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
 #
@@ -33,14 +33,29 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-project 			 	 = blinking
-# blinking path
-blinking_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)blinking_make
-# source path
-blinking_SRC_PATH  += $(blinking_PATH)$(DS)src
-# include path
-INCLUDE			   += $(blinking_PATH)$(DS)inc
+# library
+LIBS 				     += rtos
+# library path
+rtos_PATH 		   	  = $(ROOT_DIR)$(DS)modules$(DS)rtos
+# library source path
+rtos_SRC_PATH 	      = $(rtos_PATH)$(DS)src
+# library include path
+rtos_INC_PATH 	      = $(rtos_PATH)$(DS)inc								\
+	$(rtos_PATH)$(DS)inc$(DS)$(ARCH)										\
+	$(rtos_PATH)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)							\
+	$(GENDIR)$(DS)inc														\
+	$(GENDIR)$(DS)inc$(DS)$(ARCH)											\
+	$(GENDIR)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)
 # library source files
-SRC_FILES 	  	   += $(wildcard $(blinking_SRC_PATH)$(DS)*.c)
-# configuration for OSEK-OS
-OIL_FILES		   += $(blinking_PATH)$(DS)etc$(DS)blinking.oil
+rtos_SRC_FILES 	      = $(wildcard $(rtos_SRC_PATH)$(DS)*.c)
+# include needed makefiles depending on the architecture
+-include modules$(DS)rtos$(DS)mak$(DS)$(ARCH)$(DS)Makefile
+# files to be generated for ciaa RTOS OSEK
+rtos_GEN_FILES += $(rtos_PATH)$(DS)gen$(DS)inc$(DS)Os_Internal_Cfg.h.php			\
+	$(rtos_PATH)$(DS)gen$(DS)inc$(DS)Os_Cfg.h.php							\
+	$(rtos_PATH)$(DS)gen$(DS)src$(DS)Os_Cfg.c.php							\
+	$(rtos_PATH)$(DS)gen$(DS)src$(DS)Os_Internal_Cfg.c.php					\
+	$(rtos_PATH)$(DS)gen$(DS)src$(DS)$(ARCH)$(DS)Os_Internal_Arch_Cfg.c.php \
+	$(rtos_PATH)$(DS)gen$(DS)inc$(DS)$(ARCH)$(DS)Os_Internal_Arch_Cfg.h.php
+
+

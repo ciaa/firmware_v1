@@ -33,14 +33,4 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-project 			 	 = blinking
-# blinking path
-blinking_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)blinking_make
-# source path
-blinking_SRC_PATH  += $(blinking_PATH)$(DS)src
-# include path
-INCLUDE			   += $(blinking_PATH)$(DS)inc
-# library source files
-SRC_FILES 	  	   += $(wildcard $(blinking_SRC_PATH)$(DS)*.c)
-# configuration for OSEK-OS
-OIL_FILES		   += $(blinking_PATH)$(DS)etc$(DS)blinking.oil
+include $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPU)$(DS)mak$(DS)Makefile

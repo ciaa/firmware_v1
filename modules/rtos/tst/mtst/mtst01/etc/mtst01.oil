@@ -1,0 +1,185 @@
+OSEK OSEK {
+
+OS	ExampleOS {
+	STATUS = EXTENDED;
+	PRETASKHOOK = FALSE;
+	POSTTASKHOOK = FALSE;
+   STARTUPHOOK = FALSE;
+   ERRORHOOK = TRUE;
+   SHUTDOWNHOOK = FALSE;
+	MEMMAP = FALSE;
+	USERESSCHEDULER = TRUE;
+};
+
+TASK InitTask {
+   PRIORITY = 1;
+   SCHEDULE = FULL;
+   ACTIVATION = 1;
+   AUTOSTART = TRUE {
+      APPMODE = AppMode1;
+      };
+	RESOURCE = Resource1;
+	EVENT = Event1;
+   STACK = 1024;
+   TYPE = EXTENDED;
+};
+
+TASK TaskA {
+   PRIORITY = 2;
+   SCHEDULE = FULL;
+   ACTIVATION = 1;
+   AUTOSTART = FALSE;
+   RESOURCE = Resource1;
+   EVENT = Event1;
+	EVENT = Event2;
+	STACK = 256;
+	TYPE = EXTENDED;
+};
+
+TASK TaskB {
+	PRIORITY = 0;
+	SCHEDULE = FULL;
+	ACTIVATION = 2;
+	AUTOSTART = FALSE;
+	RESOURCE = Resource1;
+	STACK = 256;
+	TYPE = BASIC;
+}
+
+TASK TaskC {
+	PRIORITY = 4;
+	SCHEDULE = FULL;
+	ACTIVATION = 10
+	AUTOSTART = FALSE;
+	RESOURCE = Resource2;
+	TYPE = BASIC;
+	STACK = 256;
+}
+
+TASK TaskD {
+	PRIORITY = 2;
+	SCHEDULE = FULL;
+	ACTIVATION = 4;
+	AUTOSTART = FALSE;
+	RESOURCE = Resource2;
+	EVENT = Event2;
+	STACK = 256;
+	TYPE = BASIC;
+}
+
+TASK TaskE {
+   PRIORITY = 10;
+   SCHEDULE = FULL;
+   ACTIVATION = 4;
+   AUTOSTART = FALSE;
+   RESOURCE = Resource3;
+   EVENT = Event2;
+   STACK = 256;
+   TYPE = BASIC;
+}
+
+ISR CanTx {
+	CATEGORY = 2;
+	INTERRUPT = INT_CANTX;
+	PRIORITY = 2;
+	STACK = 256;
+};
+
+ISR CanRx {
+	CATEGORY = 2;
+	INTERRUPT = INT_CANRX;
+	PRIORITY = 2;
+	STACK = 256;
+};
+
+ISR NMI {
+	CATEGORY = 1;
+	INTERRUPT = INT_NMI;
+	PRIORITY = 10;
+	STACK = 256;
+};
+
+APPMODE AppMode1;
+
+APPMODE AppMode2;
+
+EVENT Event1;
+
+EVENT Event2;
+
+EVENT Event3;
+
+RESOURCE Resource1;
+
+RESOURCE Resource2 {
+	RESOURCEPROPERTY = INTERNAL;
+}
+
+RESOURCE Resource3;
+
+COUNTER HardwareCounter {
+	MAXALLOWEDVALUE = 100000;
+	TICKSPERBASE = 10;
+	MINCYCLE = 1;
+	TYPE = HARDWARE;
+	COUNTER = HWCOUNTER0;
+};
+
+COUNTER SoftwareCounter {
+	MAXALLOWEDVALUE = 100000;
+	TICKSPERBASE = 10;
+	MINCYCLE = 10;
+	TYPE = SOFTWARE;
+};
+
+ALARM IncrementSWCounter {
+	COUNTER = HardwareCounter;
+	ACTION = INCREMENT {
+		COUNTER = SoftwareCounter;
+	};
+	AUTOSTART = TRUE {
+		APPMODE = AppMode1;
+		ALARMTIME = 1;
+		CYCLETIME = 1;
+	};
+};
+
+ALARM WakeTaskE {
+	COUNTER = SoftwareCounter;
+	ACTION = ACTIVATETASK {
+		TASK = TaskE;
+	};
+	AUTOSTART = FALSE;
+};
+
+ALARM Callback {
+	COUNTER = SoftwareCounter;
+	ACTION = ALARMCALLBACK {
+		CALLBACK = AlarmCallback;
+	};
+	AUTOSTART = FALSE;
+};
+
+ALARM SetEventTaskA {
+	COUNTER = SoftwareCounter;
+	ACTION = SETEVENT {
+		TASK = TaskA;
+		EVENT = Event1;
+	};
+	AUTOSTART = TRUE {
+		ALARMTIME = 50;
+		CYCLETIME = 100;
+		APPMODE = AppMode1;
+	};
+};
+
+ALARM SetEventInitTask {
+	COUNTER = SoftwareCounter;
+	ACTION = SETEVENT {
+		TASK = InitTask;
+		EVENT = Event1;
+	}
+	AUTOSTART = FALSE;
+};
+
+};

@@ -1,0 +1,164 @@
+TESTSUITE TESTSUITE {
+
+TEST OS_0001 {
+	TESTID = 0001;
+	DESCRIPTION = Test description;
+	TESTNAME = OS_0001;
+	STATE = ENABLE;
+};
+
+TEST OS_0002 {
+	TESTID = 0002;
+	DESCRIPTION = Test ActivateTask interface;
+	TESTNAME = OS_0002;
+	STATE = ENABLE;
+};
+
+TEST OS_0003 {
+	TESTID = 0003;
+	DESCRIPTION = Test TerminateTask interface;
+	TESTNAME = OS_0003;
+	STATE = ENABLE;
+};
+
+TEST OS_0004 {
+	TESTID = 0004;
+	DESCRIPTION = Test ChainTask interface;
+	TESTNAME = OS_0004;
+	STATE = ENABLE;
+};
+
+TEST OS_0005 {
+	TESTID = 0005;
+	DESCRIPTION = Test Schedule interface;
+	TESTNAME = OS_0005;
+	STATE = ENABLE;
+};
+
+TEST OS_0006 {
+   TESTID = 0006;
+   DESCRIPTION = Test GetTaskID interface;
+   TESTNAME = OS_0006;
+   STATE = ENABLE;
+};
+
+TEST OS_0007 {
+	TESTID = 00007;
+	DESCRIPTION = Test GetTaskState interface;
+	TESTNAME = OS_0007;
+	STATE = ENABLE;
+};
+
+TEST OS_0008 {
+	TESTID = 0008;
+	DESCRIPTION = Test EnableAllInterrupts interface;
+	TESTNAME = OS_0008;
+	STATE = ENABLE;
+};
+
+TEST OS_0009 {
+   TESTID = 0009;
+   DESCRIPTION = Test DisableAllInterrupts interface;
+   TESTNAME = OS_0009;
+   STATE = ENABLE;
+};
+
+TEST OS_0010 {
+   TESTID = 0010;
+   DESCRIPTION = Test ResumeAllInterrupts interface;
+   TESTNAME = OS_0010;
+   STATE = ENABLE;
+};
+
+TEST OS_0011 {
+   TESTID = 0011;
+   DESCRIPTION = Test SuspendAllInterrupts interface;
+   TESTNAME = OS_0011;
+   STATE = ENABLE;
+};
+
+TEST OS_0012 {
+   TESTID = 0012;
+   DESCRIPTION = Test ResumeOSInterrupts interface;
+   TESTNAME = OS_0012;
+   STATE = ENABLE;
+};
+
+TEST OS_0013 {
+   TESTID = 0013;
+   DESCRIPTION = Test SuspendOSInterrupts interface;
+   TESTNAME = OS_0013;
+   STATE = ENABLE;
+};
+
+TEST OS_0014 {
+   TESTID = 0014;
+   DESCRIPTION = Test GetResource interface;
+   TESTNAME = OS_0014;
+   STATE = ENABLE;
+};
+
+TEST OS_0015 {
+   TESTID = 0015;
+   DESCRIPTION = Test ReleaseResource interface;
+   TESTNAME = OS_0015;
+   STATE = ENABLE;
+};
+
+TEST OS_0016 {
+   TESTID = 0016;
+   DESCRIPTION = Test SetEvent interface;
+   TESTNAME = OS_0016;
+   STATE = ENABLE;
+};
+
+TEST OS_0017 {
+	TESTID = 0017;
+	DESCRIPTION = Test ClearEvent interface;
+	TESTNAME = OS_0017;
+	STATE = ENABLE;
+};
+
+TEST OS_0018 {
+   TESTID = 0018;
+   DESCRIPTION = Test WaitEvent interface;
+   TESTNAME = OS_0018;
+   STATE = ENABLE;
+};
+
+TEST OS_0019 {
+	TESTID = 0019;
+	DESCRIPTION = Test GetAlarmBase interface;
+	TESTNAME = OS_0019;
+	STATE = ENABLE;
+};
+
+TEST OS_0020 {
+	TESTID = 0020;
+	DESCRIPTION = Test GetAlarm interface;
+   TESTNAME = OS_0020;
+   STATE = ENABLE;
+};
+
+TEST OS_0021 {
+   TESTID = 0021;
+   DESCRIPTION = Test SetRelAlarm interface;
+   TESTNAME = OS_0021;
+   STATE = ENABLE;
+};
+
+TEST OS_0022 {
+   TESTID = 0022;
+   DESCRIPTION = Test SetAbsAlarm interface;
+   TESTNAME = OS_0022;
+   STATE = ENABLE;
+};
+
+TEST OS_0023 {
+   TESTID = 0023;
+   DESCRIPTION = Test CancelAlarm interface;
+   TESTNAME = OS_0023;
+   STATE = ENABLE;
+};
+
+};

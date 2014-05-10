@@ -34,15 +34,19 @@
 #
 ###############################################################################
 # ARCH, CPUTYPE and CPU following are supported
-# +--------------+---------------+---------------+
-# |      ARCH    |    CPUTYPE    |      CPU      |
-# +--------------+---------------+---------------+
-# | cortexM4     | lpc4000       | lpc4337       |
-# +--------------+---------------+---------------+
+# +--------------+---------------+---------------+--------------+
+# |      ARCH    |    CPUTYPE    |      CPU      | COMPILER     |
+# +--------------+---------------+---------------+--------------+
+# | posix        | posix32       |               | gcc          |
+# |              | posix64       |               |              |
+# +--------------+---------------+---------------+--------------+
+# | cortexM4     | lpc4000       | lpc4337       |              |
+# +--------------+---------------+---------------+--------------+
 #
-ARCH = cortexM4
-CPUTYPE = lpc4000
-CPU = lpc4337
+ARCH 				?= posix
+CPUTYPE 			?= posix64
+CPU 				?= 
+COMPILER			?= gcc
 
 # MODULES
 #
@@ -55,7 +59,8 @@ MODS += modules$(DS)posix      			\
 		  modules$(DS)config					\
         modules$(DS)bsp						\
         modules$(DS)platforms 			\
-        examples$(DS)blinking_make		
+		modules$(DS)rtos \
+        examples$(DS)blinking_make
 
 DS = /
 ######################## DO NOT CHANGE AFTER THIS LINE ########################
@@ -85,14 +90,14 @@ CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
 # create list of object files
 $(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES = $($(LIB)_SRC_FILES:.c=.o)) )
 
-	
+
 #rule for library
 define librule
 $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ===============================================================================
 	@echo Creating library $(1)
 	$(AR) -rcs -o $(LIB_DIR)$(DS)$(strip $(1)).a $(2)
-	
+
 info_$(strip $(1)) :
 	@echo Info of Library $(1)
 	@echo Path........: $($(strip $(1))_PATH)
@@ -110,11 +115,17 @@ $(foreach LIB, $(LIBS), $(eval $(call librule, $(LIB), $($(LIB)_OBJ_FILES))) )
 
 $(foreach LIB, $(LIBS), $(eval $(LIB) : $(LIB_DIR)$(DS)$(LIB).a ) )
 
-#### START UNIT TEST PART OF MAKE FILE
+###################### START UNIT TEST PART OF MAKE FILE ######################
 # Gets all Modules Names
 DIRS := $(sort $(dir $(wildcard modules$(DS)*$(DS))))
-DIRS := $(subst modules, , $(DIRS))
-DIRS := $(subst $(DS), , $(DIRS))
+ALL_MODS := $(subst modules, , $(DIRS))
+ALL_MODS := $(subst $(DS), , $(ALL_MODS))
+
+MOCKS_OUT_DIR = out$(DS)ceedling$(DS)mocks
+
+FILES_TO_MOCK = $(foreach DIR, $(DIRS), $(wildcard $(DIR)inc$(DS)*.h))
+
+FILES_MOCKED = $(foreach MOCKED, $(FILES_TO_MOCK), $(MOCKS_OUT_DIR)$(DS)mock_$(notdir $(MOCKED)))
 
 # Define rule for testing
 define tstrule
@@ -125,35 +136,69 @@ tst_$(tmp):
 	@echo Testing $(1)
 endef
 
-# Creates all needed rules
-$(foreach TST, $(DIRS), $(eval $(call tstrule, $(TST))))
+# Creates all tst_<MOD> rules
+$(foreach TST, $(ALL_MODS), $(eval $(call tstrule, $(TST))))
 
-#### END UNIT TEST PART OF MAKE FILE
+mocks: $(FILES_MOCKED)
+	@echo $(FILES_MOCKED)
+	@echo ===============================================================================
+	@echo Creating Mocks for $(FILES_TO_MOCK)
 
-# compile rule
+#	@echo Mocked files $(FILES_MOCKED)
+#	@echo $(MOCKS_OUT_DIR)$(DS)mock_%.h : %.h
+#	ruby externals/ceedling/vendor/cmock/lib/cmock.rb -omodules/tools/ceedling/project.yml modules/posix/inc/ciaaPOSIX_stdio.h
+
+# Rule to create Mock Files
+mock_%.h :
+	@echo ===============================================================================
+	@echo Craeting Mocks $@
+	@echo Creating Mocks $(notdir $@)
+	@echo Searching $(subst mock_,,$(notdir $@))
+	@echo Searching in $(FILES_TO_MOCK)
+	@echo Found $(foreach MOCKH, $(FILES_TO_MOCK), ifn$(findstring $(DS)$(subst mock_,,$(notdir $@)), $(MOCKH)))
+	@echo Found $(foreach MOCKH, $(FILES_TO_MOCK), $(MOCKH))
+
+#	@echo  $(findstring $(subst mock_,,$(notdir $@)), $(FILES_TO_MOCK))
+
+###################### ENDS UNIT TEST PART OF MAKE FILE #######################
+
+# Rule to compile
 %.o : %.c
 	@echo ===============================================================================
 	@echo Compiling $<
 	$(CC) -c $(CFLAGS) $< -o $@
 
 # link rule
-          
+
 $(project) : $(LIBS) $(OBJ_FILES)
 	@echo ===============================================================================
 	@echo Linking $(project)
 	$(CC) $(OBJ_FILES) $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -o $(BIN_DIR)$(DS)$(project).bin
 #	$(LD) -lcrt1 -Map $(BIN_DIR)$(DS)$(project).map --library-path=$(LIB_DIR)$(DS) $(OBJ_FILES) $(foreach lib, $(LIB_DIR)$(DS)$(LIBS).a, $(lib)) -o $(BIN_DIR)$(DS)$(project).bin
 
+
+###############################################################################
+# generation
+GENDIR			= out$(DS)gen
+generate : $(OIL_FILES)
+	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
+		$(OIL_FILES) -f $(rtos_GEN_FILES) -o $(GENDIR)
+
+###############################################################################
+# doxygen
 doxygen:
 	@echo running doxygen
 	doxygen modules/tools/doxygen/doxygen.cnf
 
-
+###############################################################################
+# help
 help:
 	@echo info.......: general information about the make environment
 	@echo info_\<mod\>.: same as info but reporting information of a library
 	@echo tst_\<mod\>..: runs the tests of the indicated module
 
+###############################################################################
+# information
 info:
 	@echo enable modules....: $(MODS)
 	@echo includes..........: $(INCLUDE)

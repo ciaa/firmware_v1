@@ -1,0 +1,32 @@
+OpenGEN OpenGEN {
+
+	MemMap MemMap {
+		Mapping MT_SC_Mapping {
+			NAME = Start Code Mapping;
+			MAPPING = ModuleTest_START_SEC_CODE;
+			SECTION = START_SECTION_CODE;
+		};
+
+		Mapping MT_EC_Mapping {
+			NAME = End Code Mapping;
+			MAPPING = ModuleTest_STOP_SEC_CODE
+			SECTION = STOP_SECTION_CODE;
+		};
+
+		Mapping MT_SD_Mapping {
+			NAME = Start Data Mapping;
+			MAPPING = ModuleTest_START_SEC_DATA;
+			SECTION = START_SECTION_DATA;
+		}
+
+		Mapping MT_ED_Mapping {
+			NAME = End Data Mapping;
+			MAPPING = ModuleTest_STOP_SEC_DATA;
+			SECTION = STOP_SECTION_DATA;
+		}
+
+		Sections {
+		}
+	};
+
+};

@@ -1,0 +1,12 @@
+DRV DRV {
+
+	GENERAL GenConfig {
+		StartUp = ENABLE;
+		Mcu = DISABLE;
+		Dio = DISABLE;
+		Eth = DISABLE;
+	};
+
+	DRIVER StartUp {
+	};
+};
