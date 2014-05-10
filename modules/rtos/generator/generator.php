@@ -205,7 +205,10 @@ $path = array_shift($args);
 
 $path = substr($path,0, strlen($path)-strlen("/generator.php"));
 
-print "FreeOSEK Generator - Copyright 2008, 2009, Mariano Cerdeiro - http://opensek.sf.net\n\n";
+print "ciaaFirmware RTOS Generator - Copyright 2008, 2009, Mariano Cerdeiro\n";
+print "                              Copyright 2014, Mariano Cerdeiro, ACSE & CADIEEL\n";
+print "         ACSE : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/\n";
+print "         CADIEEL: http://www.cadieel.org.ar\n\n";
 
 foreach ($args as $arg)
 {
@@ -215,34 +218,29 @@ foreach ($args as $arg)
 			printCmdLine();
 			break;
 		case "-l":
-			print "INFO: ------ LICENSE START ------\n";
-			print "INFO: FreeOSEK Generator is part of OpenOSEK.\nINFO: \n";
-			print "INFO: FreeOSEK is free software: you can redistribute it and/or modify\n";
-			print "INFO: it under the terms of the GNU General Public License as published by\n";
-			print "INFO: the Free Software Foundation, either version 3 of the License, or\n";
-			print "INFO: (at your option) any later version.\nINFO: \n";
-			print "INFO: Linking FreeOSEK statically or dynamically with other modules is making a\n";
-			print "INFO: combined work based on FreeOSEK. Thus, the terms and conditions of the GNU\n";
-			print "INFO: General Public License cover the whole combination.\nINFO:\n";
-			print "INFO: In addition, as a special exception, the copyright holders of FreeOSEK give\n";
-			print "INFO: you permission to combine FreeOSEK program with free software programs or\n";
-			print "INFO: libraries that are released under the GNU LGPL and with independent modules\n";
-			print "INFO: that communicate with FreeOSEK solely through the FreeOSEK defined interface. \n";
-			print "INFO: You may copy and distribute such a system following the terms of the GNU GPL\n";
-			print "INFO: for FreeOSEK and the licenses of the other code concerned, provided that you\n";
-			print "INFO: include the source code of that other code when and as the GNU GPL requires\n";
-			print "INFO: distribution of source code.\nINFO:\n";
-			print "INFO: Note that people who make modified versions of FreeOSEK are not obligated to\n";
-			print "INFO: grant this special exception for their modified versions; it is their choice\n";
-			print "INFO: whether to do so. The GNU General Public License gives permission to release\n";
-			print "INFO: a modified version without this exception; this exception also makes it\n";
-			print "INFO: possible to release a modified version which carries forward this exception.\nINFO:\n";
-			print "INFO: FreeOSEK is distributed in the hope that it will be useful,\n";
-			print "INFO: but WITHOUT ANY WARRANTY; without even the implied warranty of\n";
-			print "INFO: MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n";
-			print "INFO: GNU General Public License for more details.\n";
-			print "INFO: You should have received a copy of the GNU General Public License\n";
-			print "INFO: along with FreeOSEK. If not, see <http://www.gnu.org/licenses/>.\n";
+            print "INFO: ------ LICENSE START ------\n";
+            print "INFO: This file is part of CIAA Firmware.\n";
+            print "INFO: Redistribution and use in source and binary forms, with or without\n";
+            print "INFO: modification, are permitted provided that the following conditions are met:\n";
+            print "INFO: 1. Redistributions of source code must retain the above copyright notice,\n";
+            print "INFO: this list of conditions and the following disclaimer.\n";
+            print "INFO: 2. Redistributions in binary form must reproduce the above copyright notice,\n";
+            print "INFO: this list of conditions and the following disclaimer in the documentation\n";
+            print "INFO: and/or other materials provided with the distribution.\n";
+            print "INFO: 3. Neither the name of the copyright holder nor the names of its\n";
+            print "INFO: contributors may be used to endorse or promote products derived from this\n";
+            print "INFO: software without specific prior written permission.\n";
+            print "INFO: THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\n";
+            print "INFO: AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n";
+            print "INFO: IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE\n";
+            print "INFO: ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE\n";
+            print "INFO: LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\n";
+            print "INFO: CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF\n";
+            print "INFO: SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS\n";
+            print "INFO: INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN\n";
+            print "INFO: CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n";
+            print "INFO: ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n";
+            print "INFO: POSSIBILITY OF SUCH DAMAGE.\n";
 			print "INFO: ------- LICENSE END -------\n";
 			break;
 		case "-h":

@@ -58,6 +58,7 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "os.h"
 #include "blinking.h"
 
 /*==================[macros and definitions]=================================*/
@@ -77,6 +78,8 @@ int main(void)
 {
    uint32_t fildes;
 
+   StartOS(AppMode1);
+
    /* open /dev/serial/uart0 for read and write */
    fildes = ciaaPOSIX_open("/dev/serial/uart0", O_RDWR);
 
@@ -84,6 +87,16 @@ int main(void)
 	(void)fildes;
 
 	return 0;
+}
+
+TASK(TaskA)
+{
+    TerminateTask();
+}
+
+TASK(TaskB)
+{
+    TerminateTask();
 }
 
 /** @} doxygen end group definition */

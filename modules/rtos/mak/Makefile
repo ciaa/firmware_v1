@@ -47,11 +47,14 @@ rtos_INC_PATH 	      = $(rtos_PATH)$(DS)inc								\
 	$(GENDIR)$(DS)inc$(DS)$(ARCH)											\
 	$(GENDIR)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)
 # library source files
-rtos_SRC_FILES 	      = $(wildcard $(rtos_SRC_PATH)$(DS)*.c)
+rtos_SRC_FILES 	      = $(wildcard $(rtos_SRC_PATH)$(DS)*.c)				\
+						$(wildcard $(rtos_SRC_PATH)$(DS)$(ARCH)$(DS)*.c)	\
+						$(wildcard out$(DS)gen$(DS)src$(DS)*.c)				\
+						$(wildcard out$(DS)gen$(DS)src$(DS)$(ARCH)$(DS)*.c)
 # include needed makefiles depending on the architecture
 -include modules$(DS)rtos$(DS)mak$(DS)$(ARCH)$(DS)Makefile
 # files to be generated for ciaa RTOS OSEK
-rtos_GEN_FILES += $(rtos_PATH)$(DS)gen$(DS)inc$(DS)Os_Internal_Cfg.h.php			\
+rtos_GEN_FILES += $(rtos_PATH)$(DS)gen$(DS)inc$(DS)Os_Internal_Cfg.h.php	\
 	$(rtos_PATH)$(DS)gen$(DS)inc$(DS)Os_Cfg.h.php							\
 	$(rtos_PATH)$(DS)gen$(DS)src$(DS)Os_Cfg.c.php							\
 	$(rtos_PATH)$(DS)gen$(DS)src$(DS)Os_Internal_Cfg.c.php					\
