@@ -84,11 +84,6 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
-#endif
-
 void StartOS
 (
 	AppModeType Mode
@@ -158,11 +153,6 @@ void StartOS
 	/* this function shall never return */
 	while(1);
 }
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

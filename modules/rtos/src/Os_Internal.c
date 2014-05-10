@@ -77,28 +77,13 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_DATA
-#include "MemMap.h"
-#endif
-
 TaskType RunningTask ATTRIBUTES();
 
 ContextType ActualContext ATTRIBUTES();
 
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_DATA
-#include "MemMap.h"
-#endif
-
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
-#endif
-
 void AddReady(TaskType TaskID)
 {
 	TaskPriorityType priority;
@@ -356,11 +341,6 @@ CounterIncrementType IncrementCounter(CounterType CounterID, CounterIncrementTyp
 	return (CounterIncrementType)MinimalCount;
 }
 #endif /* #if (ALARMS_COUNT != 0) */
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

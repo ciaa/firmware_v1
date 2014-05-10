@@ -136,11 +136,6 @@ foreach ($counters as $counter)
 ?>
 
 /*==================[external data definition]===============================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_DATA
-#include "MemMap.h"
-#endif
-
 /* FreeOSEK to configured priority table
  *
  * This table show the relationship between the user selected
@@ -461,19 +456,9 @@ uint8 ApplicationMode;
  ** uint8 ErrorHookRunning ATTRIBUTES(); */
 uint8 ErrorHookRunning;
 
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_DATA
-#include "MemMap.h"
-#endif
-
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
-#endif
-
 <?php
 $intnames = $config->getList("/OSEK","ISR");
 foreach ($intnames as $int)
@@ -493,11 +478,6 @@ foreach ($intnames as $int)
 
 }
 ?>
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

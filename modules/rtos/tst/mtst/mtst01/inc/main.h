@@ -117,11 +117,6 @@
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-#if (MAIN_MEMMAP == ENABLE)
-#define TestSuite_START_SEC_CODE
-#include "MemMap.h"
-#endif
-
 /** \brief main function
  **
  ** Project main function. This function is called after the c conformance
@@ -133,11 +128,6 @@ int main
 (
    void
 ) ATTRIBUTES();
-
-#if (MAIN_MEMMAP == ENABLE)
-#define TestSuite_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

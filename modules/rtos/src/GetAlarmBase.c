@@ -84,11 +84,6 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
-#endif
-
 StatusType GetAlarmBase
 (
 	AlarmType AlarmID,
@@ -127,7 +122,7 @@ StatusType GetAlarmBase
 	}
 
 #if ( (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED) && \
-	 	(HOOK_ERRORHOOK == ENABLE) )
+      (HOOK_ERRORHOOK == ENABLE) )
 	/* \req OSEK_ERR_1.3-12/xx The ErrorHook hook routine shall be called if a
 	 ** system service returns a StatusType value not equal to E_OK.*/
 	/* \req OSEK_ERR_1.3.1-12/xx The hook routine ErrorHook is not called if a
@@ -146,9 +141,6 @@ StatusType GetAlarmBase
 	return ret;
 }
 
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
 #endif
 
 /** @} doxygen end group definition */

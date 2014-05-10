@@ -84,11 +84,6 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
-#endif
-
 StatusType ActivateTask
 (
 	TaskType TaskID
@@ -194,11 +189,11 @@ StatusType ActivateTask
 
 #if (HOOK_ERRORHOOK == ENABLE)
 	/* \req OSEK_ERR_1.3-1/xx The ErrorHook hook routine shall be called if a
- 	 * system service returns a StatusType value not equal to E_OK.*/
+     * system service returns a StatusType value not equal to E_OK.*/
 	/* \req OSEK_ERR_1.3.1-1/xx The hook routine ErrorHook is not called if a
- 	 * system service is called from the ErrorHook itself. */
+     * system service is called from the ErrorHook itself. */
 	if ( ( ret != E_OK ) && (ErrorHookRunning != 1U))
- 	{
+    {
 		SetError_Api(OSServiceId_ActivateTask);
 		SetError_Param1(TaskID);
 		SetError_Ret(ret);
@@ -209,11 +204,6 @@ StatusType ActivateTask
 
 	return ret;
 }
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

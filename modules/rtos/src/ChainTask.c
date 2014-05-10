@@ -85,11 +85,6 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
-#endif
-
 StatusType ChainTask
 (
 	TaskType taskid
@@ -176,7 +171,7 @@ StatusType ChainTask
 
 		/* set entry point for this task again */
 		/* \req OSEK_SYS_3.1.2-1/3 The operating system shall ensure that the task
- 		 ** code is being executed from the first statement. */
+         * code is being executed from the first statement. */
 		SetEntryPoint(GetRunningTask());
 		/* remove ready list */
 		RemoveTask(GetRunningTask());
@@ -232,11 +227,6 @@ StatusType ChainTask
 
 	return ret;
 }
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -93,12 +93,6 @@
 /* only compile this function if RESOURCE_COUNT != 0 or if RES_SCHEDULER is
  * used */
 #if ( (NO_RES_SCHEDULER == DISABLE) || (RESOURCES_COUNT != 0) )
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
-#endif
-
 StatusType ReleaseResource
 (
 	ResourceType ResID
@@ -223,12 +217,6 @@ StatusType ReleaseResource
 
 	return ret;
 }
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
-
 #endif /* #if ( (NO_RES_SCHEDULER == DISABLE) || (RESOURCES_COUNT != 0) ) */
 
 /** @} doxygen end group definition */

@@ -82,9 +82,6 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
 #endif
 
 StatusType GetTaskState
@@ -146,9 +143,6 @@ StatusType GetTaskState
 	return ret;
 }
 
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
 #endif
 
 /** @} doxygen end group definition */

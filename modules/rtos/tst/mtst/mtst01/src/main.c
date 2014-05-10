@@ -81,11 +81,6 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-#if (MAIN_MEMMAP == ENABLE)
-#define TestSuite_START_SEC_DATA
-#include "MemMap.h"
-#endif
-
 unsigned int mt_ErrorHook_Counter ATTRIBUTES();
 unsigned int mt_ErrorHook_Api ATTRIBUTES();
 unsigned int mt_ErrorHook_Param1 ATTRIBUTES();
@@ -98,17 +93,11 @@ unsigned int mt_StateCounter ATTRIBUTES();
 
 TS_ResultType mt_TaskAssert ATTRIBUTES();
 
-#if (MAIN_MEMMAP == ENABLE)
-#define TestSuite_STOP_SEC_DATA
-#include "MemMap.h"
 #endif
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-#if (MAIN_MEMMAP == ENABLE)
-#define TestSuite_START_SEC_CODE
-#include "MemMap.h"
 #endif
 
 int main
@@ -803,14 +792,8 @@ TEST(OS_0023)
 	return TS_OK;
 }
 
-#if (MAIN_MEMMAP == ENABLE)
-#define TestSuite_STOP_SEC_CODE
-#include "MemMap.h"
 #endif
 
-#if (MAIN_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
 #endif
 
 ISR(CanRx)
@@ -995,11 +978,6 @@ ALARMCALLBACK(AlarmCallback)
 {
 
 }
-
-#if (MAIN_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

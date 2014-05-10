@@ -77,21 +77,11 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_DATA
-#include "MemMap.h"
-#endif
-
 InterruptCounterType SuspendOSInterrupts_Counter;
 
 InterruptCounterType DisableAllInterrupts_Counter;
 
 InterruptCounterType SuspendAllInterrupts_Counter;
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_DATA
-#include "MemMap.h"
-#endif
 
 /*==================[internal functions definition]==========================*/
 

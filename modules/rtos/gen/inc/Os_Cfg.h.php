@@ -193,11 +193,6 @@ else
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_DATA
-#include "MemMap.h"
-#endif
-
 <?php
 $errorhook=$config->getValue("/OSEK/" . $os[0],"ERRORHOOK");
 if ($errorhook == "TRUE")
@@ -241,16 +236,7 @@ extern unsigned int Osek_ErrorRet;
 }
 ?>
 
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_DATA
-#include "MemMap.h"
-#endif
-
 /*==================[external functions declaration]=========================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
-#endif
 <?php
 $pretaskhook=$config->getValue("/OSEK/" . $os[0],"PRETASKHOOK");
 if ($pretaskhook == "TRUE")
@@ -313,11 +299,6 @@ foreach ($alarms as $alarm)
 print "\n";
 
 ?>
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

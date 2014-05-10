@@ -207,11 +207,6 @@
 typedef uint8 ContextType;
 
 /*==================[external data declaration]==============================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_DATA
-#include "MemMap.h"
-#endif
-
 /** \brief ActualContext
  **
  ** This variable saves the actual context
@@ -221,17 +216,7 @@ extern ContextType ActualContext;
 /** \brief RunningTask variable */
 extern TaskType RunningTask;
 
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_DATA
-#include "MemMap.h"
-#endif
-
-/*==================[external functions declaration]=========================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
-#endif
-
+/*==================[external functions declaration]=========================*/ 
 /** \brief Architecture Dependnece Start Os function
  **
  ** This function is called from the StartOS function
@@ -284,11 +269,6 @@ extern void OSEK_ISR_NoHandler(void) ATTRIBUTES();
  ** increment some events may be executed together.
  **/
 extern CounterIncrementType IncrementCounter(CounterType CounterID, CounterIncrementType Increment);
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

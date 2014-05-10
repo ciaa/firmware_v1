@@ -83,12 +83,6 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
-#endif
-
 StatusType GetTaskID
 (
 	TaskRefType TaskID
@@ -106,11 +100,6 @@ StatusType GetTaskID
 	/* \req OSEK_SYS_3.5.3 This function returns always E_OK */
 	return E_OK;
 }
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

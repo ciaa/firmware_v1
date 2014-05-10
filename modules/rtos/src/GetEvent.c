@@ -84,12 +84,6 @@
 
 /*==================[external functions definition]==========================*/
 #if (NO_EVENTS == DISABLE)
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
-#endif
-
 StatusType GetEvent
 (
 	TaskType TaskID,
@@ -151,12 +145,6 @@ StatusType GetEvent
 
 	return ret;
 }
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
-
 #endif /* #if (NO_EVENTS == DISABLE) */
 
 /** @} doxygen end group definition */

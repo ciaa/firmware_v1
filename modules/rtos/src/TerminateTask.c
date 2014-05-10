@@ -86,11 +86,6 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_START_SEC_CODE
-#include "MemMap.h"
-#endif
-
 StatusType TerminateTask
 (
 	void
@@ -201,11 +196,6 @@ StatusType TerminateTask
 
 	return ret;
 }
-
-#if (OSEK_MEMMAP == ENABLE)
-#define FreeOSEK_STOP_SEC_CODE
-#include "MemMap.h"
-#endif
 
 /** @} doxygen endVar group definition */
 /** @} doxygen endVar group definition */
