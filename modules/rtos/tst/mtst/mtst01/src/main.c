@@ -81,17 +81,17 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-unsigned int mt_ErrorHook_Counter ATTRIBUTES();
-unsigned int mt_ErrorHook_Api ATTRIBUTES();
-unsigned int mt_ErrorHook_Param1 ATTRIBUTES();
-unsigned int mt_ErrorHook_Param2 ATTRIBUTES();
-unsigned int mt_ErrorHook_Param3 ATTRIBUTES();
-unsigned int mt_ErrorHook_Ret ATTRIBUTES();
+unsigned int mt_ErrorHook_Counter;
+unsigned int mt_ErrorHook_Api;
+unsigned int mt_ErrorHook_Param1;
+unsigned int mt_ErrorHook_Param2;
+unsigned int mt_ErrorHook_Param3;
+unsigned int mt_ErrorHook_Ret;
 
-unsigned int mt_TestCase ATTRIBUTES();
-unsigned int mt_StateCounter ATTRIBUTES();
+unsigned int mt_TestCase;
+unsigned int mt_StateCounter;
 
-TS_ResultType mt_TaskAssert ATTRIBUTES();
+TS_ResultType mt_TaskAssert;
 
 #endif
 

@@ -127,7 +127,7 @@
 int main
 (
    void
-) ATTRIBUTES();
+);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -221,7 +221,7 @@ extern TaskType RunningTask;
  **
  ** This function is called from the StartOS function
  **/
-extern void StartOs_Arch(void) ATTRIBUTES();
+extern void StartOs_Arch(void);
 
 /** \brief Get Next Task
  **
@@ -230,7 +230,7 @@ extern void StartOs_Arch(void) ATTRIBUTES();
  **
  ** \return next task to be executed
  **/
-extern TaskType GetNextTask(void) ATTRIBUTES();
+extern TaskType GetNextTask(void);
 
 /** \brief Remove Task of the Ready List
  **
@@ -240,7 +240,7 @@ extern TaskType GetNextTask(void) ATTRIBUTES();
  **
  ** \param[in] TaskID TaskID
  **/
-void RemoveTask(TaskType TaskID) ATTRIBUTES();
+void RemoveTask(TaskType TaskID);
 
 /** \brief Add Task to the scheduler list
  **
@@ -249,13 +249,13 @@ void RemoveTask(TaskType TaskID) ATTRIBUTES();
  **
  ** \param[in] TaskID task to be add to the ready list
  **/
-extern void AddReady(TaskType TaskID) ATTRIBUTES();
+extern void AddReady(TaskType TaskID);
 
 /** \brief No Handled Interrupt Handler
  **
  ** This is an interrupt handler used for all not handled interrupts.
  **/
-extern void OSEK_ISR_NoHandler(void) ATTRIBUTES();
+extern void OSEK_ISR_NoHandler(void);
 
 /** \brief Increment Counter Service
  **

@@ -77,9 +77,9 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-TaskType RunningTask ATTRIBUTES();
+TaskType RunningTask;
 
-ContextType ActualContext ATTRIBUTES();
+ContextType ActualContext;
 
 /*==================[internal functions definition]==========================*/
 

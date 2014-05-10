@@ -240,7 +240,7 @@ foreach ($appmodes as $appmode)
 	{
 		$count = 0;
 		print "/** \brief List of Auto Start Tasks in Application Mode $appmode */\n";
-		print "const TaskType TasksAppMode" . $appmode . "[" . count($tasksinmode). "]  ATTRIBUTES() = {\n";
+		print "const TaskType TasksAppMode" . $appmode . "[" . count($tasksinmode). "]  = {\n";
 		foreach($tasksinmode as $task)
 		{
 			if ($count++ != 0) print ",\n";
@@ -251,7 +251,7 @@ foreach ($appmodes as $appmode)
 }
 
 print "/** \brief AutoStart Array */\n";
-print "const AutoStartType AutoStart[" . count($appmodes) . "]  ATTRIBUTES() = {\n";
+print "const AutoStartType AutoStart[" . count($appmodes) . "]  = {\n";
 $count = 0;
 foreach ($appmodes as $appmode)
 {
@@ -306,7 +306,7 @@ print "\n};\n";
 	print "\n};\n\n";
 
 print "/** TODO replace next line with: \n";
-print " ** ReadyVarType ReadyVar[" . count($priority) . "]  ATTRIBUTES(); */\n";
+print " ** ReadyVarType ReadyVar[" . count($priority) . "] ; */\n";
 print "ReadyVarType ReadyVar[" . count($priority) . "];\n";
 ?>
 
@@ -314,7 +314,7 @@ print "ReadyVarType ReadyVar[" . count($priority) . "];\n";
 /* Resources Priorities */
 $resources = $config->getList("/OSEK","RESOURCE");
 print "/** \brief Resources Priorities */\n";
-print "const TaskPriorityType ResourcesPriority[" . count($resources) . "]  ATTRIBUTES() = {\n";
+print "const TaskPriorityType ResourcesPriority[" . count($resources) . "]  = {\n";
 $c = 0;
 foreach ($resources as $resource)
 {
@@ -342,10 +342,10 @@ print "\n};\n";
 $alarms = $config->getList("/OSEK","ALARM");
 
 print "/** TODO replace next line with: \n";
-print " ** AlarmVarType AlarmsVar[" . count($alarms) . "] ATTRIBUTES(); */\n";
+print " ** AlarmVarType AlarmsVar[" . count($alarms) . "]; */\n";
 print "AlarmVarType AlarmsVar[" . count($alarms) . "];\n\n";
 
-print "const AlarmConstType AlarmsConst[" . count($alarms) . "]  ATTRIBUTES() = {\n";
+print "const AlarmConstType AlarmsConst[" . count($alarms) . "]  = {\n";
 $count = 0;
 foreach ($alarms as $alarm)
 {
@@ -449,11 +449,11 @@ print "\n};\n\n";
 ?>
 
 /** TODO replace the next line with
- ** uint8 ApplicationMode ATTRIBUTES(); */
+ ** uint8 ApplicationMode; */
 uint8 ApplicationMode;
 
 /** TODO replace the next line with
- ** uint8 ErrorHookRunning ATTRIBUTES(); */
+ ** uint8 ErrorHookRunning; */
 uint8 ErrorHookRunning;
 
 /*==================[internal functions definition]==========================*/

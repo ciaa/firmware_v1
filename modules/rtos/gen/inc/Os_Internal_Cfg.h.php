@@ -650,7 +650,7 @@ foreach ($intnames as $int)
    {
       print "/** \\brief Interrupt Cat 2 $int\n";
       print " **/\n";
-      print "extern void OSEK_ISR2_$int(void) ATTRIBUTES();\n";
+      print "extern void OSEK_ISR2_$int(void);\n";
    }
 
 }

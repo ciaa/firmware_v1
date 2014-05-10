@@ -354,7 +354,7 @@ extern const uint32f SequenceCounterOk;
 int main
 (
    void
-) ATTRIBUTES();
+);
 
 /** \brief Conformance Test Evaluation
  **
@@ -365,7 +365,7 @@ int main
 void ConfTestEvaluation
 (
 	void
-) ATTRIBUTES();
+);
 
 /** \brief ASSERT
  **
