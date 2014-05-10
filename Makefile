@@ -33,6 +33,22 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
+######################## DO NOT CHANGE THIS FILE ##############################
+###############################################################################
+# You dont have to change this file, never.
+#
+# Copy Makefile.config to Makefile.mine and set the variables.
+#
+# Makefile.mine will be included by this root Makefile and your configurations
+# in Makefile.mine will be ignored due to .gitignore.
+#
+# Please take into account to check and compare your Makefile.mine every time
+# that Makefile.config is updated, you may have to adapt your Makefile.mine
+# if Makefile.config is changed.
+#
+###############################################################################
+-include Makefile.mine
+###############################################################################
 # ARCH, CPUTYPE and CPU following are supported
 # +--------------+---------------+---------------+--------------+
 # |      ARCH    |    CPUTYPE    |      CPU      | COMPILER     |
@@ -45,25 +61,24 @@
 #
 ARCH 				?= posix
 CPUTYPE 			?= posix64
-CPU 				?= 
+CPU 				?=
 COMPILER			?= gcc
 
+DS 					?= /
 # MODULES
 #
 # Available modules are:
 # examples/blinking
 # modules/posix
 #
-MODS += modules$(DS)posix      			\
-		  modules$(DS)ciaak					\
-		  modules$(DS)config					\
-        modules$(DS)bsp						\
+MODS ?= modules$(DS)posix      			\
+		modules$(DS)ciaak				\
+		modules$(DS)config				\
+        modules$(DS)bsp					\
         modules$(DS)platforms 			\
-		modules$(DS)rtos \
+		modules$(DS)rtos				\
         examples$(DS)blinking_make
 
-DS = /
-######################## DO NOT CHANGE AFTER THIS LINE ########################
 ###############################################################################
 # get root dir
 ROOT_DIR := $(shell pwd)
@@ -196,6 +211,7 @@ help:
 	@echo info.......: general information about the make environment
 	@echo info_\<mod\>.: same as info but reporting information of a library
 	@echo tst_\<mod\>..: runs the tests of the indicated module
+	@echo generate...: generates the ciaaRTOS
 
 ###############################################################################
 # information

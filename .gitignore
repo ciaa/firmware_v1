@@ -4,6 +4,9 @@
 *.cproject
 *.project
 
+# Own makefile
+Makefile.mine
+
 # Object files
 *.o
 *.ko
