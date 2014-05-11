@@ -33,5 +33,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-platforms_SRC_FILES += $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)crp.c
+include $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)mak$(DS)Makefile
+include $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)mak$(DS)Makefile
 

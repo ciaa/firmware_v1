@@ -34,4 +34,5 @@
 #
 ###############################################################################
 -include $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)mak$(DS)Makefile
--include $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)mak$(DS)Makefile
+include $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)mak$(DS)Makefile
+
