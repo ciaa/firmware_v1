@@ -98,8 +98,9 @@ include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 
 # add include files
 INCLUDE += $(foreach LIB, $(LIBS), $($(LIB)_INC_PATH))
-CFLAGS  +=-ggdb -Wall -Werror
+CFLAGS  += -ggdb -Wall -Werror
 CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
+CFLAGS  += -DCPU=$(CPU)
 
 
 # create list of object files
@@ -216,11 +217,22 @@ help:
 ###############################################################################
 # information
 info:
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo "|               General Info                                                  |"
+	@echo "+-----------------------------------------------------------------------------+"
 	@echo enable modules....: $(MODS)
-	@echo includes..........: $(INCLUDE)
 	@echo libraries.........: $(LIBS)
-	@echo source............: $(SRC_FILES)
-	@echo all modules.......: $(DIRS)
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo "|               Compiler Info                                                 |"
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo Compiler..........: $(COMPILER)
+	@echo CC................: $(CC)
+	@echo AR................: $(AR)
+	@echo LD................: $(LD)
+	@echo Compile Flags.....: $(CFLAGS)
+#	@echo source............: $(SRC_FILES)
+#	@echo all modules.......: $(DIRS)
+# @echo includes..........: $(INCLUDE)
 
 .PHONY: clean
 clean:

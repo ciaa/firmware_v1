@@ -33,5 +33,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
--include $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)mak$(DS)Makefile
--include $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)mak$(DS)Makefile
+# TOOLCHAIN
+CC = gcc
+LD = gcc
+AR = ar
+AS = as
+GDB = gdb
+NM = nm
+# COMPILER AND LINKER OPTIONS
+CFLAGS += -c -Wall -ggdb3
+LFLAGS += $(LINKSCRIPT) 
+

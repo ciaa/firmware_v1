@@ -40,8 +40,14 @@ platforms_PATH 	  = $(ROOT_DIR)$(DS)modules$(DS)platforms
 # library source path
 platforms_SRC_PATH  = $(platforms_PATH)$(DS)src
 # library include path
-platforms_INC_PATH  = $(platforms_PATH)$(DS)inc
+platforms_INC_PATH  = $(platforms_PATH)$(DS)inc				\
+	$(platforms_PATH)$(DS)$(ARCH)$(DS)inc				\
+	$(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc		\
+	$(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
+	
+		
 # library source files
 platforms_SRC_FILES += $(wildcard $(platforms_SRC_PATH)$(DS)*.c)
 
 include $(platforms_PATH)$(DS)$(ARCH)$(DS)mak$(DS)Makefile
+include $(platforms_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)Makefile
