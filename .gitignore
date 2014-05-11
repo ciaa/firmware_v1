@@ -35,3 +35,4 @@ Makefile.mine
 # Backup files
 *.bak
 *.swp
+*~
