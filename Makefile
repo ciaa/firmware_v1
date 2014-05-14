@@ -53,14 +53,16 @@
 # +--------------+---------------+---------------+--------------+
 # |      ARCH    |    CPUTYPE    |      CPU      | COMPILER     |
 # +--------------+---------------+---------------+--------------+
+# | win          | win32         |               | gcc          |
+# +--------------+---------------+---------------+--------------+
 # | posix        | posix32       |               | gcc          |
 # |              | posix64       |               |              |
 # +--------------+---------------+---------------+--------------+
 # | cortexM4     | lpc4000       | lpc4337       |              |
 # +--------------+---------------+---------------+--------------+
 #
-ARCH 				?= posix
-CPUTYPE 			?= posix64
+ARCH 				?= win
+CPUTYPE 			?= win32
 CPU 				?=
 COMPILER			?= gcc
 
@@ -198,7 +200,7 @@ $(project) : $(LIBS) $(OBJ_FILES)
 GENDIR			= out$(DS)gen
 generate : $(OIL_FILES)
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
-		$(OIL_FILES) -f $(rtos_GEN_FILES) -o $(GENDIR)
+		`cygpath -w $(OIL_FILES)` -f $(foreach TMP, $(rtos_GEN_FILES), `cygpath -w $(TMP)`) -o $(GENDIR)
 
 ###############################################################################
 # doxygen

@@ -59,6 +59,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "os.h"
+#include "stdio.h"
 #include "blinking.h"
 
 /*==================[macros and definitions]=================================*/
@@ -77,7 +78,7 @@
 int main(void)
 {
    uint32_t fildes;
-
+	printf("Hola Mundo!\n");
    StartOS(AppMode1);
 
    /* open /dev/serial/uart0 for read and write */
