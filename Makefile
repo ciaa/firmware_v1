@@ -199,8 +199,13 @@ $(project) : $(LIBS) $(OBJ_FILES)
 # generation
 GENDIR			= out$(DS)gen
 generate : $(OIL_FILES)
-	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
-		`cygpath -w $(OIL_FILES)` -f $(foreach TMP, $(rtos_GEN_FILES), `cygpath -w $(TMP)`) -o $(GENDIR)
+     ifeq ($(ARCH),win)
+		php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
+			`cygpath -w $(OIL_FILES)` -f $(foreach TMP, $(rtos_GEN_FILES), `cygpath -w $(TMP)`) -o $(GENDIR)
+     else
+		php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
+			$(OIL_FILES) -f $(rtos_GEN_FILES) -o $(GENDIR)
+     endif
 
 ###############################################################################
 # doxygen
