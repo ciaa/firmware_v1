@@ -196,10 +196,10 @@ uint8 ReceiveMessage(MessageQueueType *Msg, uint8 *Val)
 void CallTask(TaskType OldTask, TaskType NewTask)
 {
    /* save actual esp */
-   __asm__ __volatile__ ("movl %%esp, %%eax; addl $12, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_esp) : : "%eax" );
+   __asm__ __volatile__ ("movl %%esp, %%eax; addl $16, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_esp) : : "%eax" );
 
    /* save actual ebp */
-   __asm__ __volatile__ ("movl %%ebp, %%eax; addl $16, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_ebp) : : "%eax" );
+   __asm__ __volatile__ ("movl %%ebp, %%eax; addl $48, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_ebp) : : "%eax" );
 
    /* save return eip */
    __asm__ __volatile__ ("movl 4(%%ebp), %%eax; movl %%eax, %0" : "=g" (TasksConst[OldTask].TaskContext->tss_eip) : : "%eax");
