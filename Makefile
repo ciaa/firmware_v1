@@ -82,6 +82,26 @@ MODS ?= modules$(DS)posix      			\
         examples$(DS)blinking_make
 
 ###############################################################################
+# get OS
+ifeq ($(OS),Windows_NT)
+# WINDOWS
+define cyg2win
+`cygpath -w $(1)`
+error
+endef
+else
+define cyg2win
+$(1)
+endef
+	UNAME_S := $(shell uname -s)
+	ifeq ($(UNAME_S),Linux)
+		# LINUX
+	endif
+	ifeq ($(UNAME_S),Darwin)
+		# MACOS
+	endif
+endif
+###############################################################################
 # get root dir
 ROOT_DIR := $(shell pwd)
 # out dir
@@ -102,7 +122,7 @@ include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 INCLUDE += $(foreach LIB, $(LIBS), $($(LIB)_INC_PATH))
 CFLAGS  += -ggdb -Wall -Werror
 CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
-CFLAGS  += -DCPU=$(CPU)
+CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU)
 
 
 # create list of object files
@@ -199,13 +219,8 @@ $(project) : $(LIBS) $(OBJ_FILES)
 # generation
 GENDIR			= out$(DS)gen
 generate : $(OIL_FILES)
-     ifeq ($(ARCH),win)
 		php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
-			`cygpath -w $(OIL_FILES)` -f $(foreach TMP, $(rtos_GEN_FILES), `cygpath -w $(TMP)`) -o $(GENDIR)
-     else
-		php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
-			$(OIL_FILES) -f $(rtos_GEN_FILES) -o $(GENDIR)
-     endif
+			$(call cyg2win,$(OIL_FILES)) -f $(foreach TMP, $(rtos_GEN_FILES), $(call cyg2win,$(TMP))) -o $(GENDIR)
 
 ###############################################################################
 # doxygen

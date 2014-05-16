@@ -8,8 +8,8 @@
  */
 
 
-INCLUDE "externals/platforms/cortexM4/lpc4337/ciaa_lpc4337_lib.ld"
-INCLUDE "externals/platforms/cortexM4/lpc4337/ciaa_lpc4337_mem.ld"
+INCLUDE "externals/platforms/cortexM4/lpc4337/linker/ciaa_lpc4337_lib.ld"
+INCLUDE "externals/platforms/cortexM4/lpc4337/linker/ciaa_lpc4337_mem.ld"
 
 ENTRY(ResetISR)
 

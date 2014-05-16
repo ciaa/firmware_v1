@@ -192,13 +192,13 @@
  **/
 #define PostIsr2_Arch(isr)
 
-#ifdef posix64
+#if ( CPUTYPE == posix64 )
 #define SavePosixStack() \
    {                                   \
       /* save actual posix stack */        \
       __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (PosixStack) : : "rax"); \
    }
-#else
+#elif ( CPUTYPE == posix32 )
 #define SavePosixStack() \
    {                                   \
       /* save actual posix esp */        \
@@ -210,19 +210,19 @@
  **
  ** This macro shall be called before calling any posix system service
  **/
-#ifdef posix64
+#if ( CPUTYPE == posix64 )
 #define PreCallService()      																	               \
-	{                                                                                            \
+	{                                                                                             \
 		/* save osek stack */                                                                     \
 		__asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (OsekStack) : : "rax"); \
 		/* get posix stack */                                                                     \
 		__asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (PosixStack) );                           \
 	}
-#else
+#elif ( CPUTYPE == posix32 )
 #define PreCallService()      																	               \
-	{                                                                                            \
+	{                                                                                             \
 		/* save osek stack */                                                                     \
-		__asm__ __volatile__ ("movl %%esp, %%eax; movq %%eax, %0;" : "=g" (OsekStack) : : "eax"); \
+		__asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (OsekStack) : : "eax"); \
 		/* get posix stack */                                                                     \
 		__asm__ __volatile__ ("movl %0, %%esp;" : : "g" (PosixStack) );                           \
 	}
@@ -232,7 +232,7 @@
  **
  ** This macro shall be called after calling any posix system service
  **/
-#ifdef posix64
+#if ( CPUTYPE == posix64 )
 #define PostCallService()                                                                          \
 	{                                                                                               \
       /* save actual posix stack */                                                                \
@@ -240,13 +240,13 @@
 		/* get osek stack */                                                                         \
 		__asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (OsekStack) );                               \
 	}
-#else
+#elif ( CPUTYPE == posix32 )
 #define PostCallService()                                                                          \
 	{                                                                                               \
       /* save actual posix stack */                                                                \
-      __asm__ __volatile__ ("movl %%esp, %%eax; movq %%eax, %0;" : "=g" (PosixStack) : : "eax");   \
+      __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (PosixStack) : : "eax");   \
 		/* get osek stack */                                                                         \
-		__asm__ __volatile__ ("movq %0, %%esp;" : : "g" (OsekStack) );                               \
+		__asm__ __volatile__ ("movl %0, %%esp;" : : "g" (OsekStack) );                               \
 	}
 #endif
 
@@ -300,11 +300,17 @@ extern uint32 OsekHWTimer0;
  ** This variable is used to save the posix stack used to call the system
  ** (linux) services from FreeOSEK
  **/
-#ifdef posix64
+#ifdef CPUTYPE
+#if ( CPUTYPE == posix64 )
 extern uint64 PosixStack;
-#else
+#elif ( CPUTYPE == posix32 )
 extern uint32 PosixStack;
-#endif
+#else /* #if ( CPUTYPE == posix64 ) */
+#error Unknown CPUTYPE for ARCH posix
+#endif /* #if ( CPUTYPE == posix64 ) */
+#else /* #ifdef CPUTYPE */
+#error CPUTPYE is not defined
+#endif /* #idef CPUTYPE */
 
 
 /** \brief Osek Stack
@@ -312,11 +318,13 @@ extern uint32 PosixStack;
  ** This variable is used to save the Osek stack while calling a posix
  ** service
  **/
-#ifdef posix64
+#if ( CPUTYPE == posix64 )
 extern uint64 OsekStack;
-#else
+#elif ( CPUTYPE == posix32 )
 extern uint32 OsekStack;
-#endif
+#else /* #if ( CPUTYPE == posix64 ) */
+#error Unknown CPUTYPE for ARCH posix
+#endif /* #if ( CPUTYPE == posix64 ) */
 
 /*==================[external functions declaration]=========================*/
 /** \brief Posix Interrupt Handler

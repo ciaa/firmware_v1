@@ -95,15 +95,21 @@ uint32 OsekHWTimer0;
 
 InterruptFlagsType InterruptFlag;
 
-#ifdef posix64
+#ifdef CPUTYPE
+#if ( CPUTYPE == posix64 )
 uint64 PosixStack;
 
 uint64 OsekStack;
-#else
+#elif ( CPUTYPE == posix32 )
 uint32 PosixStack;
 
 uint32 OsekStack;
-#endif
+#else /* #if ( CPUTYPE == posix64 ) */
+#error Unknown CPUTYPE for ARCH posix
+#endif /* #if ( CPUTYPE == posix64 ) */
+#else /* #ifdef CPUTYPE */
+#error CPUTPYE is not defined
+#endif /* #idef CPUTYPE */
 
 /*==================[internal functions definition]==========================*/
 
