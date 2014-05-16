@@ -85,9 +85,8 @@ MODS ?= modules$(DS)posix      			\
 # get OS
 ifeq ($(OS),Windows_NT)
 # WINDOWS
-define cyg2win
+define cyg2win 
 `cygpath -w $(1)`
-error
 endef
 else
 define cyg2win
