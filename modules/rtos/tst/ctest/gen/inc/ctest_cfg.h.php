@@ -1,6 +1,4 @@
-/********************************************************
- * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
- ********************************************************/
+
 
 /* Copyright 2008, 2009, Mariano Cerdeiro
  *

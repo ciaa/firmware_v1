@@ -1,12 +1,4 @@
-/*****************************************************************************
- * add your copyright notice
- * Copyright <year>, <your name>
- *
- * Please do not change the license on a single file, if you want to change it
- * discuss it with the development team.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
+
 
 /* Copyright 2008, 2009, Mariano Cerdeiro
  *
