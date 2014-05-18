@@ -296,7 +296,13 @@ info:
 
 .PHONY: clean
 clean:
-	rm -rf $(LIB_DIR)$(DS)*
-	rm -rf $(BIN_DIR)$(DS)*
-	rm -rf $(GENDIR)$(DS)*
-	find -name "*.o" -exec rm {} \;
+	@echo Removing libraries
+	@rm -rf $(LIB_DIR)$(DS)*
+	@echo Removing bin filei\(s\)
+	@rm -rf $(BIN_DIR)$(DS)*
+	@echo Removing RTOS generated files
+	@rm -rf $(GENDIR)$(DS)*
+	@echo Removing object files
+	@find -name "*.o" -exec rm {} \;
+	@echo Removing Unity Runners files
+	@find -name "*_Runner.c" -exec rm {} \;
