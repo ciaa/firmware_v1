@@ -36,3 +36,6 @@ Makefile.mine
 *.bak
 *.swp
 *~
+
+# Unity runners
+*_Runner.c

@@ -42,4 +42,4 @@ template_SRC_PATH 	= $(template_PATH)$(DS)src
 # library include path
 template_INC_PATH 	= $(template_PATH)$(DS)inc
 # library source files
-template_SRC_FILES 	= $(wildcard $(template_SRC_PATH)$(DS)*.c)
+template_SRC_FILES 	= $(wildcard $(template_SRC_PATH)$(DS)*.c) 

@@ -9,7 +9,7 @@
 # ruby externals/ceedling/vendor/cmock/lib/cmock.rb -oproject.yml summ/inc/summ.h
 #
 # Create runner
-# ruby externals/ceedling/vendor/unity/auto/generate_test_runner.rb summ/mtest/test_summ.c project.yml
+# ruby externals/ceedling/vendor/unity/auto/generate_test_runner.rb modules/posix/mtest/src/test_ciaaOpen.c modules/tools/ceedling/project.yml
 module: POSIX
 
 

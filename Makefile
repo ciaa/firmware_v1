@@ -83,9 +83,12 @@ MODS ?= modules$(DS)posix      			\
 
 ###############################################################################
 # get OS
+#
+# This part of the makefile is used to detect your OS. Depending on the OS
+# the rule cyg2win may adapt the paths to windows if needed.
 ifeq ($(OS),Windows_NT)
 # WINDOWS
-define cyg2win 
+define cyg2win
 `cygpath -w $(1)`
 endef
 else
@@ -134,15 +137,8 @@ $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ===============================================================================
 	@echo Creating library $(1)
 	$(AR) -rcs -o $(LIB_DIR)$(DS)$(strip $(1)).a $(2)
-
-info_$(strip $(1)) :
-	@echo Info of Library $(1)
-	@echo Path........: $($(strip $(1))_PATH)
-	@echo Include path: $($(strip $(1))_INC_PATH)
-	@echo Source path.: $($(strip $(1))_SRC_PATH)
-	@echo Source files: $($(strip $(1))_SRC_FILES)
-
 endef
+
 
 OBJ_FILES = $(SRC_FILES:.c=.o)
 
@@ -164,22 +160,50 @@ FILES_TO_MOCK = $(foreach DIR, $(DIRS), $(wildcard $(DIR)inc$(DS)*.h))
 
 FILES_MOCKED = $(foreach MOCKED, $(FILES_TO_MOCK), $(MOCKS_OUT_DIR)$(DS)mock_$(notdir $(MOCKED)))
 
-# Define rule for testing
-define tstrule
-tmp = $(strip $(1))
 
-tst_$(tmp):
+###############################################################################
+# rule for tst_<mod>
+ifeq ($(findstring tst_, $(MAKECMDGOALS)),tst_)
+tst_mod = $(subst tst_,,$(MAKECMDGOALS))
+# include corresponding makefile
+include modules$(DS)$(tst_mod)$(DS)mak$(DS)Makefile
+# rule for tst_<mod>
+tst_$(tst_mod):
 	@echo ===============================================================================
-	@echo Testing $(1)
-endef
+	@echo Testing $(tst_mod)
+	@echo -n "Testing following .c Files: \n $(foreach src, $($(tst_mod)_SRC_FILES),     $(src)\n)"
+	@echo -n "Following Unity Test found"
+endif
 
-# Creates all tst_<MOD> rules
-$(foreach TST, $(ALL_MODS), $(eval $(call tstrule, $(TST))))
-
+###############################################################################
+# rule to generate the mocks
 mocks:
 	@echo ===============================================================================
 	@echo -n "Creating Mocks for: \n $(foreach mock, $(FILES_TO_MOCK),     $(mock)\n)"
 	ruby externals/ceedling/vendor/cmock/lib/cmock.rb -omodules/tools/ceedling/project.yml $(FILES_TO_MOCK)
+
+###############################################################################
+# rule to inform abotu all available tests
+tst:
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo "|               Unit Tests                                                    |"
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo -n "Following tst rules have been created:\n $(foreach TST,$(ALL_MODS),     tst_$(TST): run unit tests of $(TST)\n)"
+
+runners :
+
+test_%_Runner.c : test_%.c
+	@echo ===============================================================================
+	@echo -n "Creating Mocks for: \n $(foreach mock, $(FILES_TO_MOCK),     $(mock)\n)"
+	ruby externals/ceedling/vendor/unity/auto/generate_test_runner.rb modules/posix/mtest/src/test_ciaaOpen.c modules/tools/ceedling/project.yml
+
+unity:
+	@echo ===============================================================================
+	@echo Running unity for $(UNITY)
+#	@echo Running for following files $(foreach )
+#ruby externals/ceedling/vendor/unity/auto/generate_test_runner.rb summ/mtest/test_summ.c project.yml
+
+
 
 ###################### ENDS UNIT TEST PART OF MAKE FILE #######################
 
@@ -199,7 +223,7 @@ $(project) : $(LIBS) $(OBJ_FILES)
 
 
 ###############################################################################
-# generation
+# rtos OSEK generation
 GENDIR			= out$(DS)gen
 generate : $(OIL_FILES)
 		php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
@@ -219,32 +243,52 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo info.......: general information about the make environment
 	@echo info_\<mod\>.: same as info but reporting information of a library
-	@echo tst_\<mod\>..: runs the tests of the indicated module
 	@echo generate...: generates the ciaaRTOS
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo mocks......: generate the mocks for all header files
+	@echo tst........: displays possible tests
+	@echo tst_\<mod\>..: runs the tests of the indicated module
+
+###############################################################################
+# info for  aspecific module
+ifeq ($(findstring info_, $(MAKECMDGOALS)),info_)
+info_mod = $(subst info_,,$(MAKECMDGOALS))
+# include corresponding makefile
+include modules$(DS)$(info_mod)$(DS)mak$(DS)Makefile
+
+# create the corresponding info_<mod> rule
+info_$(info_mod) :
+	@echo ===============================================================================
+	@echo Info of $(info_mod)
+	@echo Path........: $($(info_mod)_PATH)
+	@echo Include path: $($(info_mod)_INC_PATH)
+	@echo Source path.: $($(info_mod)_SRC_PATH)
+	@echo -n "Source files:\n $(foreach src, $($(info_mod)_SRC_FILES),     $(src)\n)"
+endif
 
 ###############################################################################
 # information
 info:
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo "|               General Info                                                  |"
+	@echo "|               Enable Config Info                                            |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo enable modules....: $(MODS)
-	@echo libraries.........: $(LIBS)
+	@echo enable modules.....: $(MODS)
+	@echo libraries..........: $(LIBS)
+	@echo use make info_\<mod\>: to get information of a specific module. eg: make info_posix
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo "|               All available modules                                         |"
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo modules............: $(ALL_MODS)
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Compiler Info                                                 |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo Compiler..........: $(COMPILER)
-	@echo CC................: $(CC)
-	@echo AR................: $(AR)
-	@echo LD................: $(LD)
-	@echo Compile Flags.....: $(CFLAGS)
-#	@echo source............: $(SRC_FILES)
-#	@echo all modules.......: $(DIRS)
-# @echo includes..........: $(INCLUDE)
+	@echo Compiler...........: $(COMPILER)
+	@echo CC.................: $(CC)
+	@echo AR.................: $(AR)
+	@echo LD.................: $(LD)
+	@echo Compile Flags......: $(CFLAGS)
 
 .PHONY: clean
 clean:
