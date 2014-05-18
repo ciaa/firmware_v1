@@ -186,7 +186,7 @@ UNITY_SRC = modules$(DS)posix$(DS)mtest$(DS)src$(DS)test_ciaaDevices.c \
 			out/ceedling/mocks/mock_ciaaPOSIX_string.c \
 			out/ceedling/mocks/mock_ciaaPOSIX_semaphore.c
 
-CFLAGS  = -ggdb #-Wall -Werror
+CFLAGS  = -ggdb #-Wall -Werror #see issue #28
 CFLAGS  += $(foreach inc, $(UNITY_INC), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DUNITY_EXCLUDE_STDINT_H
 
