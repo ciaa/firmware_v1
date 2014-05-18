@@ -176,26 +176,10 @@ endef
 # Creates all tst_<MOD> rules
 $(foreach TST, $(ALL_MODS), $(eval $(call tstrule, $(TST))))
 
-mocks: $(FILES_MOCKED)
-	@echo $(FILES_MOCKED)
+mocks:
 	@echo ===============================================================================
-	@echo Creating Mocks for $(FILES_TO_MOCK)
-
-#	@echo Mocked files $(FILES_MOCKED)
-#	@echo $(MOCKS_OUT_DIR)$(DS)mock_%.h : %.h
-#	ruby externals/ceedling/vendor/cmock/lib/cmock.rb -omodules/tools/ceedling/project.yml modules/posix/inc/ciaaPOSIX_stdio.h
-
-# Rule to create Mock Files
-mock_%.h :
-	@echo ===============================================================================
-	@echo Craeting Mocks $@
-	@echo Creating Mocks $(notdir $@)
-	@echo Searching $(subst mock_,,$(notdir $@))
-	@echo Searching in $(FILES_TO_MOCK)
-	@echo Found $(foreach MOCKH, $(FILES_TO_MOCK), ifn$(findstring $(DS)$(subst mock_,,$(notdir $@)), $(MOCKH)))
-	@echo Found $(foreach MOCKH, $(FILES_TO_MOCK), $(MOCKH))
-
-#	@echo  $(findstring $(subst mock_,,$(notdir $@)), $(FILES_TO_MOCK))
+	@echo -n "Creating Mocks for: \n $(foreach mock, $(FILES_TO_MOCK),     $(mock)\n)"
+	ruby externals/ceedling/vendor/cmock/lib/cmock.rb -omodules/tools/ceedling/project.yml $(FILES_TO_MOCK)
 
 ###################### ENDS UNIT TEST PART OF MAKE FILE #######################
 
@@ -230,10 +214,17 @@ doxygen:
 ###############################################################################
 # help
 help:
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo "|               General Help                                                  |"
+	@echo "+-----------------------------------------------------------------------------+"
 	@echo info.......: general information about the make environment
 	@echo info_\<mod\>.: same as info but reporting information of a library
 	@echo tst_\<mod\>..: runs the tests of the indicated module
 	@echo generate...: generates the ciaaRTOS
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo "|               Unit Tests                                                    |"
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo mocks......: generate the mocks for all header files
 
 ###############################################################################
 # information

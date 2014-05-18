@@ -69,17 +69,20 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+typedef void* (*ciaaMemory_pfMallocType)(uint32_t size);
+
+typedef void (*ciaaMemory_pfFreeType)(void* pointer);
 
 /*==================[external data declaration]==============================*/
 /** \brief TODO
  **
  **/
-extern void* (*ciaaMemory_pfMalloc) (uint32_t size);
+extern ciaaMemory_pfMallocType ciaaMemory_pfMalloc;
 
 /** \brief TODO
  **
  **/
-extern void (*ciaaMemory_pfFree) (void* pointer);
+extern ciaaMemory_pfFreeType ciaaMemory_pfFree;
 
 /*==================[external functions declaration]=========================*/
 /** \brief TODO
