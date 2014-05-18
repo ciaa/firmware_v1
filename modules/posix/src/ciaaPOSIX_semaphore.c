@@ -70,17 +70,17 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern int8_t sem_init(sem_t * const sem)
+extern int8_t ciaaPOSIX_sem_init(sem_t * const sem)
 {
 	return 0;
 }
 
-extern int8_t sem_wait(sem_t * const sem)
+extern int8_t ciaaPOSIX_sem_wait(sem_t * const sem)
 {
 	return 0;
 }
 
-extern int8_t sem_post(sem_t * const sem)
+extern int8_t ciaaPOSIX_sem_post(sem_t * const sem)
 {
 	return 0;
 }

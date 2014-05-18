@@ -82,7 +82,7 @@ typedef struct {
  ** \return a positive value if success, negative if an error occurs
  ** \param[in] sem sempahore to be initialized
  **/
-extern int8_t sem_init(sem_t * const sem);
+extern int8_t ciaaPOSIX_sem_init(sem_t * const sem);
 
 /** \brief Waits for a sempahore
  **
@@ -91,7 +91,7 @@ extern int8_t sem_init(sem_t * const sem);
  ** \param[inout] sem sempahore to wait for
  ** \return a possitive valie if success, negative if an erros occurs
  **/
-extern int8_t sem_wait(sem_t * const sem);
+extern int8_t ciaaPOSIX_sem_wait(sem_t * const sem);
 
 /** \brief Returns for a sempahore
  **
@@ -100,7 +100,7 @@ extern int8_t sem_wait(sem_t * const sem);
  ** \param[inout] sem sempahore to be returned
  ** \return a possitive valie if success, negative if an erros occurs
  **/
-extern int8_t sem_post(sem_t * const sem);
+extern int8_t ciaaPOSIX_sem_post(sem_t * const sem);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
