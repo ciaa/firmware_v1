@@ -96,7 +96,8 @@ typedef signed int int32_t;
 
 /** \brief Signed 64 bits lenght type
  */
-typedef signed long long int64_t;
+/* TODO comment to allow the module tests to compile ... see issue #27 */
+// typedef signed long long int64_t;
 
 /*==================[external data declaration]==============================*/
 
