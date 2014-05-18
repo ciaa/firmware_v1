@@ -167,12 +167,15 @@ ifeq ($(findstring tst_, $(MAKECMDGOALS)),tst_)
 tst_mod = $(subst tst_,,$(MAKECMDGOALS))
 # include corresponding makefile
 include modules$(DS)$(tst_mod)$(DS)mak$(DS)Makefile
+# get list of unit test sources
+MTEST_SRC_FILES := $(wildcard $($(tst_mod)_PATH)$(DS)mtest$(DS)src$(DS)*.c)
+MTEST_SRC_FILES := $(filter-out %Runner.c,$(MTEST_SRC_FILES))
 # rule for tst_<mod>
-tst_$(tst_mod):
+tst_$(tst_mod): $(MTEST_SRC_FILES:.c=_Runner.c)
 	@echo ===============================================================================
 	@echo Testing $(tst_mod)
 	@echo -n "Testing following .c Files: \n $(foreach src, $($(tst_mod)_SRC_FILES),     $(src)\n)"
-	@echo -n "Following Unity Test found"
+	@echo -n "Following Unity Test found: \n $(foreach src, $(MTEST_SRC_FILES),     $(src)\n)"
 endif
 
 ###############################################################################
@@ -194,8 +197,9 @@ runners :
 
 test_%_Runner.c : test_%.c
 	@echo ===============================================================================
-	@echo -n "Creating Mocks for: \n $(foreach mock, $(FILES_TO_MOCK),     $(mock)\n)"
-	ruby externals/ceedling/vendor/unity/auto/generate_test_runner.rb modules/posix/mtest/src/test_ciaaOpen.c modules/tools/ceedling/project.yml
+	@echo Creating Runner for $<
+	@echo "                 in $@"
+	ruby externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)auto$(DS)generate_test_runner.rb $< modules$(DS)tools$(DS)ceedling$(DS)project.yml
 
 unity:
 	@echo ===============================================================================
