@@ -32,9 +32,10 @@
  *
  */
 
-/** \brief CIAA Devices source file
+/** \brief This file implements the test of the POSIX open function
  **
- ** This header file describes the Devices.
+ ** This test is based on the description in
+ **    - http://pubs.opengroup.org/onlinepubs/009695399/functions/open.html
  **
  **/
 
@@ -42,108 +43,114 @@
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
+/** \addtogroup ModuleTests Module Tests
+ ** @{ */
+
 /*
  * Initials     Name
  * ---------------------------
- * EzEs         Ezequiel Esposito
- * MaCe			 Mariano Cerdeiro
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140420 v0.0.1 EzEs initial version
- * 20140503 v0.0.2 MaCe implement all functions
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaDevices.h"
-#include "ciaaPOSIX_semaphore.h"
-#include "ciaaPOSIX_stdlib.h"
-#include "ciaaPOSIX_stdbool.h"
-#include "ciaaPOSIX_string.h"
+#include "unity.h"
+#include "ciaaPOSIX_stdio.h"
 
 /*==================[macros and definitions]=================================*/
+#define INVALID_FILE_DESCRIPTOR         0xA53Cu
 
 /*==================[internal data declaration]==============================*/
-typedef struct {
-	ciaaDevice_deviceType const * device[ciaaDEVICES_MAXDEVICES];
-	uint8_t position;
-} ciaaDevice_devicesType;
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-/** \brief List of devices */
-ciaaDevice_devicesType ciaaDevices;
-
-/** \brief ciaa Device sempahore */
-sem_t ciaaDevice_sem;
+static char const * const invalid_device = "/dev/unkown/device";
+static char const * const valid_device = "/dev/UART/UART1";
 
 /*==================[external data definition]===============================*/
-/** \brief UART1 Device
- **
- **/
-char * ciaaDevices_UART1 = "/dev/UART/UART1";
+ciaaMemory_pfMallocType ciaaMemory_pfMalloc = stub_malloc;
 
-/** \brief UART2 Device
- **
- **/
-char * ciaaDevices_UART2 = "/dev/UART/UART2";
-
-/** \brief I2C1  Device
- **
- **/
-char * ciaaDevices_I2C1 = "/dev/I2C/I2C1";
+char const * const ciaaDevices_UART1 = "/dev/UART/UART1";
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern void ciaaDevice_init(void)
-{
-	/* reset position of the devices */
-	ciaaDevices.position = 0;
-	
-	/* init sempahore */
-	ciaaPOSIX_sem_init(&ciaaDevice_sem);
+/** \brief set Up function
+ **
+ ** This function is called before each test case is executed
+ **
+ **/
+void setUp(void) {
+
 }
 
-extern void ciaaDevice_addDevice(ciaaDevice_deviceType const * device)
-{
-	/* enter critical section */
-	ciaaPOSIX_sem_wait(&ciaaDevice_sem);
-	
-	/* store the device in the list */
-	ciaaDevices.device[ciaaDevices.position] = device;
-	
-	/* increment the device position */
-	ciaaDevices.position++;
-	
-	/* exit critical section */
-	ciaaPOSIX_sem_post(&ciaaDevice_sem);
+/** \brief tear Down function
+ **
+ ** This function is called after each test case is executed
+ **
+ **/
+void tearDown(void) {
 }
 
-extern ciaaDevice_deviceType const * ciaaDevice_getDevice(char const * const path)
-{
-	bool found = false;
-	ciaaDevice_deviceType const * ret = NULL;
-	uint8_t device;
-	
-	/* search over all devices */
-	for(device = 0; (device < ciaaDevices.position) && !found; device++) {
-		/* if the same path is found */
-		if (ciaaPOSIX_strcmp(path, ciaaDevices.device[device]->path)) {
-			/* return the device */
-			ret = ciaaDevices.device[device];
-			
-			/* break the for */
-			found = true;
-		}	
-	}
-	
-	return ret;
+void doNothing(void) {
 }
 
+
+/** \brief test POSIX open function with an invalid file descriptor
+ **
+ ** try to open an invalid device
+ **
+ **/
+void testOpenInvalidFileDescriptor(void) {
+    int fd;
+
+    void stub_malloc_StubWithCallback(doNothing);
+
+    /* try to open an invalid device as read only */
+    fd = ciaaPOSIX_open(invalid_device, O_RDONLY);
+    TEST_ASSERT_TRUE(-1==fd);
+
+    /* try to open an invalid device as write only */
+    fd = ciaaPOSIX_open(invalid_device, O_WRONLY);
+    TEST_ASSERT_TRUE(-1==fd);
+
+    /* try to open an invalid device as write only */
+    fd = ciaaPOSIX_open(invalid_device, O_RDWR);
+    TEST_ASSERT_TRUE(-1==fd);
+}
+
+/** \brief test POSIX open function with a valid file descriptor
+ **
+ ** try to open a device
+ **
+ **/
+void testOpen(void) {
+    int fd;
+    char buffer[1024];
+    void* bufferptr;
+
+    bufferptr = (void*)buffer;
+
+    stub_malloc_IgnoreAndReturn(bufferptr);
+    ciaaUART_open_ExpectAndReturn(valid_device, O_RDONLY, 1);
+
+
+    /* try to open a valid device */
+    fd = ciaaPOSIX_open(valid_device, O_RDONLY);
+    TEST_ASSERT_TRUE(fd>0);
+
+    /* close the device */
+    close(fd);
+}
+
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

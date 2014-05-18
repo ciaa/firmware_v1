@@ -168,14 +168,40 @@ tst_mod = $(subst tst_,,$(MAKECMDGOALS))
 # include corresponding makefile
 include modules$(DS)$(tst_mod)$(DS)mak$(DS)Makefile
 # get list of unit test sources
-MTEST_SRC_FILES := $(wildcard $($(tst_mod)_PATH)$(DS)mtest$(DS)src$(DS)*.c)
+MTEST_SRC_FILES := $(wildcard $($(tst_mod)_PATH)$(DS)mtest$(DS)src$(DS)test_*.c)
 MTEST_SRC_FILES := $(filter-out %Runner.c,$(MTEST_SRC_FILES))
+
+UNITY_INC = externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src                  \
+			externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src                  \
+			out$(DS)ceedling$(DS)mocks                                           \
+			modules$(DS)config$(DS)inc                                           \
+			modules$(DS)bsp$(DS)inc                                              \
+			modules$(DS)posix$(DS)inc
+
+UNITY_SRC = modules$(DS)posix$(DS)mtest$(DS)src$(DS)test_ciaaDevices.c \
+			modules$(DS)posix$(DS)mtest$(DS)src$(DS)test_ciaaDevices_Runner.c \
+			modules$(DS)posix$(DS)src$(DS)ciaaDevices.c \
+			externals/ceedling/vendor/unity/src/unity.c \
+			externals/ceedling/vendor/cmock/src/cmock.c \
+			out/ceedling/mocks/mock_ciaaPOSIX_string.c \
+			out/ceedling/mocks/mock_ciaaPOSIX_semaphore.c
+
+CFLAGS  = -ggdb #-Wall -Werror
+CFLAGS  += $(foreach inc, $(UNITY_INC), -I$(inc))
+CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DUNITY_EXCLUDE_STDINT_H
+
+run: $(UNITY_SRC:.c=.o)
+	@echo ===============================================================================
+	@echo Running test
+	gcc $(UNITY_SRC:.c=.o) -o out/bin/test.bin
+
 # rule for tst_<mod>
-tst_$(tst_mod): $(MTEST_SRC_FILES:.c=_Runner.c)
+tst_$(tst_mod): $(MTEST_SRC_FILES:.c=_Runner.c) run
 	@echo ===============================================================================
 	@echo Testing $(tst_mod)
 	@echo -n "Testing following .c Files: \n $(foreach src, $($(tst_mod)_SRC_FILES),     $(src)\n)"
 	@echo -n "Following Unity Test found: \n $(foreach src, $(MTEST_SRC_FILES),     $(src)\n)"
+	out/bin/test.bin
 endif
 
 ###############################################################################
@@ -306,3 +332,4 @@ clean:
 	@find -name "*.o" -exec rm {} \;
 	@echo Removing Unity Runners files
 	@find -name "*_Runner.c" -exec rm {} \;
+

@@ -32,10 +32,7 @@
  *
  */
 
-/** \brief This file implements the test of the POSIX open function
- **
- ** This test is based on the description in
- **    - http://pubs.opengroup.org/onlinepubs/009695399/functions/open.html
+/** \brief This file implements the test of the Devices
  **
  **/
 
@@ -58,27 +55,19 @@
  * yyyymmdd v0.0.1 initials initial version
  */
 
-/*==================[inclusions]=============================================*/
+/*==================[inclusions]=============================================*/ 
 #include "unity.h"
-#include "ciaaPOSIX.h"
-#include "mock_ciaaUART.h"
-#include "mock_stub_stdlib.h"
+#include "ciaaDevices.h"
 
 /*==================[macros and definitions]=================================*/
-#define INVALID_FILE_DESCRIPTOR         0xA53Cu
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-static char const * const invalid_device = "/dev/unkown/device";
-static char const * const valid_device = "/dev/UART/UART1";
 
 /*==================[external data definition]===============================*/
-ciaaMemory_pfMallocType ciaaMemory_pfMalloc = stub_malloc;
-
-char const * const ciaaDevices_UART1 = "/dev/UART/UART1";
 
 /*==================[internal functions definition]==========================*/
 
@@ -89,7 +78,8 @@ char const * const ciaaDevices_UART1 = "/dev/UART/UART1";
  **
  **/
 void setUp(void) {
-
+    /* perform the initialization of ciaa Devices */
+    ciaaDevice_init();
 }
 
 /** \brief tear Down function
@@ -104,51 +94,22 @@ void doNothing(void) {
 }
 
 
-/** \brief test POSIX open function with an invalid file descriptor
+
+
+/** \brief test POSIX test add new device
  **
- ** try to open an invalid device
+ ** trys to add a new device
  **
  **/
-void testOpenInvalidFileDescriptor(void) {
-    int fd;
-
-    void stub_malloc_StubWithCallback(doNothing);
-
-    /* try to open an invalid device as read only */
-    fd = open(invalid_device, O_RDONLY);
-    TEST_ASSERT_TRUE(-1==fd);
-
-    /* try to open an invalid device as write only */
-    fd = open(invalid_device, O_WRONLY);
-    TEST_ASSERT_TRUE(-1==fd);
-
-    /* try to open an invalid device as write only */
-    fd = open(invalid_device, O_RDWR);
-    TEST_ASSERT_TRUE(-1==fd);
+void testAddDevice(void) {
 }
 
-/** \brief test POSIX open function with a valid file descriptor
+/** \brief test POSIX get device
  **
- ** try to open a device
+ ** get a device
  **
  **/
-void testOpen(void) {
-    int fd;
-    char buffer[1024];
-    void* bufferptr;
-
-    bufferptr = (void*)buffer;
-
-    stub_malloc_IgnoreAndReturn(bufferptr);
-    ciaaUART_open_ExpectAndReturn(valid_device, O_RDONLY, 1);
-
-
-    /* try to open a valid device */
-    fd = open(valid_device, O_RDONLY);
-    TEST_ASSERT_TRUE(fd>0);
-
-    /* close the device */
-    close(fd);
+void testGetDevice(void) {
 }
 
 
