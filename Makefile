@@ -88,10 +88,13 @@ MODS ?= modules$(DS)posix      			\
 # the rule cyg2win may adapt the paths to windows if needed.
 ifeq ($(OS),Windows_NT)
 # WINDOWS
+MULTILINE_ECHO := echo -e
 define cyg2win
 `cygpath -w $(1)`
 endef
 else
+# NON WINDOWS OS
+MULTILINE_ECHO := echo -n
 define cyg2win
 $(1)
 endef
@@ -199,8 +202,8 @@ run: $(UNITY_SRC:.c=.o)
 tst_$(tst_mod): $(MTEST_SRC_FILES:.c=_Runner.c) run
 	@echo ===============================================================================
 	@echo Testing $(tst_mod)
-	@echo -n "Testing following .c Files: \n $(foreach src, $($(tst_mod)_SRC_FILES),     $(src)\n)"
-	@echo -n "Following Unity Test found: \n $(foreach src, $(MTEST_SRC_FILES),     $(src)\n)"
+	@$(MULTILINE_ECHO) "Testing following .c Files: \n $(foreach src, $($(tst_mod)_SRC_FILES),     $(src)\n)"
+	@$(MULTILINE_ECHO) "Following Unity Test found: \n $(foreach src, $(MTEST_SRC_FILES),     $(src)\n)"
 	out/bin/test.bin
 endif
 
@@ -208,7 +211,7 @@ endif
 # rule to generate the mocks
 mocks:
 	@echo ===============================================================================
-	@echo -n "Creating Mocks for: \n $(foreach mock, $(FILES_TO_MOCK),     $(mock)\n)"
+	@$(MULTILINE_ECHO) "Creating Mocks for: \n $(foreach mock, $(FILES_TO_MOCK),     $(mock)\n)"
 	ruby externals/ceedling/vendor/cmock/lib/cmock.rb -omodules/tools/ceedling/project.yml $(FILES_TO_MOCK)
 
 ###############################################################################
@@ -217,7 +220,7 @@ tst:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo -n "Following tst rules have been created:\n $(foreach TST,$(ALL_MODS),     tst_$(TST): run unit tests of $(TST)\n)"
+	@$(MULTILINE_ECHO) "Following tst rules have been created:\n $(foreach TST,$(ALL_MODS),     tst_$(TST): run unit tests of $(TST)\n)"
 
 runners :
 
@@ -295,7 +298,7 @@ info_$(info_mod) :
 	@echo Path........: $($(info_mod)_PATH)
 	@echo Include path: $($(info_mod)_INC_PATH)
 	@echo Source path.: $($(info_mod)_SRC_PATH)
-	@echo -n "Source files:\n $(foreach src, $($(info_mod)_SRC_FILES),     $(src)\n)"
+	@$(MULTILINE_ECHO) "Source files:\n $(foreach src, $($(info_mod)_SRC_FILES),     $(src)\n)"
 endif
 
 ###############################################################################
