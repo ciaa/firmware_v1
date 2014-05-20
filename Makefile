@@ -323,6 +323,8 @@ info:
 	@echo LD.................: $(LD)
 	@echo Compile Flags......: $(CFLAGS)
 
+###############################################################################
+# clean
 .PHONY: clean
 clean:
 	@echo Removing libraries
@@ -336,3 +338,9 @@ clean:
 	@echo Removing Unity Runners files
 	@find -name "*_Runner.c" -exec rm {} \;
 
+###############################################################################
+# doc -> documentation
+doc: doxygen
+	@echo Generating CIAA Firmware documentation
+	@echo This rule is still not implemented see: https://github.com/ciaa/Firmware/issues/10
+	@exit 1
