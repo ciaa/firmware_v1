@@ -88,13 +88,19 @@ MODS ?= modules$(DS)posix      			\
 # the rule cyg2win may adapt the paths to windows if needed.
 ifeq ($(OS),Windows_NT)
 # WINDOWS
-MULTILINE_ECHO := echo -e
+# Command line separator
+CS             = &&
+# Command for multiline echo
+MULTILINE_ECHO = echo -e
 define cyg2win
 `cygpath -w $(1)`
 endef
 else
 # NON WINDOWS OS
-MULTILINE_ECHO := echo -n
+# Command line separator
+CS					= ;
+# Comand for multiline echo
+MULTILINE_ECHO = echo -n
 define cyg2win
 $(1)
 endef
@@ -165,46 +171,83 @@ FILES_MOCKED = $(foreach MOCKED, $(FILES_TO_MOCK), $(MOCKS_OUT_DIR)$(DS)mock_$(n
 
 
 ###############################################################################
-# rule for tst_<mod>
+# rule for tst_<mod>[_file]
 ifeq ($(findstring tst_, $(MAKECMDGOALS)),tst_)
-tst_mod = $(subst tst_,,$(MAKECMDGOALS))
+
+# get module to be tested and store it in tst_mod variable
+tst_mod = $(firstword $(filter-out tst,$(subst _, ,$(MAKECMDGOALS))))
+
+# get file to be tested (if present) and store it in tst_file
+tst_file := $(word 2,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS))))
+ifneq ($(word 3,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))),)
+tst_file := $(join $(tst_file),_$(word 3,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))))
+endif
+
 # include corresponding makefile
 include modules$(DS)$(tst_mod)$(DS)mak$(DS)Makefile
 # get list of unit test sources
-MTEST_SRC_FILES := $(wildcard $($(tst_mod)_PATH)$(DS)mtest$(DS)src$(DS)test_*.c)
-MTEST_SRC_FILES := $(filter-out %Runner.c,$(MTEST_SRC_FILES))
 
-UNITY_INC = externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src                  \
-			externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src                  \
-			out$(DS)ceedling$(DS)mocks                                           \
-			modules$(DS)config$(DS)inc                                           \
-			modules$(DS)bsp$(DS)inc                                              \
-			modules$(DS)posix$(DS)inc
+ifneq ($(tst_file),)
+# definitions if to run only a specific unit test
 
-UNITY_SRC = modules$(DS)posix$(DS)mtest$(DS)src$(DS)test_ciaaDevices.c \
-			modules$(DS)posix$(DS)mtest$(DS)src$(DS)test_ciaaDevices_Runner.c \
-			modules$(DS)posix$(DS)src$(DS)ciaaDevices.c \
-			externals/ceedling/vendor/unity/src/unity.c \
-			externals/ceedling/vendor/cmock/src/cmock.c \
-			out/ceedling/mocks/mock_ciaaPOSIX_string.c \
-			out/ceedling/mocks/mock_ciaaPOSIX_semaphore.c
+# include modules needed for this module
+include $(foreach mod,$($(tst_mod)_TST_MOD),modules$(DS)$(mod)$(DS)mak$(DS)Makefile)
+
+MTEST_SRC_FILES = $($(tst_mod)_PATH)$(DS)mtest$(DS)src$(DS)test_$(tst_file).c
+
+UNITY_INC = externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src                  	\
+				externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src                  	\
+				out$(DS)ceedling$(DS)mocks                                           	\
+				$(foreach mod,$($(tst_mod)_TST_MOD),$($(mod)_INC_PATH))						\
+				$($(tst_mod)_INC_PATH)
+
+UNITY_SRC = modules$(DS)$(tst_mod)$(DS)mtest$(DS)src$(DS)test_$(tst_file).c 			\
+				modules$(DS)$(tst_mod)$(DS)mtest$(DS)src$(DS)test_$(tst_file)_Runner.c	\
+				modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c								\
+				externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src$(DS)unity.c 			\
+				externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src$(DS)cmock.c 			\
+				$(foreach file,$(filter-out $(tst_file).c,$(notdir $($(tst_mod)_SRC_FILES))), out$(DS)ceedling$(DS)mocks$(DS)mock_$(file))
 
 CFLAGS  = -ggdb #-Wall -Werror #see issue #28
 CFLAGS  += $(foreach inc, $(UNITY_INC), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DUNITY_EXCLUDE_STDINT_H
 
-run: $(UNITY_SRC:.c=.o)
+else
+# get all test target for the selected module
+MTEST := $(notdir $(wildcard $($(tst_mod)_PATH)$(DS)mtest$(DS)src$(DS)test_*.c))
+MTEST := $(subst test_,,$(MTEST))
+MTEST := $(subst .c,,$(MTEST))
+MTEST := $(foreach tst, $(MTEST),tst_$(tst_mod)_$(tst))
+
+
+endif
+
+tst_link: $(UNITY_SRC:.c=.o)
 	@echo ===============================================================================
-	@echo Running test
+	@echo Linking Test
 	gcc $(UNITY_SRC:.c=.o) -o out/bin/test.bin
 
-# rule for tst_<mod>
-tst_$(tst_mod): $(MTEST_SRC_FILES:.c=_Runner.c) run
+# rule for tst_<mod>_<file>
+tst_$(tst_mod)_$(tst_file): $(MTEST_SRC_FILES:.c=_Runner.c) tst_link
 	@echo ===============================================================================
-	@echo Testing $(tst_mod)
-	@$(MULTILINE_ECHO) "Testing following .c Files: \n $(foreach src, $($(tst_mod)_SRC_FILES),     $(src)\n)"
-	@$(MULTILINE_ECHO) "Following Unity Test found: \n $(foreach src, $(MTEST_SRC_FILES),     $(src)\n)"
+	@echo Testing from module $(tst_mod) the file $(tst_file)
 	out/bin/test.bin
+
+# rule for tst_<mod>
+tst_$(tst_mod):
+	@echo ===============================================================================
+	@echo Testing the module $(tst_mod)
+	@echo Testing $(MTEST)
+	$(foreach tst,$(MTEST),make $(tst) $(CS))
+
+
+#tst_$(tst_mod): $(MTEST_SRC_FILES:.c=_Runner.c) tst_link
+#	@echo ===============================================================================
+#	@echo Testing the module $(tst_mod)
+#	@$(MULTILINE_ECHO) "Testing following .c Files: \n $(foreach src, $($(tst_mod)_SRC_FILES),     $(src)\n)"
+#	@$(MULTILINE_ECHO) "Following Unity Test found: \n $(foreach src, $(MTEST_SRC_FILES),     $(src)\n)"
+#	out/bin/test.bin
+
 endif
 
 ###############################################################################
@@ -221,8 +264,6 @@ tst:
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@$(MULTILINE_ECHO) "Following tst rules have been created:\n $(foreach TST,$(ALL_MODS),     tst_$(TST): run unit tests of $(TST)\n)"
-
-runners :
 
 test_%_Runner.c : test_%.c
 	@echo ===============================================================================
