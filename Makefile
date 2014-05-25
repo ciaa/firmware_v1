@@ -185,8 +185,10 @@ endif
 
 # include corresponding makefile
 include modules$(DS)$(tst_mod)$(DS)mak$(DS)Makefile
-# get list of unit test sources
+# include test makefile
+include modules$(DS)$(tst_mod)$(DS)mtest$(DS)mak$(DS)Makefile
 
+# get list of unit test sources
 ifneq ($(tst_file),)
 # definitions if to run only a specific unit test
 
@@ -199,6 +201,7 @@ UNITY_INC = externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src                 
 				externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src                  	\
 				out$(DS)ceedling$(DS)mocks                                           	\
 				$(foreach mod,$($(tst_mod)_TST_MOD),$($(mod)_INC_PATH))						\
+				$($(tst_mod)_TST_INC_PATH)																\
 				$($(tst_mod)_INC_PATH)
 
 UNITY_SRC = modules$(DS)$(tst_mod)$(DS)mtest$(DS)src$(DS)test_$(tst_file).c 			\
