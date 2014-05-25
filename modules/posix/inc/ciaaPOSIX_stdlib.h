@@ -48,16 +48,20 @@
 /*
  * Initials     Name
  * ---------------------------
- *
+ * DiFe         Diego Fernandez
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140524 v0.0.1 DiFe initial version
  */
 
 /*==================[inclusions]=============================================*/
+
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stdbool.h"
+#include "ciaaPOSIX_semaphore.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -72,6 +76,12 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+
+void ciaaPOSIX_init(void);
+
+void *ciaaPOSIX_malloc(uint32_t);
+
+void ciaaPOSIX_free(void *);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

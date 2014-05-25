@@ -46,13 +46,13 @@
 /*
  * Initials     Name
  * ---------------------------
- *
+ * DiFe         Diego Fernandez
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140524 v0.0.1 DiFe initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -60,17 +60,120 @@
 
 /*==================[macros and definitions]=================================*/
 
+#define CIAA_HEAP_MEM_SIZE 1000
+#define AVAILABLE 1 
+#define USED 0 
+
 /*==================[internal data declaration]==============================*/
+
+struct ciaaPOSIX_chunk_header
+{
+	/* Next chunk pointer */
+	struct ciaaPOSIX_chunk_header *next;
+
+	/* Size of chunk */
+	uint32_t size;
+
+	/* Indicates if this chunk is available */
+	bool is_available; 
+};
+typedef struct ciaaPOSIX_chunk_header ciaaPOSIX_chunk_header;
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
 
+/** \brief ciaa first chunk header*/
+ciaaPOSIX_chunk_header *first_chunk_header;
+
+/** \brief ciaa  */
+static char buffer[CIAA_HEAP_MEM_SIZE];
+
+/** \brief ciaa heap available size */
+uint32_t heap_available_size;
+
+/** \brief ciaa POSIX sempahore */
+sem_t ciaaPOSIX_sem;
+
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
+static void ciaaPOSIX_init_next_chunk(ciaaPOSIX_chunk_header *chunk_header, uint32_t size)
+{
+	heap_available_size -= size;
+	chunk_header->next = NULL;
+	chunk_header->size = heap_available_size;
+	chunk_header->is_available = AVAILABLE;
+}
+
 /*==================[external functions definition]==========================*/
+
+void ciaaPOSIX_init(void)
+{
+	heap_available_size = CIAA_HEAP_MEM_SIZE;
+	first_chunk_header = (ciaaPOSIX_chunk_header*)&buffer;
+	first_chunk_header->next = NULL;
+	first_chunk_header->size = heap_available_size;
+	first_chunk_header->is_available = AVAILABLE;
+
+	/* init sempahore */
+	ciaaPOSIX_sem_init(&ciaaPOSIX_sem);
+}
+
+void *ciaaPOSIX_malloc(uint32_t size)
+{
+	uint32_t allocation_size = size + sizeof(ciaaPOSIX_chunk_header); 
+	ciaaPOSIX_chunk_header *chunk_header = first_chunk_header;
+
+	while(chunk_header)
+	{
+		if(chunk_header->is_available && chunk_header->size >= allocation_size)
+		{
+			/* enter critical section */
+			ciaaPOSIX_sem_wait(&ciaaPOSIX_sem);
+
+			chunk_header->is_available = USED;
+			chunk_header->size = allocation_size;
+			chunk_header->next = chunk_header + allocation_size;
+
+			ciaaPOSIX_init_next_chunk(chunk_header->next, allocation_size);
+
+			chunk_header = chunk_header + sizeof(ciaaPOSIX_chunk_header);
+
+			/* exit critical section */
+			ciaaPOSIX_sem_post(&ciaaPOSIX_sem);
+			return chunk_header;
+		}
+		chunk_header = chunk_header->next;
+	}
+	return NULL;
+}
+
+void ciaaPOSIX_free(void *ptr)
+{
+	ciaaPOSIX_chunk_header *chunk_to_free = (ciaaPOSIX_chunk_header*)ptr - sizeof(ciaaPOSIX_chunk_header);
+	ciaaPOSIX_chunk_header *chunk_header = first_chunk_header;
+
+	while (chunk_header)
+	{
+		if (chunk_header == chunk_to_free)
+		{
+			/* enter critical section */
+			ciaaPOSIX_sem_wait(&ciaaPOSIX_sem);
+
+			heap_available_size += chunk_header->size;
+
+			chunk_header->is_available = AVAILABLE;
+
+			/* exit critical section */
+			ciaaPOSIX_sem_post(&ciaaPOSIX_sem);
+			break;
+		}
+		chunk_header = chunk_header->next;
+	}
+	ptr = NULL;
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
