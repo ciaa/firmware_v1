@@ -141,7 +141,7 @@ extern void ciaaPOSIX_init(void);
  **
  ** Opens a file or device path for read/write/readwrite depending on oflag.
  **
- ** \param[in] 	  path path of the device to be opened
+ ** \param[in] 	path path of the device to be opened
  ** \param[in]    oflag may take one of the following values:
  **               O_RDONLY: opens files to read only
  **               O_WRONLY: opens files to write only
@@ -165,9 +165,9 @@ extern int32_t ciaaPOSIX_close (int32_t const fildes);
  **
  ** Performs special control of a stream device
  **
- ** \param[in]  fildes file descriptor to be closed
+ ** \param[in]  fildes file descriptor to be controled
  ** \param[in]  request type of the request, depends on the device
- ** \param[in]	param
+ ** \param[in]	 param
  ** \return     a negative value if failed, a positive value
  **             if success.
  **/

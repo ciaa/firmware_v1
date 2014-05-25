@@ -32,9 +32,9 @@
  *
  */
 
-/** \brief CIAA Devices source file
+/** \brief CIAA Serial Devices
  **
- ** This header file describes the Devices.
+ ** Provides support for serial devices
  **
  **/
 
@@ -42,102 +42,62 @@
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
+
 /*
  * Initials     Name
  * ---------------------------
- * EzEs         Ezequiel Esposito
- * MaCe			 Mariano Cerdeiro
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140420 v0.0.1 EzEs initial version
- * 20140503 v0.0.2 MaCe implement all functions
+ * 20140525 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaDevices.h"
-#include "ciaaPOSIX_semaphore.h"
-#include "ciaaPOSIX_stdlib.h"
-#include "ciaaPOSIX_stdbool.h"
-#include "ciaaPOSIX_string.h"
+#include "ciaaSerialDevices.h"
 
 /*==================[macros and definitions]=================================*/
+#define ciaaSerialDevices_MAXDEVICES		20
 
 /*==================[typedef]================================================*/
-/** \brief Devices type */
+/** \brief Serial Devices Type */
 typedef struct {
-	ciaaDevices_deviceType const * device[ciaaDevices_MAXDEVICES];
+	ciaaDevices_deviceType const * device[ciaaSerialDevices_MAXDEVICES];
 	uint8_t position;
-} ciaaDevices_devicesType;
+} ciaaSerialDevices_devicesType;
 
 /*==================[internal data declaration]==============================*/
+/** \brief List of devices */
+ciaaSerialDevices_devicesType ciaaSerialDevices;
+
+/** \brief ciaa Device sempahore */
+sem_t ciaaSerialDevices_sem;
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-/** \brief List of devices */
-ciaaDevices_devicesType ciaaDevices;
-
-/** \brief ciaa Device sempahore */
-sem_t ciaaDevices_sem;
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern void ciaaDevices_init(void)
+extern void ciaaSerialDevices_init(void)
 {
-	/* reset position of the devices */
-	ciaaDevices.position = 0;
+   /* reset position of the drivers */
+	ciaaSerialDevices.position = 0;
 
 	/* init sempahore */
-	ciaaPOSIX_sem_init(&ciaaDevices_sem);
+	ciaaPOSIX_sem_init(&ciaaSerialDevices_sem);
 }
 
-extern void ciaaDevices_addDevice(ciaaDevices_deviceType const * device)
+extern void ciaaSerialDevices_addDrier(ciaaDevices_deviceType const * driver)
 {
-	/* enter critical section */
-	ciaaPOSIX_sem_wait(&ciaaDevices_sem);
 
-   /* check if positions are empty for more devices */
-   if (ciaaDevices.position < ciaaDevices_MAXDEVICES)
-   {
-      /* store the device in the list */
-      ciaaDevices.device[ciaaDevices.position] = device;
-
-      /* increment the device position */
-      ciaaDevices.position++;
-   }
-
-	/* exit critical section */
-	ciaaPOSIX_sem_post(&ciaaDevices_sem);
-}
-
-extern ciaaDevices_deviceType const * ciaaDevices_getDevice(char const * const path)
-{
-	bool found = false;
-	ciaaDevices_deviceType const * ret = NULL;
-	uint8_t device;
-
-	/* search over all devices */
-	for(device = 0; (device < ciaaDevices.position) && !found; device++) {
-		/* if the same path is found */
-		if (ciaaPOSIX_strcmp(path, ciaaDevices.device[device]->path) == 0) {
-			/* return the device */
-			ret = ciaaDevices.device[device];
-
-			/* break the for */
-			found = true;
-		}
-	}
-
-	return ret;
 }
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

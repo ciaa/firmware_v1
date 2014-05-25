@@ -77,15 +77,8 @@
 /*==================[external functions definition]==========================*/
 int main(void)
 {
-   uint32_t fildes;
    printf("Hola Mundo!\n");
    StartOS(AppMode1);
-
-   /* open /dev/serial/uart0 for read and write */
-   fildes = ciaaPOSIX_open("/dev/serial/uart0", O_RDWR);
-
-   /* to avoid compile error, the variable is not used */
-   (void)fildes;
 
    return 0;
 }

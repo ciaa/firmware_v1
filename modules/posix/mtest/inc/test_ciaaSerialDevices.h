@@ -32,19 +32,17 @@
  *
  */
 
-#ifndef _BLINKING_H_
-#define _BLINKING_H_
-/** \brief Blinking example header file
- **
- ** This is a mini example of the CIAA Firmware
+#ifndef _TEST_CIAASERIALDEVICES_
+#define _TEST_CIAAiSERIALDEVICES_
+/** \brief This file implements the test of the serial devices
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Examples CIAA Firmware Examples
+/** \addtogroup POSIX POSIX Implementation
  ** @{ */
-/** \addtogroup Blinking Blinking example header file
+/** \addtogroup ModuleTests Module Tests
  ** @{ */
 
 /*
@@ -61,6 +59,11 @@
 
 /*==================[inclusions]=============================================*/
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
@@ -69,9 +72,13 @@
 
 /*==================[external functions declaration]=========================*/
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _BLINKING_H_ */
+#endif /* #ifndef _TEST_CIAASERIALDEVICES_ */
 
