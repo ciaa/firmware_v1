@@ -33,13 +33,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# library
-LIBS 				  += posix
-# library path
-posix_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)posix
-# library source path
-posix_SRC_PATH 	= $(posix_PATH)$(DS)src
-# library include path
-posix_INC_PATH 	= $(posix_PATH)$(DS)inc
-# library source files
-posix_SRC_FILES 	= $(wildcard $(posix_SRC_PATH)$(DS)*.c)
+# unit test
+# unit tests include files
+posix_TST_INC_PATH = $(posix_PATH)$(DS)mtest$(DS)inc
+# unit tests dependencies
+posix_TST_MOD	    = config bsp

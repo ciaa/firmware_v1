@@ -32,11 +32,9 @@
  *
  */
 
-#ifndef _CIAADEVICES_H_
-#define _CIAADEVICES_H_
-/** \brief CIAA Devices header file
- **
- ** This header file describes the Devices.
+#ifndef _TEST_CIAADEVICES_
+#define _TEST_CIAADEVICES_
+/** \brief This file implements the test of the Devices
  **
  **/
 
@@ -44,21 +42,22 @@
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
+/** \addtogroup ModuleTests Module Tests
+ ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140422 v0.0.1 MaCe rework initial file
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -66,86 +65,47 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#define ciaaDevices_MAXDEVICES		20
-
-/** \brief the file offset shall be set to offset bytes */
-#define SEEK_SET                    1
-
-/** \brief the file offset shall be set to its current location plus offset */
-#define SEEK_CUR                    2
-
-/** \brief the file offset shall be set to the size of the file plus offset */
-#define SEEK_END                    3
 
 /*==================[typedef]================================================*/
-/** \brief open function type */
-typedef int32_t (*ciaaDevices_open)(uint8_t const * const path, uint8_t const oflag);
-
-/** \brief close function type */
-typedef int32_t (*ciaaDevices_close)(int32_t fildes);
-
-/** \brief ioctl function type */
-typedef int32_t (*ciaaDevices_ioctl)(int32_t const fildes, int32_t request, void* param);
-
-/** \brief read function type */
-typedef int32_t (*ciaaDevices_read)(int32_t const fildes, uint8_t * const buf, uint32_t nbyte);
-
-/** \brief write function type */
-typedef int32_t (*ciaaDevices_write)(int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
-
-/** \brief seek function type */
-typedef int32_t (*ciaaDevices_seek)(int32_t const fildes, int32_t offset, uint8_t whence);
-
-/** \brief Device Type */
-typedef struct {
-	char const * path; 			/** <- device path, eg. /dev/serlia/UART1 */
-	ciaaDevices_open open; 		/** <- pointer to open function */
-	ciaaDevices_close close;	/** <- pointer to close function */
-	ciaaDevices_read read;		/** <- pointer to read function */
-	ciaaDevices_write write;	/** <- pointer to write function */
-	ciaaDevices_ioctl ioctl;	/** <- pointer to ioctl function */
-   ciaaDevices_seek seek;     /** <- pointer to seek function */
-} ciaaDevices_deviceType;
-
-/** \brief Devices Status
- **
- ** Describes the possible status of a device
- **
- **/
-typedef enum
-{
-	ciaaDevices_EStatus_Open = 0,    /** < Device is open */
-	ciaaDevices_EStatus_Close = 1,   /** < Device is close */
-	ciaaDevices_EStatus_Error = 2    /** < Device is open with errors */
-} ciaaDevices_Enum_Status;
-
-typedef enum
-{
-	ciaaDevices_EMode_ReadOnly = 0
-} ciaaDevices_Enum_Mode;
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Init ciaa Devices
- **
- ** This function performs the initialization of ciaaDevices
- **/
-extern void ciaaDevices_init(void);
+/** \brief open test file */
+int32_t testOpen0(uint8_t const * const path, uint8_t const oflag);
 
-/** \brief add deivce
- **
- ** Adds the device device
- **
- ** \param[in] device device to be added
- **/
-extern void ciaaDevices_addDevice(ciaaDevices_deviceType const * device);
+/** \brief close test function */
+int32_t testClose0(int32_t fildes);
 
-/** \brief get a device
- **
- ** Get the device with the indicated path
- **/
-extern ciaaDevices_deviceType const * ciaaDevices_getDevice(char const * const path);
+/** \brief ioctl test function */
+int32_t testIoctl0(int32_t const fildes, int32_t request, void* param);
+
+/** \brief read test function */
+int32_t testRead0(int32_t const fildes, uint8_t * const buf, uint32_t nbyte);
+
+/** \brief write test function */
+int32_t testWrite0(int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
+
+/** \brief seek test function */
+int32_t testSeek0(int32_t const fildes, int32_t offset, uint8_t whence);
+
+/** \brief open test file */
+int32_t testOpen1(uint8_t const * const path, uint8_t const oflag);
+
+/** \brief close test function */
+int32_t testClose1(int32_t fildes);
+
+/** \brief ioctl test function */
+int32_t testIoctl1(int32_t const fildes, int32_t request, void* param);
+
+/** \brief read test function */
+int32_t testRead1(int32_t const fildes, uint8_t * const buf, uint32_t nbyte);
+
+/** \brief write test function */
+int32_t testWrite1(int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
+
+/** \brief seek test function */
+int32_t testSeek1(int32_t const fildes, int32_t offset, uint8_t whence);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -153,6 +113,6 @@ extern ciaaDevices_deviceType const * ciaaDevices_getDevice(char const * const p
 #endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
+/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAADEVICES_H_ */
-
+#endif /* #ifndef _TEST_CIAADEVICES_ */

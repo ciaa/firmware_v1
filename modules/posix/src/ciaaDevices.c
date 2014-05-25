@@ -67,80 +67,72 @@
 
 /*==================[internal data declaration]==============================*/
 typedef struct {
-	ciaaDevice_deviceType const * device[ciaaDEVICES_MAXDEVICES];
+	ciaaDevices_deviceType const * device[ciaaDevices_MAXDEVICES];
 	uint8_t position;
-} ciaaDevice_devicesType;
+} ciaaDevices_devicesType;
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
 /** \brief List of devices */
-ciaaDevice_devicesType ciaaDevices;
+ciaaDevices_devicesType ciaaDevices;
 
 /** \brief ciaa Device sempahore */
-sem_t ciaaDevice_sem;
+sem_t ciaaDevices_sem;
 
 /*==================[external data definition]===============================*/
-/** \brief UART1 Device
- **
- **/
-char * ciaaDevices_UART1 = "/dev/UART/UART1";
-
-/** \brief UART2 Device
- **
- **/
-char * ciaaDevices_UART2 = "/dev/UART/UART2";
-
-/** \brief I2C1  Device
- **
- **/
-char * ciaaDevices_I2C1 = "/dev/I2C/I2C1";
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern void ciaaDevice_init(void)
+extern void ciaaDevices_init(void)
 {
+   uint8_t device;
+
 	/* reset position of the devices */
 	ciaaDevices.position = 0;
-	
+
 	/* init sempahore */
-	ciaaPOSIX_sem_init(&ciaaDevice_sem);
+	ciaaPOSIX_sem_init(&ciaaDevices_sem);
 }
 
-extern void ciaaDevice_addDevice(ciaaDevice_deviceType const * device)
+extern void ciaaDevices_addDevice(ciaaDevices_deviceType const * device)
 {
 	/* enter critical section */
-	ciaaPOSIX_sem_wait(&ciaaDevice_sem);
-	
-	/* store the device in the list */
-	ciaaDevices.device[ciaaDevices.position] = device;
-	
-	/* increment the device position */
-	ciaaDevices.position++;
-	
+	ciaaPOSIX_sem_wait(&ciaaDevices_sem);
+
+   /* check if positions are empty for more devices */
+   if (ciaaDevices.position < ciaaDevices_MAXDEVICES)
+   {
+      /* store the device in the list */
+      ciaaDevices.device[ciaaDevices.position] = device;
+
+      /* increment the device position */
+      ciaaDevices.position++;
+   }
+
 	/* exit critical section */
-	ciaaPOSIX_sem_post(&ciaaDevice_sem);
+	ciaaPOSIX_sem_post(&ciaaDevices_sem);
 }
 
-extern ciaaDevice_deviceType const * ciaaDevice_getDevice(char const * const path)
+extern ciaaDevices_deviceType const * ciaaDevices_getDevice(char const * const path)
 {
 	bool found = false;
-	ciaaDevice_deviceType const * ret = NULL;
+	ciaaDevices_deviceType const * ret = NULL;
 	uint8_t device;
-	
+
 	/* search over all devices */
 	for(device = 0; (device < ciaaDevices.position) && !found; device++) {
 		/* if the same path is found */
-		if (ciaaPOSIX_strcmp(path, ciaaDevices.device[device]->path)) {
+		if (ciaaPOSIX_strcmp(path, ciaaDevices.device[device]->path) == 0) {
 			/* return the device */
 			ret = ciaaDevices.device[device];
-			
+
 			/* break the for */
 			found = true;
-		}	
+		}
 	}
-	
+
 	return ret;
 }
 

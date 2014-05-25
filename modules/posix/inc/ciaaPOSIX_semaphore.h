@@ -79,8 +79,8 @@ typedef struct {
  **
  ** Performs the initialization of the semaphroe sem
  **
- ** \return a positive value if success, negative if an error occurs
  ** \param[in] sem sempahore to be initialized
+ ** \return a positive value if success, negative if an error occursdd
  **/
 extern int8_t ciaaPOSIX_sem_init(sem_t * const sem);
 
