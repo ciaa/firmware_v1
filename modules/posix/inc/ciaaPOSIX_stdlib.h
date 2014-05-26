@@ -77,7 +77,7 @@ extern "C" {
 
 /*==================[external functions declaration]=========================*/
 
-void ciaaPOSIX_init(void);
+void ciaaPOSIX_stdlib_init(void);
 
 void *ciaaPOSIX_malloc(uint32_t);
 
