@@ -351,6 +351,7 @@ info:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Enable Config Info                                            |"
 	@echo "+-----------------------------------------------------------------------------+"
+	@echo ARCH/CPUTYPE/CPU...: $(ARCH)/$(CPUTYPE)/$(CPU)
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
 	@echo use make info_\<mod\>: to get information of a specific module. eg: make info_posix
