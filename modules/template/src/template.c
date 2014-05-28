@@ -2,6 +2,16 @@
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  *
+ *    or
+ *
+ * Copyright 2014, Your Name <youremail@domain.com>
+ *
+ *    or
+ *
+ * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
+ *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *    CADIEEL: http://www.cadieel.org.ar
+ *
  * This file is part of CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
