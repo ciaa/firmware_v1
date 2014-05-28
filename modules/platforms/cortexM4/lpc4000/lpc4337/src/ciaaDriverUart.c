@@ -62,13 +62,18 @@
 #include "ciaaSerialDevices.h"
 
 /*==================[macros and definitions]=================================*/
+typedef struct  {
+   ciaaDevices_deviceType const * const devices;
+   uint8 countOfDevices;
+} ciaaDriverConstType;
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-static ciaaDevices_deviceType ciaaDriverUart_device = {
+/** \brief Device for UART 0 */
+static ciaaDevices_deviceType const ciaaDriverUart_device0 = {
    "uart/0",               /** <= driver name */
    ciaaDriverUart_open,    /** <= open function */
    ciaaDriverUart_close,   /** <= close function */
@@ -76,6 +81,27 @@ static ciaaDevices_deviceType ciaaDriverUart_device = {
    ciaaDriverUart_write,   /** <= write function */
    ciaaDriverUart_ioctl,   /** <= ioctl function */
    NULL                    /** <= seek function is not provided */
+};
+
+/** \brief Device for UART 1 */
+static ciaaDevices_deviceType const ciaaDriverUart_device1 = {
+   "uart/1",               /** <= driver name */
+   ciaaDriverUart_open,    /** <= open function */
+   ciaaDriverUart_close,   /** <= close function */
+   ciaaDriverUart_read,    /** <= read function */
+   ciaaDriverUart_write,   /** <= write function */
+   ciaaDriverUart_ioctl,   /** <= ioctl function */
+   NULL                    /** <= seek function is not provided */
+};
+
+static ciaaDevices_deviceType const ciaaUartDevices = {
+   ciaaDriverUart_device0,
+   ciaaDriverUart_device1
+};
+
+static ciaaDriverUartConstType const ciaaDriverUartConst = {
+   &ciaaUartDevices,
+   2
 };
 
 /*==================[external data definition]===============================*/
