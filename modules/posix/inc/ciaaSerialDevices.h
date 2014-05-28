@@ -169,7 +169,7 @@ extern void ciaaSerialDevices_rxIndication(int32_t const fildes, uint32_t const 
  **
  ** \param[in] driver driver to be added
  **/
-extern void ciaaSerialDevices_addDrier(ciaaDevices_deviceType const * driver);
+extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType const * driver);
 
 /** \brief release driver
  **

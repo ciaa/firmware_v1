@@ -32,11 +32,9 @@
  *
  */
 
-#ifndef _CIAAUART_H_
-#define _CIAAUART_H_
-/** \brief CIAA Uart driver header file
+/** \brief Short description of this file
  **
- ** This files contains the header file of the CIAA UART driver
+ ** Long description of this file
  **
  **/
 
@@ -50,44 +48,79 @@
 /*
  * Initials     Name
  * ---------------------------
- * EzEs         Ezequiel Espósito
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140422 v0.0.2 EzEs initial version
- * 20140420 v0.0.1 EzEs initial version
+ * 20140528 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include <ciaaPOSIX_stdint.h>
- 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "ciaaDriverUart.h"
+#include "ciaaSerialDevices.h"
 
-/*==================[macros]=================================================*/
+/*==================[macros and definitions]=================================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[internal data definition]===============================*/
+static ciaaDevices_deviceType ciaaDriverUart_device = {
+   "uart/0",               /** <= driver name */
+   ciaaDriverUart_open,    /** <= open function */
+   ciaaDriverUart_close,   /** <= close function */
+   ciaaDriverUart_read,    /** <= read function */
+   ciaaDriverUart_write,   /** <= write function */
+   ciaaDriverUart_ioctl,   /** <= ioctl function */
+   NULL                    /** <= seek function is not provided */
+};
 
-int32_t ciaaUART_open (const char* pathName, int32_t flags);
-int32_t ciaaUART_close (int32_t fd);
-int32_t ciaaUART_ioctl (int32_t fd, int32_t arg, uint32_t size);
-int32_t ciaaUART_read (int32_t fd, uint8_t* buffer, uint32_t size);
-int32_t ciaaUART_write (int32_t fd, uint8_t* buffer, uint32_t size);
+/*==================[external data definition]===============================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+int32_t ciaaDriverUart_open (const char* pathName, int32_t flags)
+{
+	// TODO
+	return 0;
 }
-#endif
+
+int32_t ciaaDriverUart_close (int32_t fd)
+{
+	// TODO
+	return 0;
+}
+
+int32_t ciaaDriverUart_ioctl (int32_t fd, int32_t arg, uint32_t size)
+{
+	// TODO
+	return 0;
+}
+
+int32_t ciaaDriverUart_read (int32_t fd, uint8_t* buffer, uint32_t size)
+{
+	// TODO
+	return 0;
+}
+
+int32_t ciaaDriverUart_write (int32_t fd, uint8_t* buffer, uint32_t size)
+{
+	return 0;
+}
+
+
+void ciaaDriverUart_init(void)
+{
+   /* add uart driver to the list of devices */
+   ciaaSerialDevices_addDriver(&ciaaDriverUart_device);
+}
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUART_H_ */
 

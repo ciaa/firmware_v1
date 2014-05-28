@@ -32,72 +32,63 @@
  *
  */
 
-/** \brief CIAA Serial Devices
+#ifndef _CIAADRIVERUART_H_
+#define _CIAADRIVERUART_H_
+/** \brief CIAA Uart driver header file
  **
- ** Provides support for serial devices
+ ** This files contains the header file of the CIAA UART driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup UART UART Drivers
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * EzEs         Ezequiel Espósito
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140525 v0.0.1 initials initial version
+ * 20140420 v0.0.1 EzEs initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaSerialDevices.h"
+#include <ciaaPOSIX_stdint.h>
 
-/*==================[macros and definitions]=================================*/
-#define ciaaSerialDevices_MAXDEVICES		20
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Serial Devices Type */
-typedef struct {
-	ciaaDevices_deviceType const * device[ciaaSerialDevices_MAXDEVICES];
-	uint8_t position;
-} ciaaSerialDevices_devicesType;
 
-/*==================[internal data declaration]==============================*/
-/** \brief List of devices */
-ciaaSerialDevices_devicesType ciaaSerialDevices;
+/*==================[external data declaration]==============================*/
 
-/** \brief ciaa Device sempahore */
-sem_t ciaaSerialDevices_sem;
+/*==================[external functions declaration]=========================*/
 
-/*==================[internal functions declaration]=========================*/
+int32_t ciaaDriverUart_open(const char* pathName, int32_t flags);
+int32_t ciaaDriverUart_close(int32_t fd);
+int32_t ciaaDriverUart_ioctl(int32_t fd, int32_t arg, uint32_t size);
+int32_t ciaaDriverUart_read(int32_t fd, uint8_t* buffer, uint32_t size);
+int32_t ciaaDriverUart_write(int32_t fd, uint8_t* buffer, uint32_t size);
+void ciaaDriverUart_init(void);
 
-/*==================[internal data definition]===============================*/
 
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-extern void ciaaSerialDevices_init(void)
-{
-   /* reset position of the drivers */
-	ciaaSerialDevices.position = 0;
-
-	/* init sempahore */
-	ciaaPOSIX_sem_init(&ciaaSerialDevices_sem);
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType const * driver)
-{
-
-}
-
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CIAADRIVERUART_H_ */
+
