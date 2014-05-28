@@ -76,11 +76,26 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-
+/** \brief ciaaPOSIX stdlib init
+ **
+ ** Performs the initialization of ciaaPOSIX stdlib
+ **/
 void ciaaPOSIX_stdlib_init(void);
 
+/** \brief ciaaPOSIX malloc
+ **
+ ** Allocates unused space
+ **
+ ** \param[in] number of bytes to allocate
+ **/
 void *ciaaPOSIX_malloc(uint32_t);
 
+/** \brief ciaaPOSIX free
+ **
+ ** Frees allocated memory
+ **
+ ** \param[in] pointer to a previously allocated region
+ **/
 void ciaaPOSIX_free(void *);
 
 /*==================[cplusplus]==============================================*/
