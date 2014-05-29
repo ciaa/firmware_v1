@@ -49,12 +49,13 @@
  * Initials     Name
  * ---------------------------
  * EzEs         Ezequiel Esposito
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140422 v0.0.2 EzEs initial version
+ * 20140528 v0.0.2 MaCe implement printf
  * 20140420 v0.0.1 EzEs initial version
  */
 
@@ -193,6 +194,20 @@ extern int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * const buf, uint32
  ** \return     the count of bytes written
  **/
 extern int32_t ciaaPOSIX_write (int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
+
+/** \brief print formated output
+ **
+ ** In Windows and posix this interface calls the system printf, in the CIAA HW
+ ** calling this function has no effects
+ **
+ ** \param[in] format
+ **
+ ** \return Upon successful completion, the functions shall return the number
+ **         of bytes transmitted.
+ ** \return If an output error was encountered, these functions shall return a
+ **         negative value.
+ **/
+extern int32_t ciaaPOSIX_printf(const char * format, ...);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

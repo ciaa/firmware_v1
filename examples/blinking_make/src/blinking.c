@@ -59,7 +59,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "os.h"
-#include "stdio.h"
+#include "ciaaPOSIX_stdio.h"
 #include "blinking.h"
 
 /*==================[macros and definitions]=================================*/
@@ -77,59 +77,57 @@
 /*==================[external functions definition]==========================*/
 int main(void)
 {
-   printf("Hola Mundo!\n");
    StartOS(AppMode1);
-
    return 0;
 }
 
 void ErrorHook(void)
 {
-   printf("ErrorHook was called\n");
-   printf("Service: %d, P1: %d, P2: %d, P3: %d, RET: %d\n", OSErrorGetServiceId(), OSErrorGetParam1(), OSErrorGetParam2(), OSErrorGetParam3(), OSErrorGetRet());
+   ciaaPOSIX_printf("ErrorHook was called\n");
+   ciaaPOSIX_printf("Service: %d, P1: %d, P2: %d, P3: %d, RET: %d\n", OSErrorGetServiceId(), OSErrorGetParam1(), OSErrorGetParam2(), OSErrorGetParam3(), OSErrorGetRet());
    ShutdownOS(0);
 }
 
 TASK(InitTask) {
-   printf("InitTask is running\n");
+   ciaaPOSIX_printf("InitTask is running\n");
    ActivateTask(TaskA);
 
    Schedule();
 
-   printf("InitTask sets TaskA Event1\n");
+   ciaaPOSIX_printf("InitTask sets TaskA Event1\n");
    SetEvent(TaskA, Event1);
 
-   printf("InitTask is Terminating\n");
+   ciaaPOSIX_printf("InitTask is Terminating\n");
    TerminateTask();
 }
 
 TASK(TaskA) {
-   printf("TaskA is running\n");
+   ciaaPOSIX_printf("TaskA is running\n");
 
-   printf("TaskA espera Event1\n");
+   ciaaPOSIX_printf("TaskA espera Event1\n");
    WaitEvent(Event1);
 
-   printf("TaskA recibio la notficacion del Event1\n");
+   ciaaPOSIX_printf("TaskA recibio la notficacion del Event1\n");
    ActivateTask(TaskB);
 
-   printf("Pedimos recurso\n");
+   ciaaPOSIX_printf("Pedimos recurso\n");
    GetResource(Res1);
 
-   printf("Liberamos recurso\n");
+   ciaaPOSIX_printf("Liberamos recurso\n");
    ReleaseResource(Res1);
 
-   printf("TaskA is Terminating\n");
+   ciaaPOSIX_printf("TaskA is Terminating\n");
    TerminateTask();
 }
 
 TASK(TaskB) {
-   printf("TaskB is running\n");
+   ciaaPOSIX_printf("TaskB is running\n");
 
    ActivateTask(TaskC);
    ActivateTask(TaskC);
 
    SetRelAlarm(ActivateTaskC, 350, 100);
-   printf("TaskB is Terminating\n");
+   ciaaPOSIX_printf("TaskB is Terminating\n");
 
    TerminateTask();
 }
@@ -138,8 +136,8 @@ ISR(IsrName) {
 }
 
 TASK(TaskC) {
-   printf("TaskC is running\n");
-   printf("TaskC is Terminating\n");
+   ciaaPOSIX_printf("TaskC is running\n");
+   ciaaPOSIX_printf("TaskC is Terminating\n");
    TerminateTask();
 }
 /** @} doxygen end group definition */

@@ -46,12 +46,13 @@
  * Initials     Name
  * ---------------------------
  * EzEs         Ezequiel Esposito
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140422 v0.0.2 EzEs initial version
+ * 20140528 v0.0.2 MaCe implement printf
  * 20140420 v0.0.1 EzEs initial version
  */
 
@@ -60,6 +61,12 @@
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_stdlib.h"
+
+#if ( (ARCH == win) || (ARCH == posix) )
+#include "stdio.h"
+#include "stdarg.h"
+#include "Os_Internal.h"
+#endif
 
 /*==================[macros and definitions]=================================*/
 
@@ -146,6 +153,35 @@ extern int32_t ciaaPOSIX_write (int32_t const fildes, uint8_t const * const buf,
 	} else {
 		return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
 	}
+}
+
+extern int32_t ciaaPOSIX_printf(const char * format, ...)
+{
+   int32_t ret;
+
+#if ( (ARCH == win) || (ARCH == posix) )
+   /* OS pre call service, changes stack to system stack */
+   /* #36 TODO */
+   PreCallService();
+
+   /* call vprintf passing all received parameters */
+   va_list args;
+   va_start(args, format);
+   ret = vprintf(format, args);
+   va_end(args);
+
+   /* OS post call service, changes stack to RTOS stack */
+   /* #36 TODO */
+   PostCallService();
+#else
+   /* parameter format is not used in no win nor posix arch, casted to void to
+    * avoid compiler warning */
+   (void)format;
+   /* this interface is not supported in no windows nor posix system */
+   ret = -1;
+#endif
+
+   return ret;
 }
 
 /** @} doxygen end group definition */

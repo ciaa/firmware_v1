@@ -11,7 +11,7 @@ TASK InitTask {
     AUTOSTART = TRUE {
         APPMODE = AppMode1;
     }
-    STACK = 20480;
+    STACK = 256;
     TYPE = BASIC;
     SCHEDULE = NON;
 }
@@ -19,7 +19,7 @@ TASK InitTask {
 TASK TaskA {
     PRIORITY = 5;
     ACTIVATION = 1;
-    STACK = 20480;
+    STACK = 256;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
     EVENT = Event1;
@@ -32,7 +32,7 @@ TASK TaskA {
 TASK TaskB {
     PRIORITY = 8;
     ACTIVATION = 1;
-    STACK = 20480;
+    STACK = 256;
     TYPE = BASIC;
     SCHEDULE = FULL;
     RESOURCE = Res1;
@@ -41,7 +41,7 @@ TASK TaskB {
 TASK TaskC {
     PRIORITY = 10;
     ACTIVATION = 1;
-    STACK = 20480;
+    STACK = 256;
     TYPE = BASIC;
     SCHEDULE = FULL;
     AUTOSATART = TRUE {
@@ -77,7 +77,7 @@ COUNTER SoftwareCounter {
 	MINCYCLE = 1;
 	TYPE = SOFTWARE;
 };
- 
+
 ALARM IncrementSWCounter {
 	COUNTER = HardwareCounter;
 	ACTION = INCREMENT {
