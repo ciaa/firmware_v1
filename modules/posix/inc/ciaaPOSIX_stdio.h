@@ -64,8 +64,6 @@
 #include "ciaaErrorsCodeSystem.h"
 #include "ciaaMessagesCodeSystem.h"
 
-#include "ciaaUART.h"
-
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
