@@ -46,13 +46,13 @@
 /*
  * Initials     Name
  * ---------------------------
- *
+ * JuCe         Juan Cecconi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140530 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -71,12 +71,28 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern uint8_t * ciaaPOSIX_strcpy(char * const s1, char const * const s2)
+char * ciaaPOSIX_strcpy(char * dest, char const * src)
 {
-	return 0;
+   char *tmp_src = (char*) src;
+   char *tmp_dest = dest;
+   //
+   if(src == NULL || dest == NULL)
+   {
+		//ASSERT(FALSE);
+		return 0;
+   }
+   //
+   while(*tmp_src)
+   {
+		*tmp_dest = *tmp_src;
+		tmp_src++;
+		tmp_dest++;
+   }
+   *tmp_dest = '\0';
+   return dest;
 }
 
-extern uint8_t * ciaaPOSIX_strcmp(char const * const s1, char const * const s2)
+uint8_t * ciaaPOSIX_strcmp(char const * const s1, char const * const s2)
 {
 	return 0;
 }

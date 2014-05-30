@@ -48,11 +48,13 @@
 /*
  * Initials     Name
  * ---------------------------
+ * JuCe         Juan Cecconi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140530 v0.0.1 initials initial version 
  */
 
 /*==================[inclusions]=============================================*/
@@ -64,15 +66,17 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-
+#ifndef NULL
+#define NULL 	(void*)0
+#endif
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-extern uint8_t * ciaaPOSIX_strcpy(char * const s1, char const * const s2);
+char * ciaaPOSIX_strcpy(char * dest, char const * src);
 
-extern uint8_t * ciaaPOSIX_strcmp(char const * const s1, char const * const s2);
+uint8_t * ciaaPOSIX_strcmp(char const * const s1, char const * const s2);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
