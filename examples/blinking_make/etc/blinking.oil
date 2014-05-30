@@ -64,30 +64,30 @@ APPMODE = AppMode1;
 APPMODE = AppMode2;
 
 COUNTER HardwareCounter {
-	MAXALLOWEDVALUE = 100;
-	TICKSPERBASE = 1;
-	MINCYCLE = 1;
-	TYPE = HARDWARE;
-	COUNTER = HWCOUNTER0;
+   MAXALLOWEDVALUE = 100;
+   TICKSPERBASE = 1;
+   MINCYCLE = 1;
+   TYPE = HARDWARE;
+   COUNTER = HWCOUNTER0;
 };
 
 COUNTER SoftwareCounter {
-	MAXALLOWEDVALUE = 1000;
-	TICKSPERBASE = 1;
-	MINCYCLE = 1;
-	TYPE = SOFTWARE;
+   MAXALLOWEDVALUE = 1000;
+   TICKSPERBASE = 1;
+   MINCYCLE = 1;
+   TYPE = SOFTWARE;
 };
 
 ALARM IncrementSWCounter {
-	COUNTER = HardwareCounter;
-	ACTION = INCREMENT {
-		COUNTER = SoftwareCounter;
-	};
-	AUTOSTART = TRUE {
-		APPMODE = AppMode1;
-		ALARMTIME = 1;
-		CYCLETIME = 1;
-	};
+   COUNTER = HardwareCounter;
+   ACTION = INCREMENT {
+      COUNTER = SoftwareCounter;
+   };
+   AUTOSTART = TRUE {
+      APPMODE = AppMode1;
+      ALARMTIME = 1;
+      CYCLETIME = 1;
+   };
 };
 
 ISR IsrName {
