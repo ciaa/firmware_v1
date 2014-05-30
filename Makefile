@@ -89,7 +89,7 @@ MODS ?= modules$(DS)posix      			\
 ifeq ($(OS),Windows_NT)
 # WINDOWS
 # Command line separator
-CS             = &&
+CS             = ;
 # Command for multiline echo
 MULTILINE_ECHO = echo -e
 define cyg2win
