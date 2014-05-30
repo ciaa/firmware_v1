@@ -167,11 +167,6 @@ void StartOs_Arch(void)
 		HWTimerFork(0);
 	}
 
-	if (fork() == 0)
-	{
-		HWTimerFork(1);
-	}
-
 	/* enable interrupts */
 	InterruptState = 1;
 

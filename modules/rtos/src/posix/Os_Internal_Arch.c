@@ -113,11 +113,9 @@ uint32 OsekStack;
 /*==================[external functions definition]==========================*/
 void OSEK_ISR_HWTimer0(void)
 {
-#if (defined HWCOUNTER0)
 #if (ALARMS_COUNT != 0)
-	IncrementCounter(HWCOUNTER0, 1);
+	IncrementCounter(HardwareCounter, 1);
 #endif /* #if (ALARMS_COUNT != 0) */
-#endif /* #if (defined HWCOUNTER0) */
 }
 
 void OSEK_ISR_HWTimer1(void)
@@ -201,7 +199,7 @@ void HWTimerFork(uint8 timer)
          * 0 seconds and
          * 10 ms */
 		rqtp.tv_sec=0;
-    	rqtp.tv_nsec=100000000;
+    	rqtp.tv_nsec=10000000;
 
 		while(1)
 		{
