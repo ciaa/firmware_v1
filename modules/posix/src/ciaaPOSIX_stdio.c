@@ -58,10 +58,12 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaak.h"
+#include "ciaaPlatforms.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_stdlib.h"
 
+/* in windows and posix also include posix interfaces */
 #if ( (ARCH == win) || (ARCH == posix) )
 #include "stdio.h"
 #include "stdarg.h"
@@ -81,78 +83,76 @@ ciaaPOSIX_Type_Base* ciaaPOSIX_devicesArray [ciaaPOSIX_MAX_DEVICES];
 
 uint32_t ciaaPOSIX_devicesArraySize;
 
-
-
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
 void ciaaPOSIX_init(void)
 {
-	uint32_t i;
-	/* init all posix devices */
-	for (i = 0; i < ciaaPOSIX_MAX_DEVICES; i++) {
-		ciaaPOSIX_devicesArray[i] = NULL;
+   uint32_t i;
+   /* init all posix devices */
+   for (i = 0; i < ciaaPOSIX_MAX_DEVICES; i++) {
+      ciaaPOSIX_devicesArray[i] = NULL;
    }
 
    /* set first device */
-	ciaaPOSIX_devicesArraySize = 0;
+   ciaaPOSIX_devicesArraySize = 0;
 }
 
 extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
 {
-	return 0;
+   return 0;
 }
 
 int32_t ciaaPOSIX_close(int32_t fildes)
 {
-	if (fildes >= 0) {
-		if (ciaaPOSIX_devicesArray[fildes] != NULL) {
-			return ciaaPOSIX_devicesArray[fildes]->pClose (fildes);
-		} else {
-			return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
-		}
-	} else {
-		return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
-	}
+   if (fildes >= 0) {
+      if (ciaaPOSIX_devicesArray[fildes] != NULL) {
+         return ciaaPOSIX_devicesArray[fildes]->pClose (fildes);
+      } else {
+         return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
+      }
+   } else {
+      return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
+   }
 }
 
 int32_t ciaaPOSIX_ioctl (int32_t fd, int32_t arg, void* param)
 {
-	if (fd >= 0) {
-		if (ciaaPOSIX_devicesArray[fd] != NULL) {
-			return ciaaPOSIX_devicesArray[fd]->pIoctl (fd, arg, param);
-		} else {
-			return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
-		}
-	} else {
-		return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
-	}
+   if (fd >= 0) {
+      if (ciaaPOSIX_devicesArray[fd] != NULL) {
+         return ciaaPOSIX_devicesArray[fd]->pIoctl (fd, arg, param);
+      } else {
+         return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
+      }
+   } else {
+      return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
+   }
 }
 
 int32_t ciaaPOSIX_read (int32_t fd, uint8_t* buffer, uint32_t size)
 {
-	if (fd >= 0) {
-		if (ciaaPOSIX_devicesArray[fd] != NULL) {
-			return ciaaPOSIX_devicesArray[fd]->pRead (fd, buffer, size);
-		} else {
-			return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
-		}
-	} else {
-		return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
-	}
+   if (fd >= 0) {
+      if (ciaaPOSIX_devicesArray[fd] != NULL) {
+         return ciaaPOSIX_devicesArray[fd]->pRead (fd, buffer, size);
+      } else {
+         return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
+      }
+   } else {
+      return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
+   }
 }
 
 extern int32_t ciaaPOSIX_write (int32_t const fildes, uint8_t const * const buf, uint32_t nbyte)
 {
-	if (fildes >= 0) {
-		if (ciaaPOSIX_devicesArray[fildes] != NULL) {
-			return ciaaPOSIX_devicesArray[fildes]->pWrite (fildes, buf, nbyte);
-		} else {
-			return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
-		}
-	} else {
-		return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
-	}
+   if (fildes >= 0) {
+      if (ciaaPOSIX_devicesArray[fildes] != NULL) {
+         return ciaaPOSIX_devicesArray[fildes]->pWrite (fildes, buf, nbyte);
+      } else {
+         return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
+      }
+   } else {
+      return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
+   }
 }
 
 extern int32_t ciaaPOSIX_printf(const char * format, ...)
