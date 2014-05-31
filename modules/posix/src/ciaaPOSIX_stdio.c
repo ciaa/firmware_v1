@@ -169,6 +169,8 @@ extern int32_t ciaaPOSIX_printf(const char * format, ...)
    va_start(args, format);
    ret = vprintf(format, args);
    va_end(args);
+   /* Fixes a Bug in Eclipse (173732) print to the console */
+   fflush(stdout);
 
    /* OS post call service, changes stack to RTOS stack */
    /* #36 TODO */
