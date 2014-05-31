@@ -61,8 +61,8 @@
 /*==================[macros and definitions]=================================*/
 
 #define CIAA_HEAP_MEM_SIZE 1000
-#define AVAILABLE 1 
-#define USED 0 
+#define AVAILABLE 1
+#define USED 0
 
 /*==================[internal data declaration]==============================*/
 
@@ -75,7 +75,7 @@ struct ciaaPOSIX_chunk_header
    uint32_t size;
 
    /* Indicates if this chunk is available */
-   bool is_available; 
+   bool is_available;
 };
 typedef struct ciaaPOSIX_chunk_header ciaaPOSIX_chunk_header;
 
@@ -123,9 +123,9 @@ void ciaaPOSIX_stdlib_init(void)
 
 void *ciaaPOSIX_malloc(uint32_t size)
 {
-   uint32_t allocation_size = size + sizeof(ciaaPOSIX_chunk_header); 
+   uint32_t allocation_size = size + sizeof(ciaaPOSIX_chunk_header);
    ciaaPOSIX_chunk_header *chunk_header = first_chunk_header;
-   
+
    while(chunk_header)
    {
       if(chunk_header->is_available && chunk_header->size >= allocation_size)
@@ -136,13 +136,14 @@ void *ciaaPOSIX_malloc(uint32_t size)
 
          chunk_header->is_available = USED;
          chunk_header->size = allocation_size;
-		 /* Is it the last chunck? */
+         /* Is it the last chunck? */
          if(chunk_header->next == NULL)
-		 {
-            chunk_header->next = (ciaaPOSIX_chunk_header *) ((uint32_t)chunk_header + (uint32_t)allocation_size);
+         {
+            chunk_header->next = (ciaaPOSIX_chunk_header*) (sizeof(chunk_header) + allocation_size);
             ciaaPOSIX_init_next_chunk(chunk_header->next, allocation_size);
          }
-		 chunk_header = chunk_header + sizeof(ciaaPOSIX_chunk_header);
+         chunk_header = chunk_header + sizeof(ciaaPOSIX_chunk_header);
+
          /* exit critical section */
          ciaaPOSIX_sem_post(&ciaaPOSIX_stdlib_sem);
          return chunk_header;
