@@ -79,22 +79,22 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 /** \brief open function type */
-typedef int32_t (*ciaaDevices_open)(uint8_t const * const path, uint8_t const oflag);
+typedef int32_t (*ciaaDevices_open)(char const * const path, uint8_t const oflag);
 
 /** \brief close function type */
-typedef int32_t (*ciaaDevices_close)(int32_t fildes);
+typedef int32_t (*ciaaDevices_close)(int32_t const fildes);
 
 /** \brief ioctl function type */
-typedef int32_t (*ciaaDevices_ioctl)(int32_t const fildes, int32_t request, void* param);
+typedef int32_t (*ciaaDevices_ioctl)(int32_t const fildes, int32_t const request, void * param);
 
 /** \brief read function type */
-typedef int32_t (*ciaaDevices_read)(int32_t const fildes, uint8_t * const buf, uint32_t nbyte);
+typedef int32_t (*ciaaDevices_read)(int32_t const fildes, uint8_t * const buf, uint32_t const nbyte);
 
 /** \brief write function type */
-typedef int32_t (*ciaaDevices_write)(int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
+typedef int32_t (*ciaaDevices_write)(int32_t const fildes, uint8_t const * const buf, uint32_t const nbyte);
 
 /** \brief seek function type */
-typedef int32_t (*ciaaDevices_seek)(int32_t const fildes, int32_t offset, uint8_t whence);
+typedef int32_t (*ciaaDevices_seek)(int32_t const fildes, int32_t const offset, uint8_t const whence);
 
 /** \brief Device Type */
 typedef struct {

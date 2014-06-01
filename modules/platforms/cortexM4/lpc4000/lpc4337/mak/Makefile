@@ -33,5 +33,4 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-platforms_SRC_FILES += $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)ciaaUART.c
 

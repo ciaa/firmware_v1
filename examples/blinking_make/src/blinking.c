@@ -60,6 +60,7 @@
 /*==================[inclusions]=============================================*/
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
+#include "ciaak.h"
 #include "blinking.h"
 
 /*==================[macros and definitions]=================================*/
@@ -77,6 +78,8 @@
 /*==================[external functions definition]==========================*/
 int main(void)
 {
+   ciaak_start();
+
    StartOS(AppMode1);
    return 0;
 }

@@ -60,7 +60,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include <ciaaPOSIX_stdint.h>
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -75,12 +75,12 @@ extern "C" {
 
 /*==================[external functions declaration]=========================*/
 
-int32_t ciaaDriverUart_open(const char* pathName, int32_t flags);
-int32_t ciaaDriverUart_close(int32_t fd);
-int32_t ciaaDriverUart_ioctl(int32_t fd, int32_t arg, uint32_t size);
-int32_t ciaaDriverUart_read(int32_t fd, uint8_t* buffer, uint32_t size);
-int32_t ciaaDriverUart_write(int32_t fd, uint8_t* buffer, uint32_t size);
-void ciaaDriverUart_init(void);
+extern int32_t ciaaDriverUart_open(char const * const path, uint8_t const oflag);
+extern int32_t ciaaDriverUart_close(int32_t const fildes);
+extern int32_t ciaaDriverUart_ioctl(int32_t const fildes, int32_t const request, void * param);
+extern int32_t ciaaDriverUart_read(int32_t const fildes, uint8_t * const buffer, uint32_t const size);
+extern int32_t ciaaDriverUart_write(int32_t const fildes, uint8_t const * const buffer, uint32_t const size);
+extern void ciaaDriverUart_init(void);
 
 
 /*==================[cplusplus]==============================================*/

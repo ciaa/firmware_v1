@@ -33,4 +33,3 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
--include $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPU)$(DS)mak$(DS)Makefile

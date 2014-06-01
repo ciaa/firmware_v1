@@ -295,9 +295,12 @@ unity:
 $(project) : $(LIBS) $(OBJ_FILES)
 	@echo ===============================================================================
 	@echo Linking $(project)
-	$(CC) $(OBJ_FILES) $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -o $(BIN_DIR)$(DS)$(project).bin $(LFLAGS)
+	$(CC) $(OBJ_FILES) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(BIN_DIR)$(DS)$(project).bin $(LFLAGS)
 #	$(LD) -lcrt1 -Map $(BIN_DIR)$(DS)$(project).map --library-path=$(LIB_DIR)$(DS) $(OBJ_FILES) $(foreach lib, $(LIB_DIR)$(DS)$(LIBS).a, $(lib)) -o $(BIN_DIR)$(DS)$(project).bin
 
+# debug rule
+debug : $(BIN_DIR)$(DS)$(project).bin
+	$(GDB) $(BIN_DIR)$(DS)$(project).bin
 
 ###############################################################################
 # rtos OSEK generation

@@ -86,6 +86,8 @@ typedef unsigned char kciaa_semaphore;
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief Initialize the CIAA Firmware */
+void ciaak_start(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

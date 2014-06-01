@@ -32,15 +32,17 @@
  *
  */
 
-/** \brief CIAA Serial Devices
+/** \brief CIAA Uart Posix Driver
  **
- ** Provides support for serial devices
+ ** Simulated UART Driver for Posix
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup UART UART Drivers
  ** @{ */
 
 /*
@@ -52,65 +54,105 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140525 v0.0.1 initials initial version
+ * 20140528 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaDriverUart.h"
 #include "ciaaSerialDevices.h"
+#include "ciaaPOSIX_stdlib.h"
 
 /*==================[macros and definitions]=================================*/
-#define ciaaSerialDevices_MAXDEVICES		20
-
-/*==================[typedef]================================================*/
-/** \brief Serial Devices Type */
-typedef struct {
-	ciaaDevices_deviceType const * device[ciaaSerialDevices_MAXDEVICES];
-	uint8_t position;
-} ciaaSerialDevices_devicesType;
+typedef struct  {
+   ciaaDevices_deviceType const * const * const devices;
+   uint8_t countOfDevices;
+} ciaaDriverConstType;
 
 /*==================[internal data declaration]==============================*/
-/** \brief List of devices */
-ciaaSerialDevices_devicesType ciaaSerialDevices;
-
-/** \brief ciaa Device sempahore */
-sem_t ciaaSerialDevices_sem;
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+/** \brief Device for UART 0 */
+static ciaaDevices_deviceType const ciaaDriverUart_device0 = {
+   "uart/0",               /** <= driver name */
+   ciaaDriverUart_open,    /** <= open function */
+   ciaaDriverUart_close,   /** <= close function */
+   ciaaDriverUart_read,    /** <= read function */
+   ciaaDriverUart_write,   /** <= write function */
+   ciaaDriverUart_ioctl,   /** <= ioctl function */
+   NULL                    /** <= seek function is not provided */
+};
+
+/** \brief Device for UART 1 */
+static ciaaDevices_deviceType const ciaaDriverUart_device1 = {
+   "uart/1",               /** <= driver name */
+   ciaaDriverUart_open,    /** <= open function */
+   ciaaDriverUart_close,   /** <= close function */
+   ciaaDriverUart_read,    /** <= read function */
+   ciaaDriverUart_write,   /** <= write function */
+   ciaaDriverUart_ioctl,   /** <= ioctl function */
+   NULL                    /** <= seek function is not provided */
+};
+
+static ciaaDevices_deviceType const * const ciaaUartDevices[] = {
+   &ciaaDriverUart_device0,
+   &ciaaDriverUart_device1
+};
+
+static ciaaDriverConstType ciaaDriverUartConst = {
+   ciaaUartDevices,
+   2
+};
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern void ciaaSerialDevices_init(void)
+extern int32_t ciaaDriverUart_open(char const * const path, uint8_t const oflag)
 {
-   /* reset position of the drivers */
-	ciaaSerialDevices.position = 0;
-
-	/* init sempahore */
-	ciaaPOSIX_sem_init(&ciaaSerialDevices_sem);
+   // TODO
+   return 0;
 }
 
-extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType const * driver)
+extern int32_t ciaaDriverUart_close (int32_t fd)
 {
-   /* enter critical section */
-   ciaaPOSIX_sem_wait(&ciaaSerialDevices_sem);
+   // TODO
+   return 0;
+}
 
-   /* check if more drivers can be added */
-   if (ciaaSerialDevices_MAXDEVICES > ciaaSerialDevices.position) {
-      /* add driver */
-      ciaaSerialDevices.device[ciaaSerialDevices.position] = driver;
+extern int32_t ciaaDriverUart_ioctl(int32_t const fildes, int32_t const request, void * param)
+{
+   // TODO
+   return 0;
+}
 
-      /* increment position */
-      ciaaSerialDevices.position++;
+extern int32_t ciaaDriverUart_read (int32_t fd, uint8_t* buffer, uint32_t size)
+{
+   // TODO
+   return 0;
+}
+
+extern int32_t ciaaDriverUart_write(int32_t const fildes, uint8_t const * const buffer, uint32_t const size)
+{
+   return 0;
+}
+
+void ciaaDriverUart_init(void)
+{
+   uint8_t loopi;
+
+   /* add uart driver to the list of devices */
+   for(loopi = 0; loopi < ciaaDriverUartConst.countOfDevices; loopi++) {
+      /* add each device */
+      ciaaSerialDevices_addDriver(ciaaDriverUartConst.devices[loopi]);
    }
-
-   /* exit critical section */
-   ciaaPOSIX_sem_post(&ciaaSerialDevices_sem);
 }
 
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+
+

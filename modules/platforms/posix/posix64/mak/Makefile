@@ -33,4 +33,3 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-platforms_SRC_FILES += $(wildcard $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPU)$(DS)src$(DS)ciaaUART.c)

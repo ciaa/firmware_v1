@@ -2,6 +2,16 @@
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  *
+ *    or
+ *
+ * Copyright 2014, Your Name <youremail@domain.com>
+ *
+ *    or
+ *
+ * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
+ *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *    CADIEEL: http://www.cadieel.org.ar
+ *
  * This file is part of CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,48 +42,39 @@
  *
  */
 
-/** \brief CIAA Serial Devices
+/** \brief Short description of this file
  **
- ** Provides support for serial devices
+ ** Long description of this file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Template Template to start a new module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140525 v0.0.1 initials initial version
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaak.h"
+/* TODO configuration dependent includes */
+#include "ciaaDevices.h"
 #include "ciaaSerialDevices.h"
+#include "ciaaDriverUart.h"
 
 /*==================[macros and definitions]=================================*/
-#define ciaaSerialDevices_MAXDEVICES		20
-
-/*==================[typedef]================================================*/
-/** \brief Serial Devices Type */
-typedef struct {
-	ciaaDevices_deviceType const * device[ciaaSerialDevices_MAXDEVICES];
-	uint8_t position;
-} ciaaSerialDevices_devicesType;
 
 /*==================[internal data declaration]==============================*/
-/** \brief List of devices */
-ciaaSerialDevices_devicesType ciaaSerialDevices;
-
-/** \brief ciaa Device sempahore */
-sem_t ciaaSerialDevices_sem;
 
 /*==================[internal functions declaration]=========================*/
 
@@ -84,33 +85,14 @@ sem_t ciaaSerialDevices_sem;
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern void ciaaSerialDevices_init(void)
+void ciaak_start(void)
 {
-   /* reset position of the drivers */
-	ciaaSerialDevices.position = 0;
-
-	/* init sempahore */
-	ciaaPOSIX_sem_init(&ciaaSerialDevices_sem);
-}
-
-extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType const * driver)
-{
-   /* enter critical section */
-   ciaaPOSIX_sem_wait(&ciaaSerialDevices_sem);
-
-   /* check if more drivers can be added */
-   if (ciaaSerialDevices_MAXDEVICES > ciaaSerialDevices.position) {
-      /* add driver */
-      ciaaSerialDevices.device[ciaaSerialDevices.position] = driver;
-
-      /* increment position */
-      ciaaSerialDevices.position++;
-   }
-
-   /* exit critical section */
-   ciaaPOSIX_sem_post(&ciaaSerialDevices_sem);
+   ciaaDevices_init();
+   ciaaSerialDevices_init();
+   ciaaDriverUart_init();
 }
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+
