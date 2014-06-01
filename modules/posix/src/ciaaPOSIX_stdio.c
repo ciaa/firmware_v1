@@ -170,6 +170,7 @@ extern int32_t ciaaPOSIX_printf(const char * format, ...)
    ret = vprintf(format, args);
    va_end(args);
    /* Fixes a Bug in Eclipse (173732) print to the console */
+   /* See issue CIAA Firmware issue #35: https://github.com/ciaa/Firmware/issues/35 */
    fflush(stdout);
 
    /* OS post call service, changes stack to RTOS stack */
