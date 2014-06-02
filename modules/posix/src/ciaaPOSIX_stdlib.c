@@ -61,8 +61,8 @@
 /*==================[macros and definitions]=================================*/
 
 #define CIAA_HEAP_MEM_SIZE 1000
-#define AVAILABLE 1
-#define USED 0
+#define CIAA_POSIX_STDLIB_AVAILABLE 1
+#define CIAA_POSIX_STDLIB_USED 0
 
 /*==================[internal data declaration]==============================*/
 
@@ -101,21 +101,21 @@ sem_t ciaaPOSIX_stdlib_sem;
 
 static void ciaaPOSIX_init_next_chunk(ciaaPOSIX_chunk_header *chunk_header, uint32_t size)
 {
-   ciaaPOSIX_heap_available_size -= size;
+   ciaaPOSIX_heap_available_size -= size + sizeof(ciaaPOSIX_chunk_header);
    chunk_header->next = NULL;
    chunk_header->size = ciaaPOSIX_heap_available_size;
-   chunk_header->is_available = AVAILABLE;
+   chunk_header->is_available = CIAA_POSIX_STDLIB_AVAILABLE;
 }
 
 /*==================[external functions definition]==========================*/
 
 void ciaaPOSIX_stdlib_init(void)
 {
-   ciaaPOSIX_heap_available_size = CIAA_HEAP_MEM_SIZE;
+   ciaaPOSIX_heap_available_size = CIAA_HEAP_MEM_SIZE - sizeof(ciaaPOSIX_chunk_header);
    first_chunk_header = (ciaaPOSIX_chunk_header*)&ciaaPOSIX_buffer;
    first_chunk_header->next = NULL;
    first_chunk_header->size = ciaaPOSIX_heap_available_size;
-   first_chunk_header->is_available = AVAILABLE;
+   first_chunk_header->is_available = CIAA_POSIX_STDLIB_AVAILABLE;
 
    /* init sempahore */
    ciaaPOSIX_sem_init(&ciaaPOSIX_stdlib_sem);
@@ -123,24 +123,22 @@ void ciaaPOSIX_stdlib_init(void)
 
 void *ciaaPOSIX_malloc(uint32_t size)
 {
-   uint32_t allocation_size = size + sizeof(ciaaPOSIX_chunk_header);
    ciaaPOSIX_chunk_header *chunk_header = first_chunk_header;
 
    while(chunk_header)
    {
-      if(chunk_header->is_available && chunk_header->size >= allocation_size)
+      if(chunk_header->is_available && chunk_header->size >= size)
       {
-
          /* enter critical section */
          ciaaPOSIX_sem_wait(&ciaaPOSIX_stdlib_sem);
 
-         chunk_header->is_available = USED;
-         chunk_header->size = allocation_size;
+         chunk_header->is_available = CIAA_POSIX_STDLIB_USED;
+         chunk_header->size = size;
          /* Is it the last chunck? */
          if(chunk_header->next == NULL)
          {
-            chunk_header->next = (ciaaPOSIX_chunk_header*) (sizeof(chunk_header) + allocation_size);
-            ciaaPOSIX_init_next_chunk(chunk_header->next, allocation_size);
+            chunk_header->next = (ciaaPOSIX_chunk_header*) (sizeof(chunk_header) + size);
+            ciaaPOSIX_init_next_chunk(chunk_header->next, size);
          }
          chunk_header = chunk_header + sizeof(ciaaPOSIX_chunk_header);
 
@@ -167,7 +165,7 @@ void ciaaPOSIX_free(void *ptr)
 
          ciaaPOSIX_heap_available_size += chunk_header->size;
 
-         chunk_header->is_available = AVAILABLE;
+         chunk_header->is_available = CIAA_POSIX_STDLIB_AVAILABLE;
 
          /* exit critical section */
          ciaaPOSIX_sem_post(&ciaaPOSIX_stdlib_sem);
