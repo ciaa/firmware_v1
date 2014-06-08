@@ -1,7 +1,4 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Pablo Ridolfi (UTN-FRBA)
  *
  * This file is part of CIAA Firmware.
  *
@@ -36,19 +33,13 @@
 #ifndef _OS_ARCH_H_
 #define _OS_ARCH_H_
 
-/*****************************************************************************
- * update the tmparch directory on the \file and \arch doxygen comment with your
- * architecture.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 /** \brief FreeOSEK Os Architecture Dependent Header File
  **
  ** This file is included form os.h and defines macros
  ** and types which depends on the architecture.
  **
- ** \file tmparch/Os_Arch.h
- ** \arch tmparch
+ ** \file cortexM4/Os_Arch.h
+ ** \arch cortexM4
  **
  **/
 
@@ -68,7 +59,6 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe		Mariano Cerdeiro
  * PR		Pablo Ridolfi	
  */
 
@@ -84,7 +74,6 @@
  * modification history (new versions first)
  * ----------------------------------------------------------
  * 20140608 v0.1.1 PR	First version for Cortex-M processors.
- * 20090526 v0.1.0 MaCe FreeOSEK architecture template file
  */
 
 /*==================[inclusions]=============================================*/

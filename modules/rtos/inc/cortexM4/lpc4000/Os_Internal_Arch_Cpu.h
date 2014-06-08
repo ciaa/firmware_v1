@@ -1,5 +1,4 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
+/* Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
  *
@@ -36,16 +35,10 @@
 #ifndef _OS_INTERNAL_ARCH_CPU_H_
 #define _OS_INTERNAL_ARCH_CPU_H_
 
-/*****************************************************************************
- * update the tmparch and tmpcyputype directory on the \file and \arch doxygen
- * comment with your architecture.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 /** \brief FreeOSEK Internal Architecture Cpu Dependent Header File
  **
- ** \file tmparch/tmpcputype/Os_Internal_Arch_Cpu.h
- ** \arch tmparch/tmpcputype
+ ** \file cortexM4/lpc4000/Os_Internal_Arch_Cpu.h
+ ** \arch cortexM4/lpc4000
  **/
 
 /** \addtogroup FreeOSEK
@@ -64,7 +57,6 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe		Mariano Cerdeiro
  * PR		Pablo Ridolfi
  */
 
@@ -80,7 +72,6 @@
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20140608 v0.1.1 PR	First version for LPC4337 microcontroller.
- * 20090526 v0.1.0 MaCe FreeOSEK architecture template file
  */
 
 /*==================[cpu macros]=============================================*/

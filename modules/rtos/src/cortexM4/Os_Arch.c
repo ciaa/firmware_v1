@@ -1,7 +1,4 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Pablo Ridolfi (UTN-FRBA)
  *
  * This file is part of CIAA Firmware.
  *
@@ -49,14 +46,13 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * PR		Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20090719 v0.1.1 MaCe rename file to Os_
- * 20081116 v0.1.0 MaCe initial version
+ * 20140608 v0.1.0 PR	initial version
  */
 
 /*==================[inclusions]=============================================*/
