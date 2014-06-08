@@ -32,37 +32,33 @@
  *
  */
 
-#ifndef _CIAAPOSIX_STDLIB_H_
-#define _CIAAPOSIX_STDLIB_H_
-/** \brief ciaa POSIX stdlib header file
+#ifndef _CIAAPOSIX_STDDEF_H_
+#define _CIAAPOSIX_STDDEF_H_
+/** \brief Short description of this file
  **
- ** ciaa POSIX stdlib header file
+ ** Long description of this file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Template Template to start a new module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DiFe         Diego Fernandez
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140524 v0.0.1 DiFe initial version
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-
 #include "ciaaPOSIX_stdint.h"
-#include "ciaaPOSIX_stddef.h"
-#include "ciaaPOSIX_stdbool.h"
-#include "ciaaPOSIX_semaphore.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -70,34 +66,15 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#define NULL 	(void*)0
 
 /*==================[typedef]================================================*/
+/** \brief typedefinition size_t */
+/* TODO: #43 https://github.com/ciaa/Firmware/issues/43 */
+typedef long unsigned int size_t;
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief ciaaPOSIX stdlib init
- **
- ** Performs the initialization of ciaaPOSIX stdlib
- **/
-void ciaaPOSIX_stdlib_init(void);
-
-/** \brief ciaaPOSIX malloc
- **
- ** Allocates unused space
- **
- ** \param[in] number of bytes to allocate
- **/
-void *ciaaPOSIX_malloc(size_t size);
-
-/** \brief ciaaPOSIX free
- **
- ** Frees allocated memory
- **
- ** \param[in] pointer to a previously allocated region
- **/
-void ciaaPOSIX_free(void *);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -106,5 +83,5 @@ void ciaaPOSIX_free(void *);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_STDLIB_H_ */
+#endif /* #ifndef _CIAAPOSIX_STDDEF_H_ */
 

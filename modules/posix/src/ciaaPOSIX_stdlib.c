@@ -121,7 +121,7 @@ void ciaaPOSIX_stdlib_init(void)
    ciaaPOSIX_sem_init(&ciaaPOSIX_stdlib_sem);
 }
 
-void *ciaaPOSIX_malloc(uint32_t size)
+void *ciaaPOSIX_malloc(size_t size)
 {
    ciaaPOSIX_chunk_header *chunk_header = first_chunk_header;
 
