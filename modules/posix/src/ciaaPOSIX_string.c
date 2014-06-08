@@ -1,6 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -47,16 +45,22 @@
  * Initials     Name
  * ---------------------------
  * JuCe         Juan Cecconi
+ * MaCe         Mariano Cerdeiro
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140530 v0.0.1 initials initial version
+ * 20140608 v0.0.2 MaCe implement strlen, strcat, strcmp and strncmp
+ * 20140530 v0.0.1 JuCe initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_string.h"
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stddef.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -71,7 +75,7 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-char * ciaaPOSIX_strcpy(char * dest, char const * src)
+extern char * ciaaPOSIX_strcpy(char * dest, char const * src)
 {
    char *tmp_src = (char*) src;
    char *tmp_dest = dest;
@@ -92,9 +96,141 @@ char * ciaaPOSIX_strcpy(char * dest, char const * src)
    return dest;
 }
 
-uint8_t * ciaaPOSIX_strcmp(char const * const s1, char const * const s2)
+extern size_t ciaaPOSIX_strlen(char const * s) {
+   uint32_t length = 0;
+
+   /* search for the first null within the string */
+   while(0 != *s)
+   {
+      /* if not found, increment the position */
+      s++;
+      /* and increment the lenght counter */
+      length++;
+   }
+
+   return length;
+}
+
+extern char * ciaaPOSIX_strcat(char * dest, char const * src)
 {
-	return 0;
+   size_t length = ciaaPOSIX_strlen(dest);
+
+   /* increment size of initial string */
+   dest += length;
+
+   while(0 != *src)
+   {
+      /* copy one char */
+      *dest = *src;
+
+      /* increment pointers */
+      dest++;
+      src++;
+   }
+
+   /* add null termination */
+   *dest = 0;
+
+   return dest;
+}
+
+extern int8_t ciaaPOSIX_strncmp(char const * s1, char const * s2, size_t n)
+{
+   int8_t ret = 0;
+
+   while( (0 != *s1) && (0 != *s2) && (0 == ret) && (0 < n) )
+   {
+      /* compare */
+      if (*s1 > *s2)
+      {
+         ret = 1;
+      }
+      else if (*s1 < *s2)
+      {
+         ret = -1;
+      }
+      else
+      {
+         /* go ahead with the comparassion */
+         /* *s1 is equal to *s2 */
+      }
+
+      /* increment pointers */
+      s1++;
+      s2++;
+
+      /* decrement count */
+      n--;
+   }
+
+   /* check if all needed chars have been compared */
+   if ( (0 != n) && (0 == ret) )
+   {
+      if (*s1 > *s2)
+      {
+         ret = 1;
+      }
+      else if (*s1 < *s2)
+      {
+         ret = -1;
+      }
+      else
+      {
+         /* go ahead with the comparassion */
+         /* *s1 is equal to *s2 */
+      }
+   }
+
+
+   return ret;
+}
+
+extern int8_t ciaaPOSIX_strcmp(char const * s1, char const * s2)
+{
+   int8_t ret = 0;
+
+   while( (0 != *s1) && (0 != *s2) && (0 == ret) )
+   {
+      /* compare */
+      if (*s1 > *s2)
+      {
+         ret = 1;
+      }
+      else if (*s1 < *s2)
+      {
+         ret = -1;
+      }
+      else
+      {
+         /* go ahead with the comparassion */
+         /* *s1 is equal to *s2 */
+      }
+
+      /* increment pointers */
+      s1++;
+      s2++;
+   }
+
+   /* in case that are equal */
+   if (0 == ret)
+   {
+      /* we have to check if both strings have the same length */
+      if (*s1 > *s2)
+      {
+         ret = 1;
+      }
+      else if (*s1 < *s2)
+      {
+         ret = -1;
+      }
+      else
+      {
+         /* go ahead with the comparassion */
+         /* *s1 is equal to *s2 */
+      }
+   }
+
+   return ret;
 }
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

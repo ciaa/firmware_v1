@@ -1,6 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -49,16 +47,19 @@
  * Initials     Name
  * ---------------------------
  * JuCe         Juan Cecconi
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140530 v0.0.1 initials initial version 
+ * 20140608 v0.0.2 MaCe implement strlen, strcat, strcmp and strncmp
+ * 20140530 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stddef.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -74,9 +75,44 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-char * ciaaPOSIX_strcpy(char * dest, char const * src);
+extern char * ciaaPOSIX_strcpy(char * dest, char const * src);
 
-uint8_t * ciaaPOSIX_strcmp(char const * const s1, char const * const s2);
+/** \brief get string length
+ **
+ ** \param[in] s string to compute the length
+ ** \raturn string length of s
+ **
+ **/
+extern size_t ciaaPOSIX_strlen(char const * s);
+
+/** \brief concatenate two strings
+ **
+ ** Concatenate src at the end of the dest string.
+ **
+ ** \param[inout] dest string to be concatenated at the end
+ ** \param[in] src string to concatenate after dest.
+ ** \return dest if success and other value if an error occurs
+ **/
+extern char * ciaaPOSIX_strcat(char * dest, char const * src);
+
+/** \brief compare part of two strings
+ **
+ ** \param[in] s1 first string to be compared
+ ** \param[in] s2 second string to be compared
+ ** \param[in] n maximal count of characters to be compared
+ ** \returns a positive number if s1 > s2, 0 if s1 = s2 and negative number if
+ **          s1 < s2
+ **/
+extern int8_t ciaaPOSIX_strncmp(char const * s1, char const * s2, size_t n);
+
+/** \brief compare two strings
+ **
+ ** \param[in] s1 first string to be compared
+ ** \param[in] s2 second string to be compared
+ ** \returns a positive number if s1 > s2, 0 if s1 = s2 and negative number if
+ **          s1 < s2
+ **/
+extern int8_t ciaaPOSIX_strcmp(char const * s1, char const * s2);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
