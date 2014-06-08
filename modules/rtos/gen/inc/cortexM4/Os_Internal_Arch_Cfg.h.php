@@ -37,16 +37,6 @@
  *
  */
 
-/*****************************************************************************
- * add your copyright notice
- * Copyright <year>, <your name>
- *
- * Please do not change the license on a single file, if you want to change it
- * discuss it with the development team.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
-
 #ifndef _OS_INTERNAL_ARCH_CFG_H_
 #define _OS_INTERNAL_ARCH_CFG_H_
 
@@ -81,7 +71,8 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * MaCe		Mariano Cerdeiro
+ * PR		Pablo Ridolfi
  */
 
 /*****************************************************************************
@@ -95,6 +86,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * v0.1.1 20140608 PR	First version for Cortex-M processors.
  * v0.1.0 20090526 MaCe	FreeOSEK architecture template file
  */
 
