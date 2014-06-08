@@ -115,8 +115,7 @@
  *****************************************************************************/
 
 /** \brief Task Context Type */
-typedef struct {
-} TaskContextType;
+typedef uint32 * TaskContextType;
 
 /** \brief Task Context Type */
 typedef TaskContextType* TaskContextRefType;

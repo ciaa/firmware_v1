@@ -1,37 +1,51 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
+/*****************************************************************************
+ * add your copyright notice
+ * Copyright <year>, <your name>
  *
- * This file is part of CIAA Firmware.
+ * Please do not change the license on a single file, if you want to change it
+ * discuss it with the development team.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * PLEASE REMOVE THIS COMMENT
+ *****************************************************************************/
+
+/* Copyright 2008, 2009, Mariano Cerdeiro
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
+ * This file is part of FreeOSEK.
  *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
+ * FreeOSEK is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- * 3. Neither the name of the copyright holder nor the names of its
- *    contributors may be used to endorse or promote products derived from this
- *    software without specific prior written permission.
+ * Linking FreeOSEK statically or dynamically with other modules is making a
+ * combined work based on FreeOSEK. Thus, the terms and conditions of the GNU
+ * General Public License cover the whole combination.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * In addition, as a special exception, the copyright holders of FreeOSEK give
+ * you permission to combine FreeOSEK program with free software programs or
+ * libraries that are released under the GNU LGPL and with independent modules
+ * that communicate with FreeOSEK solely through the FreeOSEK defined interface.
+ * You may copy and distribute such a system following the terms of the GNU GPL
+ * for FreeOSEK and the licenses of the other code concerned, provided that you
+ * include the source code of that other code when and as the GNU GPL requires
+ * distribution of source code.
+ *
+ * Note that people who make modified versions of FreeOSEK are not obligated to
+ * grant this special exception for their modified versions; it is their choice
+ * whether to do so. The GNU General Public License gives permission to release
+ * a modified version without this exception; this exception also makes it
+ * possible to release a modified version which carries forward this exception.
+ *
+ * FreeOSEK is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with FreeOSEK. If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 
 #ifndef _OS_INTERNAL_ARCH_H_
 #define _OS_INTERNAL_ARCH_H_
@@ -82,23 +96,10 @@
  */
 
 /*==================[inclusions]=============================================*/
-/*****************************************************************************
- * add any needed include, please take into account that normaly NO INCLUDE
- * shall be included here, but in case you can do it, but discuss the reason
- * with the project manager.
- * Normaly nothing shall be included here
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
+
+
 
 /*==================[macros]=================================================*/
-/*****************************************************************************
- * Please define here all needed macros that will be visible to the OS user
- * for this architecutre. This means that anyone including os.h will have
- * access to this definitions if the actual architecutre is used.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 
 /** \brief Osek_Internal_Arch_Cpu.h inclusion needed macro
  **
@@ -108,6 +109,10 @@
  ** remove the macro and this comment.
  **/
 #define OSEK_INLCUDE_INTERNAL_ARCH_CPU
+
+extern void * Osek_OldTaskPtr_Arch;
+extern void * Osek_NewTaskPtr_Arch;
+extern TaskType TerminatingTask;
 
 /** \brief Interrupt Secure Start Macro
  **
@@ -135,100 +140,78 @@
  ** occurs, like for example an interrupt.
  **
  **/
-#define osekpause()			\
-	{								\
-	}
+#define osekpause()	__asm volatile("wfi")
 
 /** \brief Call to an other Task
  **
- ** This function jmps to the indicated nexttask and saves the running context
- ** on the actualtask context.
- **
- ** The Tasks context can be found under the following variables:
- **	- TasksConst[actualtask].TaskContext
- ** 	- TasksConst[nexttask].TaskContext
- **
- ** \param[in] actualtask actual running task id
- ** \param[in] nexttask next task task id
+ ** This function jmps to the indicated task.
  **/
-#define CallTask(actualtask, nexttask)														\
-	{																									\
-	}
+#define CallTask(actualtask, nexttask)										\
+{																			\
+	Osek_OldTaskPtr_Arch = (void*)TasksConst[(actualtask)].TaskContext;		\
+	Osek_NewTaskPtr_Arch = (void*)TasksConst[(nexttask)].TaskContext;		\
+	__asm__ __volatile__ (													\
+		/* Call PendSV */													\
+		"push {r0,r1}												\n\t"	\
+		/* Activate bit PENDSVSET in Interrupt Control State Register (ICSR) */ \
+		"ldr r0,=0xE000ED04											\n\t"	\
+		"ldr r1,[r0]												\n\t"	\
+		"orr r1,1<<28												\n\t"	\
+		"str r1,[r0]												\n\t"	\
+		"pop {r0,r1}												\n\t"	\
+	);																		\
+}
 
 /** \brief Jmp to an other Task
  **
- ** This function jmps to the indicated task. Same as call task but is not
- ** necessary to save the actual task state since the task was finished.
- **
- ** The Tasks context can be found under the following variable:
- **	- TasksConst[task].TaskContext
- **
- ** \param[in] task task id of the task to be executed
+ ** This function jmps to the indicated task.
  **/
-#define JmpTask(task)															\
-	{																					\
-	}
+#define JmpTask(task)														\
+{																			\
+	Osek_OldTaskPtr_Arch = (void*)0;										\
+	Osek_NewTaskPtr_Arch = (void*)TasksConst[(task)].TaskContext;			\
+	__asm__ __volatile__ (													\
+		/* Call PendSV */													\
+		"push {r0,r1}												\n\t"	\
+		/* Activate bit PENDSVSET in Interrupt Control State Register (ICSR) */ \
+		"ldr r0,=0xE000ED04											\n\t"	\
+		"ldr r1,[r0]												\n\t"	\
+		"orr r1,1<<28												\n\t"	\
+		"str r1,[r0]												\n\t"	\
+		"pop {r0,r1}												\n\t"	\
+	);																		\
+}
 
-/** \brief Save context
- **
- ** This function has to save the context when calling it. This is used
- ** for example when a function calls waitevent. The task will be resumed
- ** with a JmpTask or CallTask macro.
- **
- ** The task context can be found under the following variable:
- **	- TasksConst[task].TaskContext
- **
- ** \param[in] task task id to save the task context
- **/
-#define SaveContext(task) 														\
-	{																					\
-	}
+/** \brief Save context */
+#define SaveContext(task) 													\
+{																			\
+	flag = 0;																\
+	/* remove of the Ready List */											\
+	RemoveTask(GetRunningTask());											\
+	/* finish cirtical code */												\
+	IntSecure_End();														\
+	/* call scheduler */													\
+	Schedule();																\
+}
 
-/** \brief Reset the entry point for a task
- **
- ** This macro reset the entry point of a specific task. The entry
- ** point of a task is updated every time when a task is completed.
- **
- ** The task context can be found under the following variable:
- **	- TasksConst[task].TaskContext
- **
- ** The start configured task entry point can be found on the following
- ** variable:
- **	- TasksConst[task].EntryPoint
- **
- ** \param[in] task task id to reset the task entry point
- **/
-#define SetEntryPoint(task)							\
-	{															\
-	}
+/** \brief */
+#define ResetStack(task)		\
+{								\
+	TerminatingTask = (task);	\
+}
 
-/** \brief Reset stack task
- **
- ** This macro reset the stack of a specific task. The stack
- ** point of a task is updated every time when a task is completed.
- **
- ** The task context can be found under the following variable:
- **	- TasksConst[task].TaskContext
- **
- ** The start configured stack can be found on the following
- ** variables:
- **	- TasksConst[task].StackPtr
- **	- TasksConst[task].StackSize
- **
- ** \param[in] task task id to reset the stack
- **/
-#define ResetStack(task)											\
-	{																		\
-   }
+/** \brief Set the entry point for a task */
+#define SetEntryPoint(task)		\
+{								\
+	TerminatingTask = (task);	\
+}
 
 /** \brief Enable OS Interruptions
  **
  ** Enable OS configured interrupts (ISR1 and ISR2). This macro
  ** is called only ones in StartUp.c function.
  **/
-#define EnableOSInterrupts()															\
-	{																							\
-	}
+#define EnableOSInterrupts() __asm volatile("cpsie i")
 
 /** \brief Enable Interruptions
  **
@@ -238,9 +221,7 @@
  ** This macro may be empty. Maybe will be removed on the future,
  ** please use it only if necessary, in other case use EnableOSInterrupts.
  **/
-#define EnableInterrupts()		\
-	{									\
-	}
+#define EnableInterrupts()	EnableOSInterrupts()
 
 /** \brief Get Counter Actual Value
  **
@@ -276,12 +257,8 @@
  *****************************************************************************/
 
 /*==================[external functions declaration]=========================*/
-/*****************************************************************************
- * Please declare here all exported functions defined in Osek_Internal_Arch.c
- * that will be visible only internaly to the OS user for this architectire.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
+void InitStack_Arch(uint8 TaskID);
+
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
