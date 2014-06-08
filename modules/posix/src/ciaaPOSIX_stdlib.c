@@ -57,6 +57,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -137,7 +138,7 @@ void *ciaaPOSIX_malloc(size_t size)
          /* Is it the last chunck? */
          if(chunk_header->next == NULL)
          {
-            chunk_header->next = (ciaaPOSIX_chunk_header*) (sizeof(chunk_header) + size);
+            chunk_header->next = (ciaaPOSIX_chunk_header*) ((intptr_t)(chunk_header) + (intptr_t)size);
             ciaaPOSIX_init_next_chunk(chunk_header->next, size);
          }
          chunk_header = chunk_header + sizeof(ciaaPOSIX_chunk_header);

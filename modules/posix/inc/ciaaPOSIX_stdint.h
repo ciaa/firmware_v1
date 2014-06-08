@@ -99,6 +99,9 @@ typedef signed int int32_t;
 /* TODO comment to allow the module tests to compile ... see issue #27 */
 // typedef signed long long int64_t;
 
+/** \brief integer type capable of holding a pointer */
+typedef long int intptr_t;
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
