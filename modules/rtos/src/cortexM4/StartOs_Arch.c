@@ -79,7 +79,7 @@ void StartOs_Arch_Cpu(void)
 	SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk | SCB_SHCSR_USGFAULTENA_Msk | SCB_SHCSR_BUSFAULTENA_Msk;
 
 	//Activate SysTick
-	SysTick_Config(SystemCoreClock/1000);
+	SysTick_Config(CGU_GetPCLKFrequency(CGU_PERIPHERAL_M4CORE)/1000);
 }
 
 void StartOs_Arch(void)
