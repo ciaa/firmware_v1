@@ -2,10 +2,8 @@
  * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
  ********************************************************/
 
-/* Copyright 2008, 2009 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Pablo Ridolfi (UTN-FRBA)
+ *      
  *
  * This file is part of CIAA Firmware.
  *
@@ -37,16 +35,6 @@
  *
  */
 
-/*****************************************************************************
- * add your copyright notice
- * Copyright <year>, <your name>
- *
- * Please do not change the license on a single file, if you want to change it
- * discuss it with the development team.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
-
 #ifndef _OS_INTERNAL_ARCH_CFG_H_
 #define _OS_INTERNAL_ARCH_CFG_H_
 
@@ -61,8 +49,8 @@
  ** This file content the internal generated architecture dependent
  ** configuration of FreeOSEK.
  **
- ** \file tmparch/Os_Internal_Arch_Cfg.h
- ** \arch tmparch
+ ** \file cortexM4/Os_Internal_Arch_Cfg.h
+ ** \arch cortexM4
  **/
 
 /** \addtogroup FreeOSEK
@@ -81,7 +69,7 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * PR		Pablo Ridolfi
  */
 
 /*****************************************************************************
@@ -95,7 +83,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * v0.1.0 20090526 MaCe	FreeOSEK architecture template file
+ * v0.1.0 20140608 PR	First version for Cortex-M processors.
  */
 
 /*==================[inclusions]=============================================*/
@@ -115,8 +103,7 @@
  *****************************************************************************/
 
 /** \brief Task Context Type */
-typedef struct {
-} TaskContextType;
+typedef uint32 * TaskContextType;
 
 /** \brief Task Context Type */
 typedef TaskContextType* TaskContextRefType;

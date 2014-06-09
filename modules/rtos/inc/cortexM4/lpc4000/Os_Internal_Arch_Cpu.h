@@ -1,5 +1,4 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
+/* Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
  *
@@ -36,16 +35,10 @@
 #ifndef _OS_INTERNAL_ARCH_CPU_H_
 #define _OS_INTERNAL_ARCH_CPU_H_
 
-/*****************************************************************************
- * update the tmparch and tmpcyputype directory on the \file and \arch doxygen
- * comment with your architecture.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 /** \brief FreeOSEK Internal Architecture Cpu Dependent Header File
  **
- ** \file tmparch/tmpcputype/Os_Internal_Arch_Cpu.h
- ** \arch tmparch/tmpcputype
+ ** \file cortexM4/lpc4000/Os_Internal_Arch_Cpu.h
+ ** \arch cortexM4/lpc4000
  **/
 
 /** \addtogroup FreeOSEK
@@ -64,7 +57,7 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * PR		Pablo Ridolfi
  */
 
 /*****************************************************************************
@@ -78,7 +71,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20090526 v0.1.0 MaCe FreeOSEK architecture template file
+ * 20140608 v0.1.1 PR	First version for LPC4337 microcontroller.
  */
 
 /*==================[cpu macros]=============================================*/
@@ -102,7 +95,8 @@
 #ifndef CPU
 #error CPU is not defined
 #elif (CPU == lpc4337)
-#include "lpc4337.h"
+#include "LPC43xx.h"
+#include "core_cmFunc.h"
 #else
 #error not defined CPU
 #endif
@@ -132,12 +126,7 @@
  *****************************************************************************/
 
 /*==================[external functions declaration]=========================*/
-/*****************************************************************************
- * use this section to declare any necessary function for a specific cpu of
- * your family.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
+void StartOs_Arch_Cpu(void);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
