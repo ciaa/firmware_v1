@@ -62,6 +62,7 @@
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_stdbool.h"
 #include "ciaaPOSIX_string.h"
+#include "ciaaPOSIX_stdio.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -100,7 +101,7 @@ extern void ciaaDevices_init(void)
 extern void ciaaDevices_addDevice(ciaaDevices_deviceType const * device)
 {
 	/* enter critical section */
-	ciaaPOSIX_sem_wait(&ciaaDevices_sem);
+   ciaaPOSIX_sem_wait(&ciaaDevices_sem);
 
    /* check if positions are empty for more devices */
    if (ciaaDevices.position < ciaaDevices_MAXDEVICES)

@@ -59,6 +59,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdio.h"
+#include "ciaaPOSIX_stddef.h"
 
 /*==================[cplusplus]=*============================================*/
 #ifdef __cplusplus
@@ -66,19 +67,6 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief Short description of this macro
- **
- ** Long description of this macro
- **
- **/
-#define kciaa_malloc(size) ciaaMemory_pfMalloc(size)
-
-#define kciaa_atomicTrySetAndCheck(var, bit) 1
-
-#define kciaa_getSemaphore(semaphore)	1
-#define kciaa_releaseSempahore(sempahore) 1
-
-#define kciaa_init()	ciaa_fctlnInit()
 
 /*==================[typedef]================================================*/
 typedef unsigned char kciaa_semaphore;
@@ -88,6 +76,9 @@ typedef unsigned char kciaa_semaphore;
 /*==================[external functions declaration]=========================*/
 /** \brief Initialize the CIAA Firmware */
 void ciaak_start(void);
+
+/** \brief Kernel malloc */
+void *ciaak_malloc(size_t size);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

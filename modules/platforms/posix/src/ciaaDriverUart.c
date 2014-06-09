@@ -59,7 +59,6 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverUart.h"
-#include "ciaaSerialDevices.h"
 #include "ciaaPOSIX_stdlib.h"
 
 /*==================[macros and definitions]=================================*/
@@ -81,7 +80,8 @@ static ciaaDevices_deviceType const ciaaDriverUart_device0 = {
    ciaaDriverUart_read,    /** <= read function */
    ciaaDriverUart_write,   /** <= write function */
    ciaaDriverUart_ioctl,   /** <= ioctl function */
-   NULL                    /** <= seek function is not provided */
+   NULL,                   /** <= seek function is not provided */
+   NULL                    /** <= user specific area */
 };
 
 /** \brief Device for UART 1 */
@@ -92,7 +92,8 @@ static ciaaDevices_deviceType const ciaaDriverUart_device1 = {
    ciaaDriverUart_read,    /** <= read function */
    ciaaDriverUart_write,   /** <= write function */
    ciaaDriverUart_ioctl,   /** <= ioctl function */
-   NULL                    /** <= seek function is not provided */
+   NULL,                   /** <= seek function is not provided */
+   NULL                    /** <= user specific area */
 };
 
 static ciaaDevices_deviceType const * const ciaaUartDevices[] = {
@@ -110,31 +111,31 @@ static ciaaDriverConstType ciaaDriverUartConst = {
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern int32_t ciaaDriverUart_open(char const * const path, uint8_t const oflag)
+extern int32_t ciaaDriverUart_open(ciaaDevices_deviceType const * const device, uint8_t const oflag)
+{
+   // TODO 
+   return 0;
+}
+
+extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
    // TODO
    return 0;
 }
 
-extern int32_t ciaaDriverUart_close (int32_t fd)
+extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
    // TODO
    return 0;
 }
 
-extern int32_t ciaaDriverUart_ioctl(int32_t const fildes, int32_t const request, void * param)
+extern int32_t ciaaDriverUart_read (ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
 {
    // TODO
    return 0;
 }
 
-extern int32_t ciaaDriverUart_read (int32_t fd, uint8_t* buffer, uint32_t size)
-{
-   // TODO
-   return 0;
-}
-
-extern int32_t ciaaDriverUart_write(int32_t const fildes, uint8_t const * const buffer, uint32_t const size)
+extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
    return 0;
 }

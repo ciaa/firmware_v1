@@ -78,8 +78,6 @@
 /*==================[external functions definition]==========================*/
 int main(void)
 {
-   ciaak_start();
-
    StartOS(AppMode1);
    return 0;
 }
@@ -92,6 +90,8 @@ void ErrorHook(void)
 }
 
 TASK(InitTask) {
+   ciaak_start();
+
    ciaaPOSIX_printf("InitTask is running\n");
    ActivateTask(TaskA);
 
@@ -105,7 +105,13 @@ TASK(InitTask) {
 }
 
 TASK(TaskA) {
+   int32_t fildes;
+
    ciaaPOSIX_printf("TaskA is running\n");
+
+   fildes = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+
+   (void) fildes;
 
    ciaaPOSIX_printf("TaskA espera Event1\n");
    WaitEvent(Event1);

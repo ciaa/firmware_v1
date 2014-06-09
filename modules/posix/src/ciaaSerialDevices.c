@@ -57,6 +57,10 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaSerialDevices.h"
+#include "ciaaPOSIX_stdio.h"
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_string.h"
+#include "ciaak.h"
 
 /*==================[macros and definitions]=================================*/
 #define ciaaSerialDevices_MAXDEVICES		20
@@ -74,6 +78,16 @@ ciaaSerialDevices_devicesType ciaaSerialDevices;
 
 /** \brief ciaa Device sempahore */
 sem_t ciaaSerialDevices_sem;
+
+/** \brief Prefix of all serial devices
+ *
+ * This prefix is used for all drevices which drivers are register against this
+ * device.
+ *
+ * Eg. if a driver is uart/1 and it registers to this device type (/dev/serial)
+ * the resulting path will be /dev/serial/uart/1
+ */
+char const * const ciaaSerialDevices_prefix = "/dev/serial";
 
 /*==================[internal functions declaration]=========================*/
 
@@ -95,20 +109,100 @@ extern void ciaaSerialDevices_init(void)
 
 extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType const * driver)
 {
+   ciaaDevices_deviceType * newDevice;
+   char * newDeviceName;
+   uint8_t length;
+   uint8_t position;
+
    /* enter critical section */
    ciaaPOSIX_sem_wait(&ciaaSerialDevices_sem);
 
    /* check if more drivers can be added */
    if (ciaaSerialDevices_MAXDEVICES > ciaaSerialDevices.position) {
+
+      /* get position for nexxt device */
+      position = ciaaSerialDevices.position;
+
       /* add driver */
-      ciaaSerialDevices.device[ciaaSerialDevices.position] = driver;
+      ciaaSerialDevices.device[position] = driver;
 
-      /* increment position */
+      /* increment position for next device */
       ciaaSerialDevices.position++;
-   }
 
-   /* exit critical section */
-   ciaaPOSIX_sem_post(&ciaaSerialDevices_sem);
+      /* exit critical section */
+      ciaaPOSIX_sem_post(&ciaaSerialDevices_sem);
+
+      /* allocate memory for new device */
+      newDevice = (ciaaDevices_deviceType*) ciaak_malloc(sizeof(ciaaDevices_deviceType));
+
+      /* set functions for this device */
+      newDevice->open = ciaaSerialDevices_open;
+      newDevice->close = ciaaSerialDevices_close;
+      newDevice->ioctl = ciaaSerialDevices_ioctl;
+      newDevice->read = ciaaSerialDevices_read;
+      newDevice->write = ciaaSerialDevices_write;
+
+      /* store user information */
+      newDevice->user = (void *) (intptr_t) position;
+
+      /* create path string for this device */
+      length = ciaaPOSIX_strlen(driver->path);
+      length += ciaaPOSIX_strlen(ciaaSerialDevices_prefix);
+
+      /* create path for the new device */
+      newDeviceName = (char *) ciaak_malloc(length);
+
+      /* start a new string */
+      *newDeviceName = 0;
+
+      /* add prefix, / and the device name */
+      ciaaPOSIX_strcat(newDeviceName, ciaaSerialDevices_prefix);
+      ciaaPOSIX_strcat(newDeviceName, "/");
+      ciaaPOSIX_strcat(newDeviceName, driver->path);
+      /* add path to device structure */
+      newDevice->path = newDeviceName;
+
+      /* add device */
+      ciaaDevices_addDevice(newDevice);
+   }
+   else
+   {
+      /* exit critical section */
+      ciaaPOSIX_sem_post(&ciaaSerialDevices_sem);
+   }
+}
+
+extern int32_t ciaaSerialDevices_open(ciaaDevices_deviceType const * const device, uint8_t const oflag)
+{
+   return 0;
+}
+
+extern int32_t ciaaSerialDevices_close(ciaaDevices_deviceType const * const device)
+{
+   return 0;
+}
+
+extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const device, int32_t request, void* param)
+{
+   return 0;
+}
+
+extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte)
+{
+   return 0;
+}
+
+extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * const buf, uint32_t nbyte)
+{
+   return 0;
+}
+
+extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
+{
+}
+
+extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
+{
 }
 
 /** @} doxygen end group definition */

@@ -78,26 +78,29 @@ extern "C" {
 #define SEEK_END                    3
 
 /*==================[typedef]================================================*/
+typedef struct ciaaDevices_deviceStruct ciaaDevices_deviceType;
+
 /** \brief open function type */
-typedef int32_t (*ciaaDevices_open)(char const * const path, uint8_t const oflag);
+// typedef int32_t (*ciaaDevices_open)(char const * const path, uint8_t const oflag);
+typedef int32_t (*ciaaDevices_open)(ciaaDevices_deviceType const * const device, uint8_t const oflag);
 
 /** \brief close function type */
-typedef int32_t (*ciaaDevices_close)(int32_t const fildes);
+typedef int32_t (*ciaaDevices_close)(ciaaDevices_deviceType const * const device);
 
 /** \brief ioctl function type */
-typedef int32_t (*ciaaDevices_ioctl)(int32_t const fildes, int32_t const request, void * param);
+typedef int32_t (*ciaaDevices_ioctl)(ciaaDevices_deviceType const * const device, int32_t const request, void * param);
 
 /** \brief read function type */
-typedef int32_t (*ciaaDevices_read)(int32_t const fildes, uint8_t * const buf, uint32_t const nbyte);
+typedef int32_t (*ciaaDevices_read)(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t const nbyte);
 
 /** \brief write function type */
-typedef int32_t (*ciaaDevices_write)(int32_t const fildes, uint8_t const * const buf, uint32_t const nbyte);
+typedef int32_t (*ciaaDevices_write)(ciaaDevices_deviceType const * const device, uint8_t const * const buf, uint32_t const nbyte);
 
 /** \brief seek function type */
-typedef int32_t (*ciaaDevices_seek)(int32_t const fildes, int32_t const offset, uint8_t const whence);
+typedef int32_t (*ciaaDevices_seek)(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence);
 
 /** \brief Device Type */
-typedef struct {
+typedef struct ciaaDevices_deviceStruct {
 	char const * path; 			/** <- device path, eg. /dev/serlia/UART1 */
 	ciaaDevices_open open; 		/** <- pointer to open function */
 	ciaaDevices_close close;	/** <- pointer to close function */
@@ -105,6 +108,7 @@ typedef struct {
 	ciaaDevices_write write;	/** <- pointer to write function */
 	ciaaDevices_ioctl ioctl;	/** <- pointer to ioctl function */
    ciaaDevices_seek seek;     /** <- pointer to seek function */
+   void * user;               /** <- user specific pointer */
 } ciaaDevices_deviceType;
 
 /** \brief Devices Status

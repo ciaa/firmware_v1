@@ -1,6 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -71,9 +69,9 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief Max devices available
+/** \brief Max count of file descriptors
  **/
-#define ciaaPOSIX_MAX_DEVICES 				100
+#define ciaaPOSIX_stdio_MAXFILDES      20
 
 /** \brief Open for read only */
 #define O_RDONLY            1

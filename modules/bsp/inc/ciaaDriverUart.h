@@ -61,6 +61,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaSerialDevices.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -74,12 +75,11 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-
-extern int32_t ciaaDriverUart_open(char const * const path, uint8_t const oflag);
-extern int32_t ciaaDriverUart_close(int32_t const fildes);
-extern int32_t ciaaDriverUart_ioctl(int32_t const fildes, int32_t const request, void * param);
-extern int32_t ciaaDriverUart_read(int32_t const fildes, uint8_t * const buffer, uint32_t const size);
-extern int32_t ciaaDriverUart_write(int32_t const fildes, uint8_t const * const buffer, uint32_t const size);
+extern int32_t ciaaDriverUart_open(ciaaDevices_deviceType const * const device, uint8_t const oflag);
+extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device);
+extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param);
+extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t * const buffer, uint32_t const size);
+extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size);
 extern void ciaaDriverUart_init(void);
 
 

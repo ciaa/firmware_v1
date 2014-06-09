@@ -1,6 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -73,86 +71,152 @@
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
+/** \brief Filedescriptor type */
+typedef struct {
+	ciaaDevices_deviceType const * device;
+} ciaaPOSIX_stdio_fildesType;
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-ciaaPOSIX_Type_Base* ciaaPOSIX_devicesArray [ciaaPOSIX_MAX_DEVICES];
+/** \brief List of files descriptors */
+ciaaPOSIX_stdio_fildesType ciaaPOSIX_stdio_fildes[ciaaPOSIX_stdio_MAXFILDES];
 
-uint32_t ciaaPOSIX_devicesArraySize;
+/** \brief device prefix */
+char const * const ciaaPOSIX_stdio_devPrefix = "/dev";
+
+/** \brief ciaa POSIX stdio sempahore */
+static sem_t ciaaPOSIX_stdio_sem;
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
 void ciaaPOSIX_init(void)
 {
-   uint32_t i;
+   uint32_t loopi;
+
    /* init all posix devices */
-   for (i = 0; i < ciaaPOSIX_MAX_DEVICES; i++) {
-      ciaaPOSIX_devicesArray[i] = NULL;
+   for (loopi = 0; loopi < ciaaPOSIX_stdio_MAXFILDES; loopi++) {
+      ciaaPOSIX_stdio_fildes[loopi].device = NULL;
    }
 
-   /* set first device */
-   ciaaPOSIX_devicesArraySize = 0;
+   /* init semaphore */
+   ciaaPOSIX_sem_init(&ciaaPOSIX_stdio_sem);
 }
 
 extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
 {
-   return 0;
+   int32_t fildes = -1;
+   ciaaDevices_deviceType const * device;
+
+   /* check if device */
+   if (strncmp(path, ciaaPOSIX_stdio_devPrefix, strlen(ciaaPOSIX_stdio_devPrefix)) == 0)
+   {
+      /* open a device */
+      device = ciaaDevices_getDevice(path);
+
+      /* check if device could be found */
+      if (NULL != device)
+      {
+         ciaaPOSIX_sem_wait(&ciaaPOSIX_stdio_sem);
+
+         ciaaPOSIX_sem_post(&ciaaPOSIX_stdio_sem);
+      }
+   }
+   else
+   {
+      /* TODO add ASSERT */
+      /* TODO implement file handler */
+   }
+
+   return fildes;
 }
 
 int32_t ciaaPOSIX_close(int32_t fildes)
 {
-   if (fildes >= 0) {
-      if (ciaaPOSIX_devicesArray[fildes] != NULL) {
-         return ciaaPOSIX_devicesArray[fildes]->pClose (fildes);
-      } else {
-         return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
+   int32_t ret = -1;
+
+   if ( (fildes >= 0) && (fildes < ciaaPOSIX_stdio_MAXFILDES) )
+   {
+      ciaaPOSIX_sem_wait(&ciaaPOSIX_stdio_sem);
+
+      if (NULL != ciaaPOSIX_stdio_fildes[fildes].device)
+      {
+      //   ret = ciaaPOSIX_stdio_fildes[fildes].device->close(ciaaPOSIX_stdio_fildes[fildes].device);
+         if (0 == ret)
+         {
+            /* free file descriptor, file has been closed */
+            ciaaPOSIX_stdio_fildes[fildes].device = NULL;
+         }
       }
-   } else {
-      return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
    }
+
+   return ret;
 }
 
-int32_t ciaaPOSIX_ioctl (int32_t fd, int32_t arg, void* param)
+int32_t ciaaPOSIX_ioctl (int32_t fildes, int32_t request, void* param)
 {
-   if (fd >= 0) {
-      if (ciaaPOSIX_devicesArray[fd] != NULL) {
-         return ciaaPOSIX_devicesArray[fd]->pIoctl (fd, arg, param);
-      } else {
-         return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
+   int32_t ret = -1;
+
+   /* check that file descriptor is on range */
+   if ( (fildes >= 0) && (fildes < ciaaPOSIX_stdio_MAXFILDES) )
+   {
+      /* check that file descriptor is beeing used */
+      if (NULL != ciaaPOSIX_stdio_fildes[fildes].device)
+      {
+         /* call ioctl function */
+         ret = ciaaPOSIX_stdio_fildes[fildes].device->ioctl(
+               ciaaPOSIX_stdio_fildes[fildes].device,
+               request,
+               param);
       }
-   } else {
-      return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
    }
+
+   return ret;
 }
 
-int32_t ciaaPOSIX_read (int32_t fd, uint8_t* buffer, uint32_t size)
+int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * buffer, uint32_t nbyte)
 {
-   if (fd >= 0) {
-      if (ciaaPOSIX_devicesArray[fd] != NULL) {
-         return ciaaPOSIX_devicesArray[fd]->pRead (fd, buffer, size);
-      } else {
-         return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
+   int32_t ret = -1;
+
+   /* check that file descriptor is on range */
+   if ( (fildes >= 0) && (fildes < ciaaPOSIX_stdio_MAXFILDES) )
+   {
+      /* check that file descriptor is beeing used */
+      if (NULL != ciaaPOSIX_stdio_fildes[fildes].device)
+      {
+         /* call ioctl function */
+         ret = ciaaPOSIX_stdio_fildes[fildes].device->read(
+               ciaaPOSIX_stdio_fildes[fildes].device,
+               buffer,
+               nbyte);
       }
-   } else {
-      return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
    }
+
+   return ret;
 }
 
 extern int32_t ciaaPOSIX_write (int32_t const fildes, uint8_t const * const buf, uint32_t nbyte)
 {
-   if (fildes >= 0) {
-      if (ciaaPOSIX_devicesArray[fildes] != NULL) {
-         return ciaaPOSIX_devicesArray[fildes]->pWrite (fildes, buf, nbyte);
-      } else {
-         return ciaaPOSIX_Enum_Errors_DeviceNotAllocated;
+   int32_t ret = -1;
+
+   /* check that file descriptor is on range */
+   if ( (fildes >= 0) && (fildes < ciaaPOSIX_stdio_MAXFILDES) )
+   {
+      /* check that file descriptor is beeing used */
+      if (NULL != ciaaPOSIX_stdio_fildes[fildes].device)
+      {
+         /* call ioctl function */
+         ret = ciaaPOSIX_stdio_fildes[fildes].device->write(
+               ciaaPOSIX_stdio_fildes[fildes].device,
+               buf,
+               nbyte);
       }
-   } else {
-      return ciaaPOSIX_Enum_Errors_BadFileDescriptor;
    }
+
+   return ret;
 }
 
 extern int32_t ciaaPOSIX_printf(const char * format, ...)

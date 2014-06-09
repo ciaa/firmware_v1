@@ -94,7 +94,7 @@ extern void ciaaSerialDevices_init(void);
  ** \return       a negative value if failed, a positive
  **               value representing the file handler if success.
  **/
-extern int32_t ciaaSerialDevices_open(uint8_t const * const path, uint8_t const oflag);
+extern int32_t ciaaSerialDevices_open(ciaaDevices_deviceType const * const device, uint8_t const oflag);
 
 /** \brief Close a serial device
  **
@@ -104,7 +104,7 @@ extern int32_t ciaaSerialDevices_open(uint8_t const * const path, uint8_t const 
  ;** \return     a negative value if failed, a positive value
  **             if success.
  **/
-extern int32_t ciaaSerialDevices_close(int32_t fildes);
+extern int32_t ciaaSerialDevices_close(ciaaDevices_deviceType const * const device);
 
 /** \brief Control a serial device
  **
@@ -116,7 +116,7 @@ extern int32_t ciaaSerialDevices_close(int32_t fildes);
  ** \return     a negative value if failed, a positive value
  **             if success.
  **/
-extern int32_t ciaaSerialDevices_ioctl(int32_t const fildes, int32_t request, void* param);
+extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const device, int32_t request, void* param);
 
 /** \brief Reads from a serial device
  **
@@ -128,7 +128,7 @@ extern int32_t ciaaSerialDevices_ioctl(int32_t const fildes, int32_t request, vo
  ** \return     the count of read bytes is returned
  **
  **/
-extern int32_t ciaaSerialDevices_read(int32_t const fildes, uint8_t * const buf, uint32_t nbyte);
+extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte);
 
 /** \brief Writes to a serial device
  **
@@ -139,7 +139,7 @@ extern int32_t ciaaSerialDevices_read(int32_t const fildes, uint8_t * const buf,
  ** \param[in]  nbyte   count of bytes to be written
  ** \return     the count of bytes written
  **/
-extern int32_t ciaaSerialDevices_write(int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
+extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * const buf, uint32_t nbyte);
 
 /** \brief Transmit confirmation of a serial device
  **
@@ -150,7 +150,7 @@ extern int32_t ciaaSerialDevices_write(int32_t const fildes, uint8_t const * con
  **
  ** \remarks This interface may be called from ISR context
  **/
-extern void ciaaSerialDevices_txConfirmation(int32_t const fildes, uint32_t const nbyte);
+extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * const device, uint32_t const nbyte);
 
 /** \brief Receive indication of a serial device
  **
@@ -161,7 +161,7 @@ extern void ciaaSerialDevices_txConfirmation(int32_t const fildes, uint32_t cons
  **
  ** \remarks This interface may be called from ISR context
  **/
-extern void ciaaSerialDevices_rxIndication(int32_t const fildes, uint32_t const nbyte);
+extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte);
 
 /** \brief add driver
  **

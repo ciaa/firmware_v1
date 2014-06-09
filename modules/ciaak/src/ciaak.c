@@ -72,6 +72,8 @@
 #include "ciaaSerialDevices.h"
 #include "ciaaDriverUart.h"
 
+#include "ciaaPOSIX_stdlib.h"
+
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
@@ -87,9 +89,20 @@
 /*==================[external functions definition]==========================*/
 void ciaak_start(void)
 {
+   /* init stdlib */
+   /* ATTENTION: ciaaPOSIX_stdlib_init has to be done before to any call to
+    * ciaaPOSIX_malloc or ciaak_malloc */
+   ciaaPOSIX_stdlib_init();
+
    ciaaDevices_init();
    ciaaSerialDevices_init();
    ciaaDriverUart_init();
+
+}
+
+void *ciaak_malloc(size_t size)
+{
+   return ciaaPOSIX_malloc(size);
 }
 
 /** @} doxygen end group definition */
