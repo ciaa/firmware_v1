@@ -144,6 +144,27 @@ void test_ciaaPOSIX_strcmp(void) {
    TEST_ASSERT_TRUE(0 < ret);
 }
 
+/** \brief test strlen
+ **
+ ** test the function ciaaPOSIX_strlen
+ **
+ **/
+void test_ciaaPOSIX_strlen(void) {
+   size_t ret;
+
+   ret = ciaaPOSIX_strlen("/dev/serial");
+   TEST_ASSERT_TRUE(11 == ret);
+
+   ret = ciaaPOSIX_strlen("");
+   TEST_ASSERT_TRUE(0 == ret);
+
+   ret = ciaaPOSIX_strlen("/");
+   TEST_ASSERT_TRUE(1 == ret);
+
+   ret = ciaaPOSIX_strlen("/dev/s");
+   TEST_ASSERT_TRUE(6 == ret);
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
