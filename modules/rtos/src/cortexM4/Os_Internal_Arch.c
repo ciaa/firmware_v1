@@ -120,6 +120,7 @@ void SysTick_Handler(void)
 	ContextType context;
 	/* counter increment */
 	static CounterIncrementType CounterIncrement = 1;
+   (void)CounterIncrement; /* TODO remove me */
 
 	/* increment the disable interrupt conter to avoid enable the interrupts */
 	IntSecure_Start();

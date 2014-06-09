@@ -41,7 +41,9 @@ AS = arm-none-eabi-as
 GDB = arm-none-eabi-gdb
 NM = arm-none-eabi-nm
 # COMPILER AND LINKER OPTIONS
-CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
-LFLAGS += $(LINKSCRIPT) -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -T "externals/platforms/cortexM4/lpc4337/linker/ciaa_lpc4337.ld"	
+CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -DCORE_M4 -D__CODE_RED
+LFLAGS += $(LINKSCRIPT) -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -T "externals/platforms/cortexM4/lpc4000/linker/ciaa_lpc4337.ld"
 
-
+# this file needs to be compiled separated and not added to a library
+# TODO this is not nice
+SRC_FILES			+= $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)crp.c

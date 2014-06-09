@@ -78,6 +78,7 @@
 #endif /* #ifdef OSEK_INLCUDE_INTERNAL_ARCH_CPU */
 #include "Os_Internal_Arch_Cfg.h"
 #include "Os_Internal_Cfg.h"
+#include "ciaaPOSIX_stddef.h"
 
 /*==================[macros]=================================================*/
 /** \brief Invalid Task */

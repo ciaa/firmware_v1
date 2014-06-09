@@ -113,7 +113,9 @@ extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
    int8_t loopi;
 
    /* check if device */
-   if (strncmp(path, ciaaPOSIX_stdio_devPrefix, strlen(ciaaPOSIX_stdio_devPrefix)) == 0)
+   if (ciaaPOSIX_strncmp(path,
+            ciaaPOSIX_stdio_devPrefix,
+            ciaaPOSIX_strlen(ciaaPOSIX_stdio_devPrefix)) == 0)
    {
       /* get device */
       device = ciaaDevices_getDevice(path);

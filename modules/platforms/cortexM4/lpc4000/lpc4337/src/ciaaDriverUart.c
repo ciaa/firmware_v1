@@ -1,6 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -32,9 +30,9 @@
  *
  */
 
-/** \brief Short description of this file
+/** \brief CIAA UART Driver for LPC4337
  **
- ** Long description of this file
+ ** Implements the UART Driver for LPC4337
  **
  **/
 
@@ -59,12 +57,13 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverUart.h"
-#include "ciaaSerialDevices.h"
+#include "ciaaPOSIX_stdlib.h"
+#include "LPC43xx.h"
 
 /*==================[macros and definitions]=================================*/
 typedef struct  {
-   ciaaDevices_deviceType const * const devices;
-   uint8 countOfDevices;
+   ciaaDevices_deviceType * const * const devices;
+   uint8_t countOfDevices;
 } ciaaDriverConstType;
 
 /*==================[internal data declaration]==============================*/
@@ -73,35 +72,56 @@ typedef struct  {
 
 /*==================[internal data definition]===============================*/
 /** \brief Device for UART 0 */
-static ciaaDevices_deviceType const ciaaDriverUart_device0 = {
+static ciaaDevices_deviceType ciaaDriverUart_device0 = {
    "uart/0",               /** <= driver name */
    ciaaDriverUart_open,    /** <= open function */
    ciaaDriverUart_close,   /** <= close function */
    ciaaDriverUart_read,    /** <= read function */
    ciaaDriverUart_write,   /** <= write function */
    ciaaDriverUart_ioctl,   /** <= ioctl function */
-   NULL                    /** <= seek function is not provided */
+   NULL,                   /** <= seek function is not provided */
+   NULL,                   /** <= uper layer */
+   NULL,                   /** <= layer */
+   LPC_USART0              /** <= lower layer */
 };
 
 /** \brief Device for UART 1 */
-static ciaaDevices_deviceType const ciaaDriverUart_device1 = {
+static ciaaDevices_deviceType ciaaDriverUart_device1 = {
    "uart/1",               /** <= driver name */
    ciaaDriverUart_open,    /** <= open function */
    ciaaDriverUart_close,   /** <= close function */
    ciaaDriverUart_read,    /** <= read function */
    ciaaDriverUart_write,   /** <= write function */
    ciaaDriverUart_ioctl,   /** <= ioctl function */
-   NULL                    /** <= seek function is not provided */
+   NULL,                   /** <= seek function is not provided */
+   NULL,                   /** <= uper layer */
+   NULL,                   /** <= layer */
+   LPC_USART2              /** <= lower layer */
 };
 
-static ciaaDevices_deviceType const ciaaUartDevices = {
-   ciaaDriverUart_device0,
-   ciaaDriverUart_device1
+/** \brief Device for UART 2 */
+static ciaaDevices_deviceType ciaaDriverUart_device2 = {
+   "uart/2",               /** <= driver name */
+   ciaaDriverUart_open,    /** <= open function */
+   ciaaDriverUart_close,   /** <= close function */
+   ciaaDriverUart_read,    /** <= read function */
+   ciaaDriverUart_write,   /** <= write function */
+   ciaaDriverUart_ioctl,   /** <= ioctl function */
+   NULL,                   /** <= seek function is not provided */
+   NULL,                   /** <= uper layer */
+   NULL,                   /** <= layer */
+   LPC_USART3              /** <= lower layer */
 };
 
-static ciaaDriverUartConstType const ciaaDriverUartConst = {
-   &ciaaUartDevices,
-   2
+static ciaaDevices_deviceType * const ciaaUartDevices[] = {
+   &ciaaDriverUart_device0,
+   &ciaaDriverUart_device1,
+   &ciaaDriverUart_device2
+};
+
+static ciaaDriverConstType const ciaaDriverUartConst = {
+   ciaaUartDevices,
+   3
 };
 
 /*==================[external data definition]===============================*/
@@ -109,40 +129,44 @@ static ciaaDriverUartConstType const ciaaDriverUartConst = {
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-int32_t ciaaDriverUart_open (const char* pathName, int32_t flags)
+extern int32_t ciaaDriverUart_open(ciaaDevices_deviceType const * const device, uint8_t const oflag)
 {
-	// TODO
-	return 0;
+   // TODO
+   return 0;
 }
 
-int32_t ciaaDriverUart_close (int32_t fd)
+extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
-	// TODO
-	return 0;
+   // TODO
+   return 0;
 }
 
-int32_t ciaaDriverUart_ioctl (int32_t fd, int32_t arg, uint32_t size)
+extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
-	// TODO
-	return 0;
+   // TODO
+   return 0;
 }
 
-int32_t ciaaDriverUart_read (int32_t fd, uint8_t* buffer, uint32_t size)
+extern int32_t ciaaDriverUart_read (ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
 {
-	// TODO
-	return 0;
+   // TODO
+   return 0;
 }
 
-int32_t ciaaDriverUart_write (int32_t fd, uint8_t* buffer, uint32_t size)
+extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
-	return 0;
+   return 0;
 }
-
 
 void ciaaDriverUart_init(void)
 {
+   uint8_t loopi;
+
    /* add uart driver to the list of devices */
-   ciaaSerialDevices_addDriver(&ciaaDriverUart_device);
+   for(loopi = 0; loopi < ciaaDriverUartConst.countOfDevices; loopi++) {
+      /* add each device */
+      ciaaSerialDevices_addDriver(ciaaDriverUartConst.devices[loopi]);
+   }
 }
 
 /** @} doxygen end group definition */

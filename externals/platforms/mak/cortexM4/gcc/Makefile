@@ -34,8 +34,8 @@
 #
 ###############################################################################
 # TOOLCHAIN
-CC = arm-none-eabi-gcc
-LD = arm-none-eabi-gcc
+CC = arm-none-eabi-gcc2
+LD = arm-none-eabi-gcc2
 AR = arm-none-eabi-ar
 AS = arm-none-eabi-as
 GDB = arm-none-eabi-gdb
@@ -43,5 +43,4 @@ NM = arm-none-eabi-nm
 # COMPILER AND LINKER OPTIONS
 CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
 LFLAGS += $(LINKSCRIPT) -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -T "externals/platforms/cortexM4/lpc4337/ciaa_lpc4337.ld"	
-
 

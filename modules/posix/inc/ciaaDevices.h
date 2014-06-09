@@ -108,7 +108,9 @@ typedef struct ciaaDevices_deviceStruct {
 	ciaaDevices_write write;	/** <- pointer to write function */
 	ciaaDevices_ioctl ioctl;	/** <- pointer to ioctl function */
    ciaaDevices_seek seek;     /** <- pointer to seek function */
-   void * user;               /** <- user specific pointer */
+   void * upLayer;            /** <- pointer to be used by the upper layer */
+   void * layer;              /** <- pointer ot be used by the layer */
+   void * loLayer;            /** <- pointer to be used by the lower layer */
 } ciaaDevices_deviceType;
 
 /** \brief Devices Status

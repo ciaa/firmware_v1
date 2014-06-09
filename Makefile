@@ -131,7 +131,6 @@ include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 
 # add include files
 INCLUDE += $(foreach LIB, $(LIBS), $($(LIB)_INC_PATH))
-CFLAGS  += -ggdb -Wall -Werror
 CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU)
 
@@ -292,7 +291,6 @@ unity:
 	$(CC) -c $(CFLAGS) $< -o $@
 
 # link rule
-
 $(project) : $(LIBS) $(OBJ_FILES)
 	@echo ===============================================================================
 	@echo Linking $(project)

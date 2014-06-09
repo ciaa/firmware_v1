@@ -210,6 +210,18 @@ extern TaskType TerminatingTask;
  **/
 #define GetCounter_Arch(CounterID) (CountersVar[CounterID].Time)
 
+/** \brief Pre ISR Macro
+ **
+ ** This macro is called every time that an ISR Cat 2 is started
+ **/
+#define PreIsr2_Arch(isr)
+
+/** \brief Post ISR Macro
+ **
+ ** This macro is called every time that an ISR Cat 2 is finished
+ **/
+#define PostIsr2_Arch(isr)
+
 /** \brief ShutdownOs Arch service
  **
  ** This macro is called on the ShutdownOS to perform the architecture

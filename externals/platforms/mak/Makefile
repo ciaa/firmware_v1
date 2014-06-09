@@ -46,6 +46,7 @@ ext_platforms_INC_PATH   = $(ext_platforms_PATH)$(DS)inc		    	\
 	$(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
 
 # library source files
-ext_platforms_SRC_FILES += $(wildcard $(ext_platforms_SRC_PATH)$(DS)*.c)	\
-	$(wildcard $(ext_platforms_SRC_PATH)$(DS)$(CPUTYPE)$(DS)*.c) 			\
-	$(wildcard $(ext_platforms_SRC_PATH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.c) \
+ext_platforms_SRC_FILES += $(wildcard $(ext_platforms_SRC_PATH)$(DS)*.c)							\
+	$(wildcard $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c) 										\
+	$(wildcard $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c) 					\
+	$(wildcard $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)

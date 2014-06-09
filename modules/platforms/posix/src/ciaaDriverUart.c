@@ -1,6 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -63,7 +61,7 @@
 
 /*==================[macros and definitions]=================================*/
 typedef struct  {
-   ciaaDevices_deviceType const * const * const devices;
+   ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
 } ciaaDriverConstType;
 
@@ -73,7 +71,7 @@ typedef struct  {
 
 /*==================[internal data definition]===============================*/
 /** \brief Device for UART 0 */
-static ciaaDevices_deviceType const ciaaDriverUart_device0 = {
+static ciaaDevices_deviceType ciaaDriverUart_device0 = {
    "uart/0",               /** <= driver name */
    ciaaDriverUart_open,    /** <= open function */
    ciaaDriverUart_close,   /** <= close function */
@@ -81,11 +79,13 @@ static ciaaDevices_deviceType const ciaaDriverUart_device0 = {
    ciaaDriverUart_write,   /** <= write function */
    ciaaDriverUart_ioctl,   /** <= ioctl function */
    NULL,                   /** <= seek function is not provided */
-   NULL                    /** <= user specific area */
+   NULL,                   /** <= uper layer */
+   NULL,                   /** <= layer */
+   NULL                    /** <= NULL no lower layer */
 };
 
 /** \brief Device for UART 1 */
-static ciaaDevices_deviceType const ciaaDriverUart_device1 = {
+static ciaaDevices_deviceType ciaaDriverUart_device1 = {
    "uart/1",               /** <= driver name */
    ciaaDriverUart_open,    /** <= open function */
    ciaaDriverUart_close,   /** <= close function */
@@ -93,15 +93,17 @@ static ciaaDevices_deviceType const ciaaDriverUart_device1 = {
    ciaaDriverUart_write,   /** <= write function */
    ciaaDriverUart_ioctl,   /** <= ioctl function */
    NULL,                   /** <= seek function is not provided */
-   NULL                    /** <= user specific area */
+   NULL,                   /** <= uper layer */
+   NULL,                   /** <= layer */
+   NULL                    /** <= NULL no lower layer */
 };
 
-static ciaaDevices_deviceType const * const ciaaUartDevices[] = {
+static ciaaDevices_deviceType * const ciaaUartDevices[] = {
    &ciaaDriverUart_device0,
    &ciaaDriverUart_device1
 };
 
-static ciaaDriverConstType ciaaDriverUartConst = {
+static ciaaDriverConstType const ciaaDriverUartConst = {
    ciaaUartDevices,
    2
 };
@@ -113,7 +115,7 @@ static ciaaDriverConstType ciaaDriverUartConst = {
 /*==================[external functions definition]==========================*/
 extern int32_t ciaaDriverUart_open(ciaaDevices_deviceType const * const device, uint8_t const oflag)
 {
-   // TODO 
+   // TODO
    return 0;
 }
 
@@ -150,6 +152,8 @@ void ciaaDriverUart_init(void)
       ciaaSerialDevices_addDriver(ciaaDriverUartConst.devices[loopi]);
    }
 }
+
+
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
