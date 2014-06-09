@@ -59,6 +59,7 @@
 #include "ciaaDriverUart.h"
 #include "ciaaPOSIX_stdlib.h"
 #include "LPC43xx.h"
+#include "lpc43xx_uart.h"
 
 /*==================[macros and definitions]=================================*/
 typedef struct  {
@@ -127,35 +128,53 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device)
+{
+   /* receive the data and forward to upper layer */
+   ciaaSerialDevices_rxIndication(device->upLayer, 10 /* TODO count of bytes */);
+}
+
+static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const device)
+{
+   /* receive the data and forward to upper layer */
+   ciaaSerialDevices_txConfirmation(device->upLayer, 10 /* TODO count of bytes */);
+}
 
 /*==================[external functions definition]==========================*/
 extern int32_t ciaaDriverUart_open(ciaaDevices_deviceType const * const device, uint8_t const oflag)
 {
-   // TODO
-   return 0;
+   UART_CFG_Type uartCfg;
+
+   /* init uart configuration */
+   UART_ConfigStructInit(&uartCfg);
+
+   /* init driver */
+   UART_Init(device->loLayer, &uartCfg);
+
+   return 1;
 }
 
 extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
-   // TODO
-   return 0;
+   UART_DeInit(device->loLayer);
+
+   return 1;
 }
 
 extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
    // TODO
-   return 0;
+   return -1;
 }
 
 extern int32_t ciaaDriverUart_read (ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
 {
-   // TODO
-   return 0;
+   return -1;
 }
 
 extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
-   return 0;
+   return UART_Send(device->upLayer, (uint8_t*)buffer, size, NONE_BLOCKING);
 }
 
 void ciaaDriverUart_init(void)
@@ -167,6 +186,28 @@ void ciaaDriverUart_init(void)
       /* add each device */
       ciaaSerialDevices_addDriver(ciaaDriverUartConst.devices[loopi]);
    }
+}
+
+/*==================[external functions definition]==========================*/
+void UART0_IRQHandler(void)
+{
+   /* TODO check and call only rx or tx as corresponding */
+   ciaaDriverUart_rxIndication(&ciaaDriverUart_device0);
+   ciaaDriverUart_txConfirmation(&ciaaDriverUart_device0);
+}
+
+void UART2_IRQHandler(void)
+{
+   /* TODO check and call only rx or tx as corresponding */
+   ciaaDriverUart_rxIndication(&ciaaDriverUart_device1);
+   ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
+}
+
+void UART3_IRQHandler(void)
+{
+   /* TODO check and call only rx or tx as corresponding */
+   ciaaDriverUart_rxIndication(&ciaaDriverUart_device2);
+   ciaaDriverUart_txConfirmation(&ciaaDriverUart_device2);
 }
 
 /** @} doxygen end group definition */
