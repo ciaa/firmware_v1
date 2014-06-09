@@ -209,7 +209,8 @@ UNITY_SRC = modules$(DS)$(tst_mod)$(DS)mtest$(DS)src$(DS)test_$(tst_file).c 			\
 				modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c								\
 				externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src$(DS)unity.c 			\
 				externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src$(DS)cmock.c 			\
-				$(foreach file,$(filter-out $(tst_file).c,$(notdir $($(tst_mod)_SRC_FILES))), out$(DS)ceedling$(DS)mocks$(DS)mock_$(file))
+				$(foreach file,$(filter-out $(tst_file).c,$(notdir $($(tst_mod)_SRC_FILES))), out$(DS)ceedling$(DS)mocks$(DS)mock_$(file))	\
+				$(foreach mods,$($(tst_mod)_TST_MOD), $(foreach files, $(notdir $($(mods)_SRC_FILES)), out$(DS)ceedling$(DS)mocks$(DS)mock_$(files)))
 
 CFLAGS  = -ggdb #-Wall -Werror #see issue #28
 CFLAGS  += $(foreach inc, $(UNITY_INC), -I$(inc))
