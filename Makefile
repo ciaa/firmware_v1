@@ -322,29 +322,51 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               General Help                                                  |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo info.......: general information about the make environment
-	@echo info_\<mod\>.: same as info but reporting information of a library
-	@echo generate...: generates the ciaaRTOS
+	@echo info.............: general information about the make environment
+	@echo info_\<mod\>.......: same as info but reporting information of a library
+	@echo info_ext_\<mod\>...: same as info_\<mod\> but for an external library
+	@echo generate.........: generates the ciaaRTOS
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo mocks......: generate the mocks for all header files
-	@echo tst........: displays possible tests
-	@echo tst_\<mod\>..: runs the tests of the indicated module
+	@echo mocks............: generate the mocks for all header files
+	@echo tst..............: displays possible tests
+	@echo tst_\<mod\>........: runs the tests of the indicated module
 
 ###############################################################################
 # info for  aspecific module
 ifeq ($(findstring info_, $(MAKECMDGOALS)),info_)
 info_mod = $(subst info_,,$(MAKECMDGOALS))
+ext = 0
+
+ifeq ($(findstring info_ext_, $(MAKECMDGOALS)),info_ext_)
+info_mod = $(subst info_ext_,,$(MAKECMDGOALS))
+ext = 1
+endif
+
+ifeq ($(ext),1)
+# include corresponding makefile
+include externals$(DS)$(info_mod)$(DS)mak$(DS)Makefile
+else
 # include corresponding makefile
 include modules$(DS)$(info_mod)$(DS)mak$(DS)Makefile
+endif
+
+# create the corresponding info_<mod> rule
+info_ext_$(info_mod) :
+	@echo ===============================================================================
+	@echo Info of ext_$(info_mod)
+	@echo Path........: $(ext_$(info_mod)_PATH)
+	@$(MULTILINE_ECHO) "Include path: \n $(foreach inc, $(ext_$(info_mod)_INC_PATH),     $(inc)\n)"
+	@echo Source path.: $(ext_$(info_mod)_SRC_PATH)
+	@$(MULTILINE_ECHO) "Source files:\n $(foreach src, $(ext_$(info_mod)_SRC_FILES),     $(src)\n)"
 
 # create the corresponding info_<mod> rule
 info_$(info_mod) :
 	@echo ===============================================================================
 	@echo Info of $(info_mod)
 	@echo Path........: $($(info_mod)_PATH)
-	@echo Include path: $($(info_mod)_INC_PATH)
+	@$(MULTILINE_ECHO) "Include path: \n $(foreach inc, $($(info_mod)_INC_PATH),     $(inc)\n)"
 	@echo Source path.: $($(info_mod)_SRC_PATH)
 	@$(MULTILINE_ECHO) "Source files:\n $(foreach src, $($(info_mod)_SRC_FILES),     $(src)\n)"
 endif
