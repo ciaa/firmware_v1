@@ -92,7 +92,7 @@ extern void ciaaSerialDevices_init(void);
  **               O_WRONLY: opens files to write only
  **               O_RDWR: opens file to read and write
  ** \return       a negative value if failed, a positive
- **               value representing the file handler if success.
+ **               value if success.
  **/
 extern int32_t ciaaSerialDevices_open(ciaaDevices_deviceType const * const device, uint8_t const oflag);
 
@@ -100,8 +100,8 @@ extern int32_t ciaaSerialDevices_open(ciaaDevices_deviceType const * const devic
  **
  ** Closes the serial device with file desciptor fildes
  **
- ** \param[in]  fildes file descriptor to be closed
- ;** \return     a negative value if failed, a positive value
+ ** \param[in]  device pointer to device
+ ** \return    a negative value if failed, a positive value
  **             if success.
  **/
 extern int32_t ciaaSerialDevices_close(ciaaDevices_deviceType const * const device);
@@ -110,7 +110,7 @@ extern int32_t ciaaSerialDevices_close(ciaaDevices_deviceType const * const devi
  **
  ** Performs special control of a serial device
  **
- ** \param[in]  fildes file descriptor to be controled
+ ** \param[in]  device pointer to the device
  ** \param[in]  request type of the request, depends on the device
  ** \param[in]	 param
  ** \return     a negative value if failed, a positive value
@@ -122,7 +122,7 @@ extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const devi
  **
  ** Reads nbyte from the file descriptor fildes and store them in buf.
  **
- ** \param[in]  fildes  file descriptor to read from
+ ** \param[in]  device  pointer to the device to be read
  ** \param[out] buf     buffer to store the read data
  ** \param[in]  nbyte   count of bytes to be read
  ** \return     the count of read bytes is returned
@@ -134,7 +134,7 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
  **
  ** Writes nbyte to the file descriptor fildes from the buffer buf
  **
- ** \param[in]  fildes  file descriptor to write to
+ ** \param[in]  device  device to be written
  ** \param[in]  buf     buffer with the data to be written
  ** \param[in]  nbyte   count of bytes to be written
  ** \return     the count of bytes written
@@ -145,7 +145,7 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
  **
  ** This interface informs the serial device that a recepction has been completed
  **
- ** \param[in]    fildes file descriptor of the confirmation
+ ** \param[in]    TODO fildes file descriptor of the confirmation
  ** \param[in]    nbyte count of received bytes
  **
  ** \remarks This interface may be called from ISR context
@@ -156,7 +156,7 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
  **
  ** This interface informs the serial device that a transmittion has been completed
  **
- ** \param[in]    filedes file descriptor of the received data
+ ** \param[in]    TODO filedes file descriptor of the received data
  ** \param[in]    nbyte count of transmitted bytes
  **
  ** \remarks This interface may be called from ISR context

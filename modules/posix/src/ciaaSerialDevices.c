@@ -174,35 +174,72 @@ extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType const * driver)
 
 extern int32_t ciaaSerialDevices_open(ciaaDevices_deviceType const * const device, uint8_t const oflag)
 {
-   return 0;
+   uint8_t position;
+
+   /* get position from user data */
+   position = (uint8_t) (intptr_t) device->user;
+
+   return ciaaSerialDevices.device[position]->open(ciaaSerialDevices.device[position], oflag);
 }
 
 extern int32_t ciaaSerialDevices_close(ciaaDevices_deviceType const * const device)
 {
-   return 0;
+   uint8_t position;
+
+   /* get position from user data */
+   position = (uint8_t) (intptr_t) device->user;
+
+   return ciaaSerialDevices.device[position]->close(
+         ciaaSerialDevices.device[position]);
 }
 
 extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const device, int32_t request, void* param)
 {
-   return 0;
+   uint8_t position;
+
+   /* get position from user data */
+   position = (uint8_t) (intptr_t) device->user;
+
+   return ciaaSerialDevices.device[position]->ioctl(
+         ciaaSerialDevices.device[position],
+         request,
+         param);
 }
 
 extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte)
 {
-   return 0;
+   uint8_t position;
+
+   /* get position from user data */
+   position = (uint8_t) (intptr_t) device->user;
+
+   return ciaaSerialDevices.device[position]->read(
+         ciaaSerialDevices.device[position],
+         buf,
+         nbyte);
 }
 
 extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * const buf, uint32_t nbyte)
 {
-   return 0;
+   uint8_t position;
+
+   /* get position from user data */
+   position = (uint8_t) (intptr_t) device->user;
+
+   return ciaaSerialDevices.device[position]->write(
+         ciaaSerialDevices.device[position],
+         buf,
+         nbyte);
 }
 
 extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
+   /* process transmission */
 }
 
 extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
+   /* process reception */
 }
 
 /** @} doxygen end group definition */

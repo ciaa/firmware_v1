@@ -108,21 +108,68 @@ void ciaaPOSIX_init(void)
 
 extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
 {
-   int32_t fildes = -1;
    ciaaDevices_deviceType const * device;
+   int32_t ret = -1;
+   int8_t loopi;
 
    /* check if device */
    if (strncmp(path, ciaaPOSIX_stdio_devPrefix, strlen(ciaaPOSIX_stdio_devPrefix)) == 0)
    {
-      /* open a device */
+      /* get device */
       device = ciaaDevices_getDevice(path);
 
-      /* check if device could be found */
+      /* if a device has been found */
       if (NULL != device)
       {
-         ciaaPOSIX_sem_wait(&ciaaPOSIX_stdio_sem);
+         /* search a file descriptor */
+         for(loopi = 0; (loopi < ciaaPOSIX_stdio_MAXFILDES) && (-1 == ret); loopi++)
+         {
+            /* enter critical section */
+            ciaaPOSIX_sem_wait(&ciaaPOSIX_stdio_sem);
 
-         ciaaPOSIX_sem_post(&ciaaPOSIX_stdio_sem);
+            /* if file descriptor not used, use it */
+            if (NULL != ciaaPOSIX_stdio_fildes[loopi].device)
+            {
+               /* load device in descriptor */
+               ciaaPOSIX_stdio_fildes[loopi].device = device;
+
+               /* return file descriptor */
+               ret = loopi;
+            }
+
+            /* exit critical section */
+            ciaaPOSIX_sem_post(&ciaaPOSIX_stdio_sem);
+         }
+
+         /* if a file descriptor has been found */
+         if (-1 != ret)
+         {
+            /* open device */
+            if (ciaaPOSIX_stdio_fildes[ret].device->open(
+                     ciaaPOSIX_stdio_fildes[ret].device,
+                     oflag) > 0)
+            {
+               /* open device successfull */
+               /* nothing to do */
+            }
+            else
+            {
+               /* device could not be opened */
+               
+               /* enter critical section */
+               ciaaPOSIX_sem_wait(&ciaaPOSIX_stdio_sem);
+
+               /* remove device from file descriptor */
+               ciaaPOSIX_stdio_fildes[ret].device = NULL;
+
+               /* exit critical section */
+               ciaaPOSIX_sem_post(&ciaaPOSIX_stdio_sem);
+
+               /* return an error */
+               ret = -1;
+            }
+         }
+
       }
    }
    else
@@ -131,8 +178,8 @@ extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
       /* TODO implement file handler */
    }
 
-   return fildes;
-}
+   return ret;
+} /* end ciaaPOSIX_open */
 
 int32_t ciaaPOSIX_close(int32_t fildes)
 {
@@ -144,7 +191,7 @@ int32_t ciaaPOSIX_close(int32_t fildes)
 
       if (NULL != ciaaPOSIX_stdio_fildes[fildes].device)
       {
-      //   ret = ciaaPOSIX_stdio_fildes[fildes].device->close(ciaaPOSIX_stdio_fildes[fildes].device);
+         ret = ciaaPOSIX_stdio_fildes[fildes].device->close(ciaaPOSIX_stdio_fildes[fildes].device);
          if (0 == ret)
          {
             /* free file descriptor, file has been closed */
@@ -187,7 +234,7 @@ int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * buffer, uint32_t nbyte)
       /* check that file descriptor is beeing used */
       if (NULL != ciaaPOSIX_stdio_fildes[fildes].device)
       {
-         /* call ioctl function */
+         /* call read function */
          ret = ciaaPOSIX_stdio_fildes[fildes].device->read(
                ciaaPOSIX_stdio_fildes[fildes].device,
                buffer,
@@ -208,7 +255,7 @@ extern int32_t ciaaPOSIX_write (int32_t const fildes, uint8_t const * const buf,
       /* check that file descriptor is beeing used */
       if (NULL != ciaaPOSIX_stdio_fildes[fildes].device)
       {
-         /* call ioctl function */
+         /* call write function */
          ret = ciaaPOSIX_stdio_fildes[fildes].device->write(
                ciaaPOSIX_stdio_fildes[fildes].device,
                buf,
