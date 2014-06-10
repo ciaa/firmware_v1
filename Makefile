@@ -183,7 +183,7 @@ endif
 # include corresponding makefile
 include modules$(DS)$(tst_mod)$(DS)mak$(DS)Makefile
 # include test makefile
-include modules$(DS)$(tst_mod)$(DS)mtest$(DS)mak$(DS)Makefile
+include modules$(DS)$(tst_mod)$(DS)utest$(DS)mak$(DS)Makefile
 
 # get list of unit test sources
 ifneq ($(tst_file),)
@@ -192,7 +192,7 @@ ifneq ($(tst_file),)
 # include modules needed for this module
 include $(foreach mod,$($(tst_mod)_TST_MOD),modules$(DS)$(mod)$(DS)mak$(DS)Makefile)
 
-MTEST_SRC_FILES = $($(tst_mod)_PATH)$(DS)mtest$(DS)src$(DS)test_$(tst_file).c
+MTEST_SRC_FILES = $($(tst_mod)_PATH)$(DS)utest$(DS)src$(DS)test_$(tst_file).c
 
 UNITY_INC = externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src                  	\
 				externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src                  	\
@@ -201,8 +201,8 @@ UNITY_INC = externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src                 
 				$($(tst_mod)_TST_INC_PATH)																\
 				$($(tst_mod)_INC_PATH)
 
-UNITY_SRC = modules$(DS)$(tst_mod)$(DS)mtest$(DS)src$(DS)test_$(tst_file).c 			\
-				modules$(DS)$(tst_mod)$(DS)mtest$(DS)src$(DS)test_$(tst_file)_Runner.c	\
+UNITY_SRC = modules$(DS)$(tst_mod)$(DS)utest$(DS)src$(DS)test_$(tst_file).c 			\
+				modules$(DS)$(tst_mod)$(DS)utest$(DS)src$(DS)test_$(tst_file)_Runner.c	\
 				modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c								\
 				externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src$(DS)unity.c 			\
 				externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src$(DS)cmock.c 			\
@@ -215,7 +215,7 @@ CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DUNITY_EXCLUDE_STDI
 
 else
 # get all test target for the selected module
-MTEST := $(notdir $(wildcard $($(tst_mod)_PATH)$(DS)mtest$(DS)src$(DS)test_*.c))
+MTEST := $(notdir $(wildcard $($(tst_mod)_PATH)$(DS)utest$(DS)src$(DS)test_*.c))
 MTEST := $(subst test_,,$(MTEST))
 MTEST := $(subst .c,,$(MTEST))
 MTEST := $(foreach tst, $(MTEST),tst_$(tst_mod)_$(tst))
@@ -276,7 +276,7 @@ unity:
 	@echo ===============================================================================
 	@echo Running unity for $(UNITY)
 #	@echo Running for following files $(foreach )
-#ruby externals/ceedling/vendor/unity/auto/generate_test_runner.rb summ/mtest/test_summ.c project.yml
+#ruby externals/ceedling/vendor/unity/auto/generate_test_runner.rb summ/utest/test_summ.c project.yml
 
 
 
