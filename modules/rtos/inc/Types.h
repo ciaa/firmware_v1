@@ -141,8 +141,7 @@
 #include "Types_Arch.h"
 #endif
 
-#ifndef TYPES_NULL
-#define TYPES_NULL
+#ifndef NULL
 /** \brief NULL definition */
 #define NULL ((void *)0)
 #endif

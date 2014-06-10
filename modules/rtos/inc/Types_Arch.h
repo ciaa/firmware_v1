@@ -65,13 +65,6 @@
 /*==================[inclusions]=============================================*/
 
 /*==================[macros]=================================================*/
-#ifndef TYPES_NULL
-#define TYPES_NULL
-/** \brief NULL definition */
-#define NULL ((void *)0)
-#else
-#error NULL defined before
-#endif
 
 /*==================[typedef]================================================*/
 #ifndef TYPES_BOOLEAN
