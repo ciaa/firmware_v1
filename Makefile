@@ -1,8 +1,6 @@
 ###############################################################################
 #
-# Copyright 2014, ACSE & CADIEEL
-#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
-#    CADIEEL: http://www.cadieel.org.ar
+# Copyright 2014, Mariano Cerdeiro
 #
 # This file is part of CIAA Firmware.
 #
@@ -315,6 +313,31 @@ doxygen:
 	doxygen modules/tools/doxygen/doxygen.cnf
 
 ###############################################################################
+# openocd
+include modules$(DS)tools$(DS)openocd$(DS)mak$(DS)Makefile
+
+OPENOCD_CFG := $(wildcard $(OPENOCD_CFG))
+
+openocd:
+# if windows or posix shows an error
+ifeq ($(subst win,yes,$(subst posix,yes,$(ARCH))),yes)
+	@echo ERROR: You can not start openocd in Windows nor Linux
+else
+# if CPU is not entered shows an error
+ifeq ($(CPU),)
+	@echo ERROR: The CPU variable of your makefile is empty.
+else
+ifeq ($(OPENOCD_CFG),)
+	@echo ERROR: Your CPU: $(CPU) may not be supported...
+else
+	@echo ===============================================================================
+	@echo Starting OpenOCD with $(OPENOCD_CFG) as background task.
+	openocd -f $(OPENOCD_CFG) &
+endif
+endif
+endif
+
+###############################################################################
 # help
 help:
 	@echo "+-----------------------------------------------------------------------------+"
@@ -330,6 +353,10 @@ help:
 	@echo mocks............: generate the mocks for all header files
 	@echo tst..............: displays possible tests
 	@echo tst_\<mod\>........: runs the tests of the indicated module
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo "|               Debugging                                                     |"
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo openocd..........: starts openocd for $(ARCH)
 
 ###############################################################################
 # info for  aspecific module
