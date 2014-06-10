@@ -50,12 +50,14 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140608 v0.0.1 initials initial version
+ * 20140610 v0.0.2 MaCe implement memcpy
+ * 20140608 v0.0.1 MaCe implement strlen, strcat, strcmp and strncmp
  */
 
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_string.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -163,6 +165,33 @@ void test_ciaaPOSIX_strlen(void) {
 
    ret = ciaaPOSIX_strlen("/dev/s");
    TEST_ASSERT_TRUE(6 == ret);
+}
+
+
+/** \brief test memcpy
+ **
+ ** test the function ciaaPOSIX_memcpy
+ **
+ **/
+void test_ciaaPOSIX_memcpy(void) {
+   char * from = "hello world";
+   char to[1000];
+   void * ret;
+   uint32_t loopi;
+
+   for(loopi = 0; loopi < sizeof(to); loopi++)
+   {
+      to[loopi] = 0;
+   }
+
+   ret = ciaaPOSIX_memcpy((void*)to, (void*)from, 4);
+   TEST_ASSERT_TRUE(0 == strncmp(from, to, 4));
+   TEST_ASSERT_TRUE(0 != strncmp(from, to, 5));
+   TEST_ASSERT_TRUE(to == ret);
+
+   ret = ciaaPOSIX_memcpy((void*)to, (void*)from, strlen(from)+1);
+   TEST_ASSERT_TRUE(0 == strcmp(from, to));
+   TEST_ASSERT_TRUE(to == ret);
 }
 
 /** @} doxygen end group definition */

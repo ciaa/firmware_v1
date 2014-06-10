@@ -232,6 +232,21 @@ extern int8_t ciaaPOSIX_strcmp(char const * s1, char const * s2)
 
    return ret;
 }
+
+extern void * ciaaPOSIX_memcpy(void * s1, void const * s2, size_t n)
+{
+   while(0 < n)
+   {
+      /* decrement counter */
+      n--;
+
+      /* copy 1 byte */
+      ((uint8_t*)s1)[n] = ((uint8_t*)s2)[n];
+   }
+
+   return s1;
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

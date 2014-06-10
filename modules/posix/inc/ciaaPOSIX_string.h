@@ -53,6 +53,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140610 v0.0.3 MaCe implement memcpy
  * 20140608 v0.0.2 MaCe implement strlen, strcat, strcmp and strncmp
  * 20140530 v0.0.1 initials initial version
  */
@@ -113,6 +114,17 @@ extern int8_t ciaaPOSIX_strncmp(char const * s1, char const * s2, size_t n);
  **          s1 < s2
  **/
 extern int8_t ciaaPOSIX_strcmp(char const * s1, char const * s2);
+
+/** \brief copy bytes of memory
+ **
+ ** copy n bytes from s2 to s1.
+ **
+ ** \param[out] s1 destination pointer
+ ** \param[in] s2 source pointer
+ ** \param[in] n count of bytes to be copied
+ **
+ **/
+extern void * ciaaPOSIX_memcpy(void * s1, void const * s2, size_t n);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
