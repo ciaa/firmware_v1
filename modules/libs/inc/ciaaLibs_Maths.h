@@ -68,7 +68,7 @@ extern "C" {
  ** \param[in] num   number to be checked
  ** \return    1 if power of two, 0 in other case
  **/
-#define CIAALIBS_MATHS_ISPOWEROFTWO(num) ( ((num) != 0) && (!((num) & ((num) - 1))) )
+#define ciaaLibs_isPowerOfTwo(num) ( ((num) != 0) && (!((num) & ((num) - 1)))  )
 
 /*==================[typedef]================================================*/
 

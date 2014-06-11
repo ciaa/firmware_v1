@@ -50,8 +50,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140610 v0.0.2 MaCe implement memcpy
- * 20140608 v0.0.1 MaCe implement strlen, strcat, strcmp and strncmp
+ * 20140611 v0.0.1 MaCe implement power of two
  */
 
 /*==================[inclusions]=============================================*/
@@ -100,19 +99,19 @@ void test_ciaaLibs_isPowerOfTwo(void) {
    int32_t val;
 
    val = 500;
-   TEST_ASSERT_TRUE(CIAALIBS_MATHS_ISPOWEROFTWO(val) == 0);
+   TEST_ASSERT_TRUE(ciaaLibs_isPowerOfTwo(val) == 0);
 
    val = 1024;
-   TEST_ASSERT_TRUE(CIAALIBS_MATHS_ISPOWEROFTWO(val) == 1);
+   TEST_ASSERT_TRUE(ciaaLibs_isPowerOfTwo(val) == 1);
 
    val = 1023;
-   TEST_ASSERT_TRUE(CIAALIBS_MATHS_ISPOWEROFTWO(val) == 0);
-   
+   TEST_ASSERT_TRUE(ciaaLibs_isPowerOfTwo(val) == 0);
+
    val = 2048;
-   TEST_ASSERT_TRUE(CIAALIBS_MATHS_ISPOWEROFTWO(val) == 1);
-   
+   TEST_ASSERT_TRUE(ciaaLibs_isPowerOfTwo(val) == 1);
+
    val = 1;
-   TEST_ASSERT_TRUE(CIAALIBS_MATHS_ISPOWEROFTWO(val) == 0);
+   TEST_ASSERT_TRUE(ciaaLibs_isPowerOfTwo(val) == 1);
 }
 
 /** @} doxygen end group definition */

@@ -48,13 +48,17 @@
  */
 
 /*
- * modification history (new versions first)
+ * modification history (new versions head)
  * -----------------------------------------------------------
  * 20140611 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaLibs_CircBuf.h"
+#include "ciaaLibs_Maths.h"
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_string.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -69,6 +73,125 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+extern ciaaLibs_CircBufType * ciaaLibs_circBufNew(size_t size)
+{
+   ciaaLibs_CircBufType * ret = NULL;
+
+   /* check that size is at least 8 and power of 2 */
+   if ( (size > 7) && (ciaaLibs_isPowerOfTwo(size)) )
+   {
+      ret = ciaaPOSIX_malloc(sizeof(ciaaLibs_CircBufType)+size);
+
+      /* if a valid pointer has been returned */
+      if (NULL != ret)
+      {
+         /* init the buffer */
+         ret->size = size;
+         ret->head = 0;
+         ret->tail = 0;
+         ret->buf = (uint8_t *) ((intptr_t) ret+ sizeof(ciaaLibs_CircBufType));
+      }
+   }
+
+   return ret;
+} /* end ciaaLibs_circBufNew */
+
+extern ciaaLibs_circBufRel(ciaaLibs_CircBufType * cbuf)
+{
+   /* free reserved memory */
+   ciaaPOSIX_free(cbuf);
+} /* end ciaaLibs_circBufRel */
+
+extern size_t ciaaLibs_circBufPut(ciaaLibs_CircBufType * cbuf, void const * data, size_t size)
+{
+   size_t ret = 0;
+   size_t rawSpace;
+   size_t newTail;
+
+   /* the head of the circular buffer may be changed, therefore it has to be
+    * read only once */
+   size_t head = cbuf->head;
+
+   /* check that is enough place */
+   if (ciaaLibs_circBufSpace(cbuf, head) >= size)
+   {
+      rawSpace = ciaaLibs_circBufRawSpace(cbuf, head);
+
+      /* check if wrapping is needed */
+      if (rawSpace >= size)
+      {
+         ciaaPOSIX_memcpy(&cbuf->buf[cbuf->tail], data, size);
+      }
+      else
+      {
+         ciaaPOSIX_memcpy((void*)(&cbuf->buf[cbuf->tail]), data, rawSpace);
+         ciaaPOSIX_memcpy((void*)(&cbuf->buf[0]), (void*)((intptr_t)data + rawSpace), size-rawSpace);
+      }
+
+      /* calculate tail position */
+      newTail = cbuf->tail;
+      newTail += size;
+      if (newTail >= cbuf->size)
+      {
+         newTail -= cbuf->size;
+      }
+
+      /* set tail position */
+      cbuf->tail = newTail;
+
+      /* set return value */
+      ret = size;
+   }
+
+   return ret;
+} /* end ciaaLibs_circBufPut */
+
+extern size_t ciaaLibs_circBufGet(ciaaLibs_CircBufType * cbuf, void * data, size_t size)
+{
+   size_t rawCount;
+   size_t newHead;
+
+   /* the tail of the circular buffer my be changed, therefore it has to be
+    * read only once */
+   size_t tail = cbuf->tail;
+
+   /* if the users tries to read to much data, only available data will be
+    * provided */
+   if (size > ciaaLibs_circBufCount(cbuf, tail))
+   {
+      size = ciaaLibs_circBufCount(cbuf, tail);
+   }
+
+   /* check if data to be read */
+   if (size > 0)
+   {
+      rawCount = ciaaLibs_circBufRawCount(cbuf, tail);
+
+      /* check if all data can be read without wrapping */
+      if (size <= rawCount)
+      {
+         ciaaPOSIX_memcpy(data, (void*)&cbuf->buf[cbuf->head], size);
+      }
+      else
+      {
+         ciaaPOSIX_memcpy(data, (void*)(&cbuf->buf[cbuf->head]), rawCount);
+         ciaaPOSIX_memcpy((void*)((intptr_t)data + rawCount), (void*)(&cbuf->buf[0]), size-rawCount);
+      }
+
+      /* calculates new head */
+      newHead = cbuf->head;
+      newHead += size;
+      if (newHead >= cbuf->size)
+      {
+         newHead -= cbuf->size;
+      }
+
+      /* set head position */
+      cbuf->head = newHead;
+   }
+
+   return size;
+} /* end ciaaLibs_circBufGet */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
