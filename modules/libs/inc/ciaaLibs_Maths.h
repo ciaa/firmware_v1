@@ -70,6 +70,16 @@ extern "C" {
  **/
 #define ciaaLibs_isPowerOfTwo(num) ( ((num) != 0) && (!((num) & ((num) - 1)))  )
 
+#define ciaaLibs_min(x,y)        \
+   ( ( (x) > (y) ) ?             \
+     (y) :                       \
+     (x) )
+
+#define ciaaLibs_max(x,y)        \
+   ( ( (x) > (y) ) ?             \
+     (x) :                       \
+     (y) )
+
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/

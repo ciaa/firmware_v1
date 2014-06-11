@@ -142,6 +142,11 @@ void test_ciaaLibs_circBufNewferNoMemory(void) {
 
 void ciaaLibs_circBufPrint(ciaaLibs_CircBufType * cbuf)
 {
+   printf("Free: %2d RFree: %2d Count: %2d RCount: %2d\n",
+         ciaaLibs_circBufSpace(cbuf, cbuf->head),
+         ciaaLibs_circBufRawSpace(cbuf, cbuf->head),
+         ciaaLibs_circBufCount(cbuf, cbuf->tail),
+         ciaaLibs_circBufRawCount(cbuf, cbuf->tail));
    printf("                      0123456789012345678901234567890123456789012345678901234567890123\n");
    printf("Head: %2d Tail: %2d Val:%s\n\n", cbuf->head, cbuf->tail, cbuf->buf);
 }
@@ -165,13 +170,14 @@ void test_ciaaLibs_circBufSpaceACount(void) {
    TEST_ASSERT_EQUAL_INT(63, ciaaLibs_circBufRawSpace(cbuf, cbuf->head));
 
    /* 0 bytes shall be occupied */
-   TEST_ASSERT_TRUE(0 == ciaaLibs_circBufCount(cbuf, cbuf->tail));
-   TEST_ASSERT_TRUE(0 == ciaaLibs_circBufRawCount(cbuf, cbuf->tail));
+   TEST_ASSERT_EQUAL_INT(0, ciaaLibs_circBufCount(cbuf, cbuf->tail));
+   TEST_ASSERT_EQUAL_INT(0, ciaaLibs_circBufRawCount(cbuf, cbuf->tail));
 
    /* put 40 bytes */
    TEST_ASSERT_TRUE(40 == ciaaLibs_circBufPut(cbuf, data, 40));
 
    /* 23 bytes shall be free */
+   ciaaLibs_circBufPrint(cbuf);
    TEST_ASSERT_EQUAL_INT(23, ciaaLibs_circBufSpace(cbuf, cbuf->head));
    TEST_ASSERT_EQUAL_INT(23, ciaaLibs_circBufRawSpace(cbuf, cbuf->head));
 
@@ -184,8 +190,9 @@ void test_ciaaLibs_circBufSpaceACount(void) {
    TEST_ASSERT_EQUAL_INT(30, ret);
 
    /* 53 bytes shall be free */
+   ciaaLibs_circBufPrint(cbuf);
    TEST_ASSERT_EQUAL_INT(53, ciaaLibs_circBufSpace(cbuf, cbuf->head));
-   TEST_ASSERT_EQUAL_INT(23, ciaaLibs_circBufRawSpace(cbuf, cbuf->head));
+   TEST_ASSERT_EQUAL_INT(24, ciaaLibs_circBufRawSpace(cbuf, cbuf->head));
 
    /* 10 bytes shall be occupied */
    TEST_ASSERT_EQUAL_INT(10, ciaaLibs_circBufCount(cbuf, cbuf->tail));
@@ -209,7 +216,8 @@ void test_ciaaLibs_circBufSpaceACount(void) {
 void test_ciaaLibs_circBufPutGet(void) {
    ciaaLibs_CircBufType * cbuf;
    size_t ret;
-   char * from = "hallo world 1234567890123456789012345678902134567890123456789012345678901234567";
+   char * from = "0hallo123-10HALLO12-20hallo12-30HALLO12-40HALLO12-50hallo12-60-4";
+                /*0123456789012345678901234567890123456789012345678901234567890123*/
    char to[100];
 
    /* use linux malloc, free and memcpy */
@@ -232,13 +240,20 @@ void test_ciaaLibs_circBufPutGet(void) {
    TEST_ASSERT_EQUAL_UINT8_ARRAY(to, from, 20);
 
    /* put 51 */
+   ciaaLibs_circBufPrint(cbuf);
    ret = ciaaLibs_circBufPut(cbuf, &from[10], 51);
    TEST_ASSERT_EQUAL_INT(51, ret);
+   ciaaLibs_circBufPrint(cbuf);
    memset((void*)to, 0, 100);
 
    /* get 50: 5 old and 45 new */
    memset((void*)to, 0, 100);
+   ciaaLibs_circBufPrint(cbuf);
+   memset(to, 0, 100);
    ret = ciaaLibs_circBufGet(cbuf, to, 50);
+   ciaaLibs_circBufPrint(cbuf);
+   printf("To: %s\n", to);
+   printf("To: %s\n", &to[5]);
    TEST_ASSERT_EQUAL_INT(50, ret);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(to, &from[20], 5);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(&to[5], &from[10], 45);

@@ -58,6 +58,7 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_stdlib.h"
+#include "ciaaLibs_Maths.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -91,9 +92,9 @@ extern "C" {
  ** \returns the count of free bytes on the buffer without wrapping
  **/
 #define ciaaLibs_circBufRawSpace(cbuf, head)                   \
-   ( ( (cbuf)->tail > (head) ) ?                               \
-     ( (cbuf)->size - 1 -(cbuf)->tail ) :                      \
-     ( ( (head) - 1 - (cbuf)->tail ) & ( (cbuf)->size - 1) ) )
+   ( ( (cbuf)->tail >= (head) ) ?                              \
+     ( (cbuf)->size - 1 - (cbuf)->tail + ( (head) > 0 ) ) :    \
+     ( (head) - (cbuf)->tail - 1 ) )
 
 /** \brief get count of bytes stored in the buffer
  **
@@ -125,6 +126,10 @@ extern "C" {
      ( (tail) - (cbuf)->head ) :                      \
      ( (cbuf)->size - (cbuf)->head ) )
 
+#define ciaaLibs_circBufRawSpace(cbuf, head)                   \
+   ( ( (cbuf)->tail >= (head) ) ?                              \
+     ( (cbuf)->size - 1 - (cbuf)->tail + ( (head) > 0 ) ) :    \
+     ( (head) - (cbuf)->tail - 1 ) )
 /*==================[typedef]================================================*/
 /** \brief circular buffer type
  **
