@@ -22,8 +22,8 @@ TASK TaskA {
     STACK = 256;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
-    EVENT = Event1;
-    RESOURCE = Res1;
+    EVENT = POSIXE;
+    RESOURCE = POSIXR;
     AUTOSTART = TRUE {
         APPMODE = AppMode2;
     }
@@ -57,8 +57,10 @@ ALARM ActivateTaskC {
 }
 
 RESOURCE = Res1;
+RESOURCE = POSIXR;
 
 EVENT = Event1;
+EVENT = POSIXE;
 
 APPMODE = AppMode1;
 APPMODE = AppMode2;
