@@ -35,6 +35,6 @@
 ###############################################################################
 # unit test
 # unit tests include files
-posix_TST_INC_PATH = $(posix_PATH)$(DS)utest$(DS)inc
+posix_TST_INC_PATH = $(posix_PATH)$(DS)test$(DS)utest$(DS)inc
 # unit tests dependencies
 posix_TST_MOD	    = config bsp ciaak
