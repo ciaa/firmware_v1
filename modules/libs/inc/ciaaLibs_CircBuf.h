@@ -126,10 +126,6 @@ extern "C" {
      ( (tail) - (cbuf)->head ) :                      \
      ( (cbuf)->size - (cbuf)->head ) )
 
-#define ciaaLibs_circBufRawSpace(cbuf, head)                   \
-   ( ( (cbuf)->tail >= (head) ) ?                              \
-     ( (cbuf)->size - 1 - (cbuf)->tail + ( (head) > 0 ) ) :    \
-     ( (head) - (cbuf)->tail - 1 ) )
 /*==================[typedef]================================================*/
 /** \brief circular buffer type
  **
