@@ -96,7 +96,7 @@ extern ciaaLibs_CircBufType * ciaaLibs_circBufNew(size_t size)
    return ret;
 } /* end ciaaLibs_circBufNew */
 
-extern ciaaLibs_circBufRel(ciaaLibs_CircBufType * cbuf)
+extern void ciaaLibs_circBufRel(ciaaLibs_CircBufType * cbuf)
 {
    /* free reserved memory */
    ciaaPOSIX_free(cbuf);

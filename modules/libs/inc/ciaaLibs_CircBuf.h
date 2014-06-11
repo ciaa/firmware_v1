@@ -155,7 +155,7 @@ extern ciaaLibs_CircBufType * ciaaLibs_circBufNew(size_t size);
  **
  ** \param[in] circular buffer to be released
  **/
-extern ciaaLibs_circBufRel(ciaaLibs_CircBufType * cbuf);
+extern void ciaaLibs_circBufRel(ciaaLibs_CircBufType * cbuf);
 
 /** \brief put data to a circular buffer
  **
