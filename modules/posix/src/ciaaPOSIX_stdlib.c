@@ -61,7 +61,7 @@
 
 /*==================[macros and definitions]=================================*/
 
-#define CIAA_HEAP_MEM_SIZE 1000
+#define CIAA_HEAP_MEM_SIZE 10000
 #define CIAA_POSIX_STDLIB_AVAILABLE 1
 #define CIAA_POSIX_STDLIB_USED 0
 

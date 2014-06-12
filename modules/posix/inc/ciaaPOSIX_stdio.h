@@ -82,6 +82,14 @@ extern "C" {
 /** \brief Open to read write */
 #define O_RDWR              4
 
+/** \brief request to configure ioctl with rxindication
+ **
+ ** if ioctl is called with this request and param is != NULL the device
+ ** will be configured non blocking wiht rx indication.
+ **
+ **/
+#define ciaaPOSIX_IOCTL_RXINDICATION         1
+
 /*==================[typedef]================================================*/
 /** \brief TODO
  **

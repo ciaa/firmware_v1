@@ -58,15 +58,25 @@
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_string.h"
+#include "ciaaLibs_CircBuf.h"
 #include "ciaak.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
 #define ciaaSerialDevices_MAXDEVICES		20
 
 /*==================[typedef]================================================*/
+typedef struct {
+   ciaaDevices_deviceType const * device;
+   TaskType taskID;
+   ciaaLibs_CircBufType rxBuf;
+   ciaaLibs_CircBufType txBuf;
+   uint8_t flags;
+} ciaaSerialDevices_deviceType;
+
 /** \brief Serial Devices Type */
 typedef struct {
-	ciaaDevices_deviceType const * device[ciaaSerialDevices_MAXDEVICES];
+   ciaaSerialDevices_deviceType devstr[ciaaSerialDevices_MAXDEVICES];
 	uint8_t position;
 } ciaaSerialDevices_devicesType;
 
@@ -113,7 +123,7 @@ extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType * driver)
    uint8_t position;
 
    /* enter critical section */
-   ciaaPOSIX_sem_wait(&ciaaSerialDevices_sem);
+   /* not needed, only 1 task running */
 
    /* check if more drivers can be added */
    if (ciaaSerialDevices_MAXDEVICES > ciaaSerialDevices.position) {
@@ -121,14 +131,19 @@ extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType * driver)
       /* get position for nexxt device */
       position = ciaaSerialDevices.position;
 
-      /* add driver */
-      ciaaSerialDevices.device[position] = driver;
-
       /* increment position for next device */
       ciaaSerialDevices.position++;
 
       /* exit critical section */
-      ciaaPOSIX_sem_post(&ciaaSerialDevices_sem);
+      /* not needed, only 1 task running */
+
+      /* add driver */
+      ciaaSerialDevices.devstr[position].device = driver;
+
+      /* configure rx and tx buffers */
+      /* TODO buffer size shall be created depending on the device type (eth != uart) */
+      ciaaLibs_circBufInit(&ciaaSerialDevices.devstr[position].rxBuf, ciaak_malloc(256), 256);
+      ciaaLibs_circBufInit(&ciaaSerialDevices.devstr[position].txBuf, ciaak_malloc(256), 256);
 
       /* allocate memory for new device */
       newDevice = (ciaaDevices_deviceType*) ciaak_malloc(sizeof(ciaaDevices_deviceType));
@@ -150,6 +165,7 @@ extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType * driver)
       /* create path string for this device */
       length = ciaaPOSIX_strlen(driver->path);
       length += ciaaPOSIX_strlen(ciaaSerialDevices_prefix);
+      length += 2; /* for the / and the termination null */
 
       /* create path for the new device */
       newDeviceName = (char *) ciaak_malloc(length);
@@ -170,7 +186,7 @@ extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType * driver)
    else
    {
       /* exit critical section */
-      ciaaPOSIX_sem_post(&ciaaSerialDevices_sem);
+      /* not needed, only 1 task running */
    }
 }
 
@@ -186,12 +202,51 @@ extern int32_t ciaaSerialDevices_close(ciaaDevices_deviceType const * const devi
 
 extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const device, int32_t request, void* param)
 {
-   return device->ioctl((ciaaDevices_deviceType *)device->loLayer, request, param);
+   int32_t ret;
+
+   if (ciaaPOSIX_IOCTL_RXINDICATION == request)
+   {
+
+   }
+   else
+   {
+      ret = device->ioctl((ciaaDevices_deviceType *)device->loLayer, request, param);
+   }
+
+   return ret;
 }
 
 extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte)
 {
-   return device->read((ciaaDevices_deviceType *)device->loLayer, buf, nbyte);
+   /* get position of the device in the structure */
+   uint8_t position = (uint8_t) (intptr_t) device->layer;
+   int32_t ret = 0;
+
+   /* if the rx buffer is not empty */
+   if (!ciaaLibs_circBufEmpty(&ciaaSerialDevices.devstr[position].rxBuf))
+   {
+      /* try to read nbyte from rxBuf and store it to the user buffer */
+      ret = ciaaLibs_circBufGet(&ciaaSerialDevices.devstr[position].rxBuf,
+            buf,
+            nbyte);
+   }
+   else
+   {
+      /* get task id */
+      GetTaskID(&ciaaSerialDevices.devstr[position].taskID);
+
+      /* if no data wait for it */
+      WaitEvent(POSIXE);
+
+      /* after the wait is not needed to check if data is avaibale on the
+       * buffer. The event will be set first after adding some data into it */
+
+      /* try to read nbyte from rxBuf and store it to the user buffer */
+      ret = ciaaLibs_circBufGet(&ciaaSerialDevices.devstr[position].rxBuf,
+            buf,
+            nbyte);
+   }
+   return ret;
 }
 
 extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * const buf, uint32_t nbyte)
@@ -207,6 +262,36 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
 extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
    /* process reception */
+   uint8_t position = (uint8_t) (intptr_t) device->upLayer;
+   ciaaLibs_CircBufType * cbuf = &ciaaSerialDevices.devstr[position].rxBuf;
+   uint32_t tail = cbuf->tail;
+   uint32_t rawSpace = ciaaLibs_circBufRawSpace(cbuf, tail);
+   uint32_t space = ciaaLibs_circBufSpace(cbuf, tail);
+   uint32_t read = 0;
+   TaskType taskID = ciaaSerialDevices.devstr[position].taskID;
+
+   read = ciaaSerialDevices.devstr[position].device->read(device->loLayer, ciaaLibs_circBufWritePos(cbuf), rawSpace);
+
+   /* if rawSpace is full but more space is avaialble */
+   if ((read == rawSpace) && (space > rawSpace))
+   {
+      read += ciaaSerialDevices.devstr[position].device->read(
+            device->loLayer,
+            &cbuf->buf[0],
+            space - rawSpace);
+   }
+
+   /* update taile */
+   ciaaLibs_circBufUpdateTail(cbuf, read);
+
+   /* if data has been read */
+   if ( (0 < read) && (~0 != taskID) )
+   {
+      /* invalidate task id */
+      ciaaSerialDevices.devstr[position].taskID = ~0;
+      /* set task event */
+      SetEvent(taskID, POSIXE);
+   }
 }
 
 

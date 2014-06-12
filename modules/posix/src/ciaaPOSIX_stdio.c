@@ -74,6 +74,7 @@
 /** \brief Filedescriptor type */
 typedef struct {
 	ciaaDevices_deviceType const * device;
+
 } ciaaPOSIX_stdio_fildesType;
 
 /*==================[internal functions declaration]=========================*/
@@ -130,7 +131,7 @@ extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
             ciaaPOSIX_sem_wait(&ciaaPOSIX_stdio_sem);
 
             /* if file descriptor not used, use it */
-            if (NULL != ciaaPOSIX_stdio_fildes[loopi].device)
+            if (NULL == ciaaPOSIX_stdio_fildes[loopi].device)
             {
                /* load device in descriptor */
                ciaaPOSIX_stdio_fildes[loopi].device = device;
@@ -157,7 +158,7 @@ extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
             else
             {
                /* device could not be opened */
-               
+
                /* enter critical section */
                ciaaPOSIX_sem_wait(&ciaaPOSIX_stdio_sem);
 
@@ -215,11 +216,22 @@ int32_t ciaaPOSIX_ioctl (int32_t fildes, int32_t request, void* param)
       /* check that file descriptor is beeing used */
       if (NULL != ciaaPOSIX_stdio_fildes[fildes].device)
       {
-         /* call ioctl function */
-         ret = ciaaPOSIX_stdio_fildes[fildes].device->ioctl(
-               ciaaPOSIX_stdio_fildes[fildes].device,
-               request,
-               param);
+         switch(request)
+         {
+            case ciaaPOSIX_IOCTL_RXINDICATION:
+               /* store callback */
+/* TODO cont here                ciaaPOSIX_stdio_fildes[fildes].rxIndication = param; */
+               break;
+
+            default:
+               /* nothing to be processed */
+               /* call ioctl function */
+               ret = ciaaPOSIX_stdio_fildes[fildes].device->ioctl(
+                           ciaaPOSIX_stdio_fildes[fildes].device,
+                           request,
+                           param);
+               break;
+         }
       }
    }
 
