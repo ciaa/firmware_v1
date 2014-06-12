@@ -30,7 +30,7 @@
  *
  */
 
-/** \brief Circula Buffer Library header
+/** \brief Circula Buffer Library sources
  **
  ** This library provides a circular buffer
  **
@@ -48,7 +48,7 @@
  */
 
 /*
- * modification history (new versions head)
+ * modification history (new versions first)
  * -----------------------------------------------------------
  * 20140611 v0.0.1 initials initial version
  */
