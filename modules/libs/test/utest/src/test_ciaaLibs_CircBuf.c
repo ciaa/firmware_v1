@@ -177,7 +177,6 @@ void test_ciaaLibs_circBufSpaceACount(void) {
    TEST_ASSERT_TRUE(40 == ciaaLibs_circBufPut(cbuf, data, 40));
 
    /* 23 bytes shall be free */
-   ciaaLibs_circBufPrint(cbuf);
    TEST_ASSERT_EQUAL_INT(23, ciaaLibs_circBufSpace(cbuf, cbuf->head));
    TEST_ASSERT_EQUAL_INT(23, ciaaLibs_circBufRawSpace(cbuf, cbuf->head));
 
@@ -190,7 +189,6 @@ void test_ciaaLibs_circBufSpaceACount(void) {
    TEST_ASSERT_EQUAL_INT(30, ret);
 
    /* 53 bytes shall be free */
-   ciaaLibs_circBufPrint(cbuf);
    TEST_ASSERT_EQUAL_INT(53, ciaaLibs_circBufSpace(cbuf, cbuf->head));
    TEST_ASSERT_EQUAL_INT(24, ciaaLibs_circBufRawSpace(cbuf, cbuf->head));
 
@@ -240,20 +238,14 @@ void test_ciaaLibs_circBufPutGet(void) {
    TEST_ASSERT_EQUAL_UINT8_ARRAY(to, from, 20);
 
    /* put 51 */
-   ciaaLibs_circBufPrint(cbuf);
    ret = ciaaLibs_circBufPut(cbuf, &from[10], 51);
    TEST_ASSERT_EQUAL_INT(51, ret);
-   ciaaLibs_circBufPrint(cbuf);
    memset((void*)to, 0, 100);
 
    /* get 50: 5 old and 45 new */
    memset((void*)to, 0, 100);
-   ciaaLibs_circBufPrint(cbuf);
    memset(to, 0, 100);
    ret = ciaaLibs_circBufGet(cbuf, to, 50);
-   ciaaLibs_circBufPrint(cbuf);
-   printf("To: %s\n", to);
-   printf("To: %s\n", &to[5]);
    TEST_ASSERT_EQUAL_INT(50, ret);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(to, &from[20], 5);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(&to[5], &from[10], 45);
