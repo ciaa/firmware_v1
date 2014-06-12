@@ -59,7 +59,7 @@
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaak.h"
-#include "blinking.h"
+#include "ciaaDriverUart_Internal.h"
 
 /*==================[macros and definitions]=================================*/
 #define ASSERT(cond) assert((cond), __FILE__, __LINE__)
@@ -71,6 +71,7 @@
 
 /*==================[internal data definition]===============================*/
 uint8_t buffer[1024];
+uint8_t testCase = 0;
 
 /*==================[external data definition]===============================*/
 
@@ -80,7 +81,7 @@ static void assert(int cond, char * file, int line)
    if (cond)
    {
       /* assertion is ok */
-      /* nothing to do */
+      ciaaPOSIX_printf("OK: Assert in %s:%d\n", file, line);
    }
    else
    {
@@ -93,11 +94,11 @@ static void assert_msg(int cond, char* msg, char * file, int line)
    if (cond)
    {
       /* assertion is ok */
-      /* nothing to do */
+      ciaaPOSIX_printf("OK: Assert in %s:%d\n", file, line);
    }
    else
    {
-      ciaaPOSIX_printf("Assert Failed in %s:%d %s\n", file, line, msg);
+      ciaaPOSIX_printf("ERROR: Assert Failed in %s:%d %s\n", file, line, msg);
    }
 }
 
@@ -107,11 +108,12 @@ static void assert_seq(int seq, char * file, int line)
 
    if (sequence == seq)
    {
+      ciaaPOSIX_printf("OK: Sequence %d\n", seq);
       sequence++;
    }
    else
    {
-      ciaaPOSIX_printf("Wrong sequence: %d on %s:%d\n", seq, file, line);
+      ciaaPOSIX_printf("ERROR: Wrong sequence: %d on %s:%d\n", seq, file, line);
    }
 }
 
@@ -143,14 +145,85 @@ TASK(InitTask) {
 
 
 TASK(TaskA) {
-   int32_t fildes;
+   int32_t fildes1;
    int32_t ret;
+   int32_t loopi;
 
-   fildes = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
-   ASSERT_MSG(fildes >= 0, "ciaaPOSIX_open returns an invalid handler");
+   ASSERT_SEQ(0);
 
-   ret = ciaaPOSIX_read(fildes, buffer, sizeof(buffer));
-   ASSERT_MSG(ret > 0, "ciaaPOSIX_read returns with errors");
+   /* open an invalid device */
+   fildes1 = ciaaPOSIX_open("/dev/serial/uart/23", O_RDWR);
+   ASSERT_MSG(-1 == fildes1, "ciaaPOSIX_open returns a valid handler for an invalid device");
+
+   ASSERT_SEQ(1);
+
+   /* open a valid device */
+   fildes1 = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+   ASSERT_MSG(0 <= fildes1, "ciaaPOSIX_open returns an invalid handler");
+
+   ASSERT_SEQ(2);
+
+   /* close the opened device */
+   ret = ciaaPOSIX_close(fildes1);
+   ASSERT_MSG(0 == ret, "ciaaPOSIX_close returns other than 0 for a valid fildes");
+
+   ASSERT_SEQ(3);
+
+   /* close a not opened device */
+   ret = ciaaPOSIX_close(fildes1);
+   ASSERT_MSG(-1 == ret, "ciaaPOSIX_close returns other than -1 for an invalid fildes");
+
+   ASSERT_SEQ(4);
+
+   /* open a valid device */
+   fildes1 = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+   ASSERT_MSG(0 <= fildes1, "ciaaPOSIX_open returns an invalid handler");
+
+   ASSERT_SEQ(5);
+
+   /* indicate taste case to TaskB */
+   testCase = 1;
+   ActivateTask(TaskB);
+
+   /* read some data knowing that data is not available (task will be blocked) */
+   ret = ciaaPOSIX_read(fildes1, buffer, sizeof(buffer));
+   ASSERT_MSG(ret == 8, "ciaaPOSIX_read returns with less bytes than expected");
+
+   ASSERT_SEQ(8);
+
+   for(loopi = 0; loopi < 8; loopi++)
+   {
+      ASSERT(buffer[loopi] == loopi);
+   }
+
+   ASSERT_SEQ(9);
+
+   TerminateTask();
+}
+
+TASK(TaskB)
+{
+   int32_t loopi;
+
+   switch(testCase)
+   {
+      case 1:
+         ASSERT_SEQ(6);
+         /* simulates a reception of 8 bytes */
+         ciaaDriverUart_uart0.rxBuffer.length = 8;
+         for(loopi = 0; loopi < 20; loopi++)
+         {
+            ciaaDriverUart_uart0.rxBuffer.buffer[loopi] = loopi;
+         }
+         ciaaDriverUart_uart0_rxIndication();
+
+         ASSERT_SEQ(7);
+         break;
+
+      default:
+         ASSERT_MSG(1, "Variable testCase contains an invalid value");
+         break;
+   }
 
 
    TerminateTask();

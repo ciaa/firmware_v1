@@ -21,17 +21,21 @@ TASK TaskA {
     ACTIVATION = 1;
     STACK = 256;
     TYPE = EXTENDED;
-    SCHEDULE = FULL;
-    EVENT = Event1;
-    RESOURCE = Res1;
-    AUTOSTART = TRUE {
-        APPMODE = AppMode2;
-    }
+    SCHEDULE = NON;
+    EVENT = POSIXE;
+    RESOURCE = POSIXR;
 }
 
-RESOURCE = Res1;
+TASK TaskB {
+    PRIORITY = 10;
+    ACTIVATION = 1;
+    STACK = 256;
+    TYPE = EXTENDED;
+    SCHEDULE = NON;
+}
 
-EVENT = Event1;
+RESOURCE = POSIXR;
+EVENT = POSIXE;
 
 APPMODE = AppMode1;
 APPMODE = AppMode2;

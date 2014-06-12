@@ -41,4 +41,4 @@ INCLUDE			   += $(test_stdio_stack_PATH)$(DS)inc
 # library source files
 SRC_FILES 	  	   += $(wildcard $(test_stdio_stack_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
-OIL_FILES		   += $(test_stdio_stack_PATH)$(DS)etc$(DS)test_com_stack.oil
+OIL_FILES		   += $(test_stdio_stack_PATH)$(DS)etc$(DS)test_stdio_stack.oil
