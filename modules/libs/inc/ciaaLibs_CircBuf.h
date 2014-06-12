@@ -52,6 +52,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140612 v0.0.3 implement ciaaLibs_circBufInit
  * 20140612 v0.0.2 implement ciaaLibs_circBufFull and ciaaLibs_circBufEmpty
  * 20140611 v0.0.1 initials initial version
  */
@@ -161,6 +162,9 @@ typedef struct {
 /*==================[external functions declaration]=========================*/
 /** \brief creates a new circular buffer
  **
+ ** Allocates the needed memory for a buffer of size size and perform the
+ ** initialization of the buffer.
+ **
  ** \param[in] size of the buffer, shall be a power of 2 and at least 8
  ** \returns a pointer to a circular buffer or NULL if an error occurs
  **
@@ -168,7 +172,20 @@ typedef struct {
  **/
 extern ciaaLibs_CircBufType * ciaaLibs_circBufNew(size_t size);
 
+/** \brief initialize a circular buffer
+ **
+ ** Performs the initialization of the buffer without allocating any memory.
+ **
+ ** \param[out] cbuf circular buffer to be initializated
+ ** \param[in] buf pointer to the buffer
+ ** \param[in] size of the buffer, shall be a power of 2 and at least 8
+ **/
+extern void ciaaLibs_circBufInit(ciaaLibs_CircBufType * cbuf, void * buf, size_t size);
+
 /** \brief release a circular buffer
+ **
+ ** This function shall only be used for circular buffers created with
+ ** ciaaLibs_circBufNew and NOT for those initalized with ciaaLibs_circBufInit.
  **
  ** \param[in] circular buffer to be released
  **/

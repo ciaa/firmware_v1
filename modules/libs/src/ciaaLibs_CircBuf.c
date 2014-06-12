@@ -82,21 +82,31 @@ extern ciaaLibs_CircBufType * ciaaLibs_circBufNew(size_t size)
    /* check that size is at least 8 and power of 2 */
    if ( (size > 7) && (ciaaLibs_isPowerOfTwo(size)) )
    {
-      ret = ciaaPOSIX_malloc(sizeof(ciaaLibs_CircBufType)+size);
+      ret = (ciaaLibs_CircBufType *) ciaaPOSIX_malloc(sizeof(ciaaLibs_CircBufType)+size);
 
       /* if a valid pointer has been returned */
       if (NULL != ret)
       {
          /* init the buffer */
-         ret->size = size;
-         ret->head = 0;
-         ret->tail = 0;
-         ret->buf = (uint8_t *) ((intptr_t) ret+ sizeof(ciaaLibs_CircBufType));
+         ciaaLibs_circBufInit(ret,
+               (void*) ( (intptr_t) ret + sizeof(ciaaLibs_CircBufType) ),
+               size);
       }
    }
 
    return ret;
 } /* end ciaaLibs_circBufNew */
+
+extern void ciaaLibs_circBufInit(ciaaLibs_CircBufType * cbuf, void * buf, size_t size)
+{
+
+   /* init the buffer */
+   cbuf->size = size;
+   cbuf->head = 0;
+   cbuf->tail = 0;
+   cbuf->buf = buf;
+
+} /* end ciaaLibs_circBufInit */
 
 extern void ciaaLibs_circBufRel(ciaaLibs_CircBufType * cbuf)
 {

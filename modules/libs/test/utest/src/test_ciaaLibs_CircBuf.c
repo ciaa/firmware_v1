@@ -38,7 +38,7 @@
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
-/** \addtogroup ModuleTests Module Tests
+/** \addtogroup UnitTests Unit Tests
  ** @{ */
 
 /*
@@ -110,12 +110,9 @@ void tearDown(void) {
 void doNothing(void) {
 }
 
-/** \brief test strncmp
- **
- ** test the function ciaaPOSIX_strncmp
- **
+/** \brief test ciaaLibs_circBufNew
  **/
-void test_ciaaLibs_circBufNewfer(void) {
+void test_ciaaLibs_circBufNew(void) {
    ciaaLibs_CircBufType * cbuf;
 
    /* try to create a buffer with less than 8 bytes */
@@ -140,10 +137,12 @@ void test_ciaaLibs_circBufNewfer(void) {
    TEST_ASSERT_TRUE(cbuf != NULL);
    /* free reserved memory */
    free(cbuf);
-} /* end test_ciaaLibs_circBufNewfer */
+} /* end test_ciaaLibs_circBufNew */
 
 
-void test_ciaaLibs_circBufNewferNoMemory(void) {
+/** \brief test ciaaLibs_circBufNew if no memory is available
+ **/
+void test_ciaaLibs_circBufNewNoMemory(void) {
    ciaaLibs_CircBufType * cbuf;
 
    /* force malloc to return NULL */
@@ -159,7 +158,13 @@ void test_ciaaLibs_circBufNewferNoMemory(void) {
 } /* end test_ciaaLibs_circBufNewferNoMemory */
 
 
-void test_ciaaLibs_circBufSpaceACount(void) {
+/** \brief test:
+ **            - ciaaLibs_circBufSpace
+ **            - ciaaLibs_circBufRawSpace
+ **            - ciaaLibs_circBufCount
+ **            - ciaaLibs_circBufRawCount
+ **/
+void test_ciaaLibs_circBufSpaceAndCount(void) {
    ciaaLibs_CircBufType * cbuf;
    char * data = "hallo world 123456789012345678901234567890213456789012345678901234567890";
    char to[100];
@@ -219,6 +224,8 @@ void test_ciaaLibs_circBufSpaceACount(void) {
    free(cbuf);
 }
 
+/** \brief test ciaaLibs_circBufGet and ciaaLibs_circBufPut
+ **/
 void test_ciaaLibs_circBufPutGet(void) {
    ciaaLibs_CircBufType * cbuf;
    size_t ret;
@@ -262,6 +269,9 @@ void test_ciaaLibs_circBufPutGet(void) {
    ciaaLibs_circBufRel(cbuf);
 } /* end test_ciaaLibs_circBufPutGet */
 
+
+/** \brief test ciaaLibs_circBufEmpty and ciaaLibs_circBufFull
+ **/
 void test_ciaaLibs_circBufEmptyFull(void) {
    ciaaLibs_CircBufType * cbuf;
    size_t ret;
