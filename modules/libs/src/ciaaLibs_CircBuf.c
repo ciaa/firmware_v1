@@ -50,6 +50,9 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140612 v0.0.6 store size-1 in size to improve performance
+ * 20140612 v0.0.5 rename size parameter to nbyte
+ * 20140612 v0.0.4 implement ciaaLibs_circBufInit
  * 20140612 v0.0.3 improve calculation of new tail and new head
  * 20140612 v0.0.2 implement ciaaLibs_circBufFull and ciaaLibs_circBufEmpty
  * 20140611 v0.0.1 initials initial version
@@ -75,14 +78,14 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern ciaaLibs_CircBufType * ciaaLibs_circBufNew(size_t size)
+extern ciaaLibs_CircBufType * ciaaLibs_circBufNew(size_t nbytes)
 {
    ciaaLibs_CircBufType * ret = NULL;
 
    /* check that size is at least 8 and power of 2 */
-   if ( (size > 7) && (ciaaLibs_isPowerOfTwo(size)) )
+   if ( (nbytes > 7) && (ciaaLibs_isPowerOfTwo(nbytes)) )
    {
-      ret = (ciaaLibs_CircBufType *) ciaaPOSIX_malloc(sizeof(ciaaLibs_CircBufType)+size);
+      ret = (ciaaLibs_CircBufType *) ciaaPOSIX_malloc(sizeof(ciaaLibs_CircBufType)+nbytes);
 
       /* if a valid pointer has been returned */
       if (NULL != ret)
@@ -90,22 +93,30 @@ extern ciaaLibs_CircBufType * ciaaLibs_circBufNew(size_t size)
          /* init the buffer */
          ciaaLibs_circBufInit(ret,
                (void*) ( (intptr_t) ret + sizeof(ciaaLibs_CircBufType) ),
-               size);
+               nbytes);
       }
    }
 
    return ret;
 } /* end ciaaLibs_circBufNew */
 
-extern void ciaaLibs_circBufInit(ciaaLibs_CircBufType * cbuf, void * buf, size_t size)
+extern int32_t ciaaLibs_circBufInit(ciaaLibs_CircBufType * cbuf, void * buf, size_t nbytes)
 {
+   int32_t ret = -1;
+   /* check that size is at least 8 and power of 2 */
+   if ( (nbytes > 7) && (ciaaLibs_isPowerOfTwo(nbytes)) && (NULL != buf) )
+   {
+      /* store the mask of the size and not the size itself */
+      cbuf->size = nbytes-1;
+      /* init the buffer */
+      cbuf->head = 0;
+      cbuf->tail = 0;
+      cbuf->buf = buf;
 
-   /* init the buffer */
-   cbuf->size = size;
-   cbuf->head = 0;
-   cbuf->tail = 0;
-   cbuf->buf = buf;
+      ret = 1;
+   }
 
+   return ret;
 } /* end ciaaLibs_circBufInit */
 
 extern void ciaaLibs_circBufRel(ciaaLibs_CircBufType * cbuf)
@@ -114,7 +125,7 @@ extern void ciaaLibs_circBufRel(ciaaLibs_CircBufType * cbuf)
    ciaaPOSIX_free(cbuf);
 } /* end ciaaLibs_circBufRel */
 
-extern size_t ciaaLibs_circBufPut(ciaaLibs_CircBufType * cbuf, void const * data, size_t size)
+extern size_t ciaaLibs_circBufPut(ciaaLibs_CircBufType * cbuf, void const * data, size_t nbytes)
 {
    size_t ret = 0;
    size_t rawSpace;
@@ -124,32 +135,34 @@ extern size_t ciaaLibs_circBufPut(ciaaLibs_CircBufType * cbuf, void const * data
    size_t head = cbuf->head;
 
    /* check that is enough place */
-   if (ciaaLibs_circBufSpace(cbuf, head) >= size)
+   if (ciaaLibs_circBufSpace(cbuf, head) >= nbytes)
    {
       rawSpace = ciaaLibs_circBufRawSpace(cbuf, head);
 
       /* check if wrapping is needed */
-      if (rawSpace >= size)
+      if (rawSpace >= nbytes)
       {
-         ciaaPOSIX_memcpy(&cbuf->buf[cbuf->tail], data, size);
+         ciaaPOSIX_memcpy(&cbuf->buf[cbuf->tail], data, nbytes);
       }
       else
       {
          ciaaPOSIX_memcpy((void*)(&cbuf->buf[cbuf->tail]), data, rawSpace);
-         ciaaPOSIX_memcpy((void*)(&cbuf->buf[0]), (void*)((intptr_t)data + rawSpace), size-rawSpace);
+         ciaaPOSIX_memcpy((void*)(&cbuf->buf[0]),
+               (void*)((intptr_t)data + rawSpace),
+               nbytes-rawSpace);
       }
 
       /* calculate new tail position */
-      cbuf->tail = (cbuf->tail + size) & (cbuf->size -1);
+      cbuf->tail = (cbuf->tail + nbytes) & (cbuf->size);
 
       /* set return value */
-      ret = size;
+      ret = nbytes;
    }
 
    return ret;
 } /* end ciaaLibs_circBufPut */
 
-extern size_t ciaaLibs_circBufGet(ciaaLibs_CircBufType * cbuf, void * data, size_t size)
+extern size_t ciaaLibs_circBufGet(ciaaLibs_CircBufType * cbuf, void * data, size_t nbytes)
 {
    size_t rawCount;
 
@@ -159,33 +172,32 @@ extern size_t ciaaLibs_circBufGet(ciaaLibs_CircBufType * cbuf, void * data, size
 
    /* if the users tries to read to much data, only available data will be
     * provided */
-   if (size > ciaaLibs_circBufCount(cbuf, tail))
+   if (nbytes > ciaaLibs_circBufCount(cbuf, tail))
    {
-      size = ciaaLibs_circBufCount(cbuf, tail);
+      nbytes = ciaaLibs_circBufCount(cbuf, tail);
    }
 
    /* check if data to be read */
-   if (size > 0)
+   if (nbytes > 0)
    {
       rawCount = ciaaLibs_circBufRawCount(cbuf, tail);
 
       /* check if all data can be read without wrapping */
-      if (size <= rawCount)
+      if (nbytes <= rawCount)
       {
-         ciaaPOSIX_memcpy(data, (void*)&cbuf->buf[cbuf->head], size);
+         ciaaPOSIX_memcpy(data, (void*)&cbuf->buf[cbuf->head], nbytes);
       }
       else
       {
          ciaaPOSIX_memcpy(data, (void*)(&cbuf->buf[cbuf->head]), rawCount);
-         ciaaPOSIX_memcpy((void*)((intptr_t)data + rawCount), (void*)(&cbuf->buf[0]), size-rawCount);
+         ciaaPOSIX_memcpy((void*)((intptr_t)data + rawCount), (void*)(&cbuf->buf[0]), nbytes-rawCount);
       }
 
       /* calculates new head position */
-      cbuf->head = (cbuf->head + size) & (cbuf->size - 1);
-
+      cbuf->head = (cbuf->head + nbytes) & (cbuf->size);
    }
 
-   return size;
+   return nbytes;
 } /* end ciaaLibs_circBufGet */
 
 /** @} doxygen end group definition */

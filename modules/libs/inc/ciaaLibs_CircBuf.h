@@ -52,6 +52,8 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140612 v0.0.5 store size-1 in size to improve performance
+ * 20140612 v0.0.4 rename size parameter to nbyte
  * 20140612 v0.0.3 implement ciaaLibs_circBufInit
  * 20140612 v0.0.2 implement ciaaLibs_circBufFull and ciaaLibs_circBufEmpty
  * 20140611 v0.0.1 initials initial version
@@ -80,7 +82,7 @@ extern "C" {
  ** \returns the count of free bytes on the buffer
  **/
 #define ciaaLibs_circBufSpace(cbuf, head)                      \
-      ( ( (head) - (cbuf)->tail - 1 ) & ( (cbuf)->size - 1 ) )
+      ( ( (head) - (cbuf)->tail - 1 ) & ( (cbuf)->size ) )
 
 /** \brief get free space of the buffer without wrapping
  **
@@ -95,7 +97,7 @@ extern "C" {
  **/
 #define ciaaLibs_circBufRawSpace(cbuf, head)                   \
    ( ( (cbuf)->tail >= (head) ) ?                              \
-     ( (cbuf)->size - 1 - (cbuf)->tail + ( (head) > 0 ) ) :    \
+     ( (cbuf)->size - (cbuf)->tail + ( (head) > 0 ) ) :    \
      ( (head) - (cbuf)->tail - 1 ) )
 
 /** \brief get count of bytes stored in the buffer
@@ -110,7 +112,7 @@ extern "C" {
  ** \returns the count of used bytes on the buffer
  **/
 #define ciaaLibs_circBufCount(cbuf, tail)                \
-   ( ( (tail) - (cbuf)->head ) & ( (cbuf)->size - 1 ) )
+   ( ( (tail) - (cbuf)->head ) & ( (cbuf)->size ) )
 
 /** \brief get count of data which can be get without wrapping
  **
@@ -126,7 +128,7 @@ extern "C" {
 #define ciaaLibs_circBufRawCount(cbuf, tail)          \
    ( ( (cbuf)->head <= (tail) ) ?                     \
      ( (tail) - (cbuf)->head ) :                      \
-     ( (cbuf)->size - (cbuf)->head ) )
+     ( (cbuf)->size + 1 - (cbuf)->head ) )
 
 /** \brief checks if the buffer is empty
  **
@@ -142,7 +144,7 @@ extern "C" {
  ** \returns 1 if the buffer is full, 0 in other case
  **/
 #define ciaaLibs_circBufFull(cbuf)                   \
-   ( ( ( (cbuf)->tail + 1 ) & ( (cbuf)->size - 1 ) ) == (cbuf)->head )
+   ( ( ( (cbuf)->tail + 1 ) & ( (cbuf)->size ) ) == (cbuf)->head )
 /*==================[typedef]================================================*/
 /** \brief circular buffer type
  **
@@ -153,7 +155,7 @@ extern "C" {
 typedef struct {
    size_t head;         /** <= index of the head element of the buffer */
    size_t tail;         /** <= index of the position to write the next byte */
-   size_t size;         /** <= size of the buffer (>=8 and power of 2) */
+   size_t size;         /** <= size-1 of the buffer (>=8-1 and power of 2-1) */
    uint8_t * buf;       /** <= pointer to the buffer */
 } ciaaLibs_CircBufType;
 
@@ -162,15 +164,16 @@ typedef struct {
 /*==================[external functions declaration]=========================*/
 /** \brief creates a new circular buffer
  **
- ** Allocates the needed memory for a buffer of size size and perform the
+ ** Allocates the needed memory for a buffer of nbytes size and perform the
  ** initialization of the buffer.
  **
- ** \param[in] size of the buffer, shall be a power of 2 and at least 8
+ ** \param[in] nbytes   size in bytes of the buffer, shall be a power of 2 and
+ **                     at least 8
  ** \returns a pointer to a circular buffer or NULL if an error occurs
  **
  ** \remarks only size-1 bytes can be used within the circular buffer
  **/
-extern ciaaLibs_CircBufType * ciaaLibs_circBufNew(size_t size);
+extern ciaaLibs_CircBufType * ciaaLibs_circBufNew(size_t nbytes);
 
 /** \brief initialize a circular buffer
  **
@@ -178,9 +181,10 @@ extern ciaaLibs_CircBufType * ciaaLibs_circBufNew(size_t size);
  **
  ** \param[out] cbuf circular buffer to be initializated
  ** \param[in] buf pointer to the buffer
- ** \param[in] size of the buffer, shall be a power of 2 and at least 8
+ ** \param[in] nbytes size of the buffer, shall be a power of 2 and at least 8
+ ** \return 1 if init can be performed -1 in other case
  **/
-extern void ciaaLibs_circBufInit(ciaaLibs_CircBufType * cbuf, void * buf, size_t size);
+extern int32_t ciaaLibs_circBufInit(ciaaLibs_CircBufType * cbuf, void * buf, size_t nbytes);
 
 /** \brief release a circular buffer
  **
@@ -195,19 +199,19 @@ extern void ciaaLibs_circBufRel(ciaaLibs_CircBufType * cbuf);
  **
  ** \param[inout] cbuf pointer to the circular buffer
  ** \param[in]    data data to be stored in the buffer
- ** \param[in]    size of the data
+ ** \param[in]    nbytes size of the data
  ** returns count of stored bytes
  **/
-extern size_t ciaaLibs_circBufPut(ciaaLibs_CircBufType * cbuf, void const * data, size_t size);
+extern size_t ciaaLibs_circBufPut(ciaaLibs_CircBufType * cbuf, void const * data, size_t nybtes);
 
 /** \brief get data from a circular buffer
  **
  ** \param[inout] cbuf pointer to the circular buffer
  ** \param[in]    pointer to store the read data
- ** \param[in]    size of the data to be read
+ ** \param[in]    nbytes size of the data to be read
  ** \returns count of read bytes
  **/
-extern size_t ciaaLibs_circBufGet(ciaaLibs_CircBufType * cbuf, void * data, size_t size);
+extern size_t ciaaLibs_circBufGet(ciaaLibs_CircBufType * cbuf, void * data, size_t nbytes);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
