@@ -188,7 +188,7 @@ void ciaaDriverUart_init(void)
    }
 }
 
-/*==================[external functions definition]==========================*/
+/*==================[interrupt hanlders]=====================================*/
 void UART0_IRQHandler(void)
 {
    /* TODO check and call only rx or tx as corresponding */

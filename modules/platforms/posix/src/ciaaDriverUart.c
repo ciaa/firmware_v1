@@ -32,7 +32,7 @@
 
 /** \brief CIAA Uart Posix Driver
  **
- ** Simulated UART Driver for Posix
+ ** Simulated UART Driver for Posix for testing proposes
  **
  **/
 
@@ -57,9 +57,11 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverUart.h"
+#include "ciaaDriverUart_Internal.h"
 #include "ciaaPOSIX_stdlib.h"
 
 /*==================[macros and definitions]=================================*/
+/** \brief Pointer to Devices */
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
@@ -72,30 +74,30 @@ typedef struct  {
 /*==================[internal data definition]===============================*/
 /** \brief Device for UART 0 */
 static ciaaDevices_deviceType ciaaDriverUart_device0 = {
-   "uart/0",               /** <= driver name */
-   ciaaDriverUart_open,    /** <= open function */
-   ciaaDriverUart_close,   /** <= close function */
-   ciaaDriverUart_read,    /** <= read function */
-   ciaaDriverUart_write,   /** <= write function */
-   ciaaDriverUart_ioctl,   /** <= ioctl function */
-   NULL,                   /** <= seek function is not provided */
-   NULL,                   /** <= uper layer */
-   NULL,                   /** <= layer */
-   NULL                    /** <= NULL no lower layer */
+   "uart/0",                        /** <= driver name */
+   ciaaDriverUart_open,             /** <= open function */
+   ciaaDriverUart_close,            /** <= close function */
+   ciaaDriverUart_read,             /** <= read function */
+   ciaaDriverUart_write,            /** <= write function */
+   ciaaDriverUart_ioctl,            /** <= ioctl function */
+   NULL,                            /** <= seek function is not provided */
+   NULL,                            /** <= upper layer */
+   (void*)&ciaaDriverUart_uart0,    /** <= layer */
+   NULL                             /** <= NULL no lower layer */
 };
 
 /** \brief Device for UART 1 */
 static ciaaDevices_deviceType ciaaDriverUart_device1 = {
-   "uart/1",               /** <= driver name */
-   ciaaDriverUart_open,    /** <= open function */
-   ciaaDriverUart_close,   /** <= close function */
-   ciaaDriverUart_read,    /** <= read function */
-   ciaaDriverUart_write,   /** <= write function */
-   ciaaDriverUart_ioctl,   /** <= ioctl function */
-   NULL,                   /** <= seek function is not provided */
-   NULL,                   /** <= uper layer */
-   NULL,                   /** <= layer */
-   NULL                    /** <= NULL no lower layer */
+   "uart/1",                        /** <= driver name */
+   ciaaDriverUart_open,             /** <= open function */
+   ciaaDriverUart_close,            /** <= close function */
+   ciaaDriverUart_read,             /** <= read function */
+   ciaaDriverUart_write,            /** <= write function */
+   ciaaDriverUart_ioctl,            /** <= ioctl function */
+   NULL,                            /** <= seek function is not provided */
+   NULL,                            /** <= upper layer */
+   (void*)&ciaaDriverUart_uart1,    /** <= layer */
+   NULL                             /** <= NULL no lower layer */
 };
 
 static ciaaDevices_deviceType * const ciaaUartDevices[] = {
@@ -109,14 +111,33 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
 };
 
 /*==================[external data definition]===============================*/
+/** \brief Uart 0 */
+ciaaDriverUart_uartType ciaaDriverUart_uart0;
+
+/** \brief Uart 1 */
+ciaaDriverUart_uartType ciaaDriverUart_uart1;
 
 /*==================[internal functions definition]==========================*/
+static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device)
+{
+   /* receive the data and forward to upper layer */
+   ciaaDriverUart_uartType * uart = device->layer;
+
+   ciaaSerialDevices_rxIndication(device->upLayer, uart->rxBuffer.length);
+}
+
+static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const device)
+{
+   /* receive the data and forward to upper layer */
+   ciaaDriverUart_uartType * uart = device->layer;
+
+   ciaaSerialDevices_txConfirmation(device->upLayer, uart->txBuffer.length);
+}
 
 /*==================[external functions definition]==========================*/
 extern int32_t ciaaDriverUart_open(ciaaDevices_deviceType const * const device, uint8_t const oflag)
 {
-   // TODO
-   return 0;
+   return 1;
 }
 
 extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
@@ -131,10 +152,20 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
    return 0;
 }
 
-extern int32_t ciaaDriverUart_read (ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
+extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
 {
-   // TODO
-   return 0;
+   /* receive the data and forward to upper layer */
+   ciaaDriverUart_uartType * uart = device->layer;
+
+   if (size > uart->rxBuffer.length)
+   {
+      size = uart->rxBuffer.length;
+   }
+
+   /* copy received bytes to upper layer */
+   ciaaPOSIX_memcpy(buffer, &uart->rxBuffer.buffer[0], size);
+
+   return size;
 }
 
 extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
@@ -154,6 +185,26 @@ void ciaaDriverUart_init(void)
 }
 
 
+/*==================[interrupt hanlders]=====================================*/
+extern void ciaaDriverUart_uart0_rxIndication(void)
+{
+   ciaaDriverUart_rxIndication(&ciaaDriverUart_device0);
+}
+
+extern void ciaaDriverUart_uart0_txIndication(void)
+{
+   ciaaDriverUart_txConfirmation(&ciaaDriverUart_device0);
+}
+
+extern void ciaaDriverUart_uart1_txIndication(void)
+{
+   ciaaDriverUart_rxIndication(&ciaaDriverUart_device1);
+}
+
+extern void ciaaDriverUart_uart1_rxIndication(void)
+{
+   ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
