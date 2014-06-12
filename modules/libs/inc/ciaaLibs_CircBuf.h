@@ -52,7 +52,8 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140612 v0.0.6 implement ciaaLibs_circBufWritePos, ciaaLibs_circBufUpdateTail
+ * 20140612 v0.0.6 implement ciaaLibs_circBufWritePos and
+ *                 ciaaLibs_circBufUpdateTail
  * 20140612 v0.0.5 store size-1 in size to improve performance
  * 20140612 v0.0.4 rename size parameter to nbyte
  * 20140612 v0.0.3 implement ciaaLibs_circBufInit
