@@ -52,6 +52,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140612 v0.0.2 implement ciaaLibs_circBufFull and ciaaLibs_circBufEmpty
  * 20140611 v0.0.1 initials initial version
  */
 
@@ -126,6 +127,21 @@ extern "C" {
      ( (tail) - (cbuf)->head ) :                      \
      ( (cbuf)->size - (cbuf)->head ) )
 
+/** \brief checks if the buffer is empty
+ **
+ ** \param[in] cbuf pointer to the circular buffer
+ ** \returns 1 if the buffer is empty, 0 in other case
+ **/
+#define ciaaLibs_circBufEmpty(cbuf)                   \
+   ( (cbuf)->tail == (cbuf)->head )
+
+/** \brief checks if the buffer is full
+ **
+ ** \param[in] cbuf pointer to the circular buffer
+ ** \returns 1 if the buffer is full, 0 in other case
+ **/
+#define ciaaLibs_circBufFull(cbuf)                   \
+   ( ( ( (cbuf)->tail + 1 ) & ( (cbuf)->size - 1 ) ) == (cbuf)->head )
 /*==================[typedef]================================================*/
 /** \brief circular buffer type
  **

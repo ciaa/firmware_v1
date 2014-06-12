@@ -50,6 +50,8 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140612 v0.0.3 improve calculation of new tail and new head
+ * 20140612 v0.0.2 implement ciaaLibs_circBufFull and ciaaLibs_circBufEmpty
  * 20140611 v0.0.1 initials initial version
  */
 
@@ -106,7 +108,6 @@ extern size_t ciaaLibs_circBufPut(ciaaLibs_CircBufType * cbuf, void const * data
 {
    size_t ret = 0;
    size_t rawSpace;
-   size_t newTail;
 
    /* the head of the circular buffer may be changed, therefore it has to be
     * read only once */
@@ -128,16 +129,8 @@ extern size_t ciaaLibs_circBufPut(ciaaLibs_CircBufType * cbuf, void const * data
          ciaaPOSIX_memcpy((void*)(&cbuf->buf[0]), (void*)((intptr_t)data + rawSpace), size-rawSpace);
       }
 
-      /* calculate tail position */
-      newTail = cbuf->tail;
-      newTail += size;
-      if (newTail >= cbuf->size)
-      {
-         newTail -= cbuf->size;
-      }
-
-      /* set tail position */
-      cbuf->tail = newTail;
+      /* calculate new tail position */
+      cbuf->tail = (cbuf->tail + size) & (cbuf->size -1);
 
       /* set return value */
       ret = size;
@@ -149,7 +142,6 @@ extern size_t ciaaLibs_circBufPut(ciaaLibs_CircBufType * cbuf, void const * data
 extern size_t ciaaLibs_circBufGet(ciaaLibs_CircBufType * cbuf, void * data, size_t size)
 {
    size_t rawCount;
-   size_t newHead;
 
    /* the tail of the circular buffer my be changed, therefore it has to be
     * read only once */
@@ -178,16 +170,9 @@ extern size_t ciaaLibs_circBufGet(ciaaLibs_CircBufType * cbuf, void * data, size
          ciaaPOSIX_memcpy((void*)((intptr_t)data + rawCount), (void*)(&cbuf->buf[0]), size-rawCount);
       }
 
-      /* calculates new head */
-      newHead = cbuf->head;
-      newHead += size;
-      if (newHead >= cbuf->size)
-      {
-         newHead -= cbuf->size;
-      }
+      /* calculates new head position */
+      cbuf->head = (cbuf->head + size) & (cbuf->size - 1);
 
-      /* set head position */
-      cbuf->head = newHead;
    }
 
    return size;

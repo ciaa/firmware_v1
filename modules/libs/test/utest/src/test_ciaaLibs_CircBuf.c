@@ -50,6 +50,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140612 v0.0.2 implement ciaaLibs_circBufFull and ciaaLibs_circBufEmpty
  * 20140611 v0.0.1 MaCe implement circular buffer
  */
 
@@ -65,13 +66,30 @@
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
+void ciaaLibs_circBufPrint(ciaaLibs_CircBufType * cbuf);
 
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-
+/** \brief print debuf information of a circular buffer
+ **
+ ** Print into screen: free space, raw free space,
+ ** count of occupied bytes, raw count of occupied bytes
+ ** position of head and tail and the buffer content.
+ **
+ **/
+void ciaaLibs_circBufPrint(ciaaLibs_CircBufType * cbuf)
+{
+   printf("Free: %2d RFree: %2d Count: %2d RCount: %2d\n",
+         ciaaLibs_circBufSpace(cbuf, cbuf->head),
+         ciaaLibs_circBufRawSpace(cbuf, cbuf->head),
+         ciaaLibs_circBufCount(cbuf, cbuf->tail),
+         ciaaLibs_circBufRawCount(cbuf, cbuf->tail));
+   printf("                      0123456789012345678901234567890123456789012345678901234567890123\n");
+   printf("Head: %2d Tail: %2d Val:%s\n\n", cbuf->head, cbuf->tail, cbuf->buf);
+}
 /*==================[external functions definition]==========================*/
 /** \brief set Up function
  **
@@ -122,7 +140,7 @@ void test_ciaaLibs_circBufNewfer(void) {
    TEST_ASSERT_TRUE(cbuf != NULL);
    /* free reserved memory */
    free(cbuf);
-}
+} /* end test_ciaaLibs_circBufNewfer */
 
 
 void test_ciaaLibs_circBufNewferNoMemory(void) {
@@ -138,18 +156,8 @@ void test_ciaaLibs_circBufNewferNoMemory(void) {
    /* try to create a buffer but no mem is available */
    cbuf = ciaaLibs_circBufNew(8);
    TEST_ASSERT_TRUE(cbuf == NULL);
-}
+} /* end test_ciaaLibs_circBufNewferNoMemory */
 
-void ciaaLibs_circBufPrint(ciaaLibs_CircBufType * cbuf)
-{
-   printf("Free: %2d RFree: %2d Count: %2d RCount: %2d\n",
-         ciaaLibs_circBufSpace(cbuf, cbuf->head),
-         ciaaLibs_circBufRawSpace(cbuf, cbuf->head),
-         ciaaLibs_circBufCount(cbuf, cbuf->tail),
-         ciaaLibs_circBufRawCount(cbuf, cbuf->tail));
-   printf("                      0123456789012345678901234567890123456789012345678901234567890123\n");
-   printf("Head: %2d Tail: %2d Val:%s\n\n", cbuf->head, cbuf->tail, cbuf->buf);
-}
 
 void test_ciaaLibs_circBufSpaceACount(void) {
    ciaaLibs_CircBufType * cbuf;
@@ -249,6 +257,63 @@ void test_ciaaLibs_circBufPutGet(void) {
    TEST_ASSERT_EQUAL_INT(50, ret);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(to, &from[20], 5);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(&to[5], &from[10], 45);
+
+   /* release buffer */
+   ciaaLibs_circBufRel(cbuf);
+} /* end test_ciaaLibs_circBufPutGet */
+
+void test_ciaaLibs_circBufEmptyFull(void) {
+   ciaaLibs_CircBufType * cbuf;
+   size_t ret;
+   char * from = "0hallo123-10HALLO12-20hallo12-30HALLO12-40HALLO12-50hallo12-60-4";
+                /*0123456789012345678901234567890123456789012345678901234567890123*/
+   char to[100];
+
+   /* use linux malloc, free and memcpy */
+   ciaaPOSIX_malloc_StubWithCallback(malloc);
+   ciaaPOSIX_memcpy_StubWithCallback(memcpy);
+   ciaaPOSIX_free_StubWithCallback(free);
+
+   /* creates a cicular buffer with 64 bytes */
+   cbuf = ciaaLibs_circBufNew(64);
+   TEST_ASSERT_TRUE(NULL != cbuf);
+
+   /* buffer is empty */
+   TEST_ASSERT_TRUE(ciaaLibs_circBufEmpty(cbuf));
+   TEST_ASSERT_FALSE(ciaaLibs_circBufFull(cbuf));
+
+   ciaaLibs_circBufPut(cbuf, (void*)from, 10);
+
+   /* buffer is not empty neither full */
+   TEST_ASSERT_FALSE(ciaaLibs_circBufEmpty(cbuf));
+   TEST_ASSERT_FALSE(ciaaLibs_circBufFull(cbuf));
+
+   ciaaLibs_circBufPut(cbuf, (void*)from, 53);
+
+   /* buffer is full */
+   TEST_ASSERT_FALSE(ciaaLibs_circBufEmpty(cbuf));
+   TEST_ASSERT_TRUE(ciaaLibs_circBufFull(cbuf));
+
+   ciaaLibs_circBufGet(cbuf, to, 30);
+
+   /* buffer is not empty neither full */
+   TEST_ASSERT_FALSE(ciaaLibs_circBufEmpty(cbuf));
+   TEST_ASSERT_FALSE(ciaaLibs_circBufFull(cbuf));
+
+   ciaaLibs_circBufPut(cbuf, from, 30);
+
+   /* buffer is full */
+   TEST_ASSERT_FALSE(ciaaLibs_circBufEmpty(cbuf));
+   TEST_ASSERT_TRUE(ciaaLibs_circBufFull(cbuf));
+
+   ciaaLibs_circBufGet(cbuf, to, 63);
+
+   /* buffer is empty */
+   TEST_ASSERT_TRUE(ciaaLibs_circBufEmpty(cbuf));
+   TEST_ASSERT_FALSE(ciaaLibs_circBufFull(cbuf));
+
+   /* release buffer */
+   ciaaLibs_circBufRel(cbuf);
 }
 
 /** @} doxygen end group definition */
