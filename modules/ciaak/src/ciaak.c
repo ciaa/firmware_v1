@@ -102,7 +102,20 @@ void ciaak_start(void)
 
 void *ciaak_malloc(size_t size)
 {
-   return ciaaPOSIX_malloc(size);
+   /* try to alloc memory */
+   void* ret = ciaaPOSIX_malloc(size);
+
+   /* kernel memory shall not failed :( */
+   if (NULL == ret)
+   {
+      ciaaPOSIX_printf("Kernel out of memory :( ...\n");
+      while(1)
+      {
+         /* TODO perform an kernel panic or like */
+      }
+   }
+
+   return ret;
 }
 
 /** @} doxygen end group definition */
