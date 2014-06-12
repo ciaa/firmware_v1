@@ -50,6 +50,8 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140612 v0.0.7 implement ciaaLibs_circBufWritePos and
+ *                 ciaaLibs_circBufUpdateTail
  * 20140612 v0.0.6 store size-1 in size to improve performance
  * 20140612 v0.0.5 rename size parameter to nbyte
  * 20140612 v0.0.4 implement ciaaLibs_circBufInit
@@ -142,7 +144,7 @@ extern size_t ciaaLibs_circBufPut(ciaaLibs_CircBufType * cbuf, void const * data
       /* check if wrapping is needed */
       if (rawSpace >= nbytes)
       {
-         ciaaPOSIX_memcpy(&cbuf->buf[cbuf->tail], data, nbytes);
+         ciaaPOSIX_memcpy(ciaaLibs_circBufWritePos(cbuf), data, nbytes);
       }
       else
       {
@@ -153,7 +155,7 @@ extern size_t ciaaLibs_circBufPut(ciaaLibs_CircBufType * cbuf, void const * data
       }
 
       /* calculate new tail position */
-      cbuf->tail = (cbuf->tail + nbytes) & (cbuf->size);
+      ciaaLibs_circBufUpdateTail(cbuf, nbytes);
 
       /* set return value */
       ret = nbytes;

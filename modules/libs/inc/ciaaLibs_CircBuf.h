@@ -52,6 +52,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140612 v0.0.6 implement ciaaLibs_circBufWritePos, ciaaLibs_circBufUpdateTail
  * 20140612 v0.0.5 store size-1 in size to improve performance
  * 20140612 v0.0.4 rename size parameter to nbyte
  * 20140612 v0.0.3 implement ciaaLibs_circBufInit
@@ -97,8 +98,28 @@ extern "C" {
  **/
 #define ciaaLibs_circBufRawSpace(cbuf, head)                   \
    ( ( (cbuf)->tail >= (head) ) ?                              \
-     ( (cbuf)->size - (cbuf)->tail + ( (head) > 0 ) ) :    \
+     ( (cbuf)->size - (cbuf)->tail + ( (head) > 0 ) ) :        \
      ( (head) - (cbuf)->tail - 1 ) )
+
+/** \brief get pointer to the position to write
+ **
+ ** This function is provided for the circular buffer writter.
+ **
+ ** \param[in] cbuf pointer to the circular buffer
+ ** \return pointer to the first byte to be written
+ **/
+#define ciaaLibs_circBufWritePos(cbuf)                         \
+   ((void*)(&(cbuf)->buf[(cbuf)->tail]))
+
+/** \brief calculate new tail
+ **
+ ** This function is provided for the circular buffer writter.
+ **
+ ** \param[inout] cbuf pointer to the circular buffer to be updated
+ ** \param[in] nbytes count of bytes written
+ **/
+#define ciaaLibs_circBufUpdateTail(cbuf, nbytes)                        \
+   ((cbuf)->tail = ( ( (cbuf)->tail + nbytes ) & ( (cbuf)->size ) ) )
 
 /** \brief get count of bytes stored in the buffer
  **
@@ -145,6 +166,7 @@ extern "C" {
  **/
 #define ciaaLibs_circBufFull(cbuf)                   \
    ( ( ( (cbuf)->tail + 1 ) & ( (cbuf)->size ) ) == (cbuf)->head )
+
 /*==================[typedef]================================================*/
 /** \brief circular buffer type
  **
