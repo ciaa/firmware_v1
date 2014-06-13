@@ -212,7 +212,9 @@ extern int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * const buf, uint32
 
 /** \brief Writes to a file descriptor
  **
- ** Writes nbyte to the file descriptor fildes from the buffer buf
+ ** Writes nbyte to the file descriptor fildes from the buffer buf. If used to
+ ** transfer data over a device a successul completion does not guarantee the
+ ** correct delivery of the message.
  **
  ** \param[in] fildes   file descriptor to write to
  ** \param[in] buf      buffer with the data to be written
