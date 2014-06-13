@@ -149,6 +149,8 @@ TASK(TaskA) {
    int32_t ret;
    int32_t loopi;
 
+   /******* TEST BLOCKING RECEPTION *******/
+
    ASSERT_SEQ(0);
 
    /* open an invalid device */
@@ -198,6 +200,63 @@ TASK(TaskA) {
 
    ASSERT_SEQ(9);
 
+   /* indicate reception of 16 bytes */
+   ciaaDriverUart_uart0.rxBuffer.length = 16;
+   for(loopi = 0; loopi <20; loopi++) {
+      ciaaDriverUart_uart0.rxBuffer.buffer[loopi] = loopi + 10;
+   }
+   ciaaDriverUart_uart0_rxIndication();
+
+   ASSERT_SEQ(10);
+
+   /* read 6 bytes knowing that more data is already available */
+   ret = ciaaPOSIX_read(fildes1, buffer, 6);
+   ASSERT(6 == ret);
+
+   /* compare received data */
+   for(loopi = 0; loopi < 6; loopi++)
+   {
+      ASSERT(buffer[loopi] == loopi + 10);
+   }
+   ASSERT_SEQ(11);
+
+   /* read 16 bytes more data */
+   ret = ciaaPOSIX_read(fildes1, buffer, 16);
+   ASSERT(10 == ret);
+
+   /* compare received data */
+   for(loopi = 0; loopi < 10; loopi++)
+   {
+      ASSERT(buffer[loopi] == loopi + 16);
+   }
+
+   ASSERT_SEQ(12);
+
+   /******* TEST BLOCKING TRANSMISSION *******/
+
+   /* set test case 2 for TaskB */
+   testCase = 2;
+   ASSERT_SEQ(13);
+
+   ASSERT_SEQ(14);
+
+   /* write 16 bytes */
+   ret = ciaaPOSIX_write(fildes1, buffer, 16);
+   ASSERT(16 == ret);
+
+   ASSERT_SEQ(15);
+
+   /* indicate taste case to TaskB */
+   testCase = 2;
+   ActivateTask(TaskB);
+
+   /* write 300 bytes (more than fifo size) */
+   /* function shall be blocked */
+   ret = ciaaPOSIX_write(fildes1, buffer, 300);
+   ASSERT(300 == ret);
+
+   ASSERT_SEQ(17);
+
    TerminateTask();
 }
 
@@ -218,6 +277,10 @@ TASK(TaskB)
          ciaaDriverUart_uart0_rxIndication();
 
          ASSERT_SEQ(7);
+         break;
+
+      case 2:
+         ASSERT_SEQ(16);
          break;
 
       default:

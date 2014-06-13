@@ -60,6 +60,7 @@
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_stdlib.h"
+#include "os.h"
 
 /* in windows and posix also include posix interfaces */
 #if ( (ARCH == win) || (ARCH == posix) )
@@ -88,9 +89,6 @@ ciaaPOSIX_stdio_fildesType ciaaPOSIX_stdio_fildes[ciaaPOSIX_stdio_MAXFILDES];
 /** \brief device prefix */
 char const * const ciaaPOSIX_stdio_devPrefix = "/dev";
 
-/** \brief ciaa POSIX stdio sempahore */
-static sem_t ciaaPOSIX_stdio_sem;
-
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
@@ -102,9 +100,6 @@ void ciaaPOSIX_init(void)
    for (loopi = 0; loopi < ciaaPOSIX_stdio_MAXFILDES; loopi++) {
       ciaaPOSIX_stdio_fildes[loopi].device = NULL;
    }
-
-   /* init semaphore */
-   ciaaPOSIX_sem_init(&ciaaPOSIX_stdio_sem);
 }
 
 extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
@@ -128,7 +123,7 @@ extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
          for(loopi = 0; (loopi < ciaaPOSIX_stdio_MAXFILDES) && (-1 == ret); loopi++)
          {
             /* enter critical section */
-            ciaaPOSIX_sem_wait(&ciaaPOSIX_stdio_sem);
+            GetResource(POSIXR);
 
             /* if file descriptor not used, use it */
             if (NULL == ciaaPOSIX_stdio_fildes[loopi].device)
@@ -141,7 +136,7 @@ extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
             }
 
             /* exit critical section */
-            ciaaPOSIX_sem_post(&ciaaPOSIX_stdio_sem);
+            ReleaseResource(POSIXR);
          }
 
          /* if a file descriptor has been found */
@@ -160,13 +155,13 @@ extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
                /* device could not be opened */
 
                /* enter critical section */
-               ciaaPOSIX_sem_wait(&ciaaPOSIX_stdio_sem);
+               GetResource(POSIXR);
 
                /* remove device from file descriptor */
                ciaaPOSIX_stdio_fildes[ret].device = NULL;
 
                /* exit critical section */
-               ciaaPOSIX_sem_post(&ciaaPOSIX_stdio_sem);
+               ReleaseResource(POSIXR);
 
                /* return an error */
                ret = -1;
@@ -190,8 +185,6 @@ int32_t ciaaPOSIX_close(int32_t fildes)
 
    if ( (fildes >= 0) && (fildes < ciaaPOSIX_stdio_MAXFILDES) )
    {
-      ciaaPOSIX_sem_wait(&ciaaPOSIX_stdio_sem);
-
       if (NULL != ciaaPOSIX_stdio_fildes[fildes].device)
       {
          ret = ciaaPOSIX_stdio_fildes[fildes].device->close(ciaaPOSIX_stdio_fildes[fildes].device);
@@ -199,6 +192,11 @@ int32_t ciaaPOSIX_close(int32_t fildes)
          {
             /* free file descriptor, file has been closed */
             ciaaPOSIX_stdio_fildes[fildes].device = NULL;
+         }
+         else
+         {
+            /* allowed return values are -1 and 0, if failed force -1 */
+            ret = -1;
          }
       }
    }

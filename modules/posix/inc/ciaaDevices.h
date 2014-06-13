@@ -141,15 +141,17 @@ extern void ciaaDevices_init(void);
 
 /** \brief add deivce
  **
- ** Adds the device device
+ ** Adds the device device during the initialization.
  **
  ** \param[in] device device to be added
+ **
+ ** \remarks This function can not be called reentrant.
  **/
 extern void ciaaDevices_addDevice(ciaaDevices_deviceType const * device);
 
 /** \brief get a device
  **
- ** Get the device with the indicated path
+ ** Get the device with the indicated path.
  **/
 extern ciaaDevices_deviceType const * ciaaDevices_getDevice(char const * const path);
 

@@ -59,7 +59,6 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
-#include "ciaaPOSIX_semaphore.h"
 #include "ciaaDevices.h"
 
 /*==================[cplusplus]==============================================*/
@@ -140,7 +139,7 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
  ** \param[in]  nbyte   count of bytes to be written
  ** \return     the count of bytes written
  **/
-extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * const buf, uint32_t nbyte);
+extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * device, uint8_t const * const buf, uint32_t nbyte);
 
 /** \brief Transmit confirmation of a serial device
  **

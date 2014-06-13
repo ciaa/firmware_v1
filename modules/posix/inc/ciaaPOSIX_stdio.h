@@ -146,13 +146,17 @@ extern void ciaaPOSIX_init(void);
  **
  ** Opens a file or device path for read/write/readwrite depending on oflag.
  **
- ** \param[in] 	path path of the device to be opened
+ ** \param[in] 	path  path of the device to be opened
  ** \param[in]    oflag may take one of the following values:
- **               O_RDONLY: opens files to read only
- **               O_WRONLY: opens files to write only
- **               O_RDWR: opens file to read and write
- ** \return       a negative value if failed, a positive
- **               value representing the file handler if success.
+ **                     O_RDONLY: opens files to read only
+ **                     O_WRONLY: opens files to write only
+ **                     O_RDWR: opens file to read and write
+ ** \return       -1 if failed, a non negative integer representing the file
+ **               descriptor if success.
+ **
+ ** \remarks Opening twice the same path will provide two different file
+ **          descriptors. Accessing them with ciaaPOISX_close, ciaaPOSIX_ioctl,
+ **          ciaaPOSIX_read and ciaaPOSIX_write may produce unexpected behaviors.
  **/
 extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag);
 
@@ -161,8 +165,13 @@ extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag);
  ** Closes the file descriptor fildes
  **
  ** \param[in]  fildes file descriptor to be closed
- ** \return     a negative value if failed, a positive value
- **             if success.
+ ** \return     -1 if failed, 0 in other if success.
+ **
+ ** \ramarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
+ **          ciaaPOSIX_write may be called reentrant but with different file
+ **          descriptor. If one of this function is called with a specific file
+ **          descriptor the caller has to wait until return before calling other
+ **          of this function using the same file handler.
  **/
 extern int32_t ciaaPOSIX_close (int32_t const fildes);
 
@@ -170,11 +179,16 @@ extern int32_t ciaaPOSIX_close (int32_t const fildes);
  **
  ** Performs special control of a stream device
  **
- ** \param[in]  fildes file descriptor to be controled
+ ** \param[in]  fildes  file descriptor to be controled
  ** \param[in]  request type of the request, depends on the device
- ** \param[in]	 param
- ** \return     a negative value if failed, a positive value
- **             if success.
+ ** \param[in]	 param   parameter for io control
+ ** \return     -1 if failed, != -1 if success
+ **
+ ** \ramarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
+ **          ciaaPOSIX_write may be called reentrant but with different file
+ **          descriptor. If one of this function is called with a specific file
+ **          descriptor the caller has to wait until return before calling other
+ **          of this function using the same file handler.
  **/
 extern int32_t ciaaPOSIX_ioctl (int32_t const fildes, int32_t request, void* param);
 
@@ -185,8 +199,14 @@ extern int32_t ciaaPOSIX_ioctl (int32_t const fildes, int32_t request, void* par
  ** \param[in]  fildes  file descriptor to read from
  ** \param[out] buf     buffer to store the read data
  ** \param[in]  nbyte   count of bytes to be read
- ** \return     the count of read bytes is returned
+ ** \return -1 if failed, a non negative integer representing the count of
+ **         read bytes if success
  **
+ ** \ramarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
+ **          ciaaPOSIX_write may be called reentrant but with different file
+ **          descriptor. If one of this function is called with a specific file
+ **          descriptor the caller has to wait until return before calling other
+ **          of this function using the same file handler.
  **/
 extern int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * const buf, uint32_t nbyte);
 
@@ -194,10 +214,17 @@ extern int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * const buf, uint32
  **
  ** Writes nbyte to the file descriptor fildes from the buffer buf
  **
- ** \param[in]  fildes  file descriptor to write to
- ** \param[in]  buf     buffer with the data to be written
- ** \param[in]  nbyte   count of bytes to be written
- ** \return     the count of bytes written
+ ** \param[in] fildes   file descriptor to write to
+ ** \param[in] buf      buffer with the data to be written
+ ** \param[in] nbyte    count of bytes to be written
+ ** \return -1 if failed, a non negative integer representing the count of
+ **         written bytes if success
+ **
+ ** \ramarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
+ **          ciaaPOSIX_write may be called reentrant but with different file
+ **          descriptor. If one of this function is called with a specific file
+ **          descriptor the caller has to wait until return before calling other
+ **          of this function using the same file handler.
  **/
 extern int32_t ciaaPOSIX_write (int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
 
@@ -208,10 +235,8 @@ extern int32_t ciaaPOSIX_write (int32_t const fildes, uint8_t const * const buf,
  **
  ** \param[in] format
  **
- ** \return Upon successful completion, the functions shall return the number
- **         of bytes transmitted.
- ** \return If an output error was encountered, these functions shall return a
- **         negative value.
+ ** \return a negative value is returned if failed, a non negative integer
+ **         representing the count of transmitted bytes if success.
  **/
 extern int32_t ciaaPOSIX_printf(const char * format, ...);
 

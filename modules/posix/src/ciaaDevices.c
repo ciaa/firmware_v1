@@ -58,7 +58,6 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaDevices.h"
-#include "ciaaPOSIX_semaphore.h"
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_stdbool.h"
 #include "ciaaPOSIX_string.h"
@@ -81,9 +80,6 @@ typedef struct {
 /** \brief List of devices */
 ciaaDevices_devicesType ciaaDevices;
 
-/** \brief ciaa Device sempahore */
-sem_t ciaaDevices_sem;
-
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -93,15 +89,12 @@ extern void ciaaDevices_init(void)
 {
 	/* reset position of the devices */
 	ciaaDevices.position = 0;
-
-	/* init sempahore */
-	ciaaPOSIX_sem_init(&ciaaDevices_sem);
 }
 
 extern void ciaaDevices_addDevice(ciaaDevices_deviceType const * device)
 {
 	/* enter critical section */
-   ciaaPOSIX_sem_wait(&ciaaDevices_sem);
+   /* not needed, only 1 task running */
 
    /* check if positions are empty for more devices */
    if (ciaaDevices.position < ciaaDevices_MAXDEVICES)
@@ -114,7 +107,7 @@ extern void ciaaDevices_addDevice(ciaaDevices_deviceType const * device)
    }
 
 	/* exit critical section */
-	ciaaPOSIX_sem_post(&ciaaDevices_sem);
+   /* not needed, only 1 task running */
 }
 
 extern ciaaDevices_deviceType const * ciaaDevices_getDevice(char const * const path)
