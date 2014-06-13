@@ -187,11 +187,11 @@ extern size_t ciaaLibs_circBufGet(ciaaLibs_CircBufType * cbuf, void * data, size
       /* check if all data can be read without wrapping */
       if (nbytes <= rawCount)
       {
-         ciaaPOSIX_memcpy(data, (void*)&cbuf->buf[cbuf->head], nbytes);
+         ciaaPOSIX_memcpy(data, ciaaLibs_circBufReadPos(cbuf), nbytes);
       }
       else
       {
-         ciaaPOSIX_memcpy(data, (void*)(&cbuf->buf[cbuf->head]), rawCount);
+         ciaaPOSIX_memcpy(data, ciaaLibs_circBufReadPos(cbuf), rawCount);
          ciaaPOSIX_memcpy((void*)((intptr_t)data + rawCount), (void*)(&cbuf->buf[0]), nbytes-rawCount);
       }
 

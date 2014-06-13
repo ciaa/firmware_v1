@@ -50,6 +50,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140613 v0.0.2 MaCe implement min, max, setBit and clearBit
  * 20140611 v0.0.1 MaCe implement power of two
  */
 
@@ -90,10 +91,7 @@ void tearDown(void) {
 void doNothing(void) {
 }
 
-/** \brief test strncmp
- **
- ** test the function ciaaPOSIX_strncmp
- **
+/** \brief test ciaaLibs_isPowerOfTwo
  **/
 void test_ciaaLibs_isPowerOfTwo(void) {
    int32_t val;
@@ -112,6 +110,58 @@ void test_ciaaLibs_isPowerOfTwo(void) {
 
    val = 1;
    TEST_ASSERT_TRUE(ciaaLibs_isPowerOfTwo(val) == 1);
+}
+
+/** \brief test ciaaLibs_min
+ **/
+void test_ciaaLibs_min(void) {
+   TEST_ASSERT_EQUAL_INT(ciaaLibs_min(10, 15), 10);
+   TEST_ASSERT_EQUAL_INT(ciaaLibs_min(-10, 15), -10);
+   TEST_ASSERT_EQUAL_INT(ciaaLibs_min(-10, -15), -15);
+}
+
+/** \brief test ciaaLibs_max
+ **/
+void test_ciaaLibs_max(void) {
+   TEST_ASSERT_EQUAL_INT(ciaaLibs_max(10, 15), 15);
+   TEST_ASSERT_EQUAL_INT(ciaaLibs_max(-10, 15), 15);
+   TEST_ASSERT_EQUAL_INT(ciaaLibs_max(-10, -15), -10);
+}
+
+/** \brief test ciaaLibs_setBit
+ **/
+void  test_ciaaLibs_setBit(void) {
+   int32_t val = 0;
+
+   ciaaLibs_setBit(val, 1);
+   TEST_ASSERT_EQUAL_INT(0x2, val);
+
+   ciaaLibs_setBit(val, 7);
+   TEST_ASSERT_EQUAL_INT(0x82, val);
+
+   ciaaLibs_setBit(val, 2);
+   TEST_ASSERT_EQUAL_INT(0x86, val);
+
+   ciaaLibs_setBit(val, 6);
+   TEST_ASSERT_EQUAL_INT(0xC6, val);
+}
+
+/** \brief test ciaaLibs_clearBit
+ **/
+void  test_ciaaLibs_clearBit(void) {
+   int32_t val = 0xFF;
+
+   ciaaLibs_clearBit(val, 1);
+   TEST_ASSERT_EQUAL_INT(0xFD, val);
+
+   ciaaLibs_clearBit(val, 7);
+   TEST_ASSERT_EQUAL_INT(0x7D, val);
+
+   ciaaLibs_clearBit(val, 2);
+   TEST_ASSERT_EQUAL_INT(0x79, val);
+
+   ciaaLibs_clearBit(val, 6);
+   TEST_ASSERT_EQUAL_INT(0x39, val);
 }
 
 /** @} doxygen end group definition */

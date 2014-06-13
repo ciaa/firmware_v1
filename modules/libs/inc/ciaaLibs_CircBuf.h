@@ -112,6 +112,16 @@ extern "C" {
 #define ciaaLibs_circBufWritePos(cbuf)                         \
    ((void*)(&(cbuf)->buf[(cbuf)->tail]))
 
+/** \brief get pointer to the position to read
+ **
+ ** This function is provided for the circular buffer reader.
+ **
+ ** \param[in] cbuf pointer to the circular buffer
+ ** \return pointer to the first byte to be read
+ **/
+#define ciaaLibs_circBufReadPos(cbuf)                          \
+   ((void*)(&(cbuf)->buf[(cbuf)->head]))
+
 /** \brief calculate new tail
  **
  ** This function is provided for the circular buffer writter.
