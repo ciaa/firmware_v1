@@ -52,6 +52,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140615 v0.0.7 implmenet ciaaLibs_circBufUpdateHead
  * 20140612 v0.0.6 implement ciaaLibs_circBufWritePos and
  *                 ciaaLibs_circBufUpdateTail
  * 20140612 v0.0.5 store size-1 in size to improve performance
@@ -130,7 +131,17 @@ extern "C" {
  ** \param[in] nbytes count of bytes written
  **/
 #define ciaaLibs_circBufUpdateTail(cbuf, nbytes)                        \
-   ((cbuf)->tail = ( ( (cbuf)->tail + nbytes ) & ( (cbuf)->size ) ) )
+   ((cbuf)->tail = ( ( (cbuf)->tail + (nbytes) ) & ( (cbuf)->size ) ) )
+
+/** \brief calculate new head
+ **
+ ** This function is provided for the circular buffer reader.
+ **
+ ** \param[inout] cbuf pointer to the circular buffer to be updated
+ ** \param[in] nbytes count of bytes read
+ **/
+#define ciaaLibs_circBufUpdateHead(cbuf, nbytes)                        \
+      ((cbuf)->head = ( (cbuf)->head + (nbytes) ) & ((cbuf)->size) )
 
 /** \brief get count of bytes stored in the buffer
  **

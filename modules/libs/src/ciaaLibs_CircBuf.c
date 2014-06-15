@@ -50,6 +50,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20140615 v0.0.8 implmenet ciaaLibs_circBufUpdateHead
  * 20140612 v0.0.7 implement ciaaLibs_circBufWritePos and
  *                 ciaaLibs_circBufUpdateTail
  * 20140612 v0.0.6 store size-1 in size to improve performance
@@ -196,7 +197,7 @@ extern size_t ciaaLibs_circBufGet(ciaaLibs_CircBufType * cbuf, void * data, size
       }
 
       /* calculates new head position */
-      cbuf->head = (cbuf->head + nbytes) & (cbuf->size);
+      ciaaLibs_circBufUpdateHead(cbuf, nbytes);
    }
 
    return nbytes;
