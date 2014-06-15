@@ -88,7 +88,11 @@ extern "C" {
  ** will be configured non blocking wiht rx indication.
  **
  **/
-#define ciaaPOSIX_IOCTL_RXINDICATION         1
+#define ciaaPOSIX_IOCTL_RXINDICATION            1
+
+#define ciaaPOSIX_IOCTL_ISTRANSMISSIONONGOING   2
+
+#define ciaaPOSIX_IOCTL_MAXTXCOUNT              3
 
 /*==================[typedef]================================================*/
 /** \brief TODO
@@ -249,5 +253,5 @@ extern int32_t ciaaPOSIX_printf(const char * format, ...);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_H_ */
+#endif /* #ifndef _CIAAPOSIX_STDIO_H_ */
 
