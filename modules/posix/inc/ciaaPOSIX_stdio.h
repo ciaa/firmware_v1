@@ -90,9 +90,13 @@ extern "C" {
  **/
 #define ciaaPOSIX_IOCTL_RXINDICATION            1
 
-#define ciaaPOSIX_IOCTL_ISTRANSMISSIONONGOING   2
-
-#define ciaaPOSIX_IOCTL_MAXTXCOUNT              3
+/** \brief start transmission if not already on going
+ **
+ ** This ioctl command can be used to force the transmission of data. If the
+ ** transmission is already on going the call hay no effects.
+ **
+ **/
+#define ciaaPOSIX_IOCTL_STARTTX                 2
 
 /*==================[typedef]================================================*/
 /** \brief TODO

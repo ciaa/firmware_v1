@@ -271,39 +271,11 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
       /* put bytes in the queue */
       ret += ciaaLibs_circBufPut(cbuf, buf, ciaaLibs_min(nbyte-ret, space));
 
+      /* starts the transmission if not already ongoing */
       ciaaSerialDevices.devstr[position].device->ioctl(
             device->loLayer,
-            ciaaPOSIX_IOCTL_ISTRANSMISSIONONGOING,
-            &transOnGoing);
-
-      /* check if transmission is ongoing */
-      if (!transOnGoing)
-      {
-         /* get count of byte which can be read raw */
-         count = ciaaLibs_circBufRawCount(cbuf, cbuf->tail);
-
-         /* get max tx count that can be transmitted */
-         ciaaSerialDevices.devstr[position].device->ioctl(
-               device->loLayer,
-               ciaaPOSIX_IOCTL_MAXTXCOUNT,
-               &strans);
-
-         /* use minimal count of boths */
-         strans = ciaaLibs_min(strans, count);
-
-         /* get read position */
-         transPosition = ciaaLibs_circBufReadPos(cbuf);
-
-         /* update circular buffer before starting the tranmission */
-         ciaaLibs_circBufUpdateHead(cbuf, strans);
-
-         /* start of transmission is needed */
-         written = ciaaSerialDevices.devstr[position].device->write(
-               device->loLayer, transPosition, strans);
-
-         /* if not all data have been written there is an error */
-         ciaaPOSIX_assert(written == strans);
-      }
+            ciaaPOSIX_IOCTL_STARTTX,
+            NULL);
 
       /* if not all bytes could be stored in the buffer */
       if (ret < nbyte)
