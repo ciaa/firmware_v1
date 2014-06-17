@@ -42,7 +42,7 @@
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Blinking Blinking example header file
+/** \addtogroup Blinking Blinking example source file
  ** @{ */
 
 /*
@@ -58,8 +58,11 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "os.h"
+#include "ciaaPOSIX_stdio.h"
+#include "ciaak.h"
 #include "blinking.h"
- 
+
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
@@ -73,28 +76,80 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-int main(void) {
-
-    // TODO: insert code here
-
-	// CIAA startup
-	ciaaWrapper_Config ();
-	ciaaWrapper_Init ();
-
-	// CIARR UART
-	int32_t uartFd = ciaa_open (ciaaDevices_UART1, ciaaDevices_EMode_ReadOnly);
-
-    // Force the counter to be placed into memory
-    volatile static int i = 0 ;
-
-    // Enter an infinite loop, just incrementing a counter
-    while(1) {
-        i++ ;
-    }
-
-    return 0;
+int main(void)
+{
+   StartOS(AppMode1);
+   return 0;
 }
 
+void ErrorHook(void)
+{
+   ciaaPOSIX_printf("ErrorHook was called\n");
+   ciaaPOSIX_printf("Service: %d, P1: %d, P2: %d, P3: %d, RET: %d\n", OSErrorGetServiceId(), OSErrorGetParam1(), OSErrorGetParam2(), OSErrorGetParam3(), OSErrorGetRet());
+   ShutdownOS(0);
+}
+
+TASK(InitTask) {
+   ciaak_start();
+
+   ciaaPOSIX_printf("InitTask is running\n");
+   ActivateTask(TaskA);
+
+   Schedule();
+
+   ciaaPOSIX_printf("InitTask sets TaskA Event1\n");
+   SetEvent(TaskA, Event1);
+
+   ciaaPOSIX_printf("InitTask is Terminating\n");
+   TerminateTask();
+}
+
+TASK(TaskA) {
+   int32_t fildes;
+
+   ciaaPOSIX_printf("TaskA is running\n");
+
+   fildes = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+
+   (void) fildes;
+
+   ciaaPOSIX_printf("TaskA espera Event1\n");
+   WaitEvent(Event1);
+
+   ciaaPOSIX_printf("TaskA recibio la notficacion del Event1\n");
+   ActivateTask(TaskB);
+
+   ciaaPOSIX_printf("Pedimos recurso\n");
+   GetResource(Res1);
+
+   ciaaPOSIX_printf("Liberamos recurso\n");
+   ReleaseResource(Res1);
+
+   ciaaPOSIX_printf("TaskA is Terminating\n");
+   TerminateTask();
+}
+
+TASK(TaskB) {
+   ciaaPOSIX_printf("TaskB is running\n");
+
+   ActivateTask(TaskC);
+   ActivateTask(TaskC);
+
+   ciaaPOSIX_printf("Activate Relative Alarm to Activate Task C");
+   SetRelAlarm(ActivateTaskC, 350, 100);
+
+   ciaaPOSIX_printf("TaskB is Terminating\n");
+   TerminateTask();
+}
+
+ISR(IsrName) {
+}
+
+TASK(TaskC) {
+   ciaaPOSIX_printf("TaskC is running\n");
+   ciaaPOSIX_printf("TaskC is Terminating\n");
+   TerminateTask();
+}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
