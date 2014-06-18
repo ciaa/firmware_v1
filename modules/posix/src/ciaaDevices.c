@@ -52,8 +52,8 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140420 v0.0.1 EzEs initial version
  * 20140503 v0.0.2 MaCe implement all functions
+ * 20140420 v0.0.1 EzEs initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -68,8 +68,8 @@
 /*==================[typedef]================================================*/
 /** \brief Devices type */
 typedef struct {
-	ciaaDevices_deviceType const * device[ciaaDevices_MAXDEVICES];
-	uint8_t position;
+   ciaaDevices_deviceType const * device[ciaaDevices_MAXDEVICES];
+   uint8_t position;
 } ciaaDevices_devicesType;
 
 /*==================[internal data declaration]==============================*/
@@ -87,13 +87,13 @@ ciaaDevices_devicesType ciaaDevices;
 /*==================[external functions definition]==========================*/
 extern void ciaaDevices_init(void)
 {
-	/* reset position of the devices */
-	ciaaDevices.position = 0;
+   /* reset position of the devices */
+   ciaaDevices.position = 0;
 }
 
 extern void ciaaDevices_addDevice(ciaaDevices_deviceType const * device)
 {
-	/* enter critical section */
+   /* enter critical section */
    /* not needed, only 1 task running */
 
    /* check if positions are empty for more devices */
@@ -106,29 +106,31 @@ extern void ciaaDevices_addDevice(ciaaDevices_deviceType const * device)
       ciaaDevices.position++;
    }
 
-	/* exit critical section */
+   /* exit critical section */
    /* not needed, only 1 task running */
 }
 
 extern ciaaDevices_deviceType const * ciaaDevices_getDevice(char const * const path)
 {
-	bool found = false;
-	ciaaDevices_deviceType const * ret = NULL;
-	uint8_t device;
+   bool found = false;
+   ciaaDevices_deviceType const * ret = NULL;
+   uint8_t device;
 
-	/* search over all devices */
-	for(device = 0; (device < ciaaDevices.position) && !found; device++) {
-		/* if the same path is found */
-		if (ciaaPOSIX_strcmp(path, ciaaDevices.device[device]->path) == 0) {
-			/* return the device */
-			ret = ciaaDevices.device[device];
+   /* search over all devices */
+   for(device = 0; (device < ciaaDevices.position) && !found; device++)
+   {
+      /* if the same path is found */
+      if (ciaaPOSIX_strcmp(path, ciaaDevices.device[device]->path) == 0)
+      {
+         /* return the device */
+         ret = ciaaDevices.device[device];
 
-			/* break the for */
-			found = true;
-		}
-	}
+         /* break the loop */
+         found = true;
+      }
+   }
 
-	return ret;
+   return ret;
 }
 
 /** @} doxygen end group definition */
