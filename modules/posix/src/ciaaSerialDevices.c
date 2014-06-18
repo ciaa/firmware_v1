@@ -64,7 +64,7 @@
 #include "os.h"
 
 /*==================[macros and definitions]=================================*/
-#define ciaaSerialDevices_MAXDEVICES		20
+#define ciaaSerialDevices_MAXDEVICES   20
 
 /*==================[typedef]================================================*/
 typedef struct {
@@ -78,7 +78,7 @@ typedef struct {
 /** \brief Serial Devices Type */
 typedef struct {
    ciaaSerialDevices_deviceType devstr[ciaaSerialDevices_MAXDEVICES];
-	uint8_t position;
+   uint8_t position;
 } ciaaSerialDevices_devicesType;
 
 /*==================[internal data declaration]==============================*/
@@ -107,7 +107,7 @@ char const * const ciaaSerialDevices_prefix = "/dev/serial";
 extern void ciaaSerialDevices_init(void)
 {
    /* reset position of the drivers */
-	ciaaSerialDevices.position = 0;
+   ciaaSerialDevices.position = 0;
 }
 
 extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType * driver)

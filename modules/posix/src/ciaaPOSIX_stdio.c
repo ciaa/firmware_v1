@@ -74,8 +74,7 @@
 /*==================[internal data declaration]==============================*/
 /** \brief Filedescriptor type */
 typedef struct {
-	ciaaDevices_deviceType const * device;
-
+   ciaaDevices_deviceType const * device;
 } ciaaPOSIX_stdio_fildesType;
 
 /*==================[internal functions declaration]=========================*/

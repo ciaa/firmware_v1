@@ -86,7 +86,7 @@ extern void ciaaSerialDevices_init(void);
  ** Opens a serial device with the path for read/write/readwrite depending on
  ** oflag.
  **
- ** \param[in] 	path path of the device to be opened
+ ** \param[in]    path path of the device to be opened
  ** \param[in]    oflag may take one of the following values:
  **               O_RDONLY: opens files to read only
  **               O_WRONLY: opens files to write only
@@ -112,7 +112,7 @@ extern int32_t ciaaSerialDevices_close(ciaaDevices_deviceType const * const devi
  **
  ** \param[in]  device pointer to the device
  ** \param[in]  request type of the request, depends on the device
- ** \param[in]	 param
+ ** \param[in]  param
  ** \return     a negative value if failed, a positive value
  **             if success.
  **/

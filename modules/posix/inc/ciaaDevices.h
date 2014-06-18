@@ -66,7 +66,7 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#define ciaaDevices_MAXDEVICES		20
+#define ciaaDevices_MAXDEVICES      20
 
 /** \brief the file offset shall be set to offset bytes */
 #define SEEK_SET                    1
@@ -101,12 +101,12 @@ typedef int32_t (*ciaaDevices_seek)(ciaaDevices_deviceType const * const device,
 
 /** \brief Device Type */
 typedef struct ciaaDevices_deviceStruct {
-	char const * path; 			/** <- device path, eg. /dev/serlia/UART1 */
-	ciaaDevices_open open; 		/** <- pointer to open function */
-	ciaaDevices_close close;	/** <- pointer to close function */
-	ciaaDevices_read read;		/** <- pointer to read function */
-	ciaaDevices_write write;	/** <- pointer to write function */
-	ciaaDevices_ioctl ioctl;	/** <- pointer to ioctl function */
+   char const * path;         /** <- device path, eg. /dev/serlia/UART1 */
+   ciaaDevices_open open;     /** <- pointer to open function */
+   ciaaDevices_close close;   /** <- pointer to close function */
+   ciaaDevices_read read;     /** <- pointer to read function */
+   ciaaDevices_write write;   /** <- pointer to write function */
+   ciaaDevices_ioctl ioctl;   /** <- pointer to ioctl function */
    ciaaDevices_seek seek;     /** <- pointer to seek function */
    void * upLayer;            /** <- pointer to be used by the upper layer */
    void * layer;              /** <- pointer ot be used by the layer */
@@ -120,14 +120,14 @@ typedef struct ciaaDevices_deviceStruct {
  **/
 typedef enum
 {
-	ciaaDevices_EStatus_Open = 0,    /** < Device is open */
-	ciaaDevices_EStatus_Close = 1,   /** < Device is close */
-	ciaaDevices_EStatus_Error = 2    /** < Device is open with errors */
+   ciaaDevices_EStatus_Open = 0,    /** < Device is open */
+   ciaaDevices_EStatus_Close = 1,   /** < Device is close */
+   ciaaDevices_EStatus_Error = 2    /** < Device is open with errors */
 } ciaaDevices_Enum_Status;
 
 typedef enum
 {
-	ciaaDevices_EMode_ReadOnly = 0
+   ciaaDevices_EMode_ReadOnly = 0
 } ciaaDevices_Enum_Mode;
 
 /*==================[external data declaration]==============================*/

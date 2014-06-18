@@ -104,15 +104,15 @@ extern "C" {
  **/
 typedef struct
 {
-	int32_t fd;
-	char * const name;
-	ciaaDevices_Enum_Status status;
-	int32_t (*pOpen) (const char* pathName, int32_t flags);
-	int32_t (*pClose) (int32_t fd);
-	int32_t (*pIoctl) (int32_t fd, int32_t arg, void* param);
-	int32_t (*pRead) (int32_t fd, uint8_t * const buffer, uint32_t size);
-	int32_t (*pWrite) (int32_t fd, uint8_t const * const buffer, uint32_t size);
-	void* data;
+   int32_t fd;
+   char * const name;
+   ciaaDevices_Enum_Status status;
+   int32_t (*pOpen) (const char* pathName, int32_t flags);
+   int32_t (*pClose) (int32_t fd);
+   int32_t (*pIoctl) (int32_t fd, int32_t arg, void* param);
+   int32_t (*pRead) (int32_t fd, uint8_t * const buffer, uint32_t size);
+   int32_t (*pWrite) (int32_t fd, uint8_t const * const buffer, uint32_t size);
+   void* data;
 } ciaaPOSIX_Type_Base;
 
 /** \brief ciaaPOSIX errors enum
@@ -121,9 +121,9 @@ typedef struct
  **/
 typedef enum
 {
-	ciaaPOSIX_Enum_Errors_DeviceAlreadyOpen = ciaaPOSIX_MINERRORCODE,
-	ciaaPOSIX_Enum_Errors_DeviceNotAllocated = ciaaPOSIX_MINERRORCODE - 1,
-	ciaaPOSIX_Enum_Errors_BadFileDescriptor = ciaaPOSIX_MINERRORCODE - 2
+   ciaaPOSIX_Enum_Errors_DeviceAlreadyOpen = ciaaPOSIX_MINERRORCODE,
+   ciaaPOSIX_Enum_Errors_DeviceNotAllocated = ciaaPOSIX_MINERRORCODE - 1,
+   ciaaPOSIX_Enum_Errors_BadFileDescriptor = ciaaPOSIX_MINERRORCODE - 2
 } ciaaPOSIX_Enum_Errors;
 
 /** \brief ciaaPOSIX return message codes
@@ -132,7 +132,7 @@ typedef enum
  **/
 typedef enum
 {
-	ciaaPOSIX_Enum_Messages_Example = ciaaPOSIX_MACRO_MinMessageCode,
+   ciaaPOSIX_Enum_Messages_Example = ciaaPOSIX_MACRO_MinMessageCode,
 } ciaaPOSIX_Enum_Messages;
 
 /*==================[external data declaration]==============================*/
@@ -154,13 +154,13 @@ extern void ciaaPOSIX_init(void);
  **
  ** Opens a file or device path for read/write/readwrite depending on oflag.
  **
- ** \param[in] 	path  path of the device to be opened
- ** \param[in]    oflag may take one of the following values:
- **                     O_RDONLY: opens files to read only
- **                     O_WRONLY: opens files to write only
- **                     O_RDWR: opens file to read and write
- ** \return       -1 if failed, a non negative integer representing the file
- **               descriptor if success.
+ ** \param[in] path  path of the device to be opened
+ ** \param[in] oflag may take one of the following values:
+ **               O_RDONLY: opens files to read only
+ **               O_WRONLY: opens files to write only
+ **               O_RDWR: opens file to read and write
+ ** \return -1 if failed, a non negative integer representing the file
+ **         descriptor if success.
  **
  ** \remarks Opening twice the same path will provide two different file
  **          descriptors. Accessing them with ciaaPOISX_close, ciaaPOSIX_ioctl,
@@ -172,8 +172,8 @@ extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag);
  **
  ** Closes the file descriptor fildes
  **
- ** \param[in]  fildes file descriptor to be closed
- ** \return     -1 if failed, 0 in other if success.
+ ** \param[in] fildes file descriptor to be closed
+ ** \return    -1 if failed, 0 in other if success.
  **
  ** \ramarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
  **          ciaaPOSIX_write may be called reentrant but with different file
@@ -187,9 +187,9 @@ extern int32_t ciaaPOSIX_close (int32_t const fildes);
  **
  ** Performs special control of a stream device
  **
- ** \param[in]  fildes  file descriptor to be controled
- ** \param[in]  request type of the request, depends on the device
- ** \param[in]	 param   parameter for io control
+ ** \param[in] fildes  file descriptor to be controled
+ ** \param[in] request type of the request, depends on the device
+ ** \param[in] param   parameter for io control
  ** \return     -1 if failed, != -1 if success
  **
  ** \ramarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and

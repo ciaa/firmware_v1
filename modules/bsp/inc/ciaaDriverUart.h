@@ -99,11 +99,11 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
  **
  ** Performs special control of a uart device
  **
- ** \param[in]  device pointer to the device
- ** \param[in]  request type of the request, depends on the device
- ** \param[in]	 param
- ** \return     a negative value if failed, a positive value
- **             if success.
+ ** \param[in] device pointer to the device
+ ** \param[in] request type of the request, depends on the device
+ ** \param[in] param
+ ** \return    a negative value if failed, a positive value
+ **            if success.
  **/
 extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param);
 
