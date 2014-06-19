@@ -281,6 +281,8 @@ TASK(TaskB)
 
       case 2:
          ASSERT_SEQ(16);
+         ciaaDriverUart_uart0.txBuffer.length = 0;
+         ciaaDriverUart_uart0_txConfirmation();
          break;
 
       default:

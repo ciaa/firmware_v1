@@ -59,6 +59,7 @@
 #include "ciaaDriverUart.h"
 #include "ciaaDriverUart_Internal.h"
 #include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_string.h"
 
 /*==================[macros and definitions]=================================*/
 /** \brief Pointer to Devices */
@@ -170,7 +171,24 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
 
 extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
-   return 0;
+   int32_t ret = 0;
+
+   /* write data */
+   ciaaDriverUart_uartType * uart = device->layer;
+
+   if (0 == uart->txBuffer.length)
+   {
+      /* copy data */
+      ciaaPOSIX_memcpy(&uart->txBuffer.buffer, buffer, size);
+
+      /* return lenght and set 0 for the next */
+      ret = size;
+
+      /* set length of the buffer */
+      uart->txBuffer.length = size;
+   }
+
+   return ret;
 }
 
 void ciaaDriverUart_init(void)
@@ -191,21 +209,20 @@ extern void ciaaDriverUart_uart0_rxIndication(void)
    ciaaDriverUart_rxIndication(&ciaaDriverUart_device0);
 }
 
-extern void ciaaDriverUart_uart0_txIndication(void)
+extern void ciaaDriverUart_uart0_txConfirmation(void)
 {
    ciaaDriverUart_txConfirmation(&ciaaDriverUart_device0);
 }
 
-extern void ciaaDriverUart_uart1_txIndication(void)
+extern void ciaaDriverUart_uart1_rxIndication(void)
 {
    ciaaDriverUart_rxIndication(&ciaaDriverUart_device1);
 }
 
-extern void ciaaDriverUart_uart1_rxIndication(void)
+extern void ciaaDriverUart_uart1_txConfirmation(void)
 {
    ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
 }
-
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -58,8 +58,8 @@
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_string.h"
-#include "ciaaLibs_CircBuf.h"
 #include "ciaaPOSIX_assert.h"
+#include "ciaaLibs_CircBuf.h"
 #include "ciaak.h"
 #include "os.h"
 
@@ -227,8 +227,6 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
    }
    else
    {
-      SuspendOSInterrupts();
-
       /* get task id for waking up the task later */
       GetTaskID(&ciaaSerialDevices.devstr[position].taskID);
 
@@ -256,11 +254,6 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
    ciaaLibs_CircBufType * cbuf = &ciaaSerialDevices.devstr[position].txBuf;
    int32_t head;
    uint32_t space;
-   uint32_t written;
-   uint32_t count;
-   uint32_t strans;
-   void* transPosition;
-   int32_t transOnGoing;
 
    do
    {
@@ -301,6 +294,48 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
 extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
    /* process transmission */
+   uint8_t position = (uint8_t) (intptr_t) device->upLayer;
+   uint32_t write = 0;
+   ciaaLibs_CircBufType * cbuf = &ciaaSerialDevices.devstr[position].txBuf;
+   uint32_t tail = cbuf->tail;
+   uint32_t rawCount = ciaaLibs_circBufRawCount(cbuf, tail);
+   uint32_t count = ciaaLibs_circBufCount(cbuf, tail);
+    TaskType taskID = ciaaSerialDevices.devstr[position].taskID;
+
+   /* if some data have to be transmitted */
+   if (count > 0)
+   {
+
+      /* write data to the driver */
+      write = ciaaSerialDevices.devstr[position].device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
+
+      /* update buffer */
+      ciaaLibs_circBufUpdateHead(cbuf, write);
+
+      if ( (write == rawCount) && (count > rawCount ) )
+      {
+         /* re calculate rawCount */
+         rawCount = ciaaLibs_circBufRawCount(cbuf, tail);
+
+         /* write more bytes */
+         write = ciaaSerialDevices.devstr[position].device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
+
+      }
+
+      if (write > 0)
+      {
+         /* update buffer */
+         ciaaLibs_circBufUpdateHead(cbuf, write);
+
+         if (255 != taskID)
+         {
+            /* invalidate task id */
+            ciaaSerialDevices.devstr[position].taskID = 255; /* TODO */
+            /* set task event */
+            SetEvent(taskID, POSIXE);
+         }
+      }
+   }
 }
 
 extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)

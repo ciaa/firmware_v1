@@ -88,11 +88,11 @@ extern ciaaDriverUart_uartType ciaaDriverUart_uart1;
 /*==================[external functions declaration]=========================*/
 extern void ciaaDriverUart_uart0_rxIndication(void);
 
-extern void ciaaDriverUart_uart0_txIndication(void);
-
-extern void ciaaDriverUart_uart1_txIndication(void);
+extern void ciaaDriverUart_uart0_txConfirmation(void);
 
 extern void ciaaDriverUart_uart1_rxIndication(void);
+
+extern void ciaaDriverUart_uart1_txConfirmation(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
