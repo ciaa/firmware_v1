@@ -104,6 +104,7 @@ void ciaaPOSIX_init(void)
 extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
 {
    ciaaDevices_deviceType const * device;
+   ciaaDevices_deviceType * rewriteDevice;
    int32_t ret = -1;
    int8_t loopi;
 
@@ -142,12 +143,13 @@ extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
          if (-1 != ret)
          {
             /* open device */
-            if (ciaaPOSIX_stdio_fildes[ret].device->open(
-                     ciaaPOSIX_stdio_fildes[ret].device,
-                     oflag) > 0)
+            rewriteDevice = ciaaPOSIX_stdio_fildes[ret].device->open(path,
+                  ciaaPOSIX_stdio_fildes[ret].device,
+                  oflag);
+            if (NULL != rewriteDevice)
             {
                /* open device successfull */
-               /* nothing to do */
+               ciaaPOSIX_stdio_fildes[loopi].device = rewriteDevice;
             }
             else
             {

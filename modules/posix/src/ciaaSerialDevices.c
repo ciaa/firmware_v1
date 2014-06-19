@@ -185,9 +185,10 @@ extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType * driver)
    }
 }
 
-extern int32_t ciaaSerialDevices_open(ciaaDevices_deviceType const * const device, uint8_t const oflag)
+extern ciaaDevices_deviceType * ciaaSerialDevices_open(char const * path,
+      ciaaDevices_deviceType const * const device, uint8_t const oflag)
 {
-   return device->open((ciaaDevices_deviceType *)device->loLayer, oflag);
+   return device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag);
 }
 
 extern int32_t ciaaSerialDevices_close(ciaaDevices_deviceType const * const device)

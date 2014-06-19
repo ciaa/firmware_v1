@@ -120,7 +120,8 @@ extern ciaaDevices_deviceType const * ciaaDevices_getDevice(char const * const p
    for(device = 0; (device < ciaaDevices.position) && !found; device++)
    {
       /* if the same path is found */
-      if (ciaaPOSIX_strcmp(path, ciaaDevices.device[device]->path) == 0)
+      if (ciaaPOSIX_strncmp(path, ciaaDevices.device[device]->path,
+               ciaaPOSIX_strlen(ciaaDevices.device[device]->path)) == 0)
       {
          /* return the device */
          ret = ciaaDevices.device[device];

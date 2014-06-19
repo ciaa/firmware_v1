@@ -91,7 +91,8 @@ extern void ciaaDioDevices_init(void);
  **               O_RDWR: opens file to read and write
  ** \return a negative value if failed, a positive value if success.
  **/
-extern int32_t ciaaDioDevices_open(ciaaDevices_deviceType const * const device,
+extern ciaaDevices_deviceType * ciaaDioDevices_open(char const * path,
+      ciaaDevices_deviceType const * const device,
       uint8_t const oflag);
 
 /** \brief Close a DIO device

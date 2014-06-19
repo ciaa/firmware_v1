@@ -80,9 +80,22 @@ extern "C" {
 /*==================[typedef]================================================*/
 typedef struct ciaaDevices_deviceStruct ciaaDevices_deviceType;
 
-/** \brief open function type */
-// typedef int32_t (*ciaaDevices_open)(char const * const path, uint8_t const oflag);
-typedef int32_t (*ciaaDevices_open)(ciaaDevices_deviceType const * const device, uint8_t const oflag);
+/** \brief open a device
+ **
+ ** Open and if needed perform the initialization of the indicated device
+ **
+ ** \param[in] path path of the device to be opened
+ ** \param[in] device device to be opened
+ ** \param[in] oflag may take one of the following values:
+ **               O_RDONLY: opens files to read only
+ **               O_WRONLY: opens files to write only
+ **               O_RDWR: opens file to read and write
+ ** \return NULL if an error occurs, in other case the address of the opened
+ **         device.
+ **/
+typedef ciaaDevices_deviceType * (*ciaaDevices_open)(char const * path,
+      ciaaDevices_deviceType const * const device,
+      uint8_t const oflag);
 
 /** \brief close function type */
 typedef int32_t (*ciaaDevices_close)(ciaaDevices_deviceType const * const device);
@@ -101,16 +114,18 @@ typedef int32_t (*ciaaDevices_seek)(ciaaDevices_deviceType const * const device,
 
 /** \brief Device Type */
 typedef struct ciaaDevices_deviceStruct {
-   char const * path;         /** <- device path, eg. /dev/serlia/UART1 */
-   ciaaDevices_open open;     /** <- pointer to open function */
-   ciaaDevices_close close;   /** <- pointer to close function */
-   ciaaDevices_read read;     /** <- pointer to read function */
-   ciaaDevices_write write;   /** <- pointer to write function */
-   ciaaDevices_ioctl ioctl;   /** <- pointer to ioctl function */
-   ciaaDevices_seek seek;     /** <- pointer to seek function */
-   void * upLayer;            /** <- pointer to be used by the upper layer */
-   void * layer;              /** <- pointer ot be used by the layer */
-   void * loLayer;            /** <- pointer to be used by the lower layer */
+   char const * path;            /** <- device path, eg. /dev/serlia/UART1 */
+   ciaaDevices_open open;        /** <- pointer to open function */
+   ciaaDevices_close close;      /** <- pointer to close function */
+   ciaaDevices_read read;        /** <- pointer to read function */
+   ciaaDevices_write write;      /** <- pointer to write function */
+   ciaaDevices_ioctl ioctl;      /** <- pointer to ioctl function */
+   ciaaDevices_seek seek;        /** <- pointer to seek function */
+   void * upLayer;               /** <- pointer to be provided to the upper
+                                        layer */
+   void * layer;                 /** <- pointer ot be used by the layer */
+   void * loLayer;               /** <- pointer to be provided to the lower
+                                        layer */
 } ciaaDevices_deviceType;
 
 /** \brief Devices Status
