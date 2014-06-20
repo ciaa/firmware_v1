@@ -55,7 +55,7 @@
  * yyyymmdd v0.0.1 initials initial version
  */
 
-/*==================[inclusions]=============================================*/ 
+/*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaDevices.h"
 
@@ -79,7 +79,6 @@
  **/
 void setUp(void) {
     /* perform the initialization of ciaa Devices */
-    ciaaDevices_init();
 }
 
 /** \brief tear Down function
