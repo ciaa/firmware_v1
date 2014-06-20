@@ -136,7 +136,8 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
 }
 
 /*==================[external functions definition]==========================*/
-extern int32_t ciaaDriverUart_open(ciaaDevices_deviceType const * const device, uint8_t const oflag)
+extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
+      ciaaDevices_deviceType const * const device, uint8_t const oflag)
 {
    return 1;
 }
