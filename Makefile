@@ -179,6 +179,10 @@ tst_file := $(word 2,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS))))
 ifneq ($(word 3,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))),)
 tst_file := $(join $(tst_file),_$(word 3,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))))
 endif
+# if tst_file is all the variable shall be reset and all tests shall be executed
+ifeq ($(tst_file),all)
+tst_file :=
+endif
 
 # include corresponding makefile
 include modules$(DS)$(tst_mod)$(DS)mak$(DS)Makefile
@@ -235,11 +239,16 @@ tst_$(tst_mod)_$(tst_file): $(MTEST_SRC_FILES:.c=_Runner.c) tst_link
 	out/bin/test.bin
 
 # rule for tst_<mod>
-tst_$(tst_mod):
+tst_$(tst_mod)_all:
 	@echo ===============================================================================
 	@echo Testing the module $(tst_mod)
 	@echo Testing $(MTEST)
 	$(foreach tst,$(MTEST),make $(tst) $(CS))
+
+tst_$(tst_mod):
+	@echo ===============================================================================
+	@echo For the module $(tst_mod) following units can be tested:
+	@$(MULTILINE_ECHO) " $(foreach unit, $(MTEST),     $(unit)\n)"
 
 
 #tst_$(tst_mod): $(MTEST_SRC_FILES:.c=_Runner.c) tst_link
@@ -344,7 +353,9 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo mocks............: generate the mocks for all header files
 	@echo tst..............: displays possible tests
-	@echo tst_\<mod\>........: runs the tests of the indicated module
+	@echo tst_\<mod\>........: shows all unit test of a specific module
+	@echo tst_\<mod\>_\<unit\>.: runs the specific unit test
+	@echo tst_\<mod\>_all....: runs all unit tests of a specific module
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Debugging                                                     |"
 	@echo "+-----------------------------------------------------------------------------+"
