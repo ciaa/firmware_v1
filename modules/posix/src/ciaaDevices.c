@@ -68,7 +68,7 @@
 /*==================[typedef]================================================*/
 /** \brief Devices type */
 typedef struct {
-   ciaaDevices_deviceType const * device[ciaaDevices_MAXDEVICES];
+   ciaaDevices_deviceType * device[ciaaDevices_MAXDEVICES];
    uint8_t position;
 } ciaaDevices_devicesType;
 
@@ -91,7 +91,7 @@ extern void ciaaDevices_init(void)
    ciaaDevices.position = 0;
 }
 
-extern void ciaaDevices_addDevice(ciaaDevices_deviceType const * device)
+extern void ciaaDevices_addDevice(ciaaDevices_deviceType * device)
 {
    /* enter critical section */
    /* not needed, only 1 task running */
@@ -110,10 +110,10 @@ extern void ciaaDevices_addDevice(ciaaDevices_deviceType const * device)
    /* not needed, only 1 task running */
 }
 
-extern ciaaDevices_deviceType const * ciaaDevices_getDevice(char const * const path)
+extern ciaaDevices_deviceType * ciaaDevices_getDevice(char const * const path)
 {
    bool found = false;
-   ciaaDevices_deviceType const * ret = NULL;
+   ciaaDevices_deviceType * ret = NULL;
    uint8_t device;
 
    /* search over all devices */

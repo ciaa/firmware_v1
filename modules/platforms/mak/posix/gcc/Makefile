@@ -41,6 +41,6 @@ AS = as
 GDB = gdb
 NM = nm
 # COMPILER AND LINKER OPTIONS
-CFLAGS += -c -Wall -ggdb3
-LFLAGS += $(LINKSCRIPT) 
+CFLAGS += -c -Wall -ggdb3 -Werror
+LFLAGS += $(LINKSCRIPT)
 

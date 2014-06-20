@@ -137,21 +137,19 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
 
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
-      ciaaDevices_deviceType const * const device, uint8_t const oflag)
+      ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-   return 1;
+   return device;
 }
 
 extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
-   // TODO
    return 0;
 }
 
 extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
-   // TODO
-   return 0;
+   return -1;
 }
 
 extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)

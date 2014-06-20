@@ -59,7 +59,6 @@
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_assert.h"
-#include "ciaaLibs_CircBuf.h"
 #include "ciaak.h"
 #include "os.h"
 
@@ -177,7 +176,7 @@ extern void ciaaDioDevices_addDriver(ciaaDevices_deviceType * driver)
 }
 
 extern ciaaDevices_deviceType * ciaaDioDevices_open(char const * path,
-      ciaaDevices_deviceType const * const device,
+      ciaaDevices_deviceType * device,
       uint8_t const oflag)
 {
    ciaaPOSIX_assert(

@@ -59,7 +59,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
-#include "ciaaSerialDevices.h"
+#include "ciaaDioDevices.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -85,7 +85,7 @@ extern "C" {
  **         device.
  **/
 extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path,
-      ciaaDevices_deviceType const * const device, uint8_t const oflag);
+      ciaaDevices_deviceType * device, uint8_t const oflag);
 
 /** \brief close the dio device
  **

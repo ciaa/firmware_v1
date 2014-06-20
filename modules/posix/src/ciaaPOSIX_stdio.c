@@ -74,7 +74,7 @@
 /*==================[internal data declaration]==============================*/
 /** \brief Filedescriptor type */
 typedef struct {
-   ciaaDevices_deviceType const * device;
+   ciaaDevices_deviceType * device;
 } ciaaPOSIX_stdio_fildesType;
 
 /*==================[internal functions declaration]=========================*/
@@ -103,7 +103,7 @@ void ciaaPOSIX_init(void)
 
 extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
 {
-   ciaaDevices_deviceType const * device;
+   ciaaDevices_deviceType * device;
    ciaaDevices_deviceType * rewriteDevice;
    int32_t ret = -1;
    int8_t loopi;

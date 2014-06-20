@@ -96,7 +96,7 @@ extern void ciaaSerialDevices_init(void);
  **         device.
  **/
 extern ciaaDevices_deviceType * ciaaSerialDevices_open(char const * path,
-      ciaaDevices_deviceType const * const device, uint8_t const oflag);
+      ciaaDevices_deviceType * device, uint8_t const oflag);
 
 /** \brief Close a serial device
  **

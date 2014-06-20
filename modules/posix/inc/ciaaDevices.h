@@ -94,7 +94,7 @@ typedef struct ciaaDevices_deviceStruct ciaaDevices_deviceType;
  **         device.
  **/
 typedef ciaaDevices_deviceType * (*ciaaDevices_open)(char const * path,
-      ciaaDevices_deviceType const * const device,
+      ciaaDevices_deviceType * device,
       uint8_t const oflag);
 
 /** \brief close function type */
@@ -162,13 +162,13 @@ extern void ciaaDevices_init(void);
  **
  ** \remarks This function can not be called reentrant.
  **/
-extern void ciaaDevices_addDevice(ciaaDevices_deviceType const * device);
+extern void ciaaDevices_addDevice(ciaaDevices_deviceType * device);
 
 /** \brief get a device
  **
  ** Get the device with the indicated path.
  **/
-extern ciaaDevices_deviceType const * ciaaDevices_getDevice(char const * const path);
+extern ciaaDevices_deviceType * ciaaDevices_getDevice(char const * const path);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

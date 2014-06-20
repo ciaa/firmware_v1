@@ -85,7 +85,7 @@ extern "C" {
  **         device.
  **/
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
-      ciaaDevices_deviceType const * const device, uint8_t const oflag);
+      ciaaDevices_deviceType * device, uint8_t const oflag);
 
 /** \brief close the uart device
  **

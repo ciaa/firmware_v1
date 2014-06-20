@@ -122,9 +122,9 @@ ciaaDriverDio_dioType ciaaDriverDio_dio1;
 
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path,
-      ciaaDevices_deviceType const * const device, uint8_t const oflag)
+      ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-   return 1;
+   return device;
 }
 
 extern int32_t ciaaDriverDio_close(ciaaDevices_deviceType const * const device)

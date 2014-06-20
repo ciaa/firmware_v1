@@ -92,7 +92,7 @@ extern void ciaaDioDevices_init(void);
  ** \return a negative value if failed, a positive value if success.
  **/
 extern ciaaDevices_deviceType * ciaaDioDevices_open(char const * path,
-      ciaaDevices_deviceType const * const device,
+      ciaaDevices_deviceType * device,
       uint8_t const oflag);
 
 /** \brief Close a DIO device
