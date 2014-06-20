@@ -1,16 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- *
- *    or
- *
- * Copyright 2014, Your Name <youremail@domain.com>
- *
- *    or
- *
- * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -42,15 +30,17 @@
  *
  */
 
-/** \brief Short description of this file
- **
- ** Long description of this file
+#ifndef _CIAADRIVERDIO_INTERNAL_H_
+#define _CIAADRIVERDIO_INTERNAL_H_
+/** \brief Internal Header file of DIO Driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup DIO DIO Drivers
  ** @{ */
 
 /*
@@ -62,64 +52,39 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140528 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaak.h"
-/* TODO configuration dependent includes */
-#include "ciaaDevices.h"
-#include "ciaaSerialDevices.h"
-#include "ciaaDriverUart.h"
-#include "ciaaDriverDio.h"
+#include "ciaaPOSIX_stdint.h"
 
-#include "ciaaPOSIX_stdlib.h"
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
 
-/*==================[internal data declaration]==============================*/
+/*==================[typedef]================================================*/
+/** \brief Dio Type */
+typedef uint32_t ciaaDriverDio_dioType;
 
-/*==================[internal functions declaration]=========================*/
+/*==================[external data declaration]==============================*/
+/** \brief Dio 0 */
+extern ciaaDriverDio_dioType ciaaDriverDio_dio0;
 
-/*==================[internal data definition]===============================*/
+/** \brief Dio 1 */
+extern ciaaDriverDio_dioType ciaaDriverDio_dio1;
 
-/*==================[external data definition]===============================*/
+/*==================[external functions declaration]=========================*/
 
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-void ciaak_start(void)
-{
-   /* init stdlib */
-   /* ATTENTION: ciaaPOSIX_stdlib_init has to be done before to any call to
-    * ciaaPOSIX_malloc or ciaak_malloc */
-   ciaaPOSIX_stdlib_init();
-
-   ciaaDevices_init();
-   ciaaSerialDevices_init();
-   ciaaDriverUart_init();
-   ciaaDriverDio_init();
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-void *ciaak_malloc(size_t size)
-{
-   /* try to alloc memory */
-   void* ret = ciaaPOSIX_malloc(size);
-
-   /* kernel memory shall not failed :( */
-   if (NULL == ret)
-   {
-      ciaaPOSIX_printf("Kernel out of memory :( ...\n");
-      while(1)
-      {
-         /* TODO perform an kernel panic or like */
-      }
-   }
-
-   return ret;
-}
-
+#endif
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CIAADRIVERDIO_INTERNAL_H_ */
 

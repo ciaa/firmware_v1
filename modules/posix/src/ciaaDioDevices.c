@@ -180,7 +180,11 @@ extern ciaaDevices_deviceType * ciaaDioDevices_open(char const * path,
       ciaaDevices_deviceType const * const device,
       uint8_t const oflag)
 {
-   return device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag);
+   ciaaPOSIX_assert(
+         device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag)
+         == device->loLayer);
+
+   return device;
 }
 
 extern int32_t ciaaDioDevices_close(ciaaDevices_deviceType const * const device)
