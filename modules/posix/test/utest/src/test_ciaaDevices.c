@@ -200,7 +200,8 @@ void testGetAfterAddDevice(void) {
    ciaaDevices_addDevice(&dev_uart0);
 
    /* get uart 1 device */
-   ciaaPOSIX_strcmp_StubWithCallback(strcmp);
+   ciaaPOSIX_strncmp_StubWithCallback(strncmp);
+   ciaaPOSIX_strlen_StubWithCallback(strlen);
    device1 = ciaaDevices_getDevice("/dev/serial/uart/0");
    device2 = ciaaDevices_getDevice("/dev/serial/uart/1");
 
