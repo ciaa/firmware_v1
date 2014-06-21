@@ -146,6 +146,7 @@ TASK(InitTask) {
 
 TASK(TaskA) {
    int32_t fildes1;
+   int32_t fildes2;
    int32_t ret;
    int32_t loopi;
 
@@ -256,6 +257,9 @@ TASK(TaskA) {
    ASSERT(300 == ret);
 
    ASSERT_SEQ(17);
+
+   fildes2 = ciaaPOSIX_open("/dev/dio/0", O_RDWR);
+   ASSERT_MSG(0 <= fildes2, "ciaaPOSIX_open returns an invalid handler");
 
    TerminateTask();
 }

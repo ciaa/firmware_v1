@@ -75,7 +75,7 @@ typedef struct  {
 /*==================[internal data definition]===============================*/
 /** \brief Device for DIO 0 */
 static ciaaDevices_deviceType ciaaDriverDio_device0 = {
-   "dio/0",                        /** <= driver name */
+   "0",                        /** <= driver name */
    ciaaDriverDio_open,             /** <= open function */
    ciaaDriverDio_close,            /** <= close function */
    ciaaDriverDio_read,             /** <= read function */
@@ -89,7 +89,7 @@ static ciaaDevices_deviceType ciaaDriverDio_device0 = {
 
 /** \brief Device for DIO 1 */
 static ciaaDevices_deviceType ciaaDriverDio_device1 = {
-   "dio/1",                        /** <= driver name */
+   "1",                        /** <= driver name */
    ciaaDriverDio_open,             /** <= open function */
    ciaaDriverDio_close,            /** <= close function */
    ciaaDriverDio_read,             /** <= read function */
