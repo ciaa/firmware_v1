@@ -151,7 +151,7 @@ extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType * driver)
       newDevice->write = ciaaSerialDevices_write;
 
       /* store layers information information */
-      newDevice->layer = (void *) (intptr_t) position;
+      newDevice->layer = (void *) &ciaaSerialDevices.devstr[position];
       newDevice->loLayer = (void *) driver;
 
       /* store newDevice layer information in the lower layer */
@@ -218,22 +218,23 @@ extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const devi
 
 extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte)
 {
-   /* get position of the device in the structure */
-   uint8_t position = (uint8_t) (intptr_t) device->layer;
+   /* get serial device */
+   ciaaSerialDevices_deviceType * serialDevice =
+      (ciaaSerialDevices_deviceType*) device->layer;
    int32_t ret = 0;
 
    /* if the rx buffer is not empty */
-   if (!ciaaLibs_circBufEmpty(&ciaaSerialDevices.devstr[position].rxBuf))
+   if (!ciaaLibs_circBufEmpty(&serialDevice->rxBuf))
    {
       /* try to read nbyte from rxBuf and store it to the user buffer */
-      ret = ciaaLibs_circBufGet(&ciaaSerialDevices.devstr[position].rxBuf,
+      ret = ciaaLibs_circBufGet(&serialDevice->rxBuf,
             buf,
             nbyte);
    }
    else
    {
       /* get task id for waking up the task later */
-      GetTaskID(&ciaaSerialDevices.devstr[position].taskID);
+      GetTaskID(&serialDevice->taskID);
 
       /* if no data wait for it */
       WaitEvent(POSIXE);
@@ -243,7 +244,7 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
        * buffer. The event will be set first after adding some data into it */
 
       /* try to read nbyte from rxBuf and store it to the user buffer */
-      ret = ciaaLibs_circBufGet(&ciaaSerialDevices.devstr[position].rxBuf,
+      ret = ciaaLibs_circBufGet(&serialDevice->rxBuf,
             buf,
             nbyte);
    }
@@ -253,10 +254,11 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
 
 extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, uint32_t nbyte)
 {
-   /* get position of the device in the structure */
-   uint8_t position = (uint8_t) (intptr_t) device->layer;
+   /* get serial device */
+   ciaaSerialDevices_deviceType * serialDevice =
+      (ciaaSerialDevices_deviceType*) device->layer;
    int32_t ret = 0;
-   ciaaLibs_CircBufType * cbuf = &ciaaSerialDevices.devstr[position].txBuf;
+   ciaaLibs_CircBufType * cbuf = &serialDevice->txBuf;
    int32_t head;
    uint32_t space;
 
@@ -270,7 +272,7 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
       ret += ciaaLibs_circBufPut(cbuf, buf, ciaaLibs_min(nbyte-ret, space));
 
       /* starts the transmission if not already ongoing */
-      ciaaSerialDevices.devstr[position].device->ioctl(
+      serialDevice->device->ioctl(
             device->loLayer,
             ciaaPOSIX_IOCTL_STARTTX,
             NULL);
@@ -284,7 +286,7 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
          /* set the task to sleep until some data have been send */
 
          /* get task id for waking up the task later */
-         GetTaskID(&ciaaSerialDevices.devstr[position].taskID);
+         GetTaskID(&serialDevice->taskID);
 
          /* wait to write all data or for the txConfirmation */
          WaitEvent(POSIXE);
@@ -298,21 +300,22 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
 
 extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
-   /* process transmission */
-   uint8_t position = (uint8_t) (intptr_t) device->upLayer;
+   /* get serial device */
+   ciaaSerialDevices_deviceType * serialDevice =
+      (ciaaSerialDevices_deviceType*) device->layer;
    uint32_t write = 0;
-   ciaaLibs_CircBufType * cbuf = &ciaaSerialDevices.devstr[position].txBuf;
+   ciaaLibs_CircBufType * cbuf = &serialDevice->txBuf;
    uint32_t tail = cbuf->tail;
    uint32_t rawCount = ciaaLibs_circBufRawCount(cbuf, tail);
    uint32_t count = ciaaLibs_circBufCount(cbuf, tail);
-    TaskType taskID = ciaaSerialDevices.devstr[position].taskID;
+   TaskType taskID = serialDevice->taskID;
 
    /* if some data have to be transmitted */
    if (count > 0)
    {
 
       /* write data to the driver */
-      write = ciaaSerialDevices.devstr[position].device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
+      write = serialDevice->device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
 
       /* update buffer */
       ciaaLibs_circBufUpdateHead(cbuf, write);
@@ -323,7 +326,7 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
          rawCount = ciaaLibs_circBufRawCount(cbuf, tail);
 
          /* write more bytes */
-         write = ciaaSerialDevices.devstr[position].device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
+         write = serialDevice->device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
 
       }
 
@@ -335,7 +338,7 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
          if (255 != taskID)
          {
             /* invalidate task id */
-            ciaaSerialDevices.devstr[position].taskID = 255; /* TODO */
+            serialDevice->taskID = 255; /* TODO */
             /* set task event */
             SetEvent(taskID, POSIXE);
          }
@@ -345,21 +348,22 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
 
 extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
-   /* process reception */
-   uint8_t position = (uint8_t) (intptr_t) device->upLayer;
-   ciaaLibs_CircBufType * cbuf = &ciaaSerialDevices.devstr[position].rxBuf;
+   /* get serial device */
+   ciaaSerialDevices_deviceType * serialDevice =
+      (ciaaSerialDevices_deviceType*) device->layer;
+   ciaaLibs_CircBufType * cbuf = &serialDevice->rxBuf;
    uint32_t head = cbuf->head;
    uint32_t rawSpace = ciaaLibs_circBufRawSpace(cbuf, head);
    uint32_t space = ciaaLibs_circBufSpace(cbuf, head);
    uint32_t read = 0;
-   TaskType taskID = ciaaSerialDevices.devstr[position].taskID;
+   TaskType taskID = serialDevice->taskID;
 
-   read = ciaaSerialDevices.devstr[position].device->read(device->loLayer, ciaaLibs_circBufWritePos(cbuf), rawSpace);
+   read = serialDevice->device->read(device->loLayer, ciaaLibs_circBufWritePos(cbuf), rawSpace);
 
    /* if rawSpace is full but more space is avaialble */
    if ((read == rawSpace) && (space > rawSpace))
    {
-      read += ciaaSerialDevices.devstr[position].device->read(
+      read += serialDevice->device->read(
             device->loLayer,
             &cbuf->buf[0],
             space - rawSpace);
@@ -385,7 +389,7 @@ extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const 
    if ( (0 < read) && (255 != taskID) )
    {
       /* invalidate task id */
-      ciaaSerialDevices.devstr[position].taskID = 255; /* TODO */
+      serialDevice->taskID = 255; /* TODO */
       /* set task event */
       SetEvent(taskID, POSIXE);
    }
