@@ -79,6 +79,12 @@ MODS ?= modules$(DS)posix           \
         modules$(DS)rtos            \
         examples$(DS)blinking_make
 
+#
+# tools
+WIN_TOOL_PATH	 		?=
+LINUX_TOOLS_PATH 		?= $(DS)opt$(DS)ciaa_tools
+kconfig					?= $(LINUX_TOOLS_PATH)$(DS)kconfig$(DS)kconfig-qtconf
+
 ###############################################################################
 # get OS
 #
@@ -344,6 +350,7 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               General Help                                                  |"
 	@echo "+-----------------------------------------------------------------------------+"
+	@echo menuconfig.......: starts the CIAA Firmware configurator
 	@echo info.............: general information about the make environment
 	@echo info_\<mod\>.......: same as info but reporting information of a library
 	@echo info_ext_\<mod\>...: same as info_\<mod\> but for an external library
@@ -360,6 +367,12 @@ help:
 	@echo "|               Debugging                                                     |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo openocd..........: starts openocd for $(ARCH)
+
+###############################################################################
+# menuconfig
+menuconfig:
+	@echo Starting Configurator
+	$(kconfig) modules$(DS)ciaak$(DS)etc$(DS)ciaaconfig.cfg
 
 ###############################################################################
 # info for  aspecific module
