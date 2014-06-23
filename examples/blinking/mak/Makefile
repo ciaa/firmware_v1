@@ -35,7 +35,7 @@
 ###############################################################################
 project 			 	 = blinking
 # blinking path
-blinking_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)blinking_make
+blinking_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)blinking
 # source path
 blinking_SRC_PATH  += $(blinking_PATH)$(DS)src
 # include path

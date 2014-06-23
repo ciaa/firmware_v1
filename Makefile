@@ -59,8 +59,8 @@
 # | cortexM4     | lpc43xx       | lpc4337       | gcc          |
 # +--------------+---------------+---------------+--------------+
 #
-ARCH           ?= win
-CPUTYPE        ?= win32
+ARCH           ?= posix
+CPUTYPE        ?= posix64
 CPU            ?=
 COMPILER       ?= gcc
 
@@ -77,7 +77,8 @@ MODS ?= modules$(DS)posix           \
         modules$(DS)bsp             \
         modules$(DS)platforms       \
         modules$(DS)rtos            \
-        examples$(DS)blinking_make
+		  modules$(DS)libs				\
+        examples$(DS)blinking
 
 #
 # tools
