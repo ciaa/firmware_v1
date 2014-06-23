@@ -237,7 +237,7 @@ extern ssize_t ciaaPOSIX_read(int32_t fildes, void * buf, ssize_t nbyte);
  **          descriptor the caller has to wait until return before calling other
  **          of this function using the same file handler.
  **/
-extern ssize_t ciaaPOSIX_write(int32_t const fildes, void const * buf, size_t nbyte);
+extern ssize_t ciaaPOSIX_write(int32_t fildes, void const * buf, size_t nbyte);
 
 /** \brief print formated output
  **
