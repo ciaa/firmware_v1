@@ -72,6 +72,9 @@ extern "C" {
 /* TODO: #43 https://github.com/ciaa/Firmware/issues/43 */
 typedef long unsigned int size_t;
 
+/** \brief type definition ssize_t */
+typedef long int ssize_t;
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/

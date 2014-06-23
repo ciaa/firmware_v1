@@ -60,6 +60,7 @@
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_assert.h"
 #include "os.h"
 
 /* in windows and posix also include posix interfaces */
@@ -101,7 +102,7 @@ void ciaaPOSIX_init(void)
    }
 }
 
-extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
+extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag)
 {
    ciaaDevices_deviceType * device;
    ciaaDevices_deviceType * rewriteDevice;
@@ -173,7 +174,7 @@ extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag)
    }
    else
    {
-      /* TODO add ASSERT */
+      ciaaPOSIX_assert(0);
       /* TODO implement file handler */
    }
 
@@ -205,7 +206,7 @@ int32_t ciaaPOSIX_close(int32_t fildes)
    return ret;
 }
 
-int32_t ciaaPOSIX_ioctl (int32_t fildes, int32_t request, void* param)
+int32_t ciaaPOSIX_ioctl (int32_t fildes, int32_t request, void * param)
 {
    int32_t ret = -1;
 
@@ -219,7 +220,7 @@ int32_t ciaaPOSIX_ioctl (int32_t fildes, int32_t request, void* param)
          {
             case ciaaPOSIX_IOCTL_RXINDICATION:
                /* store callback */
-/* TODO cont here                ciaaPOSIX_stdio_fildes[fildes].rxIndication = param; */
+               /* TODO continue here */
                break;
 
             default:
@@ -237,7 +238,7 @@ int32_t ciaaPOSIX_ioctl (int32_t fildes, int32_t request, void* param)
    return ret;
 }
 
-int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * buffer, uint32_t nbyte)
+ssize_t ciaaPOSIX_read(int32_t fildes, void * buf, ssize_t nbyte)
 {
    int32_t ret = -1;
 
@@ -250,7 +251,7 @@ int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * buffer, uint32_t nbyte)
          /* call read function */
          ret = ciaaPOSIX_stdio_fildes[fildes].device->read(
                ciaaPOSIX_stdio_fildes[fildes].device,
-               buffer,
+               buf,
                nbyte);
       }
    }
@@ -258,7 +259,7 @@ int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * buffer, uint32_t nbyte)
    return ret;
 }
 
-extern int32_t ciaaPOSIX_write (int32_t const fildes, uint8_t const * const buf, uint32_t nbyte)
+extern ssize_t ciaaPOSIX_write (int32_t fildes, void const * buf, size_t nbyte)
 {
    int32_t ret = -1;
 

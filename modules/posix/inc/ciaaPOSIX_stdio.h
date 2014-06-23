@@ -62,6 +62,7 @@
 #include "ciaaMemory.h"
 #include "ciaaErrorsCodeSystem.h"
 #include "ciaaMessagesCodeSystem.h"
+#include "ciaaPOSIX_stddef.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -166,7 +167,7 @@ extern void ciaaPOSIX_init(void);
  **          descriptors. Accessing them with ciaaPOISX_close, ciaaPOSIX_ioctl,
  **          ciaaPOSIX_read and ciaaPOSIX_write may produce unexpected behaviors.
  **/
-extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag);
+extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag);
 
 /** \brief Close a file descriptor
  **
@@ -181,7 +182,7 @@ extern int32_t ciaaPOSIX_open(char const * const path, uint8_t const oflag);
  **          descriptor the caller has to wait until return before calling other
  **          of this function using the same file handler.
  **/
-extern int32_t ciaaPOSIX_close (int32_t const fildes);
+extern int32_t ciaaPOSIX_close(int32_t fildes);
 
 /** \brief Control a stream device
  **
@@ -198,7 +199,7 @@ extern int32_t ciaaPOSIX_close (int32_t const fildes);
  **          descriptor the caller has to wait until return before calling other
  **          of this function using the same file handler.
  **/
-extern int32_t ciaaPOSIX_ioctl (int32_t const fildes, int32_t request, void* param);
+extern int32_t ciaaPOSIX_ioctl(int32_t fildes, int32_t request, void* param);
 
 /** \brief Reads from a file descriptor
  **
@@ -216,7 +217,7 @@ extern int32_t ciaaPOSIX_ioctl (int32_t const fildes, int32_t request, void* par
  **          descriptor the caller has to wait until return before calling other
  **          of this function using the same file handler.
  **/
-extern int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * const buf, uint32_t nbyte);
+extern ssize_t ciaaPOSIX_read(int32_t fildes, void * buf, ssize_t nbyte);
 
 /** \brief Writes to a file descriptor
  **
@@ -236,7 +237,7 @@ extern int32_t ciaaPOSIX_read (int32_t const fildes, uint8_t * const buf, uint32
  **          descriptor the caller has to wait until return before calling other
  **          of this function using the same file handler.
  **/
-extern int32_t ciaaPOSIX_write (int32_t const fildes, uint8_t const * const buf, uint32_t nbyte);
+extern ssize_t ciaaPOSIX_write(int32_t const fildes, void const * buf, size_t nbyte);
 
 /** \brief print formated output
  **
