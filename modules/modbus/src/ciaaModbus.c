@@ -1,6 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -45,35 +43,56 @@
 
 /*
  * Initials     Name
- * ---------------------------
+ * MaCe         Mariano Cerdeiro
  *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140623 v0.0.1 initials initial
  */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaModbus.h"
+#include "ciaaPOSIX_stdio.h"
 
 /*==================[macros and definitions]=================================*/
+#define MODBUS_BUFFER_SIZE          256
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+/** \brief Device descriptor */
+static int32_t ciaaModbus_device;
+
+/** \brief Modbus slave buffer */
+static int8_t ciaaModbus_slaveBuf[MODBUS_BUFFER_SIZE];
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+extern void ciaaModbus_init(void)
+{
+   ciaaModbus_device = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+}
+
+extern void ciaaModbus_slaveMainFunction(void)
+{
+   int32_t read;
+
+   /* read modbus message */
+   read = ciaaPOSIX_read(ciaaModbus_device, ciaaModbus_slaveBuf,
+         sizeof(ciaaModbus_slaveBuf));
+
+   (void)read;
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
 

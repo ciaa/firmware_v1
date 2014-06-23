@@ -1,6 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -49,16 +47,17 @@
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140623 v0.0.1 initials initial
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -66,10 +65,32 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief No error */
+#define MODBUS_E_OK                       0x00
 
+/** \brief Function not supported error */
+#define MODBUS_E_FUNC_NOT_SUPPORTED       0x01
+
+/** \brief Invalid address error */
+#define MODBUS_E_INV_ADDRESS              0x02
+
+/** \brief Invalid length error */
+#define MODBUS_E_INV_LENGHT               0x03
+
+/** \brief Function internal error */
+#define MODBUS_E_FUNCTION_ERROR           0x04
 /*==================[typedef]================================================*/
+/** \brief Modbus return type */
+typedef uint8_t Modbus_returnType;
 
 /*==================[external data declaration]==============================*/
+/** \brief Modbus initialization
+ **/
+extern void ciaaModbus_init(void);
+
+/** \brief Modbus main function
+ **/
+extern void ciaaModbus_slaveMainFunction(void);
 
 /*==================[external functions declaration]=========================*/
 
