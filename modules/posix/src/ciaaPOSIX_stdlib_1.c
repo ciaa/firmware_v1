@@ -120,7 +120,6 @@ void ciaaPOSIX_stdlib_init(void)
    first_chunk_header->next = NULL;
    first_chunk_header->size = ciaaPOSIX_heap_available_size;
    first_chunk_header->is_available = CIAA_POSIX_STDLIB_AVAILABLE;
-
    /* init sempahore */
    ciaaPOSIX_sem_init(&ciaaPOSIX_stdlib_sem);
 }
