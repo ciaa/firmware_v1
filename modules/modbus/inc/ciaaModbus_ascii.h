@@ -65,34 +65,52 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief No error */
-#define MODBUS_E_OK                       0x00
+/** \brief Modbus ASCII Start Addres ":" */
+#define CIAAMODBUS_ASCII_START      0x38
 
-/** \brief Function not supported error */
-#define MODBUS_E_FUNC_NOT_SUPPORTED       0x01
+/** \brief Modbus ASCII 0 */
+#define CIAAMODBUS_ASCII_0          0x30
 
-/** \brief Invalid address error */
-#define MODBUS_E_INV_ADDRESS              0x02
+/** \brief Modbus ASCII 9 */
+#define CIAAMODBUS_ASCII_9          0x39
 
-/** \brief Invalid length error */
-#define MODBUS_E_INV_LENGHT               0x03
+/** \brief Modbus ASCII A */
+#define CIAAMODBUS_ASCII_A          0x41
 
-/** \brief Function internal error */
-#define MODBUS_E_FUNCTION_ERROR           0x04
+/** \brief Modbus ASCII F */
+#define CIAAMODBUS_ASCII_F          0x46
+
 /*==================[typedef]================================================*/
-/** \brief Modbus return type */
-typedef uint8_t Modbus_returnType;
 
 /*==================[external data declaration]==============================*/
-/** \brief Modbus initialization
- **/
-extern void ciaaModbus_init(void);
-
-/** \brief Modbus slave main function
- **/
-extern void ciaaModbus_slaveMainFunction(void);
 
 /*==================[external functions declaration]=========================*/
+/** \brief Convert Modbus form ascii to bin
+ **
+ ** This functions convert a modbus ascii pdu to binary.
+ **
+ ** \param[inout] buf pointer to the ascii buffer to be converted
+ ** \return -1 if an invalid ascii modbus is found, lenght in bytes of the
+ **         converted modbus pdu if success
+ **/
+extern int32_t ciaaModbus_ascii2bin(uint8_t * buf);
+
+/** \brief Convert Modbus bin to ascii
+ **
+ ** This function convert a modbus bin to ascii.
+ **
+ ** \param[in] length length of the buffer to be converted
+ ** \param[inout] buf pointer to the bin buffer to be converted
+ **/
+extern void ciaaModbus_bin2ascii(uint8_t length, uint8_t * buf);
+
+/** \brief Convert Modbus values to binary
+ **
+ ** \param[in] address of the bytes to be converted
+ ** \return -1 if invalid values have been found or a value between 0 and 255
+ **         representing the binary value if success.
+ **/
+extern int32_t ciaaModbus_ascii_convert2bin(uint8_t * buf);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

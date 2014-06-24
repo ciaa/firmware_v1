@@ -30,12 +30,9 @@
  *
  */
 
-#ifndef _CIAAMODBUS_H_
-#define _CIAAMODBUS_H_
-/** \brief Modbus Header File
+/** \brief This file implements the Modbus main functionality
  **
- ** This files shall be included by moodules using the itnerfaces provided by
- ** the Modbus
+ ** This file implements the main functionality of the Modbus
  **
  **/
 
@@ -46,8 +43,8 @@
 
 /*
  * Initials     Name
- * ---------------------------
  * MaCe         Mariano Cerdeiro
+ *
  */
 
 /*
@@ -57,49 +54,76 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
+#include "ciaaModbus_ascii.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
-/** \brief No error */
-#define MODBUS_E_OK                       0x00
+/*==================[internal data declaration]==============================*/
 
-/** \brief Function not supported error */
-#define MODBUS_E_FUNC_NOT_SUPPORTED       0x01
+/*==================[internal functions declaration]=========================*/
 
-/** \brief Invalid address error */
-#define MODBUS_E_INV_ADDRESS              0x02
+/*==================[internal data definition]===============================*/
 
-/** \brief Invalid length error */
-#define MODBUS_E_INV_LENGHT               0x03
+/*==================[external data definition]===============================*/
 
-/** \brief Function internal error */
-#define MODBUS_E_FUNCTION_ERROR           0x04
-/*==================[typedef]================================================*/
-/** \brief Modbus return type */
-typedef uint8_t Modbus_returnType;
+/*==================[internal functions definition]==========================*/
 
-/*==================[external data declaration]==============================*/
-/** \brief Modbus initialization
- **/
-extern void ciaaModbus_init(void);
+/*==================[external functions definition]==========================*/
+extern int32_t ciaaModbus_ascii_convert2bin(uint8_t * buf)
+{
+   int32_t ret = 0;
+   int32_t loopi;
+   int32_t mult;
+   int32_t count = 2;
 
-/** \brief Modbus slave main function
- **/
-extern void ciaaModbus_slaveMainFunction(void);
+   for(loopi = 0; (loopi < count) && (-1 != ret); loopi++)
+   {
+      /* calculate multiplicator */
+      mult = 1 << (4 * (count - 1 - loopi) );
 
-/*==================[external functions declaration]=========================*/
+      /* calculate bin value if value between 0 .. 9 */
+      if ( ( CIAAMODBUS_ASCII_0 <= *buf ) && ( CIAAMODBUS_ASCII_9 >= *buf ) )
+      {
+         ret += ( *buf - CIAAMODBUS_ASCII_0 ) * mult;
+      }
+      /* calculate bin value if between A .. F */
+      else if ( ( CIAAMODBUS_ASCII_A <= *buf ) && ( CIAAMODBUS_ASCII_F >= *buf ) )
+      {
+         ret += ( *buf - CIAAMODBUS_ASCII_A + 10 ) * mult;
+      }
+      else
+      {
+         /* buf is not in the range 0..9 or A..F */
+         ret = -1;
+      }
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+      /* increment pointer */
+      buf++;
+   }
+
+   return ret;
 }
-#endif
+
+extern int32_t ciaaModbus_ascii2bin(uint8_t * buf)
+{
+   int32_t ret = 0;
+   int32_t length = 0;
+   uint8_t * dest = buf;
+
+   /* check correct start */
+   if (CIAAMODBUS_ASCII_START != buf[0])
+   {
+      /* invalid header */
+      ret = -1;
+   }
+
+   (void)dest;
+   (void)length;
+   return ret;
+
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUS_H_ */
 
