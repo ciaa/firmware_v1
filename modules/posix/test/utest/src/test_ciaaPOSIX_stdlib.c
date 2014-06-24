@@ -56,7 +56,8 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "unity.h"
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stdio.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -77,10 +78,6 @@
  **
  **/
 void setUp(void) {
-   /* ignore calles to sempahore */
-   ciaaPOSIX_sem_init_CMockIgnoreAndReturn(1);
-   ciaaPOSIX_sem_wait_CMockIgnoreAndReturn(1);
-   ciaaPOSIX_sem_post_CMockIgnoreAndReturn(1);
 
    /* perform the initialization of ciaa Devices */
    ciaaPOSIX_stdlib_init();
@@ -108,7 +105,11 @@ void testMalloc(void) {
    /* get 30 bytes */
    ptr = ciaaPOSIX_malloc(30);
 
-   TEST_ASSERT_TRUE(NULL != ptr);
+//   TEST_ASSERT_TRUE(NULL != ptr);
+  if (ptr==NULL) {
+      ciaaPOSIX_printf("Error\n");
+  } else
+     ciaaPOSIX_printf("Exito\n");
 }
 
 /** \brief test POSIX malloc
@@ -118,14 +119,18 @@ void testMalloc(void) {
  **/
 void testGetMoreThanAvailable(void) {
    void * ptr1 = NULL;
-   void * ptr2 = (void *) 0x3030;
+   void * ptr2 = (void *)0x300;
 
    /* get more bytes than available */
    ptr1 = ciaaPOSIX_malloc(20);
    ptr2 = ciaaPOSIX_malloc(1000); /** TODO <- Replace with a macro */
 
-   TEST_ASSERT_TRUE(NULL != ptr1);
-   TEST_ASSERT_TRUE(NULL == ptr2);
+  if (ptr1==NULL || ptr2==NULL) {
+      ciaaPOSIX_printf("Error\n");
+  } else
+     ciaaPOSIX_printf("Exito\n");
+//   TEST_ASSERT_TRUE(NULL != ptr1);
+//   TEST_ASSERT_TRUE(NULL == ptr2);
 }
 
 
