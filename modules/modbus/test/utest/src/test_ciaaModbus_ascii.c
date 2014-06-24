@@ -30,12 +30,7 @@
  *
  */
 
-#ifndef _CIAAMODBUS_H_
-#define _CIAAMODBUS_H_
-/** \brief Modbus Header File
- **
- ** This files shall be included by moodules using the itnerfaces provided by
- ** the Modbus
+/** \brief This file implements the test of the modbus library
  **
  **/
 
@@ -53,53 +48,79 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140623 v0.0.1 initials initial
+ * 20140624 v0.0.1 MaCe implement first tests
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
+#include "unity.h"
+#include "ciaaModbus_ascii.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
-/** \brief No error */
-#define MODBUS_E_OK                       0x00
+/*==================[internal data declaration]==============================*/
 
-/** \brief Function not supported error */
-#define MODBUS_E_FUNC_NOT_SUPPORTED       0x01
+/*==================[internal functions declaration]=========================*/
 
-/** \brief Invalid address error */
-#define MODBUS_E_INV_ADDRESS              0x02
+/*==================[internal data definition]===============================*/
 
-/** \brief Invalid length error */
-#define MODBUS_E_INV_LENGHT               0x03
+/*==================[external data definition]===============================*/
 
-/** \brief Function internal error */
-#define MODBUS_E_FUNCTION_ERROR           0x04
-/*==================[typedef]================================================*/
-/** \brief Modbus return type */
-typedef uint8_t Modbus_returnType;
+/*==================[internal functions definition]==========================*/
 
-/*==================[external data declaration]==============================*/
-/** \brief Modbus initialization
+/*==================[external functions definition]==========================*/
+/** \brief set Up function
+ **
+ ** This function is called before each test case is executed
+ **
  **/
-extern void ciaaModbus_init(void);
-
-/** \brief Modbus slave main function
- **/
-extern void ciaaModbus_slaveMainFunction(void);
-
-/*==================[external functions declaration]=========================*/
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+void setUp(void) {
 }
-#endif
+
+/** \brief tear Down function
+ **
+ ** This function is called after each test case is executed
+ **
+ **/
+void tearDown(void) {
+}
+
+void doNothing(void) {
+}
+
+/** \brief test ciaaModbus_ascii_convert2bin
+ **/
+void test_ciaaModbus_convert2bin(void) {
+   char buf[10];
+   int32_t ret;
+
+   buf[0] = '3';
+   buf[1] = '5';
+
+   ret = ciaaModbus_ascii_convert2bin(buf);
+   TEST_ASSERT_EQUAL_INT(0x35, ret);
+
+   buf[0] = 'a';
+   buf[1] = 'A';
+   ret = ciaaModbus_ascii_convert2bin(buf);
+   TEST_ASSERT_EQUAL_INT(-1, ret);
+
+   buf[0] = 'A';
+   buf[1] = '5';
+   ret = ciaaModbus_ascii_convert2bin(buf);
+   TEST_ASSERT_EQUAL_INT(0xA5, ret);
+
+   buf[0] = '5';
+   buf[1] = 'a';
+   ret = ciaaModbus_ascii_convert2bin(buf);
+   TEST_ASSERT_EQUAL_INT(-1, ret);
+
+   buf[0] = '1';
+   buf[1] = 'F';
+   ret = ciaaModbus_ascii_convert2bin(buf);
+   TEST_ASSERT_EQUAL_INT(0x1F, ret);
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUS_H_ */
 
