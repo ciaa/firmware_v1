@@ -153,32 +153,32 @@ void ciaaPOSIX_free(void *ptr)
 
    /* enter critical section */
    ciaaPOSIX_sem_wait(&ciaaPOSIX_stdlib_sem);
- 
+
    while (chunk_header)
    {
       if (chunk_header == chunk_to_free)
       {
-         chunk_header->is_available = CIAA_POSIX_STDLIB_AVAILABLE;                 
+         chunk_header->is_available = CIAA_POSIX_STDLIB_AVAILABLE;
          break;
       }
       chunk_header = chunk_header->next;
-  }
-  
-  /* small defragmentator */       
-  chunk_header = first_chunk_header;
-  while (chunk_header) {
-         if (chunk_header->is_available) {
-             while (chunk_header->next!=NULL && chunk_header->next->is_available) {
-                   chunk_header->size += chunk_header->next->size + sizeof(ciaaPOSIX_chunk_header);
-                   chunk_header->next = chunk_header->next->next;
-             }
+   }
+
+   /* small defragmentator */
+   chunk_header = first_chunk_header;
+   while (chunk_header) {
+      if (chunk_header->is_available) {
+         while (chunk_header->next!=NULL && chunk_header->next->is_available) {
+            chunk_header->size += chunk_header->next->size + sizeof(ciaaPOSIX_chunk_header);
+            chunk_header->next = chunk_header->next->next;
          }
-         chunk_header = chunk_header->next;
-  }
-  
+      }
+      chunk_header = chunk_header->next;
+   }
+
    /* exit critical section */
    ciaaPOSIX_sem_post(&ciaaPOSIX_stdlib_sem);
- }
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
