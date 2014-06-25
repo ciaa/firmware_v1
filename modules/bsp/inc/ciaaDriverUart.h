@@ -90,9 +90,8 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
 /** \brief close the uart device
  **
  **
- ** \param[in]    device pointer to device
- ** \return       a negative value if failed, a positive value
- **               if success.
+ ** \param[in] device pointer to device
+ ** \return    -1 if failed, 0 if success.
  **/
 extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device);
 

@@ -141,7 +141,7 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
 }
 
 /*==================[external functions definition]==========================*/
-extern int32_t ciaaDriverUart_open(ciaaDevices_deviceType const * const device, uint8_t const oflag)
+extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
    UART_CFG_Type uartCfg;
 
@@ -151,23 +151,23 @@ extern int32_t ciaaDriverUart_open(ciaaDevices_deviceType const * const device, 
    /* init driver */
    UART_Init(device->loLayer, &uartCfg);
 
-   return 1;
+   return device;
 }
 
 extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
    UART_DeInit(device->loLayer);
 
-   return 1;
+   return 0;
 }
 
 extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
-   // TODO
+   /* TODO */
    return -1;
 }
 
-extern int32_t ciaaDriverUart_read (ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
+extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
 {
    return -1;
 }
