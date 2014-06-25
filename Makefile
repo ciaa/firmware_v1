@@ -78,8 +78,7 @@ MODS ?= modules$(DS)posix           \
         modules$(DS)platforms       \
         modules$(DS)rtos            \
         modules$(DS)libs            \
-        examples$(DS)blinking       \
-        modules$(DS)posix$(DS)test$(DS)utest
+        examples$(DS)blinking
 
 #
 # tools

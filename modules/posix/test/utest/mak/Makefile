@@ -33,14 +33,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-project 			 	 = test_stdlib
-# blinking path
-test_stdlib_PATH   	 = $(ROOT_DIR)$(DS)modules$(DS)posix$(DS)test$(DS)utest
-# source path
-test_stdlib_SRC_PATH  += $(test_stdlib_PATH)$(DS)src
-# include path
-INCLUDE			   += $(test_stdlib_PATH)$(DS)inc
-# library source files
-SRC_FILES 	  	   += $(wildcard $(test_stdlib_SRC_PATH)$(DS)*.c)
-# configuration for OSEK-OS
-OIL_FILES		   += $(test_stdlib_PATH)$(DS)etc$(DS)test.oil
+# unit test
+# unit tests include files
+posix_TST_INC_PATH = $(posix_PATH)$(DS)test$(DS)utest$(DS)inc
+# unit tests dependencies
+posix_TST_MOD	    = config bsp ciaak
