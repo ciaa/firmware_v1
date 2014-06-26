@@ -30,9 +30,9 @@
  *
  */
 
-#ifndef _CIAAMODBUS_H_
-#define _CIAAMODBUS_H_
-/** \brief Modbus Header File
+#ifndef _CIAAMODBUS_ASCII_H_
+#define _CIAAMODBUS_ASCII_H_
+/** \brief Modbus ASCII Header File
  **
  ** This files shall be included by moodules using the itnerfaces provided by
  ** the Modbus
@@ -80,11 +80,29 @@ extern "C" {
 /** \brief Modbus ASCII F */
 #define CIAAMODBUS_ASCII_F          0x46
 
+/** \brief Max lenght of a ascii modbus message */
+#define CIAAMODBUS_ASCII_MAXLENGHT  255
+
+/** \brief */
+#define CIAAMODBUS_ASCII_END_1      0x0C
+
+/** \brief */
+#define CIAAMODBUS_ASCII_END_2      0x0A
+
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief Receive a ASCII Modbus Message
+ **
+ ** \param[in] fildes file descriptor to read the data from
+ ** \param[out] buf buffer to store the data, shall be at least
+ **             CIAAMODBUS_ASCII_MAXLENGTH bytes long
+ ** \return the lenght of the modbus ascii message
+ **/
+extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf);
+
 /** \brief Convert Modbus form ascii to bin
  **
  ** This functions convert a modbus ascii pdu to binary.
@@ -119,5 +137,5 @@ extern int32_t ciaaModbus_ascii_convert2bin(uint8_t * buf);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUS_H_ */
+#endif /* #ifndef _CIAAMODBUS_ASCII_H_ */
 
