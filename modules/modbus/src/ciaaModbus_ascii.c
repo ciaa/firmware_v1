@@ -56,9 +56,14 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaModbus_ascii.h"
 #include "ciaaPOSIX_stdio.h"
+#include "ciaaPOSIX_string.h"
 
 /*==================[macros and definitions]=================================*/
-
+typedef struct {
+   uint8_t buf[CIAAMODBUS_ASCII_MAXLENGHT-
+      CIAAMODBUS_ASCII_MINLENGHT];
+   uint8_t lenght;
+} ciaaModbus_ascii_bufType;
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -72,23 +77,33 @@
 /*==================[external functions definition]==========================*/
 extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf)
 {
-   int32_t ret;
    int32_t begin;
    int32_t end;
    int32_t read;
    int32_t loopi;
    int32_t base;
+   static ciaaModbus_ascii_bufType oldData = { { 0 }, 0 };
 
-   do
-   {
+   do {
 
       /* read until the beginning of a ascii modbus is found */
-      do
-      {
+      do {
          /* set begin to an invalid value */
          begin = -1;
 
-         read = ciaaPOSIX_read(fildes, buf, CIAAMODBUS_ASCII_MAXLENGHT);
+         /* if old data available start reading this data */
+         if (0 != oldData.lenght)
+         {
+            /* copy read data */
+            ciaaPOSIX_memcpy(buf, oldData.buf, oldData.lenght);
+            read = oldData.lenght;
+            oldData.lenght = 0;
+         }
+         else
+         {
+            /* no data, also read from device */
+            read = ciaaPOSIX_read(fildes, buf, CIAAMODBUS_ASCII_MAXLENGHT);
+         }
 
          /* search for the begin of a modbus message */
          for(loopi = 0; (loopi < read) && (-1 == begin); loopi++)
@@ -99,8 +114,7 @@ extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf)
                begin = loopi;
             }
          }
-      }
-      while (-1 == begin);
+      } while (-1 == begin);
 
       /* move the received part to the beginning of the buffer */
       for (loopi = begin; loopi < read; loopi ++)
@@ -115,8 +129,7 @@ extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf)
       /* set base to the begin */
       base = begin;
 
-      do
-      {
+      do {
          /* set end to an invalid value */
          end = -1;
 
@@ -134,22 +147,40 @@ extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf)
          /* update base */
          base = read;
 
-         /* if not ascii end found and still place on the buffer */
-         if ( (-1 == end) && (0 < CIAAMODBUS_ASCII_MAXLENGHT - base -1) )
+         /* if not ascii end found */
+         if (-1 == end)
          {
-            read = ciaaPOSIX_read(fildes, &buf[base+1], CIAAMODBUS_ASCII_MAXLENGHT - base -1);
+            /* and still place on the buffer */
+            if (0 < CIAAMODBUS_ASCII_MAXLENGHT - base -1)
+            {
+               read = ciaaPOSIX_read(fildes, &buf[base+1], CIAAMODBUS_ASCII_MAXLENGHT - base -1);
+            }
+            else
+            {
+               /* the buffer is full, an ASCII message can not be so big,
+                * an invalid message has been received, the complete data
+                * will be ignored */
+               end = 0xFFFF;
+            }
          }
          else
          {
-            /* the buffer is full, an ASCII message can not be so big,
-             * an invalid message has been received, the complete data
-             * will be ignored */
-            end = 0xFFFF;
+            /* end found */
+            if (read > end)
+            {
+               /* copy left bytes to old data for the next call */
+               oldData.lenght = read-end;
+               /* copy data to old data buffer for the next calle */
+               ciaaPOSIX_memcpy(oldData.buf, &buf[end+1], read-end);
+            }
          }
       } while (-1 == end);
 
    /* repeat until a valid modbus message has been found */
    } while (CIAAMODBUS_ASCII_MAXLENGHT >= end);
+
+   /* return the lenght of the buffer */
+   return end;
 } /* end ciaaModbus_ascii_receive */
 
 extern int32_t ciaaModbus_ascii_convert2bin(uint8_t * buf)

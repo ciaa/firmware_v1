@@ -80,8 +80,11 @@ extern "C" {
 /** \brief Modbus ASCII F */
 #define CIAAMODBUS_ASCII_F          0x46
 
-/** \brief Max lenght of a ascii modbus message */
+/** \brief Maximal lenght of a ascii modbus message */
 #define CIAAMODBUS_ASCII_MAXLENGHT  255
+
+/** \brief Minimal lenght of a ascii modbus message */
+#define CIAAMODBUS_ASCII_MINLENGHT  4
 
 /** \brief */
 #define CIAAMODBUS_ASCII_END_1      0x0C
