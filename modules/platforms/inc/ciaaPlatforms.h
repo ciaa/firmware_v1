@@ -65,13 +65,75 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/* ARCH macro definitions */
+/** \brief check for ARCH/CPUTYPE and CPU */
+#ifndef ARCH
+#error ARCH is not defined, this define shall be included in the compile \
+   command
+#endif
+
+#ifndef CPUTYPE
+#error CPUTYPE is not defined, this define shall be included in the compile \
+   command
+#endif
+
+#ifndef CPU
+#error CPU is not defined, this define shall be included in the compile \
+   command
+#endif
+
+/****** ARCH macro definitions ******/
 /** \brief ARCH posix */
 #define posix                 0
 /** \brief ARCH win */
 #define win                   1
 /** \brief ARCH cortexM4 */
 #define cortexM4              2
+
+/****** CPUTYPE macro definitions ******/
+/*** CPUTYPES for ARCH=posix ***/
+/** \brief CPUTTYPE posix32 */
+#define posix32               0
+
+/** \brief CPUTTYPE posix64 */
+#define posix64               1
+
+/*** CPUTYPES for ARCH=win ***/
+
+/*** CPUTYPES for ARCH=cortexM4 ***/
+#define lpc43xx               0
+
+
+/****** CPU macro definitions ******/
+/*** CPU for ARCH=posix CPUTYPE=posix32 ***/
+
+/*** CPU for ARCH=posix CPUTYPE=posix64 ***/
+
+/*** CPU for ARCH=win CPUTYPE= ***/
+
+/*** CPU for ARCH=cortexM4 CPUTYPE=lpc43xx ***/
+#define lpc4337               0
+
+
+/****** CIAAPLATFORM_REGLENGTH ******/
+/** \brief definition of the lenght of the register */
+#if (ARCH == posix)
+#if (CPUTYPE == posix32)
+#define CIAAPLATFORM_REGLENGTH      32
+#elif (CPUTYPE == posix64)
+#define CIAAPLATFORM_REGLENGTH      64
+#endif
+
+/****** CIAAPLATFORM_ENDIANESS ******/
+#define CIAAPLATFORM_BIGENDIAN      0
+#define CIAAPLATFORM_LITTLEENDIAN   1
+#if (ARCH == posix)
+#define CIAAPLATFORM_ENDIANESS CIAAPLATFORM_LITTLEENDIAN
+#endif
+
+#if ( (ARCH == cortexM4) && (CPUTPYE == lpc43xx) )
+
+#endif
+
 
 /*==================[typedef]================================================*/
 
