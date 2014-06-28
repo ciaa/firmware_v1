@@ -135,11 +135,17 @@ extern "C" {
 
 #endif
 
-#if ( ( ARCH == posix ) && \
-    ( ( CPUTYPE == posix32 ) || \
-      ( CPUTYPE == posix64 ) ) )
-#else
-#error invalid configuration of ARCH/CPUTYPE
+/* TODO validate the selected architecture */
+#if 0
+#if   ( ( ARCH == posix ) && \
+      ( ( CPUTYPE == posix32 ) || \
+        ( CPUTYPE == posix64 ) ) )
+#elif ( ( ARCH == win ) )
+#elif ( ( ARCH == cortexM4 ) && \
+        ( CPUTYPE == lpc43xx ) && \
+        ( CPU == lpc4337 ) )
+#error the entered architecture is not supported... :(
+#endif
 #endif
 
 
