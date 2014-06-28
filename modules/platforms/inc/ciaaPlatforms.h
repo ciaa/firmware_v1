@@ -122,6 +122,7 @@ extern "C" {
 #elif (CPUTYPE == posix64)
 #define CIAAPLATFORM_REGLENGTH      64
 #endif
+#endif
 
 /****** CIAAPLATFORM_ENDIANESS ******/
 #define CIAAPLATFORM_BIGENDIAN      0
