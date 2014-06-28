@@ -100,7 +100,6 @@ MULTILINE_ECHO = echo -e
 define cyg2win
 `cygpath -w $(1)`
 endef
-#define convert path for compiler (cp4c)
 define cp4c
 $(call cyg2win,$(1))
 endef
@@ -111,10 +110,6 @@ CS					= ;
 # Comand for multiline echo
 MULTILINE_ECHO = echo -n
 define cyg2win
-$(1)
-endef
-#define convert path for compiler (cp4c)
-define cp4c
 $(1)
 endef
 	UNAME_S := $(shell uname -s)
@@ -144,6 +139,7 @@ include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 
 # add include files
 INCLUDE += $(foreach LIB, $(LIBS), $($(LIB)_INC_PATH))
+#CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
 CFLAGS  += $(foreach inc, $(INCLUDE), -I$(call cp4c,$(inc)))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU)
 
@@ -157,14 +153,15 @@ define librule
 $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ===============================================================================
 	@echo Creating library $(1)
-	$(AR) -rcs -o $(LIB_DIR)$(DS)$(strip $(1)).a $(2)
+	$(AR) -rcs -o $(call cp4c,$(LIB_DIR)$(DS)$(strip $(1)).a) $(foreach obj,$(2),$(call cp4c,$(obj)))
 endef
+
 
 OBJ_FILES = $(SRC_FILES:.c=.o)
 
 # create rule for library
 # lib.a : lib_OBJ_FILES.o
-$(foreach LIB, $(LIBS), $(eval $(call librule, $(LIB), $(foreach obj,$($(LIB)_OBJ_FILES),$(call cp4c,$(obj))))))
+$(foreach LIB, $(LIBS), $(eval $(call librule, $(LIB), $($(LIB)_OBJ_FILES))) )
 
 $(foreach LIB, $(LIBS), $(eval $(LIB) : $(LIB_DIR)$(DS)$(LIB).a ) )
 
@@ -296,18 +293,18 @@ test_%_Runner.c : test_%.c
 	ruby externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)auto$(DS)generate_test_runner.rb $< modules$(DS)tools$(DS)ceedling$(DS)project.yml
 
 ###################### ENDS UNIT TEST PART OF MAKE FILE #######################
-
 # Rule to compile
 %.o : %.c
 	@echo ===============================================================================
 	@echo Compiling $(call cp4c,$<)
 	$(CC) -c $(CFLAGS) $(call cp4c,$<) -o $(call cp4c,$@)
-
+	
 # link rule
 $(project) : $(LIBS) $(OBJ_FILES)
 	@echo ===============================================================================
 	@echo Linking $(project)
-	$(CC) $(OBJ_FILES) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(BIN_DIR)$(DS)$(project).bin $(LFLAGS)
+	$(CC) $(foreach obj,$(OBJ_FILES),$(call cp4c,$(obj))) -Xlinker --start-group $(foreach lib, $(LIBS), $(call cp4c,$(LIB_DIR)$(DS)$(lib).a)) -Xlinker --end-group -o $(call cp4c,$(BIN_DIR)$(DS)$(project).bin) $(LFLAGS)
+#	$(CC) $(OBJ_FILES) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(BIN_DIR)$(DS)$(project).bin $(LFLAGS)
 #	$(LD) -lcrt1 -Map $(BIN_DIR)$(DS)$(project).map --library-path=$(LIB_DIR)$(DS) $(OBJ_FILES) $(foreach lib, $(LIB_DIR)$(DS)$(LIBS).a, $(lib)) -o $(BIN_DIR)$(DS)$(project).bin
 
 # debug rule
