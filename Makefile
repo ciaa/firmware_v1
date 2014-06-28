@@ -156,16 +156,15 @@ $(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES = $($(LIB)_SRC_FILES:.c=.o)) )
 define librule
 $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ===============================================================================
-	@echo Creating library $(call cp4c,$(1))
-	$(AR) -rcs -o $(call cp4c,$(LIB_DIR)$(DS)$(strip $(1)).a) $(foreach file,$(2),$(call cp4c,$(file)))
+	@echo Creating library $(1)
+	$(AR) -rcs -o $(LIB_DIR)$(DS)$(strip $(1)).a $(2)
 endef
 
-
-OBJ_FILES = $(foreach src, $(SRC_FILES), $(call cp4c,$(src:.c=.o)))
+OBJ_FILES = $(SRC_FILES:.c=.o)
 
 # create rule for library
 # lib.a : lib_OBJ_FILES.o
-$(foreach LIB, $(LIBS), $(eval $(call librule, $(LIB), $($(LIB)_OBJ_FILES))) )
+$(foreach LIB, $(LIBS), $(eval $(call librule, $(LIB), $(foreach obj,$($(LIB)_OBJ_FILES),$(call cp4c,$(obj))))))
 
 $(foreach LIB, $(LIBS), $(eval $(LIB) : $(LIB_DIR)$(DS)$(LIB).a ) )
 
@@ -308,7 +307,7 @@ test_%_Runner.c : test_%.c
 $(project) : $(LIBS) $(OBJ_FILES)
 	@echo ===============================================================================
 	@echo Linking $(project)
-	$(CC) $(OBJ_FILES) -Xlinker --start-group $(foreach lib, $(LIBS), $(call cp4c,$(LIB_DIR)$(DS)$(lib).a)) -Xlinker --end-group -o $(call cp4c,$(BIN_DIR)$(DS)$(project).bin $(LFLAGS))
+	$(CC) $(OBJ_FILES) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(BIN_DIR)$(DS)$(project).bin $(LFLAGS)
 #	$(LD) -lcrt1 -Map $(BIN_DIR)$(DS)$(project).map --library-path=$(LIB_DIR)$(DS) $(OBJ_FILES) $(foreach lib, $(LIB_DIR)$(DS)$(LIBS).a, $(lib)) -o $(BIN_DIR)$(DS)$(project).bin
 
 # debug rule
