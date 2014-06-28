@@ -83,24 +83,24 @@ extern "C" {
 
 /****** ARCH macro definitions ******/
 /** \brief ARCH posix */
-#define posix                 0
+#define posix                 1
 /** \brief ARCH win */
-#define win                   1
+#define win                   2
 /** \brief ARCH cortexM4 */
-#define cortexM4              2
+#define cortexM4              3
 
 /****** CPUTYPE macro definitions ******/
 /*** CPUTYPES for ARCH=posix ***/
 /** \brief CPUTTYPE posix32 */
-#define posix32               0
+#define posix32               1
 
 /** \brief CPUTTYPE posix64 */
-#define posix64               1
+#define posix64               2
 
 /*** CPUTYPES for ARCH=win ***/
 
 /*** CPUTYPES for ARCH=cortexM4 ***/
-#define lpc43xx               0
+#define lpc43xx               1
 
 
 /****** CPU macro definitions ******/
@@ -111,7 +111,7 @@ extern "C" {
 /*** CPU for ARCH=win CPUTYPE= ***/
 
 /*** CPU for ARCH=cortexM4 CPUTYPE=lpc43xx ***/
-#define lpc4337               0
+#define lpc4337               1
 
 
 /****** CIAAPLATFORM_REGLENGTH ******/
@@ -133,6 +133,13 @@ extern "C" {
 
 #if ( (ARCH == cortexM4) && (CPUTPYE == lpc43xx) )
 
+#endif
+
+#if ( ( ARCH == posix ) && \
+    ( ( CPUTYPE == posix32 ) || \
+      ( CPUTYPE == posix64 ) ) )
+#else
+#error invalid configuration of ARCH/CPUTYPE
 #endif
 
 
