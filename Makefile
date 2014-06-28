@@ -154,7 +154,7 @@ $(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES = $($(LIB)_SRC_FILES:.c=.o)) )
 
 #rule for library
 define librule
-$(call cp4c,$(LIB_DIR)$(DS)$(strip $(1)).a) : $(2)
+$(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ===============================================================================
 	@echo Creating library $(call cp4c,$(1))
 	$(AR) -rcs -o $(call cp4c,$(LIB_DIR)$(DS)$(strip $(1)).a $(2))
