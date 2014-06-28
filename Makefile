@@ -112,6 +112,9 @@ MULTILINE_ECHO = echo -n
 define cyg2win
 $(1)
 endef
+define cp4c
+$(1)
+endef
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
 		# LINUX
