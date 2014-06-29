@@ -4,8 +4,8 @@
 *.cproject
 *.project
 
-# Own makefile
-Makefile.mine
+# Own makefile or mine template
+*.mine
 
 # Object files
 *.o

@@ -134,7 +134,7 @@ include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 # define cp4c if needed
 # default is not set
 CONVERT_PATHS_4_COMPILER ?= 0
-ifeq (CONVERT_PATHS_4_COMPILER,1)
+ifeq ($(CONVERT_PATHS_4_COMPILER),1)
 define cp4c
 $(call cyg2win,$(1))
 endef
