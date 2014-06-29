@@ -33,14 +33,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
+# Project Name: used for Project Path and OSEK configuration file
 project 			 	 = blinking
-# blinking path
-blinking_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)blinking
+# Project path
+$(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
 # source path
-blinking_SRC_PATH  += $(blinking_PATH)$(DS)src
+$(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
 # include path
-INCLUDE			   += $(blinking_PATH)$(DS)inc
+INCLUDE			   += $($(project)_PATH)$(DS)inc
 # library source files
-SRC_FILES 	  	   += $(wildcard $(blinking_SRC_PATH)$(DS)*.c)
+SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
-OIL_FILES		   += $(blinking_PATH)$(DS)etc$(DS)blinking.oil
+OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
