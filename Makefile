@@ -100,9 +100,6 @@ MULTILINE_ECHO = echo -e
 define cyg2win
 `cygpath -w $(1)`
 endef
-define cp4c
-$(call cyg2win,$(1))
-endef
 else
 # NON WINDOWS OS
 # Command line separator
@@ -110,9 +107,6 @@ CS					= ;
 # Comand for multiline echo
 MULTILINE_ECHO = echo -n
 define cyg2win
-$(1)
-endef
-define cp4c
 $(1)
 endef
 	UNAME_S := $(shell uname -s)
@@ -134,9 +128,21 @@ OBJ_DIR  = $(OUT_DIR)$(DS)obj
 LIB_DIR	= $(OUT_DIR)$(DS)lib
 # bin dir
 BIN_DIR	= $(OUT_DIR)$(DS)bin
-
 # include needed modules
 include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
+###############################################################################
+# define cp4c if needed
+# default is not set
+CONVERT_PATHS_4_COMPILER ?= 0
+ifeq (CONVERT_PATHS_4_COMPILER,1)
+define cp4c
+$(call cyg2win,$(1))
+endef
+else
+define cp4c
+$(1)
+endef
+endif
 
 .DEFAULT_GOAL := $(project)
 
@@ -301,7 +307,7 @@ test_%_Runner.c : test_%.c
 	@echo ===============================================================================
 	@echo Compiling $(call cp4c,$<)
 	$(CC) -c $(CFLAGS) $(call cp4c,$<) -o $(call cp4c,$@)
-	
+
 # link rule
 $(project) : $(LIBS) $(OBJ_FILES)
 	@echo ===============================================================================
