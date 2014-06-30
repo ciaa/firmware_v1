@@ -65,20 +65,16 @@ CPU            ?=
 COMPILER       ?= gcc
 
 DS             ?= /
-# MODULES
+# Project
 #
-# Available modules are:
-# examples/blinking
-# modules/posix
+# Available projects are:
+# examples/blinking				(example with rtos and posix)
+# examples/blinking_base		(example without rtos and without posix)
+# examples/blinking_wo_rtos 	(example with posix without rtos)
+# examples/blinking_wo_posix	(example with rtos without rtos)
+# examples/blinking_modbus		(example with rtos, posix and using modbus)
 #
-MODS ?= modules$(DS)posix           \
-        modules$(DS)ciaak           \
-        modules$(DS)config          \
-        modules$(DS)bsp             \
-        modules$(DS)platforms       \
-        modules$(DS)rtos            \
-        modules$(DS)libs            \
-        examples$(DS)blinking
+PROJECT = examples$(DS)blinking
 
 #
 # tools
@@ -128,6 +124,8 @@ OBJ_DIR  = $(OUT_DIR)$(DS)obj
 LIB_DIR	= $(OUT_DIR)$(DS)lib
 # bin dir
 BIN_DIR	= $(OUT_DIR)$(DS)bin
+# include needed project
+include $(PROJECT)$(DS)mak$(DS)Makefile
 # include needed modules
 include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 ###############################################################################
