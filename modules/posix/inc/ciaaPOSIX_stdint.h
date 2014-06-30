@@ -58,6 +58,17 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPlatforms.h"
+
+#if (ARCH == posix)
+#include "stdint.h"
+#elif (ARCH == win)
+#include "stdint.h"
+#elif ( (ARCH == cortexM4 ) && (CPUTYPE == lpc43xx) )
+#include "stdint.h"
+#else
+#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
+#endif
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -66,40 +77,6 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Unsigned 8 bits lenght type
- */
-typedef unsigned char uint8_t;
-
-/** \brief Unsigned 16 bits lenght type
- */
-typedef unsigned short uint16_t;
-
-/** \brief Unsigned 32 bits lenght type
- */
-typedef unsigned int uint32_t;
-
-/** \brief Unsigned 64 bits lenght type
- */
-typedef unsigned long long uint64_t;
-
-/** \brief Signed 8 bits lenght type
- */
-typedef signed char int8_t;
-
-/** \brief Signed 16 bits lenght type
- */
-typedef signed short int16_t;
-
-/** \brief Signed 32 bits lenght type
- */
-typedef signed int int32_t;
-
-/** \brief Signed 64 bits lenght type
- */
-typedef signed long int int64_t;
-
-/** \brief integer type capable of holding a pointer */
-typedef long int intptr_t;
 
 /*==================[external data declaration]==============================*/
 
