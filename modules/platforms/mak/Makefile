@@ -53,3 +53,6 @@ platforms_SRC_FILES += $(wildcard $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(
 
 include $(platforms_PATH)$(DS)$(ARCH)$(DS)mak$(DS)Makefile
 include $(platforms_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)Makefile
+
+# include external platforms makefile
+include externals$(DS)platforms$(DS)mak$(DS)Makefile
