@@ -78,8 +78,13 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+#if (win != ARCH)
 /** \brief type definition ssize_t */
 typedef long int ssize_t;
+#elif (win == ARCH)
+#include "stddef.h"
+#include "sys/types.h"
+#endif
 
 /*==================[external data declaration]==============================*/
 

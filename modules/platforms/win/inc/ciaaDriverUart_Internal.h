@@ -1,6 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -32,17 +30,17 @@
  *
  */
 
-#ifndef _CIAAPOSIX_STDINT_H_
-#define _CIAAPOSIX_STDINT_H_
-/** \brief POSIX stdin
- **
- ** POSIX stdin header file
+#ifndef _CIAADRIVERUART_INTERNAL_H_
+#define _CIAADRIVERUART_INTERNAL_H_
+/** \brief Internal Header file of UART Driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup UART UART Drivers
  ** @{ */
 
 /*
@@ -54,33 +52,47 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140528 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPlatforms.h"
-
-#if (posix == ARCH)
-#include "stdint.h"
-#elif (win == ARCH)
-#include "stdint.h"
-#elif ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) )
-#include "stdint.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+/** \brief Buffer Structure */
+typedef struct {
+   uint16_t length;
+   uint8_t buffer[2048];
+} ciaaDriverUart_bufferType;
+
+/** \brief Uart Type */
+typedef struct {
+   ciaaDriverUart_bufferType rxBuffer;
+   ciaaDriverUart_bufferType txBuffer;
+} ciaaDriverUart_uartType;
 
 /*==================[external data declaration]==============================*/
+/** \brief Uart 0 */
+extern ciaaDriverUart_uartType ciaaDriverUart_uart0;
+
+/** \brief Uart 1 */
+extern ciaaDriverUart_uartType ciaaDriverUart_uart1;
 
 /*==================[external functions declaration]=========================*/
+extern void ciaaDriverUart_uart0_rxIndication(void);
+
+extern void ciaaDriverUart_uart0_txConfirmation(void);
+
+extern void ciaaDriverUart_uart1_rxIndication(void);
+
+extern void ciaaDriverUart_uart1_txConfirmation(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -88,6 +100,7 @@ extern "C" {
 #endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
+/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_STDINT_H_*/
+#endif /* #ifndef _CIAADRIVERUART_INTERNAL_H_ */
 

@@ -1,6 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -32,17 +30,17 @@
  *
  */
 
-#ifndef _CIAAPOSIX_STDINT_H_
-#define _CIAAPOSIX_STDINT_H_
-/** \brief POSIX stdin
- **
- ** POSIX stdin header file
+#ifndef _CIAADRIVERDIO_INTERNAL_H_
+#define _CIAADRIVERDIO_INTERNAL_H_
+/** \brief Internal Header file of DIO Driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup DIO DIO Drivers
  ** @{ */
 
 /*
@@ -54,31 +52,29 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140528 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPlatforms.h"
-
-#if (posix == ARCH)
-#include "stdint.h"
-#elif (win == ARCH)
-#include "stdint.h"
-#elif ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) )
-#include "stdint.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+/** \brief Dio Type */
+typedef uint32_t ciaaDriverDio_dioType;
 
 /*==================[external data declaration]==============================*/
+/** \brief Dio 0 */
+extern ciaaDriverDio_dioType ciaaDriverDio_dio0;
+
+/** \brief Dio 1 */
+extern ciaaDriverDio_dioType ciaaDriverDio_dio1;
 
 /*==================[external functions declaration]=========================*/
 
@@ -88,6 +84,7 @@ extern "C" {
 #endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
+/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_STDINT_H_*/
+#endif /* #ifndef _CIAADRIVERDIO_INTERNAL_H_ */
 
