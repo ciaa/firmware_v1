@@ -46,8 +46,11 @@ LFLAGS += $(LINKSCRIPT) -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=
 
 # this file needs to be compiled separated and not added to a library
 # TODO this is not nice
-SRC_FILES			+= $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)crp.c
+SRC_FILES                  += $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)crp.c
 
 # indicate that the paths needs to be converted for the compiler
 # this only affects on windows.
-CONVERT_PATHS_4_COMPILER	= 1
+CONVERT_PATHS_4_COMPILER    = 1
+
+# define default binary extension
+BIN_EXT                     = axf

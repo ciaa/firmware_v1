@@ -56,3 +56,6 @@ include $(platforms_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)Makefile
 
 # include external platforms makefile
 include externals$(DS)platforms$(DS)mak$(DS)Makefile
+
+# define default binary extension
+BIN_EXT             ?= bin

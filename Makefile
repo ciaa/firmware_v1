@@ -310,7 +310,7 @@ test_%_Runner.c : test_%.c
 $(project) : $(LIBS) $(OBJ_FILES)
 	@echo ===============================================================================
 	@echo Linking $(project)
-	$(CC) $(foreach obj,$(OBJ_FILES),$(call cp4c,$(obj))) -Xlinker --start-group $(foreach lib, $(LIBS), $(call cp4c,$(LIB_DIR)$(DS)$(lib).a)) -Xlinker --end-group -o $(call cp4c,$(BIN_DIR)$(DS)$(project).bin) $(LFLAGS)
+	$(CC) $(foreach obj,$(OBJ_FILES),$(call cp4c,$(obj))) -Xlinker --start-group $(foreach lib, $(LIBS), $(call cp4c,$(LIB_DIR)$(DS)$(lib).a)) -Xlinker --end-group -o $(call cp4c,$(BIN_DIR)$(DS)$(project).$(BIN_EXT)) $(LFLAGS)
 #	$(CC) $(OBJ_FILES) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(BIN_DIR)$(DS)$(project).bin $(LFLAGS)
 #	$(LD) -lcrt1 -Map $(BIN_DIR)$(DS)$(project).map --library-path=$(LIB_DIR)$(DS) $(OBJ_FILES) $(foreach lib, $(LIB_DIR)$(DS)$(LIBS).a, $(lib)) -o $(BIN_DIR)$(DS)$(project).bin
 
