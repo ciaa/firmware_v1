@@ -59,19 +59,25 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaPlatforms.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#if (posix == ARCH)
+#include "stddef.h"
+#elif (win == ARCH)
+#include "stddef.h"
+#elif ( (cortexM4 == ARCH) && (lpc43xx == CPUTPYE) )
+#include "stddef.h"
+#else
+#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
+#endif
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief typedefinition size_t */
-/* TODO: #43 https://github.com/ciaa/Firmware/issues/43 */
-typedef long unsigned int size_t;
-
 /** \brief type definition ssize_t */
 typedef long int ssize_t;
 
