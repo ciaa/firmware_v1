@@ -60,11 +60,11 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPlatforms.h"
 
-#if (ARCH == posix)
+#if (posix == ARCH)
 #include "stdint.h"
-#elif (ARCH == win)
+#elif (win == ARCH)
 #include "stdint.h"
-#elif ( (ARCH == cortexM4 ) && (CPUTYPE == lpc43xx) )
+#elif ( (cortexM4 == ARCH) && (lpc43xx == CPUTPYE) )
 #include "stdint.h"
 #else
 #error Missing stdio type definition for this ARCH/CPUTYPE/CPU
