@@ -70,7 +70,7 @@ extern "C" {
 #include "stddef.h"
 #elif (win == ARCH)
 #include "stddef.h"
-#elif ( (cortexM4 == ARCH) && (lpc43xx == CPUTPYE) )
+#elif ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) )
 #include "stddef.h"
 #else
 #error Missing stdio type definition for this ARCH/CPUTYPE/CPU
