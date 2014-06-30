@@ -34,14 +34,17 @@
 #
 ###############################################################################
 # Project Name: used for Project Path and OSEK configuration file
-project 			 	 = ciaaBlink
+project 			 	    = blinking_base
 # Project path
-$(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
+$(project)_PATH  	    = $(ROOT_DIR)$(DS)examples$(DS)$(project)
 # source path
-$(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
+$(project)_SRC_PATH	+= $($(project)_PATH)$(DS)src
 # include path
-INCLUDE			   += $($(project)_PATH)$(DS)inc
+INCLUDE			      += $($(project)_PATH)$(DS)inc
 # library source files
-SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
-# configuration for OSEK-OS
-OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
+SRC_FILES 	  	      += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
+# configuration for OSEK-OS (this example does not use osek)
+OIL_FILES		      +=
+# modules needed for this example
+MODS                  = externals$(DS)platforms
+

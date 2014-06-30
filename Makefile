@@ -74,7 +74,7 @@ DS             ?= /
 # examples/blinking_wo_posix	(example with rtos without rtos)
 # examples/blinking_modbus		(example with rtos, posix and using modbus)
 #
-PROJECT = examples$(DS)blinking
+PROJECT ?= examples$(DS)blinking
 
 #
 # tools
@@ -430,6 +430,7 @@ info:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Enable Config Info                                            |"
 	@echo "+-----------------------------------------------------------------------------+"
+	@echo PROJECT............: $(PROJECT)
 	@echo ARCH/CPUTYPE/CPU...: $(ARCH)/$(CPUTYPE)/$(CPU)
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
