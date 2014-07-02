@@ -93,6 +93,7 @@ ifeq ($(OS),Windows_NT)
 CS             = ;
 # Command for multiline echo
 MULTILINE_ECHO = echo -e
+OS 				= WIN
 define cyg2win
 `cygpath -w $(1)`
 endef
@@ -459,9 +460,17 @@ clean:
 	@echo Removing RTOS generated files
 	@rm -rf $(GENDIR)$(DS)*
 	@echo Removing object files
+ifeq ($(OS),WIN)
+	@find -name "*.o" -exec rm {} \ ;
+else
 	@find -name "*.o" -exec rm {} \;
+endif
 	@echo Removing Unity Runners files
+ifeq ($(OS),WIN)
+	@find -name "*_Runner.c" -exec rm {} \ ;
+else
 	@find -name "*_Runner.c" -exec rm {} \;
+endif
 
 ###############################################################################
 # doc -> documentation
