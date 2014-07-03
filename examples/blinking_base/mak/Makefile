@@ -48,3 +48,4 @@ OIL_FILES		      +=
 # modules needed for this example
 MODS                  = externals$(DS)platforms
 
+include modules/platforms/mak/cortexM4/gcc/Makefile
