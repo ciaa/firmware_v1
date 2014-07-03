@@ -98,7 +98,7 @@
 #include "LPC43xx.h"
 #include "core_cmFunc.h"
 #else
-#error not defined CPU
+#error Unknown CPU value
 #endif
 
 /*==================[macros]=================================================*/
