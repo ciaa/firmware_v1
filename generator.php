@@ -114,7 +114,7 @@ function info($msg)
 	global $verbose;
 	global $generating;
 	if($generating == true)
-	   ob_end_flush();
+      ob_end_flush();
 	if ($verbose)
 	{
 		print "INFO: " . $msg . "\n";
@@ -359,8 +359,8 @@ foreach ($genfiles as $file)
 	fclose($ob_file);
 	if(comfiles(array($outfile, $outfile . ".old")) == false)
 	{
-		if(substr($file, strlen($file) - strlen(".mak.php") == ".mak.php"))
-		{
+		if(substr($file, strlen($file) - strlen(".mak.php") ) == ".mak.php")
+      {
 			$runagain = true;
 		}
 	}
