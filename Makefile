@@ -150,8 +150,8 @@ INCLUDE += $(foreach LIB, $(LIBS), $($(LIB)_INC_PATH))
 #CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
 CFLAGS  += $(foreach inc, $(INCLUDE), -I$(call cp4c,$(inc)))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU)
-
-
+TARGET_NAME ?= $(call cp4c,$(BIN_DIR)$(DS)$(project))
+LD_TARGET = $(TARGET_NAME).$(LD_EXTENSION)
 # create list of object files
 $(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES = $($(LIB)_SRC_FILES:.c=.o)) )
 
@@ -305,13 +305,16 @@ test_%_Runner.c : test_%.c
 %.o : %.c
 	@echo ===============================================================================
 	@echo Compiling $(call cp4c,$<)
-	$(CC) -c $(CFLAGS) $(call cp4c,$<) -o $(call cp4c,$@)
+	$(CC) $(CFLAGS) $(call cp4c,$<) -o $(call cp4c,$@)
 
 # link rule
 $(project) : $(LIBS) $(OBJ_FILES)
 	@echo ===============================================================================
-	@echo Linking $(project)
-	$(CC) $(foreach obj,$(OBJ_FILES),$(call cp4c,$(obj))) -Xlinker --start-group $(foreach lib, $(LIBS), $(call cp4c,$(LIB_DIR)$(DS)$(lib).a)) -Xlinker --end-group -o $(call cp4c,$(BIN_DIR)$(DS)$(project).$(BIN_EXT)) $(LFLAGS)
+	@echo Linking file: $(LD_TARGET)
+	$(CC) $(foreach obj,$(OBJ_FILES),$(call cp4c,$(obj))) -Xlinker --start-group $(foreach lib, $(LIBS), $(call cp4c,$(LIB_DIR)$(DS)$(lib).a)) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
+	@echo ===============================================================================
+	@echo Post Building $(project)
+	$(POST_BUILD)
 #	$(CC) $(OBJ_FILES) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(BIN_DIR)$(DS)$(project).bin $(LFLAGS)
 #	$(LD) -lcrt1 -Map $(BIN_DIR)$(DS)$(project).map --library-path=$(LIB_DIR)$(DS) $(OBJ_FILES) $(foreach lib, $(LIB_DIR)$(DS)$(LIBS).a, $(lib)) -o $(BIN_DIR)$(DS)$(project).bin
 
@@ -324,7 +327,7 @@ debug : $(BIN_DIR)$(DS)$(project).bin
 GENDIR			= out$(DS)gen
 generate : $(OIL_FILES)
 		php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
-			$(call cyg2win,$(OIL_FILES)) -f $(foreach TMP, $(rtos_GEN_FILES), $(call cyg2win,$(TMP))) -o $(GENDIR)
+			$(call cyg2win,$(OIL_FILES)) -f $(foreach TMP, $(rtos_GEN_FILES), $(call cyg2win,$(TMP))) -o $(call cyg2win,$(GENDIR))
 
 ###############################################################################
 # doxygen
@@ -448,6 +451,8 @@ info:
 	@echo AR.................: $(AR)
 	@echo LD.................: $(LD)
 	@echo Compile Flags......: $(CFLAGS)
+	@echo Linker Flags.......: $(LFLAGS)	
+	@echo Linker Target......: $(LD_TARGET)
 
 ###############################################################################
 # clean
@@ -461,13 +466,13 @@ clean:
 	@rm -rf $(GENDIR)$(DS)*
 	@echo Removing object files
 ifeq ($(OS),WIN)
-	@find -name "*.o" -exec rm {} \ ;
+	@find -name "*.o" -exec rm {} \;
 else
 	@find -name "*.o" -exec rm {} \;
 endif
 	@echo Removing Unity Runners files
 ifeq ($(OS),WIN)
-	@find -name "*_Runner.c" -exec rm {} \ ;
+	@find -name "*_Runner.c" -exec rm {} \;
 else
 	@find -name "*_Runner.c" -exec rm {} \;
 endif

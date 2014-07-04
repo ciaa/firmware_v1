@@ -43,4 +43,16 @@ NM = nm
 # COMPILER AND LINKER OPTIONS
 CFLAGS += -c -Wall -ggdb3
 LFLAGS += $(LINKSCRIPT) 
+# Optional POST BUILD
+POST_BUILD += 
 
+# this file needs to be compiled separated and not added to a library
+# TODO this is not nice
+SRC_FILES                  +=
+# indicate that the paths needs to be converted for the compiler
+# this only affects native tools on windows. This is useless 
+# for "cygwin - gcc"
+CONVERT_PATHS_4_COMPILER    = 0
+
+# define linker extension
+LD_EXTENSION                = exe
