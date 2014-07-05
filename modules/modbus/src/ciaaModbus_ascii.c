@@ -69,15 +69,129 @@ typedef struct {
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+/** \brief data not proceeded from the last frame */
+ciaaModbus_ascii_bufType oldData = { { 0 }, 0 };
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+/** \brief Receive the beggining of a ASCII Modbus Message
+ **
+ ** \param[in] fildes file descriptor to read the data from
+ ** \param[out] buf buffer to store the data, shall be at least
+ **             CIAAMODBUS_ASCII_MAXLENGTH bytes long
+ ** \return the lenght of the modbus ascii message
+ **/
+int32_t ciaaModbus_ascii_receiveFirst(int32_t fildes, int8_t * buf)
+{
+   int32_t begin;
+   int32_t read;
+   int32_t loopi;
+
+   /* read until the beginning of a ascii modbus is found */
+   do
+   {
+      /* set begin to an invalid value */
+      begin = -1;
+
+      /* if old data available start reading this data */
+      if (0 != oldData.lenght)
+      {
+         /* copy read data */
+         ciaaPOSIX_memcpy(buf, oldData.buf, oldData.lenght);
+         read = oldData.lenght;
+         oldData.lenght = 0;
+      }
+      else
+      {
+         /* no data, also read from device */
+         read = ciaaPOSIX_read(fildes, buf, CIAAMODBUS_ASCII_MAXLENGHT);
+      }
+
+      /* search for the begin of a modbus message */
+      for(loopi = 0; (loopi < read) && (-1 == begin); loopi++)
+      {
+         /* check for the begin of a ascii modbus message */
+         if (CIAAMODBUS_ASCII_START == buf[loopi])
+         {
+            begin = loopi;
+         }
+      }
+   } while (-1 == begin);
+
+   /* move the received part to the beginning of the buffer */
+   for (loopi = begin; loopi < read; loopi ++)
+   {
+      buf[loopi-begin] = buf[loopi];
+   }
+
+   return read;
+} /* end ciaaModbus_ascii_receiveFirst */
+
+/** \brief Complete the reception of a ASCII Modbus Message
+ **
+ ** \param[in] fildes file descriptor to read the data from
+ ** \param[out] buf buffer to store the data, shall be at least
+ **             CIAAMODBUS_ASCII_MAXLENGTH bytes long
+ ** \param[in] length length of the buffer
+ ** \return the lenght of the modbus ascii message
+ **/
+int32_t ciaaModbus_ascii_completeReception(int32_t fildes, int8_t * buf, int8_t length)
+{
+   int32_t end;
+   int32_t loopi;
+   int32_t read = 0;
+
+   do
+   {
+      /* set end to an invalid value */
+      end = -1;
+
+      /* search for the end of a modbus message */
+      for (loopi = 0; ( length > 1 ) && (loopi < length -1) && (-1 == end); loopi++)
+      {
+         /* check if end has been found */
+         if ( (CIAAMODBUS_ASCII_END_1 == buf[loopi]) &&
+            (CIAAMODBUS_ASCII_END_2 == buf[loopi+1]) )
+         {
+            end = loopi + 1;
+         }
+      }
+
+      /* if not ascii end found */
+      if (-1 == end)
+      {
+         /* and still place on the buffer */
+         if (0 < CIAAMODBUS_ASCII_MAXLENGHT - length -1)
+         {
+            read = ciaaPOSIX_read(fildes, &buf[length+1], CIAAMODBUS_ASCII_MAXLENGHT - length -1);
+         }
+         else
+         {
+            /* the buffer is full, an ASCII message can not be so big,
+            * an invalid message has been received, the complete data
+            * will be ignored */
+            end = 0xFFFF;
+         }
+      }
+      else
+      {
+         /* end found */
+         if (read > end)
+         {
+            /* copy left bytes to old data for the next call */
+            oldData.lenght = read-end;
+            /* copy data to old data buffer for the next calle */
+            ciaaPOSIX_memcpy(oldData.buf, &buf[end+1], read-end);
+         }
+      }
+   } while (-1 == end);
+
+} /* end ciaaModbus_ascii_completeReception */
 
 /*==================[external functions definition]==========================*/
 extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf)
 {
-   int32_t begin;
    int32_t end;
    int32_t read;
    int32_t loopi;
@@ -85,96 +199,9 @@ extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf)
    static ciaaModbus_ascii_bufType oldData = { { 0 }, 0 };
 
    do {
+      /* start reading the modbus */
+      read = ciaaModbus_ascii_receiveFirst(fildes, buf);
 
-      /* read until the beginning of a ascii modbus is found */
-      do {
-         /* set begin to an invalid value */
-         begin = -1;
-
-         /* if old data available start reading this data */
-         if (0 != oldData.lenght)
-         {
-            /* copy read data */
-            ciaaPOSIX_memcpy(buf, oldData.buf, oldData.lenght);
-            read = oldData.lenght;
-            oldData.lenght = 0;
-         }
-         else
-         {
-            /* no data, also read from device */
-            read = ciaaPOSIX_read(fildes, buf, CIAAMODBUS_ASCII_MAXLENGHT);
-         }
-
-         /* search for the begin of a modbus message */
-         for(loopi = 0; (loopi < read) && (-1 == begin); loopi++)
-         {
-            /* check for the begin of a ascii modbus message */
-            if (CIAAMODBUS_ASCII_START == buf[loopi])
-            {
-               begin = loopi;
-            }
-         }
-      } while (-1 == begin);
-
-      /* move the received part to the beginning of the buffer */
-      for (loopi = begin; loopi < read; loopi ++)
-      {
-         buf[loopi-begin] = buf[loopi];
-      }
-
-      /* update read and begin after updating the buffer */
-      read = read - begin;
-      begin = 0;
-
-      /* set base to the begin */
-      base = begin;
-
-      do {
-         /* set end to an invalid value */
-         end = -1;
-
-         /* search for the end of a modbus message */
-         for (loopi = base; (loopi < base + read -1) && (-1 == end); loopi++)
-         {
-            /* check if end has been found */
-            if ( (CIAAMODBUS_ASCII_END_1 == buf[loopi]) &&
-                 (CIAAMODBUS_ASCII_END_2 == buf[loopi+1]) )
-            {
-               end = loopi + 1;
-            }
-         }
-
-         /* update base */
-         base = read;
-
-         /* if not ascii end found */
-         if (-1 == end)
-         {
-            /* and still place on the buffer */
-            if (0 < CIAAMODBUS_ASCII_MAXLENGHT - base -1)
-            {
-               read = ciaaPOSIX_read(fildes, &buf[base+1], CIAAMODBUS_ASCII_MAXLENGHT - base -1);
-            }
-            else
-            {
-               /* the buffer is full, an ASCII message can not be so big,
-                * an invalid message has been received, the complete data
-                * will be ignored */
-               end = 0xFFFF;
-            }
-         }
-         else
-         {
-            /* end found */
-            if (read > end)
-            {
-               /* copy left bytes to old data for the next call */
-               oldData.lenght = read-end;
-               /* copy data to old data buffer for the next calle */
-               ciaaPOSIX_memcpy(oldData.buf, &buf[end+1], read-end);
-            }
-         }
-      } while (-1 == end);
 
    /* repeat until a valid modbus message has been found */
    } while (CIAAMODBUS_ASCII_MAXLENGHT >= end);

@@ -232,7 +232,7 @@ UNITY_SRC = modules$(DS)$(tst_mod)$(DS)test$(DS)utest$(DS)src$(DS)test_$(tst_fil
 				$(foreach file,$(filter-out $(tst_file).c,$(notdir $($(tst_mod)_SRC_FILES))), out$(DS)ceedling$(DS)mocks$(DS)mock_$(file))	\
 				$(foreach mods,$($(tst_mod)_TST_MOD), $(foreach files, $(notdir $($(mods)_SRC_FILES)), out$(DS)ceedling$(DS)mocks$(DS)mock_$(files)))
 
-CFLAGS  = -ggdb #-Wall -Werror #see issue #28
+CFLAGS  = -ggdb -c #-Wall -Werror #see issue #28
 CFLAGS  += $(foreach inc, $(UNITY_INC), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DUNITY_EXCLUDE_STDINT_H
 
@@ -451,7 +451,7 @@ info:
 	@echo AR.................: $(AR)
 	@echo LD.................: $(LD)
 	@echo Compile Flags......: $(CFLAGS)
-	@echo Linker Flags.......: $(LFLAGS)	
+	@echo Linker Flags.......: $(LFLAGS)
 	@echo Linker Target......: $(LD_TARGET)
 
 ###############################################################################

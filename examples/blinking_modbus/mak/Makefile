@@ -33,9 +33,25 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# unit test
-# unit tests include files
-modbus_TST_INC_PATH = $(modbus_PATH)$(DS)test$(DS)utest$(DS)inc
-# unit tests dependencies
-#modbus_TST_MOD	    = posix config platforms
-modbus_TST_MOD	    = config bsp ciaak posix platforms
+# Project Name: used for Project Path and OSEK configuration file
+project 			 	 = blinking
+# Project path
+$(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
+# source path
+$(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
+# include path
+INCLUDE			   += $($(project)_PATH)$(DS)inc
+# library source files
+SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
+# configuration for OSEK-OS
+OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
+# Modules needed for this example
+MODS ?= modules$(DS)posix           \
+        modules$(DS)ciaak           \
+        modules$(DS)config          \
+        modules$(DS)bsp             \
+        modules$(DS)platforms       \
+        modules$(DS)rtos            \
+        modules$(DS)libs				\
+		  modules$(DS)modbus
+

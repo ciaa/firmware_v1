@@ -54,14 +54,24 @@
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaModbus_ascii.h"
+#include "mock_ciaaPOSIX_stdio.h"
 
 /*==================[macros and definitions]=================================*/
+/** \brief Type for the stub read functions */
+typedef struct {
+   int32_t fildes;         /** <= Check for this descriptor */
+   int8_t buf[500];        /** <= ascii buffer */
+   int32_t totalLenght;    /** <= total data length */
+   int8_t lenght[500];     /** <= count of bytes to be returned in each call */
+   int8_t count;           /** <= count the count of calls */
+} stubType;
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+static stubType read_stub;
 
 /*==================[external data definition]===============================*/
 
@@ -85,6 +95,53 @@ void tearDown(void) {
 }
 
 void doNothing(void) {
+}
+
+ciaaPOSIX_read_init(void)
+{
+   int32_t loopi;
+
+   read_stub.fildes = 0;
+   read_stub.totalLenght = 0;
+   read_stub.count = 0;
+
+   for(loopi = 0; loopi < sizeof(read_stub.buf); loopi++)
+   {
+      read_stub.buf[loopi] = 0;
+   }
+
+   for(loopi = 0; loopi < sizeof(read_stub.lenght); loopi++)
+   {
+      read_stub.lenght[loopi] = 0;
+   }
+}
+
+ciaaPOSIX_read_set(char * data)
+{
+   read_stub.totalLenght = strlen(data);
+   memcpy(read_stub.buf, data, strlen(data));
+}
+
+ssize_t ciaaPOSIX_read_stub(int32_t fildes, void * buf, ssize_t nbyte)
+{
+   ssize_t ret;
+
+   /* length to be returned */
+   ret = read_stub.lenght[read_stub.count];
+
+   if (nbyte < ret)
+   {
+      /* force failed */
+      TEST_ASSERT_TRUE(0);
+   }
+
+   /* copy data to the modbus handler */
+   memcpy(buf, read_stub.buf, ret);
+
+   /* increment count */
+   read_stub.count++;
+
+   return ret;
 }
 
 /** \brief test ciaaModbus_ascii_convert2bin
@@ -118,6 +175,29 @@ void test_ciaaModbus_convert2bin(void) {
    buf[1] = 'F';
    ret = ciaaModbus_ascii_convert2bin(buf);
    TEST_ASSERT_EQUAL_INT(0x1F, ret);
+}
+
+void test_ciaaModbus_receiveFirst(void) {
+   int32_t read;
+   int32_t fildes = 1;
+   int8_t buf[500];
+
+   /* set stub callback */
+   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
+   /* init read */
+   ciaaPOSIX_read_init();
+
+   /* set input buffer */
+   ciaaPOSIX_read_set(":000102030405060708090D0F");
+   /* set lenght to be returned by read */
+   read_stub.lenght[0] = 10;
+   read_stub.lenght[1] = 10;
+   read_stub.lenght[2] = 10;
+   read_stub.lenght[3] = 10;
+
+   /* receive data */
+   read = ciaaModbus_ascii_receive(fildes, buf);
+
 }
 
 /** @} doxygen end group definition */
