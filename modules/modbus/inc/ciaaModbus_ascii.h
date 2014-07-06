@@ -66,7 +66,7 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 /** \brief Modbus ASCII Start Addres ":" */
-#define CIAAMODBUS_ASCII_START      0x38
+#define CIAAMODBUS_ASCII_START      0x3A
 
 /** \brief Modbus ASCII 0 */
 #define CIAAMODBUS_ASCII_0          0x30
@@ -80,14 +80,30 @@ extern "C" {
 /** \brief Modbus ASCII F */
 #define CIAAMODBUS_ASCII_F          0x46
 
-/** \brief Maximal lenght of a ascii modbus message */
+/*
+ * :AAFF0011..DDCCEE
+ * |\|\|\|\|\|\|\|\|
+ * | | | | | | | | |
+ * | | | | | | | | +-- 2 bytes: CRLF end of the modbus ascii (0x0D, 0x0A)
+ * | | | | | | | |
+ * | | | | | | | +-- 2 bytes: LRC Check
+ * | | | | | | |
+ * | | | +-+-+-+-- n times 2 bytes: data
+ * | | |
+ * | | +-- 2 bytes: function
+ * | |
+ * | +-- 2 bytes: addres
+ * |
+ * +-- 1 byte: start delimiter ascii : (0x3A)
+
+/** \brief Maximal length of a ascii modbus message */
 #define CIAAMODBUS_ASCII_MAXLENGHT  255
 
-/** \brief Minimal lenght of a ascii modbus message */
-#define CIAAMODBUS_ASCII_MINLENGHT  4
+/** \brief Minimal length of a ascii modbus message */
+#define CIAAMODBUS_ASCII_MINLENGHT  9
 
 /** \brief */
-#define CIAAMODBUS_ASCII_END_1      0x0C
+#define CIAAMODBUS_ASCII_END_1      0x0D
 
 /** \brief */
 #define CIAAMODBUS_ASCII_END_2      0x0A
@@ -102,7 +118,7 @@ extern "C" {
  ** \param[in] fildes file descriptor to read the data from
  ** \param[out] buf buffer to store the data, shall be at least
  **             CIAAMODBUS_ASCII_MAXLENGTH bytes long
- ** \return the lenght of the modbus ascii message
+ ** \return the length of the modbus ascii message
  **/
 extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf);
 
@@ -111,7 +127,7 @@ extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf);
  ** This functions convert a modbus ascii pdu to binary.
  **
  ** \param[inout] buf pointer to the ascii buffer to be converted
- ** \return -1 if an invalid ascii modbus is found, lenght in bytes of the
+ ** \return -1 if an invalid ascii modbus is found, length in bytes of the
  **         converted modbus pdu if success
  **/
 extern int32_t ciaaModbus_ascii2bin(uint8_t * buf);

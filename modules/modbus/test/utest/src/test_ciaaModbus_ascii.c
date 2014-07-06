@@ -61,8 +61,8 @@
 typedef struct {
    int32_t fildes;         /** <= Check for this descriptor */
    int8_t buf[500];        /** <= ascii buffer */
-   int32_t totalLenght;    /** <= total data length */
-   int8_t lenght[500];     /** <= count of bytes to be returned in each call */
+   int32_t totalLength;    /** <= total data length */
+   int8_t length[500];     /** <= count of bytes to be returned in each call */
    int8_t count;           /** <= count the count of calls */
 } stubType;
 
@@ -102,7 +102,7 @@ ciaaPOSIX_read_init(void)
    int32_t loopi;
 
    read_stub.fildes = 0;
-   read_stub.totalLenght = 0;
+   read_stub.totalLength = 0;
    read_stub.count = 0;
 
    for(loopi = 0; loopi < sizeof(read_stub.buf); loopi++)
@@ -110,25 +110,108 @@ ciaaPOSIX_read_init(void)
       read_stub.buf[loopi] = 0;
    }
 
-   for(loopi = 0; loopi < sizeof(read_stub.lenght); loopi++)
+   for(loopi = 0; loopi < sizeof(read_stub.length); loopi++)
    {
-      read_stub.lenght[loopi] = 0;
+      read_stub.length[loopi] = 0;
    }
 }
 
-ciaaPOSIX_read_set(char * data)
+/** \brief
+ **
+ ** \param[in] data pointer containing the data
+ ** \param[in] addEnd see table below
+ ** \param[in] addLrc see table below
+ **
+ ** +--------+--------+-----------------------------------------------------+
+ ** | addEnd | addLrc | description                                         |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   0    |   0    | data is used as is, no CR/LF is added at the end of |
+ ** |        |        | the message.                                        |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   0    |   1    | LRC is set in the position data[length-3/4]         |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   1    |   0    | CRLF is appended after data[length-1]               |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   1    |   1    | LRC and CRLF are appended after data[length-1]      |
+ ** +--------+--------+-----------------------------------------------------+
+ **/
+void ciaaPOSIX_read_set(char * data, int8_t addEnd, int8_t addLrc)
 {
-   read_stub.totalLenght = strlen(data);
+   int32_t loopi;
+   uint8_t lrc = 0;
+
+   read_stub.totalLength = strlen(data);
    memcpy(read_stub.buf, data, strlen(data));
+
+   if ((!addEnd) && (!addLrc))
+   {
+      /* nothing to do */
+   }
+   else if ((!addEnd) && (addLrc))
+   {
+      /* calculate lrc */
+      for(loopi = 1; loopi < read_stub.totalLength-4; loopi++)
+      {
+         lrc += read_stub.buf[loopi];
+      }
+
+      /* complement 2 of lrc */
+      lrc != lrc;
+      lrc++;
+
+      /* set lrc */
+      read_stub.buf[read_stub.totalLength-4] = ( ( (lrc > 4) > 9 ) ? ( ( (lrc > 4) -10 ) + 'A' ) : ( (lrc > 4) + '0' ) );
+      read_stub.buf[read_stub.totalLength-3] = ( ( (lrc & 0xF) > 9 ) ? ( ( (lrc & 0xF) -10 ) + 'A' ) : ( (lrc & 0xF) + '0' ) );
+   }
+   else if ((addEnd) && (!addLrc))
+   {
+      /* add CRLF */
+      read_stub.totalLength += 2;
+      read_stub.buf[read_stub.totalLength-2] = 0x0D;
+      read_stub.buf[read_stub.totalLength-1] = 0x0A;
+   }
+   else
+   {
+      /* calculate lrc */
+      for(loopi = 1; loopi < read_stub.totalLength; loopi++)
+      {
+         lrc += read_stub.buf[loopi];
+      }
+
+      read_stub.totalLength += 2;
+      /* set lrc */
+      read_stub.buf[read_stub.totalLength-2] = ( ( (lrc > 4) > 9 ) ? ( ( (lrc > 4) -10 ) + 'A' ) : ( (lrc > 4) + '0' ) );
+      read_stub.buf[read_stub.totalLength-1] = ( ( (lrc & 0xF) > 9 ) ? ( ( (lrc & 0xF) -10 ) + 'A' ) : ( (lrc & 0xF) + '0' ) );
+
+      /* add CRLF */
+      read_stub.totalLength += 2;
+      read_stub.buf[read_stub.totalLength-2] = 0x0D;
+      read_stub.buf[read_stub.totalLength-1] = 0x0A;
+   }
+
 }
 
 ssize_t ciaaPOSIX_read_stub(int32_t fildes, void * buf, ssize_t nbyte)
 {
    ssize_t ret;
+   ssize_t trans = 0;
+   int32_t loopi;
+
+   /* calculate the already transmitted length */
+   for(loopi = 0; loopi < read_stub.count; loopi++)
+   {
+      trans += read_stub.length[loopi];
+   }
 
    /* length to be returned */
-   ret = read_stub.lenght[read_stub.count];
+   ret = read_stub.length[read_stub.count];
+   /* is 0 return the rest of the available data */
+   if (0 == ret)
+   {
+      ret = read_stub.totalLength - trans;
+   }
 
+   /* check that the buffer is big enought */
    if (nbyte < ret)
    {
       /* force failed */
@@ -177,7 +260,12 @@ void test_ciaaModbus_convert2bin(void) {
    TEST_ASSERT_EQUAL_INT(0x1F, ret);
 }
 
-void test_ciaaModbus_receiveFirst(void) {
+/** \brief Test ciaaModbus_ascii_receive
+ **
+ ** Receive a complete Modbus ascii message in one ciaaPOSIX_read call.
+ **
+ **/
+void test_ciaaModbus_receive_01(void) {
    int32_t read;
    int32_t fildes = 1;
    int8_t buf[500];
@@ -186,20 +274,48 @@ void test_ciaaModbus_receiveFirst(void) {
    ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
    /* init read */
    ciaaPOSIX_read_init();
+   memset(buf, 0, sizeof(buf));
 
    /* set input buffer */
-   ciaaPOSIX_read_set(":000102030405060708090D0F");
-   /* set lenght to be returned by read */
-   read_stub.lenght[0] = 10;
-   read_stub.lenght[1] = 10;
-   read_stub.lenght[2] = 10;
-   read_stub.lenght[3] = 10;
+   ciaaPOSIX_read_set(":00010203040506070809", 1, 1);
 
    /* receive data */
    read = ciaaModbus_ascii_receive(fildes, buf);
 
+   /* check received data */
+   TEST_ASSERT_EQUAL_INT8_ARRAY(read_stub.buf, buf, read_stub.totalLength);
+   TEST_ASSERT_EQUAL_INT(read_stub.totalLength, read);
 }
 
+/** \brief Test ciaaModbus_ascii_receive
+ **
+ ** Receive 10 bytes in the first ciaaPOSIX_read call and the rest in the
+ ** second call.
+ **
+ **/
+void test_ciaaModbus_receive_02(void) {
+   int32_t read;
+   int32_t fildes = 1;
+   int8_t buf[500];
+
+   /* set stub callback */
+   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
+   /* init read */
+   ciaaPOSIX_read_init();
+   memset(buf, 0, sizeof(buf));
+
+   /* set input buffer */
+   ciaaPOSIX_read_set(":00010203040506070809", 1, 1);
+   /* only return 10 bytes in the first read call */
+   read_stub.length[0] = 10;
+
+   /* receive data */
+   read = ciaaModbus_ascii_receive(fildes, buf);
+
+   /* check received data */
+   TEST_ASSERT_EQUAL_INT8_ARRAY(read_stub.buf, buf, read_stub.totalLength);
+   TEST_ASSERT_EQUAL_INT(read_stub.totalLength, read);
+}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
