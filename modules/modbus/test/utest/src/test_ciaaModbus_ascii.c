@@ -219,7 +219,7 @@ ssize_t ciaaPOSIX_read_stub(int32_t fildes, void * buf, ssize_t nbyte)
    }
 
    /* copy data to the modbus handler */
-   memcpy(buf, read_stub.buf, ret);
+   memcpy(buf, &read_stub.buf[trans], ret);
 
    /* increment count */
    read_stub.count++;

@@ -146,7 +146,6 @@ int32_t ciaaModbus_ascii_completeReception(int32_t fildes, int8_t * buf, int8_t 
 {
    int32_t end;
    int32_t loopi;
-   int32_t read = 0;
 
    do
    {
@@ -178,7 +177,7 @@ int32_t ciaaModbus_ascii_completeReception(int32_t fildes, int8_t * buf, int8_t 
          /* and still place on the buffer */
          if (CIAAMODBUS_ASCII_MAXLENGHT > length)
          {
-            read = ciaaPOSIX_read(fildes, &buf[length+1], CIAAMODBUS_ASCII_MAXLENGHT - length);
+            length += ciaaPOSIX_read(fildes, &buf[length], CIAAMODBUS_ASCII_MAXLENGHT - length);
          }
          else
          {
@@ -207,25 +206,26 @@ int32_t ciaaModbus_ascii_completeReception(int32_t fildes, int8_t * buf, int8_t 
 /*==================[external functions definition]==========================*/
 extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf)
 {
-   int32_t read1;
-   int32_t read2;
+   int32_t read;
 
+   do
+   {
    /* start reading the modbus */
    /* this functions reads the device until a start of modbus ascii is
     * detected */
-   read1 = ciaaModbus_ascii_receiveFirst(fildes, buf);
+   read = ciaaModbus_ascii_receiveFirst(fildes, buf);
 
    /* this function check if the message is complete, if not continues reading
     * the device until a complete modbus ascii message is available */
-   read2 += ciaaModbus_ascii_completeReception(fildes,
+   read = ciaaModbus_ascii_completeReception(fildes,
          buf,
-         read1);
-   if (read2 >= 0)
-   {
-   }
+         read);
 
-   /* return the length of the buffer */
-   return read1 + read2;
+   /* complete reception returns 0xFFFF if an error occurs */
+   } while(0xFFFF == read);
+
+   /* return the length of the read buffer */
+   return read;
 
 } /* end ciaaModbus_ascii_receive */
 
