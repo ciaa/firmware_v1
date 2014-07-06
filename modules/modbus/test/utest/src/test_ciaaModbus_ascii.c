@@ -55,6 +55,7 @@
 #include "unity.h"
 #include "ciaaModbus_ascii.h"
 #include "mock_ciaaPOSIX_stdio.h"
+#include "string.h"
 
 /*==================[macros and definitions]=================================*/
 /** \brief Type for the stub read functions */
@@ -63,7 +64,7 @@ typedef struct {
    int8_t buf[500];        /** <= ascii buffer */
    int32_t totalLength;    /** <= total data length */
    int8_t length[500];     /** <= count of bytes to be returned in each call */
-   int8_t count;           /** <= count the count of calls */
+   int32_t count;           /** <= count the count of calls */
 } stubType;
 
 /*==================[internal data declaration]==============================*/
@@ -134,13 +135,18 @@ ciaaPOSIX_read_init(void)
  ** +--------+--------+-----------------------------------------------------+
  ** |   1    |   1    | LRC and CRLF are appended after data[length-1]      |
  ** +--------+--------+-----------------------------------------------------+
+ **
+ ** \return lenght of bytes written to the buffer
  **/
-void ciaaPOSIX_read_add(char * data, int8_t addEnd, int8_t addLrc)
+int32_t ciaaPOSIX_read_add(char * data, int8_t addEnd, int8_t addLrc)
 {
+   int32_t ret = 0;
    int32_t loopi;
    uint8_t lrc = 0;
+   int32_t startpos = read_stub.totalLength;
 
-   memcpy(&read_stub.buf[read_stub.totalLength], data, strlen(data));
+   memcpy(&read_stub.buf[startpos], data, strlen(data));
+   ret += strlen(data);
    read_stub.totalLength += strlen(data);
 
    if ((!addEnd) && (!addLrc))
@@ -150,7 +156,7 @@ void ciaaPOSIX_read_add(char * data, int8_t addEnd, int8_t addLrc)
    else if ((!addEnd) && (addLrc))
    {
       /* calculate lrc */
-      for(loopi = 1; loopi < read_stub.totalLength-4; loopi++)
+      for(loopi = startpos + 1; loopi < read_stub.totalLength-4; loopi++)
       {
          lrc += read_stub.buf[loopi];
       }
@@ -165,6 +171,8 @@ void ciaaPOSIX_read_add(char * data, int8_t addEnd, int8_t addLrc)
    }
    else if ((addEnd) && (!addLrc))
    {
+      ret += 2;
+
       /* add CRLF */
       read_stub.totalLength += 2;
       read_stub.buf[read_stub.totalLength-2] = 0x0D;
@@ -172,8 +180,10 @@ void ciaaPOSIX_read_add(char * data, int8_t addEnd, int8_t addLrc)
    }
    else
    {
+      ret += 4;
+
       /* calculate lrc */
-      for(loopi = 1; loopi < read_stub.totalLength; loopi++)
+      for(loopi = startpos + 1; loopi < read_stub.totalLength; loopi++)
       {
          lrc += read_stub.buf[loopi];
       }
@@ -189,7 +199,8 @@ void ciaaPOSIX_read_add(char * data, int8_t addEnd, int8_t addLrc)
       read_stub.buf[read_stub.totalLength-1] = 0x0A;
    }
 
-}
+   return ret;
+} /* end ciaaPOSIX_read_add */
 
 ssize_t ciaaPOSIX_read_stub(int32_t fildes, void * buf, ssize_t nbyte)
 {
@@ -359,19 +370,29 @@ void test_ciaaModbus_ascii_receive_03(void) {
  **/
 void test_ciaaModbus_ascii_receive_04(void) {
    int32_t read[2];
+   int32_t len[2];
    int32_t fildes = 1;
    int8_t buf[2][500];
 
    /* set stub callback */
    ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
+   ciaaPOSIX_memcpy_StubWithCallback(memcpy);
+
    /* init read */
    ciaaPOSIX_read_init();
    memset(buf, 0, sizeof(buf));
 
    /* set input buffer */
-   ciaaPOSIX_read_add(":000102030405060700\r\n:000102030405060708090A0B0C0D0E0F00\r\n", 0, 0);
-                     /*01234567890123456789 0 123456789012345678901234567890123456 7 */
-                     /*          1         2         3         4         5           */
+   len[0] = ciaaPOSIX_read_add(
+         ":0001020304050607", 1, 1);
+        /*012345678901234567890123456789012345678901234567890123456789*/
+        /*          1         2         3         4         5         */
+
+   len[1] = ciaaPOSIX_read_add(
+         ":000102030405060708090A0B0C0D0E0F", 1, 1);
+        /*012345678901234567890123456789012345678901234567890123456789*/
+        /*          1         2         3         4         5         */
+
    /* only return 10 bytes in the first read call */
    read_stub.length[0] = 10;
    read_stub.length[1] = 8;
@@ -383,10 +404,10 @@ void test_ciaaModbus_ascii_receive_04(void) {
    read[1] = ciaaModbus_ascii_receive(fildes, buf[1]);
 
    /* check received data */
-   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[0], buf[0], 20);
-   TEST_ASSERT_EQUAL_INT(20, read[0]);
-   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[20], buf[1], 37);
-   TEST_ASSERT_EQUAL_INT(37, read[1]);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[0], &buf[0], len[0]);
+   TEST_ASSERT_EQUAL_INT(len[0], read[0]);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[21], &buf[1], read[1]);
+   TEST_ASSERT_EQUAL_INT(len[1], read[1]);
    TEST_ASSERT_EQUAL_INT(read_stub.count, 5);
 }
 

@@ -123,9 +123,12 @@ int32_t ciaaModbus_ascii_receiveFirst(int32_t fildes, int8_t * buf)
    } while (-1 == begin);
 
    /* move the received part to the beginning of the buffer */
-   for (loopi = begin; loopi < read; loopi ++)
+   if (begin != 0)
    {
-      buf[loopi-begin] = buf[loopi];
+      for (loopi = begin; loopi < read; loopi ++)
+      {
+         buf[loopi-begin] = buf[loopi];
+      }
    }
 
    return read;
@@ -166,7 +169,7 @@ int32_t ciaaModbus_ascii_completeReception(int32_t fildes, int8_t * buf, int8_t 
                (CIAAMODBUS_ASCII_END_2 == buf[loopi+1]) )
             {
                /* set end position */
-               end = loopi + 1;
+               end = loopi + 2;
             }
          }
       }
@@ -190,17 +193,17 @@ int32_t ciaaModbus_ascii_completeReception(int32_t fildes, int8_t * buf, int8_t 
       else
       {
          /* end found */
-//         if (read > end)
-  //       {
+         if (length > end)
+         {
             /* copy left bytes to old data for the next call */
-    //        oldData.length = read-end;
+            oldData.length = length-end;
             /* copy data to old data buffer for the next calle */
-      //      ciaaPOSIX_memcpy(oldData.buf, &buf[end+1], read-end);
-        // }
+            ciaaPOSIX_memcpy(oldData.buf, &buf[end], length-end);
+         }
       }
    } while (-1 == end);
 
-   return length;
+   return end;
 } /* end ciaaModbus_ascii_completeReception */
 
 /*==================[external functions definition]==========================*/
