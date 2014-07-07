@@ -1,52 +1,46 @@
-/**********************************************************************
-* $Id$		lpc_types.h			2011-06-02
-*//**
-* @file		lpc_types.h
-* @brief	Contains the NXP ABL typedefs for C standard types.
-*     		It is intended to be used in ISO C conforming development
-*     		environments and checks for this insofar as it is possible
-*     		to do so.
-* @version	1.0
-* @date		02. June. 2011
-* @author	NXP MCU SW Application Team
-*
-* Copyright(C) 2011, NXP Semiconductor
-* All rights reserved.
-*
-***********************************************************************
-* Software that is described herein is for illustrative purposes only
-* which provides customers with programming information regarding the
-* products. This software is supplied "AS IS" without any warranties.
-* NXP Semiconductors assumes no responsibility or liability for the
-* use of the software, conveys no license or title under any patent,
-* copyright, or mask work right to the product. NXP Semiconductors
-* reserves the right to make changes in the software without
-* notification. NXP Semiconductors also make no representation or
-* warranty that such application will be suitable for the specified
-* use without further testing or modification.
-* Permission to use, copy, modify, and distribute this software and its
-* documentation is hereby granted, under NXP Semiconductors’
-* relevant copyright in the software, without fee, provided that it
-* is used in conjunction with NXP Semiconductors microcontrollers.  This
-* copyright, permission, and disclaimer notice must appear in all copies of
-* this code.
-**********************************************************************/
+/*
+ * @brief Common types used in LPC functions
+ *
+ * @note
+ * Copyright(C) NXP Semiconductors, 2012
+ * All rights reserved.
+ *
+ * @par
+ * Software that is described herein is for illustrative purposes only
+ * which provides customers with programming information regarding the
+ * LPC products.  This software is supplied "AS IS" without any warranties of
+ * any kind, and NXP Semiconductors and its licensor disclaim any and
+ * all warranties, express or implied, including all implied warranties of
+ * merchantability, fitness for a particular purpose and non-infringement of
+ * intellectual property rights.  NXP Semiconductors assumes no responsibility
+ * or liability for the use of the software, conveys no license or rights under any
+ * patent, copyright, mask work right, or any other intellectual property rights in
+ * or to any products. NXP Semiconductors reserves the right to make changes
+ * in the software without notification. NXP Semiconductors also makes no
+ * representation or warranty that such application will be suitable for the
+ * specified use without further testing or modification.
+ *
+ * @par
+ * Permission to use, copy, modify, and distribute this software and its
+ * documentation is hereby granted, under NXP Semiconductors' and its
+ * licensor's relevant copyrights in the software, without fee, provided that it
+ * is used in conjunction with NXP Semiconductors microcontrollers.  This
+ * copyright, permission, and disclaimer notice must appear in all copies of
+ * this code.
+ */
 
-/* Type group ----------------------------------------------------------- */
-/** @defgroup LPC_Types LPC_Types
- * @ingroup LPC4300CMSIS_FwLib_Drivers
+#ifndef __LPC_TYPES_H_
+#define __LPC_TYPES_H_
+
+#include <stdint.h>
+#include <stdbool.h>
+
+/** @defgroup LPC_Types CHIP: LPC Common Types
+ * @ingroup CHIP_Common
  * @{
  */
 
-#ifndef LPC_TYPES_H
-#define LPC_TYPES_H
-
-/* Includes ------------------------------------------------------------------- */
-#include <stdint.h>
-
-
-/* Public Types --------------------------------------------------------------- */
-/** @defgroup LPC_Types_Public_Types LPC_Types Public Types
+/** @defgroup LPC_Types_Public_Types LPC Public Types
  * @{
  */
 
@@ -56,46 +50,48 @@
 typedef enum {FALSE = 0, TRUE = !FALSE} Bool;
 
 /**
+ * @brief Boolean Type definition
+ */
+#if !defined(__cplusplus)
+// typedef enum {false = 0, true = !false} bool;
+#endif
+
+/**
  * @brief Flag Status and Interrupt Flag Status type definition
  */
 typedef enum {RESET = 0, SET = !RESET} FlagStatus, IntStatus, SetState;
-#define PARAM_SETSTATE(State) ((State==RESET) || (State==SET))
+#define PARAM_SETSTATE(State) ((State == RESET) || (State == SET))
 
 /**
  * @brief Functional State Definition
  */
 typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
-#define PARAM_FUNCTIONALSTATE(State) ((State==DISABLE) || (State==ENABLE))
+#define PARAM_FUNCTIONALSTATE(State) ((State == DISABLE) || (State == ENABLE))
 
 /**
  * @ Status type definition
  */
 typedef enum {ERROR = 0, SUCCESS = !ERROR} Status;
 
-
 /**
  * Read/Write transfer type mode (Block or non-block)
  */
-typedef enum
-{
+typedef enum {
 	NONE_BLOCKING = 0,		/**< None Blocking type */
 	BLOCKING,				/**< Blocking type */
-} TRANSFER_BLOCK_Type;
-
+} TRANSFER_BLOCK_T;
 
 /** Pointer to Function returning Void (any number of parameters) */
 typedef void (*PFV)();
 
 /** Pointer to Function returning int32_t (any number of parameters) */
-typedef int32_t(*PFI)();
+typedef int32_t (*PFI)();
 
 /**
  * @}
  */
 
-
-/* Public Macros -------------------------------------------------------------- */
-/** @defgroup LPC_Types_Public_Macros  LPC_Types Public Macros
+/** @defgroup LPC_Types_Public_Macros  LPC Public Macros
  * @{
  */
 
@@ -105,7 +101,7 @@ typedef int32_t(*PFI)();
  */
 #undef _BIT
 /* Set bit macro */
-#define _BIT(n)	(1<<(n))
+#define _BIT(n) (1 << (n))
 
 /* _SBF(f,v) sets the bit field starting at position "f" to value "v".
  * _SBF(f,v) is intended to be used in "OR" and "AND" expressions:
@@ -113,7 +109,7 @@ typedef int32_t(*PFI)();
  */
 #undef _SBF
 /* Set bit field macro */
-#define _SBF(f,v) ((v)<<(f))
+#define _SBF(f, v) ((v) << (f))
 
 /* _BITMASK constructs a symbol with 'field_width' least significant
  * bits set.
@@ -134,11 +130,11 @@ typedef int32_t(*PFI)();
 
 /* NULL pointer */
 #ifndef NULL
-#define NULL ((void*) 0)
+#define NULL ((void *) 0)
 #endif
 
 /* Number of elements in an array */
-#define NELEMENTS(array)  (sizeof (array) / sizeof (array[0]))
+#define NELEMENTS(array)  (sizeof(array) / sizeof(array[0]))
 
 /* Static data/function define */
 #define STATIC static
@@ -156,61 +152,65 @@ typedef int32_t(*PFI)();
  * @}
  */
 
-
-/* Old Type Definition compatibility ------------------------------------------ */
-/** @addtogroup LPC_Types_Public_Types LPC_Types Public Types
+/* Old Type Definition compatibility */
+/** @addtogroup LPC_Types_Public_Types
  * @{
  */
 
-/** SMA type for character type */
+/** LPC type for character type */
 typedef char CHAR;
 
-/** SMA type for 8 bit unsigned value */
+/** LPC type for 8 bit unsigned value */
 typedef uint8_t UNS_8;
 
-/** SMA type for 8 bit signed value */
+/** LPC type for 8 bit signed value */
 typedef int8_t INT_8;
 
-/** SMA type for 16 bit unsigned value */
-typedef	uint16_t UNS_16;
+/** LPC type for 16 bit unsigned value */
+typedef uint16_t UNS_16;
 
-/** SMA type for 16 bit signed value */
-typedef	int16_t INT_16;
+/** LPC type for 16 bit signed value */
+typedef int16_t INT_16;
 
-/** SMA type for 32 bit unsigned value */
-typedef	uint32_t UNS_32;
+/** LPC type for 32 bit unsigned value */
+typedef uint32_t UNS_32;
 
-/** SMA type for 32 bit signed value */
-typedef	int32_t INT_32;
+/** LPC type for 32 bit signed value */
+typedef int32_t INT_32;
 
-/** SMA type for 64 bit signed value */
+/** LPC type for 64 bit signed value */
 typedef int64_t INT_64;
 
-/** SMA type for 64 bit unsigned value */
+/** LPC type for 64 bit unsigned value */
 typedef uint64_t UNS_64;
 
+#ifdef __CODE_RED
+#define BOOL_32 bool
+#define BOOL_16 bool
+#define BOOL_8  bool
+#else
 /** 32 bit boolean type */
-typedef Bool BOOL_32;
+typedef bool BOOL_32;
 
 /** 16 bit boolean type */
-typedef Bool BOOL_16;
+typedef bool BOOL_16;
 
 /** 8 bit boolean type */
-typedef Bool BOOL_8;
+typedef bool BOOL_8;
+#endif
 
 #ifdef __CC_ARM
 #define INLINE  __inline
 #else
 #define INLINE inline
 #endif
-/**
- * @}
- */
-
-
-#endif /* LPC_TYPES_H */
 
 /**
  * @}
  */
 
+/**
+ * @}
+ */
+
+#endif /* __LPC_TYPES_H_ */
