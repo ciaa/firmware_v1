@@ -95,8 +95,6 @@
 #ifndef CPU
 #error CPU is not defined
 #elif (CPU == lpc4337)
-#include "LPC43xx.h"
-#include "core_cmFunc.h"
 #else
 #error Unknown CPU value
 #endif

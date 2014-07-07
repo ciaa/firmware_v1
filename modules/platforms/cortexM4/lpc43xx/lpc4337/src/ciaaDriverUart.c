@@ -58,8 +58,7 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverUart.h"
 #include "ciaaPOSIX_stdlib.h"
-#include "LPC43xx.h"
-#include "lpc43xx_uart.h"
+#include "chip.h"
 
 /*==================[macros and definitions]=================================*/
 typedef struct  {
@@ -143,21 +142,11 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-   UART_CFG_Type uartCfg;
-
-   /* init uart configuration */
-   UART_ConfigStructInit(&uartCfg);
-
-   /* init driver */
-   UART_Init(device->loLayer, &uartCfg);
-
    return device;
 }
 
 extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
-   UART_DeInit(device->loLayer);
-
    return 0;
 }
 
@@ -174,7 +163,7 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
 
 extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
-   return UART_Send(device->upLayer, (uint8_t*)buffer, size, NONE_BLOCKING);
+   return 0;
 }
 
 void ciaaDriverUart_init(void)
