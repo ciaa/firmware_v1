@@ -95,6 +95,7 @@ extern "C" {
  * | +-- 2 bytes: addres
  * |
  * +-- 1 byte: start delimiter ascii : (0x3A)
+ */
 
 /** \brief Maximal length of a ascii modbus message */
 #define CIAAMODBUS_ASCII_MAXLENGHT  255
@@ -149,6 +150,14 @@ extern void ciaaModbus_bin2ascii(uint8_t length, uint8_t * buf);
  **         representing the binary value if success.
  **/
 extern int32_t ciaaModbus_ascii_convert2bin(uint8_t * buf);
+
+/** \brief Convert received ascii data to bin
+ **
+ ** \param[inout] buf input ascii buffer and output bin buffer
+ ** \paran[in] len length of the ascii buffer
+ ** \return -1 if error, lenght of the binary data
+ **/
+extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

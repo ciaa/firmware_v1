@@ -85,7 +85,7 @@ ciaaModbus_ascii_bufType oldData = { { 0 }, 0 };
  **             CIAAMODBUS_ASCII_MAXLENGTH bytes long
  ** \return the length of the modbus ascii message
  **/
-int32_t ciaaModbus_ascii_receiveFirst(int32_t fildes, int8_t * buf)
+int32_t ciaaModbus_ascii_receiveFirst(int32_t fildes, uint8_t * buf)
 {
    int32_t begin;
    int32_t read;
@@ -145,7 +145,7 @@ int32_t ciaaModbus_ascii_receiveFirst(int32_t fildes, int8_t * buf)
  ** \param[in] length length of the data already stored in the buffer
  ** \return the length of the modbus ascii message
  **/
-int32_t ciaaModbus_ascii_completeReception(int32_t fildes, int8_t * buf, int8_t length)
+int32_t ciaaModbus_ascii_completeReception(int32_t fildes, uint8_t * buf, int8_t length)
 {
    int32_t end;
    int32_t loopi;
