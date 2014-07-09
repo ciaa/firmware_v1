@@ -127,10 +127,11 @@ extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf);
  ** This functions convert a modbus ascii pdu to binary.
  **
  ** \param[inout] buf pointer to the ascii buffer to be converted
+ ** \param[in] len lenght of the ascii buffer
  ** \return -1 if an invalid ascii modbus is found, length in bytes of the
  **         converted modbus pdu if success
  **/
-extern int32_t ciaaModbus_ascii2bin(uint8_t * buf);
+extern int32_t ciaaModbus_ascii2bin(uint8_t * buf, int32_t len);
 
 /** \brief Convert Modbus bin to ascii
  **
