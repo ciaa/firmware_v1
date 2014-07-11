@@ -8,13 +8,9 @@
 ===============================================================================
 */
 
-#ifdef __USE_CMSIS
-#include "LPC43xx.h"
-#endif
-
 //#include <cr_section_macros.h>
 
-#include "lpc43xx_cgu.h"
+#include "chip.h"
 #include "ciaaIO.h"
 
 volatile int contms;
@@ -38,7 +34,7 @@ int main(void)
 	 * pero CGU_GetPCLKFrequency() no sé por qué genera
 	 * cuelgues erráticos o hace que SysTick no interrumpa :(
 	 */
-
+	SystemCoreClockUpdate();
 	SysTick_Config(SystemCoreClock/1000);
     ciaaIOInit();
 
@@ -47,7 +43,7 @@ int main(void)
     	for(i=4; i<8; i++)
     	{
 			ciaaWriteOutput(i, 1);
-			pausems(3000);
+			pausems(500);
 			ciaaWriteOutput(i, 0);
     	}
     }

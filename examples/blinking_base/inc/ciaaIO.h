@@ -8,11 +8,9 @@
 #ifndef CIAAIO_H_
 #define CIAAIO_H_
 
-#include "LPC43xx.h"
-#include "lpc43xx_scu.h"
-#include "lpc43xx_gpio.h"
+#include "chip.h"
 
-#define ciaaDigitalInputs() ((uint8_t)((GPIO_ReadValue(3) & (0x0F<<11))>>7)|(GPIO_ReadValue(2) & 0x0F))
+#define ciaaDigitalInputs() ((uint8_t)((Chip_GPIO_ReadValue(LPC_GPIO_PORT,3) & (0x0F<<11))>>7)|(Chip_GPIO_ReadValue(LPC_GPIO_PORT,2) & 0x0F))
 
 void ciaaIOInit(void);
 uint32_t ciaaWriteOutput(uint32_t outputNumber, uint32_t value);
