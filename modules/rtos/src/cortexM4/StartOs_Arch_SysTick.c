@@ -30,15 +30,17 @@
  *
  */
 
-/** \brief Short description of this file
+/** \brief Start the system counter
  **
- ** Long description of this file
+ ** This file includes the function to start the system counter
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup FreeOSEK_Os
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
 
 /*
@@ -79,6 +81,7 @@ void StartOs_Arch_SysTick(void)
    SysTick_Config(SystemCoreClock/1000);
 }
 
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
