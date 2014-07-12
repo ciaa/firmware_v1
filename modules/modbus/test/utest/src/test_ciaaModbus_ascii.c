@@ -70,6 +70,7 @@ typedef struct {
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
+static int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc);
 
 /*==================[internal data definition]===============================*/
 static stubType read_stub;
@@ -150,96 +151,10 @@ int32_t ciaaPOSIX_read_add(char * data, int8_t addEnd, int8_t addLrc)
    uint8_t aux;
    int32_t startpos = read_stub.totalLength;
 
-   memcpy(&read_stub.buf[startpos], data, strlen(data));
-   ret += strlen(data);
-   read_stub.totalLength += strlen(data);
+   memcpy(&read_stub.buf[startpos], data, strlen(data)+1);
+   ret = tst_asciipdu(&read_stub.buf[startpos], addEnd, addLrc);
 
-   if ((!addEnd) && (!addLrc))
-   {
-      /* nothing to do */
-   }
-   else if ((!addEnd) && (addLrc))
-   {
-      /* calculate lrc */
-      for(loopi = startpos + 1; loopi < read_stub.totalLength-4; loopi++)
-      {
-         if ( ('0' >= read_stub.buf[loopi]) && ('9' <= read_stub.buf[loopi]) )
-         {
-            aux = (read_stub.buf[loopi] - '0') << 4;
-         } else if ( ('A' >= read_stub.buf[loopi]) && ('F' <= read_stub.buf[loopi]) )
-         {
-            aux = (read_stub.buf[loopi] - 'A' + 10)  << 4;
-         }
-
-         loopi++;
-
-         if ( ('0' >= read_stub.buf[loopi]) && ('9' <= read_stub.buf[loopi]) )
-         {
-            aux += (read_stub.buf[loopi] - '0');
-         } else if ( ('A' >= read_stub.buf[loopi]) && ('F' <= read_stub.buf[loopi]) )
-         {
-            aux += (read_stub.buf[loopi] - 'A' + 10);
-         }
-
-         lrc += aux;
-      }
-
-      /* complement 2 of lrc */
-      lrc = (uint8_t) -lrc;
-
-      /* set lrc */
-      read_stub.buf[read_stub.totalLength-4] = ( ( (lrc > 4) > 9 ) ? ( ( (lrc > 4) -10 ) + 'A' ) : ( (lrc > 4) + '0' ) );
-      read_stub.buf[read_stub.totalLength-3] = ( ( (lrc & 0xF) > 9 ) ? ( ( (lrc & 0xF) -10 ) + 'A' ) : ( (lrc & 0xF) + '0' ) );
-   }
-   else if ((addEnd) && (!addLrc))
-   {
-      ret += 2;
-
-      /* add CRLF */
-      read_stub.totalLength += 2;
-      read_stub.buf[read_stub.totalLength-2] = 0x0D;
-      read_stub.buf[read_stub.totalLength-1] = 0x0A;
-   }
-   else
-   {
-      ret += 4;
-
-      /* calculate lrc */
-      for(loopi = startpos + 1; loopi < read_stub.totalLength; loopi++) {
-         if ( ('0' >= read_stub.buf[loopi]) && ('9' <= read_stub.buf[loopi]) )
-         {
-            aux = (read_stub.buf[loopi] - '0') << 4;
-         } else if ( ('A' >= read_stub.buf[loopi]) && ('F' <= read_stub.buf[loopi]) )
-         {
-            aux = (read_stub.buf[loopi] - 'A' + 10)  << 4;
-         }
-
-         loopi++;
-
-         if ( ('0' >= read_stub.buf[loopi]) && ('9' <= read_stub.buf[loopi]) )
-         {
-            aux += (read_stub.buf[loopi] - '0');
-         } else if ( ('A' >= read_stub.buf[loopi]) && ('F' <= read_stub.buf[loopi]) )
-         {
-            aux += (read_stub.buf[loopi] - 'A' + 10);
-         }
-
-         lrc += aux;
-      }
-
-      /* complement 2 of lrc */
-      lrc = (uint8_t) -lrc;
-
-      /* set lrc */
-      read_stub.totalLength += 2;
-      read_stub.buf[read_stub.totalLength-2] = ( ( (lrc > 4) > 9 ) ? ( ( (lrc > 4) -10 ) + 'A' ) : ( (lrc > 4) + '0' ) );
-      read_stub.buf[read_stub.totalLength-1] = ( ( (lrc & 0xF) > 9 ) ? ( ( (lrc & 0xF) -10 ) + 'A' ) : ( (lrc & 0xF) + '0' ) );
-
-      /* add CRLF */
-      read_stub.totalLength += 2;
-      read_stub.buf[read_stub.totalLength-2] = 0x0D;
-      read_stub.buf[read_stub.totalLength-1] = 0x0A;
-   }
+   read_stub.totalLength += ret;
 
    return ret;
 } /* end ciaaPOSIX_read_add */
@@ -349,13 +264,13 @@ int32_t tst_convert2bin(uint8_t * dst, uint8_t * src, int32_t len)
  ** \return lenght of bytes written to the buffer
  ** mace2
  **/
-int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc)
+static int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc)
 {
    int32_t len = strlen(buf);
    int32_t loopi;
    int32_t ret = strlen(buf);
    uint8_t aux;
-   uint8_t lrc;
+   uint8_t lrc = 0;
 
    if ((!addEnd) && (!addLrc))
    {
@@ -391,7 +306,7 @@ int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc)
       lrc = (uint8_t) -lrc;
 
       /* set lrc */
-      buf[ret-4] = ( ( (lrc > 4) > 9 ) ? ( ( (lrc > 4) -10 ) + 'A' ) : ( (lrc > 4) + '0' ) );
+      buf[ret-4] = ( ( (lrc >> 4) > 9 ) ? ( ( (lrc >> 4) -10 ) + 'A' ) : ( (lrc >> 4) + '0' ) );
       buf[ret-3] = ( ( (lrc & 0xF) > 9 ) ? ( ( (lrc & 0xF) -10 ) + 'A' ) : ( (lrc & 0xF) + '0' ) );
    }
    else if ((addEnd) && (!addLrc))
@@ -404,10 +319,9 @@ int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc)
    }
    else
    {
-      ret += 4;
-
       /* calculate lrc */
-      for(loopi = 1; loopi < len; loopi++) {
+      for(loopi = 1; loopi < len; loopi++)
+      {
          if ( ('0' >= buf[loopi]) && ('9' <= buf[loopi]) )
          {
             aux = (buf[loopi] - '0') << 4;
@@ -434,7 +348,7 @@ int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc)
 
       /* set lrc */
       ret += 2;
-      buf[ret-2] = ( ( (lrc > 4) > 9 ) ? ( ( (lrc > 4) -10 ) + 'A' ) : ( (lrc > 4) + '0' ) );
+      buf[ret-2] = ( ( (lrc >> 4) > 9 ) ? ( ( (lrc >> 4) -10 ) + 'A' ) : ( (lrc >> 4) + '0' ) );
       buf[ret-1] = ( ( (lrc & 0xF) > 9 ) ? ( ( (lrc & 0xF) -10 ) + 'A' ) : ( (lrc & 0xF) + '0' ) );
 
       /* add CRLF */
