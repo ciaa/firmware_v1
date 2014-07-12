@@ -247,42 +247,7 @@ extern void ciaaModbus_ascii(int32_t fildes, uint8_t * buf)
       len_bin = ciaaModbus_ascii_ascii2bin(buf, len_ascii);
    } while (-1 == len_bin);
 
-}
-
-extern int32_t ciaaModbus_ascii_convert2bin(uint8_t * buf)
-{
-   int32_t ret = 0;
-   int32_t loopi;
-   int32_t mult;
-   int32_t count = 2;
-
-   for(loopi = 0; (loopi < count) && (-1 != ret); loopi++)
-   {
-      /* calculate multiplicator */
-      mult = 1 << (4 * (count - 1 - loopi) );
-
-      /* calculate bin value if value between 0 .. 9 */
-      if ( ( CIAAMODBUS_ASCII_0 <= *buf ) && ( CIAAMODBUS_ASCII_9 >= *buf ) )
-      {
-         ret += ( *buf - CIAAMODBUS_ASCII_0 ) * mult;
-      }
-      /* calculate bin value if between A .. F */
-      else if ( ( CIAAMODBUS_ASCII_A <= *buf ) && ( CIAAMODBUS_ASCII_F >= *buf ) )
-      {
-         ret += ( *buf - CIAAMODBUS_ASCII_A + 10 ) * mult;
-      }
-      else
-      {
-         /* buf is not in the range 0..9 or A..F */
-         ret = -1;
-      }
-
-      /* increment pointer */
-      buf++;
-   }
-
-   return ret;
-}
+} /* end ciaaModbus_ascii */
 
 extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len)
 {
@@ -342,7 +307,7 @@ extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len)
    }
 
    return ret;
-}
+} /* end ciaaModbus_ascii_ascii2bin */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

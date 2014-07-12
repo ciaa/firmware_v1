@@ -98,6 +98,10 @@ void tearDown(void) {
 void doNothing(void) {
 }
 
+
+/**** Helper Functions ****/
+
+/** \brief Init posix read stub */
 ciaaPOSIX_read_init(void)
 {
    int32_t loopi;
@@ -117,7 +121,7 @@ ciaaPOSIX_read_init(void)
    }
 }
 
-/** \brief
+/** \brief Add data to posix stub read buffer
  **
  ** \param[in] data pointer containing the data
  ** \param[in] addEnd see table below
@@ -143,6 +147,7 @@ int32_t ciaaPOSIX_read_add(char * data, int8_t addEnd, int8_t addLrc)
    int32_t ret = 0;
    int32_t loopi;
    uint8_t lrc = 0;
+   uint8_t aux;
    int32_t startpos = read_stub.totalLength;
 
    memcpy(&read_stub.buf[startpos], data, strlen(data));
@@ -158,7 +163,25 @@ int32_t ciaaPOSIX_read_add(char * data, int8_t addEnd, int8_t addLrc)
       /* calculate lrc */
       for(loopi = startpos + 1; loopi < read_stub.totalLength-4; loopi++)
       {
-         lrc += read_stub.buf[loopi];
+         if ( ('0' >= read_stub.buf[loopi]) && ('9' <= read_stub.buf[loopi]) )
+         {
+            aux = (read_stub.buf[loopi] - '0') << 4;
+         } else if ( ('A' >= read_stub.buf[loopi]) && ('F' <= read_stub.buf[loopi]) )
+         {
+            aux = (read_stub.buf[loopi] - 'A' + 10)  << 4;
+         }
+
+         loopi++;
+
+         if ( ('0' >= read_stub.buf[loopi]) && ('9' <= read_stub.buf[loopi]) )
+         {
+            aux += (read_stub.buf[loopi] - '0');
+         } else if ( ('A' >= read_stub.buf[loopi]) && ('F' <= read_stub.buf[loopi]) )
+         {
+            aux += (read_stub.buf[loopi] - 'A' + 10);
+         }
+
+         lrc += aux;
       }
 
       /* complement 2 of lrc */
@@ -182,9 +205,24 @@ int32_t ciaaPOSIX_read_add(char * data, int8_t addEnd, int8_t addLrc)
       ret += 4;
 
       /* calculate lrc */
-      for(loopi = startpos + 1; loopi < read_stub.totalLength; loopi++)
-      {
-         lrc += read_stub.buf[loopi];
+      for(loopi = startpos + 1; loopi < read_stub.totalLength; loopi++) {
+         if ( ('0' >= read_stub.buf[loopi]) && ('9' <= read_stub.buf[loopi]) )
+         {
+            aux = (read_stub.buf[loopi] - '0') << 4;
+         } else if ( ('A' >= read_stub.buf[loopi]) && ('F' <= read_stub.buf[loopi]) )
+         {
+            aux = (read_stub.buf[loopi] - 'A' + 10)  << 4;
+         }
+
+         loopi++;
+
+         if ( ('0' >= read_stub.buf[loopi]) && ('9' <= read_stub.buf[loopi]) )
+         {
+            aux += (read_stub.buf[loopi] - '0');
+         } else if ( ('A' >= read_stub.buf[loopi]) && ('F' <= read_stub.buf[loopi]) )
+         {
+            aux += (read_stub.buf[loopi] - 'A' + 10);
+         }
       }
 
       read_stub.totalLength += 2;
@@ -237,37 +275,41 @@ ssize_t ciaaPOSIX_read_stub(int32_t fildes, void * buf, ssize_t nbyte)
    return ret;
 }
 
-/** \brief test ciaaModbus_ascii_convert2bin
+/** \brief convert ascii to bin for the tests
+ **
+ ** \param[out] dst destination buffer in binary format
+ ** \param[in] src source buffer in ascii format starting with :
+ ** \param[in] len length of the ascii buffer
+ ** \return lenght of the binary buffer
+ **
  **/
-void test_ciaaModbus_convert2bin(void) {
-   char buf[10];
-   int32_t ret;
+int32_t tst_convert2bin(uint8_t * dst, uint8_t * src, int32_t len)
+{
+}
 
-   buf[0] = '3';
-   buf[1] = '5';
-
-   ret = ciaaModbus_ascii_convert2bin(buf);
-   TEST_ASSERT_EQUAL_INT(0x35, ret);
-
-   buf[0] = 'a';
-   buf[1] = 'A';
-   ret = ciaaModbus_ascii_convert2bin(buf);
-   TEST_ASSERT_EQUAL_INT(-1, ret);
-
-   buf[0] = 'A';
-   buf[1] = '5';
-   ret = ciaaModbus_ascii_convert2bin(buf);
-   TEST_ASSERT_EQUAL_INT(0xA5, ret);
-
-   buf[0] = '5';
-   buf[1] = 'a';
-   ret = ciaaModbus_ascii_convert2bin(buf);
-   TEST_ASSERT_EQUAL_INT(-1, ret);
-
-   buf[0] = '1';
-   buf[1] = 'F';
-   ret = ciaaModbus_ascii_convert2bin(buf);
-   TEST_ASSERT_EQUAL_INT(0x1F, ret);
+/** \brief Prepare ascii pdu
+ **
+ ** \param[in] buf pointer containing the data
+ ** \param[in] addEnd see table below
+ ** \param[in] addLrc see table below
+ **
+ ** +--------+--------+-----------------------------------------------------+
+ ** | addEnd | addLrc | description                                         |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   0    |   0    | data is used as is, no CR/LF is added at the end of |
+ ** |        |        | the message.                                        |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   0    |   1    | LRC is set in the position data[length-3/4]         |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   1    |   0    | CRLF is appended after data[length-1]               |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   1    |   1    | LRC and CRLF are appended after data[length-1]      |
+ ** +--------+--------+-----------------------------------------------------+
+ **
+ ** \return lenght of bytes written to the buffer
+ **/
+int32_t tst_asciipdu(char * buf, int8_t addEnd, int8_t addLrc)
+{
 }
 
 /** \brief Test ciaaModbus_ascii_receive
@@ -479,6 +521,24 @@ void test_ciaaModbus_ascii_receive_05(void) {
    TEST_ASSERT_EQUAL_INT(len[3], read[3]);
    TEST_ASSERT_EQUAL_INT(read_stub.count, 9);
 }
+
+
+/** \brief test ciaaModbus_ascii_ascii2bin
+ */
+void test_ciaaModbus_ascii_ascii2bin_01(void)
+{
+   int32_t len[10];
+   uint8_t buf[10][500];
+   int32_t buflen[10];
+
+   /* set input buffer */
+   len[0] = ciaaPOSIX_read_add(
+         ":0001020304050607", 1, 1);
+        /*012345678901234567890123456789012345678901234567890123456789*/
+        /*          1         2         3         4         5         */
+/*   len[0] = ciaaModbus_ascii_ascii2bin(buf[0], buflen[0]; */
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

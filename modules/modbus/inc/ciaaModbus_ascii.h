@@ -123,17 +123,6 @@ extern "C" {
  **/
 extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf);
 
-/** \brief Convert Modbus form ascii to bin
- **
- ** This functions convert a modbus ascii pdu to binary.
- **
- ** \param[inout] buf pointer to the ascii buffer to be converted
- ** \param[in] len lenght of the ascii buffer
- ** \return -1 if an invalid ascii modbus is found, length in bytes of the
- **         converted modbus pdu if success
- **/
-extern int32_t ciaaModbus_ascii2bin(uint8_t * buf, int32_t len);
-
 /** \brief Convert Modbus bin to ascii
  **
  ** This function convert a modbus bin to ascii.
@@ -142,14 +131,6 @@ extern int32_t ciaaModbus_ascii2bin(uint8_t * buf, int32_t len);
  ** \param[inout] buf pointer to the bin buffer to be converted
  **/
 extern void ciaaModbus_bin2ascii(uint8_t length, uint8_t * buf);
-
-/** \brief Convert Modbus values to binary
- **
- ** \param[in] address of the bytes to be converted
- ** \return -1 if invalid values have been found or a value between 0 and 255
- **         representing the binary value if success.
- **/
-extern int32_t ciaaModbus_ascii_convert2bin(uint8_t * buf);
 
 /** \brief Convert received ascii data to bin
  **
