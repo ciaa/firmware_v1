@@ -56,9 +56,13 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaModbus.h"
 #include "ciaaPOSIX_stdio.h"
+#include "ciaaModbus_ascii.h"
 
 /*==================[macros and definitions]=================================*/
-#define MODBUS_BUFFER_SIZE          256
+#define CIAAMODBUS_BUFFER_SIZE          CIAAMODBUS_ASCII_MAXLENGHT
+
+#define CIAAMODBUS_READ_INT(buf) \
+   ((buf)[0] | ((buf)[1] << 8))
 
 /*==================[internal data declaration]==============================*/
 
@@ -69,28 +73,125 @@
 static int32_t ciaaModbus_device;
 
 /** \brief Modbus slave buffer */
-static int8_t ciaaModbus_slaveBuf[MODBUS_BUFFER_SIZE];
+static uint8_t ciaaModbus_slaveBuf[CIAAMODBUS_BUFFER_SIZE];
+
+/** \brief Flag used to indicate that the modbus mainfunction shall exit
+ **/
+static int8_t ciaaModbus_exit;
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+int32_t ciaaModbus_checkLRC(uint8_t * buf, int32_t len)
+{
+   int32_t ret = -1;
+   int32_t loopi;
+   uint8_t lrc = 0;
+
+   /* calculate lrc */
+   for(loopi = 0; loopi < len-1; loopi++)
+   {
+      lrc += buf[loopi];
+   }
+
+   /* complement 2 */
+   lrc = -lrc;
+
+   /* check lrc */
+   if (buf[loopi] == lrc)
+   {
+      ret = 1;
+   }
+
+   return ret;
+}
 
 /*==================[external functions definition]==========================*/
 extern void ciaaModbus_init(void)
 {
    ciaaModbus_device = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+
+   /* falg used to exit modbus function */
+   ciaaModbus_exit = 0;
+
+}
+
+extern void ciaaModbus_deinit(void)
+{
+   if (0 == ciaaModbus_exit)
+   {
+      ciaaModbus_exit = 1;
+   }
 }
 
 extern void ciaaModbus_slaveMainFunction(void)
 {
    int32_t read;
+   int32_t lrccheck;
 
-   /* read modbus message */
-   read = ciaaPOSIX_read(ciaaModbus_device, ciaaModbus_slaveBuf,
-         sizeof(ciaaModbus_slaveBuf));
+   do
+   {
+      do
+      {
 
-   (void)read;
+         /* read modbus request */
+         read = ciaaModbus_ascii_read(ciaaModbus_device, ciaaModbus_slaveBuf);
+
+         /* check lrc */
+         lrccheck = ciaaModbus_checkLRC(ciaaModbus_slaveBuf, read);
+
+      } while (1 != lrccheck);
+
+      /* process command */
+      read = ciaaModbus_process(ciaaModbus_slaveBuf, read);
+
+      /* write modbus answer */
+      ciaaModbus_ascii_write(ciaaModbus_device, ciaaModbus_slaveBuf, read);
+   } while(0 == ciaaModbus_exit);
+
+   ciaaPOSIX_close(ciaaModbus_device);
+} /* end ciaaModbus_slaveMainFunction */
+
+extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len)
+{
+   uint8_t function = buf[0];
+   uint16_t qty;
+   uint32_t ret;
+
+   switch(function)
+   {
+      case CIAAMODBUS_FNC_RDINPREG:
+         qty = CIAAMODBUS_READ_INT(&buf[3]);
+
+         if ((0x0001 <= qty) && (0x007D >= qty))
+         {
+            buf[0] |= 0x80;
+
+            buf[1] = CIAAMODBUS_E_WRONG_REG_QTY;
+
+            ret = 2;
+         } else
+         {
+
+         }
+
+         break;
+
+      default:
+         /* set error code bit */
+         buf[0] |= 0x80;
+
+         /* set error code */
+         buf[1] = CIAAMODBUS_E_FNC_NOT_SUPPORTED;
+
+         ret = 2;
+         break;
+   }
+
+   return ret;
+
 }
+
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

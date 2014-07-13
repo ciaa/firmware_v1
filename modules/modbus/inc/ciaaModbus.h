@@ -79,6 +79,14 @@ extern "C" {
 
 /** \brief Function internal error */
 #define MODBUS_E_FUNCTION_ERROR           0x04
+
+/****** error codes ******/
+#define CIAAMODBUS_E_FNC_NOT_SUPPORTED    0x01
+#define CIAAMODBUS_E_WRONG_REG_QTY        0x03
+#define CIAAMODBUS_E_WRONG_STR_ADDR       0x02
+
+#define CIAAMODBUS_FNC_RDINPREG           0x04
+
 /*==================[typedef]================================================*/
 /** \brief Modbus return type */
 typedef uint8_t Modbus_returnType;
@@ -87,6 +95,18 @@ typedef uint8_t Modbus_returnType;
 /** \brief Modbus initialization
  **/
 extern void ciaaModbus_init(void);
+
+/** \brief Modbus deinitialization
+ **/
+extern void ciaaModbus_deinit(void);
+
+/** \brief Process modbus request
+ **
+ ** \param[inout] buf buffer with the modbus data
+ ** \param[in] len length of the buffer
+ ** \return length of data on the buffer
+ **/
+extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len);
 
 /** \brief Modbus slave main function
  **/
