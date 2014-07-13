@@ -193,7 +193,10 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
    quantityOfRegisters = CIAAMODBUS_READ_INT(&buf[3]);
 
    /* check that quantity of registers is in range */
-   if ((0x0001 <= quantityOfRegisters) && (0x007D >= quantityOfRegisters))
+   if ( ( (0x0001 <= quantityOfRegisters) && (0x007D >= quantityOfRegisters) ) ||
+      /* check if lenght is valid, this is not part of modbus see:
+       * https://github.com/ciaa/Firmware/issues/68 */
+        (CIAAMODBUS_MSG_READ_INPUT_REGISTERS_LENGTH != len) )
    {
       /* set error flag */
       buf[0] |= 0x80;
