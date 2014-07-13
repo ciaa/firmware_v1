@@ -109,7 +109,7 @@ extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len);
 
 /** \brief Modbus slave main function
  **/
-extern void ciaaModbus_slaveMainFunction(void);
+extern void ciaaModbus_slaveMainTask(void);
 
 /*==================[external functions declaration]=========================*/
 

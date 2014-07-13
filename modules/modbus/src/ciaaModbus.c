@@ -124,7 +124,7 @@ extern void ciaaModbus_deinit(void)
    }
 }
 
-extern void ciaaModbus_slaveMainFunction(void)
+extern void ciaaModbus_slaveMainTask(void)
 {
    int32_t read;
    int32_t lrccheck;

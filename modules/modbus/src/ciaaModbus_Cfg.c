@@ -72,6 +72,13 @@ ciaaModbus_cmdLstType ciaaModbus_cmdLst0x04[] = {
          0x0000,
          0x0000
       },
+
+   },
+   {
+      {
+         0x0000,
+         0x0000
+      },
       NULL                    /** <= last entry */
    }
 };

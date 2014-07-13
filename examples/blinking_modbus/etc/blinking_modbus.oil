@@ -16,43 +16,38 @@ TASK InitTask {
     SCHEDULE = NON;
 }
 
-TASK TaskA {
+TASK Blinking {
     PRIORITY = 5;
+    ACTIVATION = 1;
+    STACK = 256;
+    TYPE = BASIC;
+    SCHEDULE = NON;
+    EVENT = POSIXE;
+    RESOURCE = POSIXR;
+}
+
+TASK ModbusSlave {
+    PRIORITY = 1;
     ACTIVATION = 1;
     STACK = 256;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
-    EVENT = POSIXE;
-    RESOURCE = POSIXR;
-    AUTOSTART = TRUE {
-        APPMODE = AppMode2;
-    }
-}
-
-TASK TaskB {
-    PRIORITY = 8;
-    ACTIVATION = 1;
-    STACK = 256;
-    TYPE = BASIC;
-    SCHEDULE = FULL;
-    RESOURCE = Res1;
-}
-
-TASK TaskC {
-    PRIORITY = 10;
-    ACTIVATION = 1;
-    STACK = 256;
-    TYPE = BASIC;
-    SCHEDULE = FULL;
     AUTOSATART = TRUE {
         APPMODE = AppMode1;
     }
+    RESOURCE = POSIXR;
+    EVENT = POSIXE;
 }
 
-ALARM ActivateTaskC {
+ALARM BlinkingAlarm {
     COUNTER = SoftwareCounter;
     ACTION = ACTIVATETASK {
-        TASK = TaskC;
+        TASK = Blinking;
+    }
+    AUTOSTART = TRUE {
+       APPMODE = AppMode1;
+       ALARMTIME = 50;
+       CYCLETIME = 50;
     }
 }
 
@@ -91,10 +86,5 @@ ALARM IncrementSWCounter {
       CYCLETIME = 1;
    };
 };
-
-ISR IsrName {
-    CATEGORY = 2;
-    ISR = CANRX;
-}
 
 };

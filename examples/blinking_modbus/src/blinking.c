@@ -60,6 +60,7 @@
 /*==================[inclusions]=============================================*/
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
+#include "ciaaModbus.h"
 #include "ciaak.h"
 #include "blinking.h"
 
@@ -70,6 +71,7 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+int32_t ledFilDes;
 
 /*==================[external data definition]===============================*/
 
@@ -90,66 +92,41 @@ void ErrorHook(void)
 }
 
 TASK(InitTask) {
+   /* init the ciaa kernel */
    ciaak_start();
 
-   ciaaPOSIX_printf("InitTask is running\n");
-   ActivateTask(TaskA);
+   /* open led device */
+   ledFilDes = ciaaPOSIX_open("/dev/dio/port/0",O_RDWR);
 
-   Schedule();
-
-   ciaaPOSIX_printf("InitTask sets TaskA Event1\n");
-   SetEvent(TaskA, Event1);
-
-   ciaaPOSIX_printf("InitTask is Terminating\n");
+   /* terminate task */
    TerminateTask();
 }
 
-TASK(TaskA) {
-   int32_t fildes;
+TASK(Blinking) {
+   static uint8_t ledStatus = 0;
 
-   ciaaPOSIX_printf("TaskA is running\n");
+   /* write led */
+   ciaaPOSIX_write(ledFilDes, &ledStatus, sizeof(ledStatus));
+   ciaaPOSIX_printf("LED: %d\n", ledStatus);
+   /* toggle bit 0 */
+   ledStatus ^= 0x01;
 
-   fildes = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
-
-   (void) fildes;
-
-   ciaaPOSIX_printf("TaskA espera Event1\n");
-   WaitEvent(Event1);
-
-   ciaaPOSIX_printf("TaskA recibio la notficacion del Event1\n");
-   ActivateTask(TaskB);
-
-   ciaaPOSIX_printf("Pedimos recurso\n");
-   GetResource(Res1);
-
-   ciaaPOSIX_printf("Liberamos recurso\n");
-   ReleaseResource(Res1);
-
-   ciaaPOSIX_printf("TaskA is Terminating\n");
+   /* terminate task */
    TerminateTask();
 }
 
-TASK(TaskB) {
-   ciaaPOSIX_printf("TaskB is running\n");
+TASK(ModbusSlave)
+{
+   /* initialize modbus slave */
+   ciaaModbus_init();
 
-   ActivateTask(TaskC);
-   ActivateTask(TaskC);
+   /* start modbus main task */
+   ciaaModbus_slaveMainTask();
 
-   ciaaPOSIX_printf("Activate Relative Alarm to Activate Task C");
-   SetRelAlarm(ActivateTaskC, 350, 100);
-
-   ciaaPOSIX_printf("TaskB is Terminating\n");
+   /* terminate task */
    TerminateTask();
 }
 
-ISR(IsrName) {
-}
-
-TASK(TaskC) {
-   ciaaPOSIX_printf("TaskC is running\n");
-   ciaaPOSIX_printf("TaskC is Terminating\n");
-   TerminateTask();
-}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
