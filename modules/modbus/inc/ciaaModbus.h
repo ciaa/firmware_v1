@@ -86,6 +86,12 @@ extern "C" {
 #define CIAAMODBUS_E_WRONG_REG_QTY        0x03
 #define CIAAMODBUS_FNC_RDINPREG           0x04
 
+
+/** \brief Min lenght of a modbus pdu */
+#define CIAAMODBUS_MSG_MINLENGTH                               0x05
+/** \brief Lenght of a modbus pdu for function 0x04 Read Input Registers */
+#define CIAAMODBUS_MSG_READ_INPUT_REGISTERS_LENGTH             0x05
+
 /*==================[typedef]================================================*/
 /** \brief Modbus return type */
 typedef uint8_t Modbus_returnType;
@@ -111,6 +117,13 @@ extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len);
  **/
 extern void ciaaModbus_slaveMainTask(void);
 
+/** \brief Command Read Input Registers
+ **
+ ** \param[inout] buf buffer with the modbus pdu
+ ** \param[in] len lenght of the buffer
+ ** \returns count of bytes to be answered
+ **/
+int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len);
 /*==================[external functions declaration]=========================*/
 
 /*==================[cplusplus]==============================================*/

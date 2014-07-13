@@ -93,20 +93,6 @@ ciaaModbus_cmdLstType ciaaModbus_cmdLst0x06[] = {
    }
 };
 
-ciaaModbus_fctLstType ciaaModbus_fctLst[] = {
-   {
-      0x04,                   /** <= Read Input Register */
-      ciaaModbus_cmdLst0x04  /** <= ReadInputRegister list of callbacks */
-   },
-   {
-      0x06,                   /** <= Write Single Register */
-      ciaaModbus_cmdLst0x06  /** <= WriteSignleRegister list of callbacks */
-   },
-   {
-      0,
-      NULL                    /** last entry */
-   }
-};
 
 /*==================[internal functions definition]==========================*/
 

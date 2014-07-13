@@ -133,7 +133,6 @@ extern void ciaaModbus_slaveMainTask(void)
    {
       do
       {
-
          /* read modbus request */
          read = ciaaModbus_ascii_read(ciaaModbus_device, ciaaModbus_slaveBuf);
 
@@ -142,11 +141,16 @@ extern void ciaaModbus_slaveMainTask(void)
 
       } while (1 != lrccheck);
 
-      /* process command */
-      read = ciaaModbus_process(ciaaModbus_slaveBuf, read);
+      /* check valid modbus length */
+      if (CIAAMODBUS_MSG_MINLENGTH < read)
+      {
+         /* process command */
+         read = ciaaModbus_process(ciaaModbus_slaveBuf, read);
 
-      /* write modbus answer */
-      ciaaModbus_ascii_write(ciaaModbus_device, ciaaModbus_slaveBuf, read);
+         /* no check is done, the sw shall always provide an answer */
+         /* write modbus answer */
+         ciaaModbus_ascii_write(ciaaModbus_device, ciaaModbus_slaveBuf, read);
+      }
    } while(0 == ciaaModbus_exit);
 
    ciaaPOSIX_close(ciaaModbus_device);
@@ -155,27 +159,15 @@ extern void ciaaModbus_slaveMainTask(void)
 extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len)
 {
    uint8_t function = buf[0];
-   uint16_t qty;
    uint32_t ret;
 
    switch(function)
    {
+#if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN)
       case CIAAMODBUS_FNC_RDINPREG:
-         qty = CIAAMODBUS_READ_INT(&buf[3]);
-
-         if ((0x0001 <= qty) && (0x007D >= qty))
-         {
-            buf[0] |= 0x80;
-
-            buf[1] = CIAAMODBUS_E_WRONG_REG_QTY;
-
-            ret = 2;
-         } else
-         {
-
-         }
-
+         ret = ciaaModbus_readInputRegisters(buf, len);
          break;
+#endif
 
       default:
          /* set error code bit */
@@ -192,6 +184,33 @@ extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len)
 
 }
 
+#if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN)
+int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
+{
+   uint16_t quantityOfRegisters;
+   int32_t ret = 0;
+
+   quantityOfRegisters = CIAAMODBUS_READ_INT(&buf[3]);
+
+   /* check that quantity of registers is in range */
+   if ((0x0001 <= quantityOfRegisters) && (0x007D >= quantityOfRegisters))
+   {
+      /* set error flag */
+      buf[0] |= 0x80;
+
+      /* report invalid quantity of registers */
+      buf[1] = CIAAMODBUS_E_WRONG_REG_QTY;
+
+      /* return 2 bytes */
+      ret = 2;
+   } else
+   {
+      /* search for user callback */
+   }
+
+   return ret;
+}
+#endif /* #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN) */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -64,6 +64,17 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+#define CIAAMODBUS_EN            1
+
+#define CIAAMODBUS_DIS           0
+
+/** \brief Enables/Disables service 0x04 Read Input Registers
+ **/
+#define CIAAMODBUS_READ_INPUT_REGISTERS         CIAAMODBUS_EN
+
+/** \brief Enables/Disables service 0x06 Write Single Register
+ **/
+#define CIAAMODBUS_WRITE_SINGLE_REGISTER        CIAAMODBUS_EN
 
 /*==================[typedef]================================================*/
 /** \brief modbus commnad callback
