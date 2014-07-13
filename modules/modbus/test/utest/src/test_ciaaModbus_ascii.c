@@ -209,12 +209,12 @@ int32_t tst_convert2bin(uint8_t * dst, uint8_t * src, int32_t len)
    int32_t loopi;
    uint8_t aux;
 
-   for(loopi = 1; (loopi < len) && (-1 != ret); loopi++)
+   for(loopi = 1; (loopi < len - 2) && (-1 != ret); loopi++)
    {
-      if ( ('0' >= src[loopi]) && ('9' <= src[loopi]) )
+      if ( ('0' <= src[loopi]) && ('9' >= src[loopi]) )
       {
          aux = (src[loopi] - '0') << 4;
-      } else if ( ('A' >= src[loopi]) && ('F' <= src[loopi]) )
+      } else if ( ('A' <= src[loopi]) && ('F' >= src[loopi]) )
       {
          aux = (src[loopi] - 'A' + 10)  << 4;
       } else
@@ -224,10 +224,10 @@ int32_t tst_convert2bin(uint8_t * dst, uint8_t * src, int32_t len)
 
       loopi++;
 
-      if ( ('0' >= src[loopi]) && ('9' <= src[loopi]) )
+      if ( ('0' <= src[loopi]) && ('9' >= src[loopi]) )
       {
          aux += (src[loopi] - '0');
-      } else if ( ('A' >= src[loopi]) && ('F' <= src[loopi]) )
+      } else if ( ('A' <= src[loopi]) && ('F' >= src[loopi]) )
       {
          aux += (src[loopi] - 'A' + 10);
       } else
@@ -235,7 +235,9 @@ int32_t tst_convert2bin(uint8_t * dst, uint8_t * src, int32_t len)
          ret = -2;
       }
 
-      dst[ret] = aux;
+      *dst = aux;
+      dst++;
+
       ret++;
    }
 
@@ -575,16 +577,25 @@ void test_ciaaModbus_ascii_receive_05(void) {
  */
 void test_ciaaModbus_ascii_ascii2bin_01(void)
 {
-   int32_t len[10];
-   uint8_t buf[10][500];
+   int32_t lenin[10];
+   int32_t lenout[10];
+   uint8_t buf[10][2][500];
    int32_t buflen[10];
 
-   /* set input buffer */
-   len[0] = ciaaPOSIX_read_add(
-         ":0001020304050607", 1, 1);
+   strcpy(buf[0][0],
+         ":0001020304050607");
         /*012345678901234567890123456789012345678901234567890123456789*/
         /*          1         2         3         4         5         */
-/*   len[0] = ciaaModbus_ascii_ascii2bin(buf[0], buflen[0]; */
+   /* set input buffer */
+   lenin[0] = tst_asciipdu(buf[0][0], 1, 1);
+   /* copy the buffer */
+   strcpy(buf[0][1], buf[0][0]);
+
+   /* call tested function */
+   lenout[0] = ciaaModbus_ascii_ascii2bin(buf[0][0], lenin[0]);
+
+   TEST_ASSERT_EQUAL_INT(tst_convert2bin(buf[0][1], buf[0][1], lenin[0]), lenout[0]);
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[0][1], buf[0][0], lenout[0]);
 }
 
 /** @} doxygen end group definition */
