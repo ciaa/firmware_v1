@@ -66,13 +66,13 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-ciaaModbus_cmdLstType ciaaModbus_cmdLst0x04[] = {
+ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[] = {
    {
       {
          0x0000,
          0x0000
       },
-
+      NULL
    },
    {
       {
@@ -83,15 +83,6 @@ ciaaModbus_cmdLstType ciaaModbus_cmdLst0x04[] = {
    }
 };
 
-ciaaModbus_cmdLstType ciaaModbus_cmdLst0x06[] = {
-   {
-      {
-         0x0000,
-         0x0000
-      },
-      NULL                    /** <= last entry */
-   }
-};
 
 
 /*==================[internal functions definition]==========================*/

@@ -164,7 +164,7 @@ extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len)
    switch(function)
    {
 #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN)
-      case CIAAMODBUS_FNC_RDINPREG:
+      case CIAAMODBUS_FCN_READINPUTREGISTERS:
          ret = ciaaModbus_readInputRegisters(buf, len);
          break;
 #endif
@@ -188,7 +188,9 @@ extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len)
 int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
 {
    uint16_t quantityOfRegisters;
-   int32_t ret = 0;
+   uint16_t address;
+   int32_t ret = -1;
+   int32_t loopi;
 
    quantityOfRegisters = CIAAMODBUS_READ_INT(&buf[3]);
 
@@ -208,7 +210,23 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
       ret = 2;
    } else
    {
+      /* get address */
+      address = CIAAMODBUS_READ_INT(&buf[1]);
+
       /* search for user callback */
+      loopi = 0;
+      while (NULL != ciaaModbus_cmdLst0x04[loopi].fct)
+      {
+         /* check if address in range */
+         if ( (address >= ciaaModbus_cmdLst0x04[loopi].range.minAdd) &&
+              (address <= ciaaModbus_cmdLst0x04[loopi].range.maxAdd) )
+         {
+               ret = ciaaModbus_cmdLst0x04[loopi].fct(address,
+                     quantityOfRegisters,
+                     &buf[1],
+                     &buf[2]);
+         }
+      }
    }
 
    return ret;

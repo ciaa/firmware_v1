@@ -58,6 +58,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaModbus_Cfg.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -84,7 +85,10 @@ extern "C" {
 #define CIAAMODBUS_E_FNC_NOT_SUPPORTED    0x01
 #define CIAAMODBUS_E_WRONG_STR_ADDR       0x02
 #define CIAAMODBUS_E_WRONG_REG_QTY        0x03
-#define CIAAMODBUS_FNC_RDINPREG           0x04
+#define CIAAMODBUS_E_FNC_ERROR            0x04
+
+/****** functions ******/
+#define CIAAMODBUS_FCN_READINPUTREGISTERS 0x04
 
 
 /** \brief Min lenght of a modbus pdu */

@@ -77,43 +77,41 @@ extern "C" {
 #define CIAAMODBUS_WRITE_SINGLE_REGISTER        CIAAMODBUS_EN
 
 /*==================[typedef]================================================*/
-/** \brief modbus commnad callback
+/** \brief Modbus Command Read Input Registers callback
  **
- ** This function is called by the modbus and provided by the application and
- ** implements one modbus commnad
+ ** This function is called by the modbus and provided by the application which
+ ** implements a Read Input Registers command
  **
- ** \param[inout] buf buffer containing modbus data
- ** \param[in] len lenght of the buffer data
+ ** \param[in] startingAddress starting address
+ ** \param[in] quantityOfInputRegisters quantity of input registers to be read
  ** \param[out] errorcode may take one of the following values:
  **                  CIAAMODBUS_E_WRONG_STR_ADDR
- **                  CIAAMODBUS_FNC_RDINPREG
- ** \return the lenght of the returned buffer or -1 if an error. In case of
- **         error errorcode indicates which error has occured.
- **
+ **                  CIAAMODBUS_E_FNC_ERROR
+ ** \param[out] buf buffer containing the input registers
+ ** \return count of registers, this value is multiplicated * 2 by the caller
  **/
-typedef int32_t (*ciaaModbus_cmdFctType)(uint8_t buf, int32_t len,
-      int8_t * errorcode);
+typedef uint8_t (*ciaaModbus_readInputRegistersFctType)(
+      uint16_t startingAddress,
+      uint16_t quantityOfInputRegisters,
+      uint8_t * errorcode,
+      uint8_t * buf
+      );
 
 /** \brief Address range
  **/
 typedef struct {
-   uint16_t minAddress;
-   uint16_t maxAddress;
+   uint16_t minAdd;
+   uint16_t maxAdd;
 } ciaaModbus_addressRangeType;
 
 /** \brief Command list type */
 typedef struct {
-   ciaaModbus_addressRangeType addRange;
-   ciaaModbus_cmdFctType fct;
-} ciaaModbus_cmdLstType;
-
-typedef struct {
-   uint8_t fct;
-   ciaaModbus_cmdLstType * cmdLst;
-} ciaaModbus_fctLstType;
+   ciaaModbus_addressRangeType range;
+   ciaaModbus_readInputRegistersFctType fct;
+} ciaaModbus_cmdLst0x04Type;
 
 /*==================[external data declaration]==============================*/
-
+extern ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[];
 /*==================[external functions declaration]=========================*/
 
 /*==================[cplusplus]==============================================*/
