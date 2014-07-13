@@ -82,9 +82,8 @@ extern "C" {
 
 /****** error codes ******/
 #define CIAAMODBUS_E_FNC_NOT_SUPPORTED    0x01
-#define CIAAMODBUS_E_WRONG_REG_QTY        0x03
 #define CIAAMODBUS_E_WRONG_STR_ADDR       0x02
-
+#define CIAAMODBUS_E_WRONG_REG_QTY        0x03
 #define CIAAMODBUS_FNC_RDINPREG           0x04
 
 /*==================[typedef]================================================*/
