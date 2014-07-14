@@ -61,8 +61,16 @@
 /*==================[macros and definitions]=================================*/
 #define CIAAMODBUS_BUFFER_SIZE          CIAAMODBUS_ASCII_MAXLENGHT
 
-#define CIAAMODBUS_READ_INT(buf) \
-   ((buf)[0] | ((buf)[1] << 8))
+/** \brief Read Integer from modbus
+ **
+ ** As described in modbus specification, the modbus uses a bigendian format to
+ ** transmit integers. This function shall be used to access integers.
+ **
+ ** \param[in] add address of the first byte of the integer to be read.
+ **
+ **/
+#define CIAAMODBUS_READ_INT(add) \
+   ( (((uint8_t*)add)[0] << 8) | (((uint8_t*)add)[1]))
 
 /*==================[internal data declaration]==============================*/
 
@@ -221,10 +229,10 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
          if ( (address >= ciaaModbus_cmdLst0x04[loopi].range.minAdd) &&
               (address <= ciaaModbus_cmdLst0x04[loopi].range.maxAdd) )
          {
-               ret = ciaaModbus_cmdLst0x04[loopi].fct(address,
-                     quantityOfRegisters,
-                     &buf[1],
-                     &buf[2]);
+            ret = ciaaModbus_cmdLst0x04[loopi].fct(address,
+                  quantityOfRegisters,
+                  &buf[1],
+                  &buf[2]);
          }
       }
    }

@@ -60,7 +60,7 @@
 /*==================[inclusions]=============================================*/
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
-#include "ciaaModbus.h"
+#include "ciaaModbusSlave.h"
 #include "ciaak.h"
 #include "blinking.h"
 
