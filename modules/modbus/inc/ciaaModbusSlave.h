@@ -32,10 +32,10 @@
 
 #ifndef _CIAAMODBUS_H_
 #define _CIAAMODBUS_H_
-/** \brief Modbus Header File
+/** \brief Modbus Slave Header File
  **
- ** This files shall be included by moodules using the itnerfaces provided by
- ** the Modbus
+ ** This files shall be included by moodules using the interfaces provided by
+ ** the Modbus Slave
  **
  **/
 
