@@ -44,6 +44,7 @@
 /*
  * Initials     Name
  * MaCe         Mariano Cerdeiro
+ * GMuro        Gustavo Muro
  *
  */
 
@@ -66,6 +67,11 @@ typedef struct {
    uint8_t length;
 } ciaaModbus_ascii_bufType;
 /*==================[internal data declaration]==============================*/
+
+static const uint8_t BinToAsciiTable[] =
+   {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+	 'A', 'B', 'C', 'D', 'E', 'F'};
+
 
 /*==================[internal functions declaration]=========================*/
 /** \brief Receive the beggining of a ASCII Modbus Message
@@ -285,13 +291,13 @@ extern int32_t ciaaModbus_ascii_read(int32_t fildes, uint8_t * buf)
       /* conver to bin */
       len_bin = ciaaModbus_ascii_ascii2bin(buf, len_ascii);
 
-	  /* check lrc */
+      /* check lrc */
       if (CIAAMODBUS_MSG_MINLENGTH <= len_bin)
          lrccheck = ciaaModbus_checkLRC(buf, len_bin);
 
       /* repeat while
        * invalid lrc
-       * len_bin > CIAAMODBUS_MSG_MINLENGTH */
+       * len_bin < CIAAMODBUS_MSG_MINLENGTH */
    } while (CIAAMODBUS_MSG_MINLENGTH > len_bin || 0 > lrccheck);
 
    return len_bin;
@@ -300,6 +306,38 @@ extern int32_t ciaaModbus_ascii_read(int32_t fildes, uint8_t * buf)
 
 extern void ciaaModbus_ascii_write(int32_t fildes, uint8_t * buf, int32_t len)
 {
+   int32_t loopi, lenAscii;
+   uint32_t upper, lower;
+
+   /* Add LRC at end and increment len */
+   buf[len] = ciaaModbus_calcLRC(buf, len);
+   len++;
+   
+   /* Verify correct len */
+   if (CIAAMODBUS_ASCII_MAXLENGHT < (len * 2 + 3))
+      return;
+
+   /* Convert to ASCII */
+   for (loopi = len ; loopi > 0 ; loopi--)
+   {
+      upper = (buf[loopi-1] >> 4) & 0x0F;
+      lower = (buf[loopi-1] >> 0) & 0x0F;
+
+      buf[loopi * 2 - 1] = BinToAsciiTable[upper];
+      buf[loopi * 2 - 0] = BinToAsciiTable[lower];
+   }
+
+   /* Add start character and increment len */
+   buf[0] = CIAAMODBUS_ASCII_START;
+   lenAscii = len * 2 + 1;
+
+   /* Add CRLF at end and increment len */
+   buf[lenAscii] = CIAAMODBUS_ASCII_END_1;
+   lenAscii++;
+   buf[lenAscii] = CIAAMODBUS_ASCII_END_2;
+   lenAscii++;
+   
+   ciaaPOSIX_write(fildes, buf, lenAscii);
 }
 
 extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len)
