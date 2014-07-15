@@ -90,29 +90,6 @@ static int8_t ciaaModbus_exit;
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-int32_t ciaaModbus_checkLRC(uint8_t * buf, int32_t len)
-{
-   int32_t ret = -1;
-   int32_t loopi;
-   uint8_t lrc = 0;
-
-   /* calculate lrc */
-   for(loopi = 0; loopi < len-1; loopi++)
-   {
-      lrc += buf[loopi];
-   }
-
-   /* complement 2 */
-   lrc = -lrc;
-
-   /* check lrc */
-   if (buf[loopi] == lrc)
-   {
-      ret = 1;
-   }
-
-   return ret;
-}
 
 /*==================[external functions definition]==========================*/
 extern void ciaaModbus_init(void)
@@ -135,7 +112,6 @@ extern void ciaaModbus_deinit(void)
 extern void ciaaModbus_slaveMainTask(void)
 {
    int32_t read;
-   int32_t lrccheck;
 
    do
    {
@@ -144,24 +120,17 @@ extern void ciaaModbus_slaveMainTask(void)
          /* read modbus request */
          read = ciaaModbus_ascii_read(ciaaModbus_device, ciaaModbus_slaveBuf);
 
-         /* check lrc */
-         lrccheck = ciaaModbus_checkLRC(ciaaModbus_slaveBuf, read);
-
          /* repeat while
-          * invalid lrc
           * id does not match */
-      } while ( (1 != lrccheck) || (CIAAMODBUS_SLAVE_ID != ciaaModbus_slaveBuf[0]) ) ;
+      } while (CIAAMODBUS_SLAVE_ID != ciaaModbus_slaveBuf[0]);
 
-      /* check valid modbus length */
-      if (CIAAMODBUS_MSG_MINLENGTH < read)
-      {
-         /* process command, do not pass the addres of the slave id */
-         read = ciaaModbus_process(&ciaaModbus_slaveBuf[1], read-1);
+      /* process command, do not pass the addres of the slave id */
+      read = ciaaModbus_process(&ciaaModbus_slaveBuf[1], read-1);
 
-         /* no check is done, the sw shall always provide an answer */
-         /* write modbus answer */
-         ciaaModbus_ascii_write(ciaaModbus_device, ciaaModbus_slaveBuf, read);
-      }
+      /* no check is done, the sw shall always provide an answer */
+      /* write modbus answer */
+      ciaaModbus_ascii_write(ciaaModbus_device, ciaaModbus_slaveBuf, read);
+      
    } while(0 == ciaaModbus_exit);
 
    ciaaPOSIX_close(ciaaModbus_device);

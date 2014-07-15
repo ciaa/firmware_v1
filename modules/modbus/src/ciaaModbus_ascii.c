@@ -55,6 +55,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaModbus_ascii.h"
+#include "ciaaModbus_transport.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
 
@@ -100,6 +101,40 @@ ciaaModbus_ascii_bufType oldData = { { 0 }, 0 };
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+
+static uint8_t ciaaModbus_calcLRC(uint8_t * buf, int32_t len)
+{
+   int32_t loopi;
+   uint8_t lrc = 0;
+
+   /* calculate lrc */
+   for(loopi = 0; loopi < len; loopi++)
+   {
+      lrc += buf[loopi];
+   }
+
+   /* complement 2 */
+   lrc = -lrc;
+
+   return lrc;
+}
+
+static int32_t ciaaModbus_checkLRC(uint8_t * buf, int32_t len)
+{
+   int32_t ret = -1;
+   uint8_t lrc = 0;
+
+   lrc = ciaaModbus_calcLRC(buf, len-1);
+
+   /* check lrc */
+   if (buf[len-1] == lrc)
+   {
+      ret = 1;
+   }
+
+   return ret;
+}
+
 static int32_t ciaaModbus_ascii_receiveFirst(int32_t fildes, uint8_t * buf)
 {
    int32_t begin;
@@ -238,9 +273,9 @@ extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf)
 
 extern int32_t ciaaModbus_ascii_read(int32_t fildes, uint8_t * buf)
 {
-
    int32_t len_ascii;
    int32_t len_bin;
+   int32_t lrccheck;
 
    do
    {
@@ -249,7 +284,15 @@ extern int32_t ciaaModbus_ascii_read(int32_t fildes, uint8_t * buf)
 
       /* conver to bin */
       len_bin = ciaaModbus_ascii_ascii2bin(buf, len_ascii);
-   } while (-1 == len_bin);
+
+	  /* check lrc */
+      if (CIAAMODBUS_MSG_MINLENGTH <= len_bin)
+         lrccheck = ciaaModbus_checkLRC(buf, len_bin);
+
+      /* repeat while
+       * invalid lrc
+       * len_bin > CIAAMODBUS_MSG_MINLENGTH */
+   } while (CIAAMODBUS_MSG_MINLENGTH > len_bin || 0 > lrccheck);
 
    return len_bin;
 

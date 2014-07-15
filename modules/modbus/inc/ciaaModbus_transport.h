@@ -79,6 +79,10 @@ extern "C" {
 
 /** \brief Function internal error */
 #define MODBUS_E_FUNCTION_ERROR           0x04
+
+/** \brief Min lenght of a modbus pdu */
+#define CIAAMODBUS_MSG_MINLENGTH          0x05
+
 /*==================[typedef]================================================*/
 /** \brief Modbus return type */
 typedef uint8_t Modbus_returnType;

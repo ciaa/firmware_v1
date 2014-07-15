@@ -91,8 +91,6 @@ extern "C" {
 #define CIAAMODBUS_FCN_READINPUTREGISTERS 0x04
 
 
-/** \brief Min lenght of a modbus pdu */
-#define CIAAMODBUS_MSG_MINLENGTH                               0x05
 /** \brief Lenght of a modbus pdu for function 0x04 Read Input Registers */
 #define CIAAMODBUS_MSG_READ_INPUT_REGISTERS_LENGTH             0x05
 
