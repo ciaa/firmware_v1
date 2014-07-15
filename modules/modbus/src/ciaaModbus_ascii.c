@@ -68,9 +68,9 @@ typedef struct {
 } ciaaModbus_ascii_bufType;
 /*==================[internal data declaration]==============================*/
 
-static const uint8_t BinToAsciiTable[] =
+static const uint8_t ciaaModbus_binToAsciiTable[] =
    {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-	 'A', 'B', 'C', 'D', 'E', 'F'};
+    'A', 'B', 'C', 'D', 'E', 'F'};
 
 
 /*==================[internal functions declaration]=========================*/
@@ -323,8 +323,8 @@ extern void ciaaModbus_ascii_write(int32_t fildes, uint8_t * buf, int32_t len)
       upper = (buf[loopi-1] >> 4) & 0x0F;
       lower = (buf[loopi-1] >> 0) & 0x0F;
 
-      buf[loopi * 2 - 1] = BinToAsciiTable[upper];
-      buf[loopi * 2 - 0] = BinToAsciiTable[lower];
+      buf[loopi * 2 - 1] = ciaaModbus_binToAsciiTable[upper];
+      buf[loopi * 2 - 0] = ciaaModbus_binToAsciiTable[lower];
    }
 
    /* Add start character and increment len */
