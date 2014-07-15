@@ -147,13 +147,16 @@ extern void ciaaModbus_slaveMainTask(void)
          /* check lrc */
          lrccheck = ciaaModbus_checkLRC(ciaaModbus_slaveBuf, read);
 
-      } while (1 != lrccheck);
+         /* repeat while
+          * invalid lrc
+          * id does not match */
+      } while ( (1 != lrccheck) || (CIAAMODBUS_SLAVE_ID != ciaaModbus_slaveBuf[0]) ) ;
 
       /* check valid modbus length */
       if (CIAAMODBUS_MSG_MINLENGTH < read)
       {
-         /* process command */
-         read = ciaaModbus_process(ciaaModbus_slaveBuf, read);
+         /* process command, do not pass the addres of the slave id */
+         read = ciaaModbus_process(&ciaaModbus_slaveBuf[1], read-1);
 
          /* no check is done, the sw shall always provide an answer */
          /* write modbus answer */
@@ -234,6 +237,9 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
                   &buf[1],
                   &buf[2]);
          }
+
+         /* increment pointer */
+         loopi++;
       }
    }
 

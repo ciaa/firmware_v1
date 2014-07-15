@@ -68,6 +68,9 @@ extern "C" {
 
 #define CIAAMODBUS_DIS           0
 
+/** \brief Id of the own slave */
+#define CIAAMODBUS_SLAVE_ID      2
+
 /** \brief Enables/Disables service 0x04 Read Input Registers
  **/
 #define CIAAMODBUS_READ_INPUT_REGISTERS         CIAAMODBUS_EN
