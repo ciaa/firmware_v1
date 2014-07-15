@@ -298,7 +298,7 @@ extern int32_t ciaaModbus_ascii_read(int32_t fildes, uint8_t * buf)
       /* repeat while
        * invalid lrc
        * len_bin < CIAAMODBUS_MSG_MINLENGTH */
-   } while (CIAAMODBUS_MSG_MINLENGTH > len_bin || 0 > lrccheck);
+   } while ( (CIAAMODBUS_MSG_MINLENGTH > len_bin) || (0 > lrccheck) );
 
    return len_bin;
 
@@ -312,32 +312,34 @@ extern void ciaaModbus_ascii_write(int32_t fildes, uint8_t * buf, int32_t len)
    /* Add LRC at end and increment len */
    buf[len] = ciaaModbus_calcLRC(buf, len);
    len++;
-   
+
    /* Verify correct len */
-   if (CIAAMODBUS_ASCII_MAXLENGHT < (len * 2 + 3))
-      return;
-
-   /* Convert to ASCII */
-   for (loopi = len ; loopi > 0 ; loopi--)
+   if (CIAAMODBUS_ASCII_MAXLENGHT >= (len * 2 + 3))
    {
-      upper = (buf[loopi-1] >> 4) & 0x0F;
-      lower = (buf[loopi-1] >> 0) & 0x0F;
+      /* Convert to ASCII */
+      for (loopi = len ; loopi > 0 ; loopi--)
+      {
+         upper = (buf[loopi-1] >> 4) & 0x0F;
+         lower = (buf[loopi-1] >> 0) & 0x0F;
 
-      buf[loopi * 2 - 1] = ciaaModbus_binToAsciiTable[upper];
-      buf[loopi * 2 - 0] = ciaaModbus_binToAsciiTable[lower];
+         buf[loopi * 2 - 1] = ciaaModbus_binToAsciiTable[upper];
+         buf[loopi * 2 - 0] = ciaaModbus_binToAsciiTable[lower];
+      }
+
+      /* Add start character and increment len */
+      buf[0] = CIAAMODBUS_ASCII_START;
+      lenAscii = len * 2 + 1;
+
+      /* Add CRLF at end and increment len */
+      buf[lenAscii] = CIAAMODBUS_ASCII_END_1;
+      lenAscii++;
+      buf[lenAscii] = CIAAMODBUS_ASCII_END_2;
+      lenAscii++;
+
+      ciaaPOSIX_write(fildes, buf, lenAscii);
    }
-
-   /* Add start character and increment len */
-   buf[0] = CIAAMODBUS_ASCII_START;
-   lenAscii = len * 2 + 1;
-
-   /* Add CRLF at end and increment len */
-   buf[lenAscii] = CIAAMODBUS_ASCII_END_1;
-   lenAscii++;
-   buf[lenAscii] = CIAAMODBUS_ASCII_END_2;
-   lenAscii++;
    
-   ciaaPOSIX_write(fildes, buf, lenAscii);
+   return;
 }
 
 extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len)
