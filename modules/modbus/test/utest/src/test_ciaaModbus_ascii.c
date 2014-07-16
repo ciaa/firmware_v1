@@ -67,6 +67,13 @@ typedef struct {
    int32_t count;           /** <= count the count of calls */
 } stubType;
 
+typedef struct {
+   int32_t fildes;
+   uint8_t buf[10][500];
+   int32_t len[10];
+   int32_t count;
+} writeStubType;
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -74,6 +81,8 @@ static int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc);
 
 /*==================[internal data definition]===============================*/
 static stubType read_stub;
+
+static writeStubType write_stub;
 
 /*==================[external data definition]===============================*/
 
@@ -86,6 +95,8 @@ static stubType read_stub;
  **
  **/
 void setUp(void) {
+   ciaaPOSIX_read_init();
+   ciaaPOSIX_write_init();
 }
 
 /** \brief tear Down function
@@ -102,8 +113,26 @@ void doNothing(void) {
 
 /**** Helper Functions ****/
 
+/** \brief Init posix write stub */
+void ciaaPOSIX_write_init(void)
+{
+   int32_t loopi, loopj;
+
+   write_stub.fildes = 0;
+   write_stub.count = 0;
+
+   for(loopi = 0; loopi < 10; loopi++)
+   {
+      write_stub.len[loopi] = 0;
+      for(loopj = 0; loopj < 500; loopj++)
+      {
+         write_stub.buf[loopi][loopj] = 0xA5;
+      }
+   }
+}
+
 /** \brief Init posix read stub */
-ciaaPOSIX_read_init(void)
+void ciaaPOSIX_read_init(void)
 {
    int32_t loopi;
 
@@ -195,6 +224,13 @@ ssize_t ciaaPOSIX_read_stub(int32_t fildes, void * buf, ssize_t nbyte)
    return ret;
 }
 
+ssize_t ciaaPOSIX_write_stub(int32_t fildes, void * buf, ssize_t nbyte)
+{
+   memcpy(write_stub.buf[write_stub.count], buf, nbyte);
+   write_stub.len[write_stub.count] = nbyte;
+   write_stub.count++;
+}
+
 /** \brief convert ascii to bin for the tests
  **
  ** \param[out] dst destination buffer in binary format
@@ -282,20 +318,20 @@ static int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc)
       /* calculate lrc */
       for(loopi = 1; loopi < len-4; loopi++)
       {
-         if ( ('0' >= buf[loopi]) && ('9' <= buf[loopi]) )
+         if ( ('0' <= buf[loopi]) && ('9' >= buf[loopi]) )
          {
             aux = (buf[loopi] - '0') << 4;
-         } else if ( ('A' >= buf[loopi]) && ('F' <= buf[loopi]) )
+         } else if ( ('A' <= buf[loopi]) && ('F' >= buf[loopi]) )
          {
             aux = (buf[loopi] - 'A' + 10)  << 4;
          }
 
          loopi++;
 
-         if ( ('0' >= buf[loopi]) && ('9' <= buf[loopi]) )
+         if ( ('0' <= buf[loopi]) && ('9' >= buf[loopi]) )
          {
             aux += (buf[loopi] - '0');
-         } else if ( ('A' >= buf[loopi]) && ('F' <= buf[loopi]) )
+         } else if ( ('A' <= buf[loopi]) && ('F' >= buf[loopi]) )
          {
             aux += (buf[loopi] - 'A' + 10);
          }
@@ -323,20 +359,20 @@ static int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc)
       /* calculate lrc */
       for(loopi = 1; loopi < len; loopi++)
       {
-         if ( ('0' >= buf[loopi]) && ('9' <= buf[loopi]) )
+         if ( ('0' <= buf[loopi]) && ('9' >= buf[loopi]) )
          {
             aux = (buf[loopi] - '0') << 4;
-         } else if ( ('A' >= buf[loopi]) && ('F' <= buf[loopi]) )
+         } else if ( ('A' <= buf[loopi]) && ('F' >= buf[loopi]) )
          {
             aux = (buf[loopi] - 'A' + 10)  << 4;
          }
 
          loopi++;
 
-         if ( ('0' >= buf[loopi]) && ('9' <= buf[loopi]) )
+         if ( ('0' <= buf[loopi]) && ('9' >= buf[loopi]) )
          {
             aux += (buf[loopi] - '0');
-         } else if ( ('A' >= buf[loopi]) && ('F' <= buf[loopi]) )
+         } else if ( ('A' <= buf[loopi]) && ('F' >= buf[loopi]) )
          {
             aux += (buf[loopi] - 'A' + 10);
          }
@@ -373,8 +409,6 @@ void test_ciaaModbus_ascii_receive_01(void) {
 
    /* set stub callback */
    ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
-   /* init read */
-   ciaaPOSIX_read_init();
    memset(buf, 0, sizeof(buf));
 
    /* set input buffer */
@@ -402,8 +436,6 @@ void test_ciaaModbus_ascii_receive_02(void) {
 
    /* set stub callback */
    ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
-   /* init read */
-   ciaaPOSIX_read_init();
    memset(buf, 0, sizeof(buf));
 
    /* set input buffer */
@@ -433,8 +465,6 @@ void test_ciaaModbus_ascii_receive_03(void) {
 
    /* set stub callback */
    ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
-   /* init read */
-   ciaaPOSIX_read_init();
    memset(buf, 0, sizeof(buf));
 
    /* set input buffer */
@@ -595,6 +625,49 @@ void test_ciaaModbus_ascii_ascii2bin_01(void)
 
    TEST_ASSERT_EQUAL_INT(tst_convert2bin(buf[0][1], buf[0][1], lenin[0]), lenout[0]);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[0][1], buf[0][0], lenout[0]);
+}
+
+
+/** \brief test ciaaModbus_ascii_write */
+void test_ciaaModbus_ascii_send_01(void)
+{
+   int32_t fildes = 1;
+   uint8_t buf[10][2][500];
+   int32_t lenin[10];
+   int32_t lenout[10];
+
+   /* set stub callback */
+   ciaaPOSIX_write_StubWithCallback(ciaaPOSIX_write_stub);
+   ciaaPOSIX_memcpy_StubWithCallback(memcpy);
+
+   strcpy(buf[0][0],
+         ":0001020304050607");
+        /*012345678901234567890123456789012345678901234567890123456789*/
+        /*          1         2         3         4         5         */
+   strcpy(buf[1][0],
+         ":000102030405060712AF3DA1");
+        /*012345678901234567890123456789012345678901234567890123456789*/
+        /*          1         2         3         4         5         */
+
+   /* set input buffer */
+   lenin[0] = tst_asciipdu(buf[0][0], 1, 1);
+   lenin[1] = tst_asciipdu(buf[1][0], 1, 1);
+
+   /* copy the buffer */
+   strcpy(buf[0][1], buf[0][0]);
+   strcpy(buf[1][1], buf[1][0]);
+   lenout[0] = tst_convert2bin(buf[0][1], buf[0][1], lenin[0]);
+   lenout[1] = tst_convert2bin(buf[1][1], buf[1][1], lenin[1]);
+
+   /* transmit -1, lrc is not part of the transmission */
+   ciaaModbus_ascii_write(fildes,buf[0][1],lenout[0]-1);
+   ciaaModbus_ascii_write(fildes,buf[1][1],lenout[1]-1);
+
+   TEST_ASSERT_EQUAL_INT(2, write_stub.count);
+   TEST_ASSERT_EQUAL_INT(lenin[0], write_stub.len[0]);
+   TEST_ASSERT_EQUAL_INT(lenin[1], write_stub.len[1]);
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[0][0], write_stub.buf[0], lenin[0]);
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[1][0], write_stub.buf[1], lenin[1]);
 }
 
 /** @} doxygen end group definition */
