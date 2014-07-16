@@ -338,8 +338,7 @@ extern void ciaaModbus_ascii_write(int32_t fildes, uint8_t * buf, int32_t len)
 
       ciaaPOSIX_write(fildes, buf, lenAscii);
    }
-   
-   return;
+
 }
 
 extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len)

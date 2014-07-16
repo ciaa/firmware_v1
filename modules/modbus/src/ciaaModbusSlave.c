@@ -45,7 +45,7 @@
  * Initials     Name
  * MaCe         Mariano Cerdeiro
  * GMuro        Gustavo Muro
- * 
+ *
  */
 
 /*
@@ -131,7 +131,7 @@ extern void ciaaModbus_slaveMainTask(void)
       /* no check is done, the sw shall always provide an answer */
       /* write modbus answer */
       ciaaModbus_ascii_write(ciaaModbus_device, ciaaModbus_slaveBuf, read);
-      
+
    } while(0 == ciaaModbus_exit);
 
    ciaaPOSIX_close(ciaaModbus_device);

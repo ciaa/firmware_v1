@@ -264,7 +264,6 @@ int32_t tst_convert2bin(uint8_t * dst, uint8_t * src, int32_t len)
  ** +--------+--------+-----------------------------------------------------+
  **
  ** \return lenght of bytes written to the buffer
- ** mace2
  **/
 static int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc)
 {
