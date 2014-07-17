@@ -206,6 +206,20 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
                   quantityOfRegisters,
                   &buf[1],
                   &buf[2]);
+
+            /* verify if read successful  */
+            if (0 < ret)
+            {
+               /* complete quantity of bytes */
+            	buf[1] = ret * 2;
+            	/* return length buffer in bytes */
+            	ret = ret * 2 + 2;
+            }
+            else
+            {
+               /* return length buffer 2 bytes (error) response*/
+               ret = 2;
+            }
          }
 
          /* increment pointer */

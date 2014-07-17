@@ -87,16 +87,17 @@ extern "C" {
  **
  ** \param[in] startingAddress starting address
  ** \param[in] quantityOfInputRegisters quantity of input registers to be read
- ** \param[out] errorcode may take one of the following values:
+ ** \param[out] exceptioncode may take one of the following values:
  **                  CIAAMODBUS_E_WRONG_STR_ADDR
  **                  CIAAMODBUS_E_FNC_ERROR
  ** \param[out] buf buffer containing the input registers
  ** \return count of registers, this value is multiplicated * 2 by the caller
+ **         if a exception occurs return <= 0
  **/
 typedef uint8_t (*ciaaModbus_readInputRegistersFctType)(
       uint16_t startingAddress,
       uint16_t quantityOfInputRegisters,
-      uint8_t * errorcode,
+      uint8_t * exceptioncode,
       uint8_t * buf
       );
 
