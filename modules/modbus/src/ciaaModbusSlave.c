@@ -148,7 +148,13 @@ extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len)
       case CIAAMODBUS_FCN_READINPUTREGISTERS:
          ret = ciaaModbus_readInputRegisters(buf, len);
          break;
-#endif
+#endif /* #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN) */
+
+#if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN)
+      case CIAAMODBUS_FCN_WRITESINGLEREGISTER:
+         ret = ciaaModbus_writeSingleRegister(buf, len);
+         break;
+#endif /* #if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN) */
 
       default:
          /* set error code bit */
@@ -228,8 +234,18 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
    }
 
    return ret;
-}
+} /* end ciaaModbus_readInputRegisters */
 #endif /* #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN) */
+
+#if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN)
+int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len)
+{
+   int32_t ret = 0;
+
+   return ret;
+} /* end ciaaModbus_writeSingleRegister */
+#endif /* #if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN) */
+
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

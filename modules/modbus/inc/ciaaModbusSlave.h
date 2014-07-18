@@ -92,6 +92,8 @@ extern "C" {
 /****** functions ******/
 #define CIAAMODBUS_FCN_READINPUTREGISTERS 0x04
 
+#define CIAAMODBUS_FCN_WRITESINGLEREGISTER 0x06
+
 
 /** \brief Lenght of a modbus pdu for function 0x04 Read Input Registers */
 #define CIAAMODBUS_MSG_READ_INPUT_REGISTERS_LENGTH             0x05
@@ -128,6 +130,14 @@ extern void ciaaModbus_slaveMainTask(void);
  ** \returns count of bytes to be answered
  **/
 int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len);
+
+/** \brief Command Write Single Register
+ **
+ ** \param[inout] buf buffer with the modbus pdu
+ ** \param[in] len lenght of the buffer
+ ** \returns count of bytes to be answered
+ **/
+int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len);
 /*==================[external functions declaration]=========================*/
 
 /*==================[cplusplus]==============================================*/

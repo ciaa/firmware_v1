@@ -84,6 +84,15 @@ ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[] = {
 };
 
 
+ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[] = {
+   {
+      {
+         0x0000,
+         0x0000
+      },
+      NULL
+   }
+};
 
 /*==================[internal functions definition]==========================*/
 

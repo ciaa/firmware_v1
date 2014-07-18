@@ -87,19 +87,44 @@ extern "C" {
  **
  ** \param[in] startingAddress starting address
  ** \param[in] quantityOfInputRegisters quantity of input registers to be read
- ** \param[out] exceptioncode may take one of the following values:
+ ** \param[out] exceptionCode may take one of the following values:
  **                  CIAAMODBUS_E_WRONG_STR_ADDR
  **                  CIAAMODBUS_E_FNC_ERROR
  ** \param[out] buf buffer containing the input registers
  ** \return count of registers, this value is multiplicated * 2 by the caller
- **         if a exception occurs return <= 0
+ **         if a exception occurs returns -1
+ **
+ ** \remarks exceptionCode parameter shall only be used if -1 is returned in
+ **          other case the pointer shall not be written.
  **/
-typedef uint8_t (*ciaaModbus_readInputRegistersFctType)(
+typedef int8_t (*ciaaModbus_readInputRegistersFctType)(
       uint16_t startingAddress,
       uint16_t quantityOfInputRegisters,
-      uint8_t * exceptioncode,
+      uint8_t * exceptionCode,
       uint8_t * buf
       );
+
+/** \brief Modbus Command Write Single Register callback
+ **
+ ** This function is called by the modbus and provided by the application which
+ ** implements a Write Single Register command
+ **
+ ** \param[in] registerAddress address of the register to be written
+ ** \param[in] registerValue value to be written to the register
+ ** \param[out] exceptionCode may take one of the following values:
+ **                  CIAAMODBUS_E_WRONG_STR_ADDR
+ **                  CIAAMODBUS_E_FNC_ERROR
+ ** \return -1 if error, exceptionCode shall be set. 1 if success.
+ **
+ ** \remarks exceptionCode parameter shall only be used if -1 is returned in
+ **          other case the pointer shall not be written.
+ **/
+typedef int8_t (*ciaaModbus_writeSingleRegisterFctType)(
+      uint16_t registerAddress,
+      uint16_t registerValue,
+      uint8_t * exceptionCode
+      );
+
 
 /** \brief Address range
  **/
@@ -113,6 +138,12 @@ typedef struct {
    ciaaModbus_addressRangeType range;
    ciaaModbus_readInputRegistersFctType fct;
 } ciaaModbus_cmdLst0x04Type;
+
+/** \brief Command list type */
+typedef struct {
+   ciaaModbus_addressRangeType range;
+   ciaaModbus_writeSingleRegisterFctType fct;
+} ciaaModbus_cmdLst0x06Type;
 
 /*==================[external data declaration]==============================*/
 extern ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[];
