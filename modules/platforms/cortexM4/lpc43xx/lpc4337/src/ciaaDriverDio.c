@@ -60,6 +60,7 @@
 #include "ciaaDriverDio_Internal.h"
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_string.h"
+#include "chip.h"
 
 /*==================[macros and definitions]=================================*/
 /** \brief Pointer to Devices */
