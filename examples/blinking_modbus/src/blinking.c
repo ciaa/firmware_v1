@@ -71,7 +71,8 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-int32_t ledFilDes;
+int32_t blinkingModbus_ledFildes;
+uint16_t blinkingModbus_modbusRegister;
 
 /*==================[external data definition]===============================*/
 
@@ -96,7 +97,7 @@ TASK(InitTask) {
    ciaak_start();
 
    /* open led device */
-   ledFilDes = ciaaPOSIX_open("/dev/dio/port/0",O_RDWR);
+   blinkingModbus_ledFildes = ciaaPOSIX_open("/dev/dio/port/0",O_RDWR);
 
    /* terminate task */
    TerminateTask();
@@ -106,7 +107,7 @@ TASK(Blinking) {
    static uint8_t ledStatus = 0;
 
    /* write led */
-   ciaaPOSIX_write(ledFilDes, &ledStatus, sizeof(ledStatus));
+   ciaaPOSIX_write(blinkingModbus_ledFildes, &ledStatus, sizeof(ledStatus));
    ciaaPOSIX_printf("LED: %d\n", ledStatus);
    /* toggle bit 0 */
    ledStatus ^= 0x01;
@@ -125,6 +126,55 @@ TASK(ModbusSlave)
 
    /* terminate task */
    TerminateTask();
+}
+
+
+int8_t readInputRegisters(
+      uint16_t startingAddress,
+      uint16_t quantityOfInputRegisters,
+      uint8_t * exceptionCode,
+      uint8_t * buf
+      )
+{
+   int8_t ret;
+
+   if ( (0x0000 == startingAddress) &&
+        (0x01 == quantityOfInputRegisters) )
+   {
+      buf[0] = blinkingModbus_modbusRegister >> 8;
+      buf[1] = blinkingModbus_modbusRegister & 0xFF;
+      ret = 1;
+   }
+   else
+   {
+      *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
+      ret = -1;
+   }
+
+   return ret;
+}
+
+int8_t writeSingleRegister(
+      uint16_t registerAddress,
+      uint16_t registerValue,
+      uint8_t * exceptionCode
+      )
+{
+   int8_t ret;
+
+   if (0x0000 == registerAddress)
+   {
+      blinkingModbus_modbusRegister = registerValue;
+      ret = 1;
+   }
+   else
+   {
+      *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
+      ret = -1;
+   }
+
+
+   return ret;
 }
 
 /** @} doxygen end group definition */

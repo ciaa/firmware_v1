@@ -57,6 +57,12 @@
 #include "ciaaModbus_Cfg.h"
 #include "ciaaPOSIX_stdlib.h"
 
+/*******************[cfg needed includes]*************************************/
+/** This section shall contain the header files containing the decalartion of
+ ** the referenced functions.
+ **/
+#include "blinking.h"
+
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
@@ -73,15 +79,9 @@ ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[] = {
          0x0000,
          0x0000
       },
-      NULL
+      readInputRegisters
    },
-   {
-      {
-         0x0000,
-         0x0000
-      },
-      NULL                    /** <= last entry */
-   }
+   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
 };
 #endif /* #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN) */
 
@@ -92,8 +92,9 @@ ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[] = {
          0x0000,
          0x0000
       },
-      NULL
-   }
+      writeSingleRegister
+   },
+   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
 };
 #endif /* #if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN) */
 

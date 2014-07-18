@@ -68,6 +68,18 @@
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+extern int8_t readInputRegisters(
+      uint16_t startingAddress,
+      uint16_t quantityOfInputRegisters,
+      uint8_t * exceptionCode,
+      uint8_t * buf
+      );
+
+extern int8_t writeSingleRegister(
+      uint16_t registerAddress,
+      uint16_t registerValue,
+      uint8_t * exceptionCode
+      );
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
