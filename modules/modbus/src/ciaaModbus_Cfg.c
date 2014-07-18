@@ -66,6 +66,7 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+#if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN)
 ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[] = {
    {
       {
@@ -82,8 +83,9 @@ ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[] = {
       NULL                    /** <= last entry */
    }
 };
+#endif /* #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN) */
 
-
+#if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN)
 ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[] = {
    {
       {
@@ -93,6 +95,7 @@ ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[] = {
       NULL
    }
 };
+#endif /* #if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN) */
 
 /*==================[internal functions definition]==========================*/
 
