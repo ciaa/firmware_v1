@@ -211,9 +211,9 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
             if (0 < ret)
             {
                /* complete quantity of bytes */
-            	buf[1] = ret * 2;
-            	/* return length buffer in bytes */
-            	ret = ret * 2 + 2;
+               buf[1] = ret * 2;
+               /* return length buffer in bytes */
+               ret = ret * 2 + 2;
             }
             else
             {
