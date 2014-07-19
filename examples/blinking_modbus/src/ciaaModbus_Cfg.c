@@ -61,7 +61,7 @@
 /** This section shall contain the header files containing the decalartion of
  ** the referenced functions.
  **/
-#include "blinking.h"
+#include "blinking_modbus.h"
 
 /*==================[macros and definitions]=================================*/
 

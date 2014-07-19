@@ -62,7 +62,7 @@
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaModbusSlave.h"
 #include "ciaak.h"
-#include "blinking.h"
+#include "blinking_modbus.h"
 
 /*==================[macros and definitions]=================================*/
 
