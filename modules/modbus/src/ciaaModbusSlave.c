@@ -93,9 +93,9 @@ static int8_t ciaaModbus_exit;
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern void ciaaModbus_init(void)
+extern void ciaaModbus_init(char * dev)
 {
-   ciaaModbus_device = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+   ciaaModbus_device = ciaaPOSIX_open(dev, O_RDWR);
 
    /* falg used to exit modbus function */
    ciaaModbus_exit = 0;

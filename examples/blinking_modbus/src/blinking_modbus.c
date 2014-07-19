@@ -119,7 +119,7 @@ TASK(Blinking) {
 TASK(ModbusSlave)
 {
    /* initialize modbus slave */
-   ciaaModbus_init();
+   ciaaModbus_init("/dev/serial/uart/0");
 
    /* start modbus main task */
    ciaaModbus_slaveMainTask();

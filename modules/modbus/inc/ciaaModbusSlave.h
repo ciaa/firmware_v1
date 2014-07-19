@@ -104,8 +104,10 @@ typedef uint8_t Modbus_returnType;
 
 /*==================[external data declaration]==============================*/
 /** \brief Modbus initialization
+ **
+ ** \param[in] dev device used for the modbus reception/transmission
  **/
-extern void ciaaModbus_init(void);
+extern void ciaaModbus_init(char * dev);
 
 /** \brief Modbus deinitialization
  **/
