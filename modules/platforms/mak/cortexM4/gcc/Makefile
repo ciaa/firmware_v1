@@ -52,10 +52,6 @@ POST_BUILD += arm-none-eabi-objcopy -v -O binary $(LD_TARGET) $(TARGET_NAME).bin
 # TODO this is not nice
 SRC_FILES                  += $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)crp.c
 
-# indicate that the paths needs to be converted for the compiler
-# this only affects on windows.
-CONVERT_PATHS_4_COMPILER    = 1
-
 # define linker extension
 LD_EXTENSION                = axf
 

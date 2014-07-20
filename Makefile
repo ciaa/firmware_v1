@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro
+# Copyright 2014, Mariano Cerdeiro (UTN-FRBA) / Juan Cecconi (UTN-FRBA)
 #
 # This file is part of CIAA Firmware.
 #
@@ -86,7 +86,6 @@ kconfig					?= $(LINUX_TOOLS_PATH)$(DS)kconfig$(DS)kconfig-qtconf
 # get OS
 #
 # This part of the makefile is used to detect your OS. Depending on the OS
-# the rule cyg2win may adapt the paths to windows if needed.
 ifeq ($(OS),Windows_NT)
 # WINDOWS
 # Command line separator
@@ -94,19 +93,12 @@ CS             = ;
 # Command for multiline echo
 MULTILINE_ECHO = echo -e
 OS 				= WIN
-define cyg2win
-#`cygpath -w $(1)`
-$(1)
-endef
 else
 # NON WINDOWS OS
 # Command line separator
 CS					= ;
 # Comand for multiline echo
 MULTILINE_ECHO = echo -n
-define cyg2win
-$(1)
-endef
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
 		# LINUX
@@ -118,8 +110,6 @@ endif
 ###############################################################################
 # get root dir
 ROOT_DIR := .
-#C:/CIAA/Firmware
-#//$(shell pwd)
 # out dir
 OUT_DIR	= $(ROOT_DIR)$(DS)out
 # object dir
@@ -132,19 +122,6 @@ BIN_DIR	= $(OUT_DIR)$(DS)bin
 include $(PROJECT)$(DS)mak$(DS)Makefile
 # include needed modules
 include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
-###############################################################################
-# define cp4c if needed
-# default is not set
-CONVERT_PATHS_4_COMPILER ?= 0
-ifeq ($(CONVERT_PATHS_4_COMPILER),1)
-define cp4c
-#$(call cyg2win,$(1))
-endef
-else
-define cp4c
-$(1)
-endef
-endif
 
 .DEFAULT_GOAL := $(project)
 
@@ -169,7 +146,6 @@ endef
 
 
 OBJ_FILES = $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(SRC_FILES)))
-#$(SRC_FILES:.c=.o)
 
 # create rule for library
 # lib.a : lib_OBJ_FILES.o
@@ -325,7 +301,9 @@ test_%_Runner.c : test_%.c
 	@echo Compiling 'asm' file: $<
 	@echo ' '
 	$(AS) $(AFLAGS) $< -o $@
-	
+
+###############################################################################
+# Incremental Build	(IDE: Build)
 # link rule
 $(project) : $(LIBS) $(OBJ_FILES)
 	@echo ' '
@@ -487,7 +465,7 @@ info:
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
-	@echo Removing bin filei\(s\)
+	@echo Removing bin files
 	@rm -rf $(BIN_DIR)$(DS)*
 	@echo Removing RTOS generated files
 	@rm -rf $(GENDIR)$(DS)*
@@ -504,6 +482,19 @@ else
 	@find -name "*_Runner.c" -exec rm {} \;
 endif
 
+###############################################################################
+# clean and generate (IDE: Build Clean)
+clean_generate:
+	$(MAKE) clean
+	$(MAKE) generate
+
+###############################################################################
+# Incremental Build	(IDE: Build)
+all:
+	$(MAKE) clean
+	$(MAKE) generate
+	$(MAKE)
+	
 ###############################################################################
 # doc -> documentation
 doc: doxygen
