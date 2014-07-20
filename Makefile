@@ -95,7 +95,8 @@ CS             = ;
 MULTILINE_ECHO = echo -e
 OS 				= WIN
 define cyg2win
-`cygpath -w $(1)`
+#`cygpath -w $(1)`
+$(1)
 endef
 else
 # NON WINDOWS OS
@@ -116,7 +117,9 @@ endef
 endif
 ###############################################################################
 # get root dir
-ROOT_DIR := $(shell pwd)
+ROOT_DIR := .
+#C:/CIAA/Firmware
+#//$(shell pwd)
 # out dir
 OUT_DIR	= $(ROOT_DIR)$(DS)out
 # object dir
@@ -135,7 +138,7 @@ include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 CONVERT_PATHS_4_COMPILER ?= 0
 ifeq ($(CONVERT_PATHS_4_COMPILER),1)
 define cp4c
-$(call cyg2win,$(1))
+#$(call cyg2win,$(1))
 endef
 else
 define cp4c
@@ -147,25 +150,26 @@ endif
 
 # add include files
 INCLUDE += $(foreach LIB, $(LIBS), $($(LIB)_INC_PATH))
-#CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
-CFLAGS  += $(foreach inc, $(INCLUDE), -I$(call cp4c,$(inc)))
+CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU)
-TARGET_NAME ?= $(call cp4c,$(BIN_DIR)$(DS)$(project))
+TARGET_NAME ?= $(BIN_DIR)$(DS)$(project)
 LD_TARGET = $(TARGET_NAME).$(LD_EXTENSION)
-# create list of object files
-$(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES = $($(LIB)_SRC_FILES:.c=.o)) )
-
+# create list of object files, based on source file %.c and %.s
+$(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES = $(patsubst %.c,%.o,$(patsubst %.s,%.o,$($(LIB)_SRC_FILES))))) 
 
 #rule for library
 define librule
 $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
+	@echo ' '
 	@echo ===============================================================================
 	@echo Creating library $(1)
-	$(AR) -rcs -o $(call cp4c,$(LIB_DIR)$(DS)$(strip $(1)).a) $(foreach obj,$(2),$(call cp4c,$(obj)))
+	@echo ' '
+	$(AR) -rcs -o $(LIB_DIR)$(DS)$(strip $(1)).a $(foreach obj,$(2),$(obj))
 endef
 
 
-OBJ_FILES = $(SRC_FILES:.c=.o)
+OBJ_FILES = $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(SRC_FILES)))
+#$(SRC_FILES:.c=.o)
 
 # create rule for library
 # lib.a : lib_OBJ_FILES.o
@@ -247,24 +251,28 @@ MTEST := $(foreach tst, $(MTEST),tst_$(tst_mod)_$(tst))
 endif
 
 tst_link: $(UNITY_SRC:.c=.o)
+	@echo ' '
 	@echo ===============================================================================
 	@echo Linking Test
 	gcc $(UNITY_SRC:.c=.o) -o out/bin/test.bin
 
 # rule for tst_<mod>_<file>
 tst_$(tst_mod)_$(tst_file): $(MTEST_SRC_FILES:.c=_Runner.c) tst_link
+	@echo ' '	
 	@echo ===============================================================================
 	@echo Testing from module $(tst_mod) the file $(tst_file)
 	out/bin/test.bin
 
 # rule for tst_<mod>
 tst_$(tst_mod)_all:
+	@echo ' '
 	@echo ===============================================================================
 	@echo Testing the module $(tst_mod)
 	@echo Testing $(MTEST)
 	$(foreach tst,$(MTEST),make $(tst) $(CS))
 
 tst_$(tst_mod):
+	@echo ' '
 	@echo ===============================================================================
 	@echo For the module $(tst_mod) following units can be tested:
 	@$(MULTILINE_ECHO) " $(foreach unit, $(MTEST),     $(unit)\n)"
@@ -282,6 +290,7 @@ endif
 ###############################################################################
 # rule to generate the mocks
 mocks:
+	@echo ' '
 	@echo ===============================================================================
 	@$(MULTILINE_ECHO) "Creating Mocks for: \n $(foreach mock, $(FILES_TO_MOCK),     $(mock)\n)"
 	ruby externals/ceedling/vendor/cmock/lib/cmock.rb -omodules/tools/ceedling/project.yml $(FILES_TO_MOCK)
@@ -295,6 +304,7 @@ tst:
 	@$(MULTILINE_ECHO) "Following tst rules have been created:\n $(foreach TST,$(ALL_MODS),     tst_$(TST): run unit tests of $(TST)\n)"
 
 test_%_Runner.c : test_%.c
+	@echo ' '
 	@echo ===============================================================================
 	@echo Creating Runner for $<
 	@echo "                 in $@"
@@ -303,20 +313,31 @@ test_%_Runner.c : test_%.c
 ###################### ENDS UNIT TEST PART OF MAKE FILE #######################
 # Rule to compile
 %.o : %.c
+	@echo ' '
 	@echo ===============================================================================
-	@echo Compiling $(call cp4c,$<)
-	$(CC) $(CFLAGS) $(call cp4c,$<) -o $(call cp4c,$@)
-
+	@echo Compiling 'c' file: $<
+	@echo ' '
+	$(CC) $(CFLAGS) $< -o $@
+	
+%.o : %.s
+	@echo ' '
+	@echo ===============================================================================
+	@echo Compiling 'asm' file: $<
+	@echo ' '
+	$(AS) $(AFLAGS) $< -o $@
+	
 # link rule
 $(project) : $(LIBS) $(OBJ_FILES)
+	@echo ' '
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
-	$(CC) $(foreach obj,$(OBJ_FILES),$(call cp4c,$(obj))) -Xlinker --start-group $(foreach lib, $(LIBS), $(call cp4c,$(LIB_DIR)$(DS)$(lib).a)) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
+	@echo ' '
+	$(CC) $(foreach obj,$(OBJ_FILES),$(obj)) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
+	@echo ' '	
 	@echo ===============================================================================
 	@echo Post Building $(project)
+	@echo ' '
 	$(POST_BUILD)
-#	$(CC) $(OBJ_FILES) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(BIN_DIR)$(DS)$(project).bin $(LFLAGS)
-#	$(LD) -lcrt1 -Map $(BIN_DIR)$(DS)$(project).map --library-path=$(LIB_DIR)$(DS) $(OBJ_FILES) $(foreach lib, $(LIB_DIR)$(DS)$(LIBS).a, $(lib)) -o $(BIN_DIR)$(DS)$(project).bin
 
 # debug rule
 debug : $(BIN_DIR)$(DS)$(project).bin
@@ -327,7 +348,7 @@ debug : $(BIN_DIR)$(DS)$(project).bin
 GENDIR			= out$(DS)gen
 generate : $(OIL_FILES)
 		php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
-			$(call cyg2win,$(OIL_FILES)) -f $(foreach TMP, $(rtos_GEN_FILES), $(call cyg2win,$(TMP))) -o $(call cyg2win,$(GENDIR))
+			$(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GENDIR)
 
 ###############################################################################
 # doxygen
@@ -438,6 +459,7 @@ info:
 	@echo ARCH/CPUTYPE/CPU...: $(ARCH)/$(CPUTYPE)/$(CPU)
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
+	@echo Includes...........: $(INCLUDE)	
 	@echo use make info_\<mod\>: to get information of a specific module. eg: make info_posix
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               All available modules                                         |"
@@ -450,8 +472,13 @@ info:
 	@echo CC.................: $(CC)
 	@echo AR.................: $(AR)
 	@echo LD.................: $(LD)
-	@echo Compile Flags......: $(CFLAGS)
+	@echo Compile C Flags....: $(CFLAGS)
+	@echo Compile ASM Flags..: $(AFLAGS)
+	@echo Target Name........: $(TARGET_NAME)
+	@echo Src Files..........: $(SRC_FILES)
+	@echo Obj Files..........: $(OBJ_FILES)
 	@echo Linker Flags.......: $(LFLAGS)
+	@echo Linker Extension...: $(LD_EXTENSION)
 	@echo Linker Target......: $(LD_TARGET)
 
 ###############################################################################

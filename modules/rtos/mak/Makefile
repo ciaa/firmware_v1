@@ -49,6 +49,7 @@ rtos_INC_PATH 	      = $(rtos_PATH)$(DS)inc								\
 # library source files
 rtos_SRC_FILES 	      = $(wildcard $(rtos_SRC_PATH)$(DS)*.c)				\
 						$(wildcard $(rtos_SRC_PATH)$(DS)$(ARCH)$(DS)*.c)	\
+						$(wildcard $(rtos_SRC_PATH)$(DS)$(ARCH)$(DS)*.s)	\
 						$(wildcard out$(DS)gen$(DS)src$(DS)*.c)				\
 						$(wildcard out$(DS)gen$(DS)src$(DS)$(ARCH)$(DS)*.c)
 # include needed makefiles depending on the architecture
