@@ -229,7 +229,44 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
 #if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN)
 int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len)
 {
-   int32_t ret = 0;
+   uint16_t value;
+   uint16_t address;
+   int32_t ret = -1;
+   int32_t loopi;
+
+   /* get address */
+   address = ciaaModbus_readInt(&buf[1]);
+
+   /* search for user callback */
+   loopi = 0;
+   while (NULL != ciaaModbus_cmdLst0x06[loopi].fct)
+   {
+      /* check if address in range */
+      if ( (address >= ciaaModbus_cmdLst0x06[loopi].range.minAdd) &&
+           (address <= ciaaModbus_cmdLst0x06[loopi].range.maxAdd) )
+      {
+         /* get value to be write */
+         value = ciaaModbus_readInt(&buf[3]);
+
+         ret = ciaaModbus_cmdLst0x06[loopi].fct(address,
+               value,
+               &buf[1]);
+
+         /* verify if write successful  */
+         if (0 < ret)
+         {
+            ret = 3;
+         }
+         else
+         {
+            /* return length buffer 2 bytes (error) response*/
+            ret = 2;
+         }
+      }
+
+      /* increment pointer */
+      loopi++;
+   }
 
    return ret;
 } /* end ciaaModbus_writeSingleRegister */
