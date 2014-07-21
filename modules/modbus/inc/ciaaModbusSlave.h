@@ -164,9 +164,9 @@ int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len);
  **
  **/
 #define ciaaModbus_writeInt(add,num) \
-   do {\
+   do {                                                        \
    (((uint8_t*)(add))[0] = ((uint16_t)(num) >> 8) & 0XFF);     \
-   (((uint8_t*)(add))[1] = ((uint16_t)(num) >> 0) & 0XFF)      \
+   (((uint8_t*)(add))[1] = ((uint16_t)(num) >> 0) & 0XFF);     \
    }while (0)
 
 /*==================[cplusplus]==============================================*/
