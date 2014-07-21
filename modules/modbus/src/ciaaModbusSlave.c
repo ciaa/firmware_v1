@@ -163,6 +163,7 @@ extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len)
 #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN)
 int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
 {
+   uint8_t exceptionCode;
    uint16_t quantityOfRegisters;
    uint16_t address;
    int32_t ret = -1;
@@ -199,7 +200,7 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
          {
             ret = ciaaModbus_cmdLst0x04[loopi].fct(address,
                   quantityOfRegisters,
-                  &buf[1],
+                  &exceptionCode,
                   &buf[2]);
 
             /* verify if read successful  */
@@ -212,6 +213,10 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
             }
             else
             {
+               /* set error code bit */
+               buf[0] |= 0x80;
+               /* set exception code */
+               buf[1] = exceptionCode;
                /* return length buffer 2 bytes (error) response*/
                ret = 2;
             }
@@ -222,6 +227,26 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
       }
    }
 
+   /* check if function is not implemented or start address doesn't match in range */
+   if (0 > ret)
+   {
+      /* set error code bit */
+      buf[0] |= 0x80;
+
+      if (0 == loopi)
+      {
+         /* set exception code */
+         buf[1] = CIAAMODBUS_E_FNC_NOT_SUPPORTED;
+      }
+      else
+      {
+         /* set exception code */
+         buf[1] = CIAAMODBUS_E_WRONG_STR_ADDR;
+      }
+      /* return length buffer 2 bytes (error) response*/
+      ret = 2;
+   }
+
    return ret;
 } /* end ciaaModbus_readInputRegisters */
 #endif /* #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN) */
@@ -229,6 +254,7 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
 #if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN)
 int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len)
 {
+   uint8_t exceptionCode;
    uint16_t value;
    uint16_t address;
    int32_t ret = -1;
@@ -250,7 +276,7 @@ int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len)
 
          ret = ciaaModbus_cmdLst0x06[loopi].fct(address,
                value,
-               &buf[1]);
+               &exceptionCode);
 
          /* verify if write successful  */
          if (0 < ret)
@@ -259,6 +285,10 @@ int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len)
          }
          else
          {
+            /* set error code bit */
+            buf[0] |= 0x80;
+            /* set exception code */
+            buf[1] = exceptionCode;
             /* return length buffer 2 bytes (error) response*/
             ret = 2;
          }
@@ -266,6 +296,26 @@ int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len)
 
       /* increment pointer */
       loopi++;
+   }
+
+   /* check if function is not implemented or start address doesn't match in range */
+   if (0 > ret)
+   {
+      /* set error code bit */
+      buf[0] |= 0x80;
+
+      if (0 == loopi)
+      {
+         /* set exception code */
+         buf[1] = CIAAMODBUS_E_FNC_NOT_SUPPORTED;
+      }
+      else
+      {
+         /* set exception code */
+         buf[1] = CIAAMODBUS_E_WRONG_STR_ADDR;
+      }
+      /* return length buffer 2 bytes (error) response*/
+      ret = 2;
    }
 
    return ret;
