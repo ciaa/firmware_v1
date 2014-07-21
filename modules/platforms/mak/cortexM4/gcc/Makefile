@@ -41,6 +41,7 @@ AS = arm-none-eabi-as
 GDB = arm-none-eabi-gdb
 NM = arm-none-eabi-nm
 # COMPILER AND LINKER OPTIONS
+AFLAGS += -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
 CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -DCORE_M4 -D__CODE_RED
 LFLAGS += $(LINKSCRIPT) -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -T "externals/platforms/cortexM4/lpc43xx/linker/ciaa_lpc4337.ld"
 # Optional POST BUILD
@@ -50,10 +51,6 @@ POST_BUILD += arm-none-eabi-objcopy -v -O binary $(LD_TARGET) $(TARGET_NAME).bin
 # this file needs to be compiled separated and not added to a library
 # TODO this is not nice
 SRC_FILES                  += $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)crp.c
-
-# indicate that the paths needs to be converted for the compiler
-# this only affects on windows.
-CONVERT_PATHS_4_COMPILER    = 1
 
 # define linker extension
 LD_EXTENSION                = axf
