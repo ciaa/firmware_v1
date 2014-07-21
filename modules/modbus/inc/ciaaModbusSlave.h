@@ -142,6 +142,18 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len);
 int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len);
 /*==================[external functions declaration]=========================*/
 
+/** \brief Read Integer from modbus
+ **
+ ** As described in modbus specification, the modbus uses a bigendian format to
+ ** transmit integers. This function shall be used to access integers.
+ **
+ ** \param[in] add address of the first byte of the integer to be read.
+ **
+ **/
+#define ciaaModbus_readInt(add) \
+   ( (((uint8_t*)(add))[0] << 8) | (((uint8_t*)(add))[1]))
+
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
