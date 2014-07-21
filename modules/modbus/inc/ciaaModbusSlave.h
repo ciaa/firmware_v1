@@ -154,6 +154,19 @@ int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len);
    ( (((uint8_t*)(add))[0] << 8) | (((uint8_t*)(add))[1]))
 
 
+/** \brief Write Integer in modbus buffer
+ **
+ ** As described in modbus specification, the modbus uses a bigendian format to
+ ** transmit integers. This function shall be used to access integers.
+ **
+ ** \param[in] add address of the first byte of the integer to be write.
+ ** \param[in] num integer to be write.
+ **
+ **/
+#define ciaaModbus_writeInt(add,num) \
+   (((uint8_t*)(add))[0] = ((uint16_t)(num) >> 8) & 0XFF);     \
+   (((uint8_t*)(add))[1] = ((uint16_t)(num) >> 0) & 0XFF)
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }

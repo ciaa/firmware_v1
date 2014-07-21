@@ -141,8 +141,7 @@ int8_t readInputRegisters(
    if ( (0x0000 == startingAddress) &&
         (0x01 == quantityOfInputRegisters) )
    {
-      buf[0] = blinkingModbus_modbusRegister >> 8;
-      buf[1] = blinkingModbus_modbusRegister & 0xFF;
+      ciaaModbus_writeInt(&buf[0], blinkingModbus_modbusRegister);
       ret = 1;
    }
    else
