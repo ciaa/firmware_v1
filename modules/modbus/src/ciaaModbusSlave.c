@@ -192,7 +192,13 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)
 
       /* search for user callback */
       loopi = 0;
-      while (NULL != ciaaModbus_cmdLst0x04[loopi].fct)
+
+      /* exit while if:
+       * NULL function pointer is found
+       * or
+       * function address range is match
+       */
+      while ( (NULL != ciaaModbus_cmdLst0x06[loopi].fct) && (-1 == ret) )
       {
          /* check if address in range */
          if ( (address >= ciaaModbus_cmdLst0x04[loopi].range.minAdd) &&
@@ -265,7 +271,13 @@ int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len)
 
    /* search for user callback */
    loopi = 0;
-   while (NULL != ciaaModbus_cmdLst0x06[loopi].fct)
+
+   /* exit while if:
+    * NULL function pointer is found
+    * or
+    * function address range is match
+    */
+   while ( (NULL != ciaaModbus_cmdLst0x06[loopi].fct) && (-1 == ret) )
    {
       /* check if address in range */
       if ( (address >= ciaaModbus_cmdLst0x06[loopi].range.minAdd) &&
