@@ -79,8 +79,7 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 #if (win != ARCH)
-/** \brief type definition ssize_t */
-typedef long int ssize_t;
+#include "sys/types.h"
 #elif (win == ARCH)
 #include "stddef.h"
 #include "sys/types.h"
