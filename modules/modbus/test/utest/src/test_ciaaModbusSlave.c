@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -42,7 +42,6 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
  * GMuro        Gustavo Muro
  */
 
