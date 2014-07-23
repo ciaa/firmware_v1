@@ -62,13 +62,16 @@
 
 /*==================[internal data declaration]==============================*/
 
-ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[] = {
-{ { 0x0000, 0x0000 }, NULL /** <= last entry */ }
+ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[4] =
+{
+   { 0x0000, 0x0000 }, NULL
 };
 
-ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[] = {
-   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
+ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[4] =
+{
+   { 0x0000, 0x0000 }, NULL
 };
+
 
 
 /*==================[internal functions declaration]=========================*/
@@ -129,16 +132,48 @@ void doNothing(void) {
    }while (0)
 
 
+int8_t tst_readInputRegisters(
+      uint16_t startingAddress,
+      uint16_t quantityOfInputRegisters,
+      uint8_t * exceptionCode,
+      uint8_t * buf
+      )
+{
+   int8_t ret;
+   uint16_t loopi;
+
+   if (0x0010 <= startingAddress)
+   {
+      for (loopi = 0 ; loopi < quantityOfInputRegisters ; loopi++)
+      {
+         tst_writeInt(&buf[loopi*2], loopi);
+      }
+      ret = quantityOfInputRegisters;
+   }
+   else
+   {
+      *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
+      ret = -1;
+   }
+
+   return ret;
+}
+
 
 int32_t tst_modbusPDUReadInputRegister(uint8_t *buf,
       uint16_t startAddress,
       uint16_t quantityOfRegisters)
 {
-   buf[0] = 0x04;
-   tst_writeInt(&buf[1],startAddress);
-   tst_writeInt(&buf[3],quantityOfRegisters);
+   int32_t ret = 0;
 
-   return 5;
+   buf[0] = 0x04;
+   ret += 1;
+   tst_writeInt(&buf[1], startAddress);
+   ret += 2;
+   tst_writeInt(&buf[3], quantityOfRegisters);
+   ret += 2;
+
+   return ret;
 }
 
 
@@ -185,7 +220,7 @@ void test_ciaaModbus_process_02(void)
    int32_t ret;
 
    /* read input register: quantity > 0x007D */
-   ret = tst_modbusPDUReadInputRegister(buf, 0, 0X007E);
+   ret = tst_modbusPDUReadInputRegister(buf, 0x0000, 0X007E);
 
    ret = ciaaModbus_process(buf, ret);
 
@@ -193,7 +228,7 @@ void test_ciaaModbus_process_02(void)
    TEST_ASSERT_EQUAL_INT8_ARRAY(response, buf, 2);
 
    /* read input register: quantity < 0x0001 */
-   ret = tst_modbusPDUReadInputRegister(buf, 0, 0X0000);
+   ret = tst_modbusPDUReadInputRegister(buf, 0x0000, 0X0000);
 
    ret = ciaaModbus_process(buf, ret);
 
@@ -202,6 +237,55 @@ void test_ciaaModbus_process_02(void)
 
 } /* end test_ciaaModbus_process_02 */
 
+
+/** \brief Test ciaaModbus_process
+ **
+ ** test: function 0x04 not implemented
+ ** test: address out of range in read input registers
+ **
+ **/
+void test_ciaaModbus_process_03(void)
+{
+   uint8_t buf[256];
+   uint8_t response1[] = {0x84, 0x01};
+   uint8_t response2[] = {0x84, 0x02};
+   int32_t ret;
+
+   /* function not implemented */
+   ciaaModbus_cmdLst0x04[0].fct = NULL;
+
+   /* read input register: address = 0, quantity of registers = 1 */
+   ret = tst_modbusPDUReadInputRegister(buf, 0x0000, 0X0001);
+
+   ret = ciaaModbus_process(buf, ret);
+
+   TEST_ASSERT_EQUAL_INT8(2, ret);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(response1, buf, 2);
+
+
+   /* function implemented. Address out of range */
+   ciaaModbus_cmdLst0x04[0].fct = tst_readInputRegisters;
+   ciaaModbus_cmdLst0x04[0].range.maxAdd = 0x0020;
+   ciaaModbus_cmdLst0x04[0].range.minAdd = 0x0010;
+   ciaaModbus_cmdLst0x04[1].fct = NULL;
+
+   /* read input register: address = 0X000F, quantity of registers = 0X0001 */
+   ret = tst_modbusPDUReadInputRegister(buf, 0x000F, 0X0001);
+
+   ret = ciaaModbus_process(buf, ret);
+
+   TEST_ASSERT_EQUAL_INT8(2, ret);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(response2, buf, 2);
+
+   /* read input register: address = 0X0021, quantity of registers = 0X0001 */
+   ret = tst_modbusPDUReadInputRegister(buf, 0x0021, 0X0001);
+
+   ret = ciaaModbus_process(buf, ret);
+
+   TEST_ASSERT_EQUAL_INT8(2, ret);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(response2, buf, 2);
+
+} /* end test_ciaaModbus_process_03 */
 
 
 
