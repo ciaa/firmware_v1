@@ -147,6 +147,8 @@ typedef struct {
 
 /*==================[external data declaration]==============================*/
 extern ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[];
+extern ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[];
+
 /*==================[external functions declaration]=========================*/
 
 /*==================[cplusplus]==============================================*/
