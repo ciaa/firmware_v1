@@ -67,6 +67,13 @@ typedef enum {RESET = 0, SET = !RESET} FlagStatus, IntStatus, SetState;
  * @brief Functional State Definition
  */
 typedef int FunctionalState;
+#ifndef ENABLE
+#define ENABLE 1
+#endif
+#ifndef DISABLE
+#define DISABLE 0
+#endif
+
 //typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 #define PARAM_FUNCTIONALSTATE(State) ((State == DISABLE) || (State == ENABLE))
 
