@@ -76,6 +76,7 @@ ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[4] =
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+static uint16_t inputRegVal[200];
 
 /*==================[external data definition]===============================*/
 
@@ -145,7 +146,7 @@ int8_t tst_readInputRegisters(
    {
       for (loopi = 0 ; loopi < quantityOfInputRegisters ; loopi++)
       {
-         tst_writeInt(&buf[loopi*2], loopi);
+         tst_writeInt(&buf[loopi*2], inputRegVal[loopi]);
       }
       ret = quantityOfInputRegisters;
    }
@@ -210,9 +211,8 @@ void test_ciaaModbus_process_01(void)
  **
  ** Test read input registers
  ** invalid quantity of registers (> 0x007D)
- ** invalid quantity of registers (< 0x0001)
  **/
-void test_ciaaModbus_process_02(void)
+void test_ciaaModbus_process_02_01(void)
 {
    uint8_t buf[256];
    uint8_t response[] = {0x84, 0x03};
@@ -225,6 +225,18 @@ void test_ciaaModbus_process_02(void)
 
    TEST_ASSERT_EQUAL_INT8(2, ret);
    TEST_ASSERT_EQUAL_INT8_ARRAY(response, buf, 2);
+} /* end test_ciaaModbus_process_02_01 */
+
+/** \brief Test ciaaModbus_process
+ **
+ ** Test read input registers
+ ** invalid quantity of registers (< 0x0001)
+ **/
+void test_ciaaModbus_process_02_02(void)
+{
+   uint8_t buf[256];
+   uint8_t response[] = {0x84, 0x03};
+   int32_t ret;
 
    /* read input register: quantity < 0x0001 */
    ret = tst_modbusPDUReadInputRegister(buf, 0x0000, 0X0000);
@@ -234,20 +246,19 @@ void test_ciaaModbus_process_02(void)
    TEST_ASSERT_EQUAL_INT8(2, ret);
    TEST_ASSERT_EQUAL_INT8_ARRAY(response, buf, 2);
 
-} /* end test_ciaaModbus_process_02 */
+} /* end test_ciaaModbus_process_02_02 */
+
 
 
 /** \brief Test ciaaModbus_process
  **
  ** test: function 0x04 not implemented
- ** test: address out of range in read input registers
  **
  **/
-void test_ciaaModbus_process_03(void)
+void test_ciaaModbus_process_03_01(void)
 {
    uint8_t buf[256];
-   uint8_t response1[] = {0x84, 0x01};
-   uint8_t response2[] = {0x84, 0x02};
+   uint8_t response[] = {0x84, 0x01};
    int32_t ret;
 
    /* function not implemented */
@@ -259,8 +270,20 @@ void test_ciaaModbus_process_03(void)
    ret = ciaaModbus_process(buf, ret);
 
    TEST_ASSERT_EQUAL_INT8(2, ret);
-   TEST_ASSERT_EQUAL_INT8_ARRAY(response1, buf, 2);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(response, buf, 2);
 
+} /* end test_ciaaModbus_process_03_01 */
+
+/** \brief Test ciaaModbus_process
+ **
+ ** test: address out of range in read input registers
+ **
+ **/
+void test_ciaaModbus_process_03_02(void)
+{
+   uint8_t buf[2][256];
+   uint8_t response[] = {0x84, 0x02};
+   int32_t ret[2];
 
    /* function implemented. Address out of range */
    ciaaModbus_cmdLst0x04[0].fct = tst_readInputRegisters;
@@ -268,24 +291,74 @@ void test_ciaaModbus_process_03(void)
    ciaaModbus_cmdLst0x04[0].range.minAdd = 0x0010;
    ciaaModbus_cmdLst0x04[1].fct = NULL;
 
-   /* read input register: address = 0X000F, quantity of registers = 0X0001 */
-   ret = tst_modbusPDUReadInputRegister(buf, 0x000F, 0X0001);
+   /* create pdu: address = 0X000F, quantity of registers = 0X0001 */
+   ret[0] = tst_modbusPDUReadInputRegister(buf[0], 0x000F, 0X0001);
 
-   ret = ciaaModbus_process(buf, ret);
+   /* create pdu: address = 0X0021, quantity of registers = 0X0001 */
+   ret[1] = tst_modbusPDUReadInputRegister(buf[1], 0x0021, 0X0001);
 
-   TEST_ASSERT_EQUAL_INT8(2, ret);
-   TEST_ASSERT_EQUAL_INT8_ARRAY(response2, buf, 2);
+   ret[0] = ciaaModbus_process(buf[0], ret[0]);
+   ret[1] = ciaaModbus_process(buf[1], ret[1]);
 
-   /* read input register: address = 0X0021, quantity of registers = 0X0001 */
-   ret = tst_modbusPDUReadInputRegister(buf, 0x0021, 0X0001);
+   TEST_ASSERT_EQUAL_INT8(2, ret[0]);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(response, buf[0], 2);
+   TEST_ASSERT_EQUAL_INT8(2, ret[1]);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(response, buf[1], 2);
 
-   ret = ciaaModbus_process(buf, ret);
+} /* end test_ciaaModbus_process_03_02 */
 
-   TEST_ASSERT_EQUAL_INT8(2, ret);
-   TEST_ASSERT_EQUAL_INT8_ARRAY(response2, buf, 2);
 
-} /* end test_ciaaModbus_process_03 */
+/** \brief Test ciaaModbus_process
+ **
+ ** read input registers
+ **
+ **/
+void test_ciaaModbus_process_04_01(void)
+{
+   uint8_t buf[2][256];
+   uint8_t response[2][256];
+   int32_t ret[2];
 
+   /* function implemented. Address out of range */
+   ciaaModbus_cmdLst0x04[0].fct = tst_readInputRegisters;
+   ciaaModbus_cmdLst0x04[0].range.maxAdd = 0x0020;
+   ciaaModbus_cmdLst0x04[0].range.minAdd = 0x0010;
+   ciaaModbus_cmdLst0x04[1].fct = NULL;
+
+   /* create pdu: address = 0X0010, quantity of registers = 0X0001 */
+   ret[0] = tst_modbusPDUReadInputRegister(buf[0], 0x0010, 0X0001);
+
+   /* create pdu: address = 0X0010, quantity of registers = 0X0004 */
+   ret[1] = tst_modbusPDUReadInputRegister(buf[1], 0x0010, 0X0004);
+
+   /* set value of input registers */
+   inputRegVal[0] = 0x1234;
+   inputRegVal[1] = 0x1111;
+   inputRegVal[2] = 0x0000;
+   inputRegVal[3] = 0xFFFF;
+
+   /* set response 1 */
+   response[0][0] = 0x04;
+   response[0][1] = 0x02;
+   tst_writeInt(&response[0][2], inputRegVal[0]);
+
+   /* set response 2 */
+   response[1][0] = 0x04;
+   response[1][1] = 0x08;
+   tst_writeInt(&response[1][2], inputRegVal[0]);
+   tst_writeInt(&response[1][4], inputRegVal[1]);
+   tst_writeInt(&response[1][6], inputRegVal[2]);
+   tst_writeInt(&response[1][8], inputRegVal[3]);
+
+   ret[0] = ciaaModbus_process(buf[0], ret[0]);
+   ret[1] = ciaaModbus_process(buf[1], ret[1]);
+
+   TEST_ASSERT_EQUAL_INT8(4, ret[0]);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(response[0], buf[0], 4);
+   TEST_ASSERT_EQUAL_INT8(10, ret[1]);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(response[1], buf[1], 10);
+
+} /* end test_ciaaModbus_process_03_02 */
 
 
 
