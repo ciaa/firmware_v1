@@ -288,8 +288,8 @@ extern int32_t ciaaModbus_ascii_read(int32_t fildes, uint8_t * buf)
       /* read modbus ascii */
       len_ascii = ciaaModbus_ascii_receive(fildes, buf);
 
-      /* conver to bin */
-      len_bin = ciaaModbus_ascii_ascii2bin(buf, len_ascii);
+      /* convert to bin (not convert CRLF)*/
+      len_bin = ciaaModbus_ascii_ascii2bin(buf, len_ascii-2);
 
       /* check lrc */
       if (CIAAMODBUS_MSG_MINLENGTH <= len_bin)
@@ -349,7 +349,7 @@ extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len)
    uint8_t aux;
 
    /* for the complete modbus ascii */
-   for(loopi = 1; (loopi < len - 2) && (-1 != ret); loopi+=2)
+   for(loopi = 1; (loopi < len - 1) && (-1 != ret); loopi+=2)
    {
       /* initialize aux to 0 */
       aux = 0;

@@ -245,7 +245,7 @@ int32_t tst_convert2bin(uint8_t * dst, uint8_t * src, int32_t len)
    int32_t loopi;
    uint8_t aux;
 
-   for(loopi = 1; (loopi < len - 2) && (-1 != ret); loopi++)
+   for(loopi = 1; (loopi < len - 1) && (-1 != ret); loopi++)
    {
       if ( ('0' <= src[loopi]) && ('9' >= src[loopi]) )
       {
@@ -615,8 +615,8 @@ void test_ciaaModbus_ascii_ascii2bin_01(void)
          ":0001020304050607");
         /*012345678901234567890123456789012345678901234567890123456789*/
         /*          1         2         3         4         5         */
-   /* set input buffer */
-   lenin[0] = tst_asciipdu(buf[0][0], 1, 1);
+   /* set input buffer (only add LRC) */
+   lenin[0] = tst_asciipdu(buf[0][0], 0, 1);
    /* copy the buffer */
    strcpy(buf[0][1], buf[0][0]);
 
@@ -656,12 +656,14 @@ void test_ciaaModbus_ascii_send_01(void)
    /* copy the buffer */
    strcpy(buf[0][1], buf[0][0]);
    strcpy(buf[1][1], buf[1][0]);
-   lenout[0] = tst_convert2bin(buf[0][1], buf[0][1], lenin[0]);
-   lenout[1] = tst_convert2bin(buf[1][1], buf[1][1], lenin[1]);
 
-   /* transmit -1, lrc is not part of the transmission */
-   ciaaModbus_ascii_write(fildes,buf[0][1],lenout[0]-1);
-   ciaaModbus_ascii_write(fildes,buf[1][1],lenout[1]-1);
+   /* convert to binary. LRC and CRLF no converted to binary*/
+   lenout[0] = tst_convert2bin(buf[0][1], buf[0][1], lenin[0] - 4);
+   lenout[1] = tst_convert2bin(buf[1][1], buf[1][1], lenin[1] - 4);
+
+   /* transmit binary */
+   ciaaModbus_ascii_write(fildes,buf[0][1],lenout[0]);
+   ciaaModbus_ascii_write(fildes,buf[1][1],lenout[1]);
 
    TEST_ASSERT_EQUAL_INT(2, write_stub.count);
    TEST_ASSERT_EQUAL_INT(lenin[0], write_stub.len[0]);
@@ -669,6 +671,8 @@ void test_ciaaModbus_ascii_send_01(void)
    TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[0][0], write_stub.buf[0], lenin[0]);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[1][0], write_stub.buf[1], lenin[1]);
 }
+
+
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
