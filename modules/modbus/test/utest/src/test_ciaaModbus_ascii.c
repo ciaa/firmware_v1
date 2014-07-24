@@ -43,6 +43,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * GMuro        Gustavo Muro
  */
 
 /*
@@ -235,6 +236,7 @@ ssize_t ciaaPOSIX_write_stub(int32_t fildes, void * buf, ssize_t nbyte)
  **
  ** \param[out] dst destination buffer in binary format
  ** \param[in] src source buffer in ascii format starting with :
+ **                and without CRLF
  ** \param[in] len length of the ascii buffer
  ** \return lenght of the binary buffer
  **
@@ -245,7 +247,7 @@ int32_t tst_convert2bin(uint8_t * dst, uint8_t * src, int32_t len)
    int32_t loopi;
    uint8_t aux;
 
-   for(loopi = 1; (loopi < len - 1) && (-1 != ret); loopi++)
+   for(loopi = 1; (loopi < len) && (-1 != ret); loopi++)
    {
       if ( ('0' <= src[loopi]) && ('9' >= src[loopi]) )
       {
@@ -670,6 +672,33 @@ void test_ciaaModbus_ascii_send_01(void)
    TEST_ASSERT_EQUAL_INT(lenin[1], write_stub.len[1]);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[0][0], write_stub.buf[0], lenin[0]);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[1][0], write_stub.buf[1], lenin[1]);
+}
+
+/** \brief test ciaaModbus_ascii_read */
+void test_ciaaModbus_ascii_read_01(void) {
+   int32_t read;
+   int32_t fildes = 1;
+   int8_t buf[500];
+   int8_t msgAscii[] = ":00010203040506070809";
+   int8_t msgBin[100];
+   int32_t lenMsgBin;
+
+   /* set stub callback */
+   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
+   memset(buf, 0, sizeof(buf));
+
+   /* obtain msg in binary */
+   lenMsgBin = tst_convert2bin(msgBin, msgAscii, strlen(msgAscii));
+
+   /* set input buffer */
+   ciaaPOSIX_read_add(msgAscii, 1, 1);
+
+   /* receive data */
+   read = ciaaModbus_ascii_read(fildes, buf);
+
+   /* check received data */
+   TEST_ASSERT_EQUAL_INT8_ARRAY(msgBin, buf, lenMsgBin);
+   TEST_ASSERT_EQUAL_INT(lenMsgBin, read);
 }
 
 

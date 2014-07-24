@@ -353,7 +353,7 @@ extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len)
    uint8_t aux;
 
    /* for the complete modbus ascii */
-   for(loopi = 1; (loopi < len - 1) && (-1 != ret); loopi+=2)
+   for(loopi = 1; (loopi < len) && (-1 != ret); loopi+=2)
    {
       /* initialize aux to 0 */
       aux = 0;
