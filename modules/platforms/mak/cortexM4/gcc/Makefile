@@ -43,7 +43,7 @@ NM = arm-none-eabi-nm
 # COMPILER AND LINKER OPTIONS
 AFLAGS += -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
 CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -DCORE_M4 -D__CODE_RED
-LFLAGS += $(LINKSCRIPT) -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -T "externals/platforms/cortexM4/lpc43xx/linker/ciaa_lpc4337.ld"
+LFLAGS += $(LINKSCRIPT)  -fno-builtin -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -T "externals/platforms/cortexM4/lpc43xx/linker/ciaa_lpc4337.ld"
 # Optional POST BUILD
 # Generates a .bin image file
 POST_BUILD += arm-none-eabi-objcopy -v -O binary $(LD_TARGET) $(TARGET_NAME).bin 

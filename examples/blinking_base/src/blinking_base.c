@@ -40,7 +40,7 @@ int main(void)
 
     while(1)
     {
-    	for(i=4; i<8; i++)
+    	for(i=0; i<8; i++)
     	{
 			ciaaWriteOutput(i, 1);
 			pausems(500);

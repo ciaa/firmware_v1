@@ -47,7 +47,8 @@
 /**
  * @brief Boolean Type definition
  */
-typedef enum {FALSE = 0, TRUE = !FALSE} Bool;
+typedef int Bool;
+//typedef enum {FALSE = 0, TRUE = !FALSE} Bool;
 
 /**
  * @brief Boolean Type definition
@@ -65,7 +66,8 @@ typedef enum {RESET = 0, SET = !RESET} FlagStatus, IntStatus, SetState;
 /**
  * @brief Functional State Definition
  */
-typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
+typedef int FunctionalState;
+//typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 #define PARAM_FUNCTIONALSTATE(State) ((State == DISABLE) || (State == ENABLE))
 
 /**
@@ -199,10 +201,12 @@ typedef bool BOOL_16;
 typedef bool BOOL_8;
 #endif
 
-#ifdef __CC_ARM
-#define INLINE  __inline
-#else
-#define INLINE inline
+#ifndef INLINE
+	#ifdef __CC_ARM
+		#define INLINE  __inline
+	#else
+		#define INLINE inline
+	#endif
 #endif
 
 /**

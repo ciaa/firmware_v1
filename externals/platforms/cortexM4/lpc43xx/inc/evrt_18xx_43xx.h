@@ -51,7 +51,7 @@ typedef struct {						/*!< EVENTROUTER Structure  */
 	__O  uint32_t CLR_EN;				/*!< Event clear enable register */
 	__O  uint32_t SET_EN;				/*!< Event set enable register */
 	__I  uint32_t STATUS;				/*!< Status register        */
-	__I  uint32_t ENABLE;				/*!< Enable register        */
+	__I  uint32_t ENA;				/*!< Enable register        */
 	__O  uint32_t CLR_STAT;				/*!< Clear register         */
 	__O  uint32_t SET_STAT;				/*!< Set register           */
 } LPC_EVRT_T;

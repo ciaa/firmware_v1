@@ -75,7 +75,8 @@ WEAK void SVC_Handler(void);
 WEAK void DebugMon_Handler(void);
 //WEAK void PendSV_Handler(void);
 extern void PendSV_Handler(void);
-WEAK void SysTick_Handler(void);
+//WEAK void SysTick_Handler(void);
+extern void SysTick_Handler(void);
 WEAK void IntDefaultHandler(void);
 
 //*****************************************************************************
@@ -479,16 +480,19 @@ void DebugMon_Handler(void) {
     while (1) {
     }
 }
-// __attribute__ ((section(".after_vectors")))
-// void PendSV_Handler(void) {
-    // while (1) {
-    // }
-// }
+
+/*
+ __attribute__ ((section(".after_vectors")))
+void PendSV_Handler(void) {
+  while (1) {
+}
+}
 __attribute__ ((section(".after_vectors")))
 void SysTick_Handler(void) {
     while (1) {
     }
 }
+*/
 
 //*****************************************************************************
 //

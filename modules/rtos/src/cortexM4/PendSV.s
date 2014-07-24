@@ -54,11 +54,11 @@
  * -----------------------------------------------------------
  * 20140608 v0.1.0 PR	Initial version.
  */
-
+	.thumb_func
 	.syntax unified
 
-	.text
-	.thumb_func
+/*	.section .after_vectors */
+
 	.global PendSV_Handler
 	.extern Osek_OldTaskPtr_Arch,Osek_NewTaskPtr_Arch,CheckTerminatingTask_Arch
 

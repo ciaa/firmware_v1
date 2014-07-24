@@ -11,7 +11,7 @@ TASK InitTask {
     AUTOSTART = TRUE {
         APPMODE = AppMode1;
     }
-    STACK = 256;
+    STACK = 512;
     TYPE = BASIC;
     SCHEDULE = NON;
 }
@@ -19,7 +19,7 @@ TASK InitTask {
 TASK TaskA {
     PRIORITY = 5;
     ACTIVATION = 1;
-    STACK = 256;
+    STACK = 512;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
     EVENT = POSIXE;
@@ -41,7 +41,7 @@ TASK TaskB {
 TASK TaskC {
     PRIORITY = 10;
     ACTIVATION = 1;
-    STACK = 256;
+    STACK = 512;
     TYPE = BASIC;
     SCHEDULE = FULL;
     AUTOSATART = TRUE {

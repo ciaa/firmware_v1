@@ -78,6 +78,7 @@
 /*==================[external functions definition]==========================*/
 int main(void)
 {
+	ciaaIOInit();
    StartOS(AppMode1);
    return 0;
 }
@@ -90,7 +91,10 @@ void ErrorHook(void)
 }
 
 TASK(InitTask) {
-   ciaak_start();
+	ciaaWriteOutput(4, 1);
+
+
+//   ciaak_start();
 
    ciaaPOSIX_printf("InitTask is running\n");
    ActivateTask(TaskA);
@@ -105,13 +109,13 @@ TASK(InitTask) {
 }
 
 TASK(TaskA) {
-   int32_t fildes;
-
-   ciaaPOSIX_printf("TaskA is running\n");
-
-   fildes = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
-
-   (void) fildes;
+//   int32_t fildes;
+//
+//   ciaaPOSIX_printf("TaskA is running\n");
+//
+//   fildes = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+//
+//   (void) fildes;
 
    ciaaPOSIX_printf("TaskA espera Event1\n");
    WaitEvent(Event1);
@@ -136,7 +140,7 @@ TASK(TaskB) {
    ActivateTask(TaskC);
 
    ciaaPOSIX_printf("Activate Relative Alarm to Activate Task C");
-   SetRelAlarm(ActivateTaskC, 350, 100);
+   SetRelAlarm(ActivateTaskC, 200, 400);
 
    ciaaPOSIX_printf("TaskB is Terminating\n");
    TerminateTask();
@@ -146,6 +150,10 @@ ISR(IsrName) {
 }
 
 TASK(TaskC) {
+	static int value = 0;
+	ciaaWriteOutput(5, value);
+	value = !value;
+
    ciaaPOSIX_printf("TaskC is running\n");
    ciaaPOSIX_printf("TaskC is Terminating\n");
    TerminateTask();
