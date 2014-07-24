@@ -54,5 +54,5 @@ SRC_FILES                  += $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(
 
 # define linker extension
 LD_EXTENSION                = axf
-
+ 
 
