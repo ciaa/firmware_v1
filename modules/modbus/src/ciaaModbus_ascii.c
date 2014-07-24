@@ -293,7 +293,11 @@ extern int32_t ciaaModbus_ascii_read(int32_t fildes, uint8_t * buf)
 
       /* check lrc */
       if (CIAAMODBUS_MSG_MINLENGTH <= len_bin)
+      {
          lrccheck = ciaaModbus_checkLRC(buf, len_bin);
+         /* discard LRC */
+         len_bin--;
+      }
 
       /* repeat while
        * invalid lrc
