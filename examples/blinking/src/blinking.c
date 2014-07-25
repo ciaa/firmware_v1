@@ -140,7 +140,7 @@ TASK(TaskB) {
    ActivateTask(TaskC);
 
    ciaaPOSIX_printf("Activate Relative Alarm to Activate Task C");
-   SetRelAlarm(ActivateTaskC, 200, 400);
+   SetRelAlarm(ActivateTaskC, 200, 250);
 
    ciaaPOSIX_printf("TaskB is Terminating\n");
    TerminateTask();
