@@ -1,4 +1,5 @@
-/*
+/* This file shall be removed, is only a workaround see:
+ * https://github.com/ciaa/Firmware/issues/75
  * ciaaInputs.c
  *
  *  Created on: Jun 12, 2014
@@ -9,7 +10,8 @@
 
 void ciaaIOInit(void)
 {
-	Chip_GPIO_Init(LPC_GPIO_PORT);
+#if (ARCH == cortexM4)
+   Chip_GPIO_Init(LPC_GPIO_PORT);
 
 	/* Inputs  */
 	Chip_SCU_PinMux(4,0,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[0]
@@ -48,17 +50,22 @@ void ciaaIOInit(void)
 	/* GPIOs */
 	Chip_SCU_PinMux(6,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO0/P6_1/GPIO3[0]
 	Chip_SCU_PinMux(2,5,MD_PUP|MD_EZI|MD_ZI,FUNC4);	//GPIO1/P2_5/GPIO5[5]
-
+#endif
 }
 
 uint32_t ciaaReadInput(uint32_t inputNumber)
 {
+#if (ARCH == cortexM4)
 	if(inputNumber > 7) return ~0;
 	return ciaaDigitalInputs() & (1<<inputNumber);
+#else
+   return 0;
+#endif
 }
 
 uint32_t ciaaWriteOutput(uint32_t outputNumber, uint32_t value)
 {
+#if (ARCH == cortexM4)
 	switch(outputNumber)
 	{
 		case 0:
@@ -96,5 +103,6 @@ uint32_t ciaaWriteOutput(uint32_t outputNumber, uint32_t value)
 		default:
 			return -1;
 	}
+#endif
 	return 0;
 }
