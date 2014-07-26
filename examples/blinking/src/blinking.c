@@ -94,7 +94,7 @@ TASK(InitTask) {
 	ciaaWriteOutput(4, 1);
 
 
-//   ciaak_start();
+   ciaak_start();
 
    ciaaPOSIX_printf("InitTask is running\n");
    ActivateTask(TaskA);
@@ -109,13 +109,13 @@ TASK(InitTask) {
 }
 
 TASK(TaskA) {
-//   int32_t fildes;
-//
-//   ciaaPOSIX_printf("TaskA is running\n");
-//
-//   fildes = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
-//
-//   (void) fildes;
+   int32_t fildes;
+
+   ciaaPOSIX_printf("TaskA is running\n");
+
+   fildes = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+
+   (void) fildes;
 
    ciaaPOSIX_printf("TaskA espera Event1\n");
    WaitEvent(Event1);
@@ -135,6 +135,8 @@ TASK(TaskA) {
 
 TASK(TaskB) {
    ciaaPOSIX_printf("TaskB is running\n");
+
+   uint8 * test = ciaak_malloc(256);
 
    ActivateTask(TaskC);
    ActivateTask(TaskC);

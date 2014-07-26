@@ -113,7 +113,7 @@ TASK(TaskB) {
    ActivateTask(TaskC);
    ActivateTask(TaskC);
 
-   SetRelAlarm(ActivateTaskC, 200, 400);
+   SetRelAlarm(ActivateTaskC, 500, 500);
 
    TerminateTask();
 }
@@ -122,9 +122,12 @@ ISR(IsrName) {
 }
 
 TASK(TaskC) {
-
+   static int flag = 0;
+   ciaaWriteOutput(4, flag);
+   flag = !flag;
    TerminateTask();
 }
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
