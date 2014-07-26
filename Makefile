@@ -1,6 +1,7 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro (UTN-FRBA) / Juan Cecconi (UTN-FRBA)
+# Copyright 2014, Mariano Cerdeiro
+# Copyright 2014, Juan Cecconi (UTN-FRBA)
 #
 # This file is part of CIAA Firmware.
 #
