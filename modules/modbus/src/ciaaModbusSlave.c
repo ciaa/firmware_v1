@@ -294,7 +294,7 @@ int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len)
          /* verify if write successful  */
          if (0 < ret)
          {
-            ret = 3;
+            ret = 5;
          }
          else
          {
