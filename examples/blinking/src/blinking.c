@@ -136,8 +136,6 @@ TASK(TaskA) {
 TASK(TaskB) {
    ciaaPOSIX_printf("TaskB is running\n");
 
-   uint8 * test = ciaak_malloc(256);
-
    ActivateTask(TaskC);
    ActivateTask(TaskC);
 
