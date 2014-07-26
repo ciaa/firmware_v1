@@ -496,11 +496,13 @@ clean_generate: clean generate
 
 ###############################################################################
 # Incremental Build	(IDE: Build)
-all: clean generate $(project)
+all: clean generate
+	make
 
 ###############################################################################
 # generate and make (IDE: Generate and Make)
-generate_make: generate $(project)
+generate_make: generate
+	make
 
 ###############################################################################
 # doc -> documentation
