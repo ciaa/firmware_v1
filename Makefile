@@ -132,7 +132,7 @@ CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU)
 TARGET_NAME ?= $(BIN_DIR)$(DS)$(project)
 LD_TARGET = $(TARGET_NAME).$(LD_EXTENSION)
 # create list of object files, based on source file %.c and %.s
-$(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES = $(patsubst %.c,%.o,$(patsubst %.s,%.o,$($(LIB)_SRC_FILES))))) 
+$(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES = $(patsubst %.c,%.o,$(patsubst %.s,%.o,$($(LIB)_SRC_FILES)))))
 
 #rule for library
 define librule
@@ -234,7 +234,7 @@ tst_link: $(UNITY_SRC:.c=.o)
 
 # rule for tst_<mod>_<file>
 tst_$(tst_mod)_$(tst_file): $(MTEST_SRC_FILES:.c=_Runner.c) tst_link
-	@echo ' '	
+	@echo ' '
 	@echo ===============================================================================
 	@echo Testing from module $(tst_mod) the file $(tst_file)
 	out/bin/test.bin
@@ -294,7 +294,7 @@ test_%_Runner.c : test_%.c
 	@echo Compiling 'c' file: $<
 	@echo ' '
 	$(CC) $(CFLAGS) $< -o $@
-	
+
 %.o : %.s
 	@echo ' '
 	@echo ===============================================================================
@@ -311,7 +311,7 @@ $(project) : $(LIBS) $(OBJ_FILES)
 	@echo Linking file: $(LD_TARGET)
 	@echo ' '
 	$(CC) $(foreach obj,$(OBJ_FILES),$(obj)) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
-	@echo ' '	
+	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(project)
 	@echo ' '
@@ -382,6 +382,12 @@ help:
 	@echo "|               Debugging                                                     |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo openocd..........: starts openocd for $(ARCH)
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo "|               Bulding                                                       |"
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo clean............: cleans generated, object, binary, etc. files
+	@echo clean_generate...: performs make clean and make generate
+	@echo all..............: performs make clean, make generate and make:
 
 ###############################################################################
 # menuconfig
@@ -437,7 +443,7 @@ info:
 	@echo ARCH/CPUTYPE/CPU...: $(ARCH)/$(CPUTYPE)/$(CPU)
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
-	@echo Includes...........: $(INCLUDE)	
+	@echo Includes...........: $(INCLUDE)
 	@echo use make info_\<mod\>: to get information of a specific module. eg: make info_posix
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               All available modules                                         |"
@@ -461,7 +467,7 @@ info:
 
 ###############################################################################
 # clean
-.PHONY: clean
+.PHONY: clean generate all
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
@@ -484,17 +490,12 @@ endif
 
 ###############################################################################
 # clean and generate (IDE: Build Clean)
-clean_generate:
-	$(MAKE) clean
-	$(MAKE) generate
+clean_generate: clean generate
 
 ###############################################################################
 # Incremental Build	(IDE: Build)
-all:
-	$(MAKE) clean
-	$(MAKE) generate
-	$(MAKE)
-	
+all: clean generate $(project)
+
 ###############################################################################
 # doc -> documentation
 doc: doxygen
