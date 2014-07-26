@@ -388,7 +388,8 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo clean............: cleans generated, object, binary, etc. files
 	@echo clean_generate...: performs make clean and make generate
-	@echo all..............: performs make clean, make generate and make:
+	@echo all..............: performs make clean, make generate and make
+	@echo generate_make....: performs make generate and make
 
 ###############################################################################
 # menuconfig
@@ -496,6 +497,10 @@ clean_generate: clean generate
 ###############################################################################
 # Incremental Build	(IDE: Build)
 all: clean generate $(project)
+
+###############################################################################
+# generate and make (IDE: Generate and Make)
+generate_make: generate $(project)
 
 ###############################################################################
 # doc -> documentation
