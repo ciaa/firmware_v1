@@ -188,14 +188,17 @@ extern ciaaDevices_deviceType * ciaaDioDevices_open(char const * path,
 
 extern int32_t ciaaDioDevices_close(ciaaDevices_deviceType const * const device)
 {
-   return device->close((ciaaDevices_deviceType *)device->loLayer);
+   ciaaDevices_deviceType * drv = (ciaaDevices_deviceType*) device->loLayer;
+
+   return drv->close((ciaaDevices_deviceType *)device->loLayer);
 }
 
 extern int32_t ciaaDioDevices_ioctl(ciaaDevices_deviceType const * const device, int32_t request, void* param)
 {
    int32_t ret;
+   ciaaDevices_deviceType * drv = (ciaaDevices_deviceType*) device->loLayer;
 
-   ret = device->ioctl((ciaaDevices_deviceType *)device->loLayer, request, param);
+   ret = drv->ioctl((ciaaDevices_deviceType *)device->loLayer, request, param);
 
    return ret;
 }
@@ -203,8 +206,9 @@ extern int32_t ciaaDioDevices_ioctl(ciaaDevices_deviceType const * const device,
 extern int32_t ciaaDioDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte)
 {
    int32_t ret;
+   ciaaDevices_deviceType * drv = (ciaaDevices_deviceType*) device->loLayer;
 
-   ret = device->read((ciaaDevices_deviceType *)device->loLayer, buf, nbyte);
+   ret = drv->read((ciaaDevices_deviceType *)device->loLayer, buf, nbyte);
 
    return ret;
 }
@@ -212,8 +216,9 @@ extern int32_t ciaaDioDevices_read(ciaaDevices_deviceType const * const device, 
 extern int32_t ciaaDioDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, uint32_t nbyte)
 {
    int32_t ret;
+   ciaaDevices_deviceType * drv = (ciaaDevices_deviceType*) device->loLayer;
 
-   ret = device->write((ciaaDevices_deviceType *)device->loLayer, buf, nbyte);
+   ret = drv->write((ciaaDevices_deviceType *)device->loLayer, buf, nbyte);
 
    return ret;
 }
