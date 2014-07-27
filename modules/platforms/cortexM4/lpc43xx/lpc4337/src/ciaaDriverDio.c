@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Pablo Ridolfi
  *
  * This file is part of CIAA Firmware.
  *
@@ -46,13 +46,13 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * PaRi         Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140528 v0.0.1 initials initial version
+ * 20140727 v0.0.1 PaRi initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -123,52 +123,52 @@ ciaaDriverDio_dioType ciaaDriverDio_dio1;
 
 void ciaa_lpc4337_gpio_init(void)
 {
-	Chip_GPIO_Init(LPC_GPIO_PORT);
+   Chip_GPIO_Init(LPC_GPIO_PORT);
 
-	/* Inputs  */
-	Chip_SCU_PinMux(4,0,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[0]
-	Chip_SCU_PinMux(4,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[1]
-	Chip_SCU_PinMux(4,2,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[2]
-	Chip_SCU_PinMux(4,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[3]
-	Chip_SCU_PinMux(7,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[11]
-	Chip_SCU_PinMux(7,4,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[12]
-	Chip_SCU_PinMux(7,5,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[13]
-	Chip_SCU_PinMux(7,6,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[14]
+   /* Inputs  */
+   Chip_SCU_PinMux(4,0,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[0]
+   Chip_SCU_PinMux(4,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[1]
+   Chip_SCU_PinMux(4,2,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[2]
+   Chip_SCU_PinMux(4,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[3]
+   Chip_SCU_PinMux(7,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[11]
+   Chip_SCU_PinMux(7,4,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[12]
+   Chip_SCU_PinMux(7,5,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[13]
+   Chip_SCU_PinMux(7,6,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[14]
 
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,0xF, 0);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 3, 0xF<<11, 0);
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,0xF, 0);
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 3, 0xF<<11, 0);
 
-	/* MOSFETs */
-	Chip_SCU_PinMux(4,8,MD_PUP,FUNC4); //GPIO5[12]
-	Chip_SCU_PinMux(4,9,MD_PUP,FUNC4);//GPIO5[13]
-	Chip_SCU_PinMux(4,10,MD_PUP,FUNC4);//GPIO5[14]
-	Chip_SCU_PinMux(1,5,MD_PUP,FUNC0);//GPIO1[8]
+   /* MOSFETs */
+   Chip_SCU_PinMux(4,8,MD_PUP,FUNC4); //GPIO5[12]
+   Chip_SCU_PinMux(4,9,MD_PUP,FUNC4);//GPIO5[13]
+   Chip_SCU_PinMux(4,10,MD_PUP,FUNC4);//GPIO5[14]
+   Chip_SCU_PinMux(1,5,MD_PUP,FUNC0);//GPIO1[8]
 
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14),1);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1,(1<<8),1);
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14),1);
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 1,(1<<8),1);
 
 
-	Chip_GPIO_SetValue(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14));
-	Chip_GPIO_SetValue(LPC_GPIO_PORT, 1,(1<<8));
+   Chip_GPIO_SetValue(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14));
+   Chip_GPIO_SetValue(LPC_GPIO_PORT, 1,(1<<8));
 
-	/* Relays */
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6),1);
-	Chip_SCU_PinMux(2,1,MD_PUP,FUNC4);
-	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<1),1);
+   /* Relays */
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6),1);
+   Chip_SCU_PinMux(2,1,MD_PUP,FUNC4);
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<1),1);
 
-	Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6));
-	Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5,(1<<1));
+   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6));
+   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5,(1<<1));
 
-	/* GPIOs */
-	Chip_SCU_PinMux(6,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO0/P6_1/GPIO3[0]
-	Chip_SCU_PinMux(2,5,MD_PUP|MD_EZI|MD_ZI,FUNC4);	//GPIO1/P2_5/GPIO5[5]
+   /* GPIOs */
+   Chip_SCU_PinMux(6,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO0/P6_1/GPIO3[0]
+   Chip_SCU_PinMux(2,5,MD_PUP|MD_EZI|MD_ZI,FUNC4);	//GPIO1/P2_5/GPIO5[5]
 }
 
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-	return device;
+   return device;
 }
 
 extern int32_t ciaaDriverDio_close(ciaaDevices_deviceType const * const device)
@@ -188,17 +188,19 @@ extern int32_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
 
 extern int32_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
-	if(device == ciaaDioDevices[0])
-	{
-		   return 0;
-	}
-	else if(device == ciaaDioDevices[1])
-	{
-		   return 0;
-	}
-	else
-		return -1;
+   int32_t ret = 0;
+   if(device == ciaaDioDevices[0])
+   {
+   }
+   else if(device == ciaaDioDevices[1])
+   {
+   }
+   else
+   {
+      ret = -1;
+   }
 
+   return ret;
 }
 
 void ciaaDriverDio_init(void)
