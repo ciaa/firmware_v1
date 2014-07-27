@@ -168,7 +168,7 @@ void ciaa_lpc4337_gpio_init(void)
 extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-   return device;
+	return device;
 }
 
 extern int32_t ciaaDriverDio_close(ciaaDevices_deviceType const * const device)
