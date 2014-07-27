@@ -479,13 +479,13 @@ clean:
 	@rm -rf $(GENDIR)$(DS)*
 	@echo Removing object files
 ifeq ($(OS),WIN)
-	@find -name "*.o" -exec rm {} \;
+	@$(shell cygpath -u '$(CYGWIN)')$(DS)find -name "*.o"  -exec rm {} \;
 else
 	@find -name "*.o" -exec rm {} \;
 endif
 	@echo Removing Unity Runners files
 ifeq ($(OS),WIN)
-	@find -name "*_Runner.c" -exec rm {} \;
+	@$(shell cygpath -u '$(CYGWIN)')$(DS)find -name "*_Runner.c"  -exec rm {} \;
 else
 	@find -name "*_Runner.c" -exec rm {} \;
 endif
