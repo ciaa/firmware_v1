@@ -94,7 +94,7 @@ TASK(InitTask) {
    ciaak_start();
    uint8_t val;
 
-   int fd = ciaaPOSIX_open("/dev/dio/out/0", 0);
+   int fd = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
    val = 1;
    ciaaPOSIX_write(fd, &val, 1);
