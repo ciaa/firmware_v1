@@ -91,10 +91,14 @@ void ErrorHook(void)
 }
 
 TASK(InitTask) {
+	ciaak_start();
+
+	int fd = ciaaPOSIX_open("/dev/dio/out/0", 0);
+
+	ciaaPOSIX_write(fd, "1", 1);
+
 	ciaaWriteOutput(4, 1);
 
-
-   ciaak_start();
 
    ciaaPOSIX_printf("InitTask is running\n");
    ActivateTask(TaskA);
@@ -114,7 +118,6 @@ TASK(TaskA) {
    ciaaPOSIX_printf("TaskA is running\n");
 
    fildes = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
-
    (void) fildes;
 
    ciaaPOSIX_printf("TaskA espera Event1\n");

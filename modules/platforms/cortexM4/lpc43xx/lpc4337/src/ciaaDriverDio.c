@@ -75,8 +75,8 @@ typedef struct  {
 
 /*==================[internal data definition]===============================*/
 /** \brief Device for DIO 0 */
-static ciaaDevices_deviceType ciaaDriverDio_device0 = {
-   "0",                        /** <= driver name */
+static ciaaDevices_deviceType ciaaDriverDio_in0 = {
+   "in/0",                          /** <= driver name */
    ciaaDriverDio_open,             /** <= open function */
    ciaaDriverDio_close,            /** <= close function */
    ciaaDriverDio_read,             /** <= read function */
@@ -89,8 +89,8 @@ static ciaaDevices_deviceType ciaaDriverDio_device0 = {
 };
 
 /** \brief Device for DIO 1 */
-static ciaaDevices_deviceType ciaaDriverDio_device1 = {
-   "1",                        /** <= driver name */
+static ciaaDevices_deviceType ciaaDriverDio_out0 = {
+   "out/0",                          /** <= driver name */
    ciaaDriverDio_open,             /** <= open function */
    ciaaDriverDio_close,            /** <= close function */
    ciaaDriverDio_read,             /** <= read function */
@@ -103,8 +103,8 @@ static ciaaDevices_deviceType ciaaDriverDio_device1 = {
 };
 
 static ciaaDevices_deviceType * const ciaaDioDevices[] = {
-   &ciaaDriverDio_device0,
-   &ciaaDriverDio_device1
+   &ciaaDriverDio_in0,
+   &ciaaDriverDio_out0
 };
 
 static ciaaDriverConstType const ciaaDriverDioConst = {
@@ -120,6 +120,49 @@ ciaaDriverDio_dioType ciaaDriverDio_dio0;
 ciaaDriverDio_dioType ciaaDriverDio_dio1;
 
 /*==================[internal functions definition]==========================*/
+
+void ciaa_lpc4337_gpio_init(void)
+{
+	Chip_GPIO_Init(LPC_GPIO_PORT);
+
+	/* Inputs  */
+	Chip_SCU_PinMux(4,0,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[0]
+	Chip_SCU_PinMux(4,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[1]
+	Chip_SCU_PinMux(4,2,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[2]
+	Chip_SCU_PinMux(4,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[3]
+	Chip_SCU_PinMux(7,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[11]
+	Chip_SCU_PinMux(7,4,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[12]
+	Chip_SCU_PinMux(7,5,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[13]
+	Chip_SCU_PinMux(7,6,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[14]
+
+	Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,0xF, 0);
+	Chip_GPIO_SetDir(LPC_GPIO_PORT, 3, 0xF<<11, 0);
+
+	/* MOSFETs */
+	Chip_SCU_PinMux(4,8,MD_PUP,FUNC4); //GPIO5[12]
+	Chip_SCU_PinMux(4,9,MD_PUP,FUNC4);//GPIO5[13]
+	Chip_SCU_PinMux(4,10,MD_PUP,FUNC4);//GPIO5[14]
+	Chip_SCU_PinMux(1,5,MD_PUP,FUNC0);//GPIO1[8]
+
+	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14),1);
+	Chip_GPIO_SetDir(LPC_GPIO_PORT, 1,(1<<8),1);
+
+
+	Chip_GPIO_SetValue(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14));
+	Chip_GPIO_SetValue(LPC_GPIO_PORT, 1,(1<<8));
+
+	/* Relays */
+	Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6),1);
+	Chip_SCU_PinMux(2,1,MD_PUP,FUNC4);
+	Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<1),1);
+
+	Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6));
+	Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5,(1<<1));
+
+	/* GPIOs */
+	Chip_SCU_PinMux(6,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO0/P6_1/GPIO3[0]
+	Chip_SCU_PinMux(2,5,MD_PUP|MD_EZI|MD_ZI,FUNC4);	//GPIO1/P2_5/GPIO5[5]
+}
 
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path,
@@ -145,12 +188,24 @@ extern int32_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
 
 extern int32_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
-   return 0;
+	if(device == ciaaDioDevices[0])
+	{
+		   return 0;
+	}
+	else if(device == ciaaDioDevices[1])
+	{
+		   return 0;
+	}
+	else
+		return -1;
+
 }
 
 void ciaaDriverDio_init(void)
 {
    uint8_t loopi;
+
+   ciaa_lpc4337_gpio_init();
 
    /* add dio driver to the list of devices */
    for(loopi = 0; loopi < ciaaDriverDioConst.countOfDevices; loopi++) {
