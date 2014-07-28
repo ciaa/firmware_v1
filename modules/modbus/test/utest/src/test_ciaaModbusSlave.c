@@ -111,6 +111,11 @@ static uint16_t holdingRegVal[TST_QUANTITY_OF_HOLDING_REGISTRS];
 
 /*==================[external data definition]===============================*/
 
+ciaaModbus_cmdLst0x03Type ciaaModbus_cmdLst0x03[4] =
+{
+   { 0x0000, 0x0000 }, NULL
+};
+
 ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[4] =
 {
    { 0x0000, 0x0000 }, NULL
@@ -173,6 +178,33 @@ void doNothing(void) {
    }while (0)
 
 
+int8_t tst_readHoldingRegisters(
+      uint16_t startingAddress,
+      uint16_t quantityOfHoldingRegisters,
+      uint8_t * exceptionCode,
+      uint8_t * buf
+      )
+{
+   int8_t ret;
+   uint16_t loopi;
+
+   if (0x0010 <= TST_START_ADDRESS_HOLDING_REGISTERS)
+   {
+      for (loopi = 0 ; loopi < quantityOfHoldingRegisters ; loopi++)
+      {
+         tst_writeInt(&buf[loopi*2], holdingRegVal[loopi]);
+      }
+      ret = quantityOfHoldingRegisters;
+   }
+   else
+   {
+      *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
+      ret = -1;
+   }
+
+   return ret;
+}
+
 int8_t tst_readInputRegisters(
       uint16_t startingAddress,
       uint16_t quantityOfInputRegisters,
@@ -220,6 +252,22 @@ int8_t tst_writeSingleRegisters(
       *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
       ret = -1;
    }
+
+   return ret;
+}
+
+int32_t tst_modbusPDUReadHoldingRegister(uint8_t *buf,
+      uint16_t startAddress,
+      uint16_t quantityOfRegisters)
+{
+   int32_t ret = 0;
+
+   buf[0] = 0x03;
+   ret += 1;
+   tst_writeInt(&buf[1], startAddress);
+   ret += 2;
+   tst_writeInt(&buf[3], quantityOfRegisters);
+   ret += 2;
 
    return ret;
 }
@@ -483,6 +531,57 @@ void test_ciaaModbus_process_05_01(void)
 } /* end test_ciaaModbus_process_05_01 */
 
 
+/** \brief Test ciaaModbus_process
+ **
+ ** read holding registers
+ **
+ **/
+void test_ciaaModbus_process_06_01(void)
+{
+   uint8_t buf[2][256];
+   uint8_t response[2][256];
+   int32_t ret[2];
+
+   /* configure call back */
+   ciaaModbus_cmdLst0x03[0].fct = tst_readHoldingRegisters;
+   ciaaModbus_cmdLst0x03[0].range.maxAdd = TST_END_ADDRESS_HOLDING_REGISTERS;
+   ciaaModbus_cmdLst0x03[0].range.minAdd = TST_START_ADDRESS_HOLDING_REGISTERS;
+   ciaaModbus_cmdLst0x03[1].fct = NULL;
+
+   /* create pdu: address = 0X0010, quantity of registers = 0X0001 */
+   ret[0] = tst_modbusPDUReadHoldingRegister(buf[0], 0x0010, 0X0001);
+
+   /* create pdu: address = 0X0010, quantity of registers = 0X0004 */
+   ret[1] = tst_modbusPDUReadHoldingRegister(buf[1], 0x0010, 0X0004);
+
+   /* set value of input registers */
+   holdingRegVal[0] = 0x1234;
+   holdingRegVal[1] = 0x1111;
+   holdingRegVal[2] = 0x0000;
+   holdingRegVal[3] = 0xFFFF;
+
+   /* set response 1 */
+   response[0][0] = 0x03;
+   response[0][1] = 0x02;
+   tst_writeInt(&response[0][2], holdingRegVal[0]);
+
+   /* set response 2 */
+   response[1][0] = 0x03;
+   response[1][1] = 0x08;
+   tst_writeInt(&response[1][2], holdingRegVal[0]);
+   tst_writeInt(&response[1][4], holdingRegVal[1]);
+   tst_writeInt(&response[1][6], holdingRegVal[2]);
+   tst_writeInt(&response[1][8], holdingRegVal[3]);
+
+   ret[0] = ciaaModbus_process(buf[0], ret[0]);
+   ret[1] = ciaaModbus_process(buf[1], ret[1]);
+
+   TEST_ASSERT_EQUAL_INT8(4, ret[0]);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(response[0], buf[0], 4);
+   TEST_ASSERT_EQUAL_INT8(10, ret[1]);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(response[1], buf[1], 10);
+
+} /* end test_ciaaModbus_process_06_01 */
 
 
 /** @} doxygen end group definition */
