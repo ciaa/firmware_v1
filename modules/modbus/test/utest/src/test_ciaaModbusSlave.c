@@ -58,8 +58,58 @@
 #include "string.h"
 
 /*==================[macros and definitions]=================================*/
+#define TST_QUANTITY_OF_INPUT_REGISTRS    0x0100
+#define TST_QUANTITY_OF_HOLDING_REGISTRS  0x0100
+
+#define TST_START_ADDRESS_INPUT_REGISTERS 0X0010
+#define TST_END_ADDRESS_INPUT_REGISTERS   (TST_START_ADDRESS_INPUT_REGISTERS+ \
+                                           TST_QUANTITY_OF_INPUT_REGISTRS-1)
+
+#define TST_START_ADDRESS_HOLDING_REGISTERS  0X0010
+#define TST_END_ADDRESS_HOLDING_REGISTERS    (TST_START_ADDRESS_HOLDING_REGISTERS+ \
+                                             TST_QUANTITY_OF_HOLDING_REGISTRS-1)
+
 
 /*==================[internal data declaration]==============================*/
+
+/*==================[internal functions declaration]=========================*/
+
+/*==================[internal data definition]===============================*/
+
+/*
+ * Modbus Map
+ *
+ * Input Registers:
+ * Accessed through:
+ *             - 0x04 Read Input Register
+ *                ---------------------
+ * start:0x0010  |   inputRegVal[0]    |
+ *               |   inputRegVal[1]    |
+ *               |   ...               |
+ * end:0x010F    |   inputRegVal[255]  |
+ *                ---------------------
+ *
+ * Holding Registers:
+ * Accessed through:
+ *             - 0x03 Read Holding Register
+ *             - 0x06 Write single Register
+ *             - 0x10 Write multiple Register
+ *             - 0x17 Read/Write multiple Register
+ *                ---------------------
+ * start:0x0010  |  holdingRegVal[0]   |
+ *               |  holdingRegVal[1]   |
+ *               |   ...               |
+ * end:0x00D7    |  holdingRegVal[199] |
+ *                ---------------------
+ *
+ *
+ */
+
+
+static uint16_t inputRegVal[TST_QUANTITY_OF_INPUT_REGISTRS];
+static uint16_t holdingRegVal[TST_QUANTITY_OF_HOLDING_REGISTRS];
+
+/*==================[external data definition]===============================*/
 
 ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[4] =
 {
@@ -70,15 +120,6 @@ ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[4] =
 {
    { 0x0000, 0x0000 }, NULL
 };
-
-
-
-/*==================[internal functions declaration]=========================*/
-
-/*==================[internal data definition]===============================*/
-static uint16_t inputRegVal[200];
-
-/*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
@@ -142,7 +183,7 @@ int8_t tst_readInputRegisters(
    int8_t ret;
    uint16_t loopi;
 
-   if (0x0010 <= startingAddress)
+   if (0x0010 <= TST_START_ADDRESS_INPUT_REGISTERS)
    {
       for (loopi = 0 ; loopi < quantityOfInputRegisters ; loopi++)
       {
@@ -167,9 +208,11 @@ int8_t tst_writeSingleRegisters(
 {
    int8_t ret;
 
-   if ( (registerAddress >= 0) && (registerAddress <= 200) )
+   if ( (registerAddress >= TST_START_ADDRESS_INPUT_REGISTERS) &&
+        (registerAddress <= TST_END_ADDRESS_INPUT_REGISTERS) )
    {
-      inputRegVal[registerAddress] = registerValue;
+      registerAddress -= TST_START_ADDRESS_INPUT_REGISTERS;
+      holdingRegVal[registerAddress] = registerValue;
       ret = 1;
    }
    else
@@ -256,7 +299,7 @@ void test_ciaaModbus_process_02_01(void)
    int32_t ret;
 
    /* read input register: quantity > 0x007D */
-   ret = tst_modbusPDUReadInputRegister(buf, 0x0000, 0X007E);
+   ret = tst_modbusPDUReadInputRegister(buf, 0x0010, 0X007E);
 
    ret = ciaaModbus_process(buf, ret);
 
@@ -276,7 +319,7 @@ void test_ciaaModbus_process_02_02(void)
    int32_t ret;
 
    /* read input register: quantity < 0x0001 */
-   ret = tst_modbusPDUReadInputRegister(buf, 0x0000, 0X0000);
+   ret = tst_modbusPDUReadInputRegister(buf, 0x0010, 0X0000);
 
    ret = ciaaModbus_process(buf, ret);
 
@@ -324,15 +367,15 @@ void test_ciaaModbus_process_03_02(void)
 
    /* function implemented. Address out of range */
    ciaaModbus_cmdLst0x04[0].fct = tst_readInputRegisters;
-   ciaaModbus_cmdLst0x04[0].range.maxAdd = 0x0020;
-   ciaaModbus_cmdLst0x04[0].range.minAdd = 0x0010;
+   ciaaModbus_cmdLst0x04[0].range.maxAdd = TST_END_ADDRESS_INPUT_REGISTERS;
+   ciaaModbus_cmdLst0x04[0].range.minAdd = TST_START_ADDRESS_INPUT_REGISTERS;
    ciaaModbus_cmdLst0x04[1].fct = NULL;
 
-   /* create pdu: address = 0X000F, quantity of registers = 0X0001 */
-   ret[0] = tst_modbusPDUReadInputRegister(buf[0], 0x000F, 0X0001);
+   /* create pdu: address = 0X0000, quantity of registers = 0X0001 */
+   ret[0] = tst_modbusPDUReadInputRegister(buf[0],0X0000 , 0X0001);
 
-   /* create pdu: address = 0X0021, quantity of registers = 0X0001 */
-   ret[1] = tst_modbusPDUReadInputRegister(buf[1], 0x0021, 0X0001);
+   /* create pdu: address = 0X1000, quantity of registers = 0X0001 */
+   ret[1] = tst_modbusPDUReadInputRegister(buf[1], 0x1000, 0X0001);
 
    ret[0] = ciaaModbus_process(buf[0], ret[0]);
    ret[1] = ciaaModbus_process(buf[1], ret[1]);
@@ -358,8 +401,8 @@ void test_ciaaModbus_process_04_01(void)
 
    /* configure call back */
    ciaaModbus_cmdLst0x04[0].fct = tst_readInputRegisters;
-   ciaaModbus_cmdLst0x04[0].range.maxAdd = 0x0020;
-   ciaaModbus_cmdLst0x04[0].range.minAdd = 0x0010;
+   ciaaModbus_cmdLst0x04[0].range.maxAdd = TST_END_ADDRESS_INPUT_REGISTERS;
+   ciaaModbus_cmdLst0x04[0].range.minAdd = TST_START_ADDRESS_INPUT_REGISTERS;
    ciaaModbus_cmdLst0x04[1].fct = NULL;
 
    /* create pdu: address = 0X0010, quantity of registers = 0X0001 */
@@ -410,15 +453,15 @@ void test_ciaaModbus_process_05_01(void)
 
    /* configure call back */
    ciaaModbus_cmdLst0x06[0].fct = tst_writeSingleRegisters;
-   ciaaModbus_cmdLst0x06[0].range.maxAdd = 0x0020;
-   ciaaModbus_cmdLst0x06[0].range.minAdd = 0x0000;
+   ciaaModbus_cmdLst0x06[0].range.maxAdd = TST_END_ADDRESS_HOLDING_REGISTERS;
+   ciaaModbus_cmdLst0x06[0].range.minAdd = TST_START_ADDRESS_HOLDING_REGISTERS;
    ciaaModbus_cmdLst0x06[1].fct = NULL;
 
-   /* create pdu: address = 0X0000, register value = 0X1234 */
-   ret[0] = tst_modbusPDUWriteSingleRegister(buf[0], 0x0000, 0X1234);
+   /* create pdu: address = 0X0010, register value = 0X1234 */
+   ret[0] = tst_modbusPDUWriteSingleRegister(buf[0], 0x0010, 0X1234);
 
-   /* create pdu: address = 0X0001, quantity of registers = 0X9876 */
-   ret[1] = tst_modbusPDUWriteSingleRegister(buf[1], 0x0001, 0X9876);
+   /* create pdu: address = 0X0011, register value = 0X9876 */
+   ret[1] = tst_modbusPDUWriteSingleRegister(buf[1], 0x0011, 0X9876);
 
    /* set response 1 (equal to request) */
    memcpy(response[0], buf[0], ret[0]);
@@ -431,11 +474,11 @@ void test_ciaaModbus_process_05_01(void)
 
    TEST_ASSERT_EQUAL_INT8(5, ret[0]);
    TEST_ASSERT_EQUAL_INT8_ARRAY(response[0], buf[0], 5);
-   TEST_ASSERT_EQUAL_INT16(0x1234, inputRegVal[0]);
+   TEST_ASSERT_EQUAL_INT16(0x1234, holdingRegVal[0]);
 
    TEST_ASSERT_EQUAL_INT8(5, ret[1]);
    TEST_ASSERT_EQUAL_INT8_ARRAY(response[1], buf[1], 5);
-   TEST_ASSERT_EQUAL_INT16(0x9876, inputRegVal[1]);
+   TEST_ASSERT_EQUAL_INT16(0x9876, holdingRegVal[1]);
 
 } /* end test_ciaaModbus_process_05_01 */
 
