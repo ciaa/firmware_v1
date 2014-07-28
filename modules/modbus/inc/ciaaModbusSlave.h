@@ -149,7 +149,7 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len);
  ** \param[in] len lenght of the buffer
  ** \returns count of bytes to be answered
  **/
-int32_t ciaaModbus_writeSingleRegisters(uint8_t * buf, int32_t len);
+int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len);
 
 /** \brief Command Write Multiple Register
  **
