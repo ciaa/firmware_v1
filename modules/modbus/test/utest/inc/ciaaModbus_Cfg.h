@@ -71,6 +71,10 @@ extern "C" {
 /** \brief Id of the own slave */
 #define CIAAMODBUS_SLAVE_ID      2
 
+/** \brief Enables/Disables service 0x03 Read Holding Registers
+ **/
+#define CIAAMODBUS_READ_HOLDING_REGISTERS       CIAAMODBUS_EN
+
 /** \brief Enables/Disables service 0x04 Read Input Registers
  **/
 #define CIAAMODBUS_READ_INPUT_REGISTERS         CIAAMODBUS_EN

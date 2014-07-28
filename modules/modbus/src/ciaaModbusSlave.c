@@ -133,6 +133,12 @@ extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len)
 
    switch(function)
    {
+#if (CIAAMODBUS_READ_HOLDING_REGISTERS == CIAAMODBUS_EN)
+      case CIAAMODBUS_FCN_READHOLDINGREGISTERS:
+         ret = ciaaModbus_readHoldingRegisters(buf, len);
+         break;
+#endif /* #if (CIAAMODBUS_READ_HOLDING_REGISTERS == CIAAMODBUS_EN) */
+
 #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN)
       case CIAAMODBUS_FCN_READINPUTREGISTERS:
          ret = ciaaModbus_readInputRegisters(buf, len);
@@ -159,6 +165,102 @@ extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len)
    return ret;
 
 }
+
+#if (CIAAMODBUS_READ_HOLDING_REGISTERS == CIAAMODBUS_EN)
+int32_t ciaaModbus_readHoldingRegisters(uint8_t * buf, int32_t len)
+{
+   uint8_t exceptionCode;
+   uint16_t quantityOfRegisters;
+   uint16_t address;
+   int32_t ret = -1;
+   int32_t loopi;
+
+   quantityOfRegisters = ciaaModbus_readInt(&buf[3]);
+
+   /* check that quantity of registers is in range */
+   if ( (0x007D < quantityOfRegisters) ||
+        (0x0001 > quantityOfRegisters) )
+   {
+      /* set error flag */
+      buf[0] |= 0x80;
+
+      /* report invalid quantity of registers */
+      buf[1] = CIAAMODBUS_E_WRONG_REG_QTY;
+
+      /* return 2 bytes */
+      ret = 2;
+   } else
+   {
+      /* get address */
+      address = ciaaModbus_readInt(&buf[1]);
+
+      /* search for user callback */
+      loopi = 0;
+
+      /* exit while if:
+       * NULL function pointer is found
+       * or
+       * function address range is match
+       */
+      while ( (NULL != ciaaModbus_cmdLst0x03[loopi].fct) && (-1 == ret) )
+      {
+         /* check if address in range */
+         if ( (address >= ciaaModbus_cmdLst0x03[loopi].range.minAdd) &&
+              (address <= ciaaModbus_cmdLst0x03[loopi].range.maxAdd) )
+         {
+            ret = ciaaModbus_cmdLst0x03[loopi].fct(address,
+                  quantityOfRegisters,
+                  &exceptionCode,
+                  &buf[2]);
+
+            /* verify if read successful  */
+            if (0 < ret)
+            {
+               /* complete quantity of bytes */
+               buf[1] = ret * 2;
+               /* return length buffer in bytes */
+               ret = ret * 2 + 2;
+            }
+            else
+            {
+               /* set error code bit */
+               buf[0] |= 0x80;
+               /* set exception code */
+               buf[1] = exceptionCode;
+               /* return length buffer 2 bytes (error) response*/
+               ret = 2;
+            }
+         }
+
+         /* increment pointer */
+         loopi++;
+      }
+   }
+
+   /* check if function is not implemented or start address doesn't match in range */
+   if (0 > ret)
+   {
+      /* set error code bit */
+      buf[0] |= 0x80;
+
+      if (0 == loopi)
+      {
+         /* set exception code */
+         buf[1] = CIAAMODBUS_E_FNC_NOT_SUPPORTED;
+      }
+      else
+      {
+         /* set exception code */
+         buf[1] = CIAAMODBUS_E_WRONG_STR_ADDR;
+      }
+      /* return length buffer 2 bytes (error) response*/
+      ret = 2;
+   }
+
+   return ret;
+} /* end ciaaModbus_readInputRegisters */
+#endif /* #if (CIAAMODBUS_READ_HOLDING_REGISTERS == CIAAMODBUS_EN) */
+
 
 #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN)
 int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len)

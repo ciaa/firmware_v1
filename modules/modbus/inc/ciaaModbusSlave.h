@@ -90,9 +90,9 @@ extern "C" {
 #define CIAAMODBUS_E_FNC_ERROR            0x04
 
 /****** functions ******/
-#define CIAAMODBUS_FCN_READINPUTREGISTERS 0x04
-
-#define CIAAMODBUS_FCN_WRITESINGLEREGISTER 0x06
+#define CIAAMODBUS_FCN_READHOLDINGREGISTERS  0x03
+#define CIAAMODBUS_FCN_READINPUTREGISTERS    0x04
+#define CIAAMODBUS_FCN_WRITESINGLEREGISTER   0x06
 
 
 /** \brief Lenght of a modbus pdu for function 0x04 Read Input Registers */
@@ -125,6 +125,14 @@ extern int32_t ciaaModbus_process(uint8_t * buf, int32_t len);
  **/
 extern void ciaaModbus_slaveMainTask(void);
 
+/** \brief Command Read Holding Registers
+ **
+ ** \param[inout] buf buffer with the modbus pdu
+ ** \param[in] len lenght of the buffer
+ ** \returns count of bytes to be answered
+ **/
+int32_t ciaaModbus_readHoldingRegisters(uint8_t * buf, int32_t len);
+
 /** \brief Command Read Input Registers
  **
  ** \param[inout] buf buffer with the modbus pdu
@@ -140,6 +148,7 @@ int32_t ciaaModbus_readInputRegisters(uint8_t * buf, int32_t len);
  ** \returns count of bytes to be answered
  **/
 int32_t ciaaModbus_writeSingleRegister(uint8_t * buf, int32_t len);
+
 /*==================[external functions declaration]=========================*/
 
 /** \brief Read Integer from modbus
