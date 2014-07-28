@@ -47,6 +47,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * GMuro        Gustavo Muro
  */
 
 /*
@@ -82,6 +83,10 @@ extern "C" {
 /** \brief Enables/Disables service 0x06 Write Single Register
  **/
 #define CIAAMODBUS_WRITE_SINGLE_REGISTER        CIAAMODBUS_EN
+
+/** \brief Enables/Disables service 0x10 Write Multiple Registers
+ **/
+#define CIAAMODBUS_WRITE_MULTIPLE_REGISTERS        CIAAMODBUS_EN
 
 /*==================[typedef]================================================*/
 /** \brief Modbus Command Read Holding Registers callback
@@ -154,6 +159,29 @@ typedef int8_t (*ciaaModbus_writeSingleRegisterFctType)(
       uint8_t * exceptionCode
       );
 
+/** \brief Modbus Command Write Multiple Registers callback
+ **
+ ** This function is called by the modbus and provided by the application which
+ ** implements a Write Multiple Registers command
+ **
+ ** \param[in] startingAddress starting address
+ ** \param[in] quantityOfRegisters quantity of registers to be read
+ ** \param[out] exceptionCode may take one of the following values:
+ **                  CIAAMODBUS_E_WRONG_STR_ADDR
+ **                  CIAAMODBUS_E_FNC_ERROR
+ ** \param[in] buf buffer containing the registers
+ ** \return -1 if error, exceptionCode shall be set. 1 if success.
+ **
+ ** \remarks exceptionCode parameter shall only be used if -1 is returned in
+ **          other case the pointer shall not be written.
+ **/
+typedef int8_t (*ciaaModbus_writeMultipleRegistersFctType)(
+      uint16_t startingAddress,
+      uint16_t quantityOfRegisters,
+      uint8_t * exceptionCode,
+      uint8_t * buf
+      );
+
 
 /** \brief Address range
  **/
@@ -180,10 +208,17 @@ typedef struct {
    ciaaModbus_writeSingleRegisterFctType fct;
 } ciaaModbus_cmdLst0x06Type;
 
+/** \brief Command list type */
+typedef struct {
+   ciaaModbus_addressRangeType range;
+   ciaaModbus_writeMultipleRegistersFctType fct;
+} ciaaModbus_cmdLst0x10Type;
+
 /*==================[external data declaration]==============================*/
 extern ciaaModbus_cmdLst0x03Type ciaaModbus_cmdLst0x03[];
 extern ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[];
 extern ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[];
+extern ciaaModbus_cmdLst0x10Type ciaaModbus_cmdLst0x10[];
 
 /*==================[external functions declaration]=========================*/
 

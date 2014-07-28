@@ -126,6 +126,11 @@ ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[4] =
    { 0x0000, 0x0000 }, NULL
 };
 
+ciaaModbus_cmdLst0x10Type ciaaModbus_cmdLst0x10[4] =
+{
+   { 0x0000, 0x0000 }, NULL
+};
+
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
@@ -256,6 +261,33 @@ int8_t tst_writeSingleRegisters(
    return ret;
 }
 
+int8_t tst_writeMultipleRegisters(
+      uint16_t startingAddress,
+      uint16_t quantityOfRegisters,
+      uint8_t * exceptionCode,
+      uint8_t * buf
+      )
+{
+   int8_t ret;
+   uint16_t loopi;
+
+   if (TST_START_ADDRESS_HOLDING_REGISTERS <= startingAddress)
+   {
+      for (loopi = 0 ; loopi < quantityOfRegisters ; loopi++)
+      {
+         holdingRegVal[loopi] = tst_readInt(&buf[loopi*2]);
+      }
+      ret = quantityOfRegisters;
+   }
+   else
+   {
+      *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
+      ret = -1;
+   }
+
+   return ret;
+}
+
 int32_t tst_modbusPDUReadHoldingRegister(uint8_t *buf,
       uint16_t startAddress,
       uint16_t quantityOfRegisters)
@@ -300,6 +332,40 @@ int32_t tst_modbusPDUWriteSingleRegister(uint8_t *buf,
    ret += 2;
    tst_writeInt(&buf[3], registerValue);
    ret += 2;
+
+   return ret;
+}
+
+int32_t tst_modbusPDUWriteMultipleRegisters(uint8_t *buf,
+      uint16_t startAddress,
+      uint16_t quantityOfRegisters,
+      uint16_t *regValue)
+{
+   int32_t ret = 0;
+   uint32_t loopi;
+
+   /* function code */
+   buf[0] = 0x10;
+   ret += 1;
+
+   /* staring address */
+   tst_writeInt(&buf[1], startAddress);
+   ret += 2;
+
+   /* quantity of registers */
+   tst_writeInt(&buf[3], quantityOfRegisters);
+   ret += 2;
+
+   /* byte count */
+   buf[5] = quantityOfRegisters * 2;
+   ret++;
+
+   /* registers value */
+   for (loopi = 0 ; loopi < quantityOfRegisters ; loopi++)
+   {
+      tst_writeInt(&buf[ret], regValue[loopi]);
+      ret += 2;
+   }
 
    return ret;
 }
@@ -582,6 +648,60 @@ void test_ciaaModbus_process_06_01(void)
    TEST_ASSERT_EQUAL_INT8_ARRAY(response[1], buf[1], 10);
 
 } /* end test_ciaaModbus_process_06_01 */
+
+
+/** \brief Test ciaaModbus_process
+ **
+ ** write multiple registers
+ **
+ **/
+void test_ciaaModbus_process_07_01(void)
+{
+   uint8_t buf[2][256];
+   uint8_t response[2][256];
+   int32_t ret[2];
+   uint16_t regValue[] = {
+      0x4884,
+      0x1111,
+      0x2222,
+      0x3333,
+      0x4444,
+      0x1234,
+      0x5678,
+      0x55AA,
+   };
+
+   /* configure call back */
+   ciaaModbus_cmdLst0x10[0].fct = tst_writeMultipleRegisters;
+   ciaaModbus_cmdLst0x10[0].range.maxAdd = TST_END_ADDRESS_HOLDING_REGISTERS;
+   ciaaModbus_cmdLst0x10[0].range.minAdd = TST_START_ADDRESS_HOLDING_REGISTERS;
+   ciaaModbus_cmdLst0x10[1].fct = NULL;
+
+   /* create pdu: address = 0X0010, */
+   ret[0] = tst_modbusPDUWriteMultipleRegisters(buf[0], 0x0010, 0X0001, &regValue[0]);
+
+   /* create pdu: address = 0X0011, */
+   ret[1] = tst_modbusPDUWriteMultipleRegisters(buf[1], 0x0011, 0X0007, &regValue[1]);
+
+   /* set response 1 */
+   memcpy(response[0], buf[0], 5);
+
+   /* set response 2 */
+   memcpy(response[1], buf[1], 5);
+
+   ret[0] = ciaaModbus_process(buf[0], ret[0]);
+   ret[1] = ciaaModbus_process(buf[1], ret[1]);
+
+   TEST_ASSERT_EQUAL_INT8(5, ret[0]);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(response[0], buf[0], 5);
+   TEST_ASSERT_EQUAL_INT16(regValue[0], holdingRegVal[0]);
+
+   TEST_ASSERT_EQUAL_INT8(5, ret[1]);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(response[1], buf[1], 5);
+   TEST_ASSERT_EQUAL_INT16_ARRAY(&regValue[1], &holdingRegVal[1], 7);
+
+} /* end test_ciaaModbus_process_07_01 */
+
 
 
 /** @} doxygen end group definition */
