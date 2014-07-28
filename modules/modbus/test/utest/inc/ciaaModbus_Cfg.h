@@ -80,6 +80,31 @@ extern "C" {
 #define CIAAMODBUS_WRITE_SINGLE_REGISTER        CIAAMODBUS_EN
 
 /*==================[typedef]================================================*/
+/** \brief Modbus Command Read Holding Registers callback
+ **
+ ** This function is called by the modbus and provided by the application which
+ ** implements a Read Holding Registers command
+ **
+ ** \param[in] startingAddress starting address
+ ** \param[in] quantityOfHoldingRegisters quantity of holding registers to
+ **            be read
+ ** \param[out] exceptionCode may take one of the following values:
+ **                  CIAAMODBUS_E_WRONG_STR_ADDR
+ **                  CIAAMODBUS_E_FNC_ERROR
+ ** \param[out] buf buffer containing the holding registers
+ ** \return count of registers, this value is multiplicated * 2 by the caller
+ **         if a exception occurs returns -1
+ **
+ ** \remarks exceptionCode parameter shall only be used if -1 is returned in
+ **          other case the pointer shall not be written.
+ **/
+typedef int8_t (*ciaaModbus_readHoldingRegistersFctType)(
+      uint16_t startingAddress,
+      uint16_t quantityOfHoldingRegisters,
+      uint8_t * exceptionCode,
+      uint8_t * buf
+      );
+
 /** \brief Modbus Command Read Input Registers callback
  **
  ** This function is called by the modbus and provided by the application which
@@ -136,6 +161,12 @@ typedef struct {
 /** \brief Command list type */
 typedef struct {
    ciaaModbus_addressRangeType range;
+   ciaaModbus_readHoldingRegistersFctType fct;
+} ciaaModbus_cmdLst0x03Type;
+
+/** \brief Command list type */
+typedef struct {
+   ciaaModbus_addressRangeType range;
    ciaaModbus_readInputRegistersFctType fct;
 } ciaaModbus_cmdLst0x04Type;
 
@@ -146,6 +177,7 @@ typedef struct {
 } ciaaModbus_cmdLst0x06Type;
 
 /*==================[external data declaration]==============================*/
+extern ciaaModbus_cmdLst0x03Type ciaaModbus_cmdLst0x03[];
 extern ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[];
 extern ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[];
 
