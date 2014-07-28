@@ -201,7 +201,7 @@ void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
          else Chip_GPIO_SetValue(LPC_GPIO_PORT, 1, 1<<8);
          break;
       default:
-         return;
+         break;
    }
 }
 
@@ -226,32 +226,31 @@ extern int32_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
 {
    int32_t ret = -1;
 
-   if(size == 0)
-      /* Can't store read result in buffer. At least 1 byte required. */
-      return ret;
-
-   if(device == ciaaDioDevices[0])
+   /* Can't store read result in buffer. At least 1 byte required. */
+   if(size != 0)
    {
+      if(device == ciaaDioDevices[0])
+      {
 
-      buffer[0] = ~((uint8_t) ((Chip_GPIO_ReadValue(LPC_GPIO_PORT,3) & (0x0F<<11))>>7)
-                           | (Chip_GPIO_ReadValue(LPC_GPIO_PORT,2) & 0x0F));
+         buffer[0] = ~((uint8_t) ((Chip_GPIO_ReadValue(LPC_GPIO_PORT,3) & (0x0F<<11))>>7)
+                              | (Chip_GPIO_ReadValue(LPC_GPIO_PORT,2) & 0x0F));
 
-      /* 1 byte read */
-      ret = 1;
+         /* 1 byte read */
+         ret = 1;
+      }
+      else if(device == ciaaDioDevices[1])
+      {
+         /* read actual output state from layer data */
+         buffer[0] = (uint8_t)*((ciaaDriverDio_dioType *)device->layer);
+
+         ret = 1;
+      }
+      else
+      {
+         /* Invalid device */
+         ret = -1;
+      }
    }
-   else if(device == ciaaDioDevices[1])
-   {
-      /* read actual output state from layer data */
-      buffer[0] = (uint8_t)*((ciaaDriverDio_dioType *)device->layer);
-
-      ret = 1;
-   }
-   else
-   {
-      /* Invalid device */
-      ret = -1;
-   }
-
    return ret;
 }
 
@@ -259,34 +258,33 @@ extern int32_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
 {
    int32_t ret = -1;
 
-   if(size == 0)
-      return ret;
-
-   if(device == ciaaDioDevices[0])
+   if(size != 0)
    {
-      /* Inputs can't be written. */
-      ret = -1;
-   }
-   else if(device == ciaaDioDevices[1])
-   {
-      int32_t i;
-
-      for(i = 0; i < 8; i++)
+      if(device == ciaaDioDevices[0])
       {
-         ciaa_lpc4337_writeOutput(i, buffer[0] & (1 << i));
+         /* Inputs can't be written. */
+         ret = -1;
       }
+      else if(device == ciaaDioDevices[1])
+      {
+         int32_t i;
 
-      /* save actual output state in layer data */
-      *((ciaaDriverDio_dioType *)device->layer) = buffer[0];
+         for(i = 0; i < 8; i++)
+         {
+            ciaa_lpc4337_writeOutput(i, buffer[0] & (1 << i));
+         }
 
-      /* 1 byte written */
-      ret = 1;
+         /* save actual output state in layer data */
+         *((ciaaDriverDio_dioType *)device->layer) = buffer[0];
+
+         /* 1 byte written */
+         ret = 1;
+      }
+      else
+      {
+         ret = -1;
+      }
    }
-   else
-   {
-   ret = -1;
-   }
-
    return ret;
 }
 

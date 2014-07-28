@@ -175,9 +175,13 @@ TASK(TaskC) {
    outputs |= inputs & 0x0F;
 
    if(outputs & 0x10)
+   {
       outputs &= ~0x10;
+   }
    else
+   {
       outputs |= 0x10;
+   }
 
    ciaaPOSIX_write(fd_out, &outputs, 1);
 
