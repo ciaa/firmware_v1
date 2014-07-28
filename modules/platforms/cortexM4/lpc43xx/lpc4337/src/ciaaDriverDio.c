@@ -232,8 +232,9 @@ extern int32_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
 
    if(device == ciaaDioDevices[0])
    {
-      buffer[0] = (uint8_t) ((Chip_GPIO_ReadValue(LPC_GPIO_PORT,3) & (0x0F<<11))>>7)
-                           | (Chip_GPIO_ReadValue(LPC_GPIO_PORT,2) & 0x0F);
+
+      buffer[0] = ~((uint8_t) ((Chip_GPIO_ReadValue(LPC_GPIO_PORT,3) & (0x0F<<11))>>7)
+                           | (Chip_GPIO_ReadValue(LPC_GPIO_PORT,2) & 0x0F));
 
       /* 1 byte read */
       ret = 1;
@@ -270,7 +271,7 @@ extern int32_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
    {
       int32_t i;
 
-      for(i = 0; i<7; i++)
+      for(i = 0; i < 8; i++)
       {
          ciaa_lpc4337_writeOutput(i, buffer[0] & (1 << i));
       }

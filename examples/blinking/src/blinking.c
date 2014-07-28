@@ -91,10 +91,12 @@ void ErrorHook(void)
 
 TASK(InitTask) {
    ciaak_start();
+
    uint8_t val;
 
    int fd = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
+   /* Example: Activate output 5 (MOSFET) */
    val = 0x20;
    ciaaPOSIX_write(fd, &val, 1);
 
@@ -153,20 +155,35 @@ ISR(IsrName) {
 }
 
 TASK(TaskC) {
-   static uint8_t value = 0;
 
-   int fd = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   /*
+    * Example:
+    *    Read inputs 0..3, update outputs 0..3.
+    *    Blink output 4
+    */
 
-   ciaaPOSIX_read(fd, &value, 1);
+   uint8_t inputs = 0, outputs = 0;
 
-   if(value & 0x10)
-      value &= ~0x10;
+   int fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
+   int fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+
+   ciaaPOSIX_read(fd_in, &inputs, 1);
+
+   ciaaPOSIX_read(fd_out, &outputs, 1);
+
+   outputs &= 0xF0;
+   outputs |= inputs & 0x0F;
+
+   if(outputs & 0x10)
+      outputs &= ~0x10;
    else
-      value |= 0x10;
+      outputs |= 0x10;
 
-   ciaaPOSIX_write(fd, &value, 1);
+   ciaaPOSIX_write(fd_out, &outputs, 1);
 
-   ciaaPOSIX_close(fd);
+   ciaaPOSIX_close(fd_out);
+
+   ciaaPOSIX_close(fd_in);
 
    ciaaPOSIX_printf("TaskC is running\n");
    ciaaPOSIX_printf("TaskC is Terminating\n");
