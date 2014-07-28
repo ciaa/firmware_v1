@@ -188,7 +188,7 @@ int8_t tst_readHoldingRegisters(
    int8_t ret;
    uint16_t loopi;
 
-   if (0x0010 <= TST_START_ADDRESS_HOLDING_REGISTERS)
+   if (TST_START_ADDRESS_HOLDING_REGISTERS <= startingAddress)
    {
       for (loopi = 0 ; loopi < quantityOfHoldingRegisters ; loopi++)
       {
@@ -215,7 +215,7 @@ int8_t tst_readInputRegisters(
    int8_t ret;
    uint16_t loopi;
 
-   if (0x0010 <= TST_START_ADDRESS_INPUT_REGISTERS)
+   if (TST_START_ADDRESS_INPUT_REGISTERS <= startingAddress)
    {
       for (loopi = 0 ; loopi < quantityOfInputRegisters ; loopi++)
       {
