@@ -219,12 +219,15 @@ int8_t tst_readInputRegisters(
 {
    int8_t ret;
    uint16_t loopi;
+   uint32_t offserIndex;
 
    if (TST_START_ADDRESS_INPUT_REGISTERS <= startingAddress)
    {
+      offserIndex = startingAddress - TST_START_ADDRESS_HOLDING_REGISTERS;
+
       for (loopi = 0 ; loopi < quantityOfInputRegisters ; loopi++)
       {
-         tst_writeInt(&buf[loopi*2], inputRegVal[loopi]);
+         tst_writeInt(&buf[loopi*2], inputRegVal[loopi+offserIndex]);
       }
       ret = quantityOfInputRegisters;
    }
@@ -270,12 +273,15 @@ int8_t tst_writeMultipleRegisters(
 {
    int8_t ret;
    uint16_t loopi;
+   uint32_t offsetIndex;
 
    if (TST_START_ADDRESS_HOLDING_REGISTERS <= startingAddress)
    {
+      offsetIndex = startingAddress - TST_START_ADDRESS_HOLDING_REGISTERS;
+
       for (loopi = 0 ; loopi < quantityOfRegisters ; loopi++)
       {
-         holdingRegVal[loopi] = tst_readInt(&buf[loopi*2]);
+         holdingRegVal[loopi+offsetIndex] = tst_readInt(&buf[loopi*2]);
       }
       ret = quantityOfRegisters;
    }
