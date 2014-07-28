@@ -160,13 +160,13 @@ TASK(TaskC) {
    ciaaPOSIX_read(fd, &value, 1);
 
    if(value & 0x10)
-   	value &= ~0x10;
+      value &= ~0x10;
    else
-   	value |= 0x10;
+      value |= 0x10;
 
-	ciaaPOSIX_write(fd, &value, 1);
+   ciaaPOSIX_write(fd, &value, 1);
 
-	ciaaPOSIX_close(fd);
+   ciaaPOSIX_close(fd);
 
    ciaaPOSIX_printf("TaskC is running\n");
    ciaaPOSIX_printf("TaskC is Terminating\n");
