@@ -78,7 +78,6 @@
 /*==================[external functions definition]==========================*/
 int main(void)
 {
-   ciaaIOInit();
    StartOS(AppMode1);
    return 0;
 }
@@ -96,11 +95,10 @@ TASK(InitTask) {
 
    int fd = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
-   val = 1;
+   val = 0x20;
    ciaaPOSIX_write(fd, &val, 1);
 
-   ciaaWriteOutput(4, 1);
-
+   ciaaPOSIX_close(fd);
 
    ciaaPOSIX_printf("InitTask is running\n");
    ActivateTask(TaskA);
@@ -155,9 +153,20 @@ ISR(IsrName) {
 }
 
 TASK(TaskC) {
-   static int value = 0;
-   ciaaWriteOutput(5, value);
-   value = !value;
+   static uint8_t value = 0;
+
+   int fd = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+
+   ciaaPOSIX_read(fd, &value, 1);
+
+   if(value & 0x10)
+   	value &= ~0x10;
+   else
+   	value |= 0x10;
+
+	ciaaPOSIX_write(fd, &value, 1);
+
+	ciaaPOSIX_close(fd);
 
    ciaaPOSIX_printf("TaskC is running\n");
    ciaaPOSIX_printf("TaskC is Terminating\n");

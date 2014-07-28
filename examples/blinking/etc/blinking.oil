@@ -45,6 +45,7 @@ TASK TaskC {
     STACK = 512;
     TYPE = BASIC;
     SCHEDULE = FULL;
+    RESOURCE = POSIXR;
     AUTOSATART = TRUE {
         APPMODE = AppMode1;
     }
