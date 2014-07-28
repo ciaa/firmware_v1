@@ -86,7 +86,7 @@ extern "C" {
 
 /** \brief Enables/Disables service 0x10 Write Multiple Registers
  **/
-#define CIAAMODBUS_WRITE_MULTIPLE_REGISTERS        CIAAMODBUS_EN
+#define CIAAMODBUS_WRITE_MULTIPLE_REGISTERS     CIAAMODBUS_EN
 
 /*==================[typedef]================================================*/
 /** \brief Modbus Command Read Holding Registers callback
