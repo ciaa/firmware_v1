@@ -58,10 +58,10 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverUart.h"
 #include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stdio.h"
 #include "chip.h"
 
 /*==================[macros and definitions]=================================*/
-#define UART_BUF_SIZE   1024
 
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
@@ -126,25 +126,19 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
    3
 };
 
-static uint8_t uartRxBuf[UART_BUF_SIZE];
-static uint8_t uartTxBuf[UART_BUF_SIZE];
-static uint8_t * pTxIn = uartTxBuf;
-static uint8_t * pTxOut = uartTxBuf;
-static uint32_t uartRxDataCount = 0;
-
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device)
 {
    /* receive the data and forward to upper layer */
-   ciaaSerialDevices_rxIndication(device->upLayer, 10 /* TODO count of bytes */);
+   ciaaSerialDevices_rxIndication(device->upLayer, 1 );
 }
 
 static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const device)
 {
    /* receive the data and forward to upper layer */
-   ciaaSerialDevices_txConfirmation(device->upLayer, 10 /* TODO count of bytes */);
+   ciaaSerialDevices_txConfirmation(device->upLayer, 1 );
 }
 
 static void ciaaDriverUart_hwInit(void)
@@ -193,9 +187,11 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
    }
    else if(device == ciaaDriverUartConst.devices[1])
    {
-//      if(request == ciaaPOSIX_IOCTL_STARTTX)
-//      {
-//      }
+      if(request == ciaaPOSIX_IOCTL_STARTTX)
+      {
+         /* this one calls write */
+         ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
+      }
    }
    else if(device == ciaaDriverUartConst.devices[2])
    {
@@ -211,19 +207,27 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
 
 extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
+   int32_t ret = -1;
+
    if(device == ciaaDriverUartConst.devices[0])
    {
 
    }
    else if(device == ciaaDriverUartConst.devices[1])
    {
-
+      /* send first byte */
+      Chip_UART_SendByte(LPC_USART2, *(uint8_t *)buffer);
+      /* enable Tx Holding Register Empty interrupt */
+      Chip_UART_IntEnable(LPC_USART2, UART_IER_THREINT);
+      /* 1 byte written */
+      ret = 1;
    }
    else if(device == ciaaDriverUartConst.devices[2])
    {
 
    }
-   return 0;
+
+   return ret;
 }
 
 void ciaaDriverUart_init(void)
@@ -250,9 +254,19 @@ void UART0_IRQHandler(void)
 
 void UART2_IRQHandler(void)
 {
-   /* TODO check and call only rx or tx as corresponding */
-   ciaaDriverUart_rxIndication(&ciaaDriverUart_device1);
-   ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
+   uint8_t status = Chip_UART_ReadLineStatus(LPC_USART2);
+
+   if(status & UART_LSR_RDR)
+   {
+      ciaaDriverUart_rxIndication(&ciaaDriverUart_device1);
+   }
+   if(status & UART_LSR_THRE)
+   {
+      /* disable THRE irq */
+      Chip_UART_IntDisable(LPC_USART2, UART_IER_THREINT);
+      /* tx confirmation, 1 byte sent */
+      ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
+   }
 }
 
 void UART3_IRQHandler(void)
