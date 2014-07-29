@@ -122,7 +122,7 @@ TASK(TaskA) {
    /* open UART used in USB bridge */
    fildes = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
 
-   ciaaPOSIX_write(fildes, "test\r\n", 6);
+   ciaaPOSIX_write(fildes, "Hello :)\r\n", 10);
 
    ciaaPOSIX_close(fildes);
 
@@ -149,7 +149,7 @@ TASK(TaskB) {
    ActivateTask(TaskC);
 
    ciaaPOSIX_printf("Activate Relative Alarm to Activate Task C");
-   SetRelAlarm(ActivateTaskC, 200, 250);
+   SetRelAlarm(ActivateTaskC, 500, 500);
 
    ciaaPOSIX_printf("TaskB is Terminating\n");
    TerminateTask();
@@ -159,6 +159,8 @@ ISR(IsrName) {
 }
 
 TASK(TaskC) {
+
+   ciaaPOSIX_printf("TaskC is running\n");
 
    /*
     * Example:
@@ -193,7 +195,13 @@ TASK(TaskC) {
 
    ciaaPOSIX_close(fd_in);
 
-   ciaaPOSIX_printf("TaskC is running\n");
+   /* open UART used in USB bridge */
+   int fildes = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+
+   ciaaPOSIX_write(fildes, "blink!\r\n", 8);
+
+   ciaaPOSIX_close(fildes);
+
    ciaaPOSIX_printf("TaskC is Terminating\n");
    TerminateTask();
 }

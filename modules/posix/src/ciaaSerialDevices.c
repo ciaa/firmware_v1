@@ -316,7 +316,6 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
    /* if some data have to be transmitted */
    if (count > 0)
    {
-
       /* write data to the driver */
       write = serialDevice->device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
 
@@ -330,7 +329,10 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
 
          /* write more bytes */
          write = serialDevice->device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
-
+      }
+      else
+      {
+         write = 0;
       }
 
       if (write > 0)

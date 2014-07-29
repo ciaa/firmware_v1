@@ -47,6 +47,7 @@ TASK TaskC {
     TYPE = BASIC;
     SCHEDULE = FULL;
     RESOURCE = POSIXR;
+    EVENT = POSIXE;
     AUTOSATART = TRUE {
         APPMODE = AppMode1;
     }

@@ -156,6 +156,7 @@ static void ciaaDriverUart_hwInit(void)
 
    NVIC_EnableIRQ(USART2_IRQn);
 
+
    /* UART3 (RS232) */
 //   cfg.Baud_rate = 57600;
 //   UART_Init(LPC_USART3, &cfg);
@@ -207,7 +208,7 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
 
 extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
-   int32_t ret = -1;
+   int32_t ret = 0;
 
    if(device == ciaaDriverUartConst.devices[0])
    {
@@ -215,12 +216,15 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
    }
    else if(device == ciaaDriverUartConst.devices[1])
    {
-      /* send first byte */
-      Chip_UART_SendByte(LPC_USART2, *(uint8_t *)buffer);
-      /* enable Tx Holding Register Empty interrupt */
-      Chip_UART_IntEnable(LPC_USART2, UART_IER_THREINT);
-      /* 1 byte written */
-      ret = 1;
+      if(Chip_UART_ReadLineStatus(LPC_USART2) & UART_LSR_THRE)
+      {
+         /* send first byte */
+         Chip_UART_SendByte(LPC_USART2, *(uint8_t *)buffer);
+         /* enable Tx Holding Register Empty interrupt */
+         Chip_UART_IntEnable(LPC_USART2, UART_IER_THREINT);
+         /* 1 byte written */
+         ret = 1;
+      }
    }
    else if(device == ciaaDriverUartConst.devices[2])
    {

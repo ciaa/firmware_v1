@@ -357,9 +357,15 @@ void ResetISR(void) {
 #endif  // ifndef DONT_RESET_ON_RESTART
 // *************************************************************
 
-#if defined (__USE_LPCOPEN)
-    SystemInit();
-#endif
+//#if defined (__USE_LPCOPEN)
+//    SystemInit();
+//#endif
+
+    /* LPCOpen functions for clock initialization */
+    extern void Chip_SystemInit(void);
+    extern void SystemCoreClockUpdate(void);
+    Chip_SystemInit();
+    SystemCoreClockUpdate();
 
     //
     // Copy the data sections from flash to SRAM.
