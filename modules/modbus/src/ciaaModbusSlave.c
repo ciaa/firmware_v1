@@ -459,7 +459,7 @@ int32_t ciaaModbus_writeMultipleRegisters(uint8_t * buf, int32_t len)
         (0x0001 > quantityOfRegisters) )
    {
       /* set error flag */
-      buf[0] += 0x80;
+      buf[0] |= 0x80;
 
       /* report invalid quantity of registers */
       buf[1] = CIAAMODBUS_E_WRONG_REG_QTY;
@@ -499,7 +499,7 @@ int32_t ciaaModbus_writeMultipleRegisters(uint8_t * buf, int32_t len)
             else
             {
                /* set error code bit */
-               buf[0] += 0x80;
+               buf[0] |= 0x80;
                /* set exception code */
                buf[1] = exceptionCode;
                /* return length buffer 2 bytes (error) response*/
@@ -516,7 +516,7 @@ int32_t ciaaModbus_writeMultipleRegisters(uint8_t * buf, int32_t len)
    if (0 > ret)
    {
       /* set error code bit */
-      buf[0] += 0x80;
+      buf[0] |= 0x80;
 
       if (0 == loopi)
       {
