@@ -61,6 +61,8 @@
 #include "chip.h"
 
 /*==================[macros and definitions]=================================*/
+#define UART_BUF_SIZE   1024
+
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
@@ -124,6 +126,12 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
    3
 };
 
+static uint8_t uartRxBuf[UART_BUF_SIZE];
+static uint8_t uartTxBuf[UART_BUF_SIZE];
+static uint8_t * pTxIn = uartTxBuf;
+static uint8_t * pTxOut = uartTxBuf;
+static uint32_t uartRxDataCount = 0;
+
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -139,6 +147,33 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
    ciaaSerialDevices_txConfirmation(device->upLayer, 10 /* TODO count of bytes */);
 }
 
+static void ciaaDriverUart_hwInit(void)
+{
+   /* UART2 (USB-UART) */
+   Chip_UART_Init(LPC_USART2);
+   Chip_UART_SetBaud(LPC_USART2, 115200);
+
+   Chip_UART_TXEnable(LPC_USART2);
+
+   Chip_SCU_PinMux(7, 1, MD_PDN, FUNC6);              // P7_1: UART2_TXD
+   Chip_SCU_PinMux(7, 2, MD_PLN|MD_EZI|MD_ZI, FUNC6); // P7_2: UART2_RXD
+
+   Chip_UART_IntEnable(LPC_USART2, UART_IER_RBRINT);
+
+   NVIC_EnableIRQ(USART2_IRQn);
+
+   /* UART3 (RS232) */
+//   cfg.Baud_rate = 57600;
+//   UART_Init(LPC_USART3, &cfg);
+//   UART_TxCmd(LPC_USART3, ENABLE);
+//
+//   scu_pinmux(2, 3, MD_PDN, FUNC2);                // P2_3: UART3_TXD
+//   scu_pinmux(2, 4, MD_PLN|MD_EZI|MD_ZI, FUNC2);      // P2_4: UART3_RXD
+//
+//   UART_IntConfig((LPC_USARTn_Type *)LPC_USART3, UART_INTCFG_RBR, ENABLE);
+//   NVIC_EnableIRQ(USART3_IRQn);
+}
+
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
@@ -152,7 +187,20 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 
 extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
-   /* TODO */
+   if(device == ciaaDriverUartConst.devices[0])
+   {
+
+   }
+   else if(device == ciaaDriverUartConst.devices[1])
+   {
+//      if(request == ciaaPOSIX_IOCTL_STARTTX)
+//      {
+//      }
+   }
+   else if(device == ciaaDriverUartConst.devices[2])
+   {
+
+   }
    return -1;
 }
 
@@ -163,12 +211,27 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
 
 extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
+   if(device == ciaaDriverUartConst.devices[0])
+   {
+
+   }
+   else if(device == ciaaDriverUartConst.devices[1])
+   {
+
+   }
+   else if(device == ciaaDriverUartConst.devices[2])
+   {
+
+   }
    return 0;
 }
 
 void ciaaDriverUart_init(void)
 {
    uint8_t loopi;
+
+   /* init hardware */
+   ciaaDriverUart_hwInit();
 
    /* add uart driver to the list of devices */
    for(loopi = 0; loopi < ciaaDriverUartConst.countOfDevices; loopi++) {
@@ -177,7 +240,7 @@ void ciaaDriverUart_init(void)
    }
 }
 
-/*==================[interrupt hanlders]=====================================*/
+/*==================[interrupt handlers]=====================================*/
 void UART0_IRQHandler(void)
 {
    /* TODO check and call only rx or tx as corresponding */
