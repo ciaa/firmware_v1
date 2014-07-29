@@ -145,8 +145,8 @@ TASK(TaskA) {
 TASK(TaskB) {
    ciaaPOSIX_printf("TaskB is running\n");
 
-   ActivateTask(TaskC);
-   ActivateTask(TaskC);
+//   ActivateTask(TaskC);
+//   ActivateTask(TaskC);
 
    ciaaPOSIX_printf("Activate Relative Alarm to Activate Task C");
    SetRelAlarm(ActivateTaskC, 500, 500);
@@ -200,9 +200,14 @@ TASK(TaskC) {
 
    ciaaPOSIX_write(fildes, "blink!\r\n", 8);
 
-   //char c;
-   //if(ciaaPOSIX_read(fildes, &c, 1)>0)
-   //   ciaaPOSIX_write(fildes, &c, 1);
+   char buf[10];
+   int ret;
+
+   ret = ciaaPOSIX_read(fildes, buf, 9);
+   if(ret)
+   {
+      ciaaPOSIX_write(fildes, buf, ret);
+   }
 
    ciaaPOSIX_close(fildes);
 

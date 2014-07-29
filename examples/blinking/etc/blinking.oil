@@ -44,7 +44,7 @@ TASK TaskC {
     PRIORITY = 10;
     ACTIVATION = 1;
     STACK = 512;
-    TYPE = BASIC;
+    TYPE = EXTENDED;
     SCHEDULE = FULL;
     RESOURCE = POSIXR;
     EVENT = POSIXE;
