@@ -58,9 +58,11 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverUart.h"
 #include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stdio.h"
 #include "chip.h"
 
 /*==================[macros and definitions]=================================*/
+
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
@@ -130,13 +132,40 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
 static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device)
 {
    /* receive the data and forward to upper layer */
-   ciaaSerialDevices_rxIndication(device->upLayer, 10 /* TODO count of bytes */);
+   ciaaSerialDevices_rxIndication(device->upLayer, 1 );
 }
 
 static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const device)
 {
    /* receive the data and forward to upper layer */
-   ciaaSerialDevices_txConfirmation(device->upLayer, 10 /* TODO count of bytes */);
+   ciaaSerialDevices_txConfirmation(device->upLayer, 1 );
+}
+
+static void ciaaDriverUart_hwInit(void)
+{
+   /* UART2 (USB-UART) */
+   Chip_UART_Init(LPC_USART2);
+   Chip_UART_SetBaud(LPC_USART2, 115200);
+
+   Chip_UART_TXEnable(LPC_USART2);
+
+   Chip_SCU_PinMux(7, 1, MD_PDN, FUNC6);              // P7_1: UART2_TXD
+   Chip_SCU_PinMux(7, 2, MD_PLN|MD_EZI|MD_ZI, FUNC6); // P7_2: UART2_RXD
+
+   Chip_UART_IntEnable(LPC_USART2, UART_IER_RBRINT);
+
+   NVIC_EnableIRQ(USART2_IRQn);
+
+   /* UART3 (RS232) */
+//   cfg.Baud_rate = 57600;
+//   UART_Init(LPC_USART3, &cfg);
+//   UART_TxCmd(LPC_USART3, ENABLE);
+//
+//   scu_pinmux(2, 3, MD_PDN, FUNC2);                // P2_3: UART3_TXD
+//   scu_pinmux(2, 4, MD_PLN|MD_EZI|MD_ZI, FUNC2);      // P2_4: UART3_RXD
+//
+//   UART_IntConfig((LPC_USARTn_Type *)LPC_USART3, UART_INTCFG_RBR, ENABLE);
+//   NVIC_EnableIRQ(USART3_IRQn);
 }
 
 /*==================[external functions definition]==========================*/
@@ -152,7 +181,22 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 
 extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
-   /* TODO */
+   if(device == ciaaDriverUartConst.devices[0])
+   {
+
+   }
+   else if(device == ciaaDriverUartConst.devices[1])
+   {
+      if(request == ciaaPOSIX_IOCTL_STARTTX)
+      {
+         /* this one calls write */
+         ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
+      }
+   }
+   else if(device == ciaaDriverUartConst.devices[2])
+   {
+
+   }
    return -1;
 }
 
@@ -163,12 +207,35 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
 
 extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
-   return 0;
+   int32_t ret = -1;
+
+   if(device == ciaaDriverUartConst.devices[0])
+   {
+
+   }
+   else if(device == ciaaDriverUartConst.devices[1])
+   {
+      /* send first byte */
+      Chip_UART_SendByte(LPC_USART2, *(uint8_t *)buffer);
+      /* enable Tx Holding Register Empty interrupt */
+      Chip_UART_IntEnable(LPC_USART2, UART_IER_THREINT);
+      /* 1 byte written */
+      ret = 1;
+   }
+   else if(device == ciaaDriverUartConst.devices[2])
+   {
+
+   }
+
+   return ret;
 }
 
 void ciaaDriverUart_init(void)
 {
    uint8_t loopi;
+
+   /* init hardware */
+   ciaaDriverUart_hwInit();
 
    /* add uart driver to the list of devices */
    for(loopi = 0; loopi < ciaaDriverUartConst.countOfDevices; loopi++) {
@@ -177,7 +244,7 @@ void ciaaDriverUart_init(void)
    }
 }
 
-/*==================[interrupt hanlders]=====================================*/
+/*==================[interrupt handlers]=====================================*/
 void UART0_IRQHandler(void)
 {
    /* TODO check and call only rx or tx as corresponding */
@@ -187,9 +254,19 @@ void UART0_IRQHandler(void)
 
 void UART2_IRQHandler(void)
 {
-   /* TODO check and call only rx or tx as corresponding */
-   ciaaDriverUart_rxIndication(&ciaaDriverUart_device1);
-   ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
+   uint8_t status = Chip_UART_ReadLineStatus(LPC_USART2);
+
+   if(status & UART_LSR_RDR)
+   {
+      ciaaDriverUart_rxIndication(&ciaaDriverUart_device1);
+   }
+   if(status & UART_LSR_THRE)
+   {
+      /* disable THRE irq */
+      Chip_UART_IntDisable(LPC_USART2, UART_IER_THREINT);
+      /* tx confirmation, 1 byte sent */
+      ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
+   }
 }
 
 void UART3_IRQHandler(void)

@@ -119,8 +119,12 @@ TASK(TaskA) {
 
    ciaaPOSIX_printf("TaskA is running\n");
 
-   fildes = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
-   (void) fildes;
+   /* open UART used in USB bridge */
+   fildes = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+
+   ciaaPOSIX_write(fildes, "test\r\n", 6);
+
+   ciaaPOSIX_close(fildes);
 
    ciaaPOSIX_printf("TaskA espera Event1\n");
    WaitEvent(Event1);

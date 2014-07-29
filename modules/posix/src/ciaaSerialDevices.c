@@ -271,6 +271,9 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
       /* put bytes in the queue */
       ret += ciaaLibs_circBufPut(cbuf, buf, ciaaLibs_min(nbyte-ret, space));
 
+      /* (PR) test */
+      GetTaskID(&serialDevice->taskID);
+
       /* starts the transmission if not already ongoing */
       serialDevice->device->ioctl(
             device->loLayer,
