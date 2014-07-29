@@ -203,7 +203,26 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
 
 extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
 {
-   return -1;
+   int32_t ret = -1;
+
+   if(size != 0)
+   {
+      if(device == ciaaDriverUartConst.devices[0])
+      {
+
+      }
+      else if(device == ciaaDriverUartConst.devices[1])
+      {
+         *buffer = Chip_UART_ReadByte(LPC_USART2);
+         ret = 1;
+      }
+      else if(device == ciaaDriverUartConst.devices[2])
+      {
+
+      }
+   }
+
+   return ret;
 }
 
 extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)

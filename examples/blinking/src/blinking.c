@@ -200,6 +200,10 @@ TASK(TaskC) {
 
    ciaaPOSIX_write(fildes, "blink!\r\n", 8);
 
+   //char c;
+   //if(ciaaPOSIX_read(fildes, &c, 1)>0)
+   //   ciaaPOSIX_write(fildes, &c, 1);
+
    ciaaPOSIX_close(fildes);
 
    ciaaPOSIX_printf("TaskC is Terminating\n");
