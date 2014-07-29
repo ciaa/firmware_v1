@@ -143,6 +143,9 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
 
 static void ciaaDriverUart_hwInit(void)
 {
+   /* UART0 (RS485/Profibus) */
+   /* TODO */
+
    /* UART2 (USB-UART) */
    Chip_UART_Init(LPC_USART2);
    Chip_UART_SetBaud(LPC_USART2, 115200);
@@ -156,17 +159,17 @@ static void ciaaDriverUart_hwInit(void)
 
    NVIC_EnableIRQ(USART2_IRQn);
 
-
    /* UART3 (RS232) */
-//   cfg.Baud_rate = 57600;
-//   UART_Init(LPC_USART3, &cfg);
-//   UART_TxCmd(LPC_USART3, ENABLE);
-//
-//   scu_pinmux(2, 3, MD_PDN, FUNC2);                // P2_3: UART3_TXD
-//   scu_pinmux(2, 4, MD_PLN|MD_EZI|MD_ZI, FUNC2);      // P2_4: UART3_RXD
-//
-//   UART_IntConfig((LPC_USARTn_Type *)LPC_USART3, UART_INTCFG_RBR, ENABLE);
-//   NVIC_EnableIRQ(USART3_IRQn);
+   Chip_UART_Init(LPC_USART3);
+   Chip_UART_SetBaud(LPC_USART3, 115200);
+
+   Chip_UART_TXEnable(LPC_USART3);
+
+   Chip_SCU_PinMux(2, 3, MD_PDN, FUNC2);              // P2_3: UART3_TXD
+   Chip_SCU_PinMux(2, 4, MD_PLN|MD_EZI|MD_ZI, FUNC2); // P2_4: UART3_RXD
+
+   Chip_UART_IntEnable(LPC_USART3, UART_IER_RBRINT);
+   NVIC_EnableIRQ(USART3_IRQn);
 }
 
 /*==================[external functions definition]==========================*/
@@ -182,9 +185,16 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 
 extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
+   int32_t ret = -1;
+
    if(device == ciaaDriverUartConst.devices[0])
    {
-
+      if(request == ciaaPOSIX_IOCTL_STARTTX)
+      {
+         /* this one calls write */
+         ciaaDriverUart_txConfirmation(&ciaaDriverUart_device0);
+         ret = 0;
+      }
    }
    else if(device == ciaaDriverUartConst.devices[1])
    {
@@ -192,13 +202,20 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
       {
          /* this one calls write */
          ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
+         ret = 0;
       }
    }
    else if(device == ciaaDriverUartConst.devices[2])
    {
-
+      if(request == ciaaPOSIX_IOCTL_STARTTX)
+      {
+         /* this one calls write */
+         ciaaDriverUart_txConfirmation(&ciaaDriverUart_device2);
+         ret = 0;
+      }
    }
-   return -1;
+
+   return ret;
 }
 
 extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
@@ -218,7 +235,8 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
       }
       else if(device == ciaaDriverUartConst.devices[2])
       {
-
+         *buffer = Chip_UART_ReadByte(LPC_USART3);
+         ret = 1;
       }
    }
 
@@ -247,7 +265,15 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
    }
    else if(device == ciaaDriverUartConst.devices[2])
    {
-
+      if(Chip_UART_ReadLineStatus(LPC_USART3) & UART_LSR_THRE)
+      {
+         /* send first byte */
+         Chip_UART_SendByte(LPC_USART3, *(uint8_t *)buffer);
+         /* enable Tx Holding Register Empty interrupt */
+         Chip_UART_IntEnable(LPC_USART3, UART_IER_THREINT);
+         /* 1 byte written */
+         ret = 1;
+      }
    }
 
    return ret;
@@ -294,9 +320,19 @@ void UART2_IRQHandler(void)
 
 void UART3_IRQHandler(void)
 {
-   /* TODO check and call only rx or tx as corresponding */
-   ciaaDriverUart_rxIndication(&ciaaDriverUart_device2);
-   ciaaDriverUart_txConfirmation(&ciaaDriverUart_device2);
+   uint8_t status = Chip_UART_ReadLineStatus(LPC_USART3);
+
+   if(status & UART_LSR_RDR)
+   {
+      ciaaDriverUart_rxIndication(&ciaaDriverUart_device2);
+   }
+   if(status & UART_LSR_THRE)
+   {
+      /* disable THRE irq */
+      Chip_UART_IntDisable(LPC_USART3, UART_IER_THREINT);
+      /* tx confirmation, 1 byte sent */
+      ciaaDriverUart_txConfirmation(&ciaaDriverUart_device2);
+   }
 }
 
 /** @} doxygen end group definition */
