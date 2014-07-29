@@ -106,8 +106,17 @@ char const * const ciaaSerialDevices_prefix = "/dev/serial";
 /*==================[external functions definition]==========================*/
 extern void ciaaSerialDevices_init(void)
 {
+   int32_t loopi = 0;
+
    /* reset position of the drivers */
    ciaaSerialDevices.position = 0;
+
+   /* init the device structure */
+   for(loopi = 0; ciaaSerialDevices_MAXDEVICES > loopi; loopi++)
+   {
+      /* set invalid task as default */
+      ciaaSerialDevices.devstr[loopi].taskID = 255; /* TODO */
+   }
 }
 
 extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType * driver)
@@ -271,9 +280,6 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
       /* put bytes in the queue */
       ret += ciaaLibs_circBufPut(cbuf, buf, ciaaLibs_min(nbyte-ret, space));
 
-      /* (PR) test */
-      GetTaskID(&serialDevice->taskID);
-
       /* starts the transmission if not already ongoing */
       serialDevice->device->ioctl(
             device->loLayer,
@@ -322,6 +328,7 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
       /* update buffer */
       ciaaLibs_circBufUpdateHead(cbuf, write);
 
+      /* if all bytes were written and more data is available */
       if ( (write == rawCount) && (count > rawCount ) )
       {
          /* re calculate rawCount */
@@ -329,23 +336,19 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
 
          /* write more bytes */
          write = serialDevice->device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
-      }
-      else
-      {
-         write = 0;
-      }
 
-      if (write > 0)
-      {
-         /* update buffer */
-         ciaaLibs_circBufUpdateHead(cbuf, write);
-
-         if (255 != taskID)
+         if (write > 0)
          {
-            /* invalidate task id */
-            serialDevice->taskID = 255; /* TODO */
-            /* set task event */
-            SetEvent(taskID, POSIXE);
+            /* update buffer */
+            ciaaLibs_circBufUpdateHead(cbuf, write);
+
+            if (255 != taskID)
+            {
+               /* invalidate task id */
+               serialDevice->taskID = 255; /* TODO */
+               /* set task event */
+               SetEvent(taskID, POSIXE);
+            }
          }
       }
    }
