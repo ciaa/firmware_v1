@@ -143,43 +143,61 @@ extern TaskType TerminatingTask;
  **
  ** This function jmps to the indicated task.
  **/
-#define JmpTask(task)														\
-{																			\
-	Osek_OldTaskPtr_Arch = (void*)0;										\
-	Osek_NewTaskPtr_Arch = (void*)TasksConst[(task)].TaskContext;			\
-	__asm__ __volatile__ (													\
-		/* Call PendSV */													\
-		"push {r0,r1}												\n\t"	\
+#define JmpTask(task)														            \
+{									                                                \
+   extern TaskType WaitingTask;                                            \
+   if(WaitingTask != INVALID_TASK)                                         \
+   {                                                                       \
+      Osek_OldTaskPtr_Arch = (void*)TasksConst[WaitingTask].TaskContext;   \
+      WaitingTask = INVALID_TASK;                                          \
+   }                                                                       \
+   else                                                                    \
+   {                                                                       \
+      Osek_OldTaskPtr_Arch = (void*)0;                                     \
+   }                                                                       \
+	Osek_NewTaskPtr_Arch = (void*)TasksConst[(task)].TaskContext;			   \
+	__asm__ __volatile__ (													            \
+		/* Call PendSV */													               \
+		"push {r0,r1}												\n\t"	               \
 		/* Activate bit PENDSVSET in Interrupt Control State Register (ICSR) */ \
-		"ldr r0,=0xE000ED04											\n\t"	\
-		"ldr r1,[r0]												\n\t"	\
-		"orr r1,1<<28												\n\t"	\
-		"str r1,[r0]												\n\t"	\
-		"pop {r0,r1}												\n\t"	\
-	);																		\
+		"ldr r0,=0xE000ED04											\n\t"	            \
+		"ldr r1,[r0]												\n\t"	               \
+		"orr r1,1<<28												\n\t"	               \
+		"str r1,[r0]												\n\t"	               \
+		"pop {r0,r1}												\n\t"	               \
+	);																		                  \
 }
 
 /** \brief Save context */
-#define SaveContext(task) 													\
-{																			\
-	flag = 0;																\
-	/* remove of the Ready List */											\
-	RemoveTask(GetRunningTask());											\
-	/* finish cirtical code */												\
-	IntSecure_End();														\
-	/* call scheduler */													\
-	Schedule();																\
+#define SaveContext(task) 													            \
+{                                                                          \
+   extern TaskType WaitingTask;                                            \
+   if(TasksVar[GetRunningTask()].Flags.State == TASK_ST_WAITING)           \
+   {                                                                       \
+      WaitingTask = GetRunningTask();                                      \
+   }                                                                       \
+	flag = 0;																               \
+	/* remove of the Ready List */											         \
+	RemoveTask(GetRunningTask());											            \
+   /* set running task to invalid */                                       \
+   SetRunningTask(INVALID_TASK);                                           \
+	/* finish cirtical code */												            \
+	IntSecure_End();														               \
+	/* call scheduler */													               \
+	Schedule();																               \
+	/* add this call in order to maintain counter balance when returning */ \
+	IntSecure_Start();                                                      \
 }
 
 /** \brief */
 #define ResetStack(task)		\
-{								\
+{								      \
 	TerminatingTask = (task);	\
 }
 
 /** \brief Set the entry point for a task */
-#define SetEntryPoint(task)		\
-{								\
+#define SetEntryPoint(task)   \
+{								      \
 	TerminatingTask = (task);	\
 }
 

@@ -145,8 +145,8 @@ TASK(TaskA) {
 TASK(TaskB) {
    ciaaPOSIX_printf("TaskB is running\n");
 
-//   ActivateTask(TaskC);
-//   ActivateTask(TaskC);
+   ActivateTask(TaskC);
+   ActivateTask(TaskC);
 
    ciaaPOSIX_printf("Activate Relative Alarm to Activate Task C");
    SetRelAlarm(ActivateTaskC, 500, 500);
