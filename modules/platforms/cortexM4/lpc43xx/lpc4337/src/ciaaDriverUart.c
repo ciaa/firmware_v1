@@ -187,34 +187,17 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
 {
    int32_t ret = -1;
 
-   if(device == ciaaDriverUartConst.devices[0])
+   if(   (device == ciaaDriverUartConst.devices[0]) ||
+         (device == ciaaDriverUartConst.devices[1]) ||
+         (device == ciaaDriverUartConst.devices[2]) )
    {
       if(request == ciaaPOSIX_IOCTL_STARTTX)
       {
          /* this one calls write */
-         ciaaDriverUart_txConfirmation(&ciaaDriverUart_device0);
+         ciaaDriverUart_txConfirmation(device);
          ret = 0;
       }
    }
-   else if(device == ciaaDriverUartConst.devices[1])
-   {
-      if(request == ciaaPOSIX_IOCTL_STARTTX)
-      {
-         /* this one calls write */
-         ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
-         ret = 0;
-      }
-   }
-   else if(device == ciaaDriverUartConst.devices[2])
-   {
-      if(request == ciaaPOSIX_IOCTL_STARTTX)
-      {
-         /* this one calls write */
-         ciaaDriverUart_txConfirmation(&ciaaDriverUart_device2);
-         ret = 0;
-      }
-   }
-
    return ret;
 }
 
@@ -224,18 +207,11 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
 
    if(size != 0)
    {
-      if(device == ciaaDriverUartConst.devices[0])
+      if(   (device == ciaaDriverUartConst.devices[0]) ||
+            (device == ciaaDriverUartConst.devices[1]) ||
+            (device == ciaaDriverUartConst.devices[2]) )
       {
-
-      }
-      else if(device == ciaaDriverUartConst.devices[1])
-      {
-         *buffer = Chip_UART_ReadByte(LPC_USART2);
-         ret = 1;
-      }
-      else if(device == ciaaDriverUartConst.devices[2])
-      {
-         *buffer = Chip_UART_ReadByte(LPC_USART3);
+         *buffer = Chip_UART_ReadByte((LPC_USART_T *)device->loLayer);
          ret = 1;
       }
    }
@@ -247,35 +223,20 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
 {
    int32_t ret = 0;
 
-   if(device == ciaaDriverUartConst.devices[0])
+   if(   (device == ciaaDriverUartConst.devices[0]) ||
+         (device == ciaaDriverUartConst.devices[1]) ||
+         (device == ciaaDriverUartConst.devices[2]) )
    {
-
-   }
-   else if(device == ciaaDriverUartConst.devices[1])
-   {
-      if(Chip_UART_ReadLineStatus(LPC_USART2) & UART_LSR_THRE)
+      if(Chip_UART_ReadLineStatus((LPC_USART_T *)device->loLayer) & UART_LSR_THRE)
       {
          /* send first byte */
-         Chip_UART_SendByte(LPC_USART2, *(uint8_t *)buffer);
+         Chip_UART_SendByte((LPC_USART_T *)device->loLayer, *(uint8_t *)buffer);
          /* enable Tx Holding Register Empty interrupt */
-         Chip_UART_IntEnable(LPC_USART2, UART_IER_THREINT);
+         Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
          /* 1 byte written */
          ret = 1;
       }
    }
-   else if(device == ciaaDriverUartConst.devices[2])
-   {
-      if(Chip_UART_ReadLineStatus(LPC_USART3) & UART_LSR_THRE)
-      {
-         /* send first byte */
-         Chip_UART_SendByte(LPC_USART3, *(uint8_t *)buffer);
-         /* enable Tx Holding Register Empty interrupt */
-         Chip_UART_IntEnable(LPC_USART3, UART_IER_THREINT);
-         /* 1 byte written */
-         ret = 1;
-      }
-   }
-
    return ret;
 }
 
@@ -296,9 +257,19 @@ void ciaaDriverUart_init(void)
 /*==================[interrupt handlers]=====================================*/
 void UART0_IRQHandler(void)
 {
-   /* TODO check and call only rx or tx as corresponding */
-   ciaaDriverUart_rxIndication(&ciaaDriverUart_device0);
-   ciaaDriverUart_txConfirmation(&ciaaDriverUart_device0);
+   uint8_t status = Chip_UART_ReadLineStatus(LPC_USART0);
+
+   if(status & UART_LSR_RDR)
+   {
+      ciaaDriverUart_rxIndication(&ciaaDriverUart_device0);
+   }
+   if(status & UART_LSR_THRE)
+   {
+      /* disable THRE irq */
+      Chip_UART_IntDisable(LPC_USART0, UART_IER_THREINT);
+      /* tx confirmation, 1 byte sent */
+      ciaaDriverUart_txConfirmation(&ciaaDriverUart_device0);
+   }
 }
 
 void UART2_IRQHandler(void)

@@ -60,6 +60,7 @@
 /*==================[inclusions]=============================================*/
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
+#include "ciaaPOSIX_string.h"
 #include "ciaak.h"
 #include "blinking.h"
 
@@ -82,6 +83,14 @@ int main(void)
    return 0;
 }
 
+void ciaaDebugMsg(char * msg)
+{
+   /* open UART used in USB bridge */
+   int fildes = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+   ciaaPOSIX_write(fildes, msg, ciaaPOSIX_strlen(msg));
+   ciaaPOSIX_close(fildes);
+}
+
 void ErrorHook(void)
 {
    ciaaPOSIX_printf("ErrorHook was called\n");
@@ -91,6 +100,8 @@ void ErrorHook(void)
 
 TASK(InitTask) {
    ciaak_start();
+
+   ciaaDebugMsg("Hello :)\n");
 
    uint8_t val;
 
@@ -115,16 +126,8 @@ TASK(InitTask) {
 }
 
 TASK(TaskA) {
-   int32_t fildes;
 
    ciaaPOSIX_printf("TaskA is running\n");
-
-   /* open UART used in USB bridge */
-   fildes = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
-
-   ciaaPOSIX_write(fildes, "Hello :)\r\n", 10);
-
-   ciaaPOSIX_close(fildes);
 
    ciaaPOSIX_printf("TaskA espera Event1\n");
    WaitEvent(Event1);
@@ -195,15 +198,14 @@ TASK(TaskC) {
 
    ciaaPOSIX_close(fd_in);
 
-   /* open UART used in USB bridge */
-   int fildes = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+   ciaaDebugMsg("blink!\n");
 
-   ciaaPOSIX_write(fildes, "blink!\r\n", 8);
+   int fildes = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
 
    char buf[10];
    int ret;
 
-   ret = ciaaPOSIX_read(fildes, buf, 9);
+   ret = ciaaPOSIX_read(fildes, buf, 10);
    if(ret)
    {
       ciaaPOSIX_write(fildes, buf, ret);
