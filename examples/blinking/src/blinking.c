@@ -85,8 +85,8 @@ int main(void)
 
 void ciaaDebugMsg(char * msg)
 {
-   /* open UART used in USB bridge */
-   int fildes = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+   /* open UART used in RS485 */
+   int fildes = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
    ciaaPOSIX_write(fildes, msg, ciaaPOSIX_strlen(msg));
    ciaaPOSIX_close(fildes);
 }

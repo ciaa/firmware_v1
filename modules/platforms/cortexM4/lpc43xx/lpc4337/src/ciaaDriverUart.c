@@ -144,7 +144,21 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
 static void ciaaDriverUart_hwInit(void)
 {
    /* UART0 (RS485/Profibus) */
-   /* TODO */
+   Chip_UART_Init(LPC_USART0);
+   Chip_UART_SetBaud(LPC_USART0, 115200);
+
+   Chip_UART_TXEnable(LPC_USART0);
+
+   Chip_SCU_PinMux(9, 5, MD_PDN, FUNC7);              // P9_5: UART0_TXD
+   Chip_SCU_PinMux(9, 6, MD_PLN|MD_EZI|MD_ZI, FUNC7); // P9_6: UART0_RXD
+
+   Chip_UART_SetRS485Flags(LPC_USART0, UART_RS485CTRL_DCTRL_EN | UART_RS485CTRL_OINV_1);
+
+   Chip_SCU_PinMux(6, 2, MD_PDN, FUNC2);              // P6_2: UART0_DIR
+
+   Chip_UART_IntEnable(LPC_USART0, UART_IER_RBRINT);
+
+   NVIC_EnableIRQ(USART0_IRQn);
 
    /* UART2 (USB-UART) */
    Chip_UART_Init(LPC_USART2);
