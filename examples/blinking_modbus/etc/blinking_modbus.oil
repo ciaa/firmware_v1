@@ -34,9 +34,6 @@ TASK ModbusSlave {
     STACK = 512;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
-    AUTOSATART = TRUE {
-        APPMODE = AppMode1;
-    }
     RESOURCE = POSIXR;
     EVENT = POSIXE;
 }
