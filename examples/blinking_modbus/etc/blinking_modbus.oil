@@ -11,7 +11,7 @@ TASK InitTask {
     AUTOSTART = TRUE {
         APPMODE = AppMode1;
     }
-    STACK = 256;
+    STACK = 512;
     TYPE = BASIC;
     SCHEDULE = NON;
 }
@@ -19,7 +19,7 @@ TASK InitTask {
 TASK Blinking {
     PRIORITY = 5;
     ACTIVATION = 1;
-    STACK = 256;
+    STACK = 512;
     TYPE = BASIC;
     SCHEDULE = NON;
     EVENT = POSIXE;
@@ -29,7 +29,7 @@ TASK Blinking {
 TASK ModbusSlave {
     PRIORITY = 1;
     ACTIVATION = 1;
-    STACK = 256;
+    STACK = 512;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
     AUTOSATART = TRUE {

@@ -97,7 +97,7 @@ TASK(InitTask) {
    ciaak_start();
 
    /* open led device */
-   blinkingModbus_ledFildes = ciaaPOSIX_open("/dev/dio/port/0",O_RDWR);
+   blinkingModbus_ledFildes = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
    /* terminate task */
    TerminateTask();
