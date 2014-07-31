@@ -109,8 +109,8 @@ TASK(Blinking) {
    /* write led */
    ciaaPOSIX_write(blinkingModbus_ledFildes, &ledStatus, sizeof(ledStatus));
    ciaaPOSIX_printf("LED: %d\n", ledStatus);
-   /* toggle bit 0 */
-   ledStatus ^= 0x01;
+   /* toggle bit 5 */
+   ledStatus ^= 0x20;   //0x01;
 
    /* terminate task */
    TerminateTask();
