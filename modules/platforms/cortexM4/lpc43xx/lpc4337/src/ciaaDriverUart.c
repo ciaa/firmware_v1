@@ -141,10 +141,37 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
    ciaaSerialDevices_txConfirmation(device->upLayer, 1 );
 }
 
+static void ciaaDriverUart_rs485dir(int tx_notrx)
+{
+   if(tx_notrx)
+   {
+      Chip_GPIO_SetValue(LPC_GPIO_PORT, 3, 1<<1);
+   }
+   else
+   {
+      Chip_GPIO_ClearValue(LPC_GPIO_PORT, 3, 1<<1);
+   }
+}
+
 static void ciaaDriverUart_hwInit(void)
 {
    /* UART0 (RS485/Profibus) */
-   /* TODO */
+   Chip_UART_Init(LPC_USART0);
+   Chip_UART_SetBaud(LPC_USART0, 115200);
+
+   Chip_UART_TXEnable(LPC_USART0);
+
+   Chip_SCU_PinMux(9, 5, MD_PDN, FUNC7);              // P9_5: UART0_TXD
+   Chip_SCU_PinMux(9, 6, MD_PLN|MD_EZI|MD_ZI, FUNC7); // P9_6: UART0_RXD
+
+   Chip_UART_IntEnable(LPC_USART0, UART_IER_RBRINT);
+
+   NVIC_EnableIRQ(USART0_IRQn);
+
+   /* DIR pin, software driven */
+   Chip_SCU_PinMux(6, 2, MD_PDN, FUNC0);              // P6_2: GPIO3[1]
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 3, 1<<1, 1);
+   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 3, 1<<1);
 
    /* UART2 (USB-UART) */
    Chip_UART_Init(LPC_USART2);
@@ -193,6 +220,11 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
    {
       if(request == ciaaPOSIX_IOCTL_STARTTX)
       {
+         /* if uart/0 (RS485) selected for tx, activate DIR pin */
+         if(device == ciaaDriverUartConst.devices[0])
+         {
+            ciaaDriverUart_rs485dir(1);
+         }
          /* this one calls write */
          ciaaDriverUart_txConfirmation(device);
          ret = 0;
@@ -265,6 +297,8 @@ void UART0_IRQHandler(void)
    }
    if(status & UART_LSR_THRE)
    {
+      /* clear DIR pin */
+      ciaaDriverUart_rs485dir(0);
       /* disable THRE irq */
       Chip_UART_IntDisable(LPC_USART0, UART_IER_THREINT);
       /* tx confirmation, 1 byte sent */
