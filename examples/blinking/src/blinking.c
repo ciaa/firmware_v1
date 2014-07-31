@@ -1,6 +1,5 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Pablo Ridolfi
  *
  * This file is part of CIAA Firmware.
  *
@@ -34,7 +33,7 @@
 
 /** \brief Blinking example source file
  **
- ** This is a mini example of the CIAA Firmware
+ ** This is a mini example of the CIAA Firmware.
  **
  **/
 
@@ -48,13 +47,14 @@
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe         Mariano Cerdeiro
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140731 v0.0.1   PR first functional version
  */
 
 /*==================[inclusions]=============================================*/
@@ -72,6 +72,9 @@
 
 /*==================[internal data definition]===============================*/
 
+static int32_t fd_in;
+static int32_t fd_out;
+
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -83,14 +86,6 @@ int main(void)
    return 0;
 }
 
-void ciaaDebugMsg(char * msg)
-{
-   /* open UART connected to USB bridge (FT2232) */
-   int fildes = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
-   ciaaPOSIX_write(fildes, msg, ciaaPOSIX_strlen(msg));
-   ciaaPOSIX_close(fildes);
-}
-
 void ErrorHook(void)
 {
    ciaaPOSIX_printf("ErrorHook was called\n");
@@ -98,73 +93,65 @@ void ErrorHook(void)
    ShutdownOS(0);
 }
 
-TASK(InitTask) {
+TASK(InitTask)
+{
+   /* init CIAA kernel and devices */
    ciaak_start();
 
-   ciaaDebugMsg("Hello :)\n");
+   /* open CIAA digital inputs */
+   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
 
-   uint8_t val;
+   /* open CIAA digital outputs */
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
-   int fd = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   /* activate example tasks */
+   SetRelAlarm(ActivatePeriodicTask, 200, 200);
 
-   /* Example: Activate output 5 (MOSFET) */
-   val = 0x20;
-   ciaaPOSIX_write(fd, &val, 1);
+   ActivateTask(SerialEchoTask);
 
-   ciaaPOSIX_close(fd);
-
-   ciaaPOSIX_printf("InitTask is running\n");
-   ActivateTask(TaskA);
-
-   Schedule();
-
-   ciaaPOSIX_printf("InitTask sets TaskA Event1\n");
-   SetEvent(TaskA, Event1);
-
-   ciaaPOSIX_printf("InitTask is Terminating\n");
+   /* end InitTask */
    TerminateTask();
 }
 
-TASK(TaskA) {
+TASK(SerialEchoTask)
+{
+   int8_t buf[20];
+   uint8_t outputs;
+   int32_t ret;
 
-   ciaaPOSIX_printf("TaskA is running\n");
+   /* open UART connected to USB bridge (FT2232) */
+   int32_t fd1 = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
 
-   ciaaPOSIX_printf("TaskA espera Event1\n");
-   WaitEvent(Event1);
+   /* open UART connected to RS232 connector */
+   int32_t fd2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
 
-   ciaaPOSIX_printf("TaskA recibio la notficacion del Event1\n");
-   ActivateTask(TaskB);
+   /* send a message to the world :) */
+   char message[] = "Hi! :)\nSerialEchoTask: Waiting for characters...\n";
+   ciaaPOSIX_write(fd1, message, ciaaPOSIX_strlen(message));
 
-   ciaaPOSIX_printf("Pedimos recurso\n");
-   GetResource(Res1);
+   while(1)
+   {
+      /* wait for any character ... */
+      ret = ciaaPOSIX_read(fd1, buf, 20);
 
-   ciaaPOSIX_printf("Liberamos recurso\n");
-   ReleaseResource(Res1);
+      if(ret > 0)
+      {
+         /* ... and write them to the same device */
+         ciaaPOSIX_write(fd1, buf, ret);
 
-   ciaaPOSIX_printf("TaskA is Terminating\n");
-   TerminateTask();
+         /* also write them to the other device */
+         ciaaPOSIX_write(fd2, buf, ret);
+      }
+
+      /* blink output 5 with each loop */
+      ciaaPOSIX_read(fd_out, &outputs, 1);
+      outputs ^= 0x20;
+      ciaaPOSIX_write(fd_out, &outputs, 1);
+   }
 }
 
-TASK(TaskB) {
-   ciaaPOSIX_printf("TaskB is running\n");
-
-   ActivateTask(TaskC);
-   ActivateTask(TaskC);
-
-   ciaaPOSIX_printf("Activate Relative Alarm to Activate Task C");
-   SetRelAlarm(ActivateTaskC, 500, 500);
-
-   ciaaPOSIX_printf("TaskB is Terminating\n");
-   TerminateTask();
-}
-
-ISR(IsrName) {
-}
-
-TASK(TaskC) {
-
-   ciaaPOSIX_printf("TaskC is running\n");
-
+TASK(PeriodicTask)
+{
    /*
     * Example:
     *    Read inputs 0..3, update outputs 0..3.
@@ -173,52 +160,26 @@ TASK(TaskC) {
 
    uint8_t inputs = 0, outputs = 0;
 
-   int fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
-   int fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
-
+   /* read inputs */
    ciaaPOSIX_read(fd_in, &inputs, 1);
 
+   /* read outputs */
    ciaaPOSIX_read(fd_out, &outputs, 1);
 
+   /* update outputs with inputs */
    outputs &= 0xF0;
    outputs |= inputs & 0x0F;
 
-   if(outputs & 0x10)
-   {
-      outputs &= ~0x10;
-   }
-   else
-   {
-      outputs |= 0x10;
-   }
+   /* blink */
+   outputs ^= 0x10;
 
+   /* write */
    ciaaPOSIX_write(fd_out, &outputs, 1);
 
-   ciaaPOSIX_close(fd_out);
-
-   ciaaPOSIX_close(fd_in);
-
-   ciaaDebugMsg("blink!\n");
-
-   /* Open UART RS232 */
-   int fildes = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
-
-   char buf[10];
-   int ret;
-
-   ret = ciaaPOSIX_read(fildes, buf, 10);
-   if(ret)
-   {
-      buf[ret]=0;
-      ciaaDebugMsg(buf);
-      ciaaPOSIX_write(fildes, buf, ret);
-   }
-
-   ciaaPOSIX_close(fildes);
-
-   ciaaPOSIX_printf("TaskC is Terminating\n");
+   /* end PeriodicTask */
    TerminateTask();
 }
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

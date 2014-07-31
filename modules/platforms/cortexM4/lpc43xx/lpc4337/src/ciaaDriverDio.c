@@ -1,4 +1,4 @@
-/* Copyright 2014, Pablo Ridolfi
+/* Copyright 2014, Pablo Ridolfi (UTN-FRBA)
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,9 +30,9 @@
  *
  */
 
-/** \brief CIAA Dio Posix Driver
+/** \brief CIAA Dio Driver for LPC4337
  **
- ** Simulated DIO Driver for Posix for testing proposes
+ ** Implements the Digital Input/Output (Dio) Driver for LPC4337
  **
  **/
 
@@ -46,13 +46,13 @@
 /*
  * Initials     Name
  * ---------------------------
- * PaRi         Pablo Ridolfi
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140727 v0.0.1 PaRi initial version
+ * 20140731 v0.0.1   PR first functional version
  */
 
 /*==================[inclusions]=============================================*/
