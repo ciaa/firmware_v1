@@ -70,6 +70,7 @@ void* Osek_OldTaskPtr_Arch;
 /*==================[internal data definition]===============================*/
 
 TaskType TerminatingTask = INVALID_TASK;
+TaskType WaitingTask = INVALID_TASK;
 
 /*==================[external data definition]===============================*/
 

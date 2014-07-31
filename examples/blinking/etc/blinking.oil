@@ -24,8 +24,10 @@ TASK TaskA {
     STACK = 512;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
+    EVENT = Event1;
     EVENT = POSIXE;
     RESOURCE = POSIXR;
+    RESOURCE = Res1;
     AUTOSTART = TRUE {
         APPMODE = AppMode2;
     }
