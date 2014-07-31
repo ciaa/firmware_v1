@@ -377,16 +377,6 @@ int32_t tst_modbusPDUWriteMultipleRegisters(uint8_t *buf,
 }
 
 
-/** \brief Test ciaaModbus_init
- **
- **/
-void test_ciaaModbus_init_01(void)
-{
-   ciaaPOSIX_open_ExpectAndReturn("/test/device", O_RDWR, 1);
-
-   ciaaModbus_init("/test/device");
-} /* end test_ciaaModbus_init_01 */
-
 
 /** \brief Test ciaaModbus_process
  **
