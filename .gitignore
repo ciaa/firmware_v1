@@ -3,6 +3,7 @@
 /Debug
 *.cproject
 *.project
+/.settings
 
 # Own makefile or mine template
 *.mine
