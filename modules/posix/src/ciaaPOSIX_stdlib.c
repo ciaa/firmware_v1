@@ -90,9 +90,6 @@ ciaaPOSIX_chunk_header *first_chunk_header;
 /** \brief ciaa memory buffer */
 static char ciaaPOSIX_buffer[CIAA_HEAP_MEM_SIZE];
 
-/** \brief ciaa heap available size */
-uint32_t ciaaPOSIX_heap_available_size;
-
 /** \brief ciaa POSIX sempahore */
 sem_t ciaaPOSIX_stdlib_sem;
 
@@ -100,83 +97,89 @@ sem_t ciaaPOSIX_stdlib_sem;
 
 /*==================[internal functions definition]==========================*/
 
-static void ciaaPOSIX_init_next_chunk(ciaaPOSIX_chunk_header *chunk_header, uint32_t size)
+static void ciaaPOSIX_chunk_partition(ciaaPOSIX_chunk_header *chunk_header, uint32_t size)
 {
-   ciaaPOSIX_heap_available_size -= size + sizeof(ciaaPOSIX_chunk_header);
-   chunk_header->next = NULL;
-   chunk_header->size = ciaaPOSIX_heap_available_size;
-   chunk_header->is_available = CIAA_POSIX_STDLIB_AVAILABLE;
+   // if there is at least one byte after the partition
+   if (chunk_header->size > size + sizeof(ciaaPOSIX_chunk_header)) {
+       ciaaPOSIX_chunk_header *next_chunk_header = (ciaaPOSIX_chunk_header *)(((char *)chunk_header) + size + sizeof(ciaaPOSIX_chunk_header));
+       next_chunk_header->next = chunk_header->next;
+       chunk_header->next = next_chunk_header;
+       next_chunk_header->size = chunk_header->size - size - sizeof(ciaaPOSIX_chunk_header);
+       next_chunk_header->is_available = CIAA_POSIX_STDLIB_AVAILABLE;
+       chunk_header->size = size;
+  }
+  chunk_header->is_available = CIAA_POSIX_STDLIB_USED;
 }
 
 /*==================[external functions definition]==========================*/
 
 void ciaaPOSIX_stdlib_init(void)
 {
-   ciaaPOSIX_heap_available_size = CIAA_HEAP_MEM_SIZE - sizeof(ciaaPOSIX_chunk_header);
+   int ciaaPOSIX_heap_available_size = CIAA_HEAP_MEM_SIZE - sizeof(ciaaPOSIX_chunk_header);
    first_chunk_header = (ciaaPOSIX_chunk_header*)&ciaaPOSIX_buffer;
    first_chunk_header->next = NULL;
    first_chunk_header->size = ciaaPOSIX_heap_available_size;
    first_chunk_header->is_available = CIAA_POSIX_STDLIB_AVAILABLE;
-
    /* init sempahore */
    ciaaPOSIX_sem_init(&ciaaPOSIX_stdlib_sem);
 }
 
 void *ciaaPOSIX_malloc(size_t size)
 {
+   char *result = NULL;
    ciaaPOSIX_chunk_header *chunk_header = first_chunk_header;
 
+   /* enter critical section */
+   ciaaPOSIX_sem_wait(&ciaaPOSIX_stdlib_sem);
    while(chunk_header)
    {
       if(chunk_header->is_available && chunk_header->size >= size)
       {
-         /* enter critical section */
-         ciaaPOSIX_sem_wait(&ciaaPOSIX_stdlib_sem);
-
-         chunk_header->is_available = CIAA_POSIX_STDLIB_USED;
-         chunk_header->size = size;
-         /* Is it the last chunck? */
-         if(chunk_header->next == NULL)
-         {
-            chunk_header->next = (ciaaPOSIX_chunk_header*) ((intptr_t)(chunk_header) + (intptr_t)size);
-            ciaaPOSIX_init_next_chunk(chunk_header->next, size);
-         }
-         chunk_header = chunk_header + sizeof(ciaaPOSIX_chunk_header);
-
-         /* exit critical section */
-         ciaaPOSIX_sem_post(&ciaaPOSIX_stdlib_sem);
-         return chunk_header;
+         ciaaPOSIX_chunk_partition(chunk_header, size);
+         result  = ((char *)chunk_header)+sizeof(ciaaPOSIX_chunk_header);
+         break;
       }
       chunk_header = chunk_header->next;
    }
-   return NULL;
+   /* exit critical section */
+   ciaaPOSIX_sem_post(&ciaaPOSIX_stdlib_sem);
+   return result;
 }
 
 void ciaaPOSIX_free(void *ptr)
 {
-   ciaaPOSIX_chunk_header *chunk_to_free = (ciaaPOSIX_chunk_header*)ptr - sizeof(ciaaPOSIX_chunk_header);
+   ciaaPOSIX_chunk_header *chunk_to_free = (ciaaPOSIX_chunk_header*)(((char *) ptr) - sizeof(ciaaPOSIX_chunk_header));
    ciaaPOSIX_chunk_header *chunk_header = first_chunk_header;
+
+   /* enter critical section */
+   ciaaPOSIX_sem_wait(&ciaaPOSIX_stdlib_sem);
 
    while (chunk_header)
    {
       if (chunk_header == chunk_to_free)
       {
-         /* enter critical section */
-         ciaaPOSIX_sem_wait(&ciaaPOSIX_stdlib_sem);
-
-         ciaaPOSIX_heap_available_size += chunk_header->size;
-
          chunk_header->is_available = CIAA_POSIX_STDLIB_AVAILABLE;
-
-         /* exit critical section */
-         ciaaPOSIX_sem_post(&ciaaPOSIX_stdlib_sem);
          break;
       }
       chunk_header = chunk_header->next;
    }
+
+   /* small defragmentator */
+   chunk_header = first_chunk_header;
+   while (chunk_header) {
+      if (chunk_header->is_available) {
+         while (chunk_header->next!=NULL && chunk_header->next->is_available) {
+            chunk_header->size += chunk_header->next->size + sizeof(ciaaPOSIX_chunk_header);
+            chunk_header->next = chunk_header->next->next;
+         }
+      }
+      chunk_header = chunk_header->next;
+   }
+
+   /* exit critical section */
+   ciaaPOSIX_sem_post(&ciaaPOSIX_stdlib_sem);
 }
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

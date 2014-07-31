@@ -85,8 +85,8 @@ int main(void)
 
 void ciaaDebugMsg(char * msg)
 {
-   /* open UART used in RS485 */
-   int fildes = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+   /* open UART connected to USB bridge (FT2232) */
+   int fildes = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
    ciaaPOSIX_write(fildes, msg, ciaaPOSIX_strlen(msg));
    ciaaPOSIX_close(fildes);
 }
@@ -200,7 +200,8 @@ TASK(TaskC) {
 
    ciaaDebugMsg("blink!\n");
 
-   int fildes = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+   /* Open UART RS232 */
+   int fildes = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
 
    char buf[10];
    int ret;
@@ -208,6 +209,8 @@ TASK(TaskC) {
    ret = ciaaPOSIX_read(fildes, buf, 10);
    if(ret)
    {
+      buf[ret]=0;
+      ciaaDebugMsg(buf);
       ciaaPOSIX_write(fildes, buf, ret);
    }
 
