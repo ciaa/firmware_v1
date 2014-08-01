@@ -147,6 +147,8 @@ static void ciaaDriverUart_hwInit(void)
    Chip_UART_Init(LPC_USART0);
    Chip_UART_SetBaud(LPC_USART0, 115200);
 
+   Chip_UART_SetupFIFOS(LPC_USART0, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0);
+
    Chip_UART_TXEnable(LPC_USART0);
 
    Chip_SCU_PinMux(9, 5, MD_PDN, FUNC7);              /* P9_5: UART0_TXD */
@@ -165,6 +167,8 @@ static void ciaaDriverUart_hwInit(void)
    Chip_UART_Init(LPC_USART2);
    Chip_UART_SetBaud(LPC_USART2, 115200);
 
+   Chip_UART_SetupFIFOS(LPC_USART2, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0);
+
    Chip_UART_TXEnable(LPC_USART2);
 
    Chip_SCU_PinMux(7, 1, MD_PDN, FUNC6);              /* P7_1: UART2_TXD */
@@ -178,6 +182,8 @@ static void ciaaDriverUart_hwInit(void)
    /* UART3 (RS232) */
    Chip_UART_Init(LPC_USART3);
    Chip_UART_SetBaud(LPC_USART3, 115200);
+
+   Chip_UART_SetupFIFOS(LPC_USART3, UART_FCR_FIFO_EN | UART_FCR_TRG_LEV0);
 
    Chip_UART_TXEnable(LPC_USART3);
 
