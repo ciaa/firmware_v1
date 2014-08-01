@@ -1,4 +1,4 @@
-/* Copyright 2014, Pablo Ridolfi
+/* Copyright 2014, Pablo Ridolfi (UTN-FRBA)
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,9 +30,9 @@
  *
  */
 
-/** \brief CIAA Dio Posix Driver
+/** \brief CIAA Dio Driver for LPC4337
  **
- ** Simulated DIO Driver for Posix for testing proposes
+ ** Implements the Digital Input/Output (Dio) Driver for LPC4337
  **
  **/
 
@@ -46,13 +46,13 @@
 /*
  * Initials     Name
  * ---------------------------
- * PaRi         Pablo Ridolfi
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140727 v0.0.1 PaRi initial version
+ * 20140731 v0.0.1   PR first functional version
  */
 
 /*==================[inclusions]=============================================*/
@@ -126,23 +126,23 @@ void ciaa_lpc4337_gpio_init(void)
    Chip_GPIO_Init(LPC_GPIO_PORT);
 
    /* Inputs */
-   Chip_SCU_PinMux(4,0,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[0]
-   Chip_SCU_PinMux(4,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[1]
-   Chip_SCU_PinMux(4,2,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[2]
-   Chip_SCU_PinMux(4,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO2[3]
-   Chip_SCU_PinMux(7,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[11]
-   Chip_SCU_PinMux(7,4,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[12]
-   Chip_SCU_PinMux(7,5,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[13]
-   Chip_SCU_PinMux(7,6,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO3[14]
+   Chip_SCU_PinMux(4,0,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[0]  */
+   Chip_SCU_PinMux(4,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[1]  */
+   Chip_SCU_PinMux(4,2,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[2]  */
+   Chip_SCU_PinMux(4,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[3]  */
+   Chip_SCU_PinMux(7,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO3[11] */
+   Chip_SCU_PinMux(7,4,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO3[12] */
+   Chip_SCU_PinMux(7,5,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO3[13] */
+   Chip_SCU_PinMux(7,6,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO3[14] */
 
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,0xF, 0);
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 3, 0xF<<11, 0);
 
    /* MOSFETs */
-   Chip_SCU_PinMux(4,8,MD_PUP,FUNC4); //GPIO5[12]
-   Chip_SCU_PinMux(4,9,MD_PUP,FUNC4);//GPIO5[13]
-   Chip_SCU_PinMux(4,10,MD_PUP,FUNC4);//GPIO5[14]
-   Chip_SCU_PinMux(1,5,MD_PUP,FUNC0);//GPIO1[8]
+   Chip_SCU_PinMux(4,8,MD_PUP,FUNC4);  /* GPIO5[12] */
+   Chip_SCU_PinMux(4,9,MD_PUP,FUNC4);  /* GPIO5[13] */
+   Chip_SCU_PinMux(4,10,MD_PUP,FUNC4); /* GPIO5[14] */
+   Chip_SCU_PinMux(1,5,MD_PUP,FUNC0);  /* GPIO1[8]  */
 
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14),1);
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 1,(1<<8),1);
@@ -159,9 +159,9 @@ void ciaa_lpc4337_gpio_init(void)
    Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6));
    Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5,(1<<1));
 
-   /* GPIOs */
-   Chip_SCU_PinMux(6,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	//GPIO0/P6_1/GPIO3[0]
-   Chip_SCU_PinMux(2,5,MD_PUP|MD_EZI|MD_ZI,FUNC4);	//GPIO1/P2_5/GPIO5[5]
+   /* LV-TTL GPIOs (not used yet) */
+   Chip_SCU_PinMux(6,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO0/P6_1/GPIO3[0] */
+   Chip_SCU_PinMux(2,5,MD_PUP|MD_EZI|MD_ZI,FUNC4);	/* GPIO1/P2_5/GPIO5[5] */
 }
 
 void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
@@ -169,36 +169,84 @@ void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
    switch(outputNumber)
    {
       case 0:
-         if(value) Chip_GPIO_SetValue(LPC_GPIO_PORT, 2, 1<<4);
-         else Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2, 1<<4);
+         if(value)
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 2, 1<<4);
+         }
+         else
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2, 1<<4);
+         }
          break;
       case 1:
-         if(value) Chip_GPIO_SetValue(LPC_GPIO_PORT, 2, 1<<5);
-         else Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2, 1<<5);
+         if(value)
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 2, 1<<5);
+         }
+         else
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2, 1<<5);
+         }
          break;
       case 2:
-         if(value) Chip_GPIO_SetValue(LPC_GPIO_PORT, 2, 1<<6);
-         else Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2, 1<<6);
+         if(value)
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 2, 1<<6);
+         }
+         else
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2, 1<<6);
+         }
          break;
       case 3:
-         if(value) Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<1);
-         else Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<1);
+         if(value)
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<1);
+         }
+         else
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<1);
+         }
          break;
       case 4:
-         if(value) Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<12);
-         else Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<12);
+         if(value)
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<12);
+         }
+         else
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<12);
+         }
          break;
       case 5:
-         if(value) Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<13);
-         else Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<13);
+         if(value)
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<13);
+         }
+         else
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<13);
+         }
          break;
       case 6:
-         if(value) Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<14);
-         else Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<14);
+         if(value)
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<14);
+         }
+         else
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<14);
+         }
          break;
       case 7:
-         if(value) Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1, 1<<8);
-         else Chip_GPIO_SetValue(LPC_GPIO_PORT, 1, 1<<8);
+         if(value)
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1, 1<<8);
+         }
+         else
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 1, 1<<8);
+         }
          break;
       default:
          break;

@@ -240,11 +240,6 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
             buf,
             nbyte);
    }
-   /* FIXME we need to figure out how to make ciaaSerialDevices_read() non-blocking
-    * in some scenarios, for example when called by periodic tasks.
-    * Disabling following lines until then. :(
-    */
-#if 0
    else
    {
       /* get task id for waking up the task later */
@@ -262,7 +257,6 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
             buf,
             nbyte);
    }
-#endif
    return ret;
 }
 

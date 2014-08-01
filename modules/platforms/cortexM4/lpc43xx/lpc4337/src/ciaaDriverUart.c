@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Pablo Ridolfi (UTN-FRBA)
  *
  * This file is part of CIAA Firmware.
  *
@@ -46,13 +46,13 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140528 v0.0.1 initials initial version
+ * 20140731 v0.0.1   PR first functional version
  */
 
 /*==================[inclusions]=============================================*/
@@ -149,15 +149,16 @@ static void ciaaDriverUart_hwInit(void)
 
    Chip_UART_TXEnable(LPC_USART0);
 
-   Chip_SCU_PinMux(9, 5, MD_PDN, FUNC7);              // P9_5: UART0_TXD
-   Chip_SCU_PinMux(9, 6, MD_PLN|MD_EZI|MD_ZI, FUNC7); // P9_6: UART0_RXD
+   Chip_SCU_PinMux(9, 5, MD_PDN, FUNC7);              /* P9_5: UART0_TXD */
+   Chip_SCU_PinMux(9, 6, MD_PLN|MD_EZI|MD_ZI, FUNC7); /* P9_6: UART0_RXD */
 
    Chip_UART_SetRS485Flags(LPC_USART0, UART_RS485CTRL_DCTRL_EN | UART_RS485CTRL_OINV_1);
 
-   Chip_SCU_PinMux(6, 2, MD_PDN, FUNC2);              // P6_2: UART0_DIR
+   Chip_SCU_PinMux(6, 2, MD_PDN, FUNC2);              /* P6_2: UART0_DIR */
 
    Chip_UART_IntEnable(LPC_USART0, UART_IER_RBRINT);
 
+   NVIC_SetPriority(USART0_IRQn, 0);
    NVIC_EnableIRQ(USART0_IRQn);
 
    /* UART2 (USB-UART) */
@@ -166,11 +167,12 @@ static void ciaaDriverUart_hwInit(void)
 
    Chip_UART_TXEnable(LPC_USART2);
 
-   Chip_SCU_PinMux(7, 1, MD_PDN, FUNC6);              // P7_1: UART2_TXD
-   Chip_SCU_PinMux(7, 2, MD_PLN|MD_EZI|MD_ZI, FUNC6); // P7_2: UART2_RXD
+   Chip_SCU_PinMux(7, 1, MD_PDN, FUNC6);              /* P7_1: UART2_TXD */
+   Chip_SCU_PinMux(7, 2, MD_PLN|MD_EZI|MD_ZI, FUNC6); /* P7_2: UART2_RXD */
 
    Chip_UART_IntEnable(LPC_USART2, UART_IER_RBRINT);
 
+   NVIC_SetPriority(USART2_IRQn, 0);
    NVIC_EnableIRQ(USART2_IRQn);
 
    /* UART3 (RS232) */
@@ -179,10 +181,12 @@ static void ciaaDriverUart_hwInit(void)
 
    Chip_UART_TXEnable(LPC_USART3);
 
-   Chip_SCU_PinMux(2, 3, MD_PDN, FUNC2);              // P2_3: UART3_TXD
-   Chip_SCU_PinMux(2, 4, MD_PLN|MD_EZI|MD_ZI, FUNC2); // P2_4: UART3_RXD
+   Chip_SCU_PinMux(2, 3, MD_PDN, FUNC2);              /* P2_3: UART3_TXD */
+   Chip_SCU_PinMux(2, 4, MD_PLN|MD_EZI|MD_ZI, FUNC2); /* P2_4: UART3_RXD */
 
    Chip_UART_IntEnable(LPC_USART3, UART_IER_RBRINT);
+
+   NVIC_SetPriority(USART3_IRQn, 0);
    NVIC_EnableIRQ(USART3_IRQn);
 }
 
