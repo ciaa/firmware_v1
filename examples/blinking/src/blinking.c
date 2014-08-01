@@ -105,7 +105,7 @@ TASK(InitTask)
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
    /* activate example tasks */
-   SetRelAlarm(ActivatePeriodicTask, 200, 200);
+//   SetRelAlarm(ActivatePeriodicTask, 200, 200);
 
    ActivateTask(SerialEchoTask);
 
@@ -116,7 +116,7 @@ TASK(InitTask)
 TASK(SerialEchoTask)
 {
    int8_t buf[20];
-   uint8_t outputs;
+//   uint8_t outputs;
    int32_t ret;
 
    /* open UART connected to USB bridge (FT2232) */
@@ -144,9 +144,9 @@ TASK(SerialEchoTask)
       }
 
       /* blink output 5 with each loop */
-      ciaaPOSIX_read(fd_out, &outputs, 1);
-      outputs ^= 0x20;
-      ciaaPOSIX_write(fd_out, &outputs, 1);
+//      ciaaPOSIX_read(fd_out, &outputs, 1);
+//      outputs ^= 0x20;
+//      ciaaPOSIX_write(fd_out, &outputs, 1);
    }
 }
 
