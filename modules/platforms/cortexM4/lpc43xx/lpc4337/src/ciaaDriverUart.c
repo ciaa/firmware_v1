@@ -63,10 +63,14 @@
 
 /*==================[macros and definitions]=================================*/
 
+#define CONTEXT_ISR2 3
+
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
 } ciaaDriverConstType;
+
+typedef uint8_t ContextType;
 
 /*==================[internal data declaration]==============================*/
 
@@ -129,6 +133,8 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
 static uint8_t hwbuf[3];
 
 /*==================[external data definition]===============================*/
+
+extern ContextType ActualContext;
 
 /*==================[internal functions definition]==========================*/
 static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device)
@@ -289,6 +295,9 @@ void ciaaDriverUart_init(void)
 /*==================[interrupt handlers]=====================================*/
 void UART0_IRQHandler(void)
 {
+   ContextType ctx = ActualContext;
+   ActualContext = CONTEXT_ISR2;
+
    uint8_t status = Chip_UART_ReadLineStatus(LPC_USART0);
 
    if(status & UART_LSR_RDR)
@@ -303,10 +312,14 @@ void UART0_IRQHandler(void)
       /* tx confirmation, 1 byte sent */
       ciaaDriverUart_txConfirmation(&ciaaDriverUart_device0);
    }
+   ActualContext = ctx;
 }
 
 void UART2_IRQHandler(void)
 {
+   ContextType ctx = ActualContext;
+   ActualContext = CONTEXT_ISR2;
+
    uint8_t status = Chip_UART_ReadLineStatus(LPC_USART2);
 
    if(status & UART_LSR_RDR)
@@ -321,10 +334,14 @@ void UART2_IRQHandler(void)
       /* tx confirmation, 1 byte sent */
       ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
    }
+   ActualContext = ctx;
 }
 
 void UART3_IRQHandler(void)
 {
+   ContextType ctx = ActualContext;
+   ActualContext = CONTEXT_ISR2;
+
    uint8_t status = Chip_UART_ReadLineStatus(LPC_USART3);
 
    if(status & UART_LSR_RDR)
@@ -339,6 +356,7 @@ void UART3_IRQHandler(void)
       /* tx confirmation, 1 byte sent */
       ciaaDriverUart_txConfirmation(&ciaaDriverUart_device2);
    }
+   ActualContext = ctx;
 }
 
 /** @} doxygen end group definition */

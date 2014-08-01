@@ -105,7 +105,7 @@ TASK(InitTask)
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
    /* activate example tasks */
-//   SetRelAlarm(ActivatePeriodicTask, 200, 200);
+   SetRelAlarm(ActivatePeriodicTask, 200, 200);
 
    ActivateTask(SerialEchoTask);
 
@@ -116,14 +116,14 @@ TASK(InitTask)
 TASK(SerialEchoTask)
 {
    int8_t buf[20];
-//   uint8_t outputs;
+   uint8_t outputs;
    int32_t ret;
 
    /* open UART connected to USB bridge (FT2232) */
    int32_t fd1 = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
 
    /* open UART connected to RS232 connector */
-//   int32_t fd2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
+   int32_t fd2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
 
    /* send a message to the world :) */
    char message[] = "Hi! :)\nSerialEchoTask: Waiting for characters...\n";
@@ -140,13 +140,13 @@ TASK(SerialEchoTask)
          ciaaPOSIX_write(fd1, buf, ret);
 
          /* also write them to the other device */
-//         ciaaPOSIX_write(fd2, buf, ret);
+         ciaaPOSIX_write(fd2, buf, ret);
       }
 
       /* blink output 5 with each loop */
-//      ciaaPOSIX_read(fd_out, &outputs, 1);
-//      outputs ^= 0x20;
-//      ciaaPOSIX_write(fd_out, &outputs, 1);
+      ciaaPOSIX_read(fd_out, &outputs, 1);
+      outputs ^= 0x20;
+      ciaaPOSIX_write(fd_out, &outputs, 1);
    }
 }
 
