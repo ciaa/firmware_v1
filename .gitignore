@@ -1,9 +1,12 @@
-# LPCXPresso files
-/.metadata
-/Debug
+# LPCXPresso & Eclipse files
+/**/.metadata
+/**/.settings
+/**/RemoteSystemsTempFiles
+/**/Debug
+*.launch
 *.cproject
 *.project
-/.settings
+
 
 # Own makefile or mine template
 *.mine
