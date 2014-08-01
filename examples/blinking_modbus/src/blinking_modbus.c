@@ -66,13 +66,48 @@
 
 /*==================[macros and definitions]=================================*/
 
+/* input registers addresses */
+#define MODBUS_ADDR_IR_INPUT_REG_VAL      0x0000
+
+/* holding registers addresses */
+#define MODBUS_ADDR_HR_CIAA_INPUTS        0X0000
+#define MODBUS_ADDR_HR_CIAA_OUTPUTS       0X0001
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-int32_t blinkingModbus_ledFildes;
-uint16_t blinkingModbus_modbusRegister;
+
+/*
+ * Modbus Map
+ *
+ * Input Registers:
+ * Accessed through:
+ *             - 0x04 Read Input Register
+ *   address      ---------------------
+ *   0x0000      |   inputRegVal       |
+ *                ---------------------
+ *
+ * Holding Registers:
+ * Accessed through:
+ *             - 0x03 Read Holding Register
+ *             - 0x06 Write single Register
+ *             - 0x10 Write multiple Register
+ *             - 0x17 Read/Write multiple Register
+ *   address      ---------------------
+ *   0x0000      |  hr_ciaaInputs      |
+ *   0x0001      |  hr_ciaaOutputs     |
+ *                ---------------------
+ */
+
+static uint16_t inputRegVal;
+static uint16_t hr_ciaaInputs;
+static uint16_t hr_ciaaOutputs;
+
+static int32_t fd_in;
+static int32_t fd_out;
+
 
 /*==================[external data definition]===============================*/
 
@@ -96,8 +131,11 @@ TASK(InitTask) {
    /* init the ciaa kernel */
    ciaak_start();
 
-   /* open led device */
-   blinkingModbus_ledFildes = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   /* open CIAA digital inputs */
+   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
+
+   /* open CIAA digital outputs */
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
    ActivateTask(ModbusSlave);
 
@@ -105,14 +143,20 @@ TASK(InitTask) {
    TerminateTask();
 }
 
-TASK(Blinking) {
-   static uint8_t ledStatus = 0;
+TASK(Blinking)
+{
+   uint8_t uint8Data;
 
-   /* write led */
-   ciaaPOSIX_write(blinkingModbus_ledFildes, &ledStatus, sizeof(ledStatus));
-   ciaaPOSIX_printf("LED: %d\n", ledStatus);
-   /* toggle bit 5 */
-   ledStatus ^= 0x20;   //0x01;
+   /* blink */
+   hr_ciaaOutputs ^= 0x10;
+
+   /* update outputs */
+   uint8Data = hr_ciaaOutputs;
+   ciaaPOSIX_write(fd_out, &uint8Data, sizeof(uint8Data));
+
+   /* read inputs */
+   ciaaPOSIX_read(fd_in, &uint8Data, sizeof(uint8Data));
+   hr_ciaaInputs = uint8Data;
 
    /* terminate task */
    TerminateTask();
@@ -121,7 +165,7 @@ TASK(Blinking) {
 TASK(ModbusSlave)
 {
    /* initialize modbus slave */
-   ciaaModbus_init("/dev/serial/uart/0");
+   ciaaModbus_init("/dev/serial/uart/1");
 
    /* start modbus main task */
    ciaaModbus_slaveMainTask();
@@ -143,7 +187,7 @@ int8_t readInputRegisters(
    if ( (0x0000 == startingAddress) &&
         (0x01 == quantityOfInputRegisters) )
    {
-      ciaaModbus_writeInt(&buf[0], blinkingModbus_modbusRegister);
+      ciaaModbus_writeInt(&buf[0], inputRegVal);
       ret = 1;
    }
    else
@@ -161,19 +205,23 @@ int8_t writeSingleRegister(
       uint8_t * exceptionCode
       )
 {
-   int8_t ret;
+   int8_t ret = 1;
 
-   if (0x0000 == registerAddress)
+   switch (registerAddress)
    {
-      blinkingModbus_modbusRegister = registerValue;
-      ret = 1;
-   }
-   else
-   {
-      *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
-      ret = -1;
-   }
+      case MODBUS_ADDR_HR_CIAA_INPUTS:
+         *exceptionCode = CIAAMODBUS_E_FNC_ERROR;
+         break;
 
+      case MODBUS_ADDR_HR_CIAA_OUTPUTS:
+         hr_ciaaOutputs = registerValue;
+         break;
+
+      default:
+         *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
+         ret = -1;
+         break;
+   }
 
    return ret;
 }

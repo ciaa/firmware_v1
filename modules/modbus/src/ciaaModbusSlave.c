@@ -119,6 +119,11 @@ extern void ciaaModbus_slaveMainTask(void)
 
       /* no check is done, the sw shall always provide an answer */
       /* write modbus answer */
+
+      /* increment length for include id */
+      read++;
+
+      /* send response */
       ciaaModbus_ascii_write(ciaaModbus_device, ciaaModbus_slaveBuf, read);
 
    } while(0 == ciaaModbus_exit);
