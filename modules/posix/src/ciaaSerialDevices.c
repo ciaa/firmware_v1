@@ -67,16 +67,9 @@
 #define ciaaSerialDevices_MAXDEVICES   20
 
 /*==================[typedef]================================================*/
-typedef enum {
-   INIT = 0,
-   RX = 1,
-   TX = 2
-} ciaaSerialDevices_blockerTypeType;
-
 typedef struct {
    TaskType taskID;
    void * fct;
-   ciaaSerialDevices_blockerTypeType type;
 } ciaaSerialDevices_blockerType;
 
 typedef struct {
@@ -129,7 +122,6 @@ extern void ciaaSerialDevices_init(void)
       /* set invalid task as default */
       ciaaSerialDevices.devstr[loopi].blocked.taskID = 255; /* TODO */
       ciaaSerialDevices.devstr[loopi].blocked.fct = NULL;
-      ciaaSerialDevices.devstr[loopi].blocked.type = INIT;
    }
 }
 
