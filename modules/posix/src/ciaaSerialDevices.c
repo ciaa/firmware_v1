@@ -247,39 +247,30 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
    int32_t ret = 0;
 
    /* if the rx buffer is not empty */
-   /* enter to critical code, to avoid circBuf corruption from Interr. */
-   SuspendAllInterrupts()
    if (!ciaaLibs_circBufEmpty(&serialDevice->rxBuf))
    {
       /* try to read nbyte from rxBuf and store it to the user buffer */
 	  ret = ciaaLibs_circBufGet(&serialDevice->rxBuf,
             buf,
             nbyte);
-      ResumeAllInterrupts();
    }
    else
    {
       /* get task id and function for waking up the task later */
       GetTaskID(&serialDevice->blocked.taskID);
       serialDevice->blocked.fct = (void*) ciaaSerialDevices_read;
-      ResumeAllInterrupts();
 
       /* if no data wait for it */
       WaitEvent(POSIXE);
-      SuspendAllInterrupts();
       ClearEvent(POSIXE);
-      ResumeAllInterrupts();
 
       /* after the wait is not needed to check if data is avaibale on the
        * buffer. The event will be set first after adding some data into it */
 
       /* try to read nbyte from rxBuf and store it to the user buffer */
-      /* enter to critical code, to avoid circBuf corruption from Interr. */
-      SuspendAllInterrupts();
       ret = ciaaLibs_circBufGet(&serialDevice->rxBuf,
             buf,
             nbyte);
-      ResumeAllInterrupts();
    }
    return ret;
 }
@@ -297,22 +288,17 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
    do
    {
       /* read head and space */
-      /* enter to critical code, to avoid circBuf corruption from Interr. */
-      SuspendAllInterrupts();
       head = cbuf->head;
       space = ciaaLibs_circBufSpace(cbuf, head);
 
       /* put bytes in the queue */
       ret += ciaaLibs_circBufPut(cbuf, buf, ciaaLibs_min(nbyte-ret, space));
-      //ResumeAllInterrupts();
 
       /* starts the transmission if not already ongoing */
       serialDevice->device->ioctl(
             device->loLayer,
             ciaaPOSIX_IOCTL_STARTTX,
             NULL);
-
-      ResumeAllInterrupts();
 
       /* if not all bytes could be stored in the buffer */
       if (ret < nbyte)
@@ -322,18 +308,13 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
 
          /* set the task to sleep until some data have been send */
 
-         /* enter to critical code, to avoid circBuf corruption from Interr. */
-         SuspendAllInterrupts();
          /* get task id and function for waking up the task later */
          GetTaskID(&serialDevice->blocked.taskID);
          serialDevice->blocked.fct = (void*) ciaaSerialDevices_write;
-         ResumeAllInterrupts();
 
          /* wait to write all data or for the txConfirmation */
          WaitEvent(POSIXE);
-         SuspendAllInterrupts();
          ClearEvent(POSIXE);
-         ResumeAllInterrupts();
       }
    }
    while (ret < nbyte);
@@ -450,7 +431,7 @@ extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const 
    }
 }
 
-
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+
