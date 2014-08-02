@@ -15,7 +15,6 @@ TASK InitTask {
     TYPE = BASIC;
     SCHEDULE = NON;
     RESOURCE = POSIXR;
-    EVENT = POSIXE;
 }
 
 TASK Blinking {
@@ -24,7 +23,6 @@ TASK Blinking {
     STACK = 512;
     TYPE = BASIC;
     SCHEDULE = NON;
-    EVENT = POSIXE;
     RESOURCE = POSIXR;
 }
 
@@ -35,7 +33,8 @@ TASK ModbusSlave {
     TYPE = EXTENDED;
     SCHEDULE = FULL;
     RESOURCE = POSIXR;
-    EVENT = POSIXE;
+    EVENT = POSIX_RX;
+    EVENT = POSIX_TX;
 }
 
 ALARM BlinkingAlarm {
@@ -50,11 +49,10 @@ ALARM BlinkingAlarm {
     }
 }
 
-RESOURCE = Res1;
 RESOURCE = POSIXR;
 
-EVENT = Event1;
-EVENT = POSIXE;
+EVENT = POSIX_RX;
+EVENT = POSIX_TX;
 
 APPMODE = AppMode1;
 APPMODE = AppMode2;
