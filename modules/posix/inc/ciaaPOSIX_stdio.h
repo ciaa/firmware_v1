@@ -99,6 +99,23 @@ extern "C" {
  **/
 #define ciaaPOSIX_IOCTL_STARTTX                 2
 
+/** \brief get current number of bytes stored in rx buffer
+ **
+ ** This ioctl command is used to see how many bytes are currently in the
+ ** receive queue, in order to avoid task blocking when calling read.
+ **
+ **/
+#define ciaaPOSIX_IOCTL_GET_RX_COUNT            3
+
+/** \brief get current space left in tx buffer (in bytes)
+ **
+ ** This ioctl command is used to see how many bytes can be written in the
+ ** transmit queue without being blocked by calling write
+ **
+ **/
+#define ciaaPOSIX_IOCTL_GET_TX_SPACE            4
+
+
 /*==================[typedef]================================================*/
 /** \brief TODO
  **

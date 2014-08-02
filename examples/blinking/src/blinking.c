@@ -74,6 +74,8 @@
 
 static int32_t fd_in;
 static int32_t fd_out;
+static int32_t fd_uart1;
+static int32_t fd_uart2;
 
 /*==================[external data definition]===============================*/
 
@@ -104,6 +106,12 @@ TASK(InitTask)
    /* open CIAA digital outputs */
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
+   /* open UART connected to USB bridge (FT2232) */
+   fd_uart1 = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+
+   /* open UART connected to RS232 connector */
+   fd_uart2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
+
    /* activate example tasks */
    SetRelAlarm(ActivatePeriodicTask, 200, 200);
 
@@ -119,28 +127,28 @@ TASK(SerialEchoTask)
    uint8_t outputs;
    int32_t ret;
 
-   /* open UART connected to USB bridge (FT2232) */
-   int32_t fd1 = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
-
-   /* open UART connected to RS232 connector */
-   //int32_t fd2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
-
    /* send a message to the world :) */
    char message[] = "Hi! :)\nSerialEchoTask: Waiting for characters...\n";
-   ciaaPOSIX_write(fd1, message, ciaaPOSIX_strlen(message));
+   ciaaPOSIX_write(fd_uart1, message, ciaaPOSIX_strlen(message));
 
    while(1)
    {
+      /* rx count test */
+      ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_GET_RX_COUNT, &ret);
+
+      /* tx space test */
+      ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_GET_TX_SPACE, &ret);
+
       /* wait for any character ... */
-      ret = ciaaPOSIX_read(fd1, buf, 20);
+      ret = ciaaPOSIX_read(fd_uart1, buf, 20);
 
       if(ret > 0)
       {
          /* ... and write them to the same device */
-         ciaaPOSIX_write(fd1, buf, ret);
+         ciaaPOSIX_write(fd_uart1, buf, ret);
 
          /* also write them to the other device */
-         //ciaaPOSIX_write(fd2, buf, ret);
+         ciaaPOSIX_write(fd_uart2, buf, ret);
       }
 
       /* blink output 5 with each loop */

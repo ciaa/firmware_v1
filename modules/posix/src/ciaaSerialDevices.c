@@ -219,15 +219,33 @@ extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const devi
 {
    int32_t ret;
 
-   if (ciaaPOSIX_IOCTL_RXINDICATION == request)
-   {
+   ciaaSerialDevices_deviceType * serialDevice = (ciaaSerialDevices_deviceType *) device->layer;
+   ciaaLibs_CircBufType * cbuf;
+   uint32_t tail, head;
 
-   }
-   else
+   switch(request)
    {
-      ret = device->ioctl((ciaaDevices_deviceType *)device->loLayer, request, param);
-   }
+      case ciaaPOSIX_IOCTL_GET_RX_COUNT:
+         cbuf = &serialDevice->rxBuf;
+         tail = cbuf->tail;
+         *(uint32_t *)param = ciaaLibs_circBufCount(cbuf, tail);
+         ret = 0;
+         break;
 
+      case ciaaPOSIX_IOCTL_GET_TX_SPACE:
+         cbuf = &serialDevice->txBuf;
+         head = cbuf->head;
+         *(uint32_t *)param = ciaaLibs_circBufSpace(cbuf, head);
+         ret = 0;
+         break;
+
+      case ciaaPOSIX_IOCTL_RXINDICATION:
+         break;
+
+      default:
+         ret = device->ioctl((ciaaDevices_deviceType *)device->loLayer, request, param);
+         break;
+   }
    return ret;
 }
 
