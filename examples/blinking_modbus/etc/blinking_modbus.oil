@@ -33,8 +33,8 @@ TASK ModbusSlave {
     TYPE = EXTENDED;
     SCHEDULE = FULL;
     RESOURCE = POSIXR;
-    EVENT = POSIX_RX;
-    EVENT = POSIX_TX;
+    EVENT = POSIXE;
+    EVENT = POSIXE;
 }
 
 ALARM BlinkingAlarm {
@@ -51,8 +51,7 @@ ALARM BlinkingAlarm {
 
 RESOURCE = POSIXR;
 
-EVENT = POSIX_RX;
-EVENT = POSIX_TX;
+EVENT = POSIXE;
 
 APPMODE = AppMode1;
 APPMODE = AppMode2;
