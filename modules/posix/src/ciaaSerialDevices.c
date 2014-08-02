@@ -282,18 +282,15 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
    do
    {
       /* read head and space */
-	  /* enter to critical code, to avoid circBuf corruption from Interr. */
-	  SuspendAllInterrupts();
-	  head = cbuf->head;
+      /* enter to critical code, to avoid circBuf corruption from Interr. */
+      SuspendAllInterrupts();
+      head = cbuf->head;
       space = ciaaLibs_circBufSpace(cbuf, head);
 
       /* put bytes in the queue */
       ret += ciaaLibs_circBufPut(cbuf, buf, ciaaLibs_min(nbyte-ret, space));
       //ResumeAllInterrupts();
-      if(ret > 60)
-      {
-    	  ret++;
-      }
+
       /* starts the transmission if not already ongoing */
       serialDevice->device->ioctl(
             device->loLayer,
@@ -311,14 +308,14 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
          /* set the task to sleep until some data have been send */
 
          /* get task id for waking up the task later */
-   	     /* enter to critical code, to avoid circBuf corruption from Interr. */
-   	     SuspendAllInterrupts();
+         /* enter to critical code, to avoid circBuf corruption from Interr. */
+         SuspendAllInterrupts();
          GetTaskID(&serialDevice->taskID);
          ResumeAllInterrupts();
 
          /* wait to write all data or for the txConfirmation */
          WaitEvent(POSIX_TX);
-   	     SuspendAllInterrupts();
+         SuspendAllInterrupts();
          ClearEvent(POSIX_TX);
          ResumeAllInterrupts();
       }
