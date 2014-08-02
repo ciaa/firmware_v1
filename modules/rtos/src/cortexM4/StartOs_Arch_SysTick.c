@@ -84,7 +84,7 @@ void StartOs_Arch_SysTick(void)
    SysTick_Config(SystemCoreClock/1000);
 
    /* Update priority set by SysTick_Config */
-   NVIC_SetPriority(SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 2);
+   NVIC_SetPriority(SysTick_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
 }
 
 /** @} doxygen end group definition */

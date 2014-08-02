@@ -289,7 +289,7 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
 
       /* put bytes in the queue */
       ret += ciaaLibs_circBufPut(cbuf, buf, ciaaLibs_min(nbyte-ret, space));
-      ResumeAllInterrupts();
+      //ResumeAllInterrupts();
       if(ret > 60)
       {
     	  ret++;
@@ -299,6 +299,8 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
             device->loLayer,
             ciaaPOSIX_IOCTL_STARTTX,
             NULL);
+
+      ResumeAllInterrupts();
 
       /* if not all bytes could be stored in the buffer */
       if (ret < nbyte)
