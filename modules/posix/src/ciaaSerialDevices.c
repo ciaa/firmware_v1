@@ -67,9 +67,21 @@
 #define ciaaSerialDevices_MAXDEVICES   20
 
 /*==================[typedef]================================================*/
+typedef enum {
+   INIT = 0,
+   RX = 1,
+   TX = 2
+} ciaaSerialDevices_blockerTypeType;
+
+typedef struct {
+   TaskType taskID;
+   void * fct;
+   ciaaSerialDevices_blockerTypeType type;
+} ciaaSerialDevices_blockerType;
+
 typedef struct {
    ciaaDevices_deviceType const * device;
-   TaskType taskID;
+   ciaaSerialDevices_blockerType blocked;
    ciaaLibs_CircBufType rxBuf;
    ciaaLibs_CircBufType txBuf;
    uint8_t flags;
@@ -115,7 +127,9 @@ extern void ciaaSerialDevices_init(void)
    for(loopi = 0; ciaaSerialDevices_MAXDEVICES > loopi; loopi++)
    {
       /* set invalid task as default */
-      ciaaSerialDevices.devstr[loopi].taskID = 255; /* TODO */
+      ciaaSerialDevices.devstr[loopi].blocked.taskID = 255; /* TODO */
+      ciaaSerialDevices.devstr[loopi].blocked.fct = NULL;
+      ciaaSerialDevices.devstr[loopi].blocked.type = INIT;
    }
 }
 
@@ -245,14 +259,15 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
    }
    else
    {
-	  /* get task id for waking up the task later */
-      GetTaskID(&serialDevice->taskID);
+      /* get task id and function for waking up the task later */
+      GetTaskID(&serialDevice->blocked.taskID);
+      serialDevice->blocked.fct = (void*) ciaaSerialDevices_read;
       ResumeAllInterrupts();
 
       /* if no data wait for it */
-      WaitEvent(POSIX_RX);
+      WaitEvent(POSIXE);
       SuspendAllInterrupts();
-      ClearEvent(POSIX_RX);
+      ClearEvent(POSIXE);
       ResumeAllInterrupts();
 
       /* after the wait is not needed to check if data is avaibale on the
@@ -307,16 +322,17 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
 
          /* set the task to sleep until some data have been send */
 
-         /* get task id for waking up the task later */
          /* enter to critical code, to avoid circBuf corruption from Interr. */
          SuspendAllInterrupts();
-         GetTaskID(&serialDevice->taskID);
+         /* get task id and function for waking up the task later */
+         GetTaskID(&serialDevice->blocked.taskID);
+         serialDevice->blocked.fct = (void*) ciaaSerialDevices_write;
          ResumeAllInterrupts();
 
          /* wait to write all data or for the txConfirmation */
-         WaitEvent(POSIX_TX);
+         WaitEvent(POSIXE);
          SuspendAllInterrupts();
-         ClearEvent(POSIX_TX);
+         ClearEvent(POSIXE);
          ResumeAllInterrupts();
       }
    }
@@ -335,7 +351,7 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
    uint32_t tail = cbuf->tail;
    uint32_t rawCount = ciaaLibs_circBufRawCount(cbuf, tail);
    uint32_t count = ciaaLibs_circBufCount(cbuf, tail);
-   TaskType taskID = serialDevice->taskID;
+   TaskType taskID = serialDevice->blocked.taskID;
 
    /* if some data have to be transmitted */
    if (count > 0)
@@ -353,19 +369,27 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
          rawCount = ciaaLibs_circBufRawCount(cbuf, tail);
 
          /* write more bytes */
-         write = serialDevice->device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
+         write = serialDevice->device->write(device->loLayer,
+               ciaaLibs_circBufReadPos(cbuf), rawCount);
 
          if (write > 0)
          {
             /* update buffer */
             ciaaLibs_circBufUpdateHead(cbuf, write);
 
-            if (255 != taskID)
+            /* if task is blocked and waiting for reception of this device */
+            if ( (255 != taskID) &&
+                  (serialDevice->blocked.fct ==
+                   (void*) ciaaSerialDevices_read) )
             {
                /* invalidate task id */
-               serialDevice->taskID = 255; /* TODO */
+               serialDevice->blocked.taskID = 255; /* TODO add a macro */
+
+               /* reset function */
+               serialDevice->blocked.fct = NULL;
+
                /* set task event */
-               SetEvent(taskID, POSIX_TX);
+               SetEvent(taskID, POSIXE);
             }
          }
       }
@@ -382,7 +406,7 @@ extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const 
    uint32_t rawSpace = ciaaLibs_circBufRawSpace(cbuf, head);
    uint32_t space = ciaaLibs_circBufSpace(cbuf, head);
    uint32_t read = 0;
-   TaskType taskID = serialDevice->taskID;
+   TaskType taskID = serialDevice->blocked.taskID;
 
    read = serialDevice->device->read(device->loLayer, ciaaLibs_circBufWritePos(cbuf), rawSpace);
 
@@ -412,12 +436,17 @@ extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const 
    ciaaLibs_circBufUpdateTail(cbuf, read);
 
    /* if data has been read */
-   if ( (0 < read) && (255 != taskID) )
+   if ( (0 < read) && (255 != taskID) &&
+         (serialDevice->blocked.fct == (void*) ciaaSerialDevices_read ) )
    {
       /* invalidate task id */
-      serialDevice->taskID = 255; /* TODO */
+      serialDevice->blocked.taskID = 255; /* TODO add macro */
+
+      /* reset blocked function */
+      serialDevice->blocked.fct = NULL;
+
       /* set task event */
-      SetEvent(taskID, POSIX_RX);
+      SetEvent(taskID, POSIXE);
    }
 }
 

@@ -15,8 +15,7 @@ TASK InitTask {
     TYPE = BASIC;
     SCHEDULE = NON;
     RESOURCE = POSIXR;
-    EVENT = POSIX_RX;
-    EVENT = POSIX_TX;
+    EVENT = POSIXE;
 }
 
 TASK SerialEchoTask {
@@ -25,8 +24,7 @@ TASK SerialEchoTask {
     STACK = 512;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
-    EVENT = POSIX_RX;
-    EVENT = POSIX_TX;
+    EVENT = POSIXE;
     RESOURCE = POSIXR;
     AUTOSTART = TRUE {
         APPMODE = AppMode2;
@@ -40,8 +38,7 @@ TASK PeriodicTask {
     TYPE = EXTENDED;
     SCHEDULE = FULL;
     RESOURCE = POSIXR;
-    EVENT = POSIX_RX;
-    EVENT = POSIX_TX;
+    EVENT = POSIXE;
     AUTOSATART = TRUE {
         APPMODE = AppMode1;
     }
@@ -56,8 +53,7 @@ ALARM ActivatePeriodicTask {
 
 RESOURCE = POSIXR;
 
-EVENT = POSIX_RX;
-EVENT = POSIX_TX;
+EVENT = POSIXE;
 
 APPMODE = AppMode1;
 APPMODE = AppMode2;
