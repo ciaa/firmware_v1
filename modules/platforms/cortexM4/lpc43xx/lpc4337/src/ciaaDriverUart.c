@@ -311,7 +311,7 @@ void UART0_IRQHandler(void)
       hwbuf[0] = Chip_UART_ReadByte(LPC_USART0);
       ciaaDriverUart_rxIndication(&ciaaDriverUart_device0);
    }
-   else if(status & UART_LSR_THRE)
+   if(status & UART_LSR_THRE)
    {
       /* disable THRE irq */
       Chip_UART_IntDisable(LPC_USART0, UART_IER_THREINT);
@@ -333,7 +333,7 @@ void UART2_IRQHandler(void)
       hwbuf[1] = Chip_UART_ReadByte(LPC_USART2);
       ciaaDriverUart_rxIndication(&ciaaDriverUart_device1);
    }
-   else if(status & UART_LSR_THRE)
+   if(status & UART_LSR_THRE)
    {
       /* disable THRE irq */
       Chip_UART_IntDisable(LPC_USART2, UART_IER_THREINT);
@@ -355,7 +355,7 @@ void UART3_IRQHandler(void)
       hwbuf[2] = Chip_UART_ReadByte(LPC_USART3);
       ciaaDriverUart_rxIndication(&ciaaDriverUart_device2);
    }
-   else if(status & UART_LSR_THRE)
+   if(status & UART_LSR_THRE)
    {
       /* disable THRE irq */
       Chip_UART_IntDisable(LPC_USART3, UART_IER_THREINT);
