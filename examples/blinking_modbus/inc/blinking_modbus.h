@@ -68,6 +68,13 @@
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+extern int8_t readHoldingRegisters(
+      uint16_t startingAddress,
+      uint16_t quantityOfHoldingRegisters,
+      uint8_t * exceptionCode,
+      uint8_t * buf
+      );
+
 extern int8_t readInputRegisters(
       uint16_t startingAddress,
       uint16_t quantityOfInputRegisters,

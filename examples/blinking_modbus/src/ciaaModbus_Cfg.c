@@ -72,6 +72,19 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+#if (CIAAMODBUS_READ_HOLDING_REGISTERS == CIAAMODBUS_EN)
+ciaaModbus_cmdLst0x03Type ciaaModbus_cmdLst0x03[] = {
+   {
+      {
+         0x0000,
+         0x0001
+      },
+      readHoldingRegisters
+   },
+   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
+};
+#endif /* #if (CIAAMODBUS_READ_HOLDING_REGISTERS == CIAAMODBUS_EN) */
+
 #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN)
 ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[] = {
    {
