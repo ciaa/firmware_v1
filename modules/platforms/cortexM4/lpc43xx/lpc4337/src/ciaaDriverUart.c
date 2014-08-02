@@ -166,8 +166,6 @@ static void ciaaDriverUart_hwInit(void)
 
    Chip_SCU_PinMux(6, 2, MD_PDN, FUNC2);              /* P6_2: UART0_DIR */
 
-   Chip_UART_IntEnable(LPC_USART0, UART_IER_RBRINT);
-
    NVIC_SetPriority(USART0_IRQn, (1 << __NVIC_PRIO_BITS) - 1);
    NVIC_EnableIRQ(USART0_IRQn);
 
@@ -181,8 +179,6 @@ static void ciaaDriverUart_hwInit(void)
 
    Chip_SCU_PinMux(7, 1, MD_PDN, FUNC6);              /* P7_1: UART2_TXD */
    Chip_SCU_PinMux(7, 2, MD_PLN|MD_EZI|MD_ZI, FUNC6); /* P7_2: UART2_RXD */
-
-   Chip_UART_IntEnable(LPC_USART2, UART_IER_RBRINT);
 
    NVIC_SetPriority(USART2_IRQn, 0);
    NVIC_EnableIRQ(USART2_IRQn);
@@ -198,8 +194,6 @@ static void ciaaDriverUart_hwInit(void)
    Chip_SCU_PinMux(2, 3, MD_PDN, FUNC2);              /* P2_3: UART3_TXD */
    Chip_SCU_PinMux(2, 4, MD_PLN|MD_EZI|MD_ZI, FUNC2); /* P2_4: UART3_RXD */
 
-   Chip_UART_IntEnable(LPC_USART3, UART_IER_RBRINT);
-
    NVIC_SetPriority(USART3_IRQn, 0);
    NVIC_EnableIRQ(USART3_IRQn);
 }
@@ -207,11 +201,19 @@ static void ciaaDriverUart_hwInit(void)
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
+   /* dummy read */
+   Chip_UART_ReadByte((LPC_USART_T *)device->loLayer);
+   /* enable rx interrupt */
+   Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_RBRINT);
+
    return device;
 }
 
 extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
+   /* disable rx interrupt */
+   Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_RBRINT);
+
    return 0;
 }
 
@@ -219,9 +221,9 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
 {
    int32_t ret = -1;
 
-   if(   (device == ciaaDriverUartConst.devices[0]) ||
-         (device == ciaaDriverUartConst.devices[1]) ||
-         (device == ciaaDriverUartConst.devices[2]) )
+   if((device == ciaaDriverUartConst.devices[0]) ||
+      (device == ciaaDriverUartConst.devices[1]) ||
+      (device == ciaaDriverUartConst.devices[2]) )
    {
       switch(request)
       {
@@ -267,9 +269,9 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
 {
    int32_t ret = 0;
 
-   if(   (device == ciaaDriverUartConst.devices[0]) ||
-         (device == ciaaDriverUartConst.devices[1]) ||
-         (device == ciaaDriverUartConst.devices[2]) )
+   if((device == ciaaDriverUartConst.devices[0]) ||
+      (device == ciaaDriverUartConst.devices[1]) ||
+      (device == ciaaDriverUartConst.devices[2]) )
    {
       if(Chip_UART_ReadLineStatus((LPC_USART_T *)device->loLayer) & UART_LSR_THRE)
       {
