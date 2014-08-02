@@ -123,7 +123,7 @@ TASK(SerialEchoTask)
    int32_t fd1 = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
 
    /* open UART connected to RS232 connector */
-   int32_t fd2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
+   //int32_t fd2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
 
    /* send a message to the world :) */
    char message[] = "Hi! :)\nSerialEchoTask: Waiting for characters...\n";
@@ -140,7 +140,7 @@ TASK(SerialEchoTask)
          ciaaPOSIX_write(fd1, buf, ret);
 
          /* also write them to the other device */
-         ciaaPOSIX_write(fd2, buf, ret);
+         //ciaaPOSIX_write(fd2, buf, ret);
       }
 
       /* blink output 5 with each loop */
