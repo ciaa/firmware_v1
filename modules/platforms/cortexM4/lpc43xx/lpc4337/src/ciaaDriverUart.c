@@ -223,11 +223,17 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
          (device == ciaaDriverUartConst.devices[1]) ||
          (device == ciaaDriverUartConst.devices[2]) )
    {
-      if(request == ciaaPOSIX_IOCTL_STARTTX)
+      switch(request)
       {
-         /* this one calls write */
-         ciaaDriverUart_txConfirmation(device);
-         ret = 0;
+         case ciaaPOSIX_IOCTL_STARTTX:
+            /* this one calls write */
+            ciaaDriverUart_txConfirmation(device);
+            ret = 0;
+            break;
+
+         case ciaaPOSIX_IOCTL_SET_BAUDRATE:
+            ret = Chip_UART_SetBaud((LPC_USART_T *)device->loLayer, (int32_t)param);
+            break;
       }
    }
    return ret;

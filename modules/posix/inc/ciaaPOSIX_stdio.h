@@ -115,6 +115,48 @@ extern "C" {
  **/
 #define ciaaPOSIX_IOCTL_GET_TX_SPACE            4
 
+/** \brief set baudrate for serial devices
+ **
+ ** This ioctl command is used to set the baudrate for any serial device.
+ ** Possible values for arg are:
+ **   ciaaBAUDRATE_300
+ **   ciaaBAUDRATE_600
+ **   ciaaBAUDRATE_1200
+ **   ciaaBAUDRATE_1800
+ **   ciaaBAUDRATE_2400
+ **   ciaaBAUDRATE_4800
+ **   ciaaBAUDRATE_9600
+ **   ciaaBAUDRATE_14400
+ **   ciaaBAUDRATE_19200
+ **   ciaaBAUDRATE_38400
+ **   ciaaBAUDRATE_57600
+ **   ciaaBAUDRATE_115200
+ **   ciaaBAUDRATE_230400
+ **   ciaaBAUDRATE_460800
+ **   ciaaBAUDRATE_921600
+ **
+ ** Returned value for ioctl is the actual baud rate, or 0 if no rate can be found.
+ **/
+#define ciaaPOSIX_IOCTL_SET_BAUDRATE            5
+
+/** \brief baudrate macros for serial devices
+ **/
+#define ciaaBAUDRATE_300     ( 300     )
+#define ciaaBAUDRATE_600     ( 600     )
+#define ciaaBAUDRATE_1200    ( 1200    )
+#define ciaaBAUDRATE_1800    ( 1800    )
+#define ciaaBAUDRATE_2400    ( 2400    )
+#define ciaaBAUDRATE_4800    ( 4800    )
+#define ciaaBAUDRATE_9600    ( 9600    )
+#define ciaaBAUDRATE_14400   ( 14400   )
+#define ciaaBAUDRATE_19200   ( 19200   )
+#define ciaaBAUDRATE_38400   ( 38400   )
+#define ciaaBAUDRATE_57600   ( 57600   )
+#define ciaaBAUDRATE_115200  ( 115200  )
+#define ciaaBAUDRATE_230400  ( 230400  )
+#define ciaaBAUDRATE_460800  ( 460800  )
+#define ciaaBAUDRATE_921600  ( 921600  )
+
 
 /*==================[typedef]================================================*/
 /** \brief TODO

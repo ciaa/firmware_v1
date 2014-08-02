@@ -112,6 +112,9 @@ TASK(InitTask)
    /* open UART connected to RS232 connector */
    fd_uart2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
 
+   /* change baud rate for uart usb */
+   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_9600);
+
    /* activate example tasks */
    SetRelAlarm(ActivatePeriodicTask, 200, 200);
 
