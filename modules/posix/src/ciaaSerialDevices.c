@@ -243,7 +243,7 @@ extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const devi
          break;
 
       default:
-         ret = device->ioctl((ciaaDevices_deviceType *)device->loLayer, request, param);
+         ret = serialDevice->device->ioctl(device->loLayer, request, param);
          break;
    }
    return ret;
