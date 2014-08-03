@@ -416,8 +416,10 @@ extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const 
    {
       if ((read == rawSpace) && (space <= rawSpace))
       {
-    	  read++;
-    	  read--;
+         /* TODO remove thes lines, are only to allow the set of a breakpoint */
+         /* see https://github.com/ciaa/Firmware/issues/88 */
+         read++;
+         read--;
          /* data may be lost because not place on the receive buffer */
          /* TODO */
       }
