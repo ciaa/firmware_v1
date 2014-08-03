@@ -350,11 +350,13 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
    /* if some data have to be transmitted */
    if (count > 0)
    {
+      SuspendAllInterrupts();
       /* write data to the driver */
       write = serialDevice->device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
 
       /* update buffer */
       ciaaLibs_circBufUpdateHead(cbuf, write);
+      ResumeAllInterrupts();
 
       /* if all bytes were written and more data is available */
       if ( (write == rawCount) && (count > rawCount ) )
