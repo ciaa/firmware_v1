@@ -131,6 +131,7 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
 };
 
 static uint8_t hwbuf[3];
+static uint8_t rxcnt[3];
 
 /*==================[external data definition]===============================*/
 
@@ -244,24 +245,29 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
 extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
 {
    int32_t ret = -1;
+   uint8_t i;
 
    if(size != 0)
    {
-      if(device == ciaaDriverUartConst.devices[0])
+      for(i=0; i<ciaaDriverUartConst.countOfDevices; i++)
       {
-         *buffer = hwbuf[0];
+         if(device == ciaaDriverUartConst.devices[i])
+         {
+            /* rxcnt is a flag used to return the current byte read only once */
+            if(rxcnt[i] != 0)
+            {
+               *buffer = hwbuf[i];
+               rxcnt[i] = 0;
+               ret = 1;
+            }
+            else
+            {
+               ret = 0;
+            }
+            break;
+         }
       }
-      if(device == ciaaDriverUartConst.devices[1])
-      {
-         *buffer = hwbuf[1];
-      }
-      if(device == ciaaDriverUartConst.devices[2])
-      {
-         *buffer = hwbuf[2];
-      }
-      ret = 1;
    }
-
    return ret;
 }
 
@@ -311,6 +317,7 @@ void UART0_IRQHandler(void)
    if(status & UART_LSR_RDR)
    {
       hwbuf[0] = Chip_UART_ReadByte(LPC_USART0);
+      rxcnt[0] = 1;
       ciaaDriverUart_rxIndication(&ciaaDriverUart_device0);
    }
    if((status & UART_LSR_THRE) && (Chip_UART_GetIntsEnabled(LPC_USART0) & UART_IER_THREINT))
@@ -333,6 +340,7 @@ void UART2_IRQHandler(void)
    if(status & UART_LSR_RDR)
    {
       hwbuf[1] = Chip_UART_ReadByte(LPC_USART2);
+      rxcnt[1] = 1;
       ciaaDriverUart_rxIndication(&ciaaDriverUart_device1);
    }
    if((status & UART_LSR_THRE) && (Chip_UART_GetIntsEnabled(LPC_USART2) & UART_IER_THREINT))
@@ -355,6 +363,7 @@ void UART3_IRQHandler(void)
    if(status & UART_LSR_RDR)
    {
       hwbuf[2] = Chip_UART_ReadByte(LPC_USART3);
+      rxcnt[2] = 1;
       ciaaDriverUart_rxIndication(&ciaaDriverUart_device2);
    }
    if((status & UART_LSR_THRE) && (Chip_UART_GetIntsEnabled(LPC_USART3) & UART_IER_THREINT))
