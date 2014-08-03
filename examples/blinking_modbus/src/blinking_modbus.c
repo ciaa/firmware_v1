@@ -185,6 +185,7 @@ extern int8_t readInputRegisters(
 {
    int8_t ret;
 
+   /* check if address and quantity of registers match */
    if ( (0x0000 == startingAddress) &&
         (0x01 == quantityOfInputRegisters) )
    {
@@ -210,14 +211,17 @@ extern int8_t writeSingleRegister(
 
    switch (registerAddress)
    {
+      /* inputs can not be written! */
       case MODBUS_ADDR_HR_CIAA_INPUTS:
          *exceptionCode = CIAAMODBUS_E_FNC_ERROR;
          break;
 
+      /* write outputs */
       case MODBUS_ADDR_HR_CIAA_OUTPUTS:
          hr_ciaaOutputs = registerValue;
          break;
 
+      /* wrong address */
       default:
          *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
          ret = -1;
@@ -241,16 +245,19 @@ extern int8_t readHoldingRegisters(
    {
       switch (startingAddress)
       {
+         /* read inputs of CIAA */
          case MODBUS_ADDR_HR_CIAA_INPUTS:
             ciaaModbus_writeInt(buf, hr_ciaaInputs);
             countReg = 1;
             break;
 
+         /* read outputs of CIAA */
          case MODBUS_ADDR_HR_CIAA_OUTPUTS:
             ciaaModbus_writeInt(buf, hr_ciaaOutputs);
             countReg = 1;
             break;
 
+         /* wrong address */
          default:
             *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
             countReg = -1;
@@ -270,7 +277,10 @@ extern int8_t readHoldingRegisters(
       {
          ret = -1;
       }
-
+   /* repeat until:
+    * - read total registers or
+    * - error occurs
+    */
    }while ((ret > 0) && (ret < quantityOfHoldingRegisters));
 
    return ret;
@@ -290,16 +300,19 @@ extern int8_t writeMultipleRegisters(
    {
       switch (startingAddress)
       {
+         /* inputs can not be written! */
          case MODBUS_ADDR_HR_CIAA_INPUTS:
-            hr_ciaaInputs = ciaaModbus_readInt(buf);
-            countReg = 1;
+            *exceptionCode = CIAAMODBUS_E_FNC_ERROR;
+            countReg = -1;
             break;
 
+         /* write outputs */
          case MODBUS_ADDR_HR_CIAA_OUTPUTS:
             hr_ciaaOutputs = ciaaModbus_readInt(buf);
             countReg = 1;
             break;
 
+         /* wrong address */
          default:
             *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
             countReg = -1;
@@ -320,6 +333,10 @@ extern int8_t writeMultipleRegisters(
          ret = -1;
       }
 
+   /* repeat until:
+    * - read total registers or
+    * - error occurs
+    */
    }while ((ret > 0) && (ret < quantityOfRegisters));
 
    /* if success return 1 */
