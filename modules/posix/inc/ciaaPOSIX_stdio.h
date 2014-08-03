@@ -172,10 +172,10 @@ extern "C" {
 
 /** \brief FIFO RX Trigger Level macros for serial devices
  **/
-#define ciaaFIFO_TRIGGER_LEVEL0     (0)			   /*!< UART FIFO trigger level 0: 1 character */
-#define ciaaFIFO_TRIGGER_LEVEL1     (1 << 6)			/*!< UART FIFO trigger level 1: 4 character */
-#define ciaaFIFO_TRIGGER_LEVEL2     (2 << 6)			/*!< UART FIFO trigger level 2: 8 character */
-#define ciaaFIFO_TRIGGER_LEVEL3     (3 << 6)			/*!< UART FIFO trigger level 3: 14 character */
+#define ciaaFIFO_TRIGGER_LEVEL0     (0)            /*!< UART FIFO trigger level 0: 1 character */
+#define ciaaFIFO_TRIGGER_LEVEL1     (1 << 6)       /*!< UART FIFO trigger level 1: 4 character */
+#define ciaaFIFO_TRIGGER_LEVEL2     (2 << 6)       /*!< UART FIFO trigger level 2: 8 character */
+#define ciaaFIFO_TRIGGER_LEVEL3     (3 << 6)       /*!< UART FIFO trigger level 3: 14 character */
 
 /*==================[typedef]================================================*/
 
