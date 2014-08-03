@@ -235,29 +235,43 @@ extern int8_t readHoldingRegisters(
       )
 {
    int8_t ret = 0;
+   uint16_t countReg;
 
-   switch (startingAddress)
+   do
    {
-      case MODBUS_ADDR_HR_CIAA_INPUTS:
-         ciaaModbus_writeInt(buf, hr_ciaaInputs);
-         ret = 1;
-         break;
+      switch (startingAddress)
+      {
+         case MODBUS_ADDR_HR_CIAA_INPUTS:
+            ciaaModbus_writeInt(buf, hr_ciaaInputs);
+            countReg = 1;
+            break;
 
-      case MODBUS_ADDR_HR_CIAA_OUTPUTS:
-         ciaaModbus_writeInt(buf, hr_ciaaOutputs);
-         ret = 1;
-         break;
+         case MODBUS_ADDR_HR_CIAA_OUTPUTS:
+            ciaaModbus_writeInt(buf, hr_ciaaOutputs);
+            countReg = 1;
+            break;
 
-      default:
-         *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
+         default:
+            *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
+            countReg = -1;
+            break;
+      }
+
+      if (countReg > 0)
+      {
+         /* update pointer to buffer */
+         buf += (countReg*2);
+         /* next address */
+         startingAddress += countReg;
+         /* increment count of registers */
+         ret += countReg;
+      }
+      else
+      {
          ret = -1;
-         break;
-   }
-   if (ret > 0)
-   {
-      buf += (ret*2);
-      startingAddress++;
-   }
+      }
+
+   }while ((ret > 0) && (ret < quantityOfHoldingRegisters));
 
    return ret;
 }

@@ -68,6 +68,24 @@
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief Modbus Command Read Holding Registers callback
+ **
+ ** This function is called by the modbus and provided by the application which
+ ** implements a Read Holding Registers command
+ **
+ ** \param[in] startingAddress starting address
+ ** \param[in] quantityOfHoldingRegisters quantity of holding registers to
+ **            be read
+ ** \param[out] exceptionCode may take one of the following values:
+ **                  CIAAMODBUS_E_WRONG_STR_ADDR
+ **                  CIAAMODBUS_E_FNC_ERROR
+ ** \param[out] buf buffer containing the holding registers
+ ** \return count of registers, this value is multiplicated * 2 by the caller
+ **         if a exception occurs returns -1
+ **
+ ** \remarks exceptionCode parameter shall only be used if -1 is returned in
+ **          other case the pointer shall not be written.
+ **/
 extern int8_t readHoldingRegisters(
       uint16_t startingAddress,
       uint16_t quantityOfHoldingRegisters,
@@ -75,6 +93,23 @@ extern int8_t readHoldingRegisters(
       uint8_t * buf
       );
 
+/** \brief Modbus Command Read Input Registers callback
+ **
+ ** This function is called by the modbus and provided by the application which
+ ** implements a Read Input Registers command
+ **
+ ** \param[in] startingAddress starting address
+ ** \param[in] quantityOfInputRegisters quantity of input registers to be read
+ ** \param[out] exceptionCode may take one of the following values:
+ **                  CIAAMODBUS_E_WRONG_STR_ADDR
+ **                  CIAAMODBUS_E_FNC_ERROR
+ ** \param[out] buf buffer containing the input registers
+ ** \return count of registers, this value is multiplicated * 2 by the caller
+ **         if a exception occurs returns -1
+ **
+ ** \remarks exceptionCode parameter shall only be used if -1 is returned in
+ **          other case the pointer shall not be written.
+ **/
 extern int8_t readInputRegisters(
       uint16_t startingAddress,
       uint16_t quantityOfInputRegisters,
@@ -82,6 +117,21 @@ extern int8_t readInputRegisters(
       uint8_t * buf
       );
 
+/** \brief Modbus Command Write Single Register callback
+ **
+ ** This function is called by the modbus and provided by the application which
+ ** implements a Write Single Register command
+ **
+ ** \param[in] registerAddress address of the register to be written
+ ** \param[in] registerValue value to be written to the register
+ ** \param[out] exceptionCode may take one of the following values:
+ **                  CIAAMODBUS_E_WRONG_STR_ADDR
+ **                  CIAAMODBUS_E_FNC_ERROR
+ ** \return -1 if error, exceptionCode shall be set. 1 if success.
+ **
+ ** \remarks exceptionCode parameter shall only be used if -1 is returned in
+ **          other case the pointer shall not be written.
+ **/
 extern int8_t writeSingleRegister(
       uint16_t registerAddress,
       uint16_t registerValue,
