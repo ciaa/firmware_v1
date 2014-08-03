@@ -113,7 +113,14 @@ extern int32_t ciaaSerialDevices_close(ciaaDevices_deviceType const * const devi
  ** Performs special control of a serial device
  **
  ** \param[in]  device pointer to the device
- ** \param[in]  request type of the request, depends on the device
+ ** \param[in]  request type of the request, following values are accepted:
+ **               ciaaPOSIX_IOCTL_GET_RX_COUNT
+ **                  param shall be an uint32_t*
+ **                  the count of bytes in the RX circular buffer are returned
+ **               ciaaPOSIX_IOCTL_GET_TX_SPACE
+ **                  param shall be an uint32_t*
+ **                  the count free of bytes in the TX circular buffer are returned
+ **               other values see serial device driver
  ** \param[in]  param
  ** \return     a negative value if failed, a positive value
  **             if success.

@@ -151,11 +151,11 @@ extern "C" {
 #define ciaaBAUDRATE_14400   ( 14400   )
 #define ciaaBAUDRATE_19200   ( 19200   )
 #define ciaaBAUDRATE_38400   ( 38400   )
-#define ciaaBAUDRATE_57600   ( 57600   )
-#define ciaaBAUDRATE_115200  ( 115200  )
-#define ciaaBAUDRATE_230400  ( 230400  )
-#define ciaaBAUDRATE_460800  ( 460800  )
-#define ciaaBAUDRATE_921600  ( 921600  )
+#define ciaaBAUDRATE_57600   ( 57600U  )
+#define ciaaBAUDRATE_115200  ( 115200U )
+#define ciaaBAUDRATE_230400  ( 230400U )
+#define ciaaBAUDRATE_460800  ( 460800U )
+#define ciaaBAUDRATE_921600  ( 921600U )
 
 /** \brief set FIFO RX Trigger Level for serial devices
  **
@@ -172,54 +172,14 @@ extern "C" {
 
 /** \brief FIFO RX Trigger Level macros for serial devices
  **/
-#define ciaaFIFO_TRIGGER_LEVEL0     (0)					/*!< UART FIFO trigger level 0: 1 character */
+#define ciaaFIFO_TRIGGER_LEVEL0     (0)			   /*!< UART FIFO trigger level 0: 1 character */
 #define ciaaFIFO_TRIGGER_LEVEL1     (1 << 6)			/*!< UART FIFO trigger level 1: 4 character */
 #define ciaaFIFO_TRIGGER_LEVEL2     (2 << 6)			/*!< UART FIFO trigger level 2: 8 character */
 #define ciaaFIFO_TRIGGER_LEVEL3     (3 << 6)			/*!< UART FIFO trigger level 3: 14 character */
 
 /*==================[typedef]================================================*/
-/** \brief TODO
- **
- **/
-typedef struct
-{
-   int32_t fd;
-   char * const name;
-   ciaaDevices_Enum_Status status;
-   int32_t (*pOpen) (const char* pathName, int32_t flags);
-   int32_t (*pClose) (int32_t fd);
-   int32_t (*pIoctl) (int32_t fd, int32_t arg, void* param);
-   int32_t (*pRead) (int32_t fd, uint8_t * const buffer, uint32_t size);
-   int32_t (*pWrite) (int32_t fd, uint8_t const * const buffer, uint32_t size);
-   void* data;
-} ciaaPOSIX_Type_Base;
-
-/** \brief ciaaPOSIX errors enum
- ** Minimum allowed number: -1
- ** Maximum allowed number: -1000
- **/
-typedef enum
-{
-   ciaaPOSIX_Enum_Errors_DeviceAlreadyOpen = ciaaPOSIX_MINERRORCODE,
-   ciaaPOSIX_Enum_Errors_DeviceNotAllocated = ciaaPOSIX_MINERRORCODE - 1,
-   ciaaPOSIX_Enum_Errors_BadFileDescriptor = ciaaPOSIX_MINERRORCODE - 2
-} ciaaPOSIX_Enum_Errors;
-
-/** \brief ciaaPOSIX return message codes
- ** Minimum allowed number: 1
- ** Maximum allowed number: 1000
- **/
-typedef enum
-{
-   ciaaPOSIX_Enum_Messages_Example = ciaaPOSIX_MACRO_MinMessageCode,
-} ciaaPOSIX_Enum_Messages;
 
 /*==================[external data declaration]==============================*/
-/** \brief List of posix devices
- **
- **/
-extern ciaaPOSIX_Type_Base* ciaaPOSIX_devicesArray [];
-extern uint32_t ciaaPOSIX_devicesArraySize;
 
 /*==================[external functions declaration]=========================*/
 /** \brief ciaaPOSIX Initialization
