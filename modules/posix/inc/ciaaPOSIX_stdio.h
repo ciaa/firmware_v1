@@ -157,6 +157,25 @@ extern "C" {
 #define ciaaBAUDRATE_460800  ( 460800  )
 #define ciaaBAUDRATE_921600  ( 921600  )
 
+/** \brief set FIFO RX Trigger Level for serial devices
+ **
+ ** This ioctl command is used to set the FIFO RX Trigger Level for any serial device.
+ ** Possible values for arg are:
+ **   ciaaFIFO_TRIGGER_LEVEL0
+ **   ciaaFIFO_TRIGGER_LEVEL1
+ **   ciaaFIFO_TRIGGER_LEVEL2
+ **   ciaaFIFO_TRIGGER_LEVEL3
+ **
+ ** Returned value for ioctl is 0
+ **/
+#define ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL         6
+
+/** \brief FIFO RX Trigger Level macros for serial devices
+ **/
+#define ciaaFIFO_TRIGGER_LEVEL0     (0)					/*!< UART FIFO trigger level 0: 1 character */
+#define ciaaFIFO_TRIGGER_LEVEL1     (1 << 6)			/*!< UART FIFO trigger level 1: 4 character */
+#define ciaaFIFO_TRIGGER_LEVEL2     (2 << 6)			/*!< UART FIFO trigger level 2: 8 character */
+#define ciaaFIFO_TRIGGER_LEVEL3     (3 << 6)			/*!< UART FIFO trigger level 3: 14 character */
 
 /*==================[typedef]================================================*/
 /** \brief TODO

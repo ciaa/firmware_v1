@@ -416,6 +416,8 @@ extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const 
    {
       if ((read == rawSpace) && (space <= rawSpace))
       {
+    	  read++;
+    	  read--;
          /* data may be lost because not place on the receive buffer */
          /* TODO */
       }

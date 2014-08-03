@@ -113,7 +113,10 @@ TASK(InitTask)
    fd_uart2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
 
    /* change baud rate for uart usb */
-   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_19200);
+   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);
+
+   /* change FIFO TRIGGER LEVEL for uart usb */
+   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL, (void *)ciaaFIFO_TRIGGER_LEVEL3);
 
    /* activate example tasks */
    SetRelAlarm(ActivatePeriodicTask, 200, 200);

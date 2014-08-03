@@ -72,6 +72,8 @@ typedef struct  {
 
 typedef uint8_t ContextType;
 
+#define UART_RX_FIFO_SIZE       (16)
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -130,7 +132,7 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
    3
 };
 
-static uint8_t hwbuf[3];
+static uint8_t hwbuf[3][UART_RX_FIFO_SIZE];
 static uint8_t rxcnt[3];
 
 /*==================[external data definition]===============================*/
@@ -138,10 +140,10 @@ static uint8_t rxcnt[3];
 extern ContextType ActualContext;
 
 /*==================[internal functions definition]==========================*/
-static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device)
+static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
    /* receive the data and forward to upper layer */
-   ciaaSerialDevices_rxIndication(device->upLayer, 1 );
+   ciaaSerialDevices_rxIndication(device->upLayer, nbyte);
 }
 
 static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const device)
@@ -202,6 +204,8 @@ static void ciaaDriverUart_hwInit(void)
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
+   /* Restart FIFOS: set Enable, Reset content, set trigger level */
+   Chip_UART_SetupFIFOS((LPC_USART_T *)device->loLayer, UART_FCR_FIFO_EN | UART_FCR_TX_RS | UART_FCR_RX_RS | UART_FCR_TRG_LEV0);
    /* dummy read */
    Chip_UART_ReadByte((LPC_USART_T *)device->loLayer);
    /* enable rx interrupt */
@@ -235,7 +239,10 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
             break;
 
          case ciaaPOSIX_IOCTL_SET_BAUDRATE:
-            ret = Chip_UART_SetBaud((LPC_USART_T *)device->loLayer, (int32_t)param);
+            ret = Chip_UART_SetBaud((LPC_USART_T *)device->loLayer,  (int32_t)param);
+            break;
+         case ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL:
+        	 Chip_UART_SetupFIFOS((LPC_USART_T *)device->loLayer,  UART_FCR_FIFO_EN | UART_FCR_TX_RS | UART_FCR_RX_RS | (int32_t)param);
             break;
       }
    }
@@ -245,7 +252,7 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
 extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
 {
    int32_t ret = -1;
-   uint8_t i;
+   uint8_t i, j;
 
    if(size != 0)
    {
@@ -254,15 +261,21 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
          if(device == ciaaDriverUartConst.devices[i])
          {
             /* rxcnt is a flag used to return the current byte read only once */
-            if(rxcnt[i] != 0)
+        	if(size > rxcnt[i])
+        	{
+        		/* buffer has enough space */
+        		ret = rxcnt[i];
+        		rxcnt[i] = 0;
+        	}
+        	else
+        	{
+        		/* buffer hasn't enough space */
+        		ret = size;
+        		rxcnt[i] -= size;
+        	}
+            for(j=0 ; j < ret ; j++)
             {
-               *buffer = hwbuf[i];
-               rxcnt[i] = 0;
-               ret = 1;
-            }
-            else
-            {
-               ret = 0;
+              buffer[j] = hwbuf[i][j];
             }
             break;
          }
@@ -279,14 +292,17 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
       (device == ciaaDriverUartConst.devices[1]) ||
       (device == ciaaDriverUartConst.devices[2]) )
    {
-      if(Chip_UART_ReadLineStatus((LPC_USART_T *)device->loLayer) & UART_LSR_THRE)
+      while(Chip_UART_ReadLineStatus((LPC_USART_T *)device->loLayer) & UART_LSR_THRE && ret < size)
       {
          /* send first byte */
-         Chip_UART_SendByte((LPC_USART_T *)device->loLayer, *(uint8_t *)buffer);
-         /* enable Tx Holding Register Empty interrupt */
-         Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
-         /* 1 byte written */
-         ret = 1;
+         Chip_UART_SendByte((LPC_USART_T *)device->loLayer, buffer[ret]);
+         /* enable Tx Holding Register Empty interrupt only the first time*/
+         if(ret == 0)
+         {
+            Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
+         }
+         /* bytes written */
+         ret++;
       }
    }
    return ret;
@@ -316,9 +332,11 @@ void UART0_IRQHandler(void)
 
    if(status & UART_LSR_RDR)
    {
-      hwbuf[0] = Chip_UART_ReadByte(LPC_USART0);
-      rxcnt[0] = 1;
-      ciaaDriverUart_rxIndication(&ciaaDriverUart_device0);
+	   do{
+		   hwbuf[0][rxcnt[0]] = Chip_UART_ReadByte(LPC_USART0);
+		   rxcnt[0]++;
+	   }while((Chip_UART_ReadLineStatus(LPC_USART0) & UART_LSR_RDR) && (rxcnt[0] < UART_RX_FIFO_SIZE));
+       ciaaDriverUart_rxIndication(&ciaaDriverUart_device0, rxcnt[0]);
    }
    if((status & UART_LSR_THRE) && (Chip_UART_GetIntsEnabled(LPC_USART0) & UART_IER_THREINT))
    {
@@ -339,9 +357,11 @@ void UART2_IRQHandler(void)
 
    if(status & UART_LSR_RDR)
    {
-      hwbuf[1] = Chip_UART_ReadByte(LPC_USART2);
-      rxcnt[1] = 1;
-      ciaaDriverUart_rxIndication(&ciaaDriverUart_device1);
+	   do{
+		   hwbuf[1][rxcnt[1]] = Chip_UART_ReadByte(LPC_USART2);
+		   rxcnt[1]++;
+	   }while((Chip_UART_ReadLineStatus(LPC_USART2) & UART_LSR_RDR) && (rxcnt[1] < UART_RX_FIFO_SIZE));
+       ciaaDriverUart_rxIndication(&ciaaDriverUart_device1, rxcnt[1]);
    }
    if((status & UART_LSR_THRE) && (Chip_UART_GetIntsEnabled(LPC_USART2) & UART_IER_THREINT))
    {
@@ -362,9 +382,11 @@ void UART3_IRQHandler(void)
 
    if(status & UART_LSR_RDR)
    {
-      hwbuf[2] = Chip_UART_ReadByte(LPC_USART3);
-      rxcnt[2] = 1;
-      ciaaDriverUart_rxIndication(&ciaaDriverUart_device2);
+	   do{
+		   hwbuf[2][rxcnt[2]] = Chip_UART_ReadByte(LPC_USART3);
+		   rxcnt[2]++;
+	   }while((Chip_UART_ReadLineStatus(LPC_USART2) & UART_LSR_RDR) && (rxcnt[2] < UART_RX_FIFO_SIZE));
+       ciaaDriverUart_rxIndication(&ciaaDriverUart_device2, rxcnt[2]);
    }
    if((status & UART_LSR_THRE) && (Chip_UART_GetIntsEnabled(LPC_USART3) & UART_IER_THREINT))
    {
