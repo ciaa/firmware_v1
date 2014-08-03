@@ -156,7 +156,8 @@ TASK(Blinking)
 
    /* read inputs */
    ciaaPOSIX_read(fd_in, &uint8Data, sizeof(uint8Data));
-   hr_ciaaInputs = uint8Data;
+   //hr_ciaaInputs = uint8Data;
+   hr_ciaaInputs ++;
 
    /* terminate task */
    TerminateTask();
@@ -175,7 +176,7 @@ TASK(ModbusSlave)
 }
 
 
-int8_t readInputRegisters(
+extern int8_t readInputRegisters(
       uint16_t startingAddress,
       uint16_t quantityOfInputRegisters,
       uint8_t * exceptionCode,
@@ -199,7 +200,7 @@ int8_t readInputRegisters(
    return ret;
 }
 
-int8_t writeSingleRegister(
+extern int8_t writeSingleRegister(
       uint16_t registerAddress,
       uint16_t registerValue,
       uint8_t * exceptionCode
@@ -221,6 +222,41 @@ int8_t writeSingleRegister(
          *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
          ret = -1;
          break;
+   }
+
+   return ret;
+}
+
+extern int8_t readHoldingRegisters(
+      uint16_t startingAddress,
+      uint16_t quantityOfHoldingRegisters,
+      uint8_t * exceptionCode,
+      uint8_t * buf
+      )
+{
+   int8_t ret = 0;
+
+   switch (startingAddress)
+   {
+      case MODBUS_ADDR_HR_CIAA_INPUTS:
+         ciaaModbus_writeInt(buf, hr_ciaaInputs);
+         ret = 1;
+         break;
+
+      case MODBUS_ADDR_HR_CIAA_OUTPUTS:
+         ciaaModbus_writeInt(buf, hr_ciaaOutputs);
+         ret = 1;
+         break;
+
+      default:
+         *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
+         ret = -1;
+         break;
+   }
+   if (ret > 0)
+   {
+      buf += (ret*2);
+      startingAddress++;
    }
 
    return ret;
