@@ -276,6 +276,60 @@ extern int8_t readHoldingRegisters(
    return ret;
 }
 
+extern int8_t writeMultipleRegisters(
+      uint16_t startingAddress,
+      uint16_t quantityOfRegisters,
+      uint8_t * exceptionCode,
+      uint8_t * buf
+      )
+{
+   int8_t ret = 0;
+   uint16_t countReg;
+
+   do
+   {
+      switch (startingAddress)
+      {
+         case MODBUS_ADDR_HR_CIAA_INPUTS:
+            hr_ciaaInputs = ciaaModbus_readInt(buf);
+            countReg = 1;
+            break;
+
+         case MODBUS_ADDR_HR_CIAA_OUTPUTS:
+            hr_ciaaOutputs = ciaaModbus_readInt(buf);
+            countReg = 1;
+            break;
+
+         default:
+            *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
+            countReg = -1;
+            break;
+      }
+
+      if (countReg > 0)
+      {
+         /* update pointer to buffer */
+         buf += (countReg*2);
+         /* next address */
+         startingAddress += countReg;
+         /* increment count of registers */
+         ret += countReg;
+      }
+      else
+      {
+         ret = -1;
+      }
+
+   }while ((ret > 0) && (ret < quantityOfRegisters));
+
+   /* if success return 1 */
+   if (ret > 1)
+      ret = 1;
+
+   return ret;
+}
+
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

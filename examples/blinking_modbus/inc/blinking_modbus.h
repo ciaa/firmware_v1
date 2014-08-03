@@ -138,6 +138,30 @@ extern int8_t writeSingleRegister(
       uint8_t * exceptionCode
       );
 
+/** \brief Modbus Command Write Multiple Registers callback
+ **
+ ** This function is called by the modbus and provided by the application which
+ ** implements a Write Multiple Registers command
+ **
+ ** \param[in] startingAddress starting address
+ ** \param[in] quantityOfRegisters quantity of registers to be read
+ ** \param[out] exceptionCode may take one of the following values:
+ **                  CIAAMODBUS_E_WRONG_STR_ADDR
+ **                  CIAAMODBUS_E_FNC_ERROR
+ ** \param[in] buf buffer containing the registers
+ ** \return -1 if error, exceptionCode shall be set. 1 if success.
+ **
+ ** \remarks exceptionCode parameter shall only be used if -1 is returned in
+ **          other case the pointer shall not be written.
+ **/
+extern int8_t writeMultipleRegisters(
+      uint16_t startingAddress,
+      uint16_t quantityOfRegisters,
+      uint8_t * exceptionCode,
+      uint8_t * buf
+      );
+
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

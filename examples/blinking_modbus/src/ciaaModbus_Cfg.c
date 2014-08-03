@@ -103,13 +103,26 @@ ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[] = {
    {
       {
          0x0000,
-         0x0000
+         0x0001
       },
       writeSingleRegister
    },
    { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
 };
 #endif /* #if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN) */
+
+#if (CIAAMODBUS_WRITE_MULTIPLE_REGISTERS == CIAAMODBUS_EN)
+ciaaModbus_cmdLst0x10Type ciaaModbus_cmdLst0x10[] = {
+   {
+      {
+         0x0000,
+         0x0001
+      },
+      writeMultipleRegisters
+   },
+   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
+};
+#endif /* #if (CIAAMODBUS_WRITE_MULTIPLE_REGISTERS == CIAAMODBUS_EN) */
 
 /*==================[internal functions definition]==========================*/
 
