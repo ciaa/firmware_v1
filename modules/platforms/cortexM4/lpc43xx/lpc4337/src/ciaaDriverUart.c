@@ -224,7 +224,8 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
    /* disable rx interrupt */
    Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_RBRINT);
-
+   /* disable rx interrupt */
+   Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
    return 0;
 }
 
@@ -239,8 +240,12 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
       switch(request)
       {
          case ciaaPOSIX_IOCTL_STARTTX:
+            /* disable THRE irq (TX) */
+            Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
             /* this one calls write */
             ciaaDriverUart_txConfirmation(device);
+            /* enable THRE irq (TX) */
+            Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
             ret = 0;
             break;
 
@@ -259,7 +264,7 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
 {
    int32_t ret = -1;
    uint8_t i;
-   ciaaDriverUartControl * pBuf;
+   ciaaDriverUartControl * pUartControl;
 
    if(size != 0)
    {
@@ -267,23 +272,23 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
          (device == ciaaDriverUartConst.devices[1]) ||
          (device == ciaaDriverUartConst.devices[2]) )
       {
-         pBuf = (ciaaDriverUartControl *)device->layer;
+         pUartControl = (ciaaDriverUartControl *)device->layer;
 
-         if(size > pBuf->rxcnt)
+         if(size > pUartControl->rxcnt)
          {
             /* buffer has enough space */
-            ret = pBuf->rxcnt;
-            pBuf->rxcnt = 0;
+            ret = pUartControl->rxcnt;
+            pUartControl->rxcnt = 0;
          }
          else
          {
             /* buffer hasn't enough space */
             ret = size;
-            pBuf->rxcnt -= size;
+            pUartControl->rxcnt -= size;
          }
          for(i = 0; i < ret; i++)
          {
-            buffer[i] = pBuf->hwbuf[i];
+            buffer[i] = pUartControl->hwbuf[i];
          }
       }
    }

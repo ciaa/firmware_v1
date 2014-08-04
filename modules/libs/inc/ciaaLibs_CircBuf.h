@@ -189,6 +189,17 @@ extern "C" {
 #define ciaaLibs_circBufFull(cbuf)                   \
    ( ( ( (cbuf)->tail + 1 ) & ( (cbuf)->size ) ) == (cbuf)->head )
 
+/** \brief cleans the buffer
+ **
+ ** \param[in] cbuf pointer to the circular buffer
+ ** \return none
+ **/
+#define ciaaLibs_circBufClean(cbuf)                   \
+   {                                   \
+      (cbuf)->head = 0;                \
+      (cbuf)->tail = 0;                \
+   }
+
 /*==================[typedef]================================================*/
 /** \brief circular buffer type
  **
