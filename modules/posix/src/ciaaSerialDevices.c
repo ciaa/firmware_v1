@@ -265,7 +265,7 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
    if (!ciaaLibs_circBufEmpty(&serialDevice->rxBuf))
    {
       /* try to read nbyte from rxBuf and store it to the user buffer */
-	  ret = ciaaLibs_circBufGet(&serialDevice->rxBuf,
+      ret = ciaaLibs_circBufGet(&serialDevice->rxBuf,
             buf,
             nbyte);
    }
