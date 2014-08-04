@@ -1,4 +1,6 @@
 /* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Pablo Ridolfi (UTN-FRBA)
+ * Copyright 2014, Juan Cecconi
  *
  * This file is part of CIAA Firmware.
  *
@@ -48,6 +50,8 @@
  * ---------------------------
  * EzEs         Ezequiel Esposito
  * MaCe         Mariano Cerdeiro
+ * PaRi         Pablo Ridolfi
+ * JuCe         Juan Cecconi
  */
 
 /*
@@ -177,7 +181,17 @@ extern "C" {
 #define ciaaFIFO_TRIGGER_LEVEL2     (2 << 6)       /*!< UART FIFO trigger level 2: 8 character */
 #define ciaaFIFO_TRIGGER_LEVEL3     (3 << 6)       /*!< UART FIFO trigger level 3: 14 character */
 
+/** \brief set Enabled/Disabled TX Interrupt for serial devices
+ **
+ ** This ioctl command is used to set Enabled/Disabled TX Interrupt for any serial device.
+ ** Possible values for arg are:
+ **   true (Enabled)
+ **   false (Enabled)
+ **
+ ** Returned none
+ **/
 #define ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT        7
+
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
