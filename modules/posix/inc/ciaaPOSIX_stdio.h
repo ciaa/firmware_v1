@@ -192,6 +192,17 @@ extern "C" {
  **/
 #define ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT        7
 
+/** \brief set Enabled/Disabled RX Interrupt for serial devices
+ **
+ ** This ioctl command is used to set Enabled/Disabled RX Interrupt for any serial device.
+ ** Possible values for arg are:
+ **   true (Enabled)
+ **   false (Enabled)
+ **
+ ** Returned none
+ **/
+#define ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT        8
+
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/

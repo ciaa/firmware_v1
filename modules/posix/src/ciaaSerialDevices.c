@@ -271,9 +271,15 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
    }
    else
    {
+      /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
+      serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT, (void*)false);
+
       /* get task id and function for waking up the task later */
       GetTaskID(&serialDevice->blocked.taskID);
       serialDevice->blocked.fct = (void*) ciaaSerialDevices_read;
+
+      /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
+      serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT, (void*)true);
 
       /* if no data wait for it */
       WaitEvent(POSIXE);
@@ -303,9 +309,6 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
 
    do
    {
-      /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
-      serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)false);
-
       /* read head and space */
       head = cbuf->head;
       space = ciaaLibs_circBufSpace(cbuf, head);
@@ -329,6 +332,8 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
 
          /* set the task to sleep until some data have been send */
 
+         /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
+         serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)false);
          /* get task id and function for waking up the task later */
          GetTaskID(&serialDevice->blocked.taskID);
          serialDevice->blocked.fct = (void*) ciaaSerialDevices_write;
@@ -339,11 +344,6 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
          WaitEvent(POSIXE);
          ClearEvent(POSIXE);
       }
-      else
-      {
-         serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)true);
-      }
-
    }
    while (total < nbyte);
 
@@ -430,10 +430,6 @@ extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const 
    {
       if ((read == rawSpace) && (space <= rawSpace))
       {
-         /* TODO remove thes lines, are only to allow the set of a breakpoint */
-         /* see https://github.com/ciaa/Firmware/issues/88 */
-         read++;
-         read--;
          /* data may be lost because not place on the receive buffer */
          /* TODO */
       }

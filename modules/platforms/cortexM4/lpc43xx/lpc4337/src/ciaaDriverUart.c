@@ -240,10 +240,12 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
       switch(request)
       {
          case ciaaPOSIX_IOCTL_STARTTX:
-            /* this one calls write,
-             * TX Interrupt should be disabled previously
-             * TX Interrupt should be enable after STARTTX*/
+            /* disable THRE irq (TX) */
+            Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
+            /* this one calls write */
             ciaaDriverUart_txConfirmation(device);
+            /* enable THRE irq (TX) */
+            Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
             ret = 0;
             break;
 
@@ -263,6 +265,17 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
             {
                /* enable THRE irq (TX) */
                Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
+            }
+            case ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT:
+            if((bool)param == false)
+            {
+               /* disable RBR irq (RX) */
+               Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_RBRINT);
+            }
+            else
+            {
+               /* enable RBR irq (RX) */
+               Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_RBRINT);
             }
         	break;
       }
@@ -302,7 +315,7 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
          }
          if(pUartControl->rxcnt != 0)
          {
-            /* We remove data from the buffer, it is time to reorder it */
+            /* We removed data from the buffer, it is time to reorder it */
             for(i = 0; i < pUartControl->rxcnt ; i++)
             {
                pUartControl->hwbuf[i] = pUartControl->hwbuf[i + ret];
