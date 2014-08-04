@@ -1,0 +1,64 @@
+OSEK OSEK {
+
+OS	ExampleOS {
+    STATUS = EXTENDED;
+    ERRORHOOK = TRUE;
+};
+
+TASK InitTask {
+    PRIORITY = 1;
+    ACTIVATION = 1;
+    AUTOSTART = TRUE {
+        APPMODE = AppMode1;
+    }
+    STACK = 512;
+    TYPE = BASIC;
+    SCHEDULE = NON;
+    RESOURCE = POSIXR;
+    EVENT = POSIXE;
+}
+
+TASK ReceiveTask {
+    PRIORITY = 10;
+    ACTIVATION = 1;
+    STACK = 512;
+    TYPE = EXTENDED;
+    SCHEDULE = FULL;
+    RESOURCE = POSIXR;
+    EVENT = POSIXE;
+}
+
+RESOURCE = POSIXR;
+
+EVENT = POSIXE;
+
+APPMODE = AppMode1;
+
+COUNTER HardwareCounter {
+   MAXALLOWEDVALUE = 100;
+   TICKSPERBASE = 1;
+   MINCYCLE = 1;
+   TYPE = HARDWARE;
+   COUNTER = HWCOUNTER0;
+};
+
+COUNTER SoftwareCounter {
+   MAXALLOWEDVALUE = 1000;
+   TICKSPERBASE = 1;
+   MINCYCLE = 1;
+   TYPE = SOFTWARE;
+};
+
+ALARM IncrementSWCounter {
+   COUNTER = HardwareCounter;
+   ACTION = INCREMENT {
+      COUNTER = SoftwareCounter;
+   };
+   AUTOSTART = TRUE {
+      APPMODE = AppMode1;
+      ALARMTIME = 1;
+      CYCLETIME = 1;
+   };
+};
+
+};
