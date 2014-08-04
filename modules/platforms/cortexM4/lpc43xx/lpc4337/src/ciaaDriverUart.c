@@ -260,19 +260,18 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
       {
          if(device == ciaaDriverUartConst.devices[i])
          {
-            /* rxcnt is a flag used to return the current byte read only once */
-        	if(size > rxcnt[i])
-        	{
-        		/* buffer has enough space */
-        		ret = rxcnt[i];
-        		rxcnt[i] = 0;
-        	}
-        	else
-        	{
-        		/* buffer hasn't enough space */
-        		ret = size;
-        		rxcnt[i] -= size;
-        	}
+            if(size > rxcnt[i])
+            {
+               /* buffer has enough space */
+               ret = rxcnt[i];
+               rxcnt[i] = 0;
+            }
+            else
+            {
+               /* buffer hasn't enough space */
+               ret = size;
+               rxcnt[i] -= size;
+            }
             for(j=0 ; j < ret ; j++)
             {
               buffer[j] = hwbuf[i][j];
@@ -292,7 +291,7 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
       (device == ciaaDriverUartConst.devices[1]) ||
       (device == ciaaDriverUartConst.devices[2]) )
    {
-      while(Chip_UART_ReadLineStatus((LPC_USART_T *)device->loLayer) & UART_LSR_THRE && ret < size)
+      while((Chip_UART_ReadLineStatus((LPC_USART_T *)device->loLayer) & UART_LSR_THRE) && (ret < size))
       {
          /* send first byte */
          Chip_UART_SendByte((LPC_USART_T *)device->loLayer, buffer[ret]);
@@ -332,11 +331,13 @@ void UART0_IRQHandler(void)
 
    if(status & UART_LSR_RDR)
    {
-	   do{
-		   hwbuf[0][rxcnt[0]] = Chip_UART_ReadByte(LPC_USART0);
-		   rxcnt[0]++;
-	   }while((Chip_UART_ReadLineStatus(LPC_USART0) & UART_LSR_RDR) && (rxcnt[0] < UART_RX_FIFO_SIZE));
-       ciaaDriverUart_rxIndication(&ciaaDriverUart_device0, rxcnt[0]);
+      do
+      {
+         hwbuf[0][rxcnt[0]] = Chip_UART_ReadByte(LPC_USART0);
+         rxcnt[0]++;
+      }while((Chip_UART_ReadLineStatus(LPC_USART0) & UART_LSR_RDR) && (rxcnt[0] < UART_RX_FIFO_SIZE));
+
+      ciaaDriverUart_rxIndication(&ciaaDriverUart_device0, rxcnt[0]);
    }
    if((status & UART_LSR_THRE) && (Chip_UART_GetIntsEnabled(LPC_USART0) & UART_IER_THREINT))
    {
@@ -357,11 +358,13 @@ void UART2_IRQHandler(void)
 
    if(status & UART_LSR_RDR)
    {
-	   do{
-		   hwbuf[1][rxcnt[1]] = Chip_UART_ReadByte(LPC_USART2);
-		   rxcnt[1]++;
-	   }while((Chip_UART_ReadLineStatus(LPC_USART2) & UART_LSR_RDR) && (rxcnt[1] < UART_RX_FIFO_SIZE));
-       ciaaDriverUart_rxIndication(&ciaaDriverUart_device1, rxcnt[1]);
+      do
+      {
+         hwbuf[1][rxcnt[1]] = Chip_UART_ReadByte(LPC_USART2);
+         rxcnt[1]++;
+      }while((Chip_UART_ReadLineStatus(LPC_USART2) & UART_LSR_RDR) && (rxcnt[1] < UART_RX_FIFO_SIZE));
+
+      ciaaDriverUart_rxIndication(&ciaaDriverUart_device1, rxcnt[1]);
    }
    if((status & UART_LSR_THRE) && (Chip_UART_GetIntsEnabled(LPC_USART2) & UART_IER_THREINT))
    {
@@ -382,11 +385,13 @@ void UART3_IRQHandler(void)
 
    if(status & UART_LSR_RDR)
    {
-	   do{
-		   hwbuf[2][rxcnt[2]] = Chip_UART_ReadByte(LPC_USART3);
-		   rxcnt[2]++;
-	   }while((Chip_UART_ReadLineStatus(LPC_USART2) & UART_LSR_RDR) && (rxcnt[2] < UART_RX_FIFO_SIZE));
-       ciaaDriverUart_rxIndication(&ciaaDriverUart_device2, rxcnt[2]);
+      do
+      {
+         hwbuf[2][rxcnt[2]] = Chip_UART_ReadByte(LPC_USART3);
+         rxcnt[2]++;
+      }while((Chip_UART_ReadLineStatus(LPC_USART2) & UART_LSR_RDR) && (rxcnt[2] < UART_RX_FIFO_SIZE));
+
+      ciaaDriverUart_rxIndication(&ciaaDriverUart_device2, rxcnt[2]);
    }
    if((status & UART_LSR_THRE) && (Chip_UART_GetIntsEnabled(LPC_USART3) & UART_IER_THREINT))
    {
