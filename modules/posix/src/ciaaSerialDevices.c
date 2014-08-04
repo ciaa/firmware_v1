@@ -295,13 +295,15 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
    /* get serial device */
    ciaaSerialDevices_deviceType * serialDevice =
       (ciaaSerialDevices_deviceType*) device->layer;
-   int32_t ret = 0, total = 0;
+   int32_t ret = 0;
+   int32_t total = 0;
    ciaaLibs_CircBufType * cbuf = &serialDevice->txBuf;
    int32_t head;
    uint32_t space;
 
    do
    {
+      /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
       serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)false);
 
       /* read head and space */
@@ -310,6 +312,7 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
 
       /* put bytes in the queue */
       ret = ciaaLibs_circBufPut(cbuf, buf, ciaaLibs_min(nbyte-total, space));
+      /* update total of written bytes */
       total += ret;
 
       /* starts the transmission if not already ongoing */
@@ -330,6 +333,7 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
          GetTaskID(&serialDevice->blocked.taskID);
          serialDevice->blocked.fct = (void*) ciaaSerialDevices_write;
 
+         /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
          serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)true);
          /* wait to write all data or for the txConfirmation */
          WaitEvent(POSIXE);
@@ -343,7 +347,7 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
    }
    while (total < nbyte);
 
-   return ret;
+   return total;
 }
 
 extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
