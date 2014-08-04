@@ -300,6 +300,14 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
          {
             buffer[i] = pUartControl->hwbuf[i];
          }
+         if(pUartControl->rxcnt != 0)
+         {
+            /* We remove data from the buffer, it is time to reorder it */
+            for(i = 0; i < pUartControl->rxcnt ; i++)
+            {
+               pUartControl->hwbuf[i] = pUartControl->hwbuf[i + ret];
+            }
+         }
       }
    }
    return ret;
