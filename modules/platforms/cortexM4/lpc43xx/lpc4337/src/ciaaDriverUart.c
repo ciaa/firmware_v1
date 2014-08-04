@@ -1,4 +1,5 @@
 /* Copyright 2014, Pablo Ridolfi (UTN-FRBA)
+ * Copyright 2014, Juan Cecconi
  *
  * This file is part of CIAA Firmware.
  *
@@ -46,7 +47,8 @@
 /*
  * Initials     Name
  * ---------------------------
- * PR           Pablo Ridolfi
+ * PaRi         Pablo Ridolfi
+ * JuCe         Juan Cecconi
  */
 
 /*
@@ -222,10 +224,8 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevic
 
 extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
-   /* disable rx interrupt */
-   Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_RBRINT);
-   /* disable rx interrupt */
-   Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
+   /* disable tx and rx interrupt */
+   Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_THREINT | UART_IER_RBRINT);
    return 0;
 }
 
@@ -240,12 +240,10 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
       switch(request)
       {
          case ciaaPOSIX_IOCTL_STARTTX:
-            /* disable THRE irq (TX) */
-            Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
-            /* this one calls write */
+            /* this one calls write,
+             * TX Interrupt should be disabled previously
+             * TX Interrupt should be enable after STARTTX*/
             ciaaDriverUart_txConfirmation(device);
-            /* enable THRE irq (TX) */
-            Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
             ret = 0;
             break;
 
@@ -253,8 +251,20 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
             ret = Chip_UART_SetBaud((LPC_USART_T *)device->loLayer,  (int32_t)param);
             break;
          case ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL:
-        	 Chip_UART_SetupFIFOS((LPC_USART_T *)device->loLayer,  UART_FCR_FIFO_EN | UART_FCR_TX_RS | UART_FCR_RX_RS | (int32_t)param);
+            Chip_UART_SetupFIFOS((LPC_USART_T *)device->loLayer,  UART_FCR_FIFO_EN | UART_FCR_TX_RS | UART_FCR_RX_RS | (int32_t)param);
             break;
+         case ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT:
+            if((bool)param == false)
+            {
+               /* disable THRE irq (TX) */
+               Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
+            }
+            else
+            {
+               /* enable THRE irq (TX) */
+               Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
+            }
+        	break;
       }
    }
    return ret;
@@ -307,11 +317,6 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
       {
          /* send first byte */
          Chip_UART_SendByte((LPC_USART_T *)device->loLayer, buffer[ret]);
-         /* enable Tx Holding Register Empty interrupt only the first time*/
-         if(ret == 0)
-         {
-            Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
-         }
          /* bytes written */
          ret++;
       }
@@ -354,10 +359,13 @@ void UART0_IRQHandler(void)
    }
    if((status & UART_LSR_THRE) && (Chip_UART_GetIntsEnabled(LPC_USART0) & UART_IER_THREINT))
    {
-      /* disable THRE irq */
-      Chip_UART_IntDisable(LPC_USART0, UART_IER_THREINT);
       /* tx confirmation, 1 byte sent */
       ciaaDriverUart_txConfirmation(&ciaaDriverUart_device0);
+
+      if(Chip_UART_ReadLineStatus(LPC_USART0) & UART_LSR_THRE)
+      {  /* There is not more bytes to send, disable THRE irq */
+         Chip_UART_IntDisable(LPC_USART0, UART_IER_THREINT);
+      }
    }
    ActualContext = ctx;
 }
@@ -382,10 +390,13 @@ void UART2_IRQHandler(void)
    }
    if((status & UART_LSR_THRE) && (Chip_UART_GetIntsEnabled(LPC_USART2) & UART_IER_THREINT))
    {
-      /* disable THRE irq */
-      Chip_UART_IntDisable(LPC_USART2, UART_IER_THREINT);
       /* tx confirmation, 1 byte sent */
       ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
+
+      if(Chip_UART_ReadLineStatus(LPC_USART2) & UART_LSR_THRE)
+      {  /* There is not more bytes to send, disable THRE irq */
+         Chip_UART_IntDisable(LPC_USART2, UART_IER_THREINT);
+      }
    }
    ActualContext = ctx;
 }
@@ -410,10 +421,13 @@ void UART3_IRQHandler(void)
    }
    if((status & UART_LSR_THRE) && (Chip_UART_GetIntsEnabled(LPC_USART3) & UART_IER_THREINT))
    {
-      /* disable THRE irq */
-      Chip_UART_IntDisable(LPC_USART3, UART_IER_THREINT);
       /* tx confirmation, 1 byte sent */
       ciaaDriverUart_txConfirmation(&ciaaDriverUart_device2);
+
+      if(Chip_UART_ReadLineStatus(LPC_USART3) & UART_LSR_THRE)
+      {  /* There is not more bytes to send, disable THRE irq */
+         Chip_UART_IntDisable(LPC_USART3, UART_IER_THREINT);
+      }
    }
    ActualContext = ctx;
 }

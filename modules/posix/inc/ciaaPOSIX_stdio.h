@@ -177,6 +177,7 @@ extern "C" {
 #define ciaaFIFO_TRIGGER_LEVEL2     (2 << 6)       /*!< UART FIFO trigger level 2: 8 character */
 #define ciaaFIFO_TRIGGER_LEVEL3     (3 << 6)       /*!< UART FIFO trigger level 3: 14 character */
 
+#define ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT        7
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/

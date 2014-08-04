@@ -1,4 +1,5 @@
 /* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  *
  * This file is part of CIAA Firmware.
  *
@@ -45,6 +46,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi
  */
 
 /*
@@ -293,19 +295,22 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
    /* get serial device */
    ciaaSerialDevices_deviceType * serialDevice =
       (ciaaSerialDevices_deviceType*) device->layer;
-   int32_t ret = 0;
+   int32_t ret = 0, total = 0;
    ciaaLibs_CircBufType * cbuf = &serialDevice->txBuf;
    int32_t head;
    uint32_t space;
 
    do
    {
+      serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)false);
+
       /* read head and space */
       head = cbuf->head;
       space = ciaaLibs_circBufSpace(cbuf, head);
 
       /* put bytes in the queue */
-      ret += ciaaLibs_circBufPut(cbuf, buf, ciaaLibs_min(nbyte-ret, space));
+      ret = ciaaLibs_circBufPut(cbuf, buf, ciaaLibs_min(nbyte-total, space));
+      total += ret;
 
       /* starts the transmission if not already ongoing */
       serialDevice->device->ioctl(
@@ -314,7 +319,7 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
             NULL);
 
       /* if not all bytes could be stored in the buffer */
-      if (ret < nbyte)
+      if (total < nbyte)
       {
          /* increment buffer */
          buf += ret;
@@ -325,12 +330,18 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
          GetTaskID(&serialDevice->blocked.taskID);
          serialDevice->blocked.fct = (void*) ciaaSerialDevices_write;
 
+         serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)true);
          /* wait to write all data or for the txConfirmation */
          WaitEvent(POSIXE);
          ClearEvent(POSIXE);
       }
+      else
+      {
+         serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)true);
+      }
+
    }
-   while (ret < nbyte);
+   while (total < nbyte);
 
    return ret;
 }
@@ -350,13 +361,11 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
    /* if some data have to be transmitted */
    if (count > 0)
    {
-      SuspendAllInterrupts();
       /* write data to the driver */
       write = serialDevice->device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
 
       /* update buffer */
       ciaaLibs_circBufUpdateHead(cbuf, write);
-      ResumeAllInterrupts();
 
       /* if all bytes were written and more data is available */
       if ( (write == rawCount) && (count > rawCount ) )
@@ -372,22 +381,21 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
          {
             /* update buffer */
             ciaaLibs_circBufUpdateHead(cbuf, write);
-
-            /* if task is blocked and waiting for reception of this device */
-            if ( (255 != taskID) &&
-                  (serialDevice->blocked.fct ==
-                   (void*) ciaaSerialDevices_read) )
-            {
-               /* invalidate task id */
-               serialDevice->blocked.taskID = 255; /* TODO add a macro */
-
-               /* reset function */
-               serialDevice->blocked.fct = NULL;
-
-               /* set task event */
-               SetEvent(taskID, POSIXE);
-            }
          }
+      }
+      /* if task is blocked and waiting for reception of this device */
+      if ( (255 != taskID) &&
+            (serialDevice->blocked.fct ==
+             (void*) ciaaSerialDevices_write) )
+      {
+         /* invalidate task id */
+         serialDevice->blocked.taskID = 255; /* TODO add a macro */
+
+         /* reset function */
+         serialDevice->blocked.fct = NULL;
+
+         /* set task event */
+         SetEvent(taskID, POSIXE);
       }
    }
 }
