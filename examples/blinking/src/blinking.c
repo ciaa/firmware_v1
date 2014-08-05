@@ -58,11 +58,11 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "os.h"
-#include "ciaaPOSIX_stdio.h"
-#include "ciaaPOSIX_string.h"
-#include "ciaak.h"
-#include "blinking.h"
+#include "os.h"               /* <= operating system header */
+#include "ciaaPOSIX_stdio.h"  /* <= device handler header */
+#include "ciaaPOSIX_string.h" /* <= string header */
+#include "ciaak.h"            /* <= ciaa kernel header */
+#include "blinking.h"         /* <= own header */
 
 /*==================[macros and definitions]=================================*/
 
@@ -71,10 +71,28 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-
+/** \brief File descriptor of input ports
+ *
+ * Device path /dev/dio/in/0
+ */
 static int32_t fd_in;
+
+/** \brief File descriptor for output ports
+ *
+ * Device path /dev/dio/out/0
+ */
 static int32_t fd_out;
+
+/** \brief File descriptor of the USB uart
+ *
+ * Device path /dev/serial/uart/1
+ */
 static int32_t fd_uart1;
+
+/** \brief File descriptor of the RS232 uart
+ *
+ * Device path /dev/serial/uart/2
+ */
 static int32_t fd_uart2;
 
 /*==================[external data definition]===============================*/
@@ -82,12 +100,44 @@ static int32_t fd_uart2;
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+/** \brief Main function
+ *
+ * This is the main entry point of the software.
+ *
+ * \returns 0
+ *
+ * \remarks This function never returns. Return value is only to avoid compiler
+ *          warnings or errors.
+ */
 int main(void)
 {
+   /* Starts the operating system in the Application Mode 1 */
+   /* This example has only one Application Mode */
    StartOS(AppMode1);
+
+   /* StartOs shall never returns, but to avoid compiler warnings or errors
+    * 0 is returned */
    return 0;
 }
 
+/** \brief Error Hook function
+ *
+ * This fucntion is called from the os if an os interface (API) returns an
+ * error. Is for debugging proposes. If called this function triggers a
+ * ShutdownOs which ends in a while(1).
+ *
+ * The values:
+ *    OSErrorGetServiceId
+ *    OSErrorGetParam1
+ *    OSErrorGetParam2
+ *    OSErrorGetParam3
+ *    OSErrorGetRet
+ *
+ * will provide you the interface, the input parameters and the returned value.
+ * For more details see the OSEK specification:
+ * http://portal.osek-vdx.org/files/pdf/specs/os223.pdf
+ *
+ */
 void ErrorHook(void)
 {
    ciaaPOSIX_printf("ErrorHook was called\n");
@@ -95,6 +145,10 @@ void ErrorHook(void)
    ShutdownOS(0);
 }
 
+/** \brief Initial task
+ *
+ * This task is started automatically in the application mode 1.
+ */
 TASK(InitTask)
 {
    /* init CIAA kernel and devices */
@@ -121,12 +175,19 @@ TASK(InitTask)
    /* activate example tasks */
    SetRelAlarm(ActivatePeriodicTask, 200, 200);
 
+   /* Activates the SerialEchoTask task */
    ActivateTask(SerialEchoTask);
 
    /* end InitTask */
    TerminateTask();
 }
 
+/** \brief Serial Echo Task
+ *
+ * This tasks waits for input data from fd_uart1 and writes the received data
+ * to fd_uart1 and fd_uart2. This taks alos blinkgs the output 5.
+ *
+ */
 TASK(SerialEchoTask)
 {
    int8_t buf[20];
@@ -139,12 +200,6 @@ TASK(SerialEchoTask)
 
    while(1)
    {
-      /* rx count test */
-      ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_GET_RX_COUNT, &ret);
-
-      /* tx space test */
-      ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_GET_TX_SPACE, &ret);
-
       /* wait for any character ... */
       ret = ciaaPOSIX_read(fd_uart1, buf, 20);
 
@@ -164,6 +219,12 @@ TASK(SerialEchoTask)
    }
 }
 
+/** \brief Periodic Task
+ *
+ * This task is activated by the Alarm ActivatePeriodicTask.
+ * This task copy the status of the inputs bits 0..3 to the output bits 0..3.
+ * This task also blink the output 4 */
+ */
 TASK(PeriodicTask)
 {
    /*
