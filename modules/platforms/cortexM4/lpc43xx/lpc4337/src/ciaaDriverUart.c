@@ -252,9 +252,11 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
          case ciaaPOSIX_IOCTL_SET_BAUDRATE:
             ret = Chip_UART_SetBaud((LPC_USART_T *)device->loLayer,  (int32_t)param);
             break;
+
          case ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL:
             Chip_UART_SetupFIFOS((LPC_USART_T *)device->loLayer,  UART_FCR_FIFO_EN | UART_FCR_TX_RS | UART_FCR_RX_RS | (int32_t)param);
             break;
+
          case ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT:
             if((bool)param == false)
             {
@@ -266,7 +268,9 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
                /* enable THRE irq (TX) */
                Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
             }
-            case ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT:
+            break;
+
+         case ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT:
             if((bool)param == false)
             {
                /* disable RBR irq (RX) */
