@@ -32,7 +32,7 @@
 #
 ###############################################################################
 # Project Name: used for Project Path and OSEK configuration file
-project 			 	 = receive
+project 			 	 = uart_receive
 # Project path
 $(project)_PATH   	 = $(ROOT_DIR)$(DS)modules$(DS)systests$(DS)$(project)
 # source path

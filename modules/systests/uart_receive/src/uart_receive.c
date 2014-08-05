@@ -47,6 +47,8 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * GMuro        Gustavo Muro
+ *
  */
 
 /*
@@ -60,7 +62,7 @@
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
 #include "ciaak.h"
-#include "receive.h"
+#include "uart_receive.h"
 
 /*==================[macros and definitions]=================================*/
 
