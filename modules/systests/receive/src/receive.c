@@ -118,6 +118,7 @@ TASK(ReceiveTask)
    int32_t ret;
    uint8_t check = '0';
    uint32_t loopi;
+   uint32_t errorCount = 0;
 
    while(1)
    {
@@ -128,9 +129,14 @@ TASK(ReceiveTask)
       {
          if (buf[loopi] != check)
          {
-            while(1) {
-               /* there has been an error :( */
-               /* TODO report this to the application in the pc? */
+            /* there has been an error :( */
+            /* TODO report this to the application in the pc? */
+
+            /* increment errroCount and resynchronize check */
+            errorCount++;
+            if ( ('0' <= buf[loopi]) && ('9' >= buf[loopi]) )
+            {
+               check = buf[loopi];
             }
          }
 
