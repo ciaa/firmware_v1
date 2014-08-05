@@ -1,3 +1,10 @@
+/*  Blinking example OIL configuration file                                               */
+/*                                                                                        */
+/*  This file describes the current OSEK configuration.                                   */
+/*  References:                                                                           */
+/*  - OSEK OS standard: http://portal.osek-vdx.org/files/pdf/specs/os223.pdf              */
+/*  - OSEK OIL standard: http://portal.osek-vdx.org/files/pdf/specs/oil25.pdf             */                                                                                      
+                                                                                         
 OSEK OSEK {
 
 OS	ExampleOS {
@@ -26,9 +33,6 @@ TASK SerialEchoTask {
     SCHEDULE = FULL;
     EVENT = POSIXE;
     RESOURCE = POSIXR;
-    AUTOSTART = TRUE {
-        APPMODE = AppMode2;
-    }
 }
 
 TASK PeriodicTask {
@@ -56,7 +60,6 @@ RESOURCE = POSIXR;
 EVENT = POSIXE;
 
 APPMODE = AppMode1;
-APPMODE = AppMode2;
 
 COUNTER HardwareCounter {
    MAXALLOWEDVALUE = 100;

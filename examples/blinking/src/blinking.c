@@ -71,13 +71,13 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-/** \brief File descriptor of input ports
+/** \brief File descriptor for digital input ports
  *
  * Device path /dev/dio/in/0
  */
 static int32_t fd_in;
 
-/** \brief File descriptor for output ports
+/** \brief File descriptor for digital output ports
  *
  * Device path /dev/dio/out/0
  */
@@ -190,9 +190,9 @@ TASK(InitTask)
  */
 TASK(SerialEchoTask)
 {
-   int8_t buf[20];
-   uint8_t outputs;
-   int32_t ret;
+   int8_t buf[20];   /* buffer for uart operation              */
+   uint8_t outputs;  /* to store outputs status                */
+   int32_t ret;      /* return value variable for posix calls  */
 
    /* send a message to the world :) */
    char message[] = "Hi! :)\nSerialEchoTask: Waiting for characters...\n";
@@ -222,8 +222,8 @@ TASK(SerialEchoTask)
 /** \brief Periodic Task
  *
  * This task is activated by the Alarm ActivatePeriodicTask.
- * This task copy the status of the inputs bits 0..3 to the output bits 0..3.
- * This task also blink the output 4 */
+ * This task copies the status of the inputs bits 0..3 to the output bits 0..3.
+ * This task also blinks the output 4
  */
 TASK(PeriodicTask)
 {
@@ -233,6 +233,7 @@ TASK(PeriodicTask)
     *    Blink output 4
     */
 
+   /* variables to store input/output status */
    uint8_t inputs = 0, outputs = 0;
 
    /* read inputs */
