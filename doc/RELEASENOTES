@@ -1,6 +1,22 @@
 /** \page RELEASENOTES Release Notes
- ** 
- ** CIAA Firmware 1.0.0 (8.8.2014)
  **
+ ** CIAA Firmware 0.2.0 (8.8.2014)
+ **   First official release of CIAA Firmware.
+ **   This release contains 2 examples:
+ **      - blinking: uses only OSEK RTOS and blinks
+ **      - blinking_modbus: example using modbus
+ **   Release has been checked (not fully tested)
+ **      - CIAA-NXP 1.0.0
+ **      - Ubuntu 64 bits
+ **      - Windows 32 bits
+ **   Known Limitations:
+ **      - OSEK RTOS has not been fully tested
+ **         see https://github.com/ciaa/Firmware/labels/OSEK%20RTOS
+ **      - ModBus ASCII time limiation:
+ **         https://github.com/ciaa/Firmware/issues/64
+ **
+ ** CIAA Firmware 0.1.0 (30.6.2014)
+ **   Pre version of CIAA Firmware. Do not use this version, was only done to
+ **   check the release process.
  **/
 
