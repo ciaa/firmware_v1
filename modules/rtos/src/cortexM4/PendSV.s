@@ -65,12 +65,12 @@
 /* Pendable Service Call, used for context-switching in all Cortex-M processors */
 PendSV_Handler:
 	/* disable IRQs */
-	/*cpsid f*/
+	cpsid f
 
 	/* reinicio el stack de la tarea que termino */
-   push {lr}
-   bl CheckTerminatingTask_Arch
-   pop {lr}
+   	push {lr}
+   	bl CheckTerminatingTask_Arch
+   	pop {lr}
 
 	/* uso el sp correspondiente, segun si vengo de user o kernel */
 	tst lr,4
@@ -126,6 +126,6 @@ PendSV_Handler:
 	msr control,r1
 
 	/* enable IRQs */
-	/*cpsie f*/
+	cpsie f
 
 	bx lr
