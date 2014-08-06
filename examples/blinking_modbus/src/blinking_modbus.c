@@ -1,6 +1,5 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -32,7 +31,7 @@
  *
  */
 
-/** \brief Blinking example source file
+/** \brief Blinking Modbus example source file
  **
  ** This is a mini example of the CIAA Firmware
  **
@@ -42,19 +41,21 @@
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Blinking Blinking example source file
+/** \addtogroup Blinking_Modbus Blinking Modbus example source file
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
+ * MaCe         Mariano Cerdeiro
+ * GMuro        Gustavo Muro
  *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140805 v0.0.1   GMuro first functional version
  */
 
 /*==================[inclusions]=============================================*/
@@ -65,11 +66,17 @@
 #include "blinking_modbus.h"
 
 /*==================[macros and definitions]=================================*/
-
-/* input registers addresses */
+/** \brief Modbus Address for Input Register
+ *
+ * Input Register address: 0x0000
+ */
 #define MODBUS_ADDR_IR_INPUT_REG_VAL      0x0000
 
-/* holding registers addresses */
+/** \brief Holding Registers Addresses
+ *
+ * Holding Register Inputs:   0x0000
+ * Holding Register Outputs:  0x0001
+ */
 #define MODBUS_ADDR_HR_CIAA_INPUTS        0X0000
 #define MODBUS_ADDR_HR_CIAA_OUTPUTS       0X0001
 
@@ -78,9 +85,7 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-
-/*
- * Modbus Map
+/** \brief Inputs registers variables
  *
  * Input Registers:
  * Accessed through:
@@ -88,24 +93,39 @@
  *   address      ---------------------
  *   0x0000      |   inputRegVal       |
  *                ---------------------
+ */
+static uint16_t inputRegVal;
+
+/** \brief Holding Register Input
  *
- * Holding Registers:
+ * Holding Register Inputs Variable
+ * Accessed through:
+ *             - 0x03 Read Holding Register
+ *             - 0x17 Read/Write multiple Register
+ */
+static uint16_t hr_ciaaInputs;
+
+/** \brief Holding Register Output
+ *
+ * Holding Register Output Variable
  * Accessed through:
  *             - 0x03 Read Holding Register
  *             - 0x06 Write single Register
  *             - 0x10 Write multiple Register
  *             - 0x17 Read/Write multiple Register
- *   address      ---------------------
- *   0x0000      |  hr_ciaaInputs      |
- *   0x0001      |  hr_ciaaOutputs     |
- *                ---------------------
  */
-
-static uint16_t inputRegVal;
-static uint16_t hr_ciaaInputs;
 static uint16_t hr_ciaaOutputs;
 
+/** \brief File descriptor for digital input ports
+ *
+ * Device path /dev/dio/in/0
+ */
 static int32_t fd_in;
+
+/** \brief File descriptor for digital output ports
+ *
+ * Device path /dev/dio/out/0
+ */
 static int32_t fd_out;
 
 
@@ -249,6 +269,7 @@ extern int8_t readHoldingRegisters(
          case MODBUS_ADDR_HR_CIAA_INPUTS:
             ciaaModbus_writeInt(buf, hr_ciaaInputs);
             countReg = 1;
+            hr_ciaaInputs ++;
             break;
 
          /* read outputs of CIAA */
