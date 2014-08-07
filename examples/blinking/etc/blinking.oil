@@ -1,5 +1,7 @@
 /* Copyright 2014, Mariano Cerdeiro                                          */
 /* Copyright 2014, Pablo Ridolfi                                             */
+/* Copyright 2014, Juan Cecconi                                              */
+/* Copyright 2014, Gustavo Muro                                              */
 /*                                                                           */
 /* This file is part of CIAA Firmware.                                       */
 /*                                                                           */
@@ -62,7 +64,7 @@ TASK InitTask {
 TASK SerialEchoTask {
     PRIORITY = 5;
     ACTIVATION = 1;
-    STACK = 512;
+    STACK = 388;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
     EVENT = POSIXE;
@@ -72,7 +74,7 @@ TASK SerialEchoTask {
 TASK PeriodicTask {
     PRIORITY = 10;
     ACTIVATION = 1;
-    STACK = 512;
+    STACK = 220;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
     RESOURCE = POSIXR;
