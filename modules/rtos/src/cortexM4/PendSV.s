@@ -68,9 +68,9 @@ PendSV_Handler:
 	cpsid f
 
 	/* reinicio el stack de la tarea que termino */
-   	push {lr}
-   	bl CheckTerminatingTask_Arch
-   	pop {lr}
+   push {lr}
+   bl CheckTerminatingTask_Arch
+   pop {lr}
 
 	/* uso el sp correspondiente, segun si vengo de user o kernel */
 	tst lr,4
@@ -119,8 +119,8 @@ PendSV_Handler:
 	/* modo thread -> privilegiado, usar MSP */
 	biceq r1,3
 	msreq msp,r0
-	/* modo thread -> no privilegiado, usar PSP */
-	orrne r1,3
+	/* modo thread -> privilegiado, usar PSP */
+	orrne r1,2
 	msrne psp,r0
 
 	msr control,r1
