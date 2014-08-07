@@ -5,14 +5,14 @@
  ** CIAA Firmware 0.2.0 (8.8.2014)
  **
  **   Following persons have invest a lot of effort and time to make
- **   CIAA Firmkware come true. We hope you enjoy it. :)
+ **   CIAA Firmware come true. We hope you enjoy it. :)
  **
  **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):
  **      - Port of OSEK RTOS to lpc4337
  **      - Implementation of UART Drivers
  **      - Implementation of DIO Drivers
  **
- **   - Juan Cecconi:
+ **   - Juan Cecconi (jcecconi@numetron.com.ar):
  **      - Port OpenOCD configuration for lpx4337
  **      - A lot of debugging of:
  **         - UART Drivers
@@ -24,8 +24,8 @@
  **      - Testing of Modbus with a HMI interface
  **
  **   - Mariano Cerdeiro (mcerdeiro@gmail.com):
- **      - Implement OSEK RTOS (reuse of FreeOSEK project)
- **      - Implement of POSIX Stack
+ **      - Implementation of OSEK RTOS (reuse of FreeOSEK project)
+ **      - Implementation of POSIX Stack
  **
  **/
 
