@@ -19,7 +19,7 @@
  **         - POSIX Stack
  **         - RTOS OSEK
  **
- **   - Gustavo Muro:
+ **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
  **      - Implement Modbus
  **      - Testing of Modbus with a HMI interface
  **
