@@ -138,12 +138,44 @@ static int32_t fd_out;
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+/** \brief Main function
+ *
+ * This is the main entry point of the software.
+ *
+ * \returns 0
+ *
+ * \remarks This function never returns. Return value is only to avoid compiler
+ *          warnings or errors.
+ */
 int main(void)
 {
+   /* Starts the operating system in the Application Mode 1 */
+   /* This example has only one Application Mode */
    StartOS(AppMode1);
+
+   /* StartOs shall never returns, but to avoid compiler warnings or errors
+    * 0 is returned */
    return 0;
 }
 
+/** \brief Error Hook function
+ *
+ * This fucntion is called from the os if an os interface (API) returns an
+ * error. Is for debugging proposes. If called this function triggers a
+ * ShutdownOs which ends in a while(1).
+ *
+ * The values:
+ *    OSErrorGetServiceId
+ *    OSErrorGetParam1
+ *    OSErrorGetParam2
+ *    OSErrorGetParam3
+ *    OSErrorGetRet
+ *
+ * will provide you the interface, the input parameters and the returned value.
+ * For more details see the OSEK specification:
+ * http://portal.osek-vdx.org/files/pdf/specs/os223.pdf
+ *
+ */
 void ErrorHook(void)
 {
    ciaaPOSIX_printf("ErrorHook was called\n");
@@ -151,7 +183,12 @@ void ErrorHook(void)
    ShutdownOS(0);
 }
 
-TASK(InitTask) {
+/** \brief Initial task
+ *
+ * This task is started automatically in the application mode 1.
+ */
+TASK(InitTask)
+{
    /* init the ciaa kernel */
    ciaak_start();
 
@@ -161,12 +198,20 @@ TASK(InitTask) {
    /* open CIAA digital outputs */
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
+   /* Activates the ModbusSlave task */
    ActivateTask(ModbusSlave);
 
-   /* terminate task */
+   /* end InitTask */
    TerminateTask();
 }
 
+/** \brief Blinking Task
+ *
+ * This task is activated by the Alarm BlinkingAlarm.
+ * This task blinks the output 4, copies hr_ciaaOutputs
+ * to the output bits 0..8.
+ * Read the input bits 0..8 and copies the value to hr_ciaaInputs
+ */
 TASK(Blinking)
 {
    uint8_t uint8Data;
@@ -180,13 +225,20 @@ TASK(Blinking)
 
    /* read inputs */
    ciaaPOSIX_read(fd_in, &uint8Data, sizeof(uint8Data));
-   //hr_ciaaInputs = uint8Data;
-   hr_ciaaInputs ++;
+   hr_ciaaInputs = uint8Data;
 
-   /* terminate task */
+   /* end of Blinking */
    TerminateTask();
 }
 
+/** \brief Modbus Slave Task
+ *
+ * This init serial port used in Modbus Slave and call
+ * ciaaModbus_slaveMainTask. This function is a
+ * forever loop that receive Modbus ASCII request, process
+ * and send Modbus ASCII response.
+ *
+ */
 TASK(ModbusSlave)
 {
    /* initialize modbus slave */
@@ -195,7 +247,8 @@ TASK(ModbusSlave)
    /* start modbus main task */
    ciaaModbus_slaveMainTask();
 
-   /* terminate task */
+   /* ciaaModbus_slaveMainTask shall never returns. Unless
+    * ciaaModbus_exit != 0 */
    TerminateTask();
 }
 
@@ -213,12 +266,18 @@ extern int8_t readInputRegisters(
    if ( (0x0000 == startingAddress) &&
         (0x01 == quantityOfInputRegisters) )
    {
+      /* write register in to buffer */
       ciaaModbus_writeInt(&buf[0], inputRegVal);
+
+      /* return quantity of registers writes */
       ret = 1;
    }
    else
    {
+      /* set exception code address wrong */
       *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
+
+      /* return -1 to indicate that an exception occurred */
       ret = -1;
    }
 
@@ -233,6 +292,7 @@ extern int8_t writeSingleRegister(
 {
    int8_t ret = 1;
 
+   /* select register address to be write */
    switch (registerAddress)
    {
       /* inputs can not be written! */
@@ -262,46 +322,54 @@ extern int8_t readHoldingRegisters(
       uint8_t * buf
       )
 {
+   /* used to indicate total of registers reads */
    int8_t ret = 0;
-   uint16_t countReg;
+   /* used to indicate quantity of registers processed */
+   uint16_t quantityRegProcessed;
 
+   /* loop to read all registers indicated */
    do
    {
+      /* select register address to be read */
       switch (startingAddress)
       {
          /* read inputs of CIAA */
          case MODBUS_ADDR_HR_CIAA_INPUTS:
             ciaaModbus_writeInt(buf, hr_ciaaInputs);
-            countReg = 1;
-            hr_ciaaInputs ++;
+            quantityRegProcessed = 1;
             break;
 
          /* read outputs of CIAA */
          case MODBUS_ADDR_HR_CIAA_OUTPUTS:
             ciaaModbus_writeInt(buf, hr_ciaaOutputs);
-            countReg = 1;
+            quantityRegProcessed = 1;
             break;
 
          /* wrong address */
          default:
             *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
-            countReg = -1;
+            quantityRegProcessed = -1;
             break;
       }
 
-      if (countReg > 0)
+      /* if quantityRegProcessed > 0, successful operation */
+      if (quantityRegProcessed > 0)
       {
-         /* update pointer to buffer */
-         buf += (countReg*2);
-         /* next address */
-         startingAddress += countReg;
+         /* update buffer pointer to next register */
+         buf += (quantityRegProcessed*2);
+
+         /* next address to be read */
+         startingAddress += quantityRegProcessed;
+
          /* increment count of registers */
-         ret += countReg;
+         ret += quantityRegProcessed;
       }
       else
       {
+         /* an error occurred in reading */
          ret = -1;
       }
+
    /* repeat until:
     * - read total registers or
     * - error occurs
@@ -318,40 +386,47 @@ extern int8_t writeMultipleRegisters(
       uint8_t * buf
       )
 {
-   int8_t ret = 0;
-   uint16_t countReg;
+   /* used to indicate total of registers writes */
+     int8_t ret = 0;
+   /* used to indicate quantity of registers processed */
+   uint16_t quantityRegProcessed;
 
+   /* loop to write all registers indicated */
    do
    {
+      /* select register address to be write */
       switch (startingAddress)
       {
          /* inputs can not be written! */
          case MODBUS_ADDR_HR_CIAA_INPUTS:
             *exceptionCode = CIAAMODBUS_E_FNC_ERROR;
-            countReg = -1;
+            quantityRegProcessed = -1;
             break;
 
          /* write outputs */
          case MODBUS_ADDR_HR_CIAA_OUTPUTS:
             hr_ciaaOutputs = ciaaModbus_readInt(buf);
-            countReg = 1;
+            quantityRegProcessed = 1;
             break;
 
          /* wrong address */
          default:
             *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
-            countReg = -1;
+            quantityRegProcessed = -1;
             break;
       }
 
-      if (countReg > 0)
+      /* if quantityRegProcessed > 0, successful operation */
+      if (quantityRegProcessed > 0)
       {
-         /* update pointer to buffer */
-         buf += (countReg*2);
-         /* next address */
-         startingAddress += countReg;
+         /* update buffer pointer to next register */
+         buf += (quantityRegProcessed*2);
+
+         /* next address to be write */
+         startingAddress += quantityRegProcessed;
+
          /* increment count of registers */
-         ret += countReg;
+         ret += quantityRegProcessed;
       }
       else
       {
