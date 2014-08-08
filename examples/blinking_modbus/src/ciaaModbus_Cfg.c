@@ -1,4 +1,7 @@
 /* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Gustavo Muro
+ * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
  *
  * This file is part of CIAA Firmware.
  *
@@ -44,6 +47,9 @@
 /*
  * Initials     Name
  * MaCe         Mariano Cerdeiro
+ * GMuro        Gustavo Muro  
+ * PR           Pablo Ridolfi
+ * JuCe         Juan Cecconi 
  *
  */
 
