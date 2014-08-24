@@ -107,7 +107,7 @@ void InitStack_Arch(uint8 TaskID)
 	taskStack[taskStackSizeWords-1] = 1<<24; /* xPSR.T = 1 */
 	taskStack[taskStackSizeWords-2] = (uint32) TasksConst[TaskID].EntryPoint; /*PC*/
 	taskStack[taskStackSizeWords-3] = (uint32) ReturnHook_Arch; /* stacked LR */
-	taskStack[taskStackSizeWords-9] = 0xFFFFFFF9; /*current LR*/
+	taskStack[taskStackSizeWords-9] = 0xFFFFFFFD; /* current LR, return using PSP */
 
 	*(TasksConst[TaskID].TaskContext) = &(taskStack[taskStackSizeWords - 17]);
 

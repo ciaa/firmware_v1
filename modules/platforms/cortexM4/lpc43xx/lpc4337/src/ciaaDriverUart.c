@@ -177,7 +177,7 @@ static void ciaaDriverUart_hwInit(void)
 
    Chip_SCU_PinMux(6, 2, MD_PDN, FUNC2);              /* P6_2: UART0_DIR */
 
-   NVIC_SetPriority(USART0_IRQn, (1 << __NVIC_PRIO_BITS) - 1);
+   NVIC_SetPriority(USART0_IRQn, 0);
    NVIC_EnableIRQ(USART0_IRQn);
 
    /* UART2 (USB-UART) */

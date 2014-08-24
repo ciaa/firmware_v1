@@ -65,7 +65,7 @@
 /* Pendable Service Call, used for context-switching in all Cortex-M processors */
 PendSV_Handler:
 	/* disable IRQs */
-	/*cpsid f*/
+	cpsid f
 
 	/* reinicio el stack de la tarea que termino */
    push {lr}
@@ -119,13 +119,13 @@ PendSV_Handler:
 	/* modo thread -> privilegiado, usar MSP */
 	biceq r1,3
 	msreq msp,r0
-	/* modo thread -> no privilegiado, usar PSP */
-	orrne r1,3
+	/* modo thread -> privilegiado, usar PSP */
+	orrne r1,2
 	msrne psp,r0
 
 	msr control,r1
 
 	/* enable IRQs */
-	/*cpsie f*/
+	cpsie f
 
 	bx lr

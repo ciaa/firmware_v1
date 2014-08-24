@@ -1,6 +1,7 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Gustavo Muro
+ * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
  *
  * This file is part of CIAA Firmware.
  *
@@ -32,9 +33,9 @@
  *
  */
 
-#ifndef _BLINKING_H_
-#define _BLINKING_H_
-/** \brief Blinking example header file
+#ifndef _BLINKING_MODBUS_H_
+#define _BLINKING_MODBUS_H_
+/** \brief Blinking Modbus example header file
  **
  ** This is a mini example of the CIAA Firmware
  **
@@ -44,19 +45,23 @@
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Blinking Blinking example header file
+/** \addtogroup Blinking_Modbus Blinking Modbus example header file
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
+ * MaCe         Mariano Cerdeiro
+ * GMuro        Gustavo Muro
+ * PR           Pablo Ridolfi
+ * JuCe         Juan Cecconi 
  *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140805 v0.0.1   GMuro first functional version
  */
 
 /*==================[inclusions]=============================================*/
@@ -166,5 +171,5 @@ extern int8_t writeMultipleRegisters(
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _BLINKING_H_ */
+#endif /* #ifndef _BLINKING_MODBUS_H_ */
 
