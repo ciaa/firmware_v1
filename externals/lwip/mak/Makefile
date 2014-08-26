@@ -38,12 +38,7 @@ LIBS 				    += ext_lwip
 # library path
 ext_lwip_PATH 	     = $(ROOT_DIR)$(DS)externals$(DS)lwip
 # library source path
-ext_lwip_SRC_PATH   = $(ext_lwip_PATH)$(DS)src$(DS)api \
-   $(ext_lwip_PATH)$(DS)src$(DS)arch   \
-   $(ext_lwip_PATH)$(DS)src$(DS)core   \
-   $(ext_lwip_PATH)$(DS)src$(DS)core$(DS)ipv4   \
-   $(ext_lwip_PATH)$(DS)src$(DS)core$(DS)snmp   \
-   $(ext_lwip_PATH)$(DS)src$(DS)netif
+ext_lwip_SRC_PATH   = $(ext_lwip_PATH)$(DS)src
    
 # library include path
 ext_lwip_INC_PATH   = $(ext_lwip_PATH)$(DS)inc$(DS)arch		    	\
@@ -54,5 +49,11 @@ ext_lwip_INC_PATH   = $(ext_lwip_PATH)$(DS)inc$(DS)arch		    	\
    $(ext_lwip_PATH)$(DS)inc$(DS)posix$(DS)sys
 
 # library source files
-ext_lwip_SRC_FILES += $(wildcard $(ext_lwip_SRC_PATH)$(DS)*.c)	
+ext_lwip_SRC_FILES += $(wildcard $(ext_lwip_SRC_PATH)$(DS)*.c)	\
+   $(wildcard $(ext_lwip_SRC_PATH)$(DS)api$(DS)*.c) \
+   $(wildcard $(ext_lwip_SRC_PATH)$(DS)arch$(DS)*.c)   \
+   $(wildcard $(ext_lwip_SRC_PATH)$(DS)core$(DS)*.c)   \
+   $(wildcard $(ext_lwip_SRC_PATH)$(DS)core$(DS)ipv4$(DS)*.c)   \
+   $(wildcard $(ext_lwip_SRC_PATH)$(DS)core$(DS)snmp$(DS)*.c)   \
+   $(wildcard $(ext_lwip_SRC_PATH)$(DS)netif$(DS)*.c)
 
