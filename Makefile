@@ -215,7 +215,7 @@ UNITY_SRC = modules$(DS)$(tst_mod)$(DS)test$(DS)utest$(DS)src$(DS)test_$(tst_fil
 
 CFLAGS  = -ggdb -c #-Wall -Werror #see issue #28
 CFLAGS  += $(foreach inc, $(UNITY_INC), -I$(inc))
-CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DUNITY_EXCLUDE_STDINT_H
+CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DUNITY_EXCLUDE_STDINT_H --coverage
 
 else
 # get all test target for the selected module
@@ -231,7 +231,7 @@ tst_link: $(UNITY_SRC:.c=.o)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking Test
-	gcc $(UNITY_SRC:.c=.o) -o out/bin/test.bin
+	gcc $(UNITY_SRC:.c=.o) -lgcov -o out/bin/test.bin
 
 # rule for tst_<mod>_<file>
 tst_$(tst_mod)_$(tst_file): $(MTEST_SRC_FILES:.c=_Runner.c) tst_link
