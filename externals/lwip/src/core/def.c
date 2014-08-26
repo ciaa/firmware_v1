@@ -36,8 +36,8 @@
  *
  */
 
-#include "lwip/opt.h"
-#include "lwip/def.h"
+#include "opt.h"
+#include "def.h"
 
 /**
  * These are reference implementations of the byte swapping functions.

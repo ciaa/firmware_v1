@@ -43,15 +43,15 @@
  * something that better describes your network interface.
  */
 
-#include "lwip/opt.h"
+#include "opt.h"
 
 #if 0 /* don't build, this is only a skeleton, see previous comment */
 
-#include "lwip/def.h"
-#include "lwip/mem.h"
-#include "lwip/pbuf.h"
-#include <lwip/stats.h>
-#include <lwip/snmp.h>
+#include "def.h"
+#include "mem.h"
+#include "pbuf.h"
+#include <stats.h>
+#include <snmp.h>
 #include "netif/etharp.h"
 #include "netif/ppp_oe.h"
 

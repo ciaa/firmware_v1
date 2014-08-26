@@ -32,8 +32,8 @@
 #ifndef __LWIP_DEBUG_H__
 #define __LWIP_DEBUG_H__
 
-#include "lwip/arch.h"
-#include "lwip/opt.h"
+#include "arch.h"
+#include "opt.h"
 
 /** lower two bits indicate debug level
  * - 0 all

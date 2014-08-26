@@ -66,7 +66,7 @@
 #include "ciaaPOSIX_stdio.h"  /* <= device handler header */
 #include "ciaaPOSIX_string.h" /* <= string header */
 #include "ciaak.h"            /* <= ciaa kernel header */
-#include "blinking.h"         /* <= own header */
+#include "blinking_lwip.h"         /* <= own header */
 
 /*==================[macros and definitions]=================================*/
 

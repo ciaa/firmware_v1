@@ -32,18 +32,18 @@
  * Author: Christiaan Simons <christiaan.simons@axon.tv>
  */
 
-#include "lwip/opt.h"
+#include "opt.h"
 
 #if LWIP_SNMP /* don't build if not configured for use in lwipopts.h */
 
-#include "lwip/snmp.h"
-#include "lwip/snmp_asn1.h"
-#include "lwip/snmp_msg.h"
-#include "lwip/snmp_structs.h"
-#include "lwip/ip_addr.h"
-#include "lwip/memp.h"
-#include "lwip/udp.h"
-#include "lwip/stats.h"
+#include "snmp.h"
+#include "snmp_asn1.h"
+#include "snmp_msg.h"
+#include "snmp_structs.h"
+#include "ip_addr.h"
+#include "memp.h"
+#include "udp.h"
+#include "stats.h"
 
 #include <string.h>
 

@@ -34,7 +34,7 @@
 #
 ###############################################################################
 # Project Name: used for Project Path and OSEK configuration file
-project 			 	 = blinking
+project 			 	 = blinking_lwip
 # Project path
 $(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
 # source path

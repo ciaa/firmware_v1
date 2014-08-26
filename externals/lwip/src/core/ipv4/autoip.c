@@ -62,15 +62,15 @@
  *
  */
 
-#include "lwip/opt.h"
+#include "opt.h"
 
 #if LWIP_AUTOIP /* don't build if not configured for use in lwipopts.h */
 
-#include "lwip/mem.h"
-#include "lwip/udp.h"
-#include "lwip/ip_addr.h"
-#include "lwip/netif.h"
-#include "lwip/autoip.h"
+#include "mem.h"
+#include "udp.h"
+#include "ip_addr.h"
+#include "netif.h"
+#include "autoip.h"
 #include "netif/etharp.h"
 
 #include <stdlib.h>

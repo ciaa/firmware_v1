@@ -38,16 +38,16 @@
  *
  */
 
-#include "lwip/opt.h"
+#include "opt.h"
 
 #if LWIP_RAW /* don't build if not configured for use in lwipopts.h */
 
-#include "lwip/def.h"
-#include "lwip/memp.h"
-#include "lwip/ip_addr.h"
-#include "lwip/netif.h"
-#include "lwip/raw.h"
-#include "lwip/stats.h"
+#include "def.h"
+#include "memp.h"
+#include "ip_addr.h"
+#include "netif.h"
+#include "raw.h"
+#include "stats.h"
 #include "arch/perf.h"
 
 #include <string.h>

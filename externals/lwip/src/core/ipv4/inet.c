@@ -36,7 +36,7 @@
  *
  */
 
-#include "lwip/opt.h"
+#include "opt.h"
 
-#include "lwip/inet.h"
+#include "inet.h"
 

@@ -36,7 +36,7 @@
  *
  */
 
-#include "lwip/err.h"
+#include "err.h"
 
 #ifdef LWIP_DEBUG
 

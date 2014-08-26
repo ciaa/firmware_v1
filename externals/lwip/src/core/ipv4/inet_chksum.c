@@ -36,10 +36,10 @@
  *
  */
 
-#include "lwip/opt.h"
+#include "opt.h"
 
-#include "lwip/inet_chksum.h"
-#include "lwip/def.h"
+#include "inet_chksum.h"
+#include "def.h"
 
 #include <stddef.h>
 #include <string.h>

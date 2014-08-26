@@ -35,14 +35,14 @@
 #ifndef __NETIF_ETHARP_H__
 #define __NETIF_ETHARP_H__
 
-#include "lwip/opt.h"
+#include "opt.h"
 
 #if LWIP_ARP || LWIP_ETHERNET /* don't build if not configured for use in lwipopts.h */
 
-#include "lwip/pbuf.h"
-#include "lwip/ip_addr.h"
-#include "lwip/netif.h"
-#include "lwip/ip.h"
+#include "pbuf.h"
+#include "ip_addr.h"
+#include "netif.h"
+#include "ip.h"
 
 #ifdef __cplusplus
 extern "C" {

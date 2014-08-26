@@ -29,21 +29,20 @@
  * this code.
  */
 
-#include "lwip/opt.h"
-#include "lwip/sys.h"
-#include "lwip/def.h"
-#include "lwip/mem.h"
-#include "lwip/pbuf.h"
-#include "lwip/stats.h"
-#include "lwip/snmp.h"
+#include "opt.h"
+#include "sys.h"
+#include "def.h"
+#include "mem.h"
+#include "pbuf.h"
+#include "stats.h"
+#include "snmp.h"
 #include "netif/etharp.h"
 #include "netif/ppp_oe.h"
 
 #include "lpc_18xx43xx_emac_config.h"
-#include "arch/lpc18xx_43xx_emac.h"
+#include "lpc18xx_43xx_emac.h"
 
 #include "chip.h"
-#include "board.h"
 #include "lpc_phy.h"
 
 #include <string.h>

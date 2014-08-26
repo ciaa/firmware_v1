@@ -1,6 +1,6 @@
 /**
  * @file
- * This file is a posix wrapper for lwip/sockets.h.
+ * This file is a posix wrapper for sockets.h.
  */
 
 /*
@@ -30,4 +30,4 @@
  *
  */
 
-#include "lwip/sockets.h"
+#include "sockets.h"

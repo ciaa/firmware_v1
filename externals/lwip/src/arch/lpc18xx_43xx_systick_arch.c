@@ -29,8 +29,8 @@
  * this code.
  */
 
-#include "lwip/opt.h"
-#include "lwip/snmp.h"
+#include "opt.h"
+#include "snmp.h"
 
 #if NO_SYS == 1
 

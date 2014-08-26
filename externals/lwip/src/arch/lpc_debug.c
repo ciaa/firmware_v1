@@ -29,7 +29,7 @@
  * this code.
  */
 
-#include "lwip/opt.h"
+#include "opt.h"
 
 /** @defgroup NET_LWIP_DEBUG LWIP debug re-direction
  * @ingroup NET_LWIP

@@ -33,7 +33,7 @@
 #ifndef __LWIP_MEMP_H__
 #define __LWIP_MEMP_H__
 
-#include "lwip/opt.h"
+#include "opt.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,7 +42,7 @@ extern "C" {
 /* Create the list of all memory pools managed by memp. MEMP_MAX represents a NULL pool at the end */
 typedef enum {
 #define LWIP_MEMPOOL(name,num,size,desc)  MEMP_##name,
-#include "lwip/memp_std.h"
+#include "memp_std.h"
   MEMP_MAX
 } memp_t;
 
@@ -56,7 +56,7 @@ typedef enum {
 #define LWIP_MALLOC_MEMPOOL_START 1
 #define LWIP_MALLOC_MEMPOOL(num, size) * MEMP_POOL_##size + 0
 #define LWIP_MALLOC_MEMPOOL_END
-#include "lwip/memp_std.h"
+#include "memp_std.h"
     ) ,
     /* Get the last (via:
        MEMP_POOL_HELPER_END = ((u8_t) 0 + MEMP_POOL_A*0 + MEMP_POOL_B*0 + MEMP_POOL_C*1) */
@@ -65,7 +65,7 @@ typedef enum {
 #define LWIP_MALLOC_MEMPOOL_START
 #define LWIP_MALLOC_MEMPOOL(num, size) 0 + MEMP_POOL_##size *
 #define LWIP_MALLOC_MEMPOOL_END 1
-#include "lwip/memp_std.h"
+#include "memp_std.h"
     )
 } memp_pool_helper_t;
 

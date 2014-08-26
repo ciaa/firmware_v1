@@ -35,20 +35,20 @@
  * Author: Christiaan Simons <christiaan.simons@axon.tv>
  */
 
-#include "lwip/opt.h"
+#include "opt.h"
 
 #if LWIP_SNMP /* don't build if not configured for use in lwipopts.h */
 
-#include "lwip/snmp.h"
-#include "lwip/netif.h"
-#include "lwip/ip.h"
-#include "lwip/ip_frag.h"
-#include "lwip/mem.h"
-#include "lwip/tcp_impl.h"
-#include "lwip/udp.h"
-#include "lwip/snmp_asn1.h"
-#include "lwip/snmp_structs.h"
-#include "lwip/sys.h"
+#include "snmp.h"
+#include "netif.h"
+#include "ip.h"
+#include "ip_frag.h"
+#include "mem.h"
+#include "tcp_impl.h"
+#include "udp.h"
+#include "snmp_asn1.h"
+#include "snmp_structs.h"
+#include "sys.h"
 #include "netif/etharp.h"
 
 /**
@@ -894,7 +894,7 @@ static u32_t snmpinpkts = 0,
 
 
 
-/* prototypes of the following functions are in lwip/src/include/lwip/snmp.h */
+/* prototypes of the following functions are in src/include/snmp.h */
 /**
  * Copy octet string.
  *
