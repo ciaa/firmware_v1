@@ -238,7 +238,8 @@ tst_$(tst_mod)_$(tst_file): $(MTEST_SRC_FILES:.c=_Runner.c) tst_link
 	@echo ' '
 	@echo ===============================================================================
 	@echo Testing from module $(tst_mod) the file $(tst_file)
-	out/bin/$(tst_file).bin
+	out$(DS)bin$(DS)$(tst_file).bin
+	gcov -abclu modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c
 
 # rule for tst_<mod>
 tst_$(tst_mod)_all:
