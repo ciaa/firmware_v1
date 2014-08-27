@@ -43,3 +43,8 @@
 
 # Unity runners
 *_Runner.c
+
+# GCOV Coverage Files
+*.gcda
+*.gcno
+*.gcov
