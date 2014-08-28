@@ -163,19 +163,8 @@ static int32_t ciaaModbus_ascii_receiveFirst(int32_t fildes, uint8_t * buf)
       }
       else
       {
-         /* get rx count */
-         ciaaPOSIX_ioctl(fildes, ciaaPOSIX_IOCTL_GET_RX_COUNT, &read);
-
-         if (read > CIAAMODBUS_ASCII_MAXLENGHT)
-         {
-            /* max read CIAAMODBUS_ASCII_MAXLENGHT */
-            read = CIAAMODBUS_ASCII_MAXLENGHT;
-         }
-         else
-         {
-            /* else read at least 1 byte */
-            read = 1;
-         }
+         /* max read CIAAMODBUS_ASCII_MAXLENGHT */
+         read = CIAAMODBUS_ASCII_MAXLENGHT;
 
          /* no data, also read from device */
          read = ciaaPOSIX_read(fildes, buf, read);
@@ -240,19 +229,8 @@ static int32_t ciaaModbus_ascii_completeReception(int32_t fildes, uint8_t * buf,
          /* and still place on the buffer */
          if (CIAAMODBUS_ASCII_MAXLENGHT > length)
          {
-            /* get rx count */
-            ciaaPOSIX_ioctl(fildes, ciaaPOSIX_IOCTL_GET_RX_COUNT, &sizeRead);
-
-            if (sizeRead > CIAAMODBUS_ASCII_MAXLENGHT - length)
-            {
-               /* max read CIAAMODBUS_ASCII_MAXLENGHT - length */
-               sizeRead = CIAAMODBUS_ASCII_MAXLENGHT - length;
-            }
-            else
-            {
-               /* else read at least 1 byte */
-               sizeRead = 1;
-            }
+            /* max read CIAAMODBUS_ASCII_MAXLENGHT - length */
+            sizeRead = CIAAMODBUS_ASCII_MAXLENGHT - length;
 
             length += ciaaPOSIX_read(fildes, &buf[length], sizeRead);
          }
