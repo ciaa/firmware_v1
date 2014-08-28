@@ -265,6 +265,10 @@ tst_$(tst_mod):
 
 endif
 
+results:
+	lcov -c -d . -o coverage.info -b .
+	genhtml coverage.info --output-directory out$(DS)coverage
+
 ###############################################################################
 # rule to generate the mocks
 mocks:
@@ -380,6 +384,7 @@ help:
 	@echo tst_\<mod\>........: shows all unit test of a specific module
 	@echo tst_\<mod\>_\<unit\>.: runs the specific unit test
 	@echo tst_\<mod\>_all....: runs all unit tests of a specific module
+	@echo results..........: create results report
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Debugging                                                     |"
 	@echo "+-----------------------------------------------------------------------------+"
