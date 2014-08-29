@@ -612,6 +612,33 @@ void test_ciaaModbus_ascii_receive_05(void) {
    TEST_ASSERT_EQUAL_INT(7, read_stub.count);
 }
 
+/** \brief Test ciaaModbus_ascii_receive
+ **
+ ** Receive a complete Modbus ascii message in one ciaaPOSIX_read call.
+ ** First byte != ':'
+ **
+ **/
+void test_ciaaModbus_ascii_receive_06(void)
+{
+   int32_t read;
+   int32_t fildes = 1;
+   int8_t buf[500];
+
+   /* set stub callback */
+   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
+   memset(buf, 0, sizeof(buf));
+
+   /* set input buffer */
+   ciaaPOSIX_read_add("0:00010203040506070809", 1, 1);
+
+   /* receive data */
+   read = ciaaModbus_ascii_receive(fildes, buf);
+
+   /* check received data */
+   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[1], buf, read_stub.totalLength-1);
+   TEST_ASSERT_EQUAL_INT(read_stub.totalLength-1, read);
+   TEST_ASSERT_EQUAL_INT(read_stub.count, 1);
+}
 
 /** \brief test ciaaModbus_ascii_ascii2bin
  */
@@ -623,7 +650,7 @@ void test_ciaaModbus_ascii_ascii2bin_01(void)
    int32_t buflen[10];
 
    strcpy(buf[0][0],
-         ":0001020304050607");
+         ":000102030405060708090A0B0C0D0E0F");
         /*012345678901234567890123456789012345678901234567890123456789*/
         /*          1         2         3         4         5         */
    /* set input buffer (only add LRC) */
@@ -636,6 +663,52 @@ void test_ciaaModbus_ascii_ascii2bin_01(void)
 
    TEST_ASSERT_EQUAL_INT(tst_convert2bin(buf[0][1], buf[0][1], lenin[0]), lenout[0]);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[0][1], buf[0][0], lenout[0]);
+}
+
+/** \brief test ciaaModbus_ascii_ascii2bin
+ ** second nibble wrong
+ */
+void test_ciaaModbus_ascii_ascii2bin_02(void)
+{
+   int32_t lenin[10];
+   int32_t lenout[10];
+   uint8_t buf[10][2][500];
+   int32_t buflen[10];
+
+   strcpy(buf[0][0],
+         ":000G");
+   /* set input buffer (only add LRC) */
+   lenin[0] = tst_asciipdu(buf[0][0], 0, 1);
+   /* copy the buffer */
+   strcpy(buf[0][1], buf[0][0]);
+
+   /* call tested function */
+   lenout[0] = ciaaModbus_ascii_ascii2bin(buf[0][0], lenin[0]);
+
+   TEST_ASSERT_EQUAL_INT(-1, lenout[0]);
+}
+
+/** \brief test ciaaModbus_ascii_ascii2bin
+ ** first nibble wrong
+ */
+void test_ciaaModbus_ascii_ascii2bin_03(void)
+{
+   int32_t lenin[10];
+   int32_t lenout[10];
+   uint8_t buf[10][2][500];
+   int32_t buflen[10];
+
+   strcpy(buf[0][0],
+         ":00G0");
+   /* set input buffer (only add LRC) */
+   lenin[0] = tst_asciipdu(buf[0][0], 0, 1);
+   /* copy the buffer */
+   strcpy(buf[0][1], buf[0][0]);
+
+   /* call tested function */
+   lenout[0] = ciaaModbus_ascii_ascii2bin(buf[0][0], lenin[0]);
+
+   TEST_ASSERT_EQUAL_INT(-1, lenout[0]);
 }
 
 
