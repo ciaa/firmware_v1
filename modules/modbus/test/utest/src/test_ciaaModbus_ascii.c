@@ -451,7 +451,7 @@ void test_ciaaModbus_ascii_receive_02(void) {
    /* check received data */
    TEST_ASSERT_EQUAL_INT8_ARRAY(read_stub.buf, buf, read_stub.totalLength);
    TEST_ASSERT_EQUAL_INT(read_stub.totalLength, read);
-   TEST_ASSERT_EQUAL_INT(read_stub.count, 2);
+   TEST_ASSERT_EQUAL_INT(2, read_stub.count);
 }
 
 
@@ -518,8 +518,12 @@ void test_ciaaModbus_ascii_receive_04(void) {
 
    /* only return 10 bytes in the first read call */
    read_stub.length[0] = 10;
-   read_stub.length[1] = 8;
-   read_stub.length[2] = 10;
+   /* return the remaining 11 bytes */
+   read_stub.length[1] = 11;
+
+   /* only return 2 bytes in the first read call */
+   read_stub.length[2] = 2;
+   /* only return 10 bytes in the second read call */
    read_stub.length[3] = 10;
 
    /* receive data */
@@ -529,7 +533,7 @@ void test_ciaaModbus_ascii_receive_04(void) {
    /* check received data */
    TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[0], &buf[0], len[0]);
    TEST_ASSERT_EQUAL_INT(len[0], read[0]);
-   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[21], &buf[1], read[1]);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[21], &buf[1], len[1]);
    TEST_ASSERT_EQUAL_INT(len[1], read[1]);
    TEST_ASSERT_EQUAL_INT(read_stub.count, 5);
 }
@@ -575,15 +579,20 @@ void test_ciaaModbus_ascii_receive_05(void) {
         /*012345678901234567890123456789012345678901234567890123456789*/
         /*          1         2         3         4         5         */
 
-   /* only return 10 bytes in the first read call */
-   read_stub.length[0] = 10;
-   read_stub.length[1] = 8;
-   read_stub.length[2] = 10;
-   read_stub.length[3] = 10;
+   /* return 21 bytes in the first read call */
+   read_stub.length[0] = 21;
+
+   /* only return 30 bytes in the first read call */
+   read_stub.length[1] = 30;
+   /* return the remaining 7 bytes in second read call */
+   read_stub.length[2] = 7;
+
+   /* only return 3 bytes in the first read call */
+   read_stub.length[3] = 3;
+   /* only return 10 bytes in the second read call */
    read_stub.length[4] = 10;
-   read_stub.length[5] = 10;
-   read_stub.length[6] = 10;
-   read_stub.length[7] = 10;
+   /* return the remaining 20 bytes in third read call */
+   read_stub.length[5] = 20;
 
    /* receive data */
    read[0] = ciaaModbus_ascii_receive(fildes, buf[0]);
@@ -600,7 +609,7 @@ void test_ciaaModbus_ascii_receive_05(void) {
    TEST_ASSERT_EQUAL_INT(len[2], read[2]);
    TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[21+37+33], &buf[3], read[3]);
    TEST_ASSERT_EQUAL_INT(len[3], read[3]);
-   TEST_ASSERT_EQUAL_INT(read_stub.count, 9);
+   TEST_ASSERT_EQUAL_INT(7, read_stub.count);
 }
 
 
