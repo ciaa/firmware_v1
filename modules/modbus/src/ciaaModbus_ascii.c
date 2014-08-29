@@ -61,11 +61,7 @@
 #include "ciaaPOSIX_string.h"
 
 /*==================[macros and definitions]=================================*/
-typedef struct {
-   uint8_t buf[CIAAMODBUS_ASCII_MAXLENGHT-
-      CIAAMODBUS_ASCII_MINLENGHT];
-   uint8_t length;
-} ciaaModbus_ascii_bufType;
+
 /*==================[internal data declaration]==============================*/
 
 static const uint8_t ciaaModbus_binToAsciiTable[] =
@@ -101,8 +97,6 @@ static int32_t ciaaModbus_ascii_completeReception(int32_t fildes,uint8_t * buf,
       int8_t length);
 
 /*==================[internal data definition]===============================*/
-/** \brief data not proceeded from the last frame */
-ciaaModbus_ascii_bufType oldData = { { 0 }, 0 };
 
 /*==================[external data definition]===============================*/
 
@@ -153,22 +147,11 @@ static int32_t ciaaModbus_ascii_receiveFirst(int32_t fildes, uint8_t * buf)
       /* set begin to an invalid value */
       begin = -1;
 
-      /* if old data available start reading this data */
-      if (0 != oldData.length)
-      {
-         /* copy read data */
-         ciaaPOSIX_memcpy(buf, oldData.buf, oldData.length);
-         read = oldData.length;
-         oldData.length = 0;
-      }
-      else
-      {
-         /* max read CIAAMODBUS_ASCII_MAXLENGHT */
-         read = CIAAMODBUS_ASCII_MAXLENGHT;
+      /* max read CIAAMODBUS_ASCII_MAXLENGHT */
+      read = CIAAMODBUS_ASCII_MAXLENGHT;
 
-         /* no data, also read from device */
-         read = ciaaPOSIX_read(fildes, buf, read);
-      }
+      /* no data, also read from device */
+      read = ciaaPOSIX_read(fildes, buf, read);
 
       /* search for the begin of a modbus message */
       for(loopi = 0; (loopi < read) && (-1 == begin); loopi++)
@@ -240,17 +223,6 @@ static int32_t ciaaModbus_ascii_completeReception(int32_t fildes, uint8_t * buf,
             * an invalid message has been received, the complete data
             * will be ignored */
             end = 0xFFFF;
-         }
-      }
-      else
-      {
-         /* end found */
-         if (length > end)
-         {
-            /* copy left bytes to old data for the next call */
-            oldData.length = length-end;
-            /* copy data to old data buffer for the next calle */
-            ciaaPOSIX_memcpy(oldData.buf, &buf[end], length-end);
          }
       }
    } while (-1 == end);
