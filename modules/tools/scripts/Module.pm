@@ -16,7 +16,8 @@ sub new
    };
    print "Module name $self->{_name}\n";
 
-   opendir my $files, "modules/$self->{_name}/src/" or print "Module without files.\n";
+   if (opendir my $files, "modules/$self->{_name}/src/")
+   {
    while (defined (my $file = readdir $files)) {
       if ( ($file eq ".") || ($file eq "..") )
       {
@@ -25,8 +26,13 @@ sub new
       my $obj = new Source($file);
    }
 
-   closedir $files;
 
+   closedir $files;
+   }
+   else
+   {
+   print "Module without files.\n";
+   }
    bless $self, $class;
    return $self;
 }
