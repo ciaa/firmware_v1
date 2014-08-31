@@ -47,9 +47,13 @@ sub runTest
 {
    my $self = shift;
 
-   if ($self->hasTest)
+   if ($self->hasTest())
    {
-      print "make tst_" . $self->{_mod}->getName() . "_" . $self->{_name} . "\n";
+      # get file without extension
+      my $test = $self->{_name};
+      $test =~ s{\.[^.]+$}{};
+      my $cmd = "make tst_" . $self->{_mod}->getName() . "_" . $test . "\n";
+      my $result = `$cmd`;
    }
 }
 

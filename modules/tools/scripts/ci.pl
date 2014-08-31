@@ -6,6 +6,7 @@ use File::Find;
 
 use lib qw(modules/tools/scripts);
 use Module;
+use OutSummary;
 
 ############################# CONFIGURATION ###################################
 ###############################################################################
@@ -29,9 +30,16 @@ while (defined(my $module = readdir $modules)) {
    push(@mods, new Module($module));
 }
 
+# for each module
 foreach my $mod (@mods)
 {
-   $mod->print();
+   # run the tests of each module
    $mod->runTests();
 }
 
+# create the coverage reports
+my $results = `make results`;
+
+my $out = new OutSummary("out/ci", @mods);
+
+$out->genReport();

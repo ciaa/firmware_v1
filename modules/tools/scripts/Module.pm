@@ -23,7 +23,7 @@ sub new
 
    if (opendir my $files_dir, "modules/$self->{_name}/src/")
    {
-      print "Module $self->{_name}\n";
+#      print "Module $self->{_name}\n";
 
       while (defined (my $file = readdir $files_dir)) {
          if ( ($file eq ".") || ($file eq "..") || (!($file =~ /\.c$/)) )
@@ -38,7 +38,7 @@ sub new
    }
    else
    {
-      print "Module $self->{_name} without files.\n";
+#      print "Module $self->{_name} without files.\n";
    }
    return $self;
 }
