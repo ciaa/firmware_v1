@@ -8,33 +8,75 @@ use File::Find;
 
 use Source;
 
+our @files;
+
 sub new
 {
    my $class = shift;
    my $self = {
-      _name => shift
+      _name => shift,
+      _files => [],
+      _file => undef
    };
-   print "Module name $self->{_name}\n";
+   bless $self, $class;
 
-   if (opendir my $files, "modules/$self->{_name}/src/")
+
+   if (opendir my $files_dir, "modules/$self->{_name}/src/")
    {
-   while (defined (my $file = readdir $files)) {
-      if ( ($file eq ".") || ($file eq "..") )
-      {
-         next;
+      print "Module $self->{_name}\n";
+
+      while (defined (my $file = readdir $files_dir)) {
+         if ( ($file eq ".") || ($file eq "..") || (!($file =~ /\.c$/)) )
+         {
+            next;
+         }
+         push(@{$self->{_files}}, new Source($self, "modules/" . $self->{_name} . "/src", $file));
+         $self->{_file} = "src/$file";
       }
-      my $obj = new Source($file);
-   }
 
-
-   closedir $files;
+      closedir $files_dir;
    }
    else
    {
-   print "Module without files.\n";
+      print "Module $self->{_name} without files.\n";
    }
-   bless $self, $class;
    return $self;
+}
+
+sub getName
+{
+   my $self = shift;
+
+   return $self->{_name};
+}
+
+sub getCountOfFiles
+{
+   my $self = shift;
+
+   return scalar @{$self->{_files}};
+}
+
+sub print
+{
+   my $self = shift;
+
+   print "Module Name: $self->{_name}\n";
+   print " -> Count of files: " . $self->getCountOfFiles() . "\n";
+   foreach my $file (@{$self->{_files}})
+   {
+         print "  -> File: " . $file->print() . " - has test: " . $file->hasTest() . "\n";
+   }
+}
+
+sub runTests
+{
+   my $self = shift;
+
+   foreach my $file (@{$self->{_files}})
+   {
+      $file->runTest();
+   }
 }
 
 1;
