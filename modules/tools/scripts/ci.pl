@@ -4,6 +4,9 @@ use warnings;
 use strict;
 use File::Find;
 
+use lib qw(modules/tools/scripts);
+use Module;
+
 ############################# CONFIGURATION ###################################
 ###############################################################################
 # set path to examples
@@ -23,8 +26,9 @@ while (defined(my $example = readdir $examples)) {
       next;
    }
    print "Testing: $example\n";
+   my $obj = new Module($example);
    $ENV{'PROJECT'} = "$examples_dir/$example";
-   system("make clean > $ci_out_dir/$example.log 2>&1");
-   system("make generate >> $ci_out_dir/$example.log 2>&1");
-   system("make >> $ci_out_dir/$example.log 2>&1");
+#   system("make clean > $ci_out_dir/$example.log 2>&1");
+#     system("make generate >> $ci_out_dir/$example.log 2>&1");
+#   system("make >> $ci_out_dir/$example.log 2>&1");
 }
