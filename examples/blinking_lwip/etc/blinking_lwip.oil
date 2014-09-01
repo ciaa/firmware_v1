@@ -70,9 +70,9 @@ TASK InitTask {
 TASK PeriodicTask {
     PRIORITY = 1;
     ACTIVATION = 1;
-    STACK = 512;
-    TYPE = EXTENDED;
-    SCHEDULE = FULL;
+    STACK = 2048;
+    TYPE = BASIC;
+    SCHEDULE = NON;
 }
 
 TASK BlinkTask {

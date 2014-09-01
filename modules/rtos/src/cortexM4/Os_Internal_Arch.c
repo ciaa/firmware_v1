@@ -129,8 +129,10 @@ void SysTick_Handler(void)
 	/* save actual context */
 	context = GetCallingContext();
 
-	/* set context to CONTEXT_DBG */
-	SetActualContext(CONTEXT_DBG);
+	/* set context to CONTEXT_DBG 
+	Why this??
+	*/
+	/*SetActualContext(CONTEXT_DBG);*/
 
 	/* call counter interrupt handler */
 	CounterIncrement = IncrementCounter(0, 1 /* CounterIncrement */); /* TODO FIXME */
