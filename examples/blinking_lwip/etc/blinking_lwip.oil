@@ -92,6 +92,13 @@ ALARM ActivateBlinkTask {
     }
 }
 
+ALARM ActivateCallback {
+    COUNTER = SoftwareCounter;
+    ACTION = ALARMCALLBACK {
+        ALARMCALLBACKNAME = "miCallback";
+    }
+}
+
 RESOURCE = POSIXR;
 
 EVENT = POSIXE;

@@ -119,6 +119,9 @@ TASK(InitTask)
    /* set blinky task */
    SetRelAlarm(ActivateBlinkTask, 250, 250);
 
+   /* set example callback */
+   SetRelAlarm(ActivateCallback, 1000, 1000);
+
    /* activate lwip loop as a background loop */
    ActivateTask(PeriodicTask);
 
@@ -154,6 +157,14 @@ TASK(PeriodicTask)
    }
 }
 
+/* example alarm callback */
+ALARMCALLBACK(miCallback)
+{
+   static int i = 0;
+
+   i++;
+
+}
 
 
 /** @} doxygen end group definition */
