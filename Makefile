@@ -387,6 +387,7 @@ help:
 	@echo tst_\<mod\>_\<unit\>.: runs the specific unit test
 	@echo tst_\<mod\>_all....: runs all unit tests of a specific module
 	@echo results..........: create results report
+	@echo ci...............: run the continuous integration
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Debugging                                                     |"
 	@echo "+-----------------------------------------------------------------------------+"
@@ -511,6 +512,11 @@ all: clean generate
 # generate and make (IDE: Generate and Make)
 generate_make: generate
 	make
+
+###############################################################################
+# run continuous integration
+ci:
+	perl modules$(DS)tools$(DS)scripts$(DS)ci.pl
 
 ###############################################################################
 # doc -> documentation
