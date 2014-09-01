@@ -46,21 +46,21 @@
 /* @todo Check the use of '(struct udp_pcb).chksum_len_rx'!
  */
 
-#include "opt.h"
+#include "lwip/opt.h"
 
 #if LWIP_UDP /* don't build if not configured for use in lwipopts.h */
 
-#include "udp.h"
-#include "def.h"
-#include "memp.h"
-#include "inet_chksum.h"
-#include "ip_addr.h"
-#include "netif.h"
-#include "icmp.h"
-#include "stats.h"
-#include "snmp.h"
+#include "lwip/udp.h"
+#include "lwip/def.h"
+#include "lwip/memp.h"
+#include "lwip/inet_chksum.h"
+#include "lwip/ip_addr.h"
+#include "lwip/netif.h"
+#include "lwip/icmp.h"
+#include "lwip/stats.h"
+#include "lwip/snmp.h"
 #include "arch/perf.h"
-#include "dhcp.h"
+#include "lwip/dhcp.h"
 
 #include <string.h>
 

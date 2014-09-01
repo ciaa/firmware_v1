@@ -32,7 +32,6 @@
 #ifndef __LPC_PHY_H_
 #define __LPC_PHY_H_
 
-#include "board.h"
 #include "chip.h"
 
 #ifdef __cplusplus
@@ -67,6 +66,12 @@ extern "C" {
  * calls may be needed to determine PHY status.
  */
 uint32_t lpcPHYStsPoll(void);
+
+/**
+ * @brief Function prototype for a MS delay function. Board layers or example code may
+ *        define this function as needed.
+ */
+typedef void (*p_msDelay_func_t)(uint32_t);
 
 /**
  * @brief	Initialize the PHY

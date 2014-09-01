@@ -32,8 +32,8 @@
 #ifndef __LWIP_ERR_H__
 #define __LWIP_ERR_H__
 
-#include "opt.h"
-#include "arch.h"
+#include "lwip/opt.h"
+#include "lwip/arch.h"
 
 #ifdef __cplusplus
 extern "C" {

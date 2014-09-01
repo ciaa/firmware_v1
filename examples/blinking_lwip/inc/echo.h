@@ -1,9 +1,7 @@
-/**
- * @file
- * This file is a posix wrapper for lwip/sockets.h.
- */
-
 /*
+ * Copyright (c) 2001-2004 Swedish Institute of Computer Science.
+ * All rights reserved. 
+ * 
  * Redistribution and use in source and binary forms, with or without modification, 
  * are permitted provided that the following conditions are met:
  *
@@ -27,7 +25,11 @@
  * OF SUCH DAMAGE.
  *
  * This file is part of the lwIP TCP/IP stack.
- *
+ * 
  */
+#ifndef __ECHO_H__
+#define __ECHO_H__
 
-#include "lwip/sockets.h"
+void echo_init(void);
+
+#endif /* __MINIMAL_ECHO_H */

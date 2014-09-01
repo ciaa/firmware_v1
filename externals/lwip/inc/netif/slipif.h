@@ -34,8 +34,8 @@
 #ifndef __NETIF_SLIPIF_H__
 #define __NETIF_SLIPIF_H__
 
-#include "opt.h"
-#include "netif.h"
+#include "lwip/opt.h"
+#include "lwip/netif.h"
 
 /** Set this to 1 to start a thread that blocks reading on the serial line
  * (using sio_read()).

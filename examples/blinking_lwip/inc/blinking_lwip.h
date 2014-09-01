@@ -61,6 +61,25 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "lwip/init.h"
+#include "lwip/opt.h"
+#include "lwip/sys.h"
+#include "lwip/memp.h"
+#include "lwip/tcpip.h"
+#include "lwip/ip_addr.h"
+#include "lwip/netif.h"
+#include "lwip/timers.h"
+#include "netif/etharp.h"
+
+#if LWIP_DHCP
+#include "lwip/dhcp.h"
+#endif
+
+#include "arch/lpc_phy.h"
+#include "arch/lpc18xx_43xx_emac.h"
+#include "arch/lpc_arch.h"
+
+#include "echo.h"
 
 /*==================[macros]=================================================*/
 

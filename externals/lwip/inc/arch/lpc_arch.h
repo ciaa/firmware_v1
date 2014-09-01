@@ -32,7 +32,7 @@
 #ifndef __LPC_ARCH_H_
 #define __LPC_ARCH_H_
 
-#include "opt.h"
+#include "lwip/opt.h"
 
 #ifdef __cplusplus
 extern "C"

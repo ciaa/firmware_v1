@@ -36,16 +36,16 @@
  *
  */
 
-#include "opt.h"
+#include "lwip/opt.h"
 
 #if !NO_SYS /* don't build if not configured for use in lwipopts.h */
 
-#include "sys.h"
-#include "memp.h"
-#include "mem.h"
-#include "pbuf.h"
-#include "tcpip.h"
-#include "init.h"
+#include "lwip/sys.h"
+#include "lwip/memp.h"
+#include "lwip/mem.h"
+#include "lwip/pbuf.h"
+#include "lwip/tcpip.h"
+#include "lwip/init.h"
 #include "netif/etharp.h"
 #include "netif/ppp_oe.h"
 

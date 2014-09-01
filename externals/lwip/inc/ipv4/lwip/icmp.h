@@ -32,10 +32,10 @@
 #ifndef __LWIP_ICMP_H__
 #define __LWIP_ICMP_H__
 
-#include "opt.h"
-#include "pbuf.h"
-#include "ip_addr.h"
-#include "netif.h"
+#include "lwip/opt.h"
+#include "lwip/pbuf.h"
+#include "lwip/ip_addr.h"
+#include "lwip/netif.h"
 
 #ifdef __cplusplus
 extern "C" {

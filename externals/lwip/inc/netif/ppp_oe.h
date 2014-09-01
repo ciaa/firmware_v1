@@ -70,7 +70,7 @@
 #ifndef PPP_OE_H
 #define PPP_OE_H
 
-#include "opt.h"
+#include "lwip/opt.h"
 
 #if PPPOE_SUPPORT > 0
 

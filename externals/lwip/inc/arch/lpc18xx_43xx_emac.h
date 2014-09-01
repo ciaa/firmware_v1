@@ -32,8 +32,8 @@
 #ifndef __LPC18XX_43XX_EMAC_H_
 #define __LPC18XX_43XX_EMAC_H_
 
-#include "opt.h"
-#include "netif.h"
+#include "lwip/opt.h"
+#include "lwip/netif.h"
 
 #ifdef __cplusplus
 extern "C"

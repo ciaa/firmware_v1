@@ -64,6 +64,12 @@ static const struct CLK_BASE_STATES InitClkStates[] = {
 	{CLK_BASE_APLL, CLKINPUT_PD, true, false},
 	{CLK_BASE_CGU_OUT0, CLKINPUT_PD, true, false},
 	{CLK_BASE_CGU_OUT1, CLKINPUT_PD, true, false},
+   {CLK_BASE_PHY_TX, CLKIN_ENET_TX, true, false},
+#if defined(USE_RMII)
+   {CLK_BASE_PHY_RX, CLKIN_ENET_TX, true, false},
+#else
+   {CLK_BASE_PHY_RX, CLKIN_ENET_RX, true, false},
+#endif
 };
 
 /*****************************************************************************
@@ -131,5 +137,6 @@ void Chip_SetupIrcClocking(void)
 void Chip_SystemInit(void)
 {
 	/* Initial internal clocking */
-	Chip_SetupIrcClocking();
+//	Chip_SetupIrcClocking();
+   Chip_SetupXtalClocking();
 }

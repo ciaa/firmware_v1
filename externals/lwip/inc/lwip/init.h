@@ -32,7 +32,7 @@
 #ifndef __LWIP_INIT_H__
 #define __LWIP_INIT_H__
 
-#include "opt.h"
+#include "lwip/opt.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -31,12 +31,12 @@
  * 
  */
 
-#include "opt.h"
+#include "lwip/opt.h"
 
 #if LWIP_NETIF_API /* don't build if not configured for use in lwipopts.h */
 
-#include "netifapi.h"
-#include "tcpip.h"
+#include "lwip/netifapi.h"
+#include "lwip/tcpip.h"
 
 /**
  * Call netif_add() inside the tcpip_thread context.

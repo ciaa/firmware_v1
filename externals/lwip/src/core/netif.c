@@ -36,28 +36,28 @@
  *
  */
 
-#include "opt.h"
+#include "lwip/opt.h"
 
-#include "def.h"
-#include "ip_addr.h"
-#include "netif.h"
-#include "tcp_impl.h"
-#include "snmp.h"
-#include "igmp.h"
+#include "lwip/def.h"
+#include "lwip/ip_addr.h"
+#include "lwip/netif.h"
+#include "lwip/tcp_impl.h"
+#include "lwip/snmp.h"
+#include "lwip/igmp.h"
 #include "netif/etharp.h"
-#include "stats.h"
+#include "lwip/stats.h"
 #if ENABLE_LOOPBACK
-#include "sys.h"
+#include "lwip/sys.h"
 #if LWIP_NETIF_LOOPBACK_MULTITHREADING
-#include "tcpip.h"
+#include "lwip/tcpip.h"
 #endif /* LWIP_NETIF_LOOPBACK_MULTITHREADING */
 #endif /* ENABLE_LOOPBACK */
 
 #if LWIP_AUTOIP
-#include "autoip.h"
+#include "lwip/autoip.h"
 #endif /* LWIP_AUTOIP */
 #if LWIP_DHCP
-#include "dhcp.h"
+#include "lwip/dhcp.h"
 #endif /* LWIP_DHCP */
 
 #if LWIP_NETIF_STATUS_CALLBACK

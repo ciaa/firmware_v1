@@ -29,21 +29,21 @@
  * this code.
  */
 
-#include "opt.h"
-#include "sys.h"
-#include "def.h"
-#include "mem.h"
-#include "pbuf.h"
-#include "stats.h"
-#include "snmp.h"
+#include "lwip/opt.h"
+#include "lwip/sys.h"
+#include "lwip/def.h"
+#include "lwip/mem.h"
+#include "lwip/pbuf.h"
+#include "lwip/stats.h"
+#include "lwip/snmp.h"
 #include "netif/etharp.h"
 #include "netif/ppp_oe.h"
 
-#include "lpc_18xx43xx_emac_config.h"
-#include "lpc18xx_43xx_emac.h"
+#include "arch/lpc_18xx43xx_emac_config.h"
+#include "arch/lpc18xx_43xx_emac.h"
 
 #include "chip.h"
-#include "lpc_phy.h"
+#include "arch/lpc_phy.h"
 
 #include <string.h>
 
@@ -863,6 +863,15 @@ void lpc_emac_set_speed(int mbs_100)
 	else {
 		LPC_ETHERNET->MAC_CONFIG &= ~MAC_CFG_FES;
 	}
+}
+
+/* Returns the MAC address assigned to this board */
+void Board_ENET_GetMacADDR(uint8_t *mcaddr)
+{
+   /* TODO FIXME!! Get MAC address from I2C memory!! */
+	uint8_t boardmac[] = {0x00, 0x60, 0x37, 0x12, 0x34, 0x56};
+
+	memcpy(mcaddr, boardmac, 6);
 }
 
 /* LWIP 18xx/43xx EMAC initialization function */

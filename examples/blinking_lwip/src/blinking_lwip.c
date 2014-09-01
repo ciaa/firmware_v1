@@ -68,53 +68,138 @@
 #include "ciaak.h"            /* <= ciaa kernel header */
 #include "blinking_lwip.h"         /* <= own header */
 
+
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
+/* NETIF data */
+static struct netif lpc_netif;
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-/** \brief File descriptor for digital input ports
- *
- * Device path /dev/dio/in/0
- */
-static int32_t fd_in;
-
-/** \brief File descriptor for digital output ports
- *
- * Device path /dev/dio/out/0
- */
-static int32_t fd_out;
-
-/** \brief File descriptor of the USB uart
- *
- * Device path /dev/serial/uart/1
- */
-static int32_t fd_uart1;
-
-/** \brief File descriptor of the RS232 uart
- *
- * Device path /dev/serial/uart/2
- */
-static int32_t fd_uart2;
+STATIC const PINMUX_GRP_T pinmuxing[] = {
+   /* RMII pin group */
+      {0x7, 7, MD_EHS | MD_PLN | MD_EZI | MD_ZI |FUNC6},
+      {0x1 ,17 , MD_EHS | MD_PLN | MD_EZI | MD_ZI| FUNC3},  // ENET_MDIO: P1_17 -> FUNC3
+      {0x1 ,18 , MD_EHS | MD_PLN | MD_EZI | MD_ZI| FUNC3},  // ENET_TXD0: P1_18 -> FUNC3
+      {0x1 ,20 , MD_EHS | MD_PLN | MD_EZI | MD_ZI| FUNC3},  // ENET_TXD1: P1_20 -> FUNC3
+      {0x1 ,19 , MD_EHS | MD_PLN | MD_EZI | MD_ZI| FUNC0},  // ENET_REF: P1_19 -> FUNC0 (default)
+      {0x0 ,1 , MD_EHS | MD_PLN | MD_EZI | MD_ZI| FUNC6},   // ENET_TX_EN: P0_1 -> FUNC6
+      {0x1 ,15 ,MD_EHS | MD_PLN | MD_EZI | MD_ZI| FUNC3},   // ENET_RXD0: P1_15 -> FUNC3
+      {0x0 ,0 , MD_EHS | MD_PLN | MD_EZI | MD_ZI| FUNC2},   // ENET_RXD1: P0_0 -> FUNC2
+      {0x1 ,16 ,MD_EHS | MD_PLN | MD_EZI | MD_ZI| FUNC7}
+};
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-/** \brief Main function
- *
- * This is the main entry point of the software.
- *
- * \returns 0
- *
- * \remarks This function never returns. Return value is only to avoid compiler
- *          warnings or errors.
- */
+
+/* Sets up system hardware */
+static void prvSetupHardware(void)
+{
+   /* LED0 is used for the link status, on = PHY cable detected */
+   SystemCoreClockUpdate();
+
+   /* Setup system level pin muxing */
+   Chip_SCU_SetPinMuxing(pinmuxing, sizeof(pinmuxing) / sizeof(PINMUX_GRP_T));
+
+   Chip_ENET_RMIIEnable(LPC_ETHERNET);
+
+   /* Setup a 1mS sysTick for the primary time base */
+   lwipSysTick_Enable(1);
+}
+
 int main(void)
 {
+   uint32 physts, rp = 0;
+   ip_addr_t ipaddr, netmask, gw;
+
+   ciaak_start();
+
+   prvSetupHardware();
+
+   /* Initialize LWIP */
+   lwip_init();
+
+   /* Static IP assignment */
+#if LWIP_DHCP
+   IP4_ADDR(&gw, 0, 0, 0, 0);
+   IP4_ADDR(&ipaddr, 0, 0, 0, 0);
+   IP4_ADDR(&netmask, 0, 0, 0, 0);
+#else
+   IP4_ADDR(&gw, 192, 168, 0, 1);
+   IP4_ADDR(&ipaddr, 192, 168, 0, 123);
+   IP4_ADDR(&netmask, 255, 255, 255, 0);
+#endif
+
+   /* Add netif interface for lpc17xx_8x */
+   netif_add(&lpc_netif, &ipaddr, &netmask, &gw, NULL, lpc_enetif_init,
+           ethernet_input);
+   netif_set_default(&lpc_netif);
+   netif_set_up(&lpc_netif);
+
+#if LWIP_DHCP
+   dhcp_start(&lpc_netif);
+#endif
+
+   /* Initialize and start application */
+   echo_init();
+
+   /* This could be done in the sysTick ISR, but may stay in IRQ context
+      too long, so do this stuff with a background loop. */
+   while (1) {
+      /* Handle packets as part of this loop, not in the IRQ handler */
+      lpc_enetif_input(&lpc_netif);
+
+      /* lpc_rx_queue will re-qeueu receive buffers. This normally occurs
+         automatically, but in systems were memory is constrained, pbufs
+         may not always be able to get allocated, so this function can be
+         optionally enabled to re-queue receive buffers. */
+#if 0
+      while (lpc_rx_queue(&lpc_netif)) {}
+#endif
+
+      /* Free TX buffers that are done sending */
+      lpc_tx_reclaim(&lpc_netif);
+
+      /* LWIP timers - ARP, DHCP, TCP, etc. */
+      sys_check_timeouts();
+
+      /* Call the PHY status update state machine once in a while
+         to keep the link status up-to-date */
+      physts = lpcPHYStsPoll();
+
+      /* Only check for connection state when the PHY status has changed */
+      if (physts & PHY_LINK_CHANGED) {
+         if (physts & PHY_LINK_CONNECTED) {
+            /* Set interface speed and duplex */
+            if (physts & PHY_LINK_SPEED100) {
+               Chip_ENET_SetSpeed(LPC_ETHERNET, 1);
+               NETIF_INIT_SNMP(&lpc_netif, snmp_ifType_ethernet_csmacd, 100000000);
+            }
+            else {
+               Chip_ENET_SetSpeed(LPC_ETHERNET, 0);
+               NETIF_INIT_SNMP(&lpc_netif, snmp_ifType_ethernet_csmacd, 10000000);
+            }
+            if (physts & PHY_LINK_FULLDUPLX) {
+               Chip_ENET_SetDuplex(LPC_ETHERNET, true);
+            }
+            else {
+               Chip_ENET_SetDuplex(LPC_ETHERNET, false);
+            }
+
+            netif_set_link_up(&lpc_netif);
+            rp = 0;
+         }
+         else {
+            netif_set_link_down(&lpc_netif);
+         }
+      }
+   }
+
    /* Starts the operating system in the Application Mode 1 */
    /* This example has only one Application Mode */
    StartOS(AppMode1);
@@ -124,24 +209,6 @@ int main(void)
    return 0;
 }
 
-/** \brief Error Hook function
- *
- * This fucntion is called from the os if an os interface (API) returns an
- * error. Is for debugging proposes. If called this function triggers a
- * ShutdownOs which ends in a while(1).
- *
- * The values:
- *    OSErrorGetServiceId
- *    OSErrorGetParam1
- *    OSErrorGetParam2
- *    OSErrorGetParam3
- *    OSErrorGetRet
- *
- * will provide you the interface, the input parameters and the returned value.
- * For more details see the OSEK specification:
- * http://portal.osek-vdx.org/files/pdf/specs/os223.pdf
- *
- */
 void ErrorHook(void)
 {
    ciaaPOSIX_printf("ErrorHook was called\n");
@@ -149,116 +216,13 @@ void ErrorHook(void)
    ShutdownOS(0);
 }
 
-/** \brief Initial task
- *
- * This task is started automatically in the application mode 1.
- */
 TASK(InitTask)
 {
-   /* init CIAA kernel and devices */
    ciaak_start();
 
-   /* open CIAA digital inputs */
-   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
-
-   /* open CIAA digital outputs */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
-
-   /* open UART connected to USB bridge (FT2232) */
-   fd_uart1 = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
-
-   /* open UART connected to RS232 connector */
-   fd_uart2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
-
-   /* change baud rate for uart usb */
-   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);
-
-   /* change FIFO TRIGGER LEVEL for uart usb */
-   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL, (void *)ciaaFIFO_TRIGGER_LEVEL3);
-
-   /* activate example tasks */
-   SetRelAlarm(ActivatePeriodicTask, 200, 200);
-
-   /* Activates the SerialEchoTask task */
-   ActivateTask(SerialEchoTask);
-
-   /* end InitTask */
    TerminateTask();
 }
 
-/** \brief Serial Echo Task
- *
- * This tasks waits for input data from fd_uart1 and writes the received data
- * to fd_uart1 and fd_uart2. This taks alos blinkgs the output 5.
- *
- */
-TASK(SerialEchoTask)
-{
-   int8_t buf[20];   /* buffer for uart operation              */
-   uint8_t outputs;  /* to store outputs status                */
-   int32_t ret;      /* return value variable for posix calls  */
-
-   /* send a message to the world :) */
-   char message[] = "Hi! :)\nSerialEchoTask: Waiting for characters...\n";
-   ciaaPOSIX_write(fd_uart1, message, ciaaPOSIX_strlen(message));
-
-   while(1)
-   {
-      /* wait for any character ... */
-      ret = ciaaPOSIX_read(fd_uart1, buf, 20);
-
-      if(ret > 0)
-      {
-         /* ... and write them to the same device */
-         ciaaPOSIX_write(fd_uart1, buf, ret);
-
-         /* also write them to the other device */
-         ciaaPOSIX_write(fd_uart2, buf, ret);
-      }
-
-      /* blink output 5 with each loop */
-      ciaaPOSIX_read(fd_out, &outputs, 1);
-      outputs ^= 0x20;
-      ciaaPOSIX_write(fd_out, &outputs, 1);
-   }
-}
-
-/** \brief Periodic Task
- *
- * This task is activated by the Alarm ActivatePeriodicTask.
- * This task copies the status of the inputs bits 0..3 to the output bits 0..3.
- * This task also blinks the output 4
- */
-TASK(PeriodicTask)
-{
-   /*
-    * Example:
-    *    Read inputs 0..3, update outputs 0..3.
-    *    Blink output 4
-    */
-
-   /* variables to store input/output status */
-   uint8_t inputs = 0, outputs = 0;
-
-   /* read inputs */
-   ciaaPOSIX_read(fd_in, &inputs, 1);
-
-   /* read outputs */
-   ciaaPOSIX_read(fd_out, &outputs, 1);
-
-   /* update outputs with inputs */
-   outputs &= 0xF0;
-   outputs |= inputs & 0x0F;
-
-   /* blink */
-   outputs ^= 0x10;
-
-   /* write */
-   ciaaPOSIX_write(fd_out, &outputs, 1);
-
-   /* end PeriodicTask */
-   TerminateTask();
-}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

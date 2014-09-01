@@ -38,21 +38,21 @@
  *
  */
 
-#include "opt.h"
+#include "lwip/opt.h"
 
 #if LWIP_TCP /* don't build if not configured for use in lwipopts.h */
 
-#include "tcp_impl.h"
-#include "def.h"
-#include "mem.h"
-#include "memp.h"
-#include "ip_addr.h"
-#include "netif.h"
-#include "inet_chksum.h"
-#include "stats.h"
-#include "snmp.h"
+#include "lwip/tcp_impl.h"
+#include "lwip/def.h"
+#include "lwip/mem.h"
+#include "lwip/memp.h"
+#include "lwip/ip_addr.h"
+#include "lwip/netif.h"
+#include "lwip/inet_chksum.h"
+#include "lwip/stats.h"
+#include "lwip/snmp.h"
 #if LWIP_TCP_TIMESTAMPS
-#include "sys.h"
+#include "lwip/sys.h"
 #endif
 
 #include <string.h>

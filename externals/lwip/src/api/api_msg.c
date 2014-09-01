@@ -36,21 +36,21 @@
  *
  */
 
-#include "opt.h"
+#include "lwip/opt.h"
 
 #if LWIP_NETCONN /* don't build if not configured for use in lwipopts.h */
 
-#include "api_msg.h"
+#include "lwip/api_msg.h"
 
-#include "ip.h"
-#include "udp.h"
-#include "tcp.h"
-#include "raw.h"
+#include "lwip/ip.h"
+#include "lwip/udp.h"
+#include "lwip/tcp.h"
+#include "lwip/raw.h"
 
-#include "memp.h"
-#include "tcpip.h"
-#include "igmp.h"
-#include "dns.h"
+#include "lwip/memp.h"
+#include "lwip/tcpip.h"
+#include "lwip/igmp.h"
+#include "lwip/dns.h"
 
 #include <string.h>
 

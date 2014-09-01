@@ -72,14 +72,14 @@
  * Includes
  *----------------------------------------------------------------------------*/
 
-#include "opt.h"
+#include "lwip/opt.h"
 
 #if LWIP_DNS /* don't build if not configured for use in lwipopts.h */
 
-#include "udp.h"
-#include "mem.h"
-#include "memp.h"
-#include "dns.h"
+#include "lwip/udp.h"
+#include "lwip/mem.h"
+#include "lwip/memp.h"
+#include "lwip/dns.h"
 
 #include <string.h>
 

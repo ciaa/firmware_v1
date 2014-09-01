@@ -42,12 +42,7 @@ ext_lwip_SRC_PATH   = $(ext_lwip_PATH)$(DS)src
    
 # library include path
 ext_lwip_INC_PATH   = $(ext_lwip_PATH)$(DS)inc \
-	$(ext_lwip_PATH)$(DS)inc$(DS)arch		    	\
-	$(ext_lwip_PATH)$(DS)inc$(DS)ipv4$(DS)lwip  	\
-	$(ext_lwip_PATH)$(DS)inc$(DS)lwip		    	\
-   	$(ext_lwip_PATH)$(DS)inc$(DS)netif		    	\
-   	$(ext_lwip_PATH)$(DS)inc$(DS)posix		    	\
-   	$(ext_lwip_PATH)$(DS)inc$(DS)posix$(DS)sys
+	$(ext_lwip_PATH)$(DS)inc$(DS)ipv4  	
 
 # library source files
 ext_lwip_SRC_FILES += $(wildcard $(ext_lwip_SRC_PATH)$(DS)*.c)	\

@@ -30,7 +30,7 @@
  */
 
 #include "chip.h"
-#include "lpc_phy.h"
+#include "arch/lpc_phy.h"
 
 /** @defgroup SMSC87X0_PHY BOARD: PHY status and control driver for the SMSC 87x0
  * @ingroup BOARD_PHY

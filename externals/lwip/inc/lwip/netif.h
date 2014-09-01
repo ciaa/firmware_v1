@@ -32,16 +32,16 @@
 #ifndef __LWIP_NETIF_H__
 #define __LWIP_NETIF_H__
 
-#include "opt.h"
+#include "lwip/opt.h"
 
 #define ENABLE_LOOPBACK (LWIP_NETIF_LOOPBACK || LWIP_HAVE_LOOPIF)
 
-#include "err.h"
+#include "lwip/err.h"
 
-#include "ip_addr.h"
+#include "lwip/ip_addr.h"
 
-#include "def.h"
-#include "pbuf.h"
+#include "lwip/def.h"
+#include "lwip/pbuf.h"
 #if LWIP_DHCP
 struct dhcp;
 #endif

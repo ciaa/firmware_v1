@@ -38,14 +38,14 @@
  * 
  */
 
-#include "opt.h"
-#include "ip_frag.h"
-#include "def.h"
-#include "inet_chksum.h"
-#include "netif.h"
-#include "snmp.h"
-#include "stats.h"
-#include "icmp.h"
+#include "lwip/opt.h"
+#include "lwip/ip_frag.h"
+#include "lwip/def.h"
+#include "lwip/inet_chksum.h"
+#include "lwip/netif.h"
+#include "lwip/snmp.h"
+#include "lwip/stats.h"
+#include "lwip/icmp.h"
 
 #include <string.h>
 

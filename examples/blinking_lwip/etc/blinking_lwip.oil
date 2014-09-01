@@ -43,9 +43,15 @@
 
 OSEK OSEK {
 
-OS	ExampleOS {
+OS ExampleOS {
     STATUS = EXTENDED;
     ERRORHOOK = TRUE;
+    PRETASKHOOK = FALSE;
+    POSTTASKHOOK = FALSE;
+    STARTUPHOOK = FALSE;
+    SHUTDOWNHOOK = FALSE;
+    USERESSCHEDULER = FALSE;
+    MEMMAP = FALSE;
 };
 
 TASK InitTask {
@@ -55,40 +61,10 @@ TASK InitTask {
         APPMODE = AppMode1;
     }
     STACK = 512;
-    TYPE = BASIC;
+    TYPE = EXTENDED;
     SCHEDULE = NON;
     RESOURCE = POSIXR;
     EVENT = POSIXE;
-}
-
-TASK SerialEchoTask {
-    PRIORITY = 5;
-    ACTIVATION = 1;
-    STACK = 512;
-    TYPE = EXTENDED;
-    SCHEDULE = FULL;
-    EVENT = POSIXE;
-    RESOURCE = POSIXR;
-}
-
-TASK PeriodicTask {
-    PRIORITY = 10;
-    ACTIVATION = 1;
-    STACK = 512;
-    TYPE = EXTENDED;
-    SCHEDULE = FULL;
-    RESOURCE = POSIXR;
-    EVENT = POSIXE;
-    AUTOSATART = TRUE {
-        APPMODE = AppMode1;
-    }
-}
-
-ALARM ActivatePeriodicTask {
-    COUNTER = SoftwareCounter;
-    ACTION = ACTIVATETASK {
-        TASK = PeriodicTask;
-    }
 }
 
 RESOURCE = POSIXR;

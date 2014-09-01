@@ -43,17 +43,17 @@
  *
  */
  
-#include "opt.h"
+#include "lwip/opt.h"
 
 #if LWIP_ARP || LWIP_ETHERNET
 
-#include "ip_addr.h"
-#include "def.h"
-#include "ip.h"
-#include "stats.h"
-#include "snmp.h"
-#include "dhcp.h"
-#include "autoip.h"
+#include "lwip/ip_addr.h"
+#include "lwip/def.h"
+#include "lwip/ip.h"
+#include "lwip/stats.h"
+#include "lwip/snmp.h"
+#include "lwip/dhcp.h"
+#include "lwip/autoip.h"
 #include "netif/etharp.h"
 
 #if PPPOE_SUPPORT

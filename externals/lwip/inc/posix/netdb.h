@@ -1,6 +1,6 @@
 /**
  * @file
- * This file is a posix wrapper for netdb.h.
+ * This file is a posix wrapper for lwip/netdb.h.
  */
 
 /*
@@ -30,4 +30,4 @@
  *
  */
 
-#include "netdb.h"
+#include "lwip/netdb.h"

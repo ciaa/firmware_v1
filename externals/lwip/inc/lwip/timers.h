@@ -33,16 +33,16 @@
 #ifndef __LWIP_TIMERS_H__
 #define __LWIP_TIMERS_H__
 
-#include "opt.h"
+#include "lwip/opt.h"
 
 /* Timers are not supported when NO_SYS==1 and NO_SYS_NO_TIMERS==1 */
 #define LWIP_TIMERS (!NO_SYS || (NO_SYS && !NO_SYS_NO_TIMERS))
 
 #if LWIP_TIMERS
 
-#include "err.h"
+#include "lwip/err.h"
 #if !NO_SYS
-#include "sys.h"
+#include "lwip/sys.h"
 #endif
 
 #ifdef __cplusplus

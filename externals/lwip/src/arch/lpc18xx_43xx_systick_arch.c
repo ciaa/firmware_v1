@@ -29,10 +29,7 @@
  * this code.
  */
 
-#include "opt.h"
-#include "snmp.h"
-
-#if NO_SYS == 1
+#include "lwip/opt.h"
 
 #include "chip.h"
 #include "arch/lpc_arch.h"
@@ -48,13 +45,10 @@
 /* Saved reference period foe standalone mode */
 static uint32_t saved_period;
 
-#if (defined(CHIP_LPC43XX) && defined(CORE_M0))
-
 #define RITIMER_IRQn_PRI  (255)
 
 /* RITimer Reload value */
 static uint32_t reload_val;
-#endif
 
 /* Saved total time in mS since timer was enabled */
 static volatile u32_t systick_timems;
@@ -74,10 +68,8 @@ extern uint32_t SystemCoreClock;
  * Public functions
  ****************************************************************************/
 
-#if (defined(CHIP_LPC43XX) && defined(CORE_M0))
-
 /* Enable LWIP tick and interrupt */
-void SysTick_Enable(uint32_t period)
+void lwipSysTick_Enable(uint32_t period)
 {
 	saved_period = period;
 
@@ -94,7 +86,7 @@ void SysTick_Enable(uint32_t period)
 }
 
 /* Disable LWIP tick */
-void SysTick_Disable(void)
+void lwipSysTick_Disable(void)
 {
 	Chip_RIT_Disable(LPC_RITIMER);
 }
@@ -114,47 +106,6 @@ void RIT_IRQHandler(void)
 	/* Increment tick count */
 	systick_timems += saved_period;
 }
-
-#else
-
-/* Enable LWIP tick and interrupt */
-void SysTick_Enable(uint32_t period)
-{
-	saved_period = period;
-	SysTick_Config((SystemCoreClock * period) / 1000);
-}
-
-/* Disable LWIP tick */
-void SysTick_Disable(void)
-{
-	SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
-}
-
-/**
- * @brief	SysTick IRQ handler and timebase management
- * @return	Nothing
- * @note	This function keeps a timebase for LWIP that can be
- * used for other functions.
- */
-void SysTick_Handler(void)
-{
-	static int cont10ms;
-
-	/* Increment tick count */
-	systick_timems += saved_period;
-
-	cont10ms++;
-	if(cont10ms==10)
-	{
-		cont10ms=0;
-		snmp_inc_sysuptime();
-	}
-
-	extern void mainSysTick_Handler(void);
-	mainSysTick_Handler();
-}
-
-#endif
 
 /* Get the current systick time in milliSeconds */
 uint32_t SysTick_GetMS(void)
@@ -184,4 +135,3 @@ u32_t sys_now(void)
  * @}
  */
 
-#endif /* NO_SYS == 1 */

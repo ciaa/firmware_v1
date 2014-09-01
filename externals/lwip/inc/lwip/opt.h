@@ -43,7 +43,7 @@
  * will be set to standard values. Override anything you dont like!
  */
 #include "lwipopts.h"
-#include "debug.h"
+#include "lwip/debug.h"
 
 /*
    -----------------------------------------------
@@ -679,7 +679,7 @@
  * LWIP_DHCP==1: Enable DHCP module.
  */
 #ifndef LWIP_DHCP
-#define LWIP_DHCP                       1
+#define LWIP_DHCP                       0
 #endif
 
 /**
@@ -730,7 +730,7 @@
  * transport.
  */
 #ifndef LWIP_SNMP
-#define LWIP_SNMP                       1
+#define LWIP_SNMP                       0
 #endif
 
 /**
