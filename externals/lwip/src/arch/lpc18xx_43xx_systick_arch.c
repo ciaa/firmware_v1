@@ -99,12 +99,21 @@ void lwipSysTick_Disable(void)
  */
 void RIT_IRQHandler(void)
 {
+#define CONTEXT_ISR2 3
+   typedef uint8_t ContextType;
+   extern ContextType ActualContext;
+
+   ContextType ctx = ActualContext;
+   ActualContext = CONTEXT_ISR2;
+
 	/* Clear RITimer Interrupt, Reload counter value */
 	Chip_RIT_ClearInt(LPC_RITIMER);
 	Chip_RIT_SetCOMPVAL(LPC_RITIMER, Chip_RIT_GetCounter(LPC_RITIMER) + reload_val);/* Reload value */
 
 	/* Increment tick count */
 	systick_timems += saved_period;
+
+   ActualContext = ctx;
 }
 
 /* Get the current systick time in milliSeconds */

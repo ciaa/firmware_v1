@@ -60,11 +60,36 @@ TASK InitTask {
     AUTOSTART = TRUE {
         APPMODE = AppMode1;
     }
-    STACK = 512;
+    STACK = 256;
     TYPE = EXTENDED;
     SCHEDULE = NON;
     RESOURCE = POSIXR;
     EVENT = POSIXE;
+}
+
+TASK PeriodicTask {
+    PRIORITY = 1;
+    ACTIVATION = 1;
+    STACK = 512;
+    TYPE = EXTENDED;
+    SCHEDULE = FULL;
+}
+
+TASK BlinkTask {
+    PRIORITY = 5;
+    ACTIVATION = 1;
+    STACK = 512;
+    TYPE = EXTENDED;
+    SCHEDULE = FULL;
+    RESOURCE = POSIXR;
+    EVENT = POSIXE;
+}
+
+ALARM ActivateBlinkTask {
+    COUNTER = SoftwareCounter;
+    ACTION = ACTIVATETASK {
+        TASK = BlinkTask;
+    }
 }
 
 RESOURCE = POSIXR;

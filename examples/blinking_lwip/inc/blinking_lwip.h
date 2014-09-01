@@ -80,6 +80,7 @@
 #include "arch/lpc_arch.h"
 
 #include "echo.h"
+#include "lwipTasks.h"
 
 /*==================[macros]=================================================*/
 
