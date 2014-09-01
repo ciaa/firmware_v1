@@ -11,7 +11,7 @@ sub new {
    my $class = shift;
    my $self = {
       _outdir => shift,
-      _mods => shift
+      _mods => [@_],
    };
    bless $self, $class;
    return $self;
@@ -33,13 +33,35 @@ sub genReport
 
    print FILE "<tr><th>Module</th><th>Tested Files</th><th>Test Cases</th><th>Function Coverage</th><th>Line Coverage</th><th>Branch coverage</th></tr>";
 
-   foreach my $mod ($self->{_mods})
+   foreach my $mod (@{$self->{_mods}})
    {
-      printf FILE "<tr><td>" . $mod->getName() . "</td>" . "</tr>";
+      printf FILE "<tr><td><a href=\"#" . $mod->getName() . "\">" . $mod->getName() . "</a></td>";
+      my $countOfTests = $mod->getCountOfTests();
+      my $countOfFiles = $mod->getCountOfFiles();
+      my $style = 'style="background-color:#D00000"';
+      if ($countOfFiles == $countOfTests)
+      {
+         $style = 'style="background-color:#00D000"';
+      }
+      printf FILE "<td $style>" . $countOfTests . "/" . $countOfFiles . "</td>";
+      printf FILE "<td>" . "</td>";
+      printf FILE "<td>" . "</td>";
+      printf FILE "<td>" . "</td>";
+      printf FILE "<td>" . "</td></tr>";
    }
 
    print FILE "</table>";
    print FILE "</body></html>";
+
+   foreach my $mod (@{$self->{_mods}})
+   {
+      # todo perform the report of each module
+      printf FILE "<a name=\"$mod->{_name}\"/><h2>Report of Module: $mod->{_name}</h2>";
+      foreach my $file ($mod->getFiles)
+      {
+         print FILE $file->getName() ."<br/>";
+      }
+   }
 
    close FILE;
 

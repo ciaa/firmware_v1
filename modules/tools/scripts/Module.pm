@@ -57,6 +57,28 @@ sub getCountOfFiles
    return scalar @{$self->{_files}};
 }
 
+sub getFiles
+{
+   my $self = shift;
+   return @{$self->{_files}};
+}
+
+sub getCountOfTests
+{
+   my $self = shift;
+   my $count = 0;
+
+   foreach my $file (@{$self->{_files}})
+   {
+      if ($file->hasTest())
+      {
+         $count++;
+      }
+   }
+
+   return $count;
+}
+
 sub print
 {
    my $self = shift;

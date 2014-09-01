@@ -30,6 +30,13 @@ sub getFile
    return $self->{_mod}->getName() . "/" . $self->{_name};
 }
 
+sub getName
+{
+   my $self = shift;
+
+   return $self->{_name};
+}
+
 sub hasTest
 {
    my $self = shift;
