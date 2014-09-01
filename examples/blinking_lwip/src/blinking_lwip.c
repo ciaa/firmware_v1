@@ -117,7 +117,7 @@ TASK(InitTask)
    echo_init();
 
    /* set blinky task */
-//   SetRelAlarm(ActivateBlinkTask, 500, 500);
+   SetRelAlarm(ActivateBlinkTask, 250, 250);
 
    /* activate lwip loop as a background loop */
    ActivateTask(PeriodicTask);
@@ -150,6 +150,7 @@ TASK(PeriodicTask)
    {
       /* lwip stack periodic loop */
       ciaaLWIP_loop();
+      Schedule();
    }
 }
 
