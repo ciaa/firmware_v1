@@ -291,7 +291,7 @@ foreach ($alarms as $alarm)
 	if ($action == "ALARMCALLBACK")
 	{
 		print "/** \brief Alarm Callback declaration */\n";
-		print "extern void OSEK_CALLBACK_" . substr($config->getValue("/OSEK/" . $alarm . "/ALARMCALLBACK", "ALARMCALLBACKNAME"),1,-1) . "(void);\n";
+		print "extern void OSEK_CALLBACK_" . $config->getValue("/OSEK/" . $alarm . "/ALARMCALLBACK", "ALARMCALLBACKNAME") . "(void);\n";
 	}
 }
 print "\n";

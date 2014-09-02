@@ -376,7 +376,7 @@ foreach ($alarms as $alarm)
 			print "			0 /* no counter */\n";
 			break;
 		case "ALARMCALLBACK":
-         print "			OSEK_CALLBACK_" . substr($config->getValue("/OSEK/" . $alarm . "/ALARMCALLBACK", "ALARMCALLBACKNAME"),1,-1) . ", /* callback */\n";
+         print "			OSEK_CALLBACK_" . $config->getValue("/OSEK/" . $alarm . "/ALARMCALLBACK", "ALARMCALLBACKNAME") . ", /* callback */\n";
          print "			0, /* no taskid */\n";
 			print "			0, /* no event */\n";
 			print "			0 /* no counter */\n";
