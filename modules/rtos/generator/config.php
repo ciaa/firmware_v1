@@ -98,14 +98,14 @@ class configClass {
 		foreach ($this->config as $element)
 		{
 			if ( ($element["root"] == $root) &&
-				  ($element["type"] == $type) )
+				($element["type"] == $type) )
 			{
-			   $value = $element["value"];
-			   if(strpos($value, "\"")!==false)
-			   {
-			      /* remove quotation marks */
-			      $value = substr($value, 1, -1);
-			   }
+				$value = $element["value"];
+				if(strpos($value, "\"")!==false)
+				{
+					/* remove quotation marks */
+					$value = substr($value, 1, -1);
+				}
 				return $value;
 			}
 		}
