@@ -100,10 +100,15 @@ class configClass {
 			if ( ($element["root"] == $root) &&
 				  ($element["type"] == $type) )
 			{
-				return $element["value"];
+			   $value = $element["value"];
+			   if(strpos($value, "\"")!==false)
+			   {
+			      /* remove quotation marks */
+			      $value = substr($value, 1, -1);
+			   }
+				return $value;
 			}
 		}
-
 		return $ret;
 	}
 
