@@ -57,10 +57,45 @@ sub genReport
    {
       # todo perform the report of each module
       printf FILE "<a name=\"$mod->{_name}\"/><h2>Report of Module: $mod->{_name}</h2>";
-      foreach my $file ($mod->getFiles)
+
+      print FILE "<table border =\"1\">";
+      print FILE "<tr><th>File</th><th>Has test file</th><th>Test Cases</th><th>Function Coverage</th><th>Line Coverage</th><th>Branch coverage</th></tr>";
+      foreach my $file ($mod->getFiles())
       {
-         print FILE $file->getName() ."<br/>";
+         printf FILE "<tr><td><a href=\"#" . $file->getName() . "\">" . $file->getName() . "</a></td>";
+
+         my $hasTest = "no";
+         my $hasTestStyle = 'style="background-color:#D00000"';
+         if ($file->hasTest()) {
+            $hasTest = "yes";
+            $hasTestStyle = 'style="background-color:#00D000"';
+         }
+
+         printf FILE "<td $hasTestStyle>" . $hasTest . "</td>";
+         printf FILE "<td>" . "</td>";
+         printf FILE "<td>" . "</td>";
+         printf FILE "<td>" . "</td>";
+         printf FILE "<td>" . "</td></tr>";
       }
+      print FILE "</table>";
+
+      foreach my $file ($mod->getFiles())
+      {
+         print FILE "<h3><a name=\"" . $file->getName() . "\"/>Report of file " . $file->getName() . "</h3>";
+
+         print FILE "<table border =\"1\">";
+         print FILE "<tr><th>Test Case</th><th>Result</th></tr>";
+         foreach my $file ($mod->getFiles())
+         {
+            printf FILE "<tr><td>" . "</td>";
+            printf FILE "<td>" . "</td>";
+            printf FILE "<td>" . "</td></tr>";
+         }
+         print FILE "</table>";
+         print FILE "<h4>Not tested lines</h4>";
+         print FILE "<p>TODO</p>";
+      }
+
    }
 
    close FILE;
