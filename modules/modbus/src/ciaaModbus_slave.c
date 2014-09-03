@@ -1,7 +1,4 @@
 /* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Gustavo Muro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,9 +30,9 @@
  *
  */
 
-/** \brief This file implements the Modbus configuration
+/** \brief This file implements the Modbus Slave main functionality
  **
- ** This file implements the configuration of the modbus
+ ** This file implements the main functionality of the Modbus
  **
  **/
 
@@ -47,27 +44,21 @@
 /*
  * Initials     Name
  * MaCe         Mariano Cerdeiro
- * GMuro        Gustavo Muro  
- * PR           Pablo Ridolfi
- * JuCe         Juan Cecconi 
+ * GMuro        Gustavo Muro
  *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140713 v0.0.1 initials initial
+ * 20140623 v0.0.1 initials initial
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaModbus_Cfg.h"
-#include "ciaaPOSIX_stdlib.h"
 
-/*******************[cfg needed includes]*************************************/
-/** This section shall contain the header files containing the decalartion of
- ** the referenced functions.
- **/
-#include "blinking_modbus.h"
+#include "ciaaPOSIX_stdio.h"
+#include "ciaaModbus_slave.h"
+#include "ciaaModbus_transport.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -78,61 +69,64 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-#if (CIAAMODBUS_READ_HOLDING_REGISTERS == CIAAMODBUS_EN)
-ciaaModbus_cmdLst0x03Type ciaaModbus_cmdLst0x03[] = {
-   {
-      {
-         0x0000,
-         0x0001
-      },
-      readHoldingRegisters
-   },
-   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
-};
-#endif /* #if (CIAAMODBUS_READ_HOLDING_REGISTERS == CIAAMODBUS_EN) */
-
-#if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN)
-ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[] = {
-   {
-      {
-         0x0000,
-         0x0000
-      },
-      readInputRegisters
-   },
-   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
-};
-#endif /* #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN) */
-
-#if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN)
-ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[] = {
-   {
-      {
-         0x0000,
-         0x0001
-      },
-      writeSingleRegister
-   },
-   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
-};
-#endif /* #if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN) */
-
-#if (CIAAMODBUS_WRITE_MULTIPLE_REGISTERS == CIAAMODBUS_EN)
-ciaaModbus_cmdLst0x10Type ciaaModbus_cmdLst0x10[] = {
-   {
-      {
-         0x0000,
-         0x0001
-      },
-      writeMultipleRegisters
-   },
-   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
-};
-#endif /* #if (CIAAMODBUS_WRITE_MULTIPLE_REGISTERS == CIAAMODBUS_EN) */
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+
+extern int32_t ciaaModbus_slaveInit(
+      int32_t fildes,
+      ciaaModbus_transportMode_enum mode,
+      const ciaaModbus_slaveCmd_type *cmd,
+      uint8_t id
+      )
+{
+   return 0;
+}
+
+extern void ciaaModbus_slaveTask(int32_t hModbusSlave)
+{
+/*  int32_t ret;
+   uint32_t len;
+
+   ret = ciaaModbus_transportRecv(
+         handlerModTra,
+         buffer
+         &len);
+
+   if (ret == CIAAMODBUS_TRASNPORT_RECV_COMPLETE)
+   {
+      if (buffer[0] == CIAA_BLINKING_MODBUS_ID)
+      {
+         len = ciaaModbus_slaveProcess(
+               &buffer[1],
+               &callbacksStruct);
+
+         ciaaModbus_transportSend(
+               handlerModTra,
+               buffer,
+               len+1);
+      }
+   }
+   */
+}
+
+
+/** \brief Process modbus request
+ **
+ ** \param[inout] buf buffer with the modbus data
+ ** \param[in] len length of the buffer
+ ** \param[in] cmd pointer to struct call backs modbus function
+ ** \return length of data on the buffer
+ **/
+extern int32_t ciaaModbus_slaveProcess(
+      uint8_t * buf,
+      const ciaaModbus_slaveCmd_type *cmd
+      )
+{
+   return 0;
+}
+
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
