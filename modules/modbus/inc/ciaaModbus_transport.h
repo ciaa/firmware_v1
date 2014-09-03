@@ -30,11 +30,11 @@
  *
  */
 
-#ifndef _CIAAMODBUS_H_
-#define _CIAAMODBUS_H_
+#ifndef _CIAAMODBUSTRANSPORT_H_
+#define _CIAAMODBUSTRANSPORT_H_
 /** \brief Modbus Header File
  **
- ** This files shall be included by moodules using the itnerfaces provided by
+ ** This files shall be included by moodules using the interfaces provided by
  ** the Modbus
  **
  **/
@@ -66,38 +66,92 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief No error */
-#define MODBUS_E_OK                       0x00
 
-/** \brief Function not supported error */
-#define MODBUS_E_FUNC_NOT_SUPPORTED       0x01
+/** \brief PDU is not received */
+#define CIAAMODBUS_TRANSPORT_RECV_NONE         -1
+/** \brief Processing incoming PDU */
+#define CIAAMODBUS_TRANSPORT_RECV_PROCCESING    0
+/** \brief PDU received */
+#define CIAAMODBUS_TRASNPORT_RECV_COMPLETE      1
 
-/** \brief Invalid address error */
-#define MODBUS_E_INV_ADDRESS              0x02
+/** \brief an error occurred while sending PDU */
+#define CIAAMODBUS_TRANSPORT_SEND_ERROR        -1
+/** \brief send in process */
+#define CIAAMODBUS_TRANSPORT_SEND_PROCESS       0
+/** \brief PDU send complete */
+#define CIAAMODBUS_TRANSPORT_SEND_COMPLETE      1
 
-/** \brief Invalid length error */
-#define MODBUS_E_INV_LENGHT               0x03
 
-/** \brief Function internal error */
-#define MODBUS_E_FUNCTION_ERROR           0x04
 
 /** \brief Min lenght of a modbus pdu */
 #define CIAAMODBUS_MSG_MINLENGTH          0x05
 
 /*==================[typedef]================================================*/
-/** \brief Modbus return type */
-typedef uint8_t Modbus_returnType;
+typedef enum
+{
+   CIAAMODBUS_TRANSPORT_MODE_ASCII = 0,
+   CIAAMODBUS_TRANSPORT_MODE_RTU,
+   CIAAMODBUS_TRANSPORT_MODE_TCPSERVER,
+   CIAAMODBUS_TRANSPORT_MODE_TCPCLIENT,
+}ciaaModbus_transportMode_enum;
+
 
 /*==================[external data declaration]==============================*/
-/** \brief Modbus initialization
- **/
-extern void ciaaModbus_init(void);
-
-/** \brief Modbus slave main function
- **/
-extern void ciaaModbus_slaveMainFunction(void);
 
 /*==================[external functions declaration]=========================*/
+/** \brief Modbus Transport Init
+ **
+ ** This function initialize Modbus Transport with device indicate in fildes
+ ** and selected mode. Also reserves the buffer for reception and
+ ** transmission.
+ **
+ ** \param[in] fildes File Descriptor to write and read data
+ ** \param[in] mode mode may take one of the following values:
+ **            CIAAMODBUS_TRANSPORT_MODE_ASCII
+ **            CIAAMODBUS_TRANSPORT_MODE_RTU
+ **            CIAAMODBUS_TRANSPORT_MODE_TCPSERVER
+ **            CIAAMODBUS_TRANSPORT_MODE_TCPCLIENT
+ ** \return handler of Modbus Transport
+ **/
+extern int32_t ciaaModbus_transportInit(
+      int32_t fildes,
+      ciaaModbus_transportMode_enum mode);
+
+/** \brief Modbus Transport Receive
+ **
+ ** This function receive PDU on transport handler.
+ **
+ ** \param[in] hModTra Handler Modbus Transport
+ ** \param[out] buf with PDU received
+ ** \param[out] len length of buffer.
+ ** \return one of following values:
+ **            CIAAMODBUS_TRANSPORT_RECV_NONE
+ **            CIAAMODBUS_TRANSPORT_RECV_PROCCESING
+ **            CIAAMODBUS_TRASNPORT_RECV_COMPLETE
+ **
+ **/
+extern int32_t ciaaModbus_transportRecv(
+      int32_t hModTra,
+      uint8_t *buf,
+      uint32_t *len);
+
+/** \brief Modbus Transport Send
+ **
+ ** This function send PDU on transport handler.
+ **
+ ** \param[in] hModTra Handler Modbus Transport
+ ** \param[in] buf with PDU to send
+ ** \param[in] len length of buffer.
+ ** \return one of following values:
+ **            CIAAMODBUS_TRANSPORT_SEND_ERROR
+ **            CIAAMODBUS_TRANSPORT_SEND_PROCESS
+ **            CIAAMODBUS_TRANSPORT_SEND_COMPLETE
+ **
+ **/
+extern int32_t ciaaModbus_transportSend(
+      int32_t hModTra,
+      uint8_t *buf,
+      uint32_t len);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -106,5 +160,5 @@ extern void ciaaModbus_slaveMainFunction(void);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUS_H_ */
+#endif /* #ifndef _CIAAMODBUSTRANSPORT_H_ */
 

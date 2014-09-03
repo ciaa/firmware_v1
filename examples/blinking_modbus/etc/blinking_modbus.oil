@@ -59,14 +59,6 @@ TASK InitTask {
     RESOURCE = POSIXR;
 }
 
-TASK Blinking {
-    PRIORITY = 5;
-    ACTIVATION = 1;
-    STACK = 512;
-    TYPE = BASIC;
-    SCHEDULE = NON;
-    RESOURCE = POSIXR;
-}
 
 TASK ModbusSlave {
     PRIORITY = 1;
@@ -78,15 +70,10 @@ TASK ModbusSlave {
     EVENT = POSIXE;
 }
 
-ALARM BlinkingAlarm {
+ALARM ActivateModbusTask {
     COUNTER = SoftwareCounter;
     ACTION = ACTIVATETASK {
-        TASK = Blinking;
-    }
-    AUTOSTART = TRUE {
-       APPMODE = AppMode1;
-       ALARMTIME = 50;
-       CYCLETIME = 50;
+        TASK = ModbusSlave;
     }
 }
 

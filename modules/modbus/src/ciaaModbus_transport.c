@@ -30,9 +30,9 @@
  *
  */
 
-/** \brief This file implements the Modbus configuration
+/** \brief This file implements the Modbus main functionality
  **
- ** This file implements the configuration of the modbus
+ ** This file implements the main functionality of the Modbus
  **
  **/
 
@@ -44,24 +44,19 @@
 /*
  * Initials     Name
  * MaCe         Mariano Cerdeiro
+ * GMuro        Gustavo Muro
  *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140713 v0.0.1 initials initial
+ * 20140623 v0.0.1 initials initial
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaModbus_Cfg.h"
-#include "ciaaPOSIX_stdlib.h"
-
-/*******************[cfg needed includes]*************************************/
-/** This section shall contain the header files containing the decalartion of
- ** the referenced functions.
- **/
-#include "blinking_modbus.h"
+#include "ciaaModbus_transport.h"
+#include "ciaaPOSIX_stdio.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -72,33 +67,30 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-#if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN)
-ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[] = {
-   {
-      {
-         0x0000,
-         0x0000
-      },
-      readInputRegisters
-   },
-   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
-};
-#endif /* #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN) */
-
-#if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN)
-ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[] = {
-   {
-      {
-         0x0000,
-         0x0000
-      },
-      writeSingleRegister
-   },
-   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
-};
-#endif /* #if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN) */
 
 /*==================[internal functions definition]==========================*/
+extern int32_t ciaaModbus_transportInit(
+      int32_t fildes,
+      ciaaModbus_transportMode_enum mode)
+{
+   return 0;
+}
+
+extern int32_t ciaaModbus_transportRecv(
+      int32_t hModTra,
+      uint8_t *buf,
+      uint32_t *len)
+{
+   return 0;
+}
+
+extern int32_t ciaaModbus_transportSend(
+      int32_t hModTra,
+      uint8_t *buf,
+      uint32_t len)
+{
+   return 0;
+}
 
 /*==================[external functions definition]==========================*/
 

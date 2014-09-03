@@ -65,73 +65,32 @@
 /*==================[inclusions]=============================================*/
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
-#include "ciaaModbusSlave.h"
+#include "ciaaModbus_slave.h"
+#include "ciaaModbus_transport.h"
 #include "ciaak.h"
 #include "blinking_modbus.h"
 
 /*==================[macros and definitions]=================================*/
-/** \brief Modbus Address for Input Register
- *
- * Input Register address: 0x0000
- */
-#define MODBUS_ADDR_IR_INPUT_REG_VAL      0x0000
-
-/** \brief Holding Registers Addresses
- *
- * Holding Register Inputs:   0x0000
- * Holding Register Outputs:  0x0001
- */
-#define MODBUS_ADDR_HR_CIAA_INPUTS        0X0000
-#define MODBUS_ADDR_HR_CIAA_OUTPUTS       0X0001
+#define CIAA_BLINKING_MODBUS_ID     2
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-/** \brief Inputs registers variables
- *
- * Input Registers:
- * Accessed through:
- *             - 0x04 Read Input Register
- *   address      ---------------------
- *   0x0000      |   inputRegVal       |
- *                ---------------------
- */
-static uint16_t inputRegVal;
+static int32_t handlerModSla;
 
-/** \brief Holding Register Input
- *
- * Holding Register Inputs Variable
- * Accessed through:
- *             - 0x03 Read Holding Register
- *             - 0x17 Read/Write multiple Register
- */
-static uint16_t hr_ciaaInputs;
-
-/** \brief Holding Register Output
- *
- * Holding Register Output Variable
- * Accessed through:
- *             - 0x03 Read Holding Register
- *             - 0x06 Write single Register
- *             - 0x10 Write multiple Register
- *             - 0x17 Read/Write multiple Register
- */
-static uint16_t hr_ciaaOutputs;
-
-/** \brief File descriptor for digital input ports
- *
- * Device path /dev/dio/in/0
- */
-static int32_t fd_in;
-
-/** \brief File descriptor for digital output ports
- *
- * Device path /dev/dio/out/0
- */
-static int32_t fd_out;
-
+static const ciaaModbus_slaveCmd_type callbacksStruct =
+{
+   .cmd0x01ReadCoils = NULL,
+   .cmd0x02ReadDiscrteInputs = NULL,
+   .cmd0x03ReadHoldingReg = NULL,
+   .cmd0x04ReadInputReg = NULL,
+   .cmd0x05WriteSingleCoil = NULL,
+   .cmd0x06WriteSingleRegister = NULL,
+   .cmd0x0FWriteMultipleCoils = NULL,
+   .cmd0x10WriteMultipleReg = NULL,
+};
 
 /*==================[external data definition]===============================*/
 
@@ -189,262 +148,39 @@ void ErrorHook(void)
  */
 TASK(InitTask)
 {
+   int32_t ciaaModbus_device;
+
    /* init the ciaa kernel */
    ciaak_start();
 
-   /* open CIAA digital inputs */
-   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
+   ciaaModbus_device = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
 
-   /* open CIAA digital outputs */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   handlerModSla = ciaaModbus_slaveInit(
+         ciaaModbus_device,
+         CIAAMODBUS_TRANSPORT_MODE_ASCII,
+         &callbacksStruct,
+         CIAA_BLINKING_MODBUS_ID);
 
-   /* Activates the ModbusSlave task */
-   ActivateTask(ModbusSlave);
+
+   SetRelAlarm(ActivateModbusTask, 100, 5);
 
    /* end InitTask */
    TerminateTask();
 }
 
-/** \brief Blinking Task
+/** \brief Modbus Task
  *
- * This task is activated by the Alarm BlinkingAlarm.
- * This task blinks the output 4, copies hr_ciaaOutputs
- * to the output bits 0..8.
- * Read the input bits 0..8 and copies the value to hr_ciaaInputs
- */
-TASK(Blinking)
-{
-   uint8_t uint8Data;
-
-   /* blink */
-   hr_ciaaOutputs ^= 0x10;
-
-   /* update outputs */
-   uint8Data = hr_ciaaOutputs;
-   ciaaPOSIX_write(fd_out, &uint8Data, sizeof(uint8Data));
-
-   /* read inputs */
-   ciaaPOSIX_read(fd_in, &uint8Data, sizeof(uint8Data));
-   hr_ciaaInputs = uint8Data;
-
-   /* end of Blinking */
-   TerminateTask();
-}
-
-/** \brief Modbus Slave Task
- *
- * This init serial port used in Modbus Slave and call
- * ciaaModbus_slaveMainTask. This function is a
- * forever loop that receive Modbus ASCII request, process
- * and send Modbus ASCII response.
- *
+ * This task is activated by the Alarm ActivateModbusTask.
  */
 TASK(ModbusSlave)
 {
-   /* initialize modbus slave */
-   ciaaModbus_init("/dev/serial/uart/0");
+   ciaaModbus_slaveTask(handlerModSla);
 
-   /* start modbus main task */
-   ciaaModbus_slaveMainTask();
-
-   /* ciaaModbus_slaveMainTask shall never returns. Unless
-    * ciaaModbus_exit != 0 */
    TerminateTask();
 }
 
 
-extern int8_t readInputRegisters(
-      uint16_t startingAddress,
-      uint16_t quantityOfInputRegisters,
-      uint8_t * exceptionCode,
-      uint8_t * buf
-      )
-{
-   int8_t ret;
 
-   /* check if address and quantity of registers match */
-   if ( (0x0000 == startingAddress) &&
-        (0x01 == quantityOfInputRegisters) )
-   {
-      /* write register in to buffer */
-      ciaaModbus_writeInt(&buf[0], inputRegVal);
-
-      /* return quantity of registers writes */
-      ret = 1;
-   }
-   else
-   {
-      /* set exception code address wrong */
-      *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
-
-      /* return -1 to indicate that an exception occurred */
-      ret = -1;
-   }
-
-   return ret;
-}
-
-extern int8_t writeSingleRegister(
-      uint16_t registerAddress,
-      uint16_t registerValue,
-      uint8_t * exceptionCode
-      )
-{
-   int8_t ret = 1;
-
-   /* select register address to be write */
-   switch (registerAddress)
-   {
-      /* inputs can not be written! */
-      case MODBUS_ADDR_HR_CIAA_INPUTS:
-         *exceptionCode = CIAAMODBUS_E_FNC_ERROR;
-         break;
-
-      /* write outputs */
-      case MODBUS_ADDR_HR_CIAA_OUTPUTS:
-         hr_ciaaOutputs = registerValue;
-         break;
-
-      /* wrong address */
-      default:
-         *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
-         ret = -1;
-         break;
-   }
-
-   return ret;
-}
-
-extern int8_t readHoldingRegisters(
-      uint16_t startingAddress,
-      uint16_t quantityOfHoldingRegisters,
-      uint8_t * exceptionCode,
-      uint8_t * buf
-      )
-{
-   /* used to indicate total of registers reads */
-   int8_t ret = 0;
-   /* used to indicate quantity of registers processed */
-   uint16_t quantityRegProcessed;
-
-   /* loop to read all registers indicated */
-   do
-   {
-      /* select register address to be read */
-      switch (startingAddress)
-      {
-         /* read inputs of CIAA */
-         case MODBUS_ADDR_HR_CIAA_INPUTS:
-            ciaaModbus_writeInt(buf, hr_ciaaInputs);
-            quantityRegProcessed = 1;
-            break;
-
-         /* read outputs of CIAA */
-         case MODBUS_ADDR_HR_CIAA_OUTPUTS:
-            ciaaModbus_writeInt(buf, hr_ciaaOutputs);
-            quantityRegProcessed = 1;
-            break;
-
-         /* wrong address */
-         default:
-            *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
-            quantityRegProcessed = -1;
-            break;
-      }
-
-      /* if quantityRegProcessed > 0, successful operation */
-      if (quantityRegProcessed > 0)
-      {
-         /* update buffer pointer to next register */
-         buf += (quantityRegProcessed*2);
-
-         /* next address to be read */
-         startingAddress += quantityRegProcessed;
-
-         /* increment count of registers */
-         ret += quantityRegProcessed;
-      }
-      else
-      {
-         /* an error occurred in reading */
-         ret = -1;
-      }
-
-   /* repeat until:
-    * - read total registers or
-    * - error occurs
-    */
-   }while ((ret > 0) && (ret < quantityOfHoldingRegisters));
-
-   return ret;
-}
-
-extern int8_t writeMultipleRegisters(
-      uint16_t startingAddress,
-      uint16_t quantityOfRegisters,
-      uint8_t * exceptionCode,
-      uint8_t * buf
-      )
-{
-   /* used to indicate total of registers writes */
-     int8_t ret = 0;
-   /* used to indicate quantity of registers processed */
-   uint16_t quantityRegProcessed;
-
-   /* loop to write all registers indicated */
-   do
-   {
-      /* select register address to be write */
-      switch (startingAddress)
-      {
-         /* inputs can not be written! */
-         case MODBUS_ADDR_HR_CIAA_INPUTS:
-            *exceptionCode = CIAAMODBUS_E_FNC_ERROR;
-            quantityRegProcessed = -1;
-            break;
-
-         /* write outputs */
-         case MODBUS_ADDR_HR_CIAA_OUTPUTS:
-            hr_ciaaOutputs = ciaaModbus_readInt(buf);
-            quantityRegProcessed = 1;
-            break;
-
-         /* wrong address */
-         default:
-            *exceptionCode = CIAAMODBUS_E_WRONG_STR_ADDR;
-            quantityRegProcessed = -1;
-            break;
-      }
-
-      /* if quantityRegProcessed > 0, successful operation */
-      if (quantityRegProcessed > 0)
-      {
-         /* update buffer pointer to next register */
-         buf += (quantityRegProcessed*2);
-
-         /* next address to be write */
-         startingAddress += quantityRegProcessed;
-
-         /* increment count of registers */
-         ret += quantityRegProcessed;
-      }
-      else
-      {
-         ret = -1;
-      }
-
-   /* repeat until:
-    * - read total registers or
-    * - error occurs
-    */
-   }while ((ret > 0) && (ret < quantityOfRegisters));
-
-   /* if success return 1 */
-   if (ret > 1)
-      ret = 1;
-
-   return ret;
-}
 
 
 /** @} doxygen end group definition */
