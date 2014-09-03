@@ -4,6 +4,7 @@ package Source;
 
 use strict;
 use warnings;
+use Lcov;
 
 sub new {
    my $class = shift;
@@ -62,6 +63,16 @@ sub runTest
       my $cmd = "make tst_" . $self->{_mod}->getName() . "_" . $test . "\n";
       my $result = `$cmd`;
    }
+}
+
+sub getFunc
+{
+   return 10;
+}
+
+sub getCovFunc
+{
+   return 10;
 }
 
 1;
