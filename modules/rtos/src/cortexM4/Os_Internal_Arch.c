@@ -132,7 +132,7 @@ void SysTick_Handler(void)
 	/* set context to CONTEXT_DBG 
 	Why this??
 	*/
-	/*SetActualContext(CONTEXT_DBG);*/
+	SetActualContext(CONTEXT_ISR2);
 
 	/* call counter interrupt handler */
 	CounterIncrement = IncrementCounter(0, 1 /* CounterIncrement */); /* TODO FIXME */
