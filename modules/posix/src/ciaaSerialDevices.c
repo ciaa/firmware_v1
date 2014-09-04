@@ -61,12 +61,14 @@
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_assert.h"
+#include "ciaaPOSIX_errno.h"
 #include "ciaaLibs_CircBuf.h"
 #include "ciaak.h"
 #include "os.h"
 
 /*==================[macros and definitions]=================================*/
-#define ciaaSerialDevices_MAXDEVICES   20
+#define ciaaSerialDevices_MAXDEVICES          20
+#define ciaaSerialDevices_NONBLOCK_MODE       0x01
 
 /*==================[typedef]================================================*/
 typedef struct {
@@ -140,7 +142,7 @@ extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType * driver)
    /* check if more drivers can be added */
    if (ciaaSerialDevices_MAXDEVICES > ciaaSerialDevices.position) {
 
-      /* get position for nexxt device */
+      /* get position for next device */
       position = ciaaSerialDevices.position;
 
       /* increment position for next device */
@@ -156,6 +158,9 @@ extern void ciaaSerialDevices_addDriver(ciaaDevices_deviceType * driver)
       /* TODO buffer size shall be created depending on the device type (eth != uart) */
       ciaaLibs_circBufInit(&ciaaSerialDevices.devstr[position].rxBuf, ciaak_malloc(256), 256);
       ciaaLibs_circBufInit(&ciaaSerialDevices.devstr[position].txBuf, ciaak_malloc(256), 256);
+
+      /* initial flags */
+      ciaaSerialDevices.devstr[position].flags = 0;
 
       /* allocate memory for new device */
       newDevice = (ciaaDevices_deviceType*) ciaak_malloc(sizeof(ciaaDevices_deviceType));
@@ -211,7 +216,11 @@ extern ciaaDevices_deviceType * ciaaSerialDevices_open(char const * path,
    /* serial devices does not support that the drivers update the device */
    /* the returned device shall be the same as passed */
    ciaaPOSIX_assert(serialDevice->device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag) == device->loLayer);
-
+   //
+   if(oflag & O_NONBLOCK)
+   {
+      serialDevice->flags |= ciaaSerialDevices_NONBLOCK_MODE;
+   }
    return device;
 }
 
@@ -247,6 +256,20 @@ extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const devi
       case ciaaPOSIX_IOCTL_RXINDICATION:
          break;
 
+      case ciaaPOSIX_IOCTL_SET_NONBLOCK_MODE:
+         if((bool)param == false)
+         {
+            /* Blocking mode */
+            serialDevice->flags &= ~ciaaSerialDevices_NONBLOCK_MODE;
+         }
+         else
+         {
+            /* NonBlocking Mode */
+            serialDevice->flags |= ciaaSerialDevices_NONBLOCK_MODE;
+         }
+         ret = 0;
+         break;
+
       default:
          ret = serialDevice->device->ioctl(device->loLayer, request, param);
          break;
@@ -271,27 +294,39 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
    }
    else
    {
-      /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
-      serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT, (void*)false);
+      /* There aren't data */
+      if(serialDevice->flags & ciaaSerialDevices_NONBLOCK_MODE)
+      {
+         /* We are in non blocking mode */
+         /* We should do a blocking call...*/
+         ciaaPOSIX_errno = EWOULDBLOCK;
+         ret = -1;
+      }
+      else
+      {
+         /* We are in blocking mode */
+         /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
+         serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT, (void*)false);
 
-      /* get task id and function for waking up the task later */
-      GetTaskID(&serialDevice->blocked.taskID);
-      serialDevice->blocked.fct = (void*) ciaaSerialDevices_read;
+         /* get task id and function for waking up the task later */
+         GetTaskID(&serialDevice->blocked.taskID);
+         serialDevice->blocked.fct = (void*) ciaaSerialDevices_read;
 
-      /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
-      serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT, (void*)true);
+         /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
+         serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT, (void*)true);
 
-      /* if no data wait for it */
-      WaitEvent(POSIXE);
-      ClearEvent(POSIXE);
+         /* if no data wait for it */
+         WaitEvent(POSIXE);
+         ClearEvent(POSIXE);
 
-      /* after the wait is not needed to check if data is avaibale on the
-       * buffer. The event will be set first after adding some data into it */
+         /* after the wait is not needed to check if data is avaibale on the
+          * buffer. The event will be set first after adding some data into it */
 
-      /* try to read nbyte from rxBuf and store it to the user buffer */
-      ret = ciaaLibs_circBufGet(&serialDevice->rxBuf,
-            buf,
-            nbyte);
+         /* try to read nbyte from rxBuf and store it to the user buffer */
+         ret = ciaaLibs_circBufGet(&serialDevice->rxBuf,
+               buf,
+               nbyte);
+      }
    }
    return ret;
 }

@@ -206,6 +206,16 @@ extern "C" {
  **/
 #define ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT        8
 
+/** \brief set Enabled/Disabled NonBlock Mode
+ **
+ ** This ioctl command is used to set Enabled/Disabled NonBlock Mode for any serial device.
+ ** Possible values for arg are:
+ **   true (Enabled)
+ **   false (Enabled)
+ **
+ ** Returned none
+ **/
+#define ciaaPOSIX_IOCTL_SET_NONBLOCK_MODE              9
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
