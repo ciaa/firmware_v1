@@ -299,7 +299,7 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
       {
          /* We are in non blocking mode */
          /* We should do a blocking call...*/
-         ciaaPOSIX_errno = EWOULDBLOCK;
+         ciaaPOSIX_errno = EAGAIN; /* shall return -1 and set errno to [EAGAIN]. */
          ret = -1;
       }
       else
