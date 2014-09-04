@@ -11,8 +11,10 @@ sub new {
    my $self = {
       _mod => shift,
       _rel_path => shift,
-      _name => shift
+      _name => shift,
    };
+   $self->{_lcov} = new Lcov($self->{_name});
+
 #   print "File $self->{_name}\n";
    bless $self, $class;
    return $self;
@@ -72,7 +74,9 @@ sub getFunc
 
 sub getCovFunc
 {
-   return 10;
+   my $self = shift;
+
+   return $self->{_lcov}->getCovFunc();
 }
 
 1;

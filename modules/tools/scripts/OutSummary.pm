@@ -73,7 +73,7 @@ sub genReport
 
          printf FILE "<td $hasTestStyle>" . $hasTest . "</td>";
          printf FILE "<td>" . "</td>";
-         printf FILE "<td>" . "</td>";
+         printf FILE "<td>" . $file->getFunc() . "/" . $file->getCovFunc() . "</td>";
          printf FILE "<td>" . "</td>";
          printf FILE "<td>" . "</td></tr>";
       }
@@ -88,7 +88,7 @@ sub genReport
          foreach my $file ($mod->getFiles())
          {
             printf FILE "<tr><td>" . "</td>";
-            printf FILE "<td>" . "</td>";
+            printf FILE "<td>" . $file->getCovFunc() . "</td>";
             printf FILE "<td>" . "</td></tr>";
          }
          print FILE "</table>";
