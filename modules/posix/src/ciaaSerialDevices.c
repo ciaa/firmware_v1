@@ -257,7 +257,7 @@ extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const devi
          break;
 
       case ciaaPOSIX_IOCTL_SET_NONBLOCK_MODE:
-         if((bool)param == false)
+         if((bool)(intptr_t)param == false)
          {
             /* Blocking mode */
             serialDevice->flags &= ~ciaaSerialDevices_NONBLOCK_MODE;

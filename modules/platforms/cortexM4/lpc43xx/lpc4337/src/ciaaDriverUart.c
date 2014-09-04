@@ -258,7 +258,7 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
             break;
 
          case ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT:
-            if((bool)param == false)
+            if((bool)(intptr_t)param == false)
             {
                /* disable THRE irq (TX) */
                Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_THREINT);
@@ -271,7 +271,7 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
             break;
 
          case ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT:
-            if((bool)param == false)
+            if((bool)(intptr_t)param == false)
             {
                /* disable RBR irq (RX) */
                Chip_UART_IntDisable((LPC_USART_T *)device->loLayer, UART_IER_RBRINT);
