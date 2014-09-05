@@ -54,7 +54,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stddef.h"
+#include "ciaaPOSIX_errno.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -65,7 +65,8 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-uint32_t ciaaPOSIX_errno;
+/** \brief Error value */
+int16_t ciaaPOSIX_errno;
 
 /*==================[internal functions definition]==========================*/
 

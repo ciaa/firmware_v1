@@ -56,7 +56,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stddef.h"
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -70,6 +70,7 @@ extern "C" {
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
+/** \brief Error value */
 extern int16_t ciaaPOSIX_errno;
 
 /*==================[external functions declaration]=========================*/
