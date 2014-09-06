@@ -61,6 +61,7 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaModbus_transport.h"
+#include "ciaaModbus_protocol.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -68,11 +69,6 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/****** error codes ******/
-#define CIAAMODBUS_E_FNC_NOT_SUPPORTED    0x01
-#define CIAAMODBUS_E_WRONG_STR_ADDR       0x02
-#define CIAAMODBUS_E_WRONG_REG_QTY        0x03
-#define CIAAMODBUS_E_FNC_ERROR            0x04
 
 /*==================[typedef]================================================*/
 /** \brief Modbus Command multiple read
@@ -200,32 +196,6 @@ extern int32_t ciaaModbus_slaveProcess(
    const ciaaModbus_slaveCmd_type *cmd
    );
 
-/** \brief Read Integer from modbus
- **
- ** As described in modbus specification, the modbus uses a bigendian format to
- ** transmit integers. This function shall be used to access integers.
- **
- ** \param[in] add address of the first byte of the integer to be read.
- **
- **/
-#define ciaaModbus_slaveReadInt(add) \
-   ( (((uint8_t*)(add))[0] << 8) | (((uint8_t*)(add))[1]))
-
-
-/** \brief Write Integer in modbus buffer
- **
- ** As described in modbus specification, the modbus uses a bigendian format to
- ** transmit integers. This function shall be used to access integers.
- **
- ** \param[in] add address of the first byte of the integer to be write.
- ** \param[in] num integer to be write.
- **
- **/
-#define ciaaModbus_slaveWriteInt(add,num) \
-   do {                                                        \
-      (((uint8_t*)(add))[0] = ((uint16_t)(num) >> 8) & 0XFF);  \
-      (((uint8_t*)(add))[1] = ((uint16_t)(num) >> 0) & 0XFF);  \
-   }while (0)
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
