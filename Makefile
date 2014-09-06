@@ -487,7 +487,7 @@ clean:
 	@echo Removing RTOS generated files
 	@rm -rf $(GENDIR)$(DS)*
 	@echo Removing mocks
-	@rm -rf $(MOCKS_OUT_DIR)*
+	@rm -rf $(MOCKS_OUT_DIR)$(DS)*
 	@echo Removing doxygen files
 	@rm -rf out$(DS)doc$(DS)*
 	@echo Removing ci outputs
