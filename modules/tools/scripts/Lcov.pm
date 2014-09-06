@@ -25,33 +25,33 @@ sub new {
       $result = `$cmd`;
       chomp($result);
       my @result = split("\n", $result);
-      $self->{_funcs} = int($result[0]);
-      $self->{_covFuncs} = int($result[1]);
+      $self->{_funcs} = int($result[1]);
+      $self->{_covFuncs} = int($result[0]);
 
       # get line coverage
       $cmd = "grep -A 2 '<td class=\"headerItem\">Lines:</td>' " . $filename . " | grep -v '<td class=\"headerItem\">Lines:</td>' | sed \"s/ *<td class=\\\"headerCovTableEntry\\\">//g\" | sed \"s/<\\\/td>//g\"";
       $result = `$cmd`;
       chomp($result);
       @result = split("\n", $result);
-      $self->{_lines} = int($result[0]);
-      $self->{_covLines} = int($result[1]);
+      $self->{_lines} = int($result[1]);
+      $self->{_covLines} = int($result[0]);
 
       # get branch coverage
       $cmd = "grep -A 2 '<td class=\"headerItem\">Branches:</td>' " . $filename . " | grep -v '<td class=\"headerItem\">Branches:</td>' | sed \"s/ *<td class=\\\"headerCovTableEntry\\\">//g\" | sed \"s/<\\\/td>//g\"";
       $result = `$cmd`;
       chomp($result);
       @result = split("\n", $result);
-      $self->{_branches} = int($result[0]);
-      $self->{_covBranches} = int($result[1]);
+      $self->{_branches} = int($result[1]);
+      $self->{_covBranches} = int($result[0]);
    }
    else
    {
-      $self->{_funcs} = "n.a.";
-      $self->{_covFuncs} = "n.a.";
-      $self->{_lines} = "n.a.";
-      $self->{_covLines} = "n.a.";
-      $self->{_branches} = "n.a.";
-      $self->{_covBranches} = "n.a.";
+      $self->{_funcs} = "0";
+      $self->{_covFuncs} = "0";
+      $self->{_lines} = "0";
+      $self->{_covLines} = "0";
+      $self->{_branches} = "0";
+      $self->{_covBranches} = "0";
    }
 
 

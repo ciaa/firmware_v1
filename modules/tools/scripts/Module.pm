@@ -101,4 +101,88 @@ sub runTests
    }
 }
 
+sub getFuncs
+{
+   my $self = shift;
+
+   my $count = 0;
+
+   foreach my $file (@{$self->{_files}})
+   {
+      $count += $file->getFuncs();
+   }
+
+   return $count;
+}
+
+sub getCovFuncs
+{
+   my $self = shift;
+
+   my $count = 0;
+
+   foreach my $file (@{$self->{_files}})
+   {
+      $count += $file->getCovFuncs();
+   }
+
+   return $count;
+}
+
+sub getLines
+{
+   my $self = shift;
+
+   my $count = 0;
+
+   foreach my $file (@{$self->{_files}})
+   {
+      $count += $file->getLines();
+   }
+
+   return $count;
+}
+
+sub getCovLines
+{
+   my $self = shift;
+
+   my $count = 0;
+
+   foreach my $file (@{$self->{_files}})
+   {
+      $count += $file->getCovLines();
+   }
+
+   return $count;
+}
+
+sub getBranches
+{
+   my $self = shift;
+
+   my $count = 0;
+
+   foreach my $file (@{$self->{_files}})
+   {
+      $count += $file->getBranches();
+   }
+
+   return $count;
+}
+
+sub getCovBranches
+{
+   my $self = shift;
+
+   my $count = 0;
+
+   foreach my $file (@{$self->{_files}})
+   {
+      $count += $file->getCovBranches();
+   }
+
+   return $count;
+}
+
 1;

@@ -51,9 +51,24 @@ sub genReport
       }
       printf FILE "<td $style>" . $countOfTests . "/" . $countOfFiles . "</td>";
       printf FILE "<td>" . "</td>";
-      printf FILE "<td>" . "</td>";
-      printf FILE "<td>" . "</td>";
-      printf FILE "<td>" . "</td></tr>";
+
+      my $style = STYLE_NOT_OK;
+      if ($mod->getFuncs() eq $mod->getCovFuncs()) {
+         $style = STYLE_OK;
+      }
+      printf FILE "<td $style>" . $mod->getCovFuncs() . "/" . $mod->getFuncs() . "</td>";
+
+      $style = STYLE_NOT_OK;
+      if ($mod->getLines() eq $mod->getCovLines()) {
+         $style = STYLE_OK;
+      }
+      printf FILE "<td $style>" . $mod->getCovLines() . "/" . $mod->getLines() . "</td>";
+
+      $style = STYLE_NOT_OK;
+      if ($mod->getBranches() eq $mod->getCovBranches()) {
+         $style = STYLE_OK;
+      }
+      printf FILE "<td $style>" . $mod->getCovBranches() . "/" . $mod->getBranches() . "</td>";
    }
 
    print FILE "</table>";
@@ -84,19 +99,19 @@ sub genReport
          if ($file->getFuncs() eq $file->getCovFuncs()) {
             $hasTestStyle = STYLE_OK;
          }
-         printf FILE "<td $hasTestStyle>" . $file->getFuncs() . "/" . $file->getCovFuncs() . "</td>";
+         printf FILE "<td $hasTestStyle>" . $file->getCovFuncs() . "/" . $file->getFuncs() . "</td>";
 
          $hasTestStyle = STYLE_NOT_OK;
          if ($file->getLines() eq $file->getCovLines()) {
             $hasTestStyle = STYLE_OK;
          }
-         printf FILE "<td $hasTestStyle>" . $file->getLines() . "/" . $file->getCovLines() . "</td>";
+         printf FILE "<td $hasTestStyle>" . $file->getCovLines() . "/" . $file->getLines() . "</td>";
 
          $hasTestStyle = STYLE_WARN;
          if ($file->getBranches() eq $file->getCovBranches()) {
             $hasTestStyle = STYLE_OK;
          }
-         printf FILE "<td $hasTestStyle>" . $file->getBranches() . "/" . $file->getCovBranches() . "</td>";
+         printf FILE "<td $hasTestStyle>" . $file->getCovBranches() . "/" . $file->getBranches() . "</td>";
       }
       print FILE "</table>";
 
