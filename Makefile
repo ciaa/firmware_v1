@@ -486,6 +486,14 @@ clean:
 	@rm -rf $(BIN_DIR)$(DS)*
 	@echo Removing RTOS generated files
 	@rm -rf $(GENDIR)$(DS)*
+	@echo Removing mocks
+	@rm -rf $(MOCKS_OUT_DIR)*
+	@echo Removing doxygen files
+	@rm -rf out$(DS)doc$(DS)*
+	@echo Removing ci outputs
+	@rm -rf out$(DS)ci$(DS)*
+	@echo Removing coverage
+	@rm -rf out$(DS)coverage$(DS)*
 	@echo Removing object files
 ifeq ($(OS),WIN)
 	@$(shell cygpath -u '$(CYGWIN)')$(DS)find -name "*.o"  -exec rm {} \;
