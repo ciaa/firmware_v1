@@ -17,6 +17,12 @@ sub new {
    return $self;
 }
 
+use constant {
+   STYLE_OK => 'style="background-color:#00D000"',
+   STYLE_WARN => 'style="background-color:#D0D000"',
+   STYLE_NOT_OK => 'style="background-color:#D00000"',
+};
+
 sub genReport
 {
    my $self = shift;
@@ -38,10 +44,10 @@ sub genReport
       printf FILE "<tr><td><a href=\"#" . $mod->getName() . "\">" . $mod->getName() . "</a></td>";
       my $countOfTests = $mod->getCountOfTests();
       my $countOfFiles = $mod->getCountOfFiles();
-      my $style = 'style="background-color:#D00000"';
+      my $style = STYLE_NOT_OK;
       if ($countOfFiles == $countOfTests)
       {
-         $style = 'style="background-color:#00D000"';
+         $style = STYLE_OK;
       }
       printf FILE "<td $style>" . $countOfTests . "/" . $countOfFiles . "</td>";
       printf FILE "<td>" . "</td>";
@@ -62,39 +68,54 @@ sub genReport
       print FILE "<tr><th>File</th><th>Has test file</th><th>Test Cases</th><th>Function Coverage</th><th>Line Coverage</th><th>Branch coverage</th></tr>";
       foreach my $file ($mod->getFiles())
       {
-         printf FILE "<tr><td><a href=\"#" . $file->getName() . "\">" . $file->getName() . "</a></td>";
+         printf FILE "<tr><td><a href=\"../../" . $file->getReportFile() . "\">" . $file->getName() . "</a></td>";
 
          my $hasTest = "no";
-         my $hasTestStyle = 'style="background-color:#D00000"';
+         my $hasTestStyle = STYLE_NOT_OK;
          if ($file->hasTest()) {
             $hasTest = "yes";
-            $hasTestStyle = 'style="background-color:#00D000"';
+            $hasTestStyle = STYLE_OK;
          }
 
          printf FILE "<td $hasTestStyle>" . $hasTest . "</td>";
          printf FILE "<td>" . "</td>";
-         printf FILE "<td>" . $file->getFunc() . "/" . $file->getCovFunc() . "</td>";
-         printf FILE "<td>" . "</td>";
-         printf FILE "<td>" . "</td></tr>";
+
+         $hasTestStyle = STYLE_NOT_OK;
+         if ($file->getFuncs() eq $file->getCovFuncs()) {
+            $hasTestStyle = STYLE_OK;
+         }
+         printf FILE "<td $hasTestStyle>" . $file->getFuncs() . "/" . $file->getCovFuncs() . "</td>";
+
+         $hasTestStyle = STYLE_NOT_OK;
+         if ($file->getLines() eq $file->getCovLines()) {
+            $hasTestStyle = STYLE_OK;
+         }
+         printf FILE "<td $hasTestStyle>" . $file->getLines() . "/" . $file->getCovLines() . "</td>";
+
+         $hasTestStyle = STYLE_WARN;
+         if ($file->getBranches() eq $file->getCovBranches()) {
+            $hasTestStyle = STYLE_OK;
+         }
+         printf FILE "<td $hasTestStyle>" . $file->getBranches() . "/" . $file->getCovBranches() . "</td>";
       }
       print FILE "</table>";
 
-      foreach my $file ($mod->getFiles())
-      {
-         print FILE "<h3><a name=\"" . $file->getName() . "\"/>Report of file " . $file->getName() . "</h3>";
-
-         print FILE "<table border =\"1\">";
-         print FILE "<tr><th>Test Case</th><th>Result</th></tr>";
-         foreach my $file ($mod->getFiles())
-         {
-            printf FILE "<tr><td>" . "</td>";
-            printf FILE "<td>" . $file->getCovFunc() . "</td>";
-            printf FILE "<td>" . "</td></tr>";
-         }
-         print FILE "</table>";
-         print FILE "<h4>Not tested lines</h4>";
-         print FILE "<p>TODO</p>";
-      }
+#      foreach my $file ($mod->getFiles())
+#      {
+#         print FILE "<h3><a name=\"" . $file->getName() . "\"/>Report of file " . $file->getName() . "</h3>";
+      #
+      #   print FILE "<table border =\"1\">";
+      #   print FILE "<tr><th>Test Case</th><th>Result</th></tr>";
+      #   foreach my $file ($mod->getFiles())
+      #   {
+      #      printf FILE "<tr><td>" . "</td>";
+      #      printf FILE "<td>" . $file->getCovFuncs() . "</td>";
+      #      printf FILE "<td>" . "</td></tr>";
+      #   }
+      #   print FILE "</table>";
+      #   print FILE "<h4>Not tested lines</h4>";
+      #   print FILE "<p>TODO</p>";
+#      }
 
    }
 

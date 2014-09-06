@@ -67,16 +67,53 @@ sub runTest
    }
 }
 
-sub getFunc
-{
-   return 10;
-}
-
-sub getCovFunc
+sub getFuncs
 {
    my $self = shift;
 
-   return $self->{_lcov}->getCovFunc();
+   return $self->{_lcov}->getFuncs();
+}
+
+sub getCovFuncs
+{
+   my $self = shift;
+
+   return $self->{_lcov}->getCovFuncs();
+}
+
+sub getLines
+{
+   my $self = shift;
+
+   return $self->{_lcov}->getLines();
+}
+
+sub getCovLines
+{
+   my $self = shift;
+
+   return $self->{_lcov}->getCovLines();
+}
+
+sub getBranches
+{
+   my $self = shift;
+
+   return $self->{_lcov}->getBranches();
+}
+
+sub getCovBranches
+{
+   my $self = shift;
+
+   return $self->{_lcov}->getCovBranches();
+}
+
+sub getReportFile
+{
+   my $self = shift;
+
+   return $self->{_lcov}->getReportFile();
 }
 
 1;
