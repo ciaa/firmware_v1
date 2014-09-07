@@ -116,4 +116,22 @@ sub getReportFile
    return $self->{_lcov}->getReportFile();
 }
 
+sub getHasCompile
+{
+   my $self = shift;
+   my $ret = 0;
+
+   my $name = $self->{_name};
+
+   $name =~ s/\.c/\.bin/;
+   $name = "out/bin/" . $name;
+
+   if (-e $name)
+   {
+      $ret = 1;
+   }
+
+   return $ret;
+}
+
 1;

@@ -37,38 +37,57 @@ sub genReport
 
    print FILE "<table border='1'>";
 
-   print FILE "<tr><th>Module</th><th>Tested Files</th><th>Test Cases</th><th>Function Coverage</th><th>Line Coverage</th><th>Branch coverage</th></tr>";
+   print FILE "<tr><th>Module</th><th>Tested Files</th><th>Compiled Tests</th><th>Test Cases</th><th>Function Coverage</th><th>Line Coverage</th><th>Branch coverage</th></tr>";
 
    foreach my $mod (@{$self->{_mods}})
    {
-      printf FILE "<tr><td><a href=\"#" . $mod->getName() . "\">" . $mod->getName() . "</a></td>";
+      my $row = "";
+      my $status = STYLE_OK;
+
+
       my $countOfTests = $mod->getCountOfTests();
       my $countOfFiles = $mod->getCountOfFiles();
-      my $style = STYLE_NOT_OK;
-      if ($countOfFiles == $countOfTests)
+      my $style = STYLE_OK;
+      if ($countOfFiles != $countOfTests)
       {
-         $style = STYLE_OK;
+         $style = STYLE_NOT_OK;
+         $status = STYLE_NOT_OK;
       }
-      printf FILE "<td $style>" . $countOfTests . "/" . $countOfFiles . "</td>";
-      printf FILE "<td>" . "</td>";
+      $row .= "<td $style>" . $countOfTests . "/" . $countOfFiles . "</td>";
 
-      my $style = STYLE_NOT_OK;
-      if ($mod->getFuncs() eq $mod->getCovFuncs()) {
-         $style = STYLE_OK;
+      $style = STYLE_OK;
+      if ($mod->getCompiled() ne $mod->getCountOfTests()) {
+         $style = STYLE_NOT_OK;
+         $status = STYLE_NOT_OK;
       }
-      printf FILE "<td $style>" . $mod->getCovFuncs() . "/" . $mod->getFuncs() . "</td>";
+      $row .= "<td $style>" . $mod->getCompiled() . "/" . $mod->getCountOfTests() . "</td>";
+      $row .= "<td>" . "</td>";
 
-      $style = STYLE_NOT_OK;
-      if ($mod->getLines() eq $mod->getCovLines()) {
-         $style = STYLE_OK;
+      $style = STYLE_OK;
+      if ($mod->getFuncs() ne $mod->getCovFuncs()) {
+         $style = STYLE_NOT_OK;
+         $status = STYLE_NOT_OK;
       }
-      printf FILE "<td $style>" . $mod->getCovLines() . "/" . $mod->getLines() . "</td>";
+      $row .= "<td $style>" . $mod->getCovFuncs() . "/" . $mod->getFuncs() . "</td>";
 
-      $style = STYLE_NOT_OK;
-      if ($mod->getBranches() eq $mod->getCovBranches()) {
-         $style = STYLE_OK;
+      $style = STYLE_OK;
+      if ($mod->getLines() ne $mod->getCovLines()) {
+         $style = STYLE_NOT_OK;
+         $status = STYLE_NOT_OK;
       }
-      printf FILE "<td $style>" . $mod->getCovBranches() . "/" . $mod->getBranches() . "</td>";
+      $row .= "<td $style>" . $mod->getCovLines() . "/" . $mod->getLines() . "</td>";
+
+      $style = STYLE_OK;
+      if ($mod->getBranches() ne $mod->getCovBranches()) {
+         $style = STYLE_NOT_OK;
+         $status = STYLE_NOT_OK;
+      }
+      $row .= "<td $style>" . $mod->getCovBranches() . "/" . $mod->getBranches() . "</td>";
+
+      # summary
+      $row = "<tr><td $status><a href=\"#" . $mod->getName() . "\">" . $mod->getName() . "</a></td>" . $row;
+
+      print FILE $row;
    }
 
    print FILE "</table>";
@@ -80,38 +99,55 @@ sub genReport
       printf FILE "<a name=\"$mod->{_name}\"/><h2>Report of Module: $mod->{_name}</h2>";
 
       print FILE "<table border =\"1\">";
-      print FILE "<tr><th>File</th><th>Has test file</th><th>Test Cases</th><th>Function Coverage</th><th>Line Coverage</th><th>Branch coverage</th></tr>";
+      print FILE "<tr><th>File</th><th>Has test file</th><th>Compiles</th><th>Test Cases</th><th>Function Coverage</th><th>Line Coverage</th><th>Branch coverage</th></tr>";
       foreach my $file ($mod->getFiles())
       {
-         printf FILE "<tr><td><a href=\"../../" . $file->getReportFile() . "\">" . $file->getName() . "</a></td>";
+         my $row = "";
+         my $status = STYLE_OK;
 
          my $hasTest = "no";
-         my $hasTestStyle = STYLE_NOT_OK;
-         if ($file->hasTest()) {
+         my $hasTestStyle = STYLE_OK;
+         if (!$file->hasTest()) {
             $hasTest = "yes";
-            $hasTestStyle = STYLE_OK;
+            $hasTestStyle = STYLE_NOT_OK;
+            $status = STYLE_NOT_OK;
          }
+         $row .= "<td $hasTestStyle>" . $hasTest . "</td>";
 
-         printf FILE "<td $hasTestStyle>" . $hasTest . "</td>";
-         printf FILE "<td>" . "</td>";
-
-         $hasTestStyle = STYLE_NOT_OK;
-         if ($file->getFuncs() eq $file->getCovFuncs()) {
-            $hasTestStyle = STYLE_OK;
+         $hasTest = "no";
+         $hasTestStyle = STYLE_OK;
+         if (!$file->getHasCompile()) {
+            $hasTest = "yes";
+            $hasTestStyle = STYLE_NOT_OK;
+            $status = STYLE_NOT_OK;
          }
-         printf FILE "<td $hasTestStyle>" . $file->getCovFuncs() . "/" . $file->getFuncs() . "</td>";
+         $row .= "<td $hasTestStyle>" . $hasTest . "</td>";
+         $row .= "<td>" . "</td>";
 
-         $hasTestStyle = STYLE_NOT_OK;
-         if ($file->getLines() eq $file->getCovLines()) {
-            $hasTestStyle = STYLE_OK;
+         $hasTestStyle = STYLE_OK;
+         if ($file->getFuncs() ne $file->getCovFuncs()) {
+            $hasTestStyle = STYLE_NOT_OK;
+            $status = STYLE_NOT_OK;
          }
-         printf FILE "<td $hasTestStyle>" . $file->getCovLines() . "/" . $file->getLines() . "</td>";
+         $row .= "<td $hasTestStyle>" . $file->getCovFuncs() . "/" . $file->getFuncs() . "</td>";
 
-         $hasTestStyle = STYLE_WARN;
-         if ($file->getBranches() eq $file->getCovBranches()) {
-            $hasTestStyle = STYLE_OK;
+         $hasTestStyle = STYLE_OK;
+         if ($file->getLines() ne $file->getCovLines()) {
+            $hasTestStyle = STYLE_NOT_OK;
+            $status = STYLE_NOT_OK;
          }
-         printf FILE "<td $hasTestStyle>" . $file->getCovBranches() . "/" . $file->getBranches() . "</td>";
+         $row .= "<td $hasTestStyle>" . $file->getCovLines() . "/" . $file->getLines() . "</td>";
+
+         $hasTestStyle = STYLE_OK;
+         if ($file->getBranches() ne $file->getCovBranches()) {
+            $hasTestStyle = STYLE_WARN;
+         }
+         $row .= "<td $hasTestStyle>" . $file->getCovBranches() . "/" . $file->getBranches() . "</td>";
+
+         # summary of the row
+         $row = "<tr><td $status><a href=\"../../" . $file->getReportFile() . "\">" . $file->getName() . "</a></td>" . $row;
+
+         print FILE $row;
       }
       print FILE "</table>";
 

@@ -185,4 +185,17 @@ sub getCovBranches
    return $count;
 }
 
+sub getCompiled
+{
+   my $self = shift;
+   my $count = 0;
+
+   foreach my $file (@{$self->{_files}})
+   {
+      $count += $file->getHasCompile();
+   }
+
+   return $count;
+}
+
 1;
