@@ -35,4 +35,4 @@
 # unit tests include files
 libs_TST_INC_PATH  = $(posix_PATH)$(DS)utest$(DS)inc
 # unit tests dependencies
-libs_TST_MOD	    = config bsp ciaak posix
+libs_TST_MOD	    = config bsp ciaak posix platforms
