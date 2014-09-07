@@ -11,7 +11,7 @@ sub new {
    my $self = {
       _file => shift,
    };
-   my $cmd = "find -name " . $self->{_file} . ".gcov.html";
+   my $cmd = "find -name " . $self->{_file} . ".gcov.html | head -n 1";
    my $result = `$cmd`;
    chomp($result);
    my $filename = $result;

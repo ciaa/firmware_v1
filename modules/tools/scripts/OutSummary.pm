@@ -48,7 +48,7 @@ sub genReport
       my $countOfTests = $mod->getCountOfTests();
       my $countOfFiles = $mod->getCountOfFiles();
       my $style = STYLE_OK;
-      if ($countOfFiles != $countOfTests)
+      if ( ($countOfFiles != $countOfTests) || ($countOfFiles == 0))
       {
          $style = STYLE_NOT_OK;
          $status = STYLE_NOT_OK;
@@ -79,7 +79,7 @@ sub genReport
 
       $style = STYLE_OK;
       if ($mod->getBranches() ne $mod->getCovBranches()) {
-         $style = STYLE_NOT_OK;
+         $style = STYLE_WARN;
          $status = STYLE_NOT_OK;
       }
       $row .= "<td $style>" . $mod->getCovBranches() . "/" . $mod->getBranches() . "</td>";
