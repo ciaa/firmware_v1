@@ -105,19 +105,19 @@ sub genReport
          my $row = "";
          my $status = STYLE_OK;
 
-         my $hasTest = "no";
+         my $hasTest = "yes";
          my $hasTestStyle = STYLE_OK;
          if (!$file->hasTest()) {
-            $hasTest = "yes";
+            $hasTest = "no";
             $hasTestStyle = STYLE_NOT_OK;
             $status = STYLE_NOT_OK;
          }
          $row .= "<td $hasTestStyle>" . $hasTest . "</td>";
 
-         $hasTest = "no";
+         $hasTest = "yes";
          $hasTestStyle = STYLE_OK;
          if (!$file->getHasCompile()) {
-            $hasTest = "yes";
+            $hasTest = "no";
             $hasTestStyle = STYLE_NOT_OK;
             $status = STYLE_NOT_OK;
          }
