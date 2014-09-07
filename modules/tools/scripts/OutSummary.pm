@@ -80,7 +80,6 @@ sub genReport
       $style = STYLE_OK;
       if ($mod->getBranches() ne $mod->getCovBranches()) {
          $style = STYLE_WARN;
-         $status = STYLE_NOT_OK;
       }
       $row .= "<td $style>" . $mod->getCovBranches() . "/" . $mod->getBranches() . "</td>";
 
