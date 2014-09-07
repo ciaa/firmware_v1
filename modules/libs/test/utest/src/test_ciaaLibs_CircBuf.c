@@ -259,11 +259,15 @@ void test_ciaaLibs_circBufPutGet(void) {
 
    /* get 50: 5 old and 45 new */
    memset((void*)to, 0, 100);
-   memset(to, 0, 100);
    ret = ciaaLibs_circBufGet(cbuf, to, 50);
    TEST_ASSERT_EQUAL_INT(50, ret);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(to, &from[20], 5);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(&to[5], &from[10], 45);
+
+   memset((void*)to, 0, 100);
+   ret = ciaaLibs_circBufGet(cbuf, to, 50);
+   TEST_ASSERT_EQUAL_INT(6, ret);
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(to, &from[55], 6);
 
    /* release buffer */
    ciaaLibs_circBufRel(cbuf);
