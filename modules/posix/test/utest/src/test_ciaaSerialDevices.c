@@ -70,7 +70,10 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+uint16_t ciaaPOSIX_errno;
 
+char const * const ciaaPOSIX_assert_msg = \ 
+      "ASSERT Failed in %s:%d in expression %s\n";
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
