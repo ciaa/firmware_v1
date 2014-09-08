@@ -297,7 +297,6 @@ void bss_init(unsigned int start, unsigned int len) {
 //*****************************************************************************
 extern unsigned int __data_section_table;
 extern unsigned int __data_section_table_end;
-extern unsigned int __bss_section_table;
 extern unsigned int __bss_section_table_end;
 
 //*****************************************************************************

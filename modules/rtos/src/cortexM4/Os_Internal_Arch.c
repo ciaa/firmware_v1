@@ -129,8 +129,8 @@ void SysTick_Handler(void)
 	/* save actual context */
 	context = GetCallingContext();
 
-	/* set context to CONTEXT_DBG 
-	Why this??
+	/* Set context to CONTEXT_ISR2 instead of CONTEXT_DBG.
+	 * Still need to check this.
 	*/
 	SetActualContext(CONTEXT_ISR2);
 
