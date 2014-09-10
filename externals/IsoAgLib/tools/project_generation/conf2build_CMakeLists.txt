@@ -1,0 +1,41 @@
+cmake_minimum_required(VERSION 2.8.1)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING
+      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+      FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
+find_program(CSCOPE cscope)
+find_program(CTAGS ctags)
+
+project(${INSERT_CMAKE_PROJECT})
+
+add_definitions(${INSERT_CMAKE_DEFINITIONS})
+
+source_group(app_source FILES ${INSERT_CMAKE_APP_SOURCE_GROUP})
+source_group(app_header FILES ${INSERT_CMAKE_APP_HEADER_GROUP})
+source_group(ISOAgLib_source FILES ${INSERT_CMAKE_ISOAGLIB_SOURCE_GROUP})
+source_group(ISOAgLib_header FILES ${INSERT_CMAKE_ISOAGLIB_HEADER_GROUP})
+
+include_directories(${INSERT_CMAKE_INCLUDE_DIRECTORIES})
+
+link_directories(${INSERT_CMAKE_LINK_DIRECTORIES})
+
+add_executable(${INSERT_CMAKE_ADD_EXECUTABLE})
+
+
+if( WIN32 )
+
+set(CMAKE_CXX_FLAGS "\${CMAKE_CXX_FLAGS} /MP") 
+ 
+target_link_libraries(${INSERT_CMAKE_TARGET_LINK_LIBRARIES_WIN32})
+endif( WIN32)
+
+
+if( UNIX )
+target_link_libraries(${INSERT_CMAKE_TARGET_LINK_LIBRARIES_LINUX} pthread)
+
+add_custom_target(tags COMMAND \${CSCOPE} -b ${INSERT_CMAKE_SOURCE_FILES}
+                         COMMAND \${CTAGS}     ${INSERT_CMAKE_SOURCE_FILES} )
+endif( UNIX )

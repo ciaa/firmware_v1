@@ -1,0 +1,1250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
+  <!-- ######################################################################################################################### -->
+  <!-- ### That XML scheme is specified for use with basic vt2iso and VT Revision 2 or earlier (support for block font etc.) ### -->
+  <!-- ### If attributes and elements are commented out, they belong to VT Revision 3 or later ### -->
+  <!-- ######################################################################################################################### -->
+  
+  <!-- ### Attribute-Values as simpleTypes ### -->
+  <!-- ### Numeric Attribute-Values ### -->
+  <xs:simpleType name="attrObjectId">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="65534"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrUnspecifiedObjectId">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:enumeration value="65535"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrNumberOfDecimals">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="7"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrPercentage">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="100"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attr0to250">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="250"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attr0to254">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="254"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attr0to255">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="255"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attr1to255">
+    <xs:restriction base="xs:positiveInteger">
+      <xs:maxInclusive value="255"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attr3to255">
+    <xs:restriction base="xs:positiveInteger">
+      <xs:minInclusive value="3"/>
+      <xs:maxInclusive value="255"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrPositiveSigned16BitVal">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="32767"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrSigned16BitVal">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="-32767"/>
+      <xs:maxInclusive value="32767"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrPositive16BitVal">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="65535"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrPositive32BitVal">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="4294967296"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrSigned32BitVal">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="-2147483648"/>
+      <xs:maxInclusive value="2147483648"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrAngle">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="180"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrAttributeID">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="15"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrPositiveSignedInt">
+    <xs:restriction base="xs:short">
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrViewportZoom">
+    <xs:restriction base="xs:short">
+      <xs:minInclusive value="-32"/>
+      <xs:minInclusive value="32"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ### Alphanumeric Attribute-Values ### -->
+  <xs:simpleType name="attrObjectNameOrId">
+    <xsd:union memberTypes="xs:string attrObjectId"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrObjectNameOrIdUnspecified">
+    <xsd:union memberTypes="xs:string attrObjectId attrUnspecifiedObjectId"/>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrColour">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="black|white|green|teal|maroon|purple|olive|silver|grey|blue|lime|cyan|red|magenta|yellow|navy|[1-9]?[0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrFontSize">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="6x8|8x8|8x12|12x16|16x16|16x24|24x32|32x32|32x48|48x64|64x64|64x96|96x128|128x128|128x192|1[0-4]|[0-9]"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrFontType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="0|1|2|255|latin1|latin9|latin5|proprietary"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrLineDirection">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="toplefttobottomright|bottomlefttotopright|[0-1]"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrLineSuppression">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="((top|right|bottom|left)?(\+(top|right|bottom|left))*)|(1[0-5]|[0-9])"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrEllipseType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="closed|open|closedsegment|closedsection|[0-3]"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrPolygonType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="convex|nonconvex|complex|open|[0-3]"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrFillType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="nofill|linecolour|fillcolour|pattern|[0-3]"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrAcousticSignal">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="high|medium|low|none|[0-3]"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrPriority">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="high|medium|low|[0-2]"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrAuxFunctionType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="latchingboolean|analog|nonlatchingboolean|[0-2]"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ### Textual Attribute-Values ### -->
+  <xs:simpleType name="attrFontStyle">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="normal|(bold|crossed|underlined|italic|inverted|flashinginverted|flashinghidden)?(\+(bold|crossed|underlined|italic|inverted|flashinginverted|flashinghidden))*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrFormatNumber">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="fixed"/>
+      <xs:enumeration value="exponential"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrHorizontalJustification">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="left"/>
+      <xs:enumeration value="middle"/>
+      <xs:enumeration value="right"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrRle">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="auto|(\+?(1bit|4bit|8bit))*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrFormatPictureGraphicFixedBitmap">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="1bit|4bit|8bit"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrValidationType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(in)?valid_characters"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrYesNo">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="yes"/>
+      <xs:enumeration value="no"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrTrueFalse">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="true"/>
+      <xs:enumeration value="false"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrOnOff">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="on"/>
+      <xs:enumeration value="off"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrShowHide">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="show"/>
+      <xs:enumeration value="hide"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrEnableDisable">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="enable"/>
+      <xs:enumeration value="disable"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrLanguageCode">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\*)|((aa|ab|af|am|ar|as|ay|az|ba|be|bg|bh|bi|bn|bo|br|ca|co|cs|cy|da|de|dz|el|en|eo|es|et|eu|fa|fi|fj|fo|fr|fy|ga|gd|gl|gn|gu|ha|hi|hr|hu|hy|ia|ie|ik|in|is|it|iw|ja|ji|jw|ka|kk|kl|km|kn|ko|ks|ku|ky|la|ln|lo|lt|lv|mg|mi|mk|ml|mn|mo|mr|ms|mt|my|na|ne|nl|no|oc|om|or|pa|pl|ps|pt|qu|rm|rn|ro|ru|rw|sa|sd|sg|sh|si|sk|sl|sm|sn|so|sq|sr|ss|st|su|sv|sw|ta|te|tg|th|ti|tk|tl|tn|to|tr|ts|tt|tw|uk|ur|uz|vi|vo|wo|xh|yo|zh|zu)(\+)?)*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrMaskType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="undefined|data|alarm"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrOptionsButton">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="none|((latchable|latched|suppress_border|transparent_background|disabled|no_border)(\+(latchable|latched|suppress_border|transparent_background|disabled|no_border))*)?"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrOptionsString">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="none|((transparent|autowrap|wrap_on_hyphen)(\+(transparent|autowrap|blankzero|wrap_on_hyphen))*)?"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrOptionsNumber">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="none|((transparent|leadingzeros|blankzero|truncate)(\+(transparent|leadingzeros|blankzero|truncate))*)?"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrInputOptions">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="((enable|live_editing)(\+(enable|live_editing))*)?"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="attrOptionsPictureGraphic">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="none|(rle|rle1|rle4|rle8|opaque|normal|transparent|flashing)?(\+(rle|rle1|rle4|rle8|opaque|normal|transparent|flashing))*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrOptionsMeter">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="none|((arc|border|ticks|clockwise)(\+(arc|border|ticks|clockwise))*)?"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrOptionsLinearBarGraph">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="none|((border|targetline|ticks|nofill|horizontal|growpositive)(\+(border|targetline|ticks|nofill|horizontal|growpositive))*)?"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrOptionsArchedBarGraph">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="none|((border|targetline|nofill|clockwise)(\+(border|targetline|nofill|clockwise))*)?"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrObjectGraphicsContext">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="none|((transparent|uselinefontfillcolourfordraw)(\+(transparent|uselinefontfillcolourfordraw))*)?"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="attrEventType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="on_activate"/>
+      <xs:enumeration value="on_deactivate"/>
+      <xs:enumeration value="on_show"/>
+      <xs:enumeration value="on_hide"/>
+      <xs:enumeration value="on_enable"/>
+      <xs:enumeration value="on_disable"/>
+      <xs:enumeration value="on_change_active_mask"/>
+      <xs:enumeration value="on_change_soft_key_mask"/>
+      <xs:enumeration value="on_change_attribute"/>
+      <xs:enumeration value="on_change_background_colour"/>
+      <xs:enumeration value="on_change_font_attributes"/>
+      <xs:enumeration value="on_change_line_attributes"/>
+      <xs:enumeration value="on_change_fill_attributes"/>
+      <xs:enumeration value="on_change_child_location"/>
+      <xs:enumeration value="on_change_size"/>
+      <xs:enumeration value="on_change_value"/>
+      <xs:enumeration value="on_change_priority"/>
+      <xs:enumeration value="on_change_end_point"/>
+      <xs:enumeration value="on_input_field_selection"/>
+      <xs:enumeration value="on_input_field_deselection"/>
+      <xs:enumeration value="on_ESC"/>
+      <xs:enumeration value="on_entry_of_value"/>
+      <xs:enumeration value="on_entry_of_new_value"/>
+      <xs:enumeration value="on_key_press"/>
+      <xs:enumeration value="on_key_release"/>
+      <xs:enumeration value="on_change_child_position"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ### Following object types are used for the macro only ### -->
+  <xs:complexType name="elemCmdHideShow">
+    <xs:attribute use="required" name="object_id" type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="hide_show" type="attrTrueFalse"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdEnableDisable">
+    <xs:attribute use="required" name="object_id" type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="enable_disable" type="attrTrueFalse"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdSelectInput">
+    <xs:attribute use="required" name="object_id" type="attrObjectNameOrIdUnspecified"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdControlAudioDevice">
+    <xs:attribute use="required" name="object_id"             type="attrObjectNameOrId"/>
+    <xs:attribute use="optional" name="number_of_repetitions" type="attr1to255"/>
+    <xs:attribute use="optional" name="frequency"             type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="on_time_duration"      type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="off_time_duration"     type="attrPositive16BitVal"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdSetAudioVolume">
+    <xs:attribute use="required" name="object_id"  type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="percentage" type="attrPercentage"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeChildLocation">
+    <xs:attribute use="required" name="parent_object_id" type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="object_id"        type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="x_pos_change"     type="attr0to255"/>
+    <xs:attribute use="required" name="y_pos_change"     type="attr0to255"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeChildPosition">
+    <xs:attribute use="required" name="parent_object_id" type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="object_id"        type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="x_pos"            type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="y_pos"            type="attrPositive16BitVal"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeSize">
+    <xs:attribute use="required" name="object_id"  type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="new_width"  type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="new_height" type="attrPositive16BitVal"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeBackgroudColour">
+    <xs:attribute use="required" name="object_id"             type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="new_background_colour" type="attrColour"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeNumericValue">
+    <xs:attribute use="required" name="object_id" type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="new_value" type="attrPositive32BitVal"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeStringValue">
+    <xs:attribute use="required" name="object_id"       type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="bytes_in_string" type="xs:attrPositive16BitVal"/>
+    <xs:attribute use="required" name="new_value"       type="xs:string"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeEndPoint">
+    <xs:attribute use="required" name="object_id"      type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="new_width"      type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="new_height"     type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="line_direction" type="attrLineDirection"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeFontAttributes">
+    <xs:attribute use="required" name="object_id"   type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="font_colour" type="attrColour"/>
+    <xs:attribute use="required" name="font_size"   type="attrFontSize"/>
+    <xs:attribute use="required" name="font_type"   type="attrFontType"/>
+    <xs:attribute use="required" name="font_style"  type="attrFontStyle"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeLineAttributes">
+    <xs:attribute use="required" name="object_id"   type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="line_colour" type="attrColour"/>
+    <xs:attribute use="required" name="line_width"  type="attr0to255"/>
+    <xs:attribute use="required" name="line_art"    type="attrPositive16BitVal"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeFillAttributes">
+    <xs:attribute use="required" name="object_id"    type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="fill_type"    type="attrFillType"/>
+    <xs:attribute use="required" name="fill_colour"  type="attrColour"/>
+    <xs:attribute use="required" name="fill_pattern" type="attrObjectNameOrIdUnspecified"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeActiveMask">
+    <xs:attribute use="required" name="object_id"                 type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="working_set_object_id"     type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="new_active_mask_object_id" type="attrObjectNameOrId"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeSoftKeyMask">
+    <xs:attribute use="required" name="object_id"                  type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="mask_type"                  type="attrMaskType"/>
+    <xs:attribute use="required" name="mask_object_id"             type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="new_softkey_mask_object_id" type="attrObjectNameOrId"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeAttribute">
+    <xs:attribute use="required" name="object_id"    type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="attribute_id" type="attrAttributeId"/>
+    <xs:attribute use="required" name="new_value"    type="attrSigned32BitVal"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangePriority">
+    <xs:attribute use="required" name="object_id"    type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="new_priority" type="attrPriority"/>
+  </xs:complexType>
+  
+  <xs:complexType name="elemCmdChangeListItem">
+    <xs:attribute use="required" name="object_id"     type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="list_index"    type="attr0to254"/>
+    <xs:attribute use="required" name="new_object_id" type="attrObjectNameOrIdUnspecified"/>
+  </xs:complexType>
+  
+
+  <!-- ######################################## -->
+  <!-- ### All Object-Types as complexTypes ### -->
+  <xs:complexType name="elemWorkingset">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <!--<xs:element name="container"       type="elemContainer"/>-->
+        <xs:element name="outputstring"    type="elemOutputString"/>
+        <xs:element name="outputnumber"    type="elemOutputNumber"/>
+        <!--<xs:element name="outputlist"      type="elemOutputList"/>-->
+        <xs:element name="line"            type="elemLine"/>
+        <xs:element name="rectangle"       type="elemRectangle"/>
+        <xs:element name="ellipse"         type="elemEllipse"/>
+        <xs:element name="polygon"         type="elemPolygon"/>
+        <!--<xs:element name="meter"           type="elemMeter"/>
+        <xs:element name="linearbargraph"  type="elemLinearBargraph"/>
+        <xs:element name="archedbargraph"  type="elemArchedBargraph"/>-->
+        <xs:element name="picturegraphic"  type="elemPictureGraphic"/>
+        <!--<xs:element name="graphicscontext" type="elemGraphicsContext"/>
+        <xs:element name="objectpointer"   type="elemObjectPointer"/>-->
+        <xs:element name="language"        type="elemLanguage"/>
+        <xs:element name="include_macro"   type="elemIncludeMacro"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute use="optional" name="id"                type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"              type="xs:string"/>
+    <xs:attribute use="required" name="background_colour" type="attrColour"/>
+    <xs:attribute use="required" name="selectable"        type="attrYesNo"/>
+    <xs:attribute use="required" name="active_mask"       type="attrObjectNameOrId"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemDatamask">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="container"        type="elemContainer"/>
+        <xs:element name="button"           type="elemButton"/>
+        <xs:element name="inputboolean"     type="elemInputBoolean"/>
+        <xs:element name="inputstring"      type="elemInputString"/>
+        <xs:element name="inputnumber"      type="elemInputNumber"/>
+        <xs:element name="inputlist"        type="elemInputList"/>
+        <xs:element name="outputstring"     type="elemOutputString"/>
+        <xs:element name="outputnumber"     type="elemOutputNumber"/>
+        <!--<xs:element name="outputlist"       type="elemOutputList"/>-->
+        <xs:element name="line"             type="elemLine"/>
+        <xs:element name="rectangle"        type="elemRectangle"/>
+        <xs:element name="ellipse"          type="elemEllipse"/>
+        <xs:element name="polygon"          type="elemPolygon"/>
+        <xs:element name="meter"            type="elemMeter"/>
+        <xs:element name="linearbargraph"   type="elemLinearBargraph"/>
+        <xs:element name="archedbargraph"   type="elemArchedBargraph"/>
+        <xs:element name="picturegraphic"   type="elemPictureGraphic"/>
+        <!--<xs:element name="graphicscontext"  type="elemGraphicsContext"/>-->
+        <xs:element name="objectpointer"    type="elemObjectPointer"/>
+        <xs:element name="language"         type="elemLanguage"/>
+        <!--<xs:element name="auxobjectpointer" type="elemAuxObjectPointer"/>-->
+        <xs:element name="include_object"   type="elemIncludeObject"/>
+        <xs:element name="include_macro"    type="elemIncludeMacro"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute use="optional" name="id"                type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"              type="xs:string"/>
+    <xs:attribute use="required" name="background_colour" type="attrColour"/>
+    <xs:attribute use="optional" name="soft_key_mask"     type="attrObjectNameOrIdUnspecified"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemAlarmmask">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="container"        type="elemContainer"/>
+        <xs:element name="outputstring"     type="elemOutputString"/>
+        <xs:element name="outputnumber"     type="elemOutputNumber"/>
+        <!--<xs:element name="outputlist"       type="elemOutputList"/>-->
+        <xs:element name="line"             type="elemLine"/>
+        <xs:element name="rectangle"        type="elemRectangle"/>
+        <xs:element name="ellipse"          type="elemEllipse"/>
+        <xs:element name="polygon"          type="elemPolygon"/>
+        <xs:element name="meter"            type="elemMeter"/>
+        <xs:element name="linearbargraph"   type="elemLinearBargraph"/>
+        <xs:element name="archedbargraph"   type="elemArchedBargraph"/>
+        <xs:element name="picturegraphic"   type="elemPictureGraphic"/>
+        <!--<xs:element name="graphicscontext"  type="elemGraphicsContext"/>-->
+        <xs:element name="objectpointer"    type="elemObjectPointer"/>
+        <xs:element name="language"         type="elemLanguage"/>
+        <!--<xs:element name="auxobjectpointer" type="elemAuxObjectPointer"/>-->
+        <xs:element name="include_object"   type="elemIncludeObject"/>
+        <xs:element name="include_macro"    type="elemIncludeMacro"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute use="optional" name="id"                type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"              type="xs:string"/>
+    <xs:attribute use="required" name="background_colour" type="attrColour"/>
+    <xs:attribute use="optional" name="soft_key_mask"     type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="required" name="priority"          type="attrPriority"/>
+    <xs:attribute use="required" name="acoustic_signal"   type="attrAcousticSignal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemContainer">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="container"        type="elemContainer"/>
+        <xs:element name="button"           type="elemButton"/>
+        <xs:element name="inputboolean"     type="elemInputBoolean"/>
+        <xs:element name="inputstring"      type="elemInputString"/>
+        <xs:element name="inputnumber"      type="elemInputNumber"/>
+        <xs:element name="inputlist"        type="elemInputList"/>
+        <xs:element name="outputstring"     type="elemOutputString"/>
+        <xs:element name="outputnumber"     type="elemOutputNumber"/>
+        <!--<xs:element name="outputlist"       type="elemOutputList"/>-->
+        <xs:element name="line"             type="elemLine"/>
+        <xs:element name="rectangle"        type="elemRectangle"/>
+        <xs:element name="ellipse"          type="elemEllipse"/>
+        <xs:element name="polygon"          type="elemPolygon"/>
+        <xs:element name="meter"            type="elemMeter"/>
+        <xs:element name="linearbargraph"   type="elemLinearBargraph"/>
+        <xs:element name="archedbargraph"   type="elemArchedBargraph"/>
+        <xs:element name="picturegraphic"   type="elemPictureGraphic"/>
+        <!--<xs:element name="graphicscontext"  type="elemGraphicsContext"/-->>
+        <xs:element name="objectpointer"    type="elemObjectPointer"/>
+        <!--<xs:element name="auxobjectpointer" type="elemAuxObjectPointer"/>-->
+        <xs:element name="include_object"   type="elemIncludeObject"/>
+        <xs:element name="include_macro"    type="elemIncludeMacro"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute use="optional" name="id"     type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"   type="xs:string"/>
+    <xs:attribute use="required" name="width"  type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height" type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="hidden" type="attrTrueFalse"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemSoftKeyMask">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="key"            type="elemKey"/>
+        <xs:element name="objectpointer"  type="elemObjectPointer"/>
+        <xs:element name="include_object" type="elemIncludeObject"/>
+        <xs:element name="include_macro"  type="elemIncludeMacro"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute use="optional" name="id"                type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"              type="xs:string"/>
+    <xs:attribute use="required" name="background_colour" type="attrColour"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemKey">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="container"        type="elemContainer"/>
+        <xs:element name="outputstring"     type="elemOutputString"/>
+        <xs:element name="outputnumber"     type="elemOutputNumber"/>
+        <!--<xs:element name="outputlist"       type="elemOutputList"/>-->
+        <xs:element name="line"             type="elemLine"/>
+        <xs:element name="rectangle"        type="elemRectangle"/>
+        <xs:element name="ellipse"          type="elemEllipse"/>
+        <xs:element name="polygon"          type="elemPolygon"/>
+        <!--<xs:element name="meter"            type="elemMeter"/>
+        <xs:element name="linearbargraph"   type="elemLinearBargraph"/>
+        <xs:element name="archedbargraph"   type="elemArchedBargraph"/>-->
+        <xs:element name="picturegraphic"   type="elemPictureGraphic"/>
+        <!--<xs:element name="graphicscontext"  type="elemGraphicsContext"/>-->
+        <xs:element name="objectpointer"    type="elemObjectPointer"/>
+        <!--<xs:element name="auxobjectpointer" type="elemAuxObjectPointer"/>-->
+        <xs:element name="include_object"   type="elemIncludeObject"/>
+        <xs:element name="include_macro"    type="elemIncludeMacro"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute use="optional" name="id"                type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"              type="xs:string"/>
+    <xs:attribute use="required" name="background_colour" type="attrColour"/>
+    <xs:attribute use="required" name="key_code"          type="attr1to255"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemButton">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="container"        type="elemContainer"/>
+        <xs:element name="outputstring"     type="elemOutputString"/>
+        <xs:element name="outputnumber"     type="elemOutputNumber"/>
+        <!--<xs:element name="outputlist"       type="elemOutputList"/>-->
+        <xs:element name="line"             type="elemLine"/>
+        <xs:element name="rectangle"        type="elemRectangle"/>
+        <xs:element name="ellipse"          type="elemEllipse"/>
+        <xs:element name="polygon"          type="elemPolygon"/>
+        <!--<xs:element name="meter"            type="elemMeter"/>
+        <xs:element name="linearbargraph"   type="elemLinearBargraph"/>
+        <xs:element name="archedbargraph"   type="elemArchedBargraph"/>-->
+        <xs:element name="picturegraphic"   type="elemPictureGraphic"/>
+        <!--<xs:element name="graphicscontext"  type="elemGraphicsContext"/>-->
+        <xs:element name="objectpointer"    type="elemObjectPointer"/>
+        <!--<xs:element name="auxobjectpointer" type="elemAuxObjectPointer"/>-->
+        <xs:element name="include_object"   type="elemIncludeObject"/>
+        <xs:element name="include_macro"    type="elemIncludeMacro"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute use="optional" name="id"                type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"              type="xs:string"/>
+    <xs:attribute use="required" name="width"             type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"            type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="background_colour" type="attrColour"/>
+    <xs:attribute use="required" name="border_colour"     type="attrColour"/>
+    <xs:attribute use="optional" name="key_code"          type="attr1to255"/>
+    <xs:attribute use="optional" name="options"           type="attrOptionsButton"/>
+    <xs:attribute use="optional" name="pos_x"             type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"             type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"        type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"         type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"         type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemInputBoolean">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                     type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"                 type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"               type="xs:string"/>
+    <xs:attribute use="optional" name="background_colour"  type="attrColour"/>
+    <xs:attribute use="required" name="width"              type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="foreground_colour"  type="attrObjectNameOrId"/>
+    <xs:attribute use="optional" name="variable_reference" type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="value"              type="attrTrueFalse"/>
+    <xs:attribute use="required" name="enabled"            type="attrYesNo"/>
+    <xs:attribute use="optional" name="pos_x"              type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"              type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"         type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"          type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"          type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemInputString">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                           type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"                       type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"                     type="xs:string"/>
+    <xs:attribute use="required" name="width"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"                   type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="background_colour"        type="attrColour"/>
+    <xs:attribute use="required" name="font_attributes"          type="attrObjectNameOrId"/>
+    <xs:attribute use="optional" name="input_attributes"         type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="options"                  type="attrOptionsString"/>
+    <xs:attribute use="optional" name="variable_reference"       type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="horizontal_justification" type="attrHorizontalJustification"/>
+    <xs:attribute use="optional" name="value"                    type="xs:string"/>
+    <xs:attribute use="required" name="length"                   type="attr0to255"/>
+    <xs:attribute use="required" name="enabled"                  type="attrYesNo"/>
+    <xs:attribute use="optional" name="pos_x"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"               type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"                type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"                type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemInputNumber">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                           type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"                       type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"                     type="xs:string"/>
+    <xs:attribute use="required" name="width"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"                   type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="background_colour"        type="attrColour"/>
+    <xs:attribute use="required" name="font_attributes"          type="attrObjectNameOrId"/>
+    <xs:attribute use="optional" name="options"                  type="attrOptionsNumber"/>
+    <xs:attribute use="optional" name="variable_reference"       type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="value"                    type="attrPositive32BitVal"/>
+    <xs:attribute use="required" name="min_value"                type="attrPositive32BitVal"/>
+    <xs:attribute use="required" name="max_value"                type="attrPositive32BitVal"/>
+    <xs:attribute use="required" name="offset"                   type="attrSigned32BitVal"/>
+    <xs:attribute use="required" name="scale"                    type="xs:float"/>
+    <xs:attribute use="required" name="number_of_decimals"       type="attrNumberOfDecimals"/>
+    <xs:attribute use="required" name="format"                   type="attrFormatNumber"/>
+    <xs:attribute use="optional" name="horizontal_justification" type="attrHorizontalJustification"/>
+    <xs:attribute use="optional" name="inputobject_options"      type="attrInputOptions"/>
+    <xs:attribute use="optional" name="pos_x"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"               type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"                type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"                type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemInputList">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="container"        type="elemContainer"/>
+        <xs:element name="outputstring"     type="elemOutputString"/>
+        <xs:element name="outputnumber"     type="elemOutputNumber"/>
+        <xs:element name="outputlist"       type="elemOutputList"/>
+        <xs:element name="line"             type="elemLine"/>
+        <xs:element name="rectangle"        type="elemRectangle"/>
+        <xs:element name="ellipse"          type="elemEllipse"/>
+        <xs:element name="polygon"          type="elemPolygon"/>
+        <xs:element name="meter"            type="elemMeter"/>
+        <xs:element name="linearbargraph"   type="elemLinearBargraph"/>
+        <xs:element name="archedbargraph"   type="elemArchedBargraph"/>
+        <xs:element name="picturegraphic"   type="elemPictureGraphic"/>
+        <xs:element name="graphicscontext"  type="elemGraphicsContext"/>
+        <xs:element name="objectpointer"    type="elemObjectPointer"/>
+        <xs:element name="auxobjectpointer" type="elemAuxObjectPointer"/>
+        <xs:element name="include_object"   type="elemIncludeObject"/>
+        <xs:element name="include_macro"    type="elemIncludeMacro"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute use="optional" name="id"                 type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"               type="xs:string"/>
+    <xs:attribute use="required" name="width"              type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"             type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="variable_reference" type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="value"              type="attr0to255"/>
+    <xs:attribute use="optional" name="number_of_items"    type="attr0to254"/>
+    <xs:attribute use="optional" name="options"            type="attrInputOptions"/>
+    <xs:attribute use="optional" name="pos_x"              type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"              type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"         type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"          type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"          type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemOutputString">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                           type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"                       type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"                     type="xs:string"/>
+    <xs:attribute use="required" name="width"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"                   type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="background_colour"        type="attrColour"/>
+    <xs:attribute use="required" name="font_attributes"          type="attrObjectNameOrId"/>
+    <xs:attribute use="optional" name="options"                  type="attrOptionsString"/>
+    <xs:attribute use="optional" name="variable_reference"       type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="horizontal_justification" type="attrHorizontalJustification"/>
+    <xs:attribute use="required" name="length"                   type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="value"                    type="xs:string"/>
+    <xs:attribute use="optional" name="language"                 type="attrLanguageCode"/>
+    <xs:attribute use="optional" name="pos_x"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"               type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"                type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"                type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemOutputNumber">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                           type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"                       type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"                     type="xs:string"/>
+    <xs:attribute use="required" name="width"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"                   type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="background_colour"        type="attrColour"/>
+    <xs:attribute use="required" name="font_attributes"          type="attrObjectNameOrId"/>
+    <xs:attribute use="optional" name="options"                  type="attrOptionsNumber"/>
+    <xs:attribute use="optional" name="variable_reference"       type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="value"                    type="attrPositive32BitVal"/>
+    <xs:attribute use="required" name="offset"                   type="attrSigned32BitVal"/>
+    <xs:attribute use="required" name="scale"                    type="xs:float"/>
+    <xs:attribute use="required" name="number_of_decimals"       type="attrNumberOfDecimals"/>
+    <xs:attribute use="required" name="format"                   type="attrFormatNumber"/>
+    <xs:attribute use="optional" name="horizontal_justification" type="attrHorizontalJustification"/>
+    <xs:attribute use="optional" name="pos_x"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"               type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"                type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"                type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <!-- ### That object is not yet implemented, so de-comment if implemented
+  <xs:complexType name="elemOutputList">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                     type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"                 type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"               type="xs:string"/>
+    <xs:attribute use="required" name="width"              type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"             type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="variable_reference" type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="value"              type="attrPositive32BitVal"/>
+    <xs:attribute use="required" name="number_of_items"    type="attr0to254"/>
+    <xs:attribute use="optional" name="pos_x"              type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"              type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"         type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"          type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"          type="attrPositive16BitVal"/>
+  </xs:complexType>
+  -->
+
+  <xs:complexType name="elemLine">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                  type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"              type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"            type="xs:string"/>
+    <xs:attribute use="required" name="line_attributes" type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="width"           type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"          type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="line_direction"  type="attrLineDirection"/>
+    <xs:attribute use="optional" name="pos_x"           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"      type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"       type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"       type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemRectangle">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                   type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"               type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"             type="xs:string"/>
+    <xs:attribute use="required" name="line_attributes"  type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="width"            type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="line_suppression" type="attrLineSuppression"/>
+    <xs:attribute use="optional" name="fill_attributes"  type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="pos_x"            type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"            type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"       type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"        type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"        type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemEllipse">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                  type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"              type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"            type="xs:string"/>
+    <xs:attribute use="required" name="line_attributes" type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="width"           type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"          type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="ellipse_type"    type="attrEllipseType"/>
+    <xs:attribute use="required" name="start_angle"     type="attrAngle"/>
+    <xs:attribute use="required" name="end_angle"       type="attrAngle"/>
+    <xs:attribute use="optional" name="fill_attributes" type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="pos_x"           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"      type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"       type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"       type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemPolygon">
+    <xs:choice maxOccurs="unbounded">
+      <xs:element name="point"                           type="elemContainer" minOccurs="3"/>
+      <xs:element name="include_macro"                   type="elemIncludeMacro" minOccurs="0"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"               type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"             type="xs:string"/>
+    <xs:attribute use="required" name="width"            type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"           type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="line_attributes"  type="attrObjectNameOrId"/>
+    <xs:attribute use="optional" name="fill_attributes"  type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="polygon_type"     type="attrPolygonType"/>
+    <xs:attribute use="optional" name="number_of_points" type="attr3to255"/>
+    <xs:attribute use="optional" name="pos_x"            type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"            type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"       type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"        type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"        type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemMeter">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                           type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"                       type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"                     type="xs:string"/>
+    <xs:attribute use="required" name="width"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="needle_colour"            type="attrColour"/>
+    <xs:attribute use="required" name="border_colour"            type="attrColour"/>
+    <xs:attribute use="required" name="arc_and_tick_colour"      type="attrColour"/>
+    <xs:attribute use="optional" name="options"                  type="attrOptionsMeter"/>
+    <xs:attribute use="required" name="number_of_ticks"          type="attr0to255"/>
+    <xs:attribute use="required" name="start_angle"              type="attrAngle"/>
+    <xs:attribute use="required" name="end_angle"                type="attrAngle"/>
+    <xs:attribute use="required" name="min_value"                type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="max_value"                type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="variable_reference"       type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="value"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_x"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"               type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"                type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"                type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemLinearBargraph">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                                  type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"                              type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"                            type="xs:string"/>
+    <xs:attribute use="required" name="width"                           type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"                          type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="colour"                          type="attrColour"/>
+    <xs:attribute use="required" name="target_line_colour"              type="attrColour"/>
+    <xs:attribute use="optional" name="options"                         type="attrOptionsLinearBarGraph"/>
+    <xs:attribute use="required" name="start_angle"                     type="attrAngle"/>
+    <xs:attribute use="required" name="end_angle"                       type="attrAngle"/>
+    <xs:attribute use="required" name="bar_graph_width"                 type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="min_value"                       type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="max_value"                       type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="variable_reference"              type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="value"                           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="target_value_variable_reference" type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="target_value"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_x"                           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"                           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"                      type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"                       type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"                       type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemArchedBargraph">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                                  type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"                              type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"                            type="xs:string"/>
+    <xs:attribute use="required" name="width"                           type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="height"                          type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="colour"                          type="attrColour"/>
+    <xs:attribute use="required" name="target_line_colour"              type="attrColour"/>
+    <xs:attribute use="optional" name="options"                         type="attrOptionsLinearBarGraph"/>
+    <xs:attribute use="required" name="number_of_ticks"                 type="attr0to255"/>
+    <xs:attribute use="required" name="min_value"                       type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="max_value"                       type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="variable_reference"              type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="value"                           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="target_value_variable_reference" type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="target_value"                    type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_x"                           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"                           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"                      type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"                       type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"                       type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemPictureGraphic">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                      type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"                  type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"                type="xs:string"/>
+    <xs:attribute use="required" name="width"               type="xs:positiveInteger"/>
+    <xs:attribute use="optional" name="actual_width"        type="xs:positiveInteger"/>
+    <xs:attribute use="optional" name="actual_height"       type="xs:positiveInteger"/>
+    <xs:attribute use="required" name="format"              type="attrFormatPictureGraphicFixedBitmap"/>
+    <xs:attribute use="optional" name="options"             type="attrOptionsPictureGraphic"/>
+    <xs:attribute use="required" name="transparency_colour" type="attrColour"/>
+    <xs:attribute use="optional" name="file"                type="xs:string"/>
+    <xs:attribute use="optional" name="file1"               type="xs:string"/>
+    <xs:attribute use="optional" name="file4"               type="xs:string"/>
+    <xs:attribute use="optional" name="file8"               type="xs:string"/>
+    <xs:attribute use="optional" name="pos_x"               type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="pos_y"               type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"          type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"           type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemNumberVariable">
+    <xs:attribute use="optional" name="id"    type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"  type="xs:string"/>
+    <xs:attribute use="required" name="value" type="attrPositive32BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemStringVariable">
+    <xs:attribute use="optional" name="id"    type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"  type="xs:string"/>
+    <xs:attribute use="optional" name="name"  type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="value" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemFontAttributes">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"              type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"          type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"        type="xs:string"/>
+    <xs:attribute use="required" name="font_colour" type="attrColour"/>
+    <xs:attribute use="required" name="font_size"   type="attrFontSize"/>
+    <xs:attribute use="required" name="font_type"   type="attrFontType"/>
+    <xs:attribute use="required" name="font_style"  type="attrFontStyle"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemLineAttributes">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"              type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"          type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"        type="xs:string"/>
+    <xs:attribute use="required" name="line_colour" type="attrColour"/>
+    <xs:attribute use="required" name="line_width"  type="attr0to255"/>
+    <xs:attribute use="required" name="line_art"    type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemFillAttributes">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"    type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"           type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"         type="xs:string"/>
+    <xs:attribute use="optional" name="fill_type"    type="attrFillType"/>
+    <xs:attribute use="required" name="fill_colour"  type="attrColour"/>
+    <xs:attribute use="optional" name="fill_pattern" type="attrObjectNameOrIdUnspecified"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemInputAttributes">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="include_macro"                    type="elemIncludeMacro"/>
+    </xs:choice>
+    <xs:attribute use="optional" name="id"                type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"              type="xs:string"/>
+    <xs:attribute use="optional" name="validation_type"   type="attrValidationType"/>
+    <xs:attribute use="required" name="length"            type="attr0to255"/>
+    <xs:attribute use="optional" name="validation_string" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemObjectPointer">
+    <xs:attribute use="optional" name="id"         type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"       type="xs:string"/>
+    <xs:attribute use="optional" name="value"      type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_font" type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"  type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"  type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemMacro">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="command_hide_show_object"        type="elemCmdHideShow"/>
+        <xs:element name="command_enable_disable_object"   type="elemCmdEnableDisable"/>
+        <xs:element name="command_select_input_object"     type="elemCmdSelectInput"/>
+        <xs:element name="command_control_audio_device"    type="elemCmdControlAudioDevice"/>
+        <xs:element name="command_set_audio_volume"        type="elemCmdSetAudioVolume"/>
+        <xs:element name="command_change_child_location"   type="elemCmdChangeChildLocation"/>
+        <xs:element name="command_change_child_position"   type="elemCmdChangeChildPosition"/>
+        <xs:element name="command_change_size"             type="elemCmdChangeSize"/>
+        <xs:element name="command_change_background_color" type="elemCmdChangeBackgroudColour"/>
+        <xs:element name="command_change_numeric_value"    type="elemCmdChangeNumericValue"/>
+        <xs:element name="command_change_string_value"     type="elemCmdChangeStringValue"/>
+        <xs:element name="command_change_end_point"        type="elemCmdChangeEndPoint"/>
+        <xs:element name="command_change_font_attributes"  type="elemCmdChangeFontAttributes"/>
+        <xs:element name="command_change_line_attributes"  type="elemCmdChangeLineAttributes"/>
+        <xs:element name="command_change_fill_attributes"  type="elemCmdChangeFillAttributes"/>
+        <xs:element name="command_change_active_mask"      type="elemCmdChangeActiveMask"/>
+        <xs:element name="command_change_soft_key_mask"    type="elemCmdChangeSoftKeyMask"/>
+        <xs:element name="command_change_attribute"        type="elemCmdChangeAttribute"/>
+        <xs:element name="command_change_priority"         type="elemCmdChangePriority"/>
+        <xs:element name="command_change_list_item"        type="elemCmdChangeListItem"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute use="optional" name="id"              type="attr0to255"/>
+    <xs:attribute use="optional" name="name"            type="xs:string"/>
+    <xs:attribute use="required" name="number_of_bytes" type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <!--<xs:complexType name="elemGraphicsContext">
+    <xs:attribute use="optional" name="id"                  type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"                type="xs:string"/>
+    <xs:attribute use="required" name="viewport_width"      type="attrPositiveSigned16BitVal"/>
+    <xs:attribute use="required" name="viewport_height"     type="attrPositiveSigned16BitVal"/>
+    <xs:attribute use="required" name="viewport_x"          type="attrSigned16BitVal"/>
+    <xs:attribute use="required" name="viewport_y"          type="attrSigned16BitVal"/>
+    <xs:attribute use="required" name="canvas_width"        type="attrPositiveSigned16BitVal"/>
+    <xs:attribute use="required" name="canvas_height"       type="attrPositiveSigned16BitVal"/>
+    <xs:attribute use="required" name="viewport_zoom"       type="attrViewportZoom"/>
+    <xs:attribute use="required" name="cursor_x"            type="attrSigned16BitVal"/>
+    <xs:attribute use="required" name="cursor_y"            type="attrSigned16BitVal"/>
+    <xs:attribute use="required" name="foreground_colour"   type="attrColour"/>
+    <xs:attribute use="required" name="background_colour"   type="attrColour"/>
+    <xs:attribute use="required" name="font_attributes"     type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="required" name="line_attributes"     type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="required" name="fill_attributes"     type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="required" name="format"              type="attrFormatPictureGraphicFixedBitmap"/>
+    <xs:attribute use="required" name="options"             type="attrObjectGraphicsContext"/>
+    <xs:attribute use="required" name="transparency_colour" type="attrColour"/>
+    <xs:attribute use="required" name="pos_x"               type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="pos_y"               type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_font"          type="attrObjectNameOrIdUnspecified"/>
+    <xs:attribute use="optional" name="block_row"           type="attrPositive16BitVal"/>
+    <xs:attribute use="optional" name="block_col"           type="attrPositive16BitVal"/>
+  </xs:complexType>-->
+
+  <xs:complexType name="elemAuxiliaryFunction">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <!--<xs:element name="container"        type="elemContainer"/>-->
+        <xs:element name="outputstring"     type="elemOutputString"/>
+        <xs:element name="outputnumber"     type="elemOutputNumber"/>
+        <!--<xs:element name="outputlist"       type="elemOutputList"/>-->
+        <xs:element name="line"             type="elemLine"/>
+        <xs:element name="rectangle"        type="elemRectangle"/>
+        <xs:element name="ellipse"          type="elemEllipse"/>
+        <xs:element name="polygon"          type="elemPolygon"/>
+        <!--<xs:element name="meter"            type="elemMeter"/>-->
+        <!--<xs:element name="linearbargraph"   type="elemLinearBargraph"/>-->
+        <!--<xs:element name="archedbargraph"   type="elemArchedBargraph"/>-->
+        <xs:element name="picturegraphic"   type="elemPictureGraphic"/>
+        <!--<xs:element name="graphicscontext"  type="elemGraphicsContext"/>-->
+        <!--<xs:element name="objectpointer"    type="elemObjectPointer"/>-->
+        <xs:element name="include_object"   type="elemIncludeObject"/>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute use="optional" name="id"                type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"              type="xs:string"/>
+    <xs:attribute use="required" name="background_colour" type="attrColour"/>
+    <xs:attribute use="required" name="function_type"     type="attrFunctionType"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemAuxiliaryInput">
+    <xs:attribute use="optional" name="id"                type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"              type="xs:string"/>
+    <xs:attribute use="required" name="background_colour" type="attrColour"/>
+    <xs:attribute use="required" name="function_type"     type="attrFunctionType"/>
+    <xs:attribute use="required" name="input_id"          type="attr0to250"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemIncludeObject">
+    <xs:attribute use="optional" name="id"    type="attrObjectId"/>
+    <xs:attribute use="optional" name="name"  type="xs:string"/>
+    <xs:attribute use="required" name="pos_x" type="attrPositive16BitVal"/>
+    <xs:attribute use="required" name="pos_y" type="attrPositive16BitVal"/>
+  </xs:complexType>
+
+  <xs:complexType name="elemIncludeMacro">
+    <xs:attribute use="optional" name="name"  type="attrObjectNameOrId"/>
+    <xs:attribute use="required" name="event" type="attrEventType"/>
+  </xs:complexType>
+
+
+  <!-- ### Additional nested elements ### -->
+  <xs:complexType name="elemLanguage">
+    <xs:attribute use="required" name="code" type="attrLanguageCode"/>
+  </xs:complexType>
+
+
+
+  <!-- ### ROOT ELEMENT ### -->
+  <xs:element name="objectpool">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+          <xs:element name="workingset"     type="elemWorkingset"/>
+          <xs:element name="datamask"       type="elemDatamask"/>
+          <xs:element name="picturegraphic" type="elemPictureGraphic"/>
+          <xs:element name="fontattributes" type="elemFontAttributes"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attribute use="optional" name="dimension"       type="xs:positiveInteger" /> <!-- required by FIRST XML file in processing order, so we can't generally check here in .xsd :-( -->
+      <xs:attribute use="optional" name="std_bitmap_path" type="xs:string"          /> <!-- put some annotation for the above comment there instead! -->
+      <xs:attribute use="optional" name="fix_bitmap_path" type="xs:string"          />
+      <xs:attribute use="optional" name="sk_width"        type="xs:positiveInteger" />
+      <xs:attribute use="optional" name="sk_height"       type="xs:positiveInteger" />
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

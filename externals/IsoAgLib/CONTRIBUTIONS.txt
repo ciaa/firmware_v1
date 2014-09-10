@@ -1,0 +1,22 @@
+First of all, everybody is welcome to contribute to the ISOAgLib project.
+
+To contribute, be sure to follow these guidesline:
+
+* Check-out the ISOAgLib Trunk via Subversion.
+* Modify/Enhance your local ISOAgLib working-copy.
+* Create a patch-/diff-file of your changes.
+* Send this file via e-mail to support@isoaglib.com
+* Notice that by contributing your changes you accept our Contribution
+  Agreement below.
+* The changes will be reviewed and eventually modified to match our
+  technical requirements/conventions.
+* The changes may be commited to the repository and be made available
+  in the next official release version or in case of important
+  bug-fixes in the maintained release versions.
+
+
+Contribution Agreement
+
+The contributor grants to OSB AG all rights on the contribution that
+OSB AG would also have when they had done the contribution by
+themselves.
