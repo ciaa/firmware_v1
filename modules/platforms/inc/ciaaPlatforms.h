@@ -102,6 +102,8 @@ extern "C" {
 /*** CPUTYPES for ARCH=cortexM4 ***/
 #define lpc43xx               1
 
+/*** CPUTYPES for ARCH=k60_120 ***/
+#define k60_120               2
 
 /****** CPU macro definitions ******/
 /*** CPU for ARCH=posix CPUTYPE=posix32 ***/
@@ -113,6 +115,8 @@ extern "C" {
 /*** CPU for ARCH=cortexM4 CPUTYPE=lpc43xx ***/
 #define lpc4337               1
 
+/*** CPU for ARCH=cortexM4 CPUTYPE=k60_120 ***/
+#define mk60fx512vlq15        2
 
 /****** CIAAPLATFORM_REGLENGTH ******/
 /** \brief definition of the lenght of the register */

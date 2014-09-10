@@ -64,7 +64,8 @@
 #include "stdint.h"
 #elif (win == ARCH)
 #include "stdint.h"
-#elif ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) )
+#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
+        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) )
 #include "stdint.h"
 #else
 #error Missing stdio type definition for this ARCH/CPUTYPE/CPU
