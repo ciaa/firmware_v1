@@ -1,0 +1,15 @@
+PROJECT=can_messenger
+
+REL_APP_PATH="tools/can_messenger/src"
+APP_SRC_FILE="can_messenger.cpp"
+ISO_AG_LIB_PATH="../.."
+
+USE_TARGET_SYSTEM="pc_win32"
+
+USE_CAN_DRIVER="socket_server"
+USE_RS232_DRIVER="simulating"
+CAN_INSTANCE_CNT=1
+PRT_INSTANCE_CNT=1
+RS232_INSTANCE_CNT=1
+PRJ_ISO11783=1
+PRJ_RS232=1

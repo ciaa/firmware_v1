@@ -1,0 +1,253 @@
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = Complete
+PROJECT_NUMBER         = 2.7.0
+OUTPUT_DIRECTORY       = 
+CREATE_SUBDIRS         = YES
+OUTPUT_LANGUAGE        = English
+BRIEF_MEMBER_DESC      = YES
+REPEAT_BRIEF           = YES
+ABBREVIATE_BRIEF       = 
+ALWAYS_DETAILED_SEC    = YES
+INLINE_INHERITED_MEMB  = NO
+FULL_PATH_NAMES        = YES
+STRIP_FROM_PATH        = 
+STRIP_FROM_INC_PATH    = 
+SHORT_NAMES            = NO
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = YES
+MULTILINE_CPP_IS_BRIEF = YES
+DETAILS_AT_TOP         = NO
+INHERIT_DOCS           = YES
+SEPARATE_MEMBER_PAGES  = NO
+TAB_SIZE               = 2
+ALIASES                = "isoaglib=ISO<i><sub>AgLib</sub></i>"
+OPTIMIZE_OUTPUT_FOR_C  = NO
+OPTIMIZE_OUTPUT_JAVA   = NO
+OPTIMIZE_FOR_FORTRAN   = NO
+OPTIMIZE_OUTPUT_VHDL   = NO
+BUILTIN_STL_SUPPORT    = YES
+CPP_CLI_SUPPORT        = NO
+SIP_SUPPORT            = NO
+DISTRIBUTE_GROUP_DOC   = NO
+SUBGROUPING            = YES
+TYPEDEF_HIDES_STRUCT   = NO
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_METHODS  = NO
+EXTRACT_ANON_NSPACES   = YES
+HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_CLASSES     = NO
+HIDE_FRIEND_COMPOUNDS  = NO
+HIDE_IN_BODY_DOCS      = NO
+INTERNAL_DOCS          = NO
+CASE_SENSE_NAMES       = YES
+HIDE_SCOPE_NAMES       = NO
+SHOW_INCLUDE_FILES     = YES
+INLINE_INFO            = YES
+SORT_MEMBER_DOCS       = YES
+SORT_BRIEF_DOCS        = NO
+SORT_GROUP_NAMES       = NO
+SORT_BY_SCOPE_NAME     = NO
+GENERATE_TODOLIST      = YES
+GENERATE_TESTLIST      = YES
+GENERATE_BUGLIST       = YES
+GENERATE_DEPRECATEDLIST= YES
+ENABLED_SECTIONS       = 
+MAX_INITIALIZER_LINES  = 30
+SHOW_USED_FILES        = YES
+SHOW_DIRECTORIES       = YES
+FILE_VERSION_FILTER    = 
+QUIET                  = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = NO
+WARN_FORMAT            = "$file:$line: $text "
+WARN_LOGFILE           = doxywarnings.txt
+INPUT                  = txt ../library ../tutorial ../tools/vt2iso/doc
+INPUT_ENCODING         = ISO-8859-15
+FILE_PATTERNS          = *.c \
+                         *.cc \
+                         *.cpp \
+                         *.h \
+                         *.hpp \
+                         *.txt
+RECURSIVE              = YES
+EXCLUDE                = .git \
+                         .svn \
+                         library/xgpl_src/IsoAgLib/hal \
+                         library/xgpl_src/supplementary_driver/hal
+EXCLUDE_SYMLINKS       = NO
+EXCLUDE_PATTERNS       = */.svn/* .git
+EXCLUDE_SYMBOLS        = 
+EXAMPLE_PATH           = tutorial
+EXAMPLE_PATTERNS       = *.c \
+                         *.cc \
+                         *.cpp \
+                         *.h \
+                         *.hpp \
+                         *.txt \
+                         *.html \
+                         *.xml
+EXAMPLE_RECURSIVE      = YES
+IMAGE_PATH             = html/
+INPUT_FILTER           = 
+FILTER_PATTERNS        = 
+FILTER_SOURCE_FILES    = NO
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = YES
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+REFERENCES_LINK_SOURCE = YES
+USE_HTAGS              = NO
+VERBATIM_HEADERS       = YES
+ALPHABETICAL_INDEX     = YES
+COLS_IN_ALPHA_INDEX    = 5
+IGNORE_PREFIX          = 
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html/all
+HTML_FILE_EXTENSION    = .html
+HTML_HEADER            = header.html
+HTML_FOOTER            = footer.html
+HTML_STYLESHEET        = stylesheet.css
+HTML_ALIGN_MEMBERS     = YES
+GENERATE_HTMLHELP      = NO
+GENERATE_DOCSET        = NO
+DOCSET_FEEDNAME        = "Doxygen generated docs"
+DOCSET_BUNDLE_ID       = org.doxygen.Project
+HTML_DYNAMIC_SECTIONS  = YES
+CHM_FILE               = 
+HHC_LOCATION           = 
+GENERATE_CHI           = NO
+BINARY_TOC             = NO
+TOC_EXPAND             = YES
+DISABLE_INDEX          = NO
+ENUM_VALUES_PER_LINE   = 4
+GENERATE_TREEVIEW      = NO
+TREEVIEW_WIDTH         = 250
+GENERATE_LATEX         = NO
+LATEX_OUTPUT           = latex
+LATEX_CMD_NAME         = latex
+MAKEINDEX_CMD_NAME     = makeindex
+COMPACT_LATEX          = YES
+PAPER_TYPE             = a4wide
+EXTRA_PACKAGES         = 
+LATEX_HEADER           = 
+PDF_HYPERLINKS         = YES
+USE_PDFLATEX           = YES
+LATEX_BATCHMODE        = NO
+LATEX_HIDE_INDICES     = NO
+GENERATE_RTF           = NO
+RTF_OUTPUT             = rtf
+COMPACT_RTF            = NO
+RTF_HYPERLINKS         = NO
+RTF_STYLESHEET_FILE    = 
+RTF_EXTENSIONS_FILE    = 
+GENERATE_MAN           = NO
+MAN_OUTPUT             = man
+MAN_EXTENSION          = .3
+MAN_LINKS              = NO
+GENERATE_XML           = NO
+XML_OUTPUT             = xml
+XML_SCHEMA             = 
+XML_DTD                = 
+XML_PROGRAMLISTING     = YES
+GENERATE_AUTOGEN_DEF   = NO
+GENERATE_PERLMOD       = NO
+PERLMOD_LATEX          = NO
+PERLMOD_PRETTY         = YES
+PERLMOD_MAKEVAR_PREFIX = 
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
+SEARCH_INCLUDES        = YES
+INCLUDE_PATH           = ../library
+INCLUDE_FILE_PATTERNS  = 
+PREDEFINED             = ENABLE_MULTIPACKET_VARIANT_FAST_PACKET \
+                         ENABLE_NMEA_2000_MULTI_PACKET \
+                         USE_EEPROM_IO \
+                         USE_ISO_11783 \
+                         USE_ISO_VIRTUALTERMINAL_CLIENT \
+                         USE_ISO_TASKCONTROLLER_CLIENT \
+                         USE_WORKING_SET \
+                         USE_TRACTOR_LIGHT \
+                         USE_TRACTOR_GENERAL \
+                         USE_TRACTOR_MOVE \
+                         USE_TRACTOR_AUX \
+                         USE_TRACTOR_PTO \
+                         USE_TRACTOR_GUIDANCE \
+                         USE_TIME_GPS \
+                         USE_VTOBJECT_alarmmask \
+                         USE_VTOBJECT_archedbargraph \
+                         USE_VTOBJECT_auxiliaryfunction \
+                         USE_VTOBJECT_auxiliaryinput \
+                         USE_VTOBJECT_button \
+                         USE_VTOBJECT_container \
+                         USE_VTOBJECT_datamask \
+                         USE_VTOBJECT_ellipse \
+                         USE_VTOBJECT_fillattributes \
+                         USE_VTOBJECT_fontattributes \
+                         USE_VTOBJECT_inputboolean \
+                         USE_VTOBJECT_inputlist \
+                         USE_VTOBJECT_inputnumber \
+                         USE_VTOBJECT_inputstring \
+                         USE_VTOBJECT_key \
+                         USE_VTOBJECT_line \
+                         USE_VTOBJECT_linearbargraph \
+                         USE_VTOBJECT_macro \
+                         USE_VTOBJECT_meter \
+                         USE_VTOBJECT_numbervariable \
+                         USE_VTOBJECT_objectpointer \
+                         USE_VTOBJECT_outputnumber \
+                         USE_VTOBJECT_outputstring \
+                         USE_VTOBJECT_polygon \
+                         USE_VTOBJECT_picturegraphic \
+                         USE_VTOBJECT_rectangle \
+                         USE_VTOBJECT_softkeymask \
+                         USE_VTOBJECT_stringvariable \
+                         USE_VTOBJECT_workingset
+EXPAND_AS_DEFINED      = MACRO_SINGLETON_CONTRIBUTION \
+                         MACRO_MULTITON_CONTRIBUTION \
+                         CONTAINER_CLIENT1_CTOR_INITIALIZER_LIST \
+                         CONTAINER_CLIENT2_CTOR_INITIALIZER_LIST \
+                         CONTAINER_CLIENT3_CTOR_INITIALIZER_LIST \
+                         CONTAINER_CLIENT1_MEMBER_FUNCTIONS_MAIN \
+                         CONTAINER_CLIENT2_MEMBER_FUNCTIONS_MAIN \
+                         CONTAINER_CLIENT3_MEMBER_FUNCTIONS_MAIN \
+                         CONTAINER_CLIENT1_MEMBER_FUNCTIONS_KEY \
+                         CONTAINER_CLIENT2_MEMBER_FUNCTIONS_KEY \
+                         CONTAINER_CLIENT3_MEMBER_FUNCTIONS_KEY
+SKIP_FUNCTION_MACROS   = NO
+TAGFILES               = 
+GENERATE_TAGFILE       = 
+ALLEXTERNALS           = YES
+EXTERNAL_GROUPS        = YES
+PERL_PATH              = /usr/bin/perl
+CLASS_DIAGRAMS         = YES
+MSCGEN_PATH            = /usr/local/bin/mscgen
+HIDE_UNDOC_RELATIONS   = NO
+HAVE_DOT               = YES
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = YES
+GROUP_GRAPHS           = YES
+UML_LOOK               = YES
+TEMPLATE_RELATIONS     = YES
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+GRAPHICAL_HIERARCHY    = YES
+DIRECTORY_GRAPH        = YES
+DOT_IMAGE_FORMAT       = png
+DOT_PATH               = 
+DOTFILE_DIRS           = 
+DOT_GRAPH_MAX_NODES    = 50
+MAX_DOT_GRAPH_DEPTH    = 0
+DOT_TRANSPARENT        = NO
+DOT_MULTI_TARGETS      = YES
+GENERATE_LEGEND        = YES
+DOT_CLEANUP            = YES
+SEARCHENGINE           = YES
