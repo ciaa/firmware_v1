@@ -384,6 +384,15 @@ extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len)
    return ret;
 } /* end ciaaModbus_ascii_ascii2bin */
 
+
+extern int32_t ciaaModbus_asciiInit(int32_t fildes)
+{
+   return 0;
+}
+
+
+
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

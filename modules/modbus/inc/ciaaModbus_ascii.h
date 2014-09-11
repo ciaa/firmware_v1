@@ -168,6 +168,15 @@ extern void ciaaModbus_bin2ascii(uint8_t length, uint8_t * buf);
  **/
 extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len);
 
+
+/** \brief Init Modbus Ascii communication channel
+ **
+ ** \paran[in] fildes file descriptor serial port
+ ** \return -1 if error
+ **         >= 0 handler modbus
+ **/
+extern int32_t ciaaModbus_asciiInit(int32_t fildes);
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
