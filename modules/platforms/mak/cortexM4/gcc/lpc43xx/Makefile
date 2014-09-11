@@ -1,8 +1,6 @@
 ###############################################################################
 #
-# Copyright 2014, ACSE & CADIEEL
-#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
-#    CADIEEL: http://www.cadieel.org.ar
+# Copyright 2014, Mariano Cerdeiro
 #
 # This file is part of CIAA Firmware.
 #
@@ -33,23 +31,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# TOOLCHAIN
-CC = arm-none-eabi-gcc
-LD = arm-none-eabi-gcc
-AR = arm-none-eabi-ar
-AS = arm-none-eabi-as
-GDB = arm-none-eabi-gdb
-NM = arm-none-eabi-nm
-# COMPILER AND LINKER OPTIONS
-AFLAGS += -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
-CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -DCORE_M4 -D__CODE_RED
-LFLAGS += $(LINKSCRIPT)  -fno-builtin -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -Xlinker -Map="$(TARGET_NAME).map"
-# Optional POST BUILD
-# Generates a .bin image file
-POST_BUILD += arm-none-eabi-objcopy -v -O binary $(LD_TARGET) $(TARGET_NAME).bin 
+LFLAGS += -T "externals/platforms/cortexM4/lpc43xx/linker/ciaa_lpc4337.ld"
 
-# define linker extension
-LD_EXTENSION                = axf
- 
-include $(platforms_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)$(CPUTYPE)$(DS)Makefile
+# this file needs to be compiled separated and not added to a library
+# TODO this is not nice
+SRC_FILES                  += $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)crp.c
 

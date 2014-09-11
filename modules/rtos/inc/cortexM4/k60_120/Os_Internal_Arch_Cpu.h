@@ -1,6 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -37,8 +35,8 @@
 
 /** \brief FreeOSEK Internal Architecture Cpu Dependent Header File
  **
- ** \file cortexM4/lpc4000/Os_Internal_Arch_Cpu.h
- ** \arch cortexM4/lpc4000
+ ** \file cortexM4/k60_120/Os_Internal_Arch_Cpu.h
+ ** \arch cortexM4/k60_120
  **/
 
 /** \addtogroup FreeOSEK
@@ -48,81 +46,36 @@
 /** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
 
-/*****************************************************************************
- * add your name to the developers and create for you a nick with
- * 3 or 4 letters. Please do not use any given nick.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 /*
  * Initials     Name
  * ---------------------------
- * PR		Pablo Ridolfi
+ * MaCe         Mariano Cerdeiro
  */
 
-/*****************************************************************************
- * add a new version to this file, add the date, your initials and the main
- * changes, only main changes shall be listed here. A detailed message log
- * is saved in svn log and on the tracker system since every svn login message
- * shalle indicate the related tracker id.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140608 v0.1.1 PR	First version for LPC4337 microcontroller.
+ * 20140911 v0.2.0 MaCe initial version for k60_120
  */
 
 /*==================[cpu macros]=============================================*/
-/*****************************************************************************
- * Please define here all cpu macros available for this cputype. arm7 and
- * cpy family lpc2xxx is given as example, please remove all arm7 and lpc2xxx
- * related macros
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
-/** \brief lpc4337 cpu definition */
-#define lpc4337 	1
+/** \brief mk60fx512vlq15 cpu definition */
+#define mk60fx512vlq15 1
 
 /*==================[inclusions]=============================================*/
-/*****************************************************************************
- * Include the right macros for every cpu. Please remove all arm7 and lpc2xxx
- * related macros.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 #ifndef CPU
 #error CPU is not defined
-#elif (CPU == lpc4337)
-#include "chip.h"
+#elif (CPU == mk60fx512vlq15)
+#include "core_cm4.h"
 #else
 #error Unknown CPU value
 #endif
 
 /*==================[macros]=================================================*/
-/*****************************************************************************
- * use this section to defined any necessary macros for a specific cpu of
- * your family.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 
 /*==================[typedef]================================================*/
-/*****************************************************************************
- * use this section to defined any necessary types for a specific cpu of
- * your family.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 
 /*==================[external data declaration]==============================*/
-/*****************************************************************************
- * use this section to declare any necessary variables for a specific cpu of
- * your family.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 
 /*==================[external functions declaration]=========================*/
 void StartOs_Arch_Cpu(void);

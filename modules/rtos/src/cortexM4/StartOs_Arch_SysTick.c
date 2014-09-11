@@ -56,7 +56,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "chip.h"
+#include "Os_Internal_Arch_Cpu.h"
 
 /*==================[macros and definitions]=================================*/
 
