@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,9 +30,12 @@
  *
  */
 
-/** \brief This file implements the Modbus Slave main functionality
+#ifndef _CIAAMODBUSGATEWAY_H_
+#define _CIAAMODBUSGATEWAY_H_
+/** \brief Modbus Slave Header File
  **
- ** This file implements the main functionality of the Modbus
+ ** This files shall be included by moodules using the interfaces provided by
+ ** the Modbus Slave
  **
  **/
 
@@ -43,7 +46,7 @@
 
 /*
  * Initials     Name
- * MaCe         Mariano Cerdeiro
+ * ---------------------------
  * GMuro        Gustavo Muro
  *
  */
@@ -55,76 +58,65 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdint.h"
 
-#include "ciaaPOSIX_stdio.h"
-#include "ciaaModbus_slave.h"
-#include "ciaaModbus_transport.h"
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
 
-/*==================[internal data declaration]==============================*/
+/*==================[typedef]================================================*/
 
-/*==================[internal functions declaration]=========================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[internal data definition]===============================*/
+/*==================[external functions declaration]=========================*/
 
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-
-extern int32_t ciaaModbus_slaveInit(
-      const ciaaModbus_slaveCmd_type *cmd)
-{
-   return 0;
-}
-
-extern void ciaaModbus_slaveTask(int32_t hModbusSlave)
-{
-/*  int32_t ret;
-   uint32_t len;
-
-   ret = ciaaModbus_transportRecv(
-         handlerModTra,
-         buffer
-         &len);
-
-   if (ret == CIAAMODBUS_TRASNPORT_RECV_COMPLETE)
-   {
-      if (buffer[0] == CIAA_BLINKING_MODBUS_ID)
-      {
-         len = ciaaModbus_slaveProcess(
-               &buffer[1],
-               &callbacksStruct);
-
-         ciaaModbus_transportSend(
-               handlerModTra,
-               buffer,
-               len+1);
-      }
-   }
-   */
-}
-
-
-/** \brief Process modbus request
+/** \brief Init Modbus Gateway
  **
- ** \param[inout] buf buffer with the modbus data
- ** \param[in] len length of the buffer
- ** \param[in] cmd pointer to struct call backs modbus function
- ** \return length of data on the buffer
+ ** \param[in] totalMasters Number of masters
+ ** \param[in] totalSlaves Number of slaves
+ ** \return handler Modbus Gateway
  **/
-extern int32_t ciaaModbus_slaveProcess(
-      uint8_t * buf,
-      const ciaaModbus_slaveCmd_type *cmd
-      )
-{
-   return 0;
+extern int32_t ciaaModbus_gatewayInit(
+      uint8_t totalMasters,
+      uint8_t totalSlaves);
+
+/** \brief Add slave to Modbus Gateway
+ **
+ ** \param[in] hModbusSlave handler slave
+ ** \param[in] id of slave modbus
+ ** \return 0 if ok
+ **         -1 if error occurs
+ **/
+extern int8_t ciaaModbus_gatewayAddSlave(
+      int32_t hModbusSlave,
+      uint8_t idSlave);
+
+/** \brief Add master to Modbus Gateway
+ **
+ ** \param[in] hModbusMaster handler Master
+ ** \return 0 if ok
+ **         -1 if error occurs
+ **/
+extern int8_t ciaaModbus_gatewayAddMaster(
+      int32_t hModbusMaster);
+
+/** \brief Execute task of gateway
+ **
+ ** \param[in] hModbusGatewai handler Gateway
+ **/
+extern void ciaaModbus_gatewayMainTask(
+      int32_t hModbusGateway);
+
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CIAAMODBUSGATEWAY_H_ */
 

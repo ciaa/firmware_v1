@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -43,7 +43,6 @@
 
 /*
  * Initials     Name
- * MaCe         Mariano Cerdeiro
  * GMuro        Gustavo Muro
  *
  */
@@ -56,9 +55,8 @@
 
 /*==================[inclusions]=============================================*/
 
-#include "ciaaPOSIX_stdio.h"
-#include "ciaaModbus_slave.h"
-#include "ciaaModbus_transport.h"
+#include "ciaaModbus_gateway.h"
+
 
 /*==================[macros and definitions]=================================*/
 
@@ -74,55 +72,31 @@
 
 /*==================[external functions definition]==========================*/
 
-extern int32_t ciaaModbus_slaveInit(
-      const ciaaModbus_slaveCmd_type *cmd)
+extern int32_t ciaaModbus_gatewayInit(
+      uint8_t totalMasters,
+      uint8_t totalSlaves)
 {
    return 0;
 }
 
-extern void ciaaModbus_slaveTask(int32_t hModbusSlave)
-{
-/*  int32_t ret;
-   uint32_t len;
-
-   ret = ciaaModbus_transportRecv(
-         handlerModTra,
-         buffer
-         &len);
-
-   if (ret == CIAAMODBUS_TRASNPORT_RECV_COMPLETE)
-   {
-      if (buffer[0] == CIAA_BLINKING_MODBUS_ID)
-      {
-         len = ciaaModbus_slaveProcess(
-               &buffer[1],
-               &callbacksStruct);
-
-         ciaaModbus_transportSend(
-               handlerModTra,
-               buffer,
-               len+1);
-      }
-   }
-   */
-}
-
-
-/** \brief Process modbus request
- **
- ** \param[inout] buf buffer with the modbus data
- ** \param[in] len length of the buffer
- ** \param[in] cmd pointer to struct call backs modbus function
- ** \return length of data on the buffer
- **/
-extern int32_t ciaaModbus_slaveProcess(
-      uint8_t * buf,
-      const ciaaModbus_slaveCmd_type *cmd
-      )
+extern int8_t ciaaModbus_gatewayAddSlave(
+      int32_t hModbusSlave,
+      uint8_t idSlave)
 {
    return 0;
 }
 
+extern int8_t ciaaModbus_gatewayAddMaster(
+      int32_t hModbusMaster)
+{
+   return 0;
+}
+
+extern void ciaaModbus_gatewayMainTask(
+      int32_t hModbusGateway)
+{
+
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -161,22 +161,11 @@ typedef struct
 
 /** \brief Init Modbus Slave
  **
- ** \param[in] fildes File Descriptor to write and read data
- ** \param[in] mode mode may take one of the following values:
- **            CIAAMODBUS_TRANSPORT_MODE_ASCII
- **            CIAAMODBUS_TRANSPORT_MODE_RTU
- **            CIAAMODBUS_TRANSPORT_MODE_TCPSERVER
- **            CIAAMODBUS_TRANSPORT_MODE_TCPCLIENT
  ** \param[in] cmd pointer to struct call backs modbus function
- ** \param[in] id Number of identification of slave
  ** \return handler of Modbus Slave
  **/
 extern int32_t ciaaModbus_slaveInit(
-      int32_t fildes,
-      ciaaModbus_transportMode_enum mode,
-      const ciaaModbus_slaveCmd_type *cmd,
-      uint8_t id
-      );
+      const ciaaModbus_slaveCmd_type *cmd);
 
 /** \brief Process task of Slave Modbus
  **

@@ -66,7 +66,8 @@
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaModbus_slave.h"
-#include "ciaaModbus_transport.h"
+#include "ciaaModbus_ascii.h"
+#include "ciaaModbus_gateway.h"
 #include "ciaak.h"
 #include "blinking_modbus.h"
 
@@ -78,7 +79,9 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-static int32_t handlerModSla;
+static int32_t hModbusSlave;
+static int32_t hModbusAscii;
+static int32_t hModbusGateway;
 
 static const ciaaModbus_slaveCmd_type callbacksStruct =
 {
@@ -148,19 +151,32 @@ void ErrorHook(void)
  */
 TASK(InitTask)
 {
-   int32_t ciaaModbus_device;
+   int32_t fdSerialPort;
 
    /* init the ciaa kernel */
    ciaak_start();
 
-   ciaaModbus_device = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+   fdSerialPort = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
 
-   handlerModSla = ciaaModbus_slaveInit(
-         ciaaModbus_device,
-         CIAAMODBUS_TRANSPORT_MODE_ASCII,
-         &callbacksStruct,
+   /* init Modbus Slave */
+   hModbusSlave = ciaaModbus_slaveInit(
+         &callbacksStruct);
+
+   /* init Modbus Ascii */
+   hModbusAscii = ciaaModbus_asciiInit(
+         fdSerialPort);
+
+   /* init Gateway Modbus */
+   hModbusGateway = ciaaModbus_gatewayInit(1, 1);
+
+   /* Add Slave Modbus to gateway */
+   ciaaModbus_gatewayAddSlave(
+         hModbusSlave,
          CIAA_BLINKING_MODBUS_ID);
 
+   /* Add Master Modbus to gateway */
+   ciaaModbus_gatewayAddMaster(
+         hModbusAscii);
 
    SetRelAlarm(ActivateModbusTask, 100, 5);
 
@@ -174,7 +190,7 @@ TASK(InitTask)
  */
 TASK(ModbusSlave)
 {
-   ciaaModbus_slaveTask(handlerModSla);
+   ciaaModbus_gatewayMainTask(hModbusGateway);
 
    TerminateTask();
 }
