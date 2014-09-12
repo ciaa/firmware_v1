@@ -26,6 +26,11 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * Revisions:
+ *     - bug fix, don´t see extra pll div features (2014-09-10)
+ *       Author: Darío Baliña, dariosb@gmail.com, Delsat Group.
+ * 
  */
 
 #include "fsl_mcg_hal.h"
@@ -263,6 +268,9 @@ uint32_t CLOCK_HAL_GetPll0Clk(uint32_t baseAddr)
 
     /* Calculate the MCG output clock*/
     mcgpll0clk = (mcgpll0clk * divider);
+#if FSL_FEATURE_MCG_HAS_PLL_EXTRA_DIV
+    mcgpll0clk /= 2;
+#endif
 
     return mcgpll0clk;
 }

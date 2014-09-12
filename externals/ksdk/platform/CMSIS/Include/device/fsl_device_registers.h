@@ -26,6 +26,12 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Revisions:
+ *   -- KSDK_1.0.0 rev.1 (2014-09-10)
+ *       - Add K60F120 family support.
+ *      Darío Baliña, dariosb@gmail.com, Delsat Group.
+ * 
  */
 #ifndef __FSL_DEVICE_REGISTERS_H__
 #define __FSL_DEVICE_REGISTERS_H__
@@ -416,6 +422,24 @@
     #include "device/MK63F12/MK63F12_usbdcd.h"
     #include "device/MK63F12/MK63F12_vref.h"
     #include "device/MK63F12/MK63F12_wdog.h"
+
+#elif (defined(CPU_MK60FX512VMD12) || defined(CPU_MK60FN1M0VMD12) || defined(CPU_MK60FX512VLQ12) || \
+    defined(CPU_MK60FN1M0VMD12R) || defined(CPU_MK60FN1M0VLQ12))
+
+    #define K60F12_SERIES
+
+    /* CMSIS-style register definitions */
+    #include "device/MK60F12/MK60F12.h"
+
+    /* Extension register headers. (These will eventually be merged into the CMSIS-style header.) */
+    #include "device/MK60F12/MK60F12_gpio.h"
+    #include "device/MK60F12/MK60F12_uart.h"
+    #include "device/MK60F12/MK60F12_mcg.h"
+    #include "device/MK60F12/MK60F12_sim.h"
+    #include "device/MK60F12/MK60F12_port.h"
+    #include "device/MK60F12/MK60F12_adc.h"
+    #include "device/MK60F12/MK60F12_ftm.h"
+    #include "device/MK60F12/MK60F12_lptmr.h"
 
 #elif (defined(CPU_MK64FX512VDC12) || defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FX512VLL12) || \
     defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FX512VLQ12) || defined(CPU_MK64FN1M0VLQ12) || \

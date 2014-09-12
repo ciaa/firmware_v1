@@ -40,6 +40,9 @@
 **     Revisions:
 **     - rev. 1.0 (2014-05-14)
 **         Customer release.
+**     - KSDK_1.0.0 rev.1 (2014-09-10)
+**       	- Add K60F120 family support.
+**       Author: Darío Baliña, dariosb@gmail.com, Delsat Group.
 **
 ** ###################################################################
 */
@@ -440,7 +443,9 @@
 #elif defined(CPU_MK24FN1M0VDC12) || defined(CPU_MK24FN1M0VLL12) || defined(CPU_MK24FN1M0VLQ12) || defined(CPU_MK24FN256VDC12) || \
     defined(CPU_MK63FN1M0VLQ12) || defined(CPU_MK63FN1M0VMD12) || defined(CPU_MK64FX512VDC12) || defined(CPU_MK64FN1M0VDC12) || \
     defined(CPU_MK64FX512VLL12) || defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FX512VLQ12) || defined(CPU_MK64FN1M0VLQ12) || \
-    defined(CPU_MK64FX512VMD12) || defined(CPU_MK64FN1M0VMD12)
+    defined(CPU_MK64FX512VMD12) || defined(CPU_MK64FN1M0VMD12) ||	\
+	defined(CPU_MK60FX512VMD12) || defined(CPU_MK60FN1M0VMD12) || defined(CPU_MK60FX512VLQ12) || defined(CPU_MK60FN1M0VMD12R) || \
+	defined(CPU_MK60FN1M0VLQ12)
     /* @brief Has receive FIFO overflow detection (bit field CFIFO[RXOFE]). */
     #define FSL_FEATURE_UART_HAS_IRQ_EXTENDED_FUNCTIONS (1)
     /* @brief Has low power features (can be enabled in wait mode via register bit C1[DOZEEN] or CTRL[DOZEEN] if the registers are 32-bit wide). */

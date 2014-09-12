@@ -26,6 +26,12 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Revisions:
+ *   -- KSDK_1.0.0 rev.1 (2014-09-10)
+ *       - Add K60F120 family support.
+ *      Author: Darío Baliña, dariosb@gmail.com, Delsat Group.
+ * 
  */
 
 #if !defined(__FSL_CLOCK_MANAGER_H__)
@@ -261,6 +267,14 @@ static inline void CLOCK_SYS_SetOutDividers(uint32_t outdiv1, uint32_t outdiv2,
 
     /* Clock System Level API header file */
     #include "MK64F12/fsl_clock_K64F12.h"
+
+#elif (defined(CPU_MK60FX512VMD12) || defined(CPU_MK60FN1M0VMD12) || defined(CPU_MK60FX512VLQ12) || \
+	defined(CPU_MK60FN1M0VMD12R) || defined(CPU_MK60FN1M0VLQ12)	)
+
+	#define K60F12_SERIES
+
+    /* Clock System Level API header file */
+    #include "MK60F12/fsl_clock_K60F12.h"
 
 #elif (defined(CPU_MK65FN2M0CAC18) || defined(CPU_MK65FX1M0CAC18) || defined(CPU_MK65FN2M0VMI18) || \
     defined(CPU_MK65FX1M0VMI18))

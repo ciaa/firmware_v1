@@ -9,6 +9,10 @@ Revisions
      - this copy mantain directory structure for easy update from official 
        Freescale distribution of KSDK.
     Author: Darío Baliña, dariosb@gmail.com, Delsat Group.
+  -- KSDK_1.0.0 rev.2 (2014-09-12)
+     - K60F120 hal/drivers support: gpio lptmr mcg port sim uart
+     - twrk60f120m bsp.
+     - kds_hello_world demo running on twrk60f120m.
 
 -----------------------------------------------------------------------------
 

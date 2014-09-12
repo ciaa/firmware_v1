@@ -26,6 +26,11 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Revisions
+ *   -- KSDK_1.0.0 rev.1 (2014-09-10)
+ *       - Add K60F120 family support.
+ *      Darío Baliña, dariosb@gmail.com, Delsat Group.
  */
 
 #include "fsl_uart_driver.h"
@@ -64,7 +69,7 @@ void UART2_IRQHandler(void)
 #elif defined (K64F12_SERIES) || defined (K24F12_SERIES) || defined (K63F12_SERIES) || \
       defined (K22F51212_SERIES) || defined (K22F25612_SERIES) || defined (K22F12810_SERIES) || \
       defined (KV31F51212_SERIES) || defined (KV31F25612_SERIES) || defined (KV31F12810_SERIES) || \
-      defined (K70F12_SERIES) 
+      defined (K70F12_SERIES) || defined (K60F12_SERIES) 
 /* Implementation of UART0 handler named in startup code. */
 void UART0_RX_TX_IRQHandler(void)
 {

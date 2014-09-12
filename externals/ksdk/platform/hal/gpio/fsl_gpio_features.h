@@ -41,6 +41,10 @@
 **     - rev. 1.0 (2014-05-14)
 **         Customer release.
 **
+**     - KSDK_1.0.0 rev.1 (2014-09-10)
+**       	- Add K60F120 family support.
+**      	Author: Darío Baliña, dariosb@gmail.com, Delsat Group.
+**
 ** ###################################################################
 */
 
@@ -60,6 +64,9 @@
     defined(CPU_MK22FN256VDC12) || defined(CPU_MK22FN256VLH12) || defined(CPU_MK22FN256VLL12) || defined(CPU_MK22FN256VMP12) || \
     defined(CPU_MK22FN512VDC12) || defined(CPU_MK22FN512VLH12) || defined(CPU_MK22FN512VLL12) || defined(CPU_MK24FN1M0VDC12) || \
     defined(CPU_MK24FN1M0VLL12) || defined(CPU_MK24FN1M0VLQ12) || defined(CPU_MK24FN256VDC12) || defined(CPU_MK63FN1M0VLQ12) || \
+    defined(CPU_MK60FN1M0VLL12) || defined(CPU_MK64FX512VLQ12) || defined(CPU_MK64FN1M0VLQ12) || defined(CPU_MK64FX512VMD12) || \
+	defined(CPU_MK60FX512VMD12) || defined(CPU_MK60FN1M0VMD12) || defined(CPU_MK60FX512VLQ12) || defined(CPU_MK60FN1M0VMD12R) || \
+	defined(CPU_MK60FN1M0VLQ12)	|| \
     defined(CPU_MK63FN1M0VMD12) || defined(CPU_MK64FX512VDC12) || defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FX512VLL12) || \
     defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FX512VLQ12) || defined(CPU_MK64FN1M0VLQ12) || defined(CPU_MK64FX512VMD12) || \
     defined(CPU_MK64FN1M0VMD12) || defined(CPU_MK65FN2M0CAC18) || defined(CPU_MK65FX1M0CAC18) || defined(CPU_MK65FN2M0VMI18) || \

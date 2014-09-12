@@ -40,6 +40,9 @@
 **     Revisions:
 **     - rev. 1.0 (2014-05-14)
 **         Customer release.
+**     - KSDK_1.0.0 rev.1 (2014-09-10)
+**       	- Add K60F120 family support.
+**       Author: Darío Baliña, dariosb@gmail.com, Delsat Group.
 **
 ** ###################################################################
 */
@@ -1292,7 +1295,9 @@
     #define FSL_FEATURE_SIM_HAS_COP_STOP (0)
 #elif defined(CPU_MK63FN1M0VLQ12) || defined(CPU_MK63FN1M0VMD12) || defined(CPU_MK64FX512VDC12) || defined(CPU_MK64FN1M0VDC12) || \
     defined(CPU_MK64FX512VLL12) || defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FX512VLQ12) || defined(CPU_MK64FN1M0VLQ12) || \
-    defined(CPU_MK64FX512VMD12) || defined(CPU_MK64FN1M0VMD12)
+    defined(CPU_MK64FX512VMD12) || defined(CPU_MK64FN1M0VMD12) || \
+	defined(CPU_MK60FX512VMD12) || defined(CPU_MK60FN1M0VMD12) || defined(CPU_MK60FX512VLQ12) || defined(CPU_MK60FN1M0VMD12R) || \
+	defined(CPU_MK60FN1M0VLQ12)	
     /* @brief Has USB FS divider. */
     #define FSL_FEATURE_SIM_USBFS_USE_SPECIAL_DIVIDER (0)
     /* @brief Is PLL clock divided by 2 before MCG PLL/FLL clock selection. */

@@ -40,6 +40,9 @@
 **     Revisions:
 **     - rev. 1.0 (2014-05-14)
 **         Customer release.
+**     - KSDK_1.0.0 rev.1 (2014-09-10)
+**       	- Add K60F120 family support.
+**       Author: Darío Baliña, dariosb@gmail.com, Delsat Group.
 **
 ** ###################################################################
 */
@@ -190,6 +193,54 @@
     #define FSL_FEATURE_MCG_HAS_PLL_FLL_SELECTION (0)
     /* @brief Has PLL output selection (PLL0/PLL1, PLL/external PLL) (register bit C11[PLLCS]). */
     #define FSL_FEATURE_MCG_HAS_PLL_OUTPUT_SELECTION (0)
+    /* @brief Has automatic trim machine (registers ATCVH, ATCVL and bits SC[ATMF], SC[ATMS], SC[ATME]). */
+    #define FSL_FEATURE_MCG_HAS_AUTO_TRIM_MACHINE (1)
+    /* @brief Has external clock monitor (register bit C6[CME]). */
+    #define FSL_FEATURE_MCG_HAS_EXTERNAL_CLOCK_MONITOR (1)
+    /* @brief Has low frequency internal reference clock (IRC) (registers LTRIMRNG, LFRIM, LSTRIM and bit MC[LIRC_DIV2]). */
+    #define FSL_FEATURE_MCG_HAS_LOW_FREQ_IRC (0)
+    /* @brief Has high frequency internal reference clock (IRC) (registers HCTRIM, HTTRIM, HFTRIM and bit MC[HIRCEN]). */
+    #define FSL_FEATURE_MCG_HAS_HIGH_FREQ_IRC (0)
+#elif defined(CPU_MK60FX512VMD12) || defined(CPU_MK60FN1M0VMD12) ||	defined(CPU_MK60FX512VLQ12) || defined(CPU_MK60FN1M0VMD12R) || \
+	defined(CPU_MK60FN1M0VLQ12)
+    /* @brief Maximum PLL external reference divider value (max. value of register bit field C5[PRVDIV] increased by one). */
+    #define FSL_FEATURE_MCG_PLL_PRDIV_MAX (9)
+    /* @brief VCO divider base value (multiply factor of register bit field C6[VDIV] zero value). */
+    #define FSL_FEATURE_MCG_PLL_VDIV_BASE (16)
+    /* @brief Is PLL clock divided by 2 before MCG PLL/FLL clock selection in the SIM module. */
+    #define FSL_FEATURE_MCG_HAS_PLL_EXTRA_DIV (1)
+    /* @brief Has 32kHz RTC external reference clock (register bits C8[LOCS1], C8[CME1] and C8[LOCRE1]). */
+    #define FSL_FEATURE_MCG_HAS_RTC_32K (1)
+    /* @brief Has PLL1 external reference clock (registers C10, C11, C12, S2). */
+    #define FSL_FEATURE_MCG_HAS_PLL1 (0)
+    /* @brief Has 48MHz internal oscillator. */
+    #define FSL_FEATURE_MCG_HAS_IRC_48M (0)
+    /* @brief Has OSC1 external oscillator (registers C10, C11, C12, S2). */
+    #define FSL_FEATURE_MCG_HAS_OSC1 (1)
+    /* @brief Has fast internal reference clock fine trim (register bit C2[FCFTRIM]). */
+    #define FSL_FEATURE_MCG_HAS_FCFTRIM (0)
+    /* @brief Has PLL loss of lock reset (register bit C8[LOLRE]). */
+    #define FSL_FEATURE_MCG_HAS_LOLRE (0)
+    /* @brief Has MCG OSC clock selection (register bit C7[OSCSEL]). */
+    #define FSL_FEATURE_MCG_USE_OSCSEL (1)
+    /* @brief Has PLL external reference selection (register bits C5[PLLREFSEL0] and C11[PLLREFSEL1]). */
+    #define FSL_FEATURE_MCG_USE_PLLREFSEL (0)
+    /* @brief TBD */
+    #define FSL_FEATURE_MCG_USE_SYSTEM_CLOCK (0)
+    /* @brief Has phase-locked loop (PLL) (register C5 and bits C6[VDIV], C6[PLLS], C6[LOLIE0], S[PLLST], S[LOCK0], S[LOLS]). */
+    #define FSL_FEATURE_MCG_HAS_PLL (1)
+    /* @brief PLL/OSC related register bit fields have PLL/OSC index in their name. */
+    #define FSL_FEATURE_MCG_HAS_PLL_OSC_INDEX (0)
+    /* @brief Has frequency-locked loop (FLL) (register ATCVH, ATCVL and bits C1[IREFS], C1[FRDIV]). */
+    #define FSL_FEATURE_MCG_HAS_FLL (1)
+    /* @brief Has PLL external to MCG (register C9). */
+    #define FSL_FEATURE_MCG_HAS_EXTERNAL_PLL (0)
+    /* @brief Has crystal oscillator or external reference clock low power controls (register bits C2[HGO], C2[RANGE]). */
+    #define FSL_FEATURE_MCG_HAS_EXT_REF_LOW_POWER_CONTROL (1)
+    /* @brief Has PLL/FLL selection as MCG output (register bit C6[PLLS]). */
+    #define FSL_FEATURE_MCG_HAS_PLL_FLL_SELECTION (1)
+    /* @brief Has PLL output selection (PLL0/PLL1, PLL/external PLL) (register bit C11[PLLCS]). */
+    #define FSL_FEATURE_MCG_HAS_PLL_OUTPUT_SELECTION (1)
     /* @brief Has automatic trim machine (registers ATCVH, ATCVL and bits SC[ATMF], SC[ATMS], SC[ATME]). */
     #define FSL_FEATURE_MCG_HAS_AUTO_TRIM_MACHINE (1)
     /* @brief Has external clock monitor (register bit C6[CME]). */
