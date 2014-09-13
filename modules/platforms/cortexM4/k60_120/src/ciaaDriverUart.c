@@ -30,20 +30,17 @@
  *
  */
 
-#ifndef _OS_INTERNAL_ARCH_CPU_H_
-#define _OS_INTERNAL_ARCH_CPU_H_
-
-/** \brief FreeOSEK Internal Architecture Cpu Dependent Header File
+/** \brief CIAA UART Driver for K60_120
  **
- ** \file cortexM4/k60_120/Os_Internal_Arch_Cpu.h
- ** \arch cortexM4/k60_120
+ ** Implements the UART Driver for K60_120
+ **
  **/
 
-/** \addtogroup FreeOSEK
+/** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup FreeOSEK_Os
+/** \addtogroup Drivers CIAA Drivers
  ** @{ */
-/** \addtogroup FreeOSEK_Os_Internal
+/** \addtogroup UART UART Drivers
  ** @{ */
 
 /*
@@ -55,34 +52,64 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140911 v0.2.0 MaCe initial version for k60_120
+ * 20140913 v0.0.1 MaCe first stub version
  */
 
-/*==================[cpu macros]=============================================*/
-/** \brief mk60fx512vlq15 cpu definition */
-#define mk60fx512vlq15 1
-
 /*==================[inclusions]=============================================*/
-#ifndef CPU
-#error CPU is not defined
-#elif (CPU == mk60fx512vlq15)
-#include "MK60F12.h"
-#else
-#error Unknown CPU value
-#endif
+#include "ciaaDriverUart.h"
 
-/*==================[macros]=================================================*/
+/*==================[macros and definitions]=================================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external functions declaration]=========================*/
-void StartOs_Arch_Cpu(void);
+/*==================[internal data definition]===============================*/
 
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
+{
+   return device;
+}
+
+extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
+{
+   return -1;
+}
+
+extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
+{
+   int32_t ret = -1;
+
+   return ret;
+}
+
+extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
+{
+   int32_t ret = -1;
+
+   return ret;
+}
+
+extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
+{
+   int32_t ret = -1;
+
+   return ret;
+}
+
+void ciaaDriverUart_init(void)
+{
+
+}
+
+/*==================[interrupt handlers]=====================================*/
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _OS_INTERNAL_ARCH_CPU_H_ */
 
