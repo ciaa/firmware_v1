@@ -101,6 +101,32 @@ sub runTests
    }
 }
 
+sub getCountOfTestCases {
+   my $self = shift;
+
+   my $count = 0;
+
+   foreach my $file (@{$self->{_files}})
+   {
+      $count += $file->getCountOfTests();
+   }
+
+   return $count;
+}
+
+sub getCountOfPass {
+   my $self = shift;
+
+   my $count = 0;
+
+   foreach my $file (@{$self->{_files}})
+   {
+      $count += $file->getCountOfPass();
+   }
+
+   return $count;
+}
+
 sub getFuncs
 {
    my $self = shift;

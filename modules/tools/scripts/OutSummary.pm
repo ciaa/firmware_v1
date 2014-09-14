@@ -61,7 +61,14 @@ sub genReport
          $status = STYLE_NOT_OK;
       }
       $row .= "<td $style>" . $mod->getCompiled() . "/" . $mod->getCountOfTests() . "</td>";
-      $row .= "<td>" . "</td>";
+
+
+      $style = STYLE_OK;
+      if ($mod->getCountOfTestCases() != $mod->getCountOfPass()) {
+         $style = STYLE_NOT_OK;
+         $status = STYLE_NOT_OK;
+      }
+      $row .= "<td $style>" . $mod->getCountOfPass() . "/" . $mod->getCountOfTestCases() . "</td>";
 
       $style = STYLE_OK;
       if ($mod->getFuncs() ne $mod->getCovFuncs()) {
@@ -121,7 +128,13 @@ sub genReport
             $status = STYLE_NOT_OK;
          }
          $row .= "<td $hasTestStyle>" . $hasTest . "</td>";
-         $row .= "<td>" . "</td>";
+
+         $hasTestStyle = STYLE_OK;
+         if ($file->getCountOfPass() != $file->getCountOfTests()) {
+            $hasTestStyle = STYLE_NOT_OK;
+            $status = STYLE_NOT_OK;
+         }
+         $row .= "<td $hasTestStyle>" . $file->getCountOfPass() . "/" . $file->getCountOfTests() . "</td>";
 
          $hasTestStyle = STYLE_OK;
          if ($file->getFuncs() ne $file->getCovFuncs()) {

@@ -5,6 +5,7 @@ package Source;
 use strict;
 use warnings;
 use Lcov;
+use Ceedling;
 
 sub new {
    my $class = shift;
@@ -14,6 +15,7 @@ sub new {
       _name => shift,
    };
    $self->{_lcov} = new Lcov($self->{_name});
+   $self->{_ceedling} = new Ceedling();
 
 #   print "File $self->{_name}\n";
    bless $self, $class;
@@ -57,14 +59,18 @@ sub runTest
 {
    my $self = shift;
 
+   my $result = "";
+
    if ($self->hasTest())
    {
       # get file without extension
       my $test = $self->{_name};
       $test =~ s{\.[^.]+$}{};
       my $cmd = "make tst_" . $self->{_mod}->getName() . "_" . $test . "\n";
-      my $result = `$cmd`;
+      $result = `$cmd`;
    }
+
+   $self->{_ceedling}->loadResults($result);
 }
 
 sub getFuncs
@@ -132,6 +138,18 @@ sub getHasCompile
    }
 
    return $ret;
+}
+
+sub getCountOfTests {
+   my $self = shift;
+
+   return $self->{_ceedling}->getCountOfTests();
+}
+
+sub getCountOfPass{
+   my $self = shift;
+
+   return $self->{_ceedling}->getCountOfPass();
 }
 
 1;
