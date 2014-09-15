@@ -157,7 +157,13 @@ sub genReport
          $row .= "<td $hasTestStyle>" . $file->getCovBranches() . "/" . $file->getBranches() . "</td>";
 
          # summary of the row
-         $row = "<tr><td $status><a href=\"../../" . $file->getReportFile() . "\">" . $file->getName() . "</a></td>" . $row;
+         my $href = $file->getName();
+         if ($file->hasTest())
+         {
+            $href = "<a href=\"../../" . $file->getReportFile() . "\">" . $file->getName() . "</a>";
+         }
+
+         $row = "<tr><td $status>" . $href . "</td>" . $row;
 
          print FILE $row;
       }
