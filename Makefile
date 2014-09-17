@@ -510,6 +510,12 @@ else
 endif
 
 ###############################################################################
+# Generates docbook documentation
+docbook:
+	xsltproc /usr/share/xml/docbook/stylesheet/docbook-xsl/fo/docbook.xsl doc/documentation.xml > out/docbook/documentation.fo
+	fop -fo out/docbook/documentation.fo -pdf out/docbook/documentation.pdf
+
+###############################################################################
 # clean and generate (IDE: Build Clean)
 clean_generate: clean generate
 
