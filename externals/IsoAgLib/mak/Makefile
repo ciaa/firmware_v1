@@ -34,13 +34,16 @@
 # library
 LIBS 				    += ext_isoaglib
 # library path
-ext_isoaglib_PATH 	     = $(ROOT_DIR)$(DS)externals$(DS)isoaglib
+ext_isoaglib_PATH 	     = $(ROOT_DIR)$(DS)externals$(DS)IsoAgLib
 # library source path
 ext_isoaglib_SRC_PATH   = $(ext_isoaglib_PATH)$(DS)src
 
 # library include path
-ext_isoaglib_INC_PATH   = $(ext_isoaglib_PATH)$(DS)inc
+ext_isoaglib_INC_PATH   = $(ext_isoaglib_PATH)$(DS)inc						\
+								  $(ext_isoaglib_PATH)$(DS)library$(DS)xgpl_src	\
+								  $(ext_isoaglib_PATH)$(DS)tools$(DS)logalizer$(DS)src
 
 # library source files
-ext_isoaglib_SRC_FILES += $(wildcard $(ext_isoaglib_SRC_PATH)$(DS)*.c)
+ext_isoaglib_SRC_FILES += $(wildcard $(ext_isoaglib_SRC_PATH)$(DS)*.c)	\
+								  $(ext_isoaglib_PATH)$(DS)library$(DS)xgpl_src$(DS)IsoAgLib$(DS)comm$(DS)Part7_ApplicationLayer$(DS)impl$(DS)tracgeneral_c.cpp
 

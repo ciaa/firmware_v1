@@ -134,7 +134,7 @@ CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU)
 TARGET_NAME ?= $(BIN_DIR)$(DS)$(project)
 LD_TARGET = $(TARGET_NAME).$(LD_EXTENSION)
 # create list of object files, based on source file %.c and %.s
-$(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES = $(patsubst %.c,%.o,$(patsubst %.s,%.o,$($(LIB)_SRC_FILES)))))
+$(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES = $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.cpp,%.o,$($(LIB)_SRC_FILES))))))
 
 #rule for library
 define librule
@@ -304,6 +304,13 @@ test_%_Runner.c : test_%.c
 	@echo Compiling 'c' file: $<
 	@echo ' '
 	$(CC) $(CFLAGS) $< -o $@
+
+%.o : %.cpp
+	@echo ' '
+	@echo ===============================================================================
+	@echo Compiling 'c++' file: $<
+	@echo ' '
+	$(CPP) $(CFLAGS) $< -o $@
 
 %.o : %.s
 	@echo ' '

@@ -36,6 +36,7 @@
 # TOOLCHAIN
 CC = gcc
 LD = gcc
+CPP = g++
 AR = ar
 AS = as
 GDB = gdb
