@@ -1,11 +1,11 @@
 handle SIGUSR1 noprint nostop
 break ConfTestFinish
 run
-dump value out/dbg/TestResults.bin TestResults
-dump value out/dbg/TestResultsOk.bin TestResultsOk
-dump value out/dbg/SequenceCounter.bin SequenceCounter
-dump value out/dbg/SequenceCounterOk.bin SequenceCounterOk
-dump value out/dbg/ConfTestResult.bin ConfTestResult
+dump value out/rtos/TestResults.bin TestResults
+dump value out/rtos/TestResultsOk.bin TestResultsOk
+dump value out/rtos/SequenceCounter.bin SequenceCounter
+dump value out/rtos/SequenceCounterOk.bin SequenceCounterOk
+dump value out/rtos/ConfTestResult.bin ConfTestResult
 kill
 quit
 

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# Copyright 2008, 2009 Mariano Cerdeiro
+# Copyright 2008, 2009, 2014 Mariano Cerdeiro
 # Copyright 2014, ACSE & CADIEEL
 #      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #      CADIEEL: http://www.cadieel.org.ar
@@ -229,8 +229,8 @@ sub EvaluateResults
    my $failed = 0;
    my $failedtotal = 0;
 
-   $tsseqfile = "out/dbg/SequenceCounter.bin";
-   $tsseqfileok = "out/dbg/SequenceCounterOk.bin";
+   $tsseqfile = "out/rtos/SequenceCounter.bin";
+   $tsseqfileok = "out/rtos/SequenceCounterOk.bin";
    open SC, "<$tsseqfile" or die "$tsseqfile can not be openned: $!";
    read(SC, $sc, 4, 0);
    close(SC);
@@ -259,8 +259,8 @@ sub EvaluateResults
 
    $failed = 0;
    $failedcounter = 0;
-   $tsfile = "out/dbg/TestResults.bin";
-   $tsfileok = "out/dbg/TestResultsOk.bin";
+   $tsfile = "out/rtos/TestResults.bin";
+   $tsfileok = "out/rtos/TestResultsOk.bin";
    @ts = GetTestCases($tsfile);
    @tsok = GetTestCases($tsfileok);
    #print "@ts\n";
@@ -364,11 +364,53 @@ sub CreateTestProject
 {
    my $test = shift;
    my $config = shift;
+   my $base = "out/rtos/$test/$config";
 
-   `mkdir -p out/rtos/$test/$config/etc`;
-   `mkdir -p out/rtos/$test/$config/src`;
-   `mkdir -p out/rtos/$test/$config/mak`;
-   `mkdir -p out/rtos/$test/$config/inc`;
+   info("Creating Test: $test - Config: $config under $base/$test/$config");
+
+   # create needed directories
+   `mkdir -p $base/etc`;
+   `mkdir -p $base/src`;
+   `mkdir -p $base/mak`;
+   `mkdir -p $base/inc`;
+   `mkdir -p $base/inc/posix`;
+
+   # get configuration file for this project
+   $org = "modules/rtos/tst/ctest/etc/" . $test . ".oil";
+   $dst = "$base/etc/$test-$config.oil";
+   copy($org, $dst) or die "file can not be copied from $org to $dst: $!";
+
+   # prepare the configuration for this project
+   @replace = GetTestSequencesCon($TESTS, $testfn, $config);
+   foreach $rep (@replace)
+   {
+      info("Replacing: $rep");
+      @rep = split (/:/,$rep);
+      searchandreplace($dst,@rep[0],@rep[1]);
+   }
+
+   # create makefile for this project
+   open FILE, "> $base/mak/Makefile" or die "can not open: $!";
+   print FILE "project               = $test-$config\n\n";
+   print FILE "\$(project)_PATH       = \$(ROOT_DIR)\$(DS)$base\n\n";
+   print FILE "\$(project)_SRC_PATH   += \$(\$(project)_PATH)\$(DS)src\n\n";
+   print FILE "INCLUDE               += \$(\$(project)_PATH)\$(DS)inc               \\\n";
+   print FILE "                         \$(\$(project)_PATH)\$(DS)inc\$(DS)posix     \\\n";
+   print FILE "                         modules/posix/inc\n";
+   print FILE "SRC_FILES             += \$(wildcard \$(\$(project)_SRC_PATH)\$(DS)*.c) \\\n";
+   print FILE "                         modules/rtos/tst/ctest/src/ctest_rst.c\n\n";
+   print FILE "OIL_FILES             += \$(\$(project)_PATH)\$(DS)etc\$(DS)\$(project).oil\n\n";
+   print FILE "MODS                  = modules\$(DS)bsp             \\\n";
+   print FILE "                        modules\$(DS)platforms       \\\n";
+   print FILE "                        modules\$(DS)rtos\n\n";
+   print FILE "rtos_GEN_FILES        += modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)gen\$(DS)inc\$(DS)ctest_cfg.h.php\n";
+   close FILE;
+
+   # copy needed files
+   copy("modules/rtos/tst/ctest/src/$test.c","$base/src/$test.c");
+   copy("modules/rtos/tst/ctest/inc/$test.h","$base/inc/$test.h");
+   copy("modules/rtos/tst/ctest/inc/ctest.h","$base/inc/ctest.h");
+   copy("modules/rtos/tst/ctest/inc/posix/ctest_arch.h","$base/inc/posix/ctest_arch.h");
 }
 
 sub finish
@@ -395,7 +437,7 @@ sub logffull
 }
 
 
-print "ciaaFirmware RTOS Generator - Copyright 2008, 2009, Mariano Cerdeiro\n";
+print "ciaaFirmware RTOS Generator - Copyright 2008, 2009, 2014 Mariano Cerdeiro\n";
 print "                              Copyright 2014, ACSE & CADIEEL\n";
 print "         ACSE : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/\n";
 print "         CADIEEL: http://www.cadieel.org.ar\n\n";
@@ -434,7 +476,7 @@ $onlytc = $ARGV[2];
 
 $cfgfile = $ARGV[1];
 
-print "Configuration file: " . $cfgfile . "\n";
+info("Configuration file: $cfgfile");
 
 if ($ARGV[3] eq "--debug")
 {
@@ -504,7 +546,6 @@ foreach $testfn (@tests)
       {
          info("Config: $config");
 
-         info("Creating Test project in out/rtos/$test/$config");
          CreateTestProject($test, $config);
 
          $error = "";
@@ -517,23 +558,12 @@ foreach $testfn (@tests)
 
          mkdir("out/gen/etc/");
 
-         $org = "modules/rtos/tst/ctest/etc/" . $test . ".oil";
-         $dst = "out/gen/etc/" . $test . ".oil";
-         copy($org, $dst) or die "file can not be copied from $org to $dst: $!";
-
-         @replace = GetTestSequencesCon($TESTS, $testfn, $config);
-         foreach $rep (@replace)
-         {
-            info("Replacing: $rep");
-            @rep = split (/:/,$rep);
-            searchandreplace($dst,@rep[0],@rep[1]);
-         }
 
          if ($outmakecleanstatus == 0)
          {
             info("make generate of $test");
-            info("running \"make generate PROJECT=$test\"");
-            $outmakegenerate = `make generate PROJECT=$test`;
+            info("running \"make generate PROJECT=out/rtos/$test/$config");
+            $outmakegenerate = `make generate PROJECT=out/rtos/$test/$config`;
             $outmakegeneratestatus = $?;
             info("make generate status: $outmakegeneratestatus");
             logffull("make generate output:\n$outmakegenerate");
@@ -544,7 +574,7 @@ foreach $testfn (@tests)
             if ($outmakegeneratestatus == 0)
             {
                info("make of $test");
-               $outmake = `make PROJECT=$test`;
+               $outmake = `make PROJECT=out/rtos/$test/$config`;
                $outmakestatus = $?;
                info("make status: $outmakestatus");
                logffull("make output:\n$outmake");
@@ -554,9 +584,9 @@ foreach $testfn (@tests)
                }
                if ($outmakestatus == 0)
                {
-                  $out = $BINDIR . "/" . $test;
-                  info("debug of $test");
-                  $dbgfile = "FreeOSEK/Os/tst/ctest/dbg/" . $ARCH . "/gcc/debug.scr";
+                  $out = $BINDIR . "/" . $test . "-" . $config . ".";
+                  info("debug of $test in $out");
+                  $dbgfile = "modules/rtos/tst/ctest/dbg/" . $ARCH . "/gcc/debug.scr";
                   info("$GDB $out -x $dbgfile");
                   `rm /dev/mqueue/*`;
                   if($debug == 0)
@@ -581,6 +611,7 @@ foreach $testfn (@tests)
                      $status = EvaluateResults();
                      results("Test: $test - Config: $config - Status: $status");
                   }
+                  die();
                }
             }
             else

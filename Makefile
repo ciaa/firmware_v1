@@ -556,6 +556,7 @@ rtostests:
 	@echo LOGFULL:out/doc/ctest/ctestfull.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo TESTS:modules/rtos/tst/ctest/cfg/ctestcases.cfg>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo TESTCASES:modules/rtos/tst/ctest/cfg/testcases.cfg>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo BINDIR:out/bin>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	.$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f out$(DS)doc$(DS)ctest$(DS)ctest.cnf
 
 ###############################################################################
