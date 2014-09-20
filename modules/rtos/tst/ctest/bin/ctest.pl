@@ -47,8 +47,8 @@ sub htons
 	$mul = 1;
 	foreach (split(//,@_[0]))
 	{
-		$val += $mul# ord($_);
-		$mul#= 256;
+		$val += $mul * ord($_);
+		$mul *= 256;
 	}
 
 	return $val;
@@ -354,6 +354,23 @@ sub halt
 	finish();
 }
 
+#** \brief Creates a Project for a test
+#
+# \param[in] test test to be generated
+# \param[in] config configuration of the test to be generated
+#
+#*
+sub CreateTestProject
+{
+   my $test = shift;
+   my $config = shift;
+
+   `mkdir -p out/rtos/$test/$config/etc`;
+   `mkdir -p out/rtos/$test/$config/src`;
+   `mkdir -p out/rtos/$test/$config/mak`;
+   `mkdir -p out/rtos/$test/$config/inc`;
+}
+
 sub finish
 {
 	info("Warnings: $warnings - Errors: $errors");
@@ -485,7 +502,10 @@ foreach $testfn (@tests)
 
 		if ($runthistestcase)
 		{
-			print "Config: $config\n";
+			info("Config: $config");
+
+         info("Creating Test project in out/rtos/$test/$config");
+         CreateTestProject($test, $config);
 
 			$error = "";
 
@@ -497,7 +517,7 @@ foreach $testfn (@tests)
 
 			mkdir("out/gen/etc/");
 
-			$org = "FreeOSEK/Os/tst/ctest/etc/" . $test . ".oil";
+			$org = "modules/rtos/tst/ctest/etc/" . $test . ".oil";
 			$dst = "out/gen/etc/" . $test . ".oil";
 			copy($org, $dst) or die "file can not be copied from $org to $dst: $!";
 

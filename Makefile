@@ -386,7 +386,11 @@ help:
 	@echo info.............: general information about the make environment
 	@echo info_\<mod\>.......: same as info but reporting information of a library
 	@echo info_ext_\<mod\>...: same as info_\<mod\> but for an external library
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo "|               FreeOSEK (CIAA RTOS based on OSEK Standard)						 |"
+	@echo "+-----------------------------------------------------------------------------+"
 	@echo generate.........: generates the ciaaRTOS
+	@echo rtostests........: run FreeOSEK conformace tests
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
@@ -535,6 +539,24 @@ all: clean generate
 # generate and make (IDE: Generate and Make)
 generate_make: generate
 	make
+
+
+###############################################################################
+# Run all FreeOSEK Tests
+rtostests:
+	mkdir -p out$(DS)doc$(DS)ctest
+	@echo GDB:$(GDB)> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo BINDS:$(BINDS)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo DS:$(DS)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo ARCH:$(ARCH)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo CPUTYPE:$(CPUTYPE)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo CPU:$(CPU)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo RES:out/doc/ctest/ctestresults.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo LOG:out/doc/ctest/ctest.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo LOGFULL:out/doc/ctest/ctestfull.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo TESTS:modules/rtos/tst/ctest/cfg/ctestcases.cfg>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo TESTCASES:modules/rtos/tst/ctest/cfg/testcases.cfg>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	.$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f out$(DS)doc$(DS)ctest$(DS)ctest.cnf
 
 ###############################################################################
 # run continuous integration
