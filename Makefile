@@ -215,7 +215,7 @@ UNITY_SRC = modules$(DS)$(tst_mod)$(DS)test$(DS)utest$(DS)src$(DS)test_$(tst_fil
 				$(foreach mods,$($(tst_mod)_TST_MOD), $(foreach files, $(notdir $($(mods)_SRC_FILES)), out$(DS)ceedling$(DS)mocks$(DS)mock_$(files)))	\
 				$(foreach tst_mocks, $($(tst_mod)_TST_MOCKS), out$(DS)ceedling$(DS)mocks$(DS)mock_$(tst_mocks))
 
-CFLAGS  = -ggdb -c #-Wall -Werror #see issue #28
+CFLAGS  += -ggdb -c #-Wall -Werror #see issue #28
 CFLAGS  += $(foreach inc, $(UNITY_INC), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DUNITY_EXCLUDE_STDINT_H --coverage
 

@@ -403,7 +403,8 @@ sub CreateTestProject
    print FILE "MODS                  = modules\$(DS)bsp             \\\n";
    print FILE "                        modules\$(DS)platforms       \\\n";
    print FILE "                        modules\$(DS)rtos\n\n";
-   print FILE "rtos_GEN_FILES        += modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)gen\$(DS)inc\$(DS)ctest_cfg.h.php\n";
+   print FILE "rtos_GEN_FILES        += modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)gen\$(DS)inc\$(DS)ctest_cfg.h.php\n\n";
+   print FILE "CFLAGS                += -D$test\n";
    close FILE;
 
    # copy needed files
@@ -611,7 +612,6 @@ foreach $testfn (@tests)
                      $status = EvaluateResults();
                      results("Test: $test - Config: $config - Status: $status");
                   }
-                  die();
                }
             }
             else
