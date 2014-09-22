@@ -79,7 +79,7 @@ extern "C" {
  ** \param[in] totalSlaves Number of slaves
  ** \return handler Modbus Gateway
  **/
-extern int32_t ciaaModbus_gatewayInit(
+extern int32_t ciaaModbus_gatewayOpen(
       uint8_t totalMasters,
       uint8_t totalSlaves);
 
