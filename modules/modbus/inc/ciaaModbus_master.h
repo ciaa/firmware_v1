@@ -78,7 +78,6 @@ extern "C" {
 
 /** \brief Open Modbus Master
  **
- ** \param[in] cmd pointer to struct call backs modbus function
  ** \return handler of Modbus Slave
  **/
 extern int32_t ciaaModbus_masterOpen(void);
@@ -90,6 +89,7 @@ extern int32_t ciaaModbus_masterOpen(void);
  **/
 extern int32_t ciaaModbus_masterClose(
       int32_t hModbusMaster);
+
 
 
 /*==================[cplusplus]==============================================*/
