@@ -138,20 +138,48 @@ typedef void (*modbusSlave_processFuncMultipleWrite)(
       uint8_t * buf
       );
 
+/** \brief Modbus Command Multiple read write
+ **
+ ** This function is called by the modbus and provided by the application which
+ ** implements a Multiple read write command:
+ ** 0x17 Read/Write Multiple registers
+ **
+ ** \param[in] readStart read starting address
+ ** \param[in] readQuantity quantity of holding registers to be read
+ ** \param[in] writeStart write starting address
+ ** \param[in] writeQuantity quantity of holding registers to be write
+ ** \param[in] writeByteCount quantity of bytes to be write
+ ** \param[out] exceptioncode may take one of the following values:
+ **                  CIAAMODBUS_E_WRONG_STR_ADDR
+ **                  CIAAMODBUS_E_FNC_ERROR
+ ** \param[in] buf buffer containing the registers
+ ** \return
+ **/
+typedef void (*modbusSlave_processFuncMultipleReadWrite)(
+      uint16_t readStart,
+      uint16_t readQuantity,
+      uint16_t writeStart,
+      uint16_t writeQuantity,
+      uint8_t writeByteCount,
+      uint8_t * exceptioncode,
+      uint8_t * buf
+      );
 
 /** \brief Command callback type */
 typedef struct
 {
-   modbusSlave_processFuncMultipleRead    cmd0x01ReadCoils;
-   modbusSlave_processFuncMultipleRead    cmd0x02ReadDiscrteInputs;
-   modbusSlave_processFuncMultipleRead    cmd0x03ReadHoldingReg;
-   modbusSlave_processFuncMultipleRead    cmd0x04ReadInputReg;
+   modbusSlave_processFuncMultipleRead       cmd0x01ReadCoils;
+   modbusSlave_processFuncMultipleRead       cmd0x02ReadDiscrteInputs;
+   modbusSlave_processFuncMultipleRead       cmd0x03ReadHoldingReg;
+   modbusSlave_processFuncMultipleRead       cmd0x04ReadInputReg;
 
-   modbusSlave_processFuncSingleWrite     cmd0x05WriteSingleCoil;
-   modbusSlave_processFuncSingleWrite     cmd0x06WriteSingleRegister;
+   modbusSlave_processFuncSingleWrite        cmd0x05WriteSingleCoil;
+   modbusSlave_processFuncSingleWrite        cmd0x06WriteSingleRegister;
 
-   modbusSlave_processFuncMultipleWrite   cmd0x0FWriteMultipleCoils;
-   modbusSlave_processFuncMultipleWrite   cmd0x10WriteMultipleReg;
+   modbusSlave_processFuncMultipleWrite      cmd0x0FWriteMultipleCoils;
+   modbusSlave_processFuncMultipleWrite      cmd0x10WriteMultipleReg;
+   modbusSlave_processFuncMultipleReadWrite  cmd0x17ReadWriteMultipleReg;
+
 }ciaaModbus_slaveCmd_type;
 
 
