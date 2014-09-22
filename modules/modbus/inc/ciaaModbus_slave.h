@@ -187,12 +187,12 @@ typedef struct
 
 /*==================[external functions declaration]=========================*/
 
-/** \brief Init Modbus Slave
+/** \brief Open Modbus Slave
  **
  ** \param[in] cmd pointer to struct call backs modbus function
  ** \return handler of Modbus Slave
  **/
-extern int32_t ciaaModbus_slaveInit(
+extern int32_t ciaaModbus_slaveOpen(
       const ciaaModbus_slaveCmd_type *cmd);
 
 /** \brief Close Modbus Slave

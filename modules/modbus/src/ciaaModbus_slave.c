@@ -74,7 +74,7 @@
 
 /*==================[external functions definition]==========================*/
 
-extern int32_t ciaaModbus_slaveInit(
+extern int32_t ciaaModbus_slaveOpen(
       const ciaaModbus_slaveCmd_type *cmd)
 {
    return 0;
