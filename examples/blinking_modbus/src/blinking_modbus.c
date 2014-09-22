@@ -163,11 +163,11 @@ TASK(InitTask)
          &callbacksStruct);
 
    /* init Modbus Ascii */
-   hModbusAscii = ciaaModbus_asciiInit(
+   hModbusAscii = ciaaModbus_asciiOpen(
          fdSerialPort);
 
    /* init Gateway Modbus */
-   hModbusGateway = ciaaModbus_gatewayInit(1, 1);
+   hModbusGateway = ciaaModbus_gatewayOpen(1, 1);
 
    /* Add Slave Modbus to gateway */
    ciaaModbus_gatewayAddSlave(

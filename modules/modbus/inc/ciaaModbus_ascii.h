@@ -175,7 +175,7 @@ extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len);
  ** \return -1 if error
  **         >= 0 handler modbus
  **/
-extern int32_t ciaaModbus_asciiInit(int32_t fildes);
+extern int32_t ciaaModbus_asciiOpen(int32_t fildes);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
