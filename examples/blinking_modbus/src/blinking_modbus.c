@@ -159,7 +159,7 @@ TASK(InitTask)
    fdSerialPort = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
 
    /* init Modbus Slave */
-   hModbusSlave = ciaaModbus_slaveInit(
+   hModbusSlave = ciaaModbus_slaveOpen(
          &callbacksStruct);
 
    /* init Modbus Ascii */
