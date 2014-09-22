@@ -600,7 +600,7 @@ foreach $testfn (@tests)
                      exec("$GDB $out");
                   }
                   `rm /dev/mqueue/*`;
-                  `killall $test`;
+                  `pkill ctest_`;
                   $outdbg = "";
                   $outdbgstatus = $?;
                   info("debug status: $outdbgstatus");
