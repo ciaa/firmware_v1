@@ -195,6 +195,14 @@ typedef struct
 extern int32_t ciaaModbus_slaveInit(
       const ciaaModbus_slaveCmd_type *cmd);
 
+/** \brief Close Modbus Slave
+ **
+ ** \param[in] handler of Modbus Slave
+ ** \return -1 if failed, 0 in other if success.
+ **/
+extern int32_t ciaaModbus_slaveClose(
+      int32_t hModbusSlave);
+
 /** \brief Process task of Slave Modbus
  **
  ** \param[in] hModbusSlave Handler Modbus Slave
