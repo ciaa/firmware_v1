@@ -58,7 +58,7 @@
 /*==================[inclusions]=============================================*/
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
-#include "ciaak.h"
+#include "ciaak_main.h"       /* <= ciaa kernel header */
 #include "ciaaDriverUart_Internal.h"
 
 /*==================[macros and definitions]=================================*/

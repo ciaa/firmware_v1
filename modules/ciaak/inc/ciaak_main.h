@@ -32,8 +32,8 @@
  *
  */
 
-#ifndef _CIAAK_H_
-#define _CIAAK_H_
+#ifndef _CIAAK_MAIN_H_
+#define _CIAAK_MAIN_H_
 /** \brief Short description of this file
  **
  ** Long description of this file
@@ -87,4 +87,4 @@ void *ciaak_malloc(size_t size);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _KCIAA_H_ */
+#endif /* #ifndef _CIAAK_MAIN_H_ */

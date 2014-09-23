@@ -66,7 +66,7 @@
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaModbusSlave.h"
-#include "ciaak.h"
+#include "ciaak_main.h"       /* <= ciaa kernel header */
 #include "blinking_modbus.h"
 
 /*==================[macros and definitions]=================================*/

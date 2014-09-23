@@ -65,7 +65,7 @@
 #include "os.h"               /* <= operating system header */
 #include "ciaaPOSIX_stdio.h"  /* <= device handler header */
 #include "ciaaPOSIX_string.h" /* <= string header */
-#include "ciaak.h"            /* <= ciaa kernel header */
+#include "ciaak_main.h"       /* <= ciaa kernel header */
 #include "blinking.h"         /* <= own header */
 
 /*==================[macros and definitions]=================================*/

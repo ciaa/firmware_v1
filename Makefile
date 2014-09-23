@@ -133,21 +133,31 @@ CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU)
 TARGET_NAME ?= $(BIN_DIR)$(DS)$(project)
 LD_TARGET = $(TARGET_NAME).$(LD_EXTENSION)
-# create list of object files, based on source file %.c and %.s
-$(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES = $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.cpp,%.o,$($(LIB)_SRC_FILES))))))
+# create list of object files for a Lib (without DIR), based on source file %.c and %.s
+$(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES =  $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.cpp,%.o,$($(LIB)_SRC_FILES)))))))
+# Complete list of object files (without DIR), based on source file %.c and %.s
+$(foreach LIB, $(LIBS), $(eval LIBS_OBJ_FILES += $($(LIB)_OBJ_FILES)))
+# Complete Libs Source Files for debug Info
+$(foreach LIB, $(LIBS), $(eval LIBS_SRC_FILES += $($(LIB)_SRC_FILES)))
+# Complete Libs Source Dirs for vpath search (duplicates removed by sort)
+$(foreach LIB, $(LIBS), $(eval LIBS_SRC_DIRS += $(sort $(dir $($(LIB)_SRC_FILES)))))
+# Add the search patterns
+vpath %.c $($(project)_SRC_PATH)
+vpath %.c $(LIBS_SRC_DIRS)
+vpath %.s $(LIBS_SRC_DIRS)
+vpath %.cpp $(LIBS_SRC_DIRS)
+vpath %.o $(OBJ_DIR)
 
-#rule for library
 define librule
 $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Creating library $(1)
-	@echo ' '
-	$(AR) -rcs -o $(LIB_DIR)$(DS)$(strip $(1)).a $(foreach obj,$(2),$(obj))
+	$(AR) -rcs -o $(LIB_DIR)$(DS)$(strip $(1)).a $(foreach obj,$(2),$(OBJ_DIR)$(DS)$(obj))
+	@echo Fin Lib
 endef
 
-
-OBJ_FILES = $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(SRC_FILES)))
+OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(SRC_FILES))))
 
 # create rule for library
 # lib.a : lib_OBJ_FILES.o
@@ -161,7 +171,8 @@ DIRS := $(sort $(dir $(wildcard modules$(DS)*$(DS))))
 ALL_MODS := $(subst modules, , $(DIRS))
 ALL_MODS := $(subst $(DS), , $(ALL_MODS))
 
-MOCKS_OUT_DIR = out$(DS)ceedling$(DS)mocks
+MOCKS_OUT_DIR = $(OUT_DIR)$(DS)ceedling$(DS)mocks
+RUNNERS_OUT_DIR = $(OUT_DIR)$(DS)ceedling$(DS)runners
 
 FILES_TO_MOCK = $(foreach DIR, $(DIRS), $(wildcard $(DIR)inc$(DS)*.h))
 
@@ -207,15 +218,19 @@ UNITY_INC = externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src                 
 				$($(tst_mod)_INC_PATH)
 
 UNITY_SRC = modules$(DS)$(tst_mod)$(DS)test$(DS)utest$(DS)src$(DS)test_$(tst_file).c 			\
-				modules$(DS)$(tst_mod)$(DS)test$(DS)utest$(DS)src$(DS)test_$(tst_file)_Runner.c	\
+				$(RUNNERS_OUT_DIR)$(DS)test_$(tst_file)_Runner.c	\
 				modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c								\
 				externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src$(DS)unity.c 			\
 				externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src$(DS)cmock.c 			\
 				$(foreach file,$(filter-out $(tst_file).c,$(notdir $($(tst_mod)_SRC_FILES))), out$(DS)ceedling$(DS)mocks$(DS)mock_$(file))	\
 				$(foreach mods,$($(tst_mod)_TST_MOD), $(foreach files, $(notdir $($(mods)_SRC_FILES)), out$(DS)ceedling$(DS)mocks$(DS)mock_$(files)))	\
 				$(foreach tst_mocks, $($(tst_mod)_TST_MOCKS), out$(DS)ceedling$(DS)mocks$(DS)mock_$(tst_mocks))
+# Needed Unity Obj files
+UNITY_OBJ = $(notdir $(UNITY_SRC:.c=.o))
+# Add the search patterns
+$(foreach U_SRC, $(sort $(dir $(UNITY_SRC))), $(eval vpath %.c $(U_SRC))) 
 
-CFLAGS  += -ggdb -c #-Wall -Werror #see issue #28
+CFLAGS  = -ggdb -c #-Wall -Werror #see issue #28
 CFLAGS  += $(foreach inc, $(UNITY_INC), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DUNITY_EXCLUDE_STDINT_H --coverage
 
@@ -229,19 +244,19 @@ MTEST := $(foreach tst, $(MTEST),tst_$(tst_mod)_$(tst))
 
 endif
 
-tst_link: $(UNITY_SRC:.c=.o)
+tst_link: $(UNITY_OBJ)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking Test
-	gcc $(UNITY_SRC:.c=.o) -lgcov -o out/bin/$(tst_file).bin
+	gcc $(addprefix $(OBJ_DIR)$(DS),$(UNITY_OBJ)) -lgcov -o out/bin/$(tst_file).bin
 
 # rule for tst_<mod>_<file>
-tst_$(tst_mod)_$(tst_file): $(MTEST_SRC_FILES:.c=_Runner.c) tst_link
+tst_$(tst_mod)_$(tst_file): $(RUNNERS_OUT_DIR)$(DS)$(notdir $(MTEST_SRC_FILES:.c=_Runner.c)) tst_link
 	@echo ' '
 	@echo ===============================================================================
 	@echo Testing from module $(tst_mod) the file $(tst_file)
 	@echo === CEEDLING START ====
-	out$(DS)bin$(DS)$(tst_file).bin
+	$(BIN_DIR)$(DS)$(tst_file).bin
 	@echo === CEEDLING END ===
 	gcov -abclu modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c
 
@@ -271,7 +286,7 @@ endif
 
 results:
 	lcov -c -d . -o coverage.info -b .
-	genhtml coverage.info --output-directory out$(DS)coverage
+	genhtml coverage.info --output-directory $(OUT_DIR)$(DS)coverage
 
 ###############################################################################
 # rule to generate the mocks
@@ -289,12 +304,12 @@ tst:
 	@echo "+-----------------------------------------------------------------------------+"
 	@$(MULTILINE_ECHO) "Following tst rules have been created:\n $(foreach TST,$(ALL_MODS),     tst_$(TST): run unit tests of $(TST)\n)"
 
-test_%_Runner.c : test_%.c
+$(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo ' '
 	@echo ===============================================================================
 	@echo Creating Runner for $<
-	@echo "                 in $@"
-	ruby externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)auto$(DS)generate_test_runner.rb $< modules$(DS)tools$(DS)ceedling$(DS)project.yml
+	@echo "                 in $(RUNNERS_OUT_DIR)$(DS)$(notdir $@)"
+	ruby externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)auto$(DS)generate_test_runner.rb $< $(RUNNERS_OUT_DIR)$(DS)$(notdir $@) modules$(DS)tools$(DS)ceedling$(DS)project.yml
 
 ###################### ENDS UNIT TEST PART OF MAKE FILE #######################
 # Rule to compile
@@ -303,31 +318,41 @@ test_%_Runner.c : test_%.c
 	@echo ===============================================================================
 	@echo Compiling 'c' file: $<
 	@echo ' '
-	$(CC) $(CFLAGS) $< -o $@
-
+	$(CC) $(CFLAGS) $< -o $(OBJ_DIR)$(DS)$@
+	@echo ' '
+	@echo Generating dependencies...
+	$(CC) -MM $(CFLAGS) $< > $(OBJ_DIR)$(DS)$(@:.o=.d)
+	
 %.o : %.cpp
 	@echo ' '
 	@echo ===============================================================================
 	@echo Compiling 'c++' file: $<
 	@echo ' '
-	$(CPP) $(CFLAGS) $< -o $@
+	$(CPP) $(CFLAGS) $< -o $(OBJ_DIR)$(DS)$@
 
 %.o : %.s
 	@echo ' '
 	@echo ===============================================================================
 	@echo Compiling 'asm' file: $<
 	@echo ' '
-	$(AS) $(AFLAGS) $< -o $@
+	$(AS) $(AFLAGS) $< -o $(OBJ_DIR)$(DS)$@
 
 ###############################################################################
 # Incremental Build	(IDE: Build)
 # link rule
+
+# New rules for LIBS dependencies 
+$(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$($(LIB)_OBJ_FILES:.o=.d))))
+# New rules for project dependencies 
+$(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:.o=.d))))
+
+
 $(project) : $(LIBS) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
 	@echo ' '
-	$(CC) $(foreach obj,$(OBJ_FILES),$(obj)) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
+	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(project)
@@ -340,7 +365,7 @@ debug : $(BIN_DIR)$(DS)$(project).bin
 
 ###############################################################################
 # rtos OSEK generation
-GENDIR			= out$(DS)gen
+GENDIR			= $(OUT_DIR)$(DS)gen
 generate : $(OIL_FILES)
 		php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
 			$(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GENDIR)
@@ -386,11 +411,7 @@ help:
 	@echo info.............: general information about the make environment
 	@echo info_\<mod\>.......: same as info but reporting information of a library
 	@echo info_ext_\<mod\>...: same as info_\<mod\> but for an external library
-	@echo "+-----------------------------------------------------------------------------+"
-	@echo "|               FreeOSEK (CIAA RTOS based on OSEK Standard)						 |"
-	@echo "+-----------------------------------------------------------------------------+"
 	@echo generate.........: generates the ciaaRTOS
-	@echo rtostests........: run FreeOSEK conformace tests
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
@@ -467,6 +488,9 @@ info:
 	@echo ARCH/CPUTYPE/CPU...: $(ARCH)/$(CPUTYPE)/$(CPU)
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
+#	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
+#	@echo Lib Src Files......: $(LIBS_SRC_FILES)
+#	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)	
 	@echo Includes...........: $(INCLUDE)
 	@echo use make info_\<mod\>: to get information of a specific module. eg: make info_posix
 	@echo "+-----------------------------------------------------------------------------+"
@@ -501,24 +525,16 @@ clean:
 	@rm -rf $(GENDIR)$(DS)*
 	@echo Removing mocks
 	@rm -rf $(MOCKS_OUT_DIR)$(DS)*
-	@echo Removing doxygen files
-	@rm -rf out$(DS)doc$(DS)*
-	@echo Removing ci outputs
-	@rm -rf out$(DS)ci$(DS)*
-	@echo Removing coverage
-	@rm -rf out$(DS)coverage$(DS)*
-	@echo Removing object files
-ifeq ($(OS),WIN)
-	@$(shell cygpath -u '$(CYGWIN)')$(DS)find -name "*.o"  -exec rm {} \;
-else
-	@find -name "*.o" -exec rm {} \;
-endif
 	@echo Removing Unity Runners files
-ifeq ($(OS),WIN)
-	@$(shell cygpath -u '$(CYGWIN)')$(DS)find -name "*_Runner.c"  -exec rm {} \;
-else
-	@find -name "*_Runner.c" -exec rm {} \;
-endif
+	@rm -rf $(RUNNERS_OUT_DIR)$(DS)*	
+	@echo Removing doxygen files
+	@rm -rf $(OUT_DIR)$(DS)doc$(DS)*
+	@echo Removing ci outputs
+	@rm -rf $(OUT_DIR)$(DS)ci$(DS)*
+	@echo Removing coverage
+	@rm -rf $(OUT_DIR)$(DS)coverage$(DS)*
+	@echo Removing object files
+	@rm -rf $(OBJ_DIR)$(DS)*	
 
 ###############################################################################
 # Generates docbook documentation
@@ -539,25 +555,6 @@ all: clean generate
 # generate and make (IDE: Generate and Make)
 generate_make: generate
 	make
-
-
-###############################################################################
-# Run all FreeOSEK Tests
-rtostests:
-	mkdir -p out$(DS)doc$(DS)ctest
-	@echo GDB:$(GDB)> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo BINDS:$(BINDS)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo DS:$(DS)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo ARCH:$(ARCH)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo CPUTYPE:$(CPUTYPE)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo CPU:$(CPU)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo RES:out/doc/ctest/ctestresults.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo LOG:out/doc/ctest/ctest.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo LOGFULL:out/doc/ctest/ctestfull.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo TESTS:modules/rtos/tst/ctest/cfg/ctestcases.cfg>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo TESTCASES:modules/rtos/tst/ctest/cfg/testcases.cfg>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo BINDIR:out/bin>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	.$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f out$(DS)doc$(DS)ctest$(DS)ctest.cnf
 
 ###############################################################################
 # run continuous integration

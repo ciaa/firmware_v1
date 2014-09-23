@@ -66,7 +66,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaak.h"
+#include "ciaak_main.h"
 /* TODO configuration dependent includes */
 #include "ciaaDevices.h"
 #include "ciaaSerialDevices.h"

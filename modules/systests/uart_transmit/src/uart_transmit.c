@@ -60,7 +60,7 @@
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
-#include "ciaak.h"
+#include "ciaak_main.h"       /* <= ciaa kernel header */
 #include "uart_transmit.h"
 
 /*==================[macros and definitions]=================================*/
