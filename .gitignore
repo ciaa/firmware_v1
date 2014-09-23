@@ -11,6 +11,9 @@
 # Own makefile or mine template
 *.mine
 
+# Own projects
+projects
+
 # Docbook
 *.fo
 
