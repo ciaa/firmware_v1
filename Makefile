@@ -148,13 +148,14 @@ vpath %.s $(LIBS_SRC_DIRS)
 vpath %.cpp $(LIBS_SRC_DIRS)
 vpath %.o $(OBJ_DIR)
 
+#rule for library
 define librule
 $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Creating library $(1)
 	$(AR) -rcs -o $(LIB_DIR)$(DS)$(strip $(1)).a $(foreach obj,$(2),$(OBJ_DIR)$(DS)$(obj))
-	@echo Fin Lib
+	@echo ' '
 endef
 
 OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(SRC_FILES))))
@@ -230,7 +231,7 @@ UNITY_OBJ = $(notdir $(UNITY_SRC:.c=.o))
 # Add the search patterns
 $(foreach U_SRC, $(sort $(dir $(UNITY_SRC))), $(eval vpath %.c $(U_SRC))) 
 
-CFLAGS  = -ggdb -c #-Wall -Werror #see issue #28
+CFLAGS  += -ggdb -c #-Wall -Werror #see issue #28
 CFLAGS  += $(foreach inc, $(UNITY_INC), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DUNITY_EXCLUDE_STDINT_H --coverage
 
@@ -411,7 +412,11 @@ help:
 	@echo info.............: general information about the make environment
 	@echo info_\<mod\>.......: same as info but reporting information of a library
 	@echo info_ext_\<mod\>...: same as info_\<mod\> but for an external library
+	@echo "+-----------------------------------------------------------------------------+"
+	@echo "|               FreeOSEK (CIAA RTOS based on OSEK Standard)                   |"
+	@echo "+-----------------------------------------------------------------------------+"	
 	@echo generate.........: generates the ciaaRTOS
+	@echo rtostests........: run FreeOSEK conformace tests
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
@@ -555,6 +560,25 @@ all: clean generate
 # generate and make (IDE: Generate and Make)
 generate_make: generate
 	make
+
+###############################################################################
+# Run all FreeOSEK Tests
+rtostests:
+	mkdir -p out$(DS)doc$(DS)ctest
+	@echo GDB:$(GDB)> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo BINDS:$(BINDS)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo DS:$(DS)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo ARCH:$(ARCH)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo CPUTYPE:$(CPUTYPE)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo CPU:$(CPU)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo RES:out/doc/ctest/ctestresults.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo LOG:out/doc/ctest/ctest.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo LOGFULL:out/doc/ctest/ctestfull.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo TESTS:modules/rtos/tst/ctest/cfg/ctestcases.cfg>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo TESTCASES:modules/rtos/tst/ctest/cfg/testcases.cfg>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo BINDIR:out/bin>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	.$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+
 
 ###############################################################################
 # run continuous integration

@@ -63,7 +63,7 @@
 #include "ciaaPOSIX_assert.h"
 #include "ciaaPOSIX_errno.h"
 #include "ciaaLibs_CircBuf.h"
-#include "ciaak_main.h"       /* <= ciaa kernel header */
+#include "ciaak.h"       /* <= ciaa kernel header */
 #include "os.h"
 
 /*==================[macros and definitions]=================================*/

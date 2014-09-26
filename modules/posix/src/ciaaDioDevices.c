@@ -59,7 +59,7 @@
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_assert.h"
-#include "ciaak_main.h"       /* <= ciaa kernel header */
+#include "ciaak.h"            /* <= ciaa kernel header */
 #include "os.h"
 
 /*==================[macros and definitions]=================================*/

@@ -2,16 +2,6 @@
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  *
- *    or
- *
- * Copyright 2014, Your Name <youremail@domain.com>
- *
- *    or
- *
- * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- *
  * This file is part of CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,6 +32,8 @@
  *
  */
 
+#ifndef _CIAAK_H_
+#define _CIAAK_H_
 /** \brief Short description of this file
  **
  ** Long description of this file
@@ -50,7 +42,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup Kernel CIAA Kernel
  ** @{ */
 
 /*
@@ -66,60 +58,26 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaak.h"
-/* TODO configuration dependent includes */
-#include "ciaaDevices.h"
-#include "ciaaSerialDevices.h"
-#include "ciaaDriverUart.h"
-#include "ciaaDriverDio.h"
+#include "ciaak_main.h"
 
-#include "ciaaPOSIX_stdlib.h"
+/*==================[cplusplus]=*============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
 
-/*==================[internal data declaration]==============================*/
+/*==================[typedef]================================================*/
 
-/*==================[internal functions declaration]=========================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[internal data definition]===============================*/
+/*==================[external functions declaration]=========================*/
 
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-void ciaak_start(void)
-{
-   /* init stdlib */
-   /* ATTENTION: ciaaPOSIX_stdlib_init has to be done before to any call to
-    * ciaaPOSIX_malloc or ciaak_malloc */
-   ciaaPOSIX_stdlib_init();
-
-   ciaaDevices_init();
-   ciaaSerialDevices_init();
-   ciaaDriverUart_init();
-   ciaaDriverDio_init();
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-void *ciaak_malloc(size_t size)
-{
-   /* try to alloc memory */
-   void* ret = ciaaPOSIX_malloc(size);
-
-   /* kernel memory shall not failed :( */
-   if (NULL == ret)
-   {
-      ciaaPOSIX_printf("Kernel out of memory :( ...\n");
-      while(1)
-      {
-         /* TODO perform an kernel panic or like */
-      }
-   }
-
-   return ret;
-}
-
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
+#endif /* #ifndef _CIAAK_H_ */
