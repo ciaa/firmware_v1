@@ -167,7 +167,7 @@ TASK(InitTask)
          fdSerialPort);
 
    /* init Gateway Modbus */
-   hModbusGateway = ciaaModbus_gatewayOpen(1, 1);
+   hModbusGateway = ciaaModbus_gatewayOpen();
 
    /* Add Slave Modbus to gateway */
    ciaaModbus_gatewayAddSlave(
