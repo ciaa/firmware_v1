@@ -72,9 +72,7 @@
 
 /*==================[external functions definition]==========================*/
 
-extern int32_t ciaaModbus_gatewayOpen(
-      uint8_t totalMasters,
-      uint8_t totalSlaves)
+extern int32_t ciaaModbus_gatewayOpen(void)
 {
    return 0;
 }
