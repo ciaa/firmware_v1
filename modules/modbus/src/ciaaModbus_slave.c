@@ -75,7 +75,8 @@
 /*==================[external functions definition]==========================*/
 
 extern int32_t ciaaModbus_slaveOpen(
-      const ciaaModbus_slaveCmd_type *cmd)
+      const ciaaModbus_slaveCmd_type *cmd,
+      uint8_t id)
 {
    return 0;
 }

@@ -89,17 +89,19 @@ extern "C" {
 /*==================[typedef]================================================*/
 typedef enum
 {
-   CIAAMODBUS_TRANSPORT_MODE_ASCII = 0,
-   CIAAMODBUS_TRANSPORT_MODE_RTU,
-   CIAAMODBUS_TRANSPORT_MODE_TCPSERVER,
-   CIAAMODBUS_TRANSPORT_MODE_TCPCLIENT,
+   CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER = 0,
+   CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE,
+   CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER,
+   CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE,
+   CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER,
+   CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE,
 }ciaaModbus_transportMode_enum;
 
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Modbus Transport Init
+/** \brief Open Modbus Transport
  **
  ** This function initialize Modbus Transport with device indicate in fildes
  ** and selected mode. Also reserves the buffer for reception and
@@ -107,13 +109,15 @@ typedef enum
  **
  ** \param[in] fildes File Descriptor to write and read data
  ** \param[in] mode mode may take one of the following values:
- **            CIAAMODBUS_TRANSPORT_MODE_ASCII
- **            CIAAMODBUS_TRANSPORT_MODE_RTU
- **            CIAAMODBUS_TRANSPORT_MODE_TCPSERVER
- **            CIAAMODBUS_TRANSPORT_MODE_TCPCLIENT
+ **            CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER
+ **            CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE
+ **            CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER
+ **            CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE
+ **            CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER
+ **            CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE
  ** \return handler of Modbus Transport
  **/
-extern int32_t ciaaModbus_transportInit(
+extern int32_t ciaaModbus_transportOpen(
       int32_t fildes,
       ciaaModbus_transportMode_enum mode);
 
