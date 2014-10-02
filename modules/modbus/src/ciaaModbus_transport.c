@@ -69,7 +69,7 @@
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-extern int32_t ciaaModbus_transportInit(
+extern int32_t ciaaModbus_transportOpen(
       int32_t fildes,
       ciaaModbus_transportMode_enum mode)
 {

@@ -190,10 +190,12 @@ typedef struct
 /** \brief Open Modbus Slave
  **
  ** \param[in] cmd pointer to struct call backs modbus function
+ ** \param[in] id identification of slave
  ** \return handler of Modbus Slave
  **/
 extern int32_t ciaaModbus_slaveOpen(
-      const ciaaModbus_slaveCmd_type *cmd);
+      const ciaaModbus_slaveCmd_type *cmd,
+      uint8_t id);
 
 /** \brief Close Modbus Slave
  **

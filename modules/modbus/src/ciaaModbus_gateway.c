@@ -78,20 +78,29 @@ extern int32_t ciaaModbus_gatewayOpen(void)
 }
 
 extern int8_t ciaaModbus_gatewayAddSlave(
-      int32_t hModbusSlave,
-      uint8_t idSlave)
+      int32_t hModbusGW,
+      int32_t hModbusSlave)
 {
    return 0;
 }
 
 extern int8_t ciaaModbus_gatewayAddMaster(
+      int32_t hModbusGW,
       int32_t hModbusMaster)
 {
    return 0;
 }
 
+extern int8_t ciaaModbus_gatewayAddTransport(
+      int32_t hModbusGW,
+      int32_t hModbusMaster)
+{
+   return 0;
+}
+
+
 extern void ciaaModbus_gatewayMainTask(
-      int32_t hModbusGateway)
+      int32_t hModbusGW)
 {
 
 }

@@ -66,7 +66,7 @@
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaModbus_slave.h"
-#include "ciaaModbus_ascii.h"
+#include "ciaaModbus_transport.h"
 #include "ciaaModbus_gateway.h"
 #include "ciaak.h"
 #include "blinking_modbus.h"
@@ -158,24 +158,27 @@ TASK(InitTask)
 
    fdSerialPort = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
 
-   /* init Modbus Slave */
+   /* Open Modbus Slave */
    hModbusSlave = ciaaModbus_slaveOpen(
-         &callbacksStruct);
-
-   /* init Modbus Ascii */
-   hModbusAscii = ciaaModbus_asciiOpen(
-         fdSerialPort);
-
-   /* init Gateway Modbus */
-   hModbusGateway = ciaaModbus_gatewayOpen();
-
-   /* Add Slave Modbus to gateway */
-   ciaaModbus_gatewayAddSlave(
-         hModbusSlave,
+         &callbacksStruct,
          CIAA_BLINKING_MODBUS_ID);
 
-   /* Add Master Modbus to gateway */
-   ciaaModbus_gatewayAddMaster(
+   /* Open Transport Modbus Ascii */
+   hModbusAscii = ciaaModbus_transportOpen(
+         fdSerialPort,
+         CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE);
+
+   /* Open Gateway Modbus */
+   hModbusGateway = ciaaModbus_gatewayOpen();
+
+   /* Add Modbus Slave to gateway */
+   ciaaModbus_gatewayAddSlave(
+         hModbusGateway,
+         hModbusSlave);
+
+   /* Add Modbus Transport to gateway */
+   ciaaModbus_gatewayAddTransport(
+         hModbusGateway,
          hModbusAscii);
 
    SetRelAlarm(ActivateModbusTask, 100, 5);
