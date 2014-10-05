@@ -55,12 +55,34 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaModbus_config.h"
 #include "ciaaModbus_transport.h"
 #include "ciaaPOSIX_stdio.h"
 
 /*==================[macros and definitions]=================================*/
 
+#define TOTAL_TRANSPORTS   (  CIAA_MODBUS_TOTAL_TRANSPORT_ASCII   + \
+                              CIAA_MODBUS_TOTAL_TRANSPORT_RTU     + \
+                              CIAA_MODBUS_TOTAL_TRANSPORT_TCP )
+
+typedef struct
+{
+   int32_t fdDevice;
+   int32_t hModbusLowLayer;
+   ciaaModbus_transportMode_enum mode;
+}ciaaModbus_transportObj_type;
+
+
 /*==================[internal data declaration]==============================*/
+
+static ciaaModbus_transportObj_type ciaaModbus_transportObj[TOTAL_TRANSPORTS] =
+{
+   {
+      .fdDevice = -1,
+      .hModbusLowLayer = -1,
+      .mode = 0,
+   },
+};
 
 /*==================[internal functions declaration]=========================*/
 
@@ -73,7 +95,40 @@ extern int32_t ciaaModbus_transportOpen(
       int32_t fildes,
       ciaaModbus_transportMode_enum mode)
 {
-   return 0;
+   int32_t hModbusTransport = 0;
+
+   do
+   {
+      if (ciaaModbus_transportObj[hModbusTransport].fdDevice < 0)
+         break;
+      hModbusTransport++;
+
+   }while (hModbusTransport < TOTAL_TRANSPORTS);
+
+   if (hModbusTransport == TOTAL_TRANSPORTS)
+   {
+      hModbusTransport = -1;
+   }
+   else
+   {
+      ciaaModbus_transportObj[hModbusTransport].fdDevice = fildes;
+      ciaaModbus_transportObj[hModbusTransport].mode = mode;
+
+      switch (mode)
+      {
+         case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
+         case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
+            // ciaaModbus_asciiOpen();
+            break;
+
+         default:
+            hModbusTransport = -1;
+            ciaaModbus_transportObj[hModbusTransport].fdDevice = -1;
+            break;
+      }
+   }
+
+   return hModbusTransport;
 }
 
 extern int32_t ciaaModbus_transportRecv(
