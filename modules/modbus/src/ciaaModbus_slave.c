@@ -56,13 +56,28 @@
 
 /*==================[inclusions]=============================================*/
 
-#include "ciaaPOSIX_stdio.h"
+#include "ciaaPOSIX_stdlib.h"
 #include "ciaaModbus_slave.h"
-#include "ciaaModbus_transport.h"
+#include "ciaaModbus_config.h"
 
 /*==================[macros and definitions]=================================*/
 
+typedef struct
+{
+   const ciaaModbus_slaveCmd_type *cmd;
+   uint8_t id;
+}ciaaModbus_slaveObj_type;
+
+
 /*==================[internal data declaration]==============================*/
+
+static ciaaModbus_slaveObj_type ciaaModbus_slaveObj[CIAA_MODBUS_TOTAL_SLAVES] =
+{
+   {
+      .cmd = NULL,
+      .id = 0,
+   },
+};
 
 /*==================[internal functions declaration]=========================*/
 
@@ -78,7 +93,25 @@ extern int32_t ciaaModbus_slaveOpen(
       const ciaaModbus_slaveCmd_type *cmd,
       uint8_t id)
 {
-   return 0;
+   int32_t hModbusSlave = 0;
+
+   do
+   {
+      if (ciaaModbus_slaveObj[hModbusSlave].cmd == NULL)
+         break;
+   }while (hModbusSlave < CIAA_MODBUS_TOTAL_SLAVES);
+
+   if (hModbusSlave == CIAA_MODBUS_TOTAL_SLAVES)
+   {
+      hModbusSlave = -1;
+   }
+   else
+   {
+      ciaaModbus_slaveObj[hModbusSlave].cmd = cmd;
+      ciaaModbus_slaveObj[hModbusSlave].id = id;
+   }
+
+   return hModbusSlave;
 }
 
 extern void ciaaModbus_slaveTask(int32_t hModbusSlave)
