@@ -30,8 +30,8 @@
  *
  */
 
-#ifndef _CIAAMODBUS_H_
-#define _CIAAMODBUS_H_
+#ifndef _CIAAMODBUS_SLAVE_H_
+#define _CIAAMODBUS_SLAVE_H_
 /** \brief Modbus Slave Header File
  **
  ** This files shall be included by moodules using the interfaces provided by
@@ -231,5 +231,5 @@ extern int32_t ciaaModbus_slaveProcess(
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUS_H_ */
+#endif /* #ifndef _CIAAMODBUS_SLAVE_H_ */
 
