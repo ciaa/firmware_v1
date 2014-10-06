@@ -73,6 +73,13 @@ extern "C" {
 
 /*==================[external functions declaration]=========================*/
 
+/** \brief ciaaModbus_gateway initialization
+ **
+ ** Performs the initialization of the MODBUS Gateway
+ **
+ **/
+extern void ciaaModbus_gatewayInit(void);
+
 /** \brief Open Modbus Gateway
  **
  ** \return handler Modbus Gateway
