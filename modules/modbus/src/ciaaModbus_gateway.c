@@ -56,11 +56,40 @@
 /*==================[inclusions]=============================================*/
 
 #include "ciaaModbus_gateway.h"
+#include "ciaaModbus_config.h"
+#include "ciaaPOSIX_stdbool.h"
+#include "os.h"
 
 
 /*==================[macros and definitions]=================================*/
 
+typedef struct
+{
+   bool inUse;
+
+   struct
+   {
+      bool inUse;
+      int32_t hMaster;
+   }master[CIAA_MODBUS_TOTAL_MASTERS_GW];
+
+   struct
+   {
+      bool inUse;
+      int32_t hSlave;
+   }slave[CIAA_MODBUS_TOTAL_SLAVES_GW];
+
+   struct
+   {
+      bool inUse;
+      int32_t hTransp;
+   }transp[CIAA_MODBUS_TOTAL_TRANSPORT_GW];
+
+}ciaaModbus_gatewayObj_type;
+
 /*==================[internal data declaration]==============================*/
+
+static ciaaModbus_gatewayObj_type ciaaModbus_gatewayObj[CIAA_MODBUS_TOTAL_GATEWAY];
 
 /*==================[internal functions declaration]=========================*/
 
@@ -71,10 +100,54 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+extern void ciaaModbus_gatewayInit(void)
+{
+   int32_t loopi;
+   int32_t loopj;
+
+   for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_GATEWAY ; loopi++)
+   {
+      ciaaModbus_gatewayObj[loopi].inUse = false;
+
+      for (loopj = 0 ; loopj < CIAA_MODBUS_TOTAL_MASTERS_GW ; loopj++)
+      {
+         ciaaModbus_gatewayObj[loopi].master[loopj].inUse = false;
+         ciaaModbus_gatewayObj[loopi].master[loopj].hMaster = -1;
+      }
+
+      for (loopj = 0 ; loopj < CIAA_MODBUS_TOTAL_SLAVES_GW ; loopj++)
+      {
+         ciaaModbus_gatewayObj[loopi].slave[loopj].inUse = false;
+         ciaaModbus_gatewayObj[loopi].slave[loopj].hSlave = -1;
+      }
+
+      for (loopj = 0 ; loopj < CIAA_MODBUS_TOTAL_TRANSPORT_GW ; loopj++)
+      {
+         ciaaModbus_gatewayObj[loopi].transp[loopj].inUse = false;
+         ciaaModbus_gatewayObj[loopi].transp[loopj].hTransp = -1;
+      }
+   }
+}
 
 extern int32_t ciaaModbus_gatewayOpen(void)
 {
-   return 0;
+   int32_t hModbusGW = CIAA_MODBUS_TOTAL_GATEWAY-1;
+
+   GetResource(MODBUSR);
+
+   while (hModbusGW >= 0)
+   {
+      if (ciaaModbus_gatewayObj[hModbusGW].inUse == false)
+      {
+         ciaaModbus_gatewayObj[hModbusGW].inUse = true;
+         break;
+      }
+      hModbusGW--;
+   }
+
+   ReleaseResource(MODBUSR);
+
+   return hModbusGW;
 }
 
 extern int8_t ciaaModbus_gatewayAddSlave(
