@@ -102,6 +102,11 @@ typedef enum
 
 /*==================[external functions declaration]=========================*/
 
+/** \brief ciaaModbus_transport initialization
+ **
+ ** Performs the initialization of the MODBUS Transport
+ **
+ **/
 extern void ciaaModbus_transportInit(void);
 
 /** \brief Open Modbus Transport

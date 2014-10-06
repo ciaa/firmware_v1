@@ -186,6 +186,12 @@ typedef struct
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+
+/** \brief ciaaModbus_slave initialization
+ **
+ ** Performs the initialization of the MODBUS Slave
+ **
+ **/
 extern void ciaaModbus_slaveInit(void);
 
 /** \brief Open Modbus Slave
