@@ -58,6 +58,8 @@
 #include "ciaaModbus_config.h"
 #include "ciaaModbus_transport.h"
 #include "ciaaPOSIX_stdio.h"
+#include "ciaaPOSIX_stdbool.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -67,6 +69,7 @@
 
 typedef struct
 {
+   bool inUse;
    int32_t fdDevice;
    int32_t hModbusLowLayer;
    ciaaModbus_transportMode_enum mode;
@@ -95,38 +98,35 @@ extern int32_t ciaaModbus_transportOpen(
       int32_t fildes,
       ciaaModbus_transportMode_enum mode)
 {
-   int32_t hModbusTransport = 0;
+   int32_t hModbusTransport;
 
-   do
+   switch (mode)
    {
-      if (ciaaModbus_transportObj[hModbusTransport].fdDevice < 0)
+      case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
+      case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
+         hModbusTransport = TOTAL_TRANSPORTS-1;
          break;
-      hModbusTransport++;
 
-   }while (hModbusTransport < TOTAL_TRANSPORTS);
-
-   if (hModbusTransport == TOTAL_TRANSPORTS)
-   {
-      hModbusTransport = -1;
+      default:
+         hModbusTransport = -1;
+         break;
    }
-   else
-   {
-      ciaaModbus_transportObj[hModbusTransport].fdDevice = fildes;
-      ciaaModbus_transportObj[hModbusTransport].mode = mode;
 
-      switch (mode)
+   GetResource(MODBUSR);
+
+   while (hModbusTransport >= 0)
+   {
+      if (ciaaModbus_transportObj[hModbusTransport].inUse == false)
       {
-         case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
-         case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
-            // ciaaModbus_asciiOpen();
-            break;
-
-         default:
-            hModbusTransport = -1;
-            ciaaModbus_transportObj[hModbusTransport].fdDevice = -1;
-            break;
+         ciaaModbus_transportObj[hModbusTransport].inUse = true;
+         ciaaModbus_transportObj[hModbusTransport].fdDevice = fildes;
+         ciaaModbus_transportObj[hModbusTransport].mode = mode;
+         break;
       }
+      hModbusTransport--;
    }
+
+   ReleaseResource(MODBUSR);
 
    return hModbusTransport;
 }
