@@ -77,15 +77,7 @@ typedef struct
 
 
 /*==================[internal data declaration]==============================*/
-
-static ciaaModbus_transportObj_type ciaaModbus_transportObj[TOTAL_TRANSPORTS] =
-{
-   {
-      .fdDevice = -1,
-      .hModbusLowLayer = -1,
-      .mode = 0,
-   },
-};
+static ciaaModbus_transportObj_type ciaaModbus_transportObj[TOTAL_TRANSPORTS];
 
 /*==================[internal functions declaration]=========================*/
 
@@ -93,7 +85,21 @@ static ciaaModbus_transportObj_type ciaaModbus_transportObj[TOTAL_TRANSPORTS] =
 
 /*==================[external data definition]===============================*/
 
-/*==================[internal functions definition]==========================*/
+/*==================[external functions definition]==========================*/
+
+extern void ciaaModbus_transportInit(void)
+{
+   int32_t loopi;
+
+   for (loopi = 0 ; loopi < TOTAL_TRANSPORTS ; loopi++)
+   {
+      ciaaModbus_transportObj[loopi].inUse = false;
+      ciaaModbus_transportObj[loopi].fdDevice = -1;
+      ciaaModbus_transportObj[loopi].hModbusLowLayer = -1;
+      ciaaModbus_transportObj[loopi].mode = CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE;
+   }
+}
+
 extern int32_t ciaaModbus_transportOpen(
       int32_t fildes,
       ciaaModbus_transportMode_enum mode)
