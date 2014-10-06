@@ -67,6 +67,7 @@ TASK InitTask {
     TYPE = BASIC;
     SCHEDULE = NON;
     RESOURCE = POSIXR;
+    RESOURCE = MODBUSR;
 }
 
 TASK ModbusSlave {
@@ -80,6 +81,7 @@ TASK ModbusSlave {
     TYPE = EXTENDED;
     SCHEDULE = FULL;
     RESOURCE = POSIXR;
+    RESOURCE = MODBUSR;
     EVENT = POSIXE;
 }
 
@@ -91,6 +93,7 @@ ALARM ActivateModbusTask {
 }
 
 RESOURCE = POSIXR;
+RESOURCE = MODBUSR;
 
 EVENT = POSIXE;
 
