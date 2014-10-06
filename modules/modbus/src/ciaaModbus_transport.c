@@ -106,30 +106,57 @@ extern int32_t ciaaModbus_transportOpen(
 {
    int32_t hModbusTransport;
 
-   switch (mode)
+   if ( (mode == CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER) ||
+        (mode == CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE)  ||
+        (mode == CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER)   ||
+        (mode == CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE)    ||
+        (mode == CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER)   ||
+        (mode == CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE) )
    {
-      case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
-      case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
-         hModbusTransport = TOTAL_TRANSPORTS-1;
-         break;
-
-      default:
-         hModbusTransport = -1;
-         break;
+      hModbusTransport = 0;
+   }
+   else
+   {
+      hModbusTransport = TOTAL_TRANSPORTS;
    }
 
    GetResource(MODBUSR);
 
-   while (hModbusTransport >= 0)
+   while ( (hModbusTransport < TOTAL_TRANSPORTS) &&
+           (ciaaModbus_transportObj[hModbusTransport].inUse == true) )
    {
-      if (ciaaModbus_transportObj[hModbusTransport].inUse == false)
+      hModbusTransport++;
+   }
+
+   if (hModbusTransport < TOTAL_TRANSPORTS)
+   {
+      ciaaModbus_transportObj[hModbusTransport].inUse = true;
+      ciaaModbus_transportObj[hModbusTransport].mode = mode;
+
+      switch (mode)
       {
-         ciaaModbus_transportObj[hModbusTransport].inUse = true;
-         ciaaModbus_transportObj[hModbusTransport].fdDevice = fildes;
-         ciaaModbus_transportObj[hModbusTransport].mode = mode;
-         break;
+         case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
+         case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
+            /* ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer =
+            ciaaModbus_asciiOpen() */
+            break;
+
+         case CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER:
+         case CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE:
+            /* ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer =
+            ciaaModbus_rtuOpen() */
+            break;
+
+         case CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER:
+         case CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE:
+            /* ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer =
+            ciaaModbus_tcpOpen() */
+            break;
       }
-      hModbusTransport--;
+   }
+   else
+   {
+      hModbusTransport = -1;
    }
 
    ReleaseResource(MODBUSR);
