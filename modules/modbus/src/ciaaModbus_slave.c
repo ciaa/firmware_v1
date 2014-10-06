@@ -57,13 +57,16 @@
 /*==================[inclusions]=============================================*/
 
 #include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stdbool.h"
 #include "ciaaModbus_slave.h"
 #include "ciaaModbus_config.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
 
 typedef struct
 {
+   bool inUse;
    const ciaaModbus_slaveCmd_type *cmd;
    uint8_t id;
 }ciaaModbus_slaveObj_type;
@@ -71,13 +74,7 @@ typedef struct
 
 /*==================[internal data declaration]==============================*/
 
-static ciaaModbus_slaveObj_type ciaaModbus_slaveObj[CIAA_MODBUS_TOTAL_SLAVES] =
-{
-   {
-      .cmd = NULL,
-      .id = 0,
-   },
-};
+static ciaaModbus_slaveObj_type ciaaModbus_slaveObj[CIAA_MODBUS_TOTAL_SLAVES];
 
 /*==================[internal functions declaration]=========================*/
 
@@ -88,28 +85,39 @@ static ciaaModbus_slaveObj_type ciaaModbus_slaveObj[CIAA_MODBUS_TOTAL_SLAVES] =
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+extern void ciaaModbus_slaveInit(void)
+{
+   int32_t loopi;
+
+   for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_SLAVES ; loopi++)
+   {
+      ciaaModbus_slaveObj[loopi].inUse = false;
+      ciaaModbus_slaveObj[loopi].cmd = NULL;
+      ciaaModbus_slaveObj[loopi].id = 0;
+   }
+}
 
 extern int32_t ciaaModbus_slaveOpen(
       const ciaaModbus_slaveCmd_type *cmd,
       uint8_t id)
 {
-   int32_t hModbusSlave = 0;
+   int32_t hModbusSlave = CIAA_MODBUS_TOTAL_SLAVES-1;
 
-   do
+   GetResource(MODBUSR);
+
+   while (hModbusSlave >= 0)
    {
-      if (ciaaModbus_slaveObj[hModbusSlave].cmd == NULL)
+      if (ciaaModbus_slaveObj[hModbusSlave].inUse == false)
+      {
+         ciaaModbus_slaveObj[hModbusSlave].inUse = true;
+         ciaaModbus_slaveObj[hModbusSlave].cmd = cmd;
+         ciaaModbus_slaveObj[hModbusSlave].id = id;
          break;
-   }while (hModbusSlave < CIAA_MODBUS_TOTAL_SLAVES);
+      }
+      hModbusSlave--;
+   }
 
-   if (hModbusSlave == CIAA_MODBUS_TOTAL_SLAVES)
-   {
-      hModbusSlave = -1;
-   }
-   else
-   {
-      ciaaModbus_slaveObj[hModbusSlave].cmd = cmd;
-      ciaaModbus_slaveObj[hModbusSlave].id = id;
-   }
+   ReleaseResource(MODBUSR);
 
    return hModbusSlave;
 }

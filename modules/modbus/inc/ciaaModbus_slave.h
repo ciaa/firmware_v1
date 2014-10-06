@@ -186,6 +186,7 @@ typedef struct
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+extern void ciaaModbus_slaveInit(void);
 
 /** \brief Open Modbus Slave
  **
