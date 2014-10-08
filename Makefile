@@ -286,8 +286,8 @@ tst_$(tst_mod):
 endif
 
 results:
-	lcov -c -d . -o coverage.info -b .
-	genhtml coverage.info --output-directory $(OUT_DIR)$(DS)coverage
+	externals$(DS)lcov$(DS)bin$(DS)lcov -c -d . -o coverage.info -b .
+	externals$(DS)lcov$(DS)bin$(DS)genhtml coverage.info --output-directory $(OUT_DIR)$(DS)coverage
 
 ###############################################################################
 # rule to generate the mocks
