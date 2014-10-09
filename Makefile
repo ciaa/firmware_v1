@@ -259,7 +259,7 @@ tst_$(tst_mod)_$(tst_file): $(RUNNERS_OUT_DIR)$(DS)$(notdir $(MTEST_SRC_FILES:.c
 	@echo === CEEDLING START ====
 	$(BIN_DIR)$(DS)$(tst_file).bin
 	@echo === CEEDLING END ===
-	gcov -abclu modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c
+	gcov -abclu modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c -o out$(DS)obj$(DS)
 
 # rule for tst_<mod>
 tst_$(tst_mod)_all:
