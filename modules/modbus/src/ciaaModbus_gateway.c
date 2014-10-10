@@ -131,20 +131,32 @@ extern void ciaaModbus_gatewayInit(void)
 
 extern int32_t ciaaModbus_gatewayOpen(void)
 {
-   int32_t hModbusGW = CIAA_MODBUS_TOTAL_GATEWAY-1;
+   int32_t hModbusGW = 0;
 
+   /* enter critical section */
    GetResource(MODBUSR);
 
-   while (hModbusGW >= 0)
+   /* search a Gateway Object not in use */
+   while ( (hModbusGW < CIAA_MODBUS_TOTAL_GATEWAY) &&
+           (ciaaModbus_gatewayObj[hModbusGW].inUse == true) )
    {
-      if (ciaaModbus_gatewayObj[hModbusGW].inUse == false)
-      {
-         ciaaModbus_gatewayObj[hModbusGW].inUse = true;
-         break;
-      }
-      hModbusGW--;
+      /* next object */
+      hModbusGW++;
    }
 
+   /* if object available, use it */
+   if (ciaaModbus_gatewayObj[hModbusGW].inUse == false)
+   {
+      /* set object in use */
+      ciaaModbus_gatewayObj[hModbusGW].inUse = true;
+   }
+   else
+   {
+      /* if no object available, return invalid handler */
+      hModbusGW = -1;
+   }
+
+   /* exit critical section */
    ReleaseResource(MODBUSR);
 
    return hModbusGW;
