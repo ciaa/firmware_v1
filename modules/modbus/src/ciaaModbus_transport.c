@@ -67,16 +67,17 @@
                               CIAA_MODBUS_TOTAL_TRANSPORT_RTU     + \
                               CIAA_MODBUS_TOTAL_TRANSPORT_TCP )
 
+/** \brief Transport Object type */
 typedef struct
 {
-   bool inUse;
-   int32_t fdDevice;
-   int32_t hModbusLowLayer;
-   ciaaModbus_transportMode_enum mode;
+   bool inUse;                         /** <- Object in use */
+   int32_t hModbusLowLayer;            /** <- Handler of low layer transport */
+   ciaaModbus_transportMode_enum mode; /** <- Transport Mode */
 }ciaaModbus_transportObj_type;
 
 
 /*==================[internal data declaration]==============================*/
+/** \brief Array of Transport Object */
 static ciaaModbus_transportObj_type ciaaModbus_transportObj[TOTAL_TRANSPORTS];
 
 /*==================[internal functions declaration]=========================*/
@@ -91,11 +92,16 @@ extern void ciaaModbus_transportInit(void)
 {
    int32_t loopi;
 
+   /* initialize all Transport Objects */
    for (loopi = 0 ; loopi < TOTAL_TRANSPORTS ; loopi++)
    {
+      /* not in use */
       ciaaModbus_transportObj[loopi].inUse = false;
-      ciaaModbus_transportObj[loopi].fdDevice = -1;
+
+      /* invalid handler low layer transport */
       ciaaModbus_transportObj[loopi].hModbusLowLayer = -1;
+
+      /* default mode: MODBUS ASCII SLAVE */
       ciaaModbus_transportObj[loopi].mode = CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE;
    }
 }
@@ -106,6 +112,7 @@ extern int32_t ciaaModbus_transportOpen(
 {
    int32_t hModbusTransport;
 
+   /* check parameter mode */
    if ( (mode == CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER) ||
         (mode == CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE)  ||
         (mode == CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER)   ||
@@ -113,24 +120,32 @@ extern int32_t ciaaModbus_transportOpen(
         (mode == CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER)   ||
         (mode == CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE) )
    {
+      /* if valid mode, initialize handler with valid value */
       hModbusTransport = 0;
    }
    else
    {
+      /* if invalid mode, initialize handler with invalid value*/
       hModbusTransport = TOTAL_TRANSPORTS;
    }
 
+   /* enter critical section */
    GetResource(MODBUSR);
 
+   /* search a Transport Object not in use */
    while ( (hModbusTransport < TOTAL_TRANSPORTS) &&
            (ciaaModbus_transportObj[hModbusTransport].inUse == true) )
    {
       hModbusTransport++;
    }
 
+   /* if object available, use it */
    if (hModbusTransport < TOTAL_TRANSPORTS)
    {
+      /* set object in use */
       ciaaModbus_transportObj[hModbusTransport].inUse = true;
+
+      /* set low layer mode */
       ciaaModbus_transportObj[hModbusTransport].mode = mode;
 
       switch (mode)
@@ -156,9 +171,11 @@ extern int32_t ciaaModbus_transportOpen(
    }
    else
    {
+      /* if no object available, return invalid handler */
       hModbusTransport = -1;
    }
 
+   /* exit critical section */
    ReleaseResource(MODBUSR);
 
    return hModbusTransport;
