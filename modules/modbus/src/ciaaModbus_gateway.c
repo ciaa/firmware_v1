@@ -85,11 +85,11 @@ typedef struct
       int32_t hTransp;
    }transp[CIAA_MODBUS_TOTAL_TRANSPORT_GW];
 
-}ciaaModbus_gatewayObj_type;
+}ciaaModbus_gatewayObjType;
 
 /*==================[internal data declaration]==============================*/
 
-static ciaaModbus_gatewayObj_type ciaaModbus_gatewayObj[CIAA_MODBUS_TOTAL_GATEWAY];
+static ciaaModbus_gatewayObjType ciaaModbus_gatewayObj[CIAA_MODBUS_TOTAL_GATEWAY];
 
 /*==================[internal functions declaration]=========================*/
 

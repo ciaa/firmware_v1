@@ -95,7 +95,7 @@ typedef enum
    CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE,
    CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER,
    CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE,
-}ciaaModbus_transportMode_enum;
+}ciaaModbus_transportModeEnum;
 
 
 /*==================[external data declaration]==============================*/
@@ -127,7 +127,7 @@ extern void ciaaModbus_transportInit(void);
  **/
 extern int32_t ciaaModbus_transportOpen(
       int32_t fildes,
-      ciaaModbus_transportMode_enum mode);
+      ciaaModbus_transportModeEnum mode);
 
 /** \brief Modbus Transport Receive
  **

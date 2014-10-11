@@ -63,22 +63,22 @@
 
 /*==================[macros and definitions]=================================*/
 
-#define TOTAL_TRANSPORTS   (  CIAA_MODBUS_TOTAL_TRANSPORT_ASCII   + \
-                              CIAA_MODBUS_TOTAL_TRANSPORT_RTU     + \
-                              CIAA_MODBUS_TOTAL_TRANSPORT_TCP )
+#define CIAA_MODBUS_TOTAL_TRANSPORTS   (  CIAA_MODBUS_TOTAL_TRANSPORT_ASCII + \
+                                          CIAA_MODBUS_TOTAL_TRANSPORT_RTU   + \
+                                          CIAA_MODBUS_TOTAL_TRANSPORT_TCP )
 
 /** \brief Transport Object type */
 typedef struct
 {
    bool inUse;                         /** <- Object in use */
    int32_t hModbusLowLayer;            /** <- Handler of low layer transport */
-   ciaaModbus_transportMode_enum mode; /** <- Transport Mode */
-}ciaaModbus_transportObj_type;
+   ciaaModbus_transportModeEnum mode; /** <- Transport Mode */
+}ciaaModbus_transportObjType;
 
 
 /*==================[internal data declaration]==============================*/
 /** \brief Array of Transport Object */
-static ciaaModbus_transportObj_type ciaaModbus_transportObj[TOTAL_TRANSPORTS];
+static ciaaModbus_transportObjType ciaaModbus_transportObj[CIAA_MODBUS_TOTAL_TRANSPORTS];
 
 /*==================[internal functions declaration]=========================*/
 
@@ -93,7 +93,7 @@ extern void ciaaModbus_transportInit(void)
    int32_t loopi;
 
    /* initialize all Transport Objects */
-   for (loopi = 0 ; loopi < TOTAL_TRANSPORTS ; loopi++)
+   for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_TRANSPORTS ; loopi++)
    {
       /* not in use */
       ciaaModbus_transportObj[loopi].inUse = false;
@@ -108,7 +108,7 @@ extern void ciaaModbus_transportInit(void)
 
 extern int32_t ciaaModbus_transportOpen(
       int32_t fildes,
-      ciaaModbus_transportMode_enum mode)
+      ciaaModbus_transportModeEnum mode)
 {
    int32_t hModbusTransport;
 
@@ -126,21 +126,21 @@ extern int32_t ciaaModbus_transportOpen(
    else
    {
       /* if invalid mode, initialize handler with invalid value*/
-      hModbusTransport = TOTAL_TRANSPORTS;
+      hModbusTransport = CIAA_MODBUS_TOTAL_TRANSPORTS;
    }
 
    /* enter critical section */
    GetResource(MODBUSR);
 
    /* search a Transport Object not in use */
-   while ( (hModbusTransport < TOTAL_TRANSPORTS) &&
+   while ( (hModbusTransport < CIAA_MODBUS_TOTAL_TRANSPORTS) &&
            (ciaaModbus_transportObj[hModbusTransport].inUse == true) )
    {
       hModbusTransport++;
    }
 
    /* if object available, use it */
-   if (hModbusTransport < TOTAL_TRANSPORTS)
+   if (hModbusTransport < CIAA_MODBUS_TOTAL_TRANSPORTS)
    {
       /* set object in use */
       ciaaModbus_transportObj[hModbusTransport].inUse = true;
