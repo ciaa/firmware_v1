@@ -145,7 +145,7 @@ extern int32_t ciaaModbus_gatewayOpen(void)
    }
 
    /* if object available, use it */
-   if (ciaaModbus_gatewayObj[hModbusGW].inUse == false)
+   if (hModbusGW != CIAA_MODBUS_TOTAL_GATEWAY)
    {
       /* set object in use */
       ciaaModbus_gatewayObj[hModbusGW].inUse = true;
