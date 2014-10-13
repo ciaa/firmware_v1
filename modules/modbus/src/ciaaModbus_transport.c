@@ -122,61 +122,61 @@ extern int32_t ciaaModbus_transportOpen(
    {
       /* if valid mode, initialize handler with valid value */
       hModbusTransport = 0;
+
+      /* enter critical section */
+      GetResource(MODBUSR);
+
+      /* search a Transport Object not in use */
+      while ( (hModbusTransport < CIAA_MODBUS_TOTAL_TRANSPORTS) &&
+              (ciaaModbus_transportObj[hModbusTransport].inUse == true) )
+      {
+         hModbusTransport++;
+      }
+
+      /* if object available, use it */
+      if (hModbusTransport < CIAA_MODBUS_TOTAL_TRANSPORTS)
+      {
+         /* set object in use */
+         ciaaModbus_transportObj[hModbusTransport].inUse = true;
+
+         /* set low layer mode */
+         ciaaModbus_transportObj[hModbusTransport].mode = mode;
+
+         switch (mode)
+         {
+            case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
+            case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
+               /* ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer =
+               ciaaModbus_asciiOpen() */
+               break;
+
+            case CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER:
+            case CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE:
+               /* ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer =
+               ciaaModbus_rtuOpen() */
+               break;
+
+            case CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER:
+            case CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE:
+               /* ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer =
+               ciaaModbus_tcpOpen() */
+               break;
+         }
+      }
+      else
+      {
+         /* if no object available, return invalid handler */
+         hModbusTransport = -1;
+      }
+
+      /* exit critical section */
+      ReleaseResource(MODBUSR);
    }
    else
    {
       /* if invalid mode, initialize handler with invalid value*/
-      hModbusTransport = CIAA_MODBUS_TOTAL_TRANSPORTS;
-   }
-
-   /* enter critical section */
-   GetResource(MODBUSR);
-
-   /* search a Transport Object not in use */
-   while ( (hModbusTransport < CIAA_MODBUS_TOTAL_TRANSPORTS) &&
-           (ciaaModbus_transportObj[hModbusTransport].inUse == true) )
-   {
-      hModbusTransport++;
-   }
-
-   /* if object available, use it */
-   if (hModbusTransport < CIAA_MODBUS_TOTAL_TRANSPORTS)
-   {
-      /* set object in use */
-      ciaaModbus_transportObj[hModbusTransport].inUse = true;
-
-      /* set low layer mode */
-      ciaaModbus_transportObj[hModbusTransport].mode = mode;
-
-      switch (mode)
-      {
-         case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
-         case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
-            /* ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer =
-            ciaaModbus_asciiOpen() */
-            break;
-
-         case CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER:
-         case CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE:
-            /* ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer =
-            ciaaModbus_rtuOpen() */
-            break;
-
-         case CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER:
-         case CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE:
-            /* ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer =
-            ciaaModbus_tcpOpen() */
-            break;
-      }
-   }
-   else
-   {
-      /* if no object available, return invalid handler */
       hModbusTransport = -1;
    }
-
-   /* exit critical section */
-   ReleaseResource(MODBUSR);
 
    return hModbusTransport;
 }
