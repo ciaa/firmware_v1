@@ -37,9 +37,9 @@
 # unit tests include files
 modbus_TST_INC_PATH = $(modbus_PATH)$(DS)test$(DS)utest$(DS)inc 	 \
                       modules$(DS)rtos$(DS)inc                     \
-                      modules$(DS)rtos$(DS)inc$(DS)$(ARCH)         \
-                      out$(DS)gen$(DS)inc
+                      modules$(DS)rtos$(DS)inc$(DS)$(ARCH)
 # unit tests dependencies
 modbus_TST_MOD	    = config bsp ciaak posix platforms
 # extra mocks
 modbus_TST_MOCKS   = os.c
+
