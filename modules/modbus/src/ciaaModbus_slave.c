@@ -64,6 +64,9 @@
 
 /*==================[macros and definitions]=================================*/
 
+#define CIAA_MODBUS_SLAVE_MIN_ID_VALUE    1
+#define CIAA_MODBUS_SLAVE_MAX_ID_VALUE    247
+
 typedef struct
 {
    bool inUse;
@@ -101,23 +104,52 @@ extern int32_t ciaaModbus_slaveOpen(
       const ciaaModbus_slaveCmd_type *cmd,
       uint8_t id)
 {
-   int32_t hModbusSlave = CIAA_MODBUS_TOTAL_SLAVES-1;
+   int32_t hModbusSlave;
 
-   GetResource(MODBUSR);
-
-   while (hModbusSlave >= 0)
+   /* check valid parameters */
+   if ( (id < CIAA_MODBUS_SLAVE_MIN_ID_VALUE) ||
+        (id > CIAA_MODBUS_SLAVE_MAX_ID_VALUE) ||
+        (cmd == NULL) )
    {
-      if (ciaaModbus_slaveObj[hModbusSlave].inUse == false)
-      {
-         ciaaModbus_slaveObj[hModbusSlave].inUse = true;
-         ciaaModbus_slaveObj[hModbusSlave].cmd = cmd;
-         ciaaModbus_slaveObj[hModbusSlave].id = id;
-         break;
-      }
-      hModbusSlave--;
+      /* if invalid parameters, initialize handler with invalid value */
+      hModbusSlave = -1;
    }
+   else
+   {
+      /* if valid parameters, initialize handler with valid value */
+      hModbusSlave = 0;
 
-   ReleaseResource(MODBUSR);
+      /* enter critical section */
+      GetResource(MODBUSR);
+
+      /* search a Transport Object not in use */
+      while ( (hModbusSlave < CIAA_MODBUS_TOTAL_SLAVES) &&
+              (ciaaModbus_slaveObj[hModbusSlave].inUse == true) )
+      {
+         hModbusSlave++;
+      }
+
+      /* if object available, use it */
+      if (hModbusSlave < CIAA_MODBUS_TOTAL_SLAVES)
+      {
+         /* set object in use */
+         ciaaModbus_slaveObj[hModbusSlave].inUse = true;
+
+         /* set cmd call backs struct */
+         ciaaModbus_slaveObj[hModbusSlave].cmd = cmd;
+
+         /* set id of slave */
+         ciaaModbus_slaveObj[hModbusSlave].id = id;
+      }
+      else
+      {
+         /* if no object available, return invalid handler */
+         hModbusSlave = -1;
+      }
+
+      /* exit critical section */
+      ReleaseResource(MODBUSR);
+   }
 
    return hModbusSlave;
 }
