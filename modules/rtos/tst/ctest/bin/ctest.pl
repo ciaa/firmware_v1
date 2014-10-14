@@ -398,7 +398,7 @@ sub CreateTestProject
    print FILE "                         \$(\$(project)_PATH)\$(DS)inc\$(DS)posix     \\\n";
    print FILE "                         modules/posix/inc\n";
    print FILE "SRC_FILES             += \$(wildcard \$(\$(project)_SRC_PATH)\$(DS)*.c) \\\n";
-   print FILE "                         modules/rtos/tst/ctest/src/ctest_rst.c\n\n";
+   print FILE "                         modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)src\$(DS)ctest_rst.c\n\n";
    print FILE "OIL_FILES             += \$(\$(project)_PATH)\$(DS)etc\$(DS)\$(project).oil\n\n";
    print FILE "MODS                  = modules\$(DS)bsp             \\\n";
    print FILE "                        modules\$(DS)platforms       \\\n";
@@ -555,7 +555,7 @@ foreach $testfn (@tests)
          $outmakeclean = `make clean`;
          $outmakecleanstatus = $?;
          info("make clean status: $outmakecleanstatus");
-         logffull("make clean output:\n$outmakeclean");
+         info("make clean output:\n$outmakeclean");
 
          mkdir("out/gen/etc/");
 
@@ -567,7 +567,7 @@ foreach $testfn (@tests)
             $outmakegenerate = `make generate PROJECT=out/rtos/$test/$config`;
             $outmakegeneratestatus = $?;
             info("make generate status: $outmakegeneratestatus");
-            logffull("make generate output:\n$outmakegenerate");
+            info("make generate output:\n$outmakegenerate");
             if ($debug)
             {
                print "$outmakegenerate";
@@ -578,7 +578,7 @@ foreach $testfn (@tests)
                $outmake = `make PROJECT=out/rtos/$test/$config`;
                $outmakestatus = $?;
                info("make status: $outmakestatus");
-               logffull("make output:\n$outmake");
+               info("make output:\n$outmake");
                if ($debug)
                {
                   print "$outmake";
@@ -604,7 +604,7 @@ foreach $testfn (@tests)
                   $outdbg = "";
                   $outdbgstatus = $?;
                   info("debug status: $outdbgstatus");
-                  logffull("debug output:\n$outdbg");
+                  info("debug output:\n$outdbg");
                   $outdbgstatus = 0;
                   if ($outdbgstatus == 0)
                   {
