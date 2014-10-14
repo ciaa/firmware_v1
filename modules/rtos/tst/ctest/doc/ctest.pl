@@ -34,7 +34,8 @@
 #
 #
 
-use Switch;
+#use Switch;
+use feature "switch";
 
 sub info
 {

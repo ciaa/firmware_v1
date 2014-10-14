@@ -33,7 +33,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-use Switch;
+use feature "switch";
+#use Switch;
 use File::Copy;
 use Data::Dumper;
 
@@ -299,20 +300,20 @@ sub readparam
    {
       chomp($line);
       ($var,$val) = split(/:/,$line);
-      switch ($var)
+      given ($var)
       {
-         case "GDB" { $GDB = $val; }
-         case "BINDIR" { $BINDIR = $val; }
-         case "ARCH" { $ARCH = $val; }
-         case "CPUTYPE" { $CPUTYPE = $val; }
-         case "CPU" { $CPU = $val; }
-         case "DIR" { $DIR = $val; }
-         case "LOG" { $logfile = $val; }
-         case "LOGFULL" { $logfilefull = $val; }
-         case "TESTS" { $TESTS = $val; }
-         case "RES" { $RES = $val; }
-         case "TESTCASES" { $TESTCASES = $val; }
-         else { }
+         when ("GDB") { $GDB = $val; }
+         when ("BINDIR") { $BINDIR = $val; }
+         when ("ARCH") { $ARCH = $val; }
+         when ("CPUTYPE") { $CPUTYPE = $val; }
+         when ("CPU") { $CPU = $val; }
+         when ("DIR") { $DIR = $val; }
+         when ("LOG") { $logfile = $val; }
+         when ("LOGFULL") { $logfilefull = $val; }
+         when ("TESTS") { $TESTS = $val; }
+         when ("RES") { $RES = $val; }
+         when ("TESTCASES") { $TESTCASES = $val; }
+         default { }
       }
    }
 
@@ -362,56 +363,50 @@ sub halt
 #*
 sub CreateTestProject
 {
-   my $test = shift;
-   my $config = shift;
-   my $base = "out/rtos/$test/$config";
-
-   info("Creating Test: $test - Config: $config under $base/$test/$config");
-
-   # create needed directories
-   `mkdir -p $base/etc`;
-   `mkdir -p $base/src`;
-   `mkdir -p $base/mak`;
-   `mkdir -p $base/inc`;
-   `mkdir -p $base/inc/posix`;
-
-   # get configuration file for this project
-   $org = "modules/rtos/tst/ctest/etc/" . $test . ".oil";
-   $dst = "$base/etc/$test-$config.oil";
-   copy($org, $dst) or die "file can not be copied from $org to $dst: $!";
-
-   # prepare the configuration for this project
-   @replace = GetTestSequencesCon($TESTS, $testfn, $config);
-   foreach $rep (@replace)
-   {
-      info("Replacing: $rep");
-      @rep = split (/:/,$rep);
-      searchandreplace($dst,@rep[0],@rep[1]);
-   }
-
-   # create makefile for this project
-   open FILE, "> $base/mak/Makefile" or die "can not open: $!";
-   print FILE "project               = $test-$config\n\n";
-   print FILE "\$(project)_PATH       = \$(ROOT_DIR)\$(DS)$base\n\n";
-   print FILE "\$(project)_SRC_PATH   += \$(\$(project)_PATH)\$(DS)src\n\n";
-   print FILE "INCLUDE               += \$(\$(project)_PATH)\$(DS)inc               \\\n";
-   print FILE "                         \$(\$(project)_PATH)\$(DS)inc\$(DS)posix     \\\n";
-   print FILE "                         modules/posix/inc\n";
-   print FILE "SRC_FILES             += \$(wildcard \$(\$(project)_SRC_PATH)\$(DS)*.c) \\\n";
-   print FILE "                         modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)src\$(DS)ctest_rst.c\n\n";
-   print FILE "OIL_FILES             += \$(\$(project)_PATH)\$(DS)etc\$(DS)\$(project).oil\n\n";
-   print FILE "MODS                  = modules\$(DS)bsp             \\\n";
-   print FILE "                        modules\$(DS)platforms       \\\n";
-   print FILE "                        modules\$(DS)rtos\n\n";
-   print FILE "rtos_GEN_FILES        += modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)gen\$(DS)inc\$(DS)ctest_cfg.h.php\n\n";
-   print FILE "CFLAGS                += -D$test\n";
-   close FILE;
-
-   # copy needed files
-   copy("modules/rtos/tst/ctest/src/$test.c","$base/src/$test.c");
-   copy("modules/rtos/tst/ctest/inc/$test.h","$base/inc/$test.h");
-   copy("modules/rtos/tst/ctest/inc/ctest.h","$base/inc/ctest.h");
-   copy("modules/rtos/tst/ctest/inc/posix/ctest_arch.h","$base/inc/posix/ctest_arch.h");
+  my $test = shift;
+  my $config = shift;
+  my $base = "out/rtos/$test/$config";
+  info("Creating Test: $test - Config: $config under $base/$test/$config");
+  # create needed directories
+  `mkdir -p $base/etc`;
+  `mkdir -p $base/src`;
+  `mkdir -p $base/mak`;
+  `mkdir -p $base/inc`;
+  `mkdir -p $base/inc/posix`;
+  # get configuration file for this project
+  $org = "modules/rtos/tst/ctest/etc/" . $test . ".oil";
+  $dst = "$base/etc/$test-$config.oil";
+  copy($org, $dst) or die "file can not be copied from $org to $dst: $!";
+  # prepare the configuration for this project
+  @replace = GetTestSequencesCon($TESTS, $testfn, $config);
+  foreach $rep (@replace)
+  {
+    info("Replacing: $rep");
+    @rep = split (/:/,$rep);
+    searchandreplace($dst,@rep[0],@rep[1]);
+  }
+  # create makefile for this project
+  open FILE, "> $base/mak/Makefile" or die "can not open: $!";
+  print FILE "project = $test-$config\n\n";
+  print FILE "\$(project)_PATH = \$(ROOT_DIR)\$(DS)$base\n\n";
+  print FILE "\$(project)_SRC_PATH += \$(\$(project)_PATH)\$(DS)src\n\n";
+  print FILE "INCLUDE += \$(\$(project)_PATH)\$(DS)inc \\\n";
+  print FILE " \$(\$(project)_PATH)\$(DS)inc\$(DS)posix \\\n";
+  print FILE " modules/posix/inc\n";
+  print FILE "SRC_FILES += \$(wildcard \$(\$(project)_SRC_PATH)\$(DS)*.c) \\\n";
+  print FILE " modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)src\$(DS)ctest_rst.c\n\n";
+  print FILE "OIL_FILES += \$(\$(project)_PATH)\$(DS)etc\$(DS)\$(project).oil\n\n";
+  print FILE "MODS = modules\$(DS)bsp \\\n";
+  print FILE " modules\$(DS)platforms \\\n";
+  print FILE " modules\$(DS)rtos\n\n";
+  print FILE "rtos_GEN_FILES += modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)gen\$(DS)inc\$(DS)ctest_cfg.h.php\n\n";
+  print FILE "CFLAGS += -D$test\n";
+  close FILE;
+  #copy needed files
+  copy("modules/rtos/tst/ctest/src/$test.c","$base/src/$test.c");
+  copy("modules/rtos/tst/ctest/inc/$test.h","$base/inc/$test.h");
+  copy("modules/rtos/tst/ctest/inc/ctest.h","$base/inc/ctest.h");
+  copy("modules/rtos/tst/ctest/inc/posix/ctest_arch.h","$base/inc/posix/ctest_arch.h");
 }
 
 sub finish
@@ -527,6 +522,7 @@ foreach $testfn (@tests)
 
    foreach $config (@configs)
    {
+	  $config =~ tr/\r\n//d;
       $runthistestcase = 1;
 
       $testcasecount++;
