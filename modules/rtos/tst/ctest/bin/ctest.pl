@@ -172,26 +172,26 @@ sub GetTestSequencesCon
    while (my $line = <TSF>)
    {
       chomp($line);
-	  #Quito los \r\n !
+      # removes carry return + line-feed
 	  $line =~ tr/\r\n//d;
       if ($line ne "")
       {
-		 # Cuento TABs en la linea
+         # Count TABs
          $tabcount = ($line =~ tr/\t//);
-		 # Quito TABs de la linea
+         # removes carry return + line-feed
          $line =~ s/\t+//;
          if ($tabcount == 0)
          {
-		    # Linea sin Tabs => Comienzo de Test Secuence
+            # Line without Tabs => Start of Test Secuence
             if ($tc eq $line)
             {
-			   #Comienzo de la Secuencia de Test buscada
+               #Start of searched "Test Sequence"
                #print("LINE: $line\n");
                $stc1 = 1;
             }
             else
             {
-			   #Fin de la Secuencia de Test buscada
+               #End of searched "Test Sequence"
                #print("LINE END: $line\n");
                $stc1 = 0;
             }
@@ -321,7 +321,7 @@ sub readparam
          when ("RES") { $RES = $val; }
          when ("TESTCASES") { $TESTCASES = $val; }
          default { }
-      }	  
+      }
    }
    close CFG;
 }
@@ -384,7 +384,7 @@ sub CreateTestProject
   $dst = "$base/etc/$test-$config.oil";
   copy($org, $dst) or die "file can not be copied from $org to $dst: $!";
   # prepare the configuration for this project
-  # Quito los carry return
+  # removes carry return + line-feed
   $testfn =~ tr/\r\n//d;
   @replace = GetTestSequencesCon($TESTS, $testfn, $config);
   foreach $rep (@replace)
@@ -406,8 +406,6 @@ sub CreateTestProject
   print FILE " modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)src\$(DS)ctest_rst.c\n\n";
   print FILE "OIL_FILES += \$(\$(project)_PATH)\$(DS)etc\$(DS)\$(project).oil\n\n";
   print FILE "MODS = modules\$(DS)bsp \\\n";
-#  print FILE " modules\$(DS)config \\\n";
-#  print FILE " modules\$(DS)ciaak \\\n";
   print FILE " modules\$(DS)platforms \\\n";
   print FILE " modules\$(DS)rtos\n\n";
   print FILE "rtos_GEN_FILES += modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)gen\$(DS)inc\$(DS)ctest_cfg.h.php\n\n";
