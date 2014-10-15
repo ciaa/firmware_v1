@@ -172,20 +172,27 @@ sub GetTestSequencesCon
    while (my $line = <TSF>)
    {
       chomp($line);
+	  #Quito los \r\n !
+	  $line =~ tr/\r\n//d;
       if ($line ne "")
       {
+		 # Cuento TABs en la linea
          $tabcount = ($line =~ tr/\t//);
+		 # Quito TABs de la linea
          $line =~ s/\t+//;
          if ($tabcount == 0)
          {
+		    # Linea sin Tabs => Comienzo de Test Secuence
             if ($tc eq $line)
             {
-               #print "LINE: $line\n";
+			   #Comienzo de la Secuencia de Test buscada
+               #print("LINE: $line\n");
                $stc1 = 1;
             }
             else
             {
-               #print "LINE END: $line\n";
+			   #Fin de la Secuencia de Test buscada
+               #print("LINE END: $line\n");
                $stc1 = 0;
             }
          }
@@ -314,9 +321,8 @@ sub readparam
          when ("RES") { $RES = $val; }
          when ("TESTCASES") { $TESTCASES = $val; }
          default { }
-      }
+      }	  
    }
-
    close CFG;
 }
 
@@ -378,6 +384,8 @@ sub CreateTestProject
   $dst = "$base/etc/$test-$config.oil";
   copy($org, $dst) or die "file can not be copied from $org to $dst: $!";
   # prepare the configuration for this project
+  # Quito los carry return
+  $testfn =~ tr/\r\n//d;
   @replace = GetTestSequencesCon($TESTS, $testfn, $config);
   foreach $rep (@replace)
   {
@@ -389,14 +397,17 @@ sub CreateTestProject
   open FILE, "> $base/mak/Makefile" or die "can not open: $!";
   print FILE "project = $test-$config\n\n";
   print FILE "\$(project)_PATH = \$(ROOT_DIR)\$(DS)$base\n\n";
-  print FILE "\$(project)_SRC_PATH += \$(\$(project)_PATH)\$(DS)src\n\n";
+  print FILE "\$(project)_SRC_PATH += \$(\$(project)_PATH)\$(DS)src\$(DS) \\\n";
+  print FILE " modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)src\$(DS)\n\n";
   print FILE "INCLUDE += \$(\$(project)_PATH)\$(DS)inc \\\n";
   print FILE " \$(\$(project)_PATH)\$(DS)inc\$(DS)posix \\\n";
   print FILE " modules/posix/inc\n";
-  print FILE "SRC_FILES += \$(wildcard \$(\$(project)_SRC_PATH)\$(DS)*.c) \\\n";
+  print FILE "SRC_FILES += \$(wildcard \$(\$(project)_PATH)\$(DS)src\$(DS)*.c) \\\n";
   print FILE " modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)src\$(DS)ctest_rst.c\n\n";
   print FILE "OIL_FILES += \$(\$(project)_PATH)\$(DS)etc\$(DS)\$(project).oil\n\n";
   print FILE "MODS = modules\$(DS)bsp \\\n";
+#  print FILE " modules\$(DS)config \\\n";
+#  print FILE " modules\$(DS)ciaak \\\n";
   print FILE " modules\$(DS)platforms \\\n";
   print FILE " modules\$(DS)rtos\n\n";
   print FILE "rtos_GEN_FILES += modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)gen\$(DS)inc\$(DS)ctest_cfg.h.php\n\n";
