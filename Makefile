@@ -564,20 +564,19 @@ generate_make: generate
 ###############################################################################
 # Run all FreeOSEK Tests
 rtostests:
-	mkdir -p out$(DS)doc$(DS)ctest
-	@echo GDB:$(GDB)> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo BINDS:$(BINDS)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo DS:$(DS)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo ARCH:$(ARCH)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo CPUTYPE:$(CPUTYPE)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo CPU:$(CPU)>> out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo RES:out/doc/ctest/ctestresults.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo LOG:out/doc/ctest/ctest.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo LOGFULL:out/doc/ctest/ctestfull.log>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo TESTS:modules/rtos/tst/ctest/cfg/ctestcases.cfg>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo TESTCASES:modules/rtos/tst/ctest/cfg/testcases.cfg>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo BINDIR:out/bin>>out$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	.$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f out$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	mkdir -p $(OUT_DIR)$(DS)doc$(DS)ctest
+	@echo GDB:$(GDB)> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo BINDIR:$(BIN_DIR)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo DIR:$(DS)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo ARCH:$(ARCH)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo CPUTYPE:$(CPUTYPE)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo CPU:$(CPU)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo RES:$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctestresults.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo LOG:$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo LOGFULL:$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctestfull.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo TESTS:$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)cfg$(DS)ctestcases.cfg>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo TESTCASES:$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)cfg$(DS)testcases.cfg>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 
 
 ###############################################################################
