@@ -114,12 +114,8 @@ TASK(Task1)
 TASK(Task2)
 {
 	StatusType ret;
-	EventMaskType EventMask;
 
 	Sequence(1);
-	GetEvent(Task1, &EventMask);
-	ASSERT(OTHER, EventMask != 0);
-	ASSERT(OTHER, ret != E_OK);
 
 	Sequence(2);
 	/* \treq TM_09 mf E2 s,e Call ActivateTask() from preemptive
@@ -141,7 +137,7 @@ TASK(Task3)
 	EventMaskType EventMask;
 
 	Sequence(4);
-	GetEvent(Task3, &EventMask);
+	ret = GetEvent(Task3, &EventMask);
 	ASSERT(OTHER, EventMask != 0);
 	ASSERT(OTHER, ret != E_OK);
 
