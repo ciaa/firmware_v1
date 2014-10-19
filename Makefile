@@ -229,7 +229,7 @@ UNITY_SRC = modules$(DS)$(tst_mod)$(DS)test$(DS)utest$(DS)src$(DS)test_$(tst_fil
 # Needed Unity Obj files
 UNITY_OBJ = $(notdir $(UNITY_SRC:.c=.o))
 # Add the search patterns
-$(foreach U_SRC, $(sort $(dir $(UNITY_SRC))), $(eval vpath %.c $(U_SRC))) 
+$(foreach U_SRC, $(sort $(dir $(UNITY_SRC))), $(eval vpath %.c $(U_SRC)))
 
 CFLAGS  += -ggdb -c #-Wall -Werror #see issue #28
 CFLAGS  += $(foreach inc, $(UNITY_INC), -I$(inc))
@@ -323,7 +323,7 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo ' '
 	@echo Generating dependencies...
 	$(CC) -MM $(CFLAGS) $< > $(OBJ_DIR)$(DS)$(@:.o=.d)
-	
+
 %.o : %.cpp
 	@echo ' '
 	@echo ===============================================================================
@@ -342,9 +342,9 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 # Incremental Build	(IDE: Build)
 # link rule
 
-# New rules for LIBS dependencies 
+# New rules for LIBS dependencies
 $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$($(LIB)_OBJ_FILES:.o=.d))))
-# New rules for project dependencies 
+# New rules for project dependencies
 $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:.o=.d))))
 
 
@@ -414,7 +414,7 @@ help:
 	@echo info_ext_\<mod\>...: same as info_\<mod\> but for an external library
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               FreeOSEK (CIAA RTOS based on OSEK Standard)                   |"
-	@echo "+-----------------------------------------------------------------------------+"	
+	@echo "+-----------------------------------------------------------------------------+"
 	@echo generate.........: generates the ciaaRTOS
 	@echo rtostests........: run FreeOSEK conformace tests
 	@echo "+-----------------------------------------------------------------------------+"
@@ -495,7 +495,7 @@ info:
 	@echo libraries..........: $(LIBS)
 #	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
 #	@echo Lib Src Files......: $(LIBS_SRC_FILES)
-#	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)	
+#	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)
 #	@echo Project Src Path...: $($(project)_SRC_PATH)
 	@echo Includes...........: $(INCLUDE)
 	@echo use make info_\<mod\>: to get information of a specific module. eg: make info_posix
@@ -532,7 +532,7 @@ clean:
 	@echo Removing mocks
 	@rm -rf $(MOCKS_OUT_DIR)$(DS)*
 	@echo Removing Unity Runners files
-	@rm -rf $(RUNNERS_OUT_DIR)$(DS)*	
+	@rm -rf $(RUNNERS_OUT_DIR)$(DS)*
 	@echo Removing doxygen files
 	@rm -rf $(OUT_DIR)$(DS)doc$(DS)*
 	@echo Removing ci outputs
@@ -540,7 +540,7 @@ clean:
 	@echo Removing coverage
 	@rm -rf $(OUT_DIR)$(DS)coverage$(DS)*
 	@echo Removing object files
-	@rm -rf $(OBJ_DIR)$(DS)*	
+	@rm -rf $(OBJ_DIR)$(DS)*
 
 ###############################################################################
 # Generates docbook documentation
