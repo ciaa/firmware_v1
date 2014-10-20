@@ -56,6 +56,7 @@
 /*==================[inclusions]=============================================*/
 
 #include "ciaaModbus_gateway.h"
+#include "ciaaModbus_transport.h"
 #include "ciaaModbus_config.h"
 #include "ciaaPOSIX_stdbool.h"
 #include "os.h"
@@ -63,32 +64,102 @@
 
 /*==================[macros and definitions]=================================*/
 
+/** \brief Total servers by gateway */
+#define CIAA_MODBUS_GATEWAY_TOTAL_SERVERS    2
+
+/** \brief Total clients by gateway */
+#define CIAA_MODBUS_GATEWAY_TOTAL_CLIENTS    2
+
+/** \brief state of client in gateway */
+typedef enum
+{
+   CIAA_MODBUS_CLIENT_STATE_IDLE = 0,
+   CIAA_MODBUS_CLIENT_STATE_ROUTING,
+   CIAA_MODBUS_CLIENT_STATE_SEND_MSG_TO_SERVER,
+   CIAA_MODBUS_CLIENT_STATE_WAITING_SERVER_RESPONSE,
+}ciaaModbus_clientStateEnum;
+
+/** \brief CIAA Modbus task module
+ **
+ ** This function perform task of module:
+ **
+ ** \param[in] handler handler in to module to perform task
+ ** \return
+ **/
+typedef void (*ciaaModbus_taskType)(int32_t handler);
+
+/** \brief Receive modbus message
+ **
+ ** This function tells the module that want to receive a message
+ **
+ ** \param[out] id identification number of modbus message
+ ** \param[out] pdu buffer with stored pdu
+ ** \param[out] size size of pdu. If no valid message received
+ **             size must be less than 5
+ ** \return
+ **/
+typedef void (*ciaaModbus_recvMsgType)(uint8_t *id, uint8_t *pdu, uint32_t *size);
+
+/** \brief Send modbus message
+ **
+ ** This function tells the module that want to send a message
+ **
+ ** \param[in] id identification number of modbus message
+ ** \param[in] pdu buffer with stored pdu
+ ** \param[in] size size of pdu
+ ** \return
+ **/
+typedef void (*ciaaModbus_sendMsgType)(uint8_t id, uint8_t *pdu, uint32_t size);
+
+/** \brief Client Modbus type */
+typedef struct
+{
+   bool inUse;                         /** <- Object in use                  */
+   int32_t handler;                    /** <- handler of module (slave, master,
+                                              transport)                     */
+   ciaaModbus_clientStateEnum state;   /** <- State of client */
+   uint8_t buffer[256];                /** <- buffer to store modbus message
+                                              received TODO: use macro       */
+   uint8_t id;                         /** <- id of message received         */
+   uint32_t size;                      /** <- size of message received       */
+   int32_t indexServer;                /** <- index server to send message   */
+   ciaaModbus_taskType task;           /** <- function task of module (master,
+                                              transport)                     */
+   ciaaModbus_recvMsgType recvMsg;     /** <- function recvMsg of module
+                                              (master, transport)            */
+   ciaaModbus_sendMsgType sendMsg;     /** <- function sendMsg of module
+                                              (master, transport)            */
+}ciaaModbus_gatewayClientType;
+
+/** \brief Server Modbus type */
+typedef struct
+{
+   bool inUse;                         /** <- Object in use                  */
+   int32_t handler;                    /** <- handler of module (slave,
+                                              transport)                     */
+   bool busy;                          /** <- indicate slave busy */
+   uint8_t id;                         /** <- id of slave, 0 if it transport */
+   ciaaModbus_taskType task;           /** <- function task of module (master,
+                                              transport)                     */
+   ciaaModbus_recvMsgType recvMsg;     /** <- function recvMsg of module
+                                              (master, transport)            */
+   ciaaModbus_sendMsgType sendMsg;     /** <- function sendMsg of module
+                                              (master, transport)            */
+}ciaaModbus_gatewayServerType;
+
+
+/** \brief Gateway Object type */
 typedef struct
 {
    bool inUse;
-
-   struct
-   {
-      bool inUse;
-      int32_t hMaster;
-   }master[CIAA_MODBUS_TOTAL_MASTERS_GW];
-
-   struct
-   {
-      bool inUse;
-      int32_t hSlave;
-   }slave[CIAA_MODBUS_TOTAL_SLAVES_GW];
-
-   struct
-   {
-      bool inUse;
-      int32_t hTransp;
-   }transp[CIAA_MODBUS_TOTAL_TRANSPORT_GW];
-
+   ciaaModbus_gatewayClientType client[CIAA_MODBUS_GATEWAY_TOTAL_CLIENTS];
+   ciaaModbus_gatewayServerType server[CIAA_MODBUS_GATEWAY_TOTAL_SERVERS];
 }ciaaModbus_gatewayObjType;
+
 
 /*==================[internal data declaration]==============================*/
 
+/** \brief Array of Gateway Object */
 static ciaaModbus_gatewayObjType ciaaModbus_gatewayObj[CIAA_MODBUS_TOTAL_GATEWAY];
 
 /*==================[internal functions declaration]=========================*/
@@ -99,33 +170,115 @@ static ciaaModbus_gatewayObjType ciaaModbus_gatewayObj[CIAA_MODBUS_TOTAL_GATEWAY
 
 /*==================[internal functions definition]==========================*/
 
+/** \brief Process task of Modbus client
+ **
+ **
+ ** \param[inout] client pointer to client to process
+ ** \param[inout] server array of servers to send modbus messages
+ ** \return 1  if task pending
+ **         0  if done
+ **         -1 if error occurs
+ **/
+static int8_t ciaaModbus_gatewayClientProcess(
+      ciaaModbus_gatewayClientType *client,
+      ciaaModbus_gatewayServerType *servers)
+{
+   int32_t loopi;
+   int8_t ret = 0;
+
+   if (client->inUse)
+   {
+      switch (client->state)
+      {
+         case CIAA_MODBUS_CLIENT_STATE_IDLE:
+            client->task(client->handler);
+            client->recvMsg(&client->id, client->buffer, &client->size);
+            if (client->size >= CIAAMODBUS_MSG_MINLENGTH)
+            {
+               client->state = CIAA_MODBUS_CLIENT_STATE_ROUTING;
+               ret = 1;
+            }
+            else
+            {
+               ret = 0;
+            }
+            break;
+
+         case CIAA_MODBUS_CLIENT_STATE_ROUTING:
+            for ( loopi = 0 ;
+                  (loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS) && (ret == 0) ;
+                  loopi++ )
+            {
+               if ( (servers[loopi].inUse) &&
+                    (servers[loopi].id == client->id) )
+               {
+                  client->state = CIAA_MODBUS_CLIENT_STATE_SEND_MSG_TO_SERVER;
+                  client->indexServer = loopi;
+                  ret = 1;
+               }
+            }
+            if (ret == 0)
+            {
+               client->state = CIAA_MODBUS_CLIENT_STATE_IDLE;
+            }
+            break;
+
+         case CIAA_MODBUS_CLIENT_STATE_SEND_MSG_TO_SERVER:
+            if (servers[client->indexServer].busy)
+            {
+               ret = 0;
+            }
+            else
+            {
+               servers[client->indexServer].busy = true;
+               servers[client->indexServer].sendMsg(
+                     client->id,
+                     client->buffer,
+                     client->size);
+               client->state = CIAA_MODBUS_CLIENT_STATE_WAITING_SERVER_RESPONSE;
+               ret = 1;
+            }
+            break;
+
+         case CIAA_MODBUS_CLIENT_STATE_WAITING_SERVER_RESPONSE:
+            servers[client->indexServer].task(
+                  servers[client->indexServer].handler);
+
+            servers[client->indexServer].recvMsg(
+                  &client->id,
+                  client->buffer,
+                  &client->size);
+
+            if (client->size >= CIAAMODBUS_MSG_MINLENGTH)
+            {
+               //client->state = CIAA_MODBUS_CLIENT_STATE_ROUTING;
+               ret = 1;
+            }
+            else
+            {
+               ret = 0;
+            }
+
+            break;
+      }
+   }
+   else
+   {
+      ret = 0;
+   }
+
+   return ret;
+}
+
 /*==================[external functions definition]==========================*/
 extern void ciaaModbus_gatewayInit(void)
 {
    int32_t loopi;
-   int32_t loopj;
 
    for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_GATEWAY ; loopi++)
    {
       ciaaModbus_gatewayObj[loopi].inUse = false;
-
-      for (loopj = 0 ; loopj < CIAA_MODBUS_TOTAL_MASTERS_GW ; loopj++)
-      {
-         ciaaModbus_gatewayObj[loopi].master[loopj].inUse = false;
-         ciaaModbus_gatewayObj[loopi].master[loopj].hMaster = -1;
-      }
-
-      for (loopj = 0 ; loopj < CIAA_MODBUS_TOTAL_SLAVES_GW ; loopj++)
-      {
-         ciaaModbus_gatewayObj[loopi].slave[loopj].inUse = false;
-         ciaaModbus_gatewayObj[loopi].slave[loopj].hSlave = -1;
-      }
-
-      for (loopj = 0 ; loopj < CIAA_MODBUS_TOTAL_TRANSPORT_GW ; loopj++)
-      {
-         ciaaModbus_gatewayObj[loopi].transp[loopj].inUse = false;
-         ciaaModbus_gatewayObj[loopi].transp[loopj].hTransp = -1;
-      }
+      /* TODO: init other fields */
    }
 }
 
@@ -187,7 +340,19 @@ extern int8_t ciaaModbus_gatewayAddTransport(
 extern void ciaaModbus_gatewayMainTask(
       int32_t hModbusGW)
 {
+   uint32_t loopi;
+   int32_t ret;
 
+   for (loopi = 0 ; loopi < CIAA_MODBUS_GATEWAY_TOTAL_CLIENTS ; loopi++)
+   {
+      do
+      {
+         ret = ciaaModbus_gatewayClientProcess(
+               &ciaaModbus_gatewayObj[hModbusGW].client[loopi],
+               ciaaModbus_gatewayObj[hModbusGW].server);
+
+      }while (ret > 0);
+   }
 }
 
 /** @} doxygen end group definition */
