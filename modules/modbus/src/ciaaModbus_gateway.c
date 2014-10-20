@@ -92,24 +92,26 @@ typedef void (*ciaaModbus_taskType)(int32_t handler);
  **
  ** This function tells the module that want to receive a message
  **
+ ** \param[in] handler handler in to module to recv msg
  ** \param[out] id identification number of modbus message
  ** \param[out] pdu buffer with stored pdu
  ** \param[out] size size of pdu. If no valid message received
  **             size must be less than 5
  ** \return
  **/
-typedef void (*ciaaModbus_recvMsgType)(uint8_t *id, uint8_t *pdu, uint32_t *size);
+typedef void (*ciaaModbus_recvMsgType)(int32_t handler, uint8_t *id, uint8_t *pdu, uint32_t *size);
 
 /** \brief Send modbus message
  **
  ** This function tells the module that want to send a message
  **
+ ** \param[in] handler handler in to module to send msg
  ** \param[in] id identification number of modbus message
  ** \param[in] pdu buffer with stored pdu
  ** \param[in] size size of pdu
  ** \return
  **/
-typedef void (*ciaaModbus_sendMsgType)(uint8_t id, uint8_t *pdu, uint32_t size);
+typedef void (*ciaaModbus_sendMsgType)(int32_t handler, uint8_t id, uint8_t *pdu, uint32_t size);
 
 /** \brief Client Modbus type */
 typedef struct
@@ -186,84 +188,143 @@ static int8_t ciaaModbus_gatewayClientProcess(
    int32_t loopi;
    int8_t ret = 0;
 
+   /* check if client in use */
    if (client->inUse)
    {
+      /* state client */
       switch (client->state)
       {
+         /* client idle state: waiting new message */
          case CIAA_MODBUS_CLIENT_STATE_IDLE:
+
+            /* perform client task */
             client->task(client->handler);
-            client->recvMsg(&client->id, client->buffer, &client->size);
+
+            /* receive message */
+            client->recvMsg(
+                  client->handler,
+                  &client->id,
+                  client->buffer,
+                  &client->size);
+
+            /* check if a valid message received */
             if (client->size >= CIAAMODBUS_MSG_MINLENGTH)
             {
+               /* if a valid message received, step next state */
                client->state = CIAA_MODBUS_CLIENT_STATE_ROUTING;
+
+               /* indicate task pending */
                ret = 1;
             }
             else
             {
+               /* no task pending */
                ret = 0;
             }
             break;
 
+         /* routing message: search a server for the message received */
          case CIAA_MODBUS_CLIENT_STATE_ROUTING:
+
+            /* search server */
             for ( loopi = 0 ;
                   (loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS) && (ret == 0) ;
                   loopi++ )
             {
+               /* message id == server id? */
                if ( (servers[loopi].inUse) &&
                     (servers[loopi].id == client->id) )
                {
+                  /* if equal, step next state */
                   client->state = CIAA_MODBUS_CLIENT_STATE_SEND_MSG_TO_SERVER;
+
+                  /* save index server */
                   client->indexServer = loopi;
+
+                  /* indicate task pending */
                   ret = 1;
                }
             }
+            /* if no server found, goto idle state */
             if (ret == 0)
             {
                client->state = CIAA_MODBUS_CLIENT_STATE_IDLE;
             }
             break;
 
+         /* send message to server: if server not busy, send message */
          case CIAA_MODBUS_CLIENT_STATE_SEND_MSG_TO_SERVER:
+
+            /* check if server not busy */
             if (servers[client->indexServer].busy)
             {
+               /* if busy, return no task pending */
                ret = 0;
             }
             else
             {
+               /* set busy flag */
                servers[client->indexServer].busy = true;
+
+               /* send message to server */
                servers[client->indexServer].sendMsg(
+                     servers[client->indexServer].handler,
                      client->id,
                      client->buffer,
                      client->size);
+
+               /* step next state */
                client->state = CIAA_MODBUS_CLIENT_STATE_WAITING_SERVER_RESPONSE;
+
+               /* indicate task pending */
                ret = 1;
             }
             break;
 
+         /* wait response from server: perform task and receive response */
          case CIAA_MODBUS_CLIENT_STATE_WAITING_SERVER_RESPONSE:
+
+            /* perform server task */
             servers[client->indexServer].task(
                   servers[client->indexServer].handler);
 
+            /* receive message */
             servers[client->indexServer].recvMsg(
+                  servers[client->indexServer].handler,
                   &client->id,
                   client->buffer,
                   &client->size);
 
+            /* check if a valid message received */
             if (client->size >= CIAAMODBUS_MSG_MINLENGTH)
             {
-               //client->state = CIAA_MODBUS_CLIENT_STATE_ROUTING;
+               /* if a valid message received, send to client */
+               client->sendMsg(
+                     client->handler,
+                     client->id,
+                     client->buffer,
+                     client->size);
+
+               /* reset busy flag */
+               servers[client->indexServer].busy = false;
+
+               /* step next state: idle */
+               client->state = CIAA_MODBUS_CLIENT_STATE_IDLE;
+
+               /* indicate task pending */
                ret = 1;
             }
             else
             {
+               /* TODO: check timeout response */
                ret = 0;
             }
-
             break;
       }
    }
    else
    {
+      /* if not in use, no have task pending */
       ret = 0;
    }
 
