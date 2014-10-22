@@ -65,6 +65,7 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaLibs_CircBuf.h"
 #include "ucontext.h"	/* used to task changes */
 #include "mqueue.h"		/* used to simulate interrupts */
 #include "errno.h"		/* used to read errno */
@@ -98,60 +99,60 @@
  **
  **/
 #define osekpause()			\
-	{								\
-		PreCallService();		\
-	 	(void)usleep(1); 		\
-		PostCallService();	\
-	}
+{								\
+   PreCallService();		\
+   (void)usleep(1); 		\
+   PostCallService();	\
+}
 
 /** \brief Call to an other Task
  **
  ** This function jmps to the indicated task.
  **/
 #define CallTask(actualtask, nexttask)										\
-	{																					\
-		uint8 jmp = 1;																\
-		(void)getcontext(TasksConst[(actualtask)].TaskContext);		\
-		jmp--;																		\
-		if (jmp == 0)																\
-		{																				\
-			(void)setcontext(TasksConst[(nexttask)].TaskContext);		\
-		}																				\
-	}
+{																					\
+   uint8 jmp = 1;																\
+   (void)getcontext(TasksConst[(actualtask)].TaskContext);		\
+   jmp--;																		\
+   if (jmp == 0)																\
+   {																				\
+      (void)setcontext(TasksConst[(nexttask)].TaskContext);		\
+   }																				\
+}
 
 /** \brief Jmp to an other Task
  **
  ** This function jmps to the indicated task.
  **/
 #define JmpTask(task)			\
-	{									\
-		PreCallService();			\
-		(void)setcontext(TasksConst[(task)].TaskContext);	\
-	}
+{									\
+   PreCallService();			\
+   (void)setcontext(TasksConst[(task)].TaskContext);	\
+}
 
 /** \brief Save context */
 #define SaveContext(task) 		\
-	{									\
-		PreCallService();			\
-		(void)getcontext(TasksConst[(task)].TaskContext);	\
-		PostCallService();		\
-	}
+{									\
+   PreCallService();			\
+   (void)getcontext(TasksConst[(task)].TaskContext);	\
+   PostCallService();		\
+}
 
 /** \brief Set the entry point for a task */
 #define SetEntryPoint(task)	\
-	{									\
-		PreCallService();			\
-		(void)makecontext(TasksConst[(task)].TaskContext, TasksConst[(task)].EntryPoint, 0);	\
-		PostCallService();		\
-	}
+{									\
+   PreCallService();			\
+   (void)makecontext(TasksConst[(task)].TaskContext, TasksConst[(task)].EntryPoint, 0);	\
+   PostCallService();		\
+}
 
 /** \brief */
 #define ResetStack(task)																													\
-	{																																				\
-		TasksConst[loopi].TaskContext->uc_stack.ss_sp = TasksConst[loopi].StackPtr;      /* set stack pointer */	\
-		TasksConst[loopi].TaskContext->uc_stack.ss_size = TasksConst[loopi].StackSize;   /* set stack size */		\
-		TasksConst[loopi].TaskContext->uc_stack.ss_flags = 0;																		\
-   }
+{																																				\
+   TasksConst[loopi].TaskContext->uc_stack.ss_sp = TasksConst[loopi].StackPtr;      /* set stack pointer */	\
+   TasksConst[loopi].TaskContext->uc_stack.ss_size = TasksConst[loopi].StackSize;   /* set stack size */		\
+   TasksConst[loopi].TaskContext->uc_stack.ss_flags = 0;																		\
+}
 
 #define ISR_NMI      0
 #define ISR_CTR      1
@@ -159,14 +160,14 @@
 #define ISR_CANTX    3
 
 #define EnableOSInterrupts()															\
-	{																							\
-		InterruptMask &= (InterruptFlagsType)~(OSEK_OS_INTERRUPT_MASK);	\
-	}
+{																							\
+   InterruptMask &= (InterruptFlagsType)~(OSEK_OS_INTERRUPT_MASK);	\
+}
 
 #define EnableInterrupts()		\
-	{									\
-		InterruptState = 1;		\
-	}
+{									\
+   InterruptState = 1;		\
+}
 
 /** \brief Get Counter Actual Value
  **
@@ -191,16 +192,16 @@
 
 #if ( CPUTYPE == posix64 )
 #define SavePosixStack() \
-   {                                   \
-      /* save actual posix stack */        \
-      __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (PosixStack) : : "rax"); \
-   }
+{                                   \
+   /* save actual posix stack */        \
+   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (PosixStack) : : "rax"); \
+}
 #elif ( CPUTYPE == posix32 )
 #define SavePosixStack() \
-   {                                   \
-      /* save actual posix esp */        \
-      __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (PosixStack) : : "eax"); \
-   }
+{                                   \
+   /* save actual posix esp */        \
+   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (PosixStack) : : "eax"); \
+}
 #endif
 
 /** \brief Pre Call Service
@@ -209,20 +210,20 @@
  **/
 #if ( CPUTYPE == posix64 )
 #define PreCallService()      																	               \
-	{                                                                                             \
-		/* save osek stack */                                                                     \
-		__asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (OsekStack) : : "rax"); \
-		/* get posix stack */                                                                     \
-		__asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (PosixStack) );                           \
-	}
+{                                                                                             \
+   /* save osek stack */                                                                     \
+   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (OsekStack) : : "rax"); \
+   /* get posix stack */                                                                     \
+   __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (PosixStack) );                           \
+}
 #elif ( CPUTYPE == posix32 )
 #define PreCallService()      																	               \
-	{                                                                                             \
-		/* save osek stack */                                                                     \
-		__asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (OsekStack) : : "eax"); \
-		/* get posix stack */                                                                     \
-		__asm__ __volatile__ ("movl %0, %%esp;" : : "g" (PosixStack) );                           \
-	}
+{                                                                                             \
+   /* save osek stack */                                                                     \
+   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (OsekStack) : : "eax"); \
+   /* get posix stack */                                                                     \
+   __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (PosixStack) );                           \
+}
 #endif
 
 /** \brief Post Call Service
@@ -231,30 +232,30 @@
  **/
 #if ( CPUTYPE == posix64 )
 #define PostCallService()                                                                          \
-	{                                                                                               \
-      /* save actual posix stack */                                                                \
-      __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (PosixStack) : : "rax");   \
-		/* get osek stack */                                                                         \
-		__asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (OsekStack) );                               \
-	}
+{                                                                                               \
+   /* save actual posix stack */                                                                \
+   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (PosixStack) : : "rax");   \
+   /* get osek stack */                                                                         \
+   __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (OsekStack) );                               \
+}
 #elif ( CPUTYPE == posix32 )
 #define PostCallService()                                                                          \
-	{                                                                                               \
-      /* save actual posix stack */                                                                \
-      __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (PosixStack) : : "eax");   \
-		/* get osek stack */                                                                         \
-		__asm__ __volatile__ ("movl %0, %%esp;" : : "g" (OsekStack) );                               \
-	}
+{                                                                                               \
+   /* save actual posix stack */                                                                \
+   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (PosixStack) : : "eax");   \
+   /* get osek stack */                                                                         \
+   __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (OsekStack) );                               \
+}
 #endif
 
 /** \brief ShutdownOs Arch service
  **/
 #define	ShutdownOs_Arch()		\
-	{									\
-		PreCallService();			\
-		mq_unlink("/FreeOSEK");	\
-		PostCallService();		\
-	}
+{									\
+   PreCallService();			\
+   mq_unlink("/FreeOSEK");	\
+   PostCallService();		\
+}
 
 
 /*==================[typedef]================================================*/
@@ -291,6 +292,10 @@ extern struct sigevent SignalEvent;
 /** \brief Osek Hardware Timer 0
  **/
 extern uint32 OsekHWTimer0;
+
+extern uint8 * OSEK_IntCircBuffer;
+
+extern ciaaLibs_CircBufType * OSEK_IntCircBuf;
 
 /** \brief Posix Stack
  **

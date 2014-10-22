@@ -63,6 +63,14 @@
 
 /*==================[inclusions]=============================================*/
 #include "Os_Internal.h"
+#include "ciaaLibs_CircBuf.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <signal.h>
 
 /*==================[macros and definitions]=================================*/
 
@@ -71,109 +79,62 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+uint8 * OSEK_IntCircBuffer;
 
 /*==================[external data definition]===============================*/
+ciaaLibs_CircBufType * OSEK_IntCircBuf;
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
 void StartOs_Arch(void)
 {
-	uint8f loopi;
+   uint8f loopi;
 
-	/* init every task */
-	for( loopi = 0; loopi < TASKS_COUNT; loopi++)
-	{
-		/* init stack */
-		TasksConst[loopi].TaskContext->uc_stack.ss_sp = TasksConst[loopi].StackPtr;		/* set stack pointer */
-		TasksConst[loopi].TaskContext->uc_stack.ss_size = TasksConst[loopi].StackSize;	/* set stack size */
-		TasksConst[loopi].TaskContext->uc_stack.ss_flags = 0;										/* clear stack flags */
+   /* init every task */
+   for( loopi = 0; loopi < TASKS_COUNT; loopi++)
+   {
+      /* init stack */
+      TasksConst[loopi].TaskContext->uc_stack.ss_sp = TasksConst[loopi].StackPtr;      /* set stack pointer */
+      TasksConst[loopi].TaskContext->uc_stack.ss_size = TasksConst[loopi].StackSize;   /* set stack size */
+      TasksConst[loopi].TaskContext->uc_stack.ss_flags = 0;                            /* clear stack flags */
 
-		/* create task context */
-		(void)getcontext(TasksConst[loopi].TaskContext);	/* get actual context as start point */
-	}
+      /* create task context */
+      (void)getcontext(TasksConst[loopi].TaskContext);   /* get actual context as start point */
+   }
 
-	/* set message queue attributes */
-	MessageQueueAttr.mq_flags = O_NONBLOCK;
-	MessageQueueAttr.mq_maxmsg = 10;
-	MessageQueueAttr.mq_msgsize = 8;
-	MessageQueueAttr.mq_curmsgs = 0;
+   /* initialize singals handler */
+   signal(SIGALRM,PosixInterruptHandler);
+   signal(SIGUSR1,PosixInterruptHandler);
+   signal(SIGCHLD,PosixInterruptHandler);
 
-	/* init interrupts queue*/
-	/* open the Queue with followings options:
- 	 *		- name as defined in the compiler macro PROJECT
- 	 *		- queue is read only
- 	 *		- create the queue
- 	 *		- if the queue exists return an error
- 	 *		-
- 	 */
-	MessageQueue = mq_open("/FreeOSEK", O_RDWR | O_CREAT | O_NONBLOCK, 0666, &MessageQueueAttr);
-	if (MessageQueue == (mqd_t)-1)
-	{
-		switch (errno)
-		{
-			case EINVAL:
-				printf ("Error: Invalid argument\n");
-				break;
-			default:
-				break;
-		}
-		printf ("Error: Message Queue for interrupts can not be configured, error: %d %s\n",errno, strerror(errno));
-		sleep(2);
-	}
+   /* shared memory for circular buffer management block */
+   OSEK_IntCircBuf = mmap(NULL,
+         sizeof(ciaaLibs_CircBufType),
+         PROT_READ | PROT_WRITE,
+         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
-	if (mq_getattr(MessageQueue, &MessageQueueAttr) == -1)
-	{
-		printf ("Error: Get Attribte error, error number: %d %s\n",errno, strerror(errno));
-      sleep(2);
-	}
-	else
-	{
-		/* printf("Maxmsg: %d, Msgsize: %d, Curmsg: %d, Flags: %d\n", MessageQueueAttr.mq_maxmsg, MessageQueueAttr.mq_msgsize, MessageQueueAttr.mq_curmsgs, MessageQueueAttr.mq_flags);
-		sleep(2); */
-	}
+   /* shared memory for the circular buffer */
+   OSEK_IntCircBuffer = mmap(NULL,
+         sizeof(uint8) * 64,
+         PROT_READ | PROT_WRITE,
+         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
-	sigemptyset(&KillSignal.sa_mask);
-	KillSignal.sa_handler = OsekKillSigHandler;
-	KillSignal.sa_flags = 0;
+   /* init circular buffer */
+   ciaaLibs_circBufInit(OSEK_IntCircBuf, OSEK_IntCircBuffer, 64);
 
-	if (sigaction(SIGINT, &KillSignal, NULL) == -1)
-	{
-		printf("Error: SIGKILL can not be configured, error number: %d %s\n",errno, strerror(errno));
-	}
+   if (fork() == 0)
+   {
+      HWTimerFork(0);
+   }
 
-	(void)sigemptyset(&MessageSignal.sa_mask);
-	MessageSignal.sa_handler = PosixInterruptHandler;
-	MessageSignal.sa_flags = 0;
+   /* enable interrupts */
+   InterruptState = 1;
 
-	if (sigaction(SIGUSR1, &MessageSignal, NULL) == -1)
-	{
-		printf("Error: SIGUSR1 can not be configured, error number: %d %s\n",errno, strerror(errno));
-	}
+   /* enable timer interrupt */
+   InterruptMask = 16;
 
-	SignalEvent.sigev_notify = SIGEV_SIGNAL;
-	SignalEvent.sigev_signo = SIGUSR1;
-	SignalEvent.sigev_value.sival_int = MessageQueue;
-	SignalEvent.sigev_notify_function = NULL;
-	SignalEvent.sigev_notify_attributes = NULL;
-
-	if (mq_notify(MessageQueue, &SignalEvent) == -1)
-	{
-		printf("Error: Message Notification can not be activated, error: %d %s\n",errno, strerror(errno));
-	}
-
-	if (fork() == 0)
-	{
-		HWTimerFork(0);
-	}
-
-	/* enable interrupts */
-	InterruptState = 1;
-
-	/* enable timer interrupt */
-	InterruptMask = 16;
-
-	SavePosixStack();
+   SavePosixStack();
 }
 
 /** @} doxygen end group definition */

@@ -64,6 +64,14 @@
 
 /*==================[inclusions]=============================================*/
 #include "Os_Internal.h"
+#include "ciaaLibs_CircBuf.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <signal.h>
 
 /*==================[macros and definitions]=================================*/
 
@@ -114,7 +122,7 @@ uint32 OsekStack;
 void OSEK_ISR_HWTimer0(void)
 {
 #if (ALARMS_COUNT != 0)
-	IncrementCounter(HardwareCounter, 1);
+   IncrementCounter(HardwareCounter, 1);
 #endif /* #if (ALARMS_COUNT != 0) */
 }
 
@@ -122,134 +130,75 @@ void OSEK_ISR_HWTimer1(void)
 {
 #if (defined HWCOUNTER1)
 #if (ALARMS_COUNT != 0)
-	IncrementCounter(HWCOUNTER1, 1);
+   IncrementCounter(HWCOUNTER1, 1);
 #endif /* #if (ALARMS_COUNT != 0) */
 #endif /* #if (defined HWCOUNTER1) */
 }
 
-void PosixInterruptHandler(int status)
+void PosixInterruptHandler(int signal)
 {
-	uint8 msg[10];
-	ssize_t mq_ret;
+   uint8 interrupt;
 
-	mq_ret = mq_receive(MessageQueue, (char*)msg, sizeof(msg), NULL);
-	if (mq_ret > 0)
-	{
-		if (msg[0] < 32)
-		{
-			/* printf("Interrupt: %d\n",msg[0]); */
-			if ( (InterruptState) &&
-				  ( (InterruptMask & (1 << msg[0] ) )  == 0 ) )
-			{
-				InterruptTable[msg[0]]();
-			}
-			else
-			{
-				InterruptFlag |= 1 << msg[0];
-			}
-		}
+   if (SIGCHLD == signal)
+   {
+      /* kill process */
+      wait(NULL);
+   }
 
-	}
-	else
-	{
-		switch(errno)
-		{
-			case EAGAIN:
-				printf("Queue Empty\n");
-				break;
-			case EBADF:
-				printf("Not valued queue descriptor\n");
-				break;
-			case EMSGSIZE:
-				printf("Message buffer to small\n");
-				break;
-			case EINTR:
-				printf("Reception interrupted by a signal\n");
-				break;
-			default:
-				printf("other error\n");
-				break;
-		}
-		printf("Error by reading the Message Queue, returned value: %d, error number: %d\n",(int)mq_ret,errno);
-	}
 
-	if (mq_notify(MessageQueue, &SignalEvent) == -1)
-	{
-		printf("Error: Message Notification can not be activated, error: %d.\n",errno);
-		sleep(3);
-	}
+   interrupt = 0;
+      {
+         /* printf("Interrupt: %d\n",msg[0]); */
+         if ( (InterruptState) &&
+               ( (InterruptMask & (1 << interrupt ) )  == 0 ) )
+         {
+            InterruptTable[interrupt]();
+         }
+         else
+         {
+            InterruptFlag |= 1 << interrupt;
+         }
+      }
+
 }
 
 void HWTimerFork(uint8 timer)
 {
-	int mq_ret;
-	char msg;
-	struct timespec rqtp;
-   int lasterror = -1;
+   struct timespec rqtp;
+   uint8 interrupt;
 
-	if (timer <= 2)
-	{
-		/* set timer interrupts
-         * HWCOUNTER0: Interrupt 4
-         * HWCOUNTER1: Interrupt 5
-		 */
-		msg = timer + 4;
+   if (timer <= 2)
+   {
+      /* intererupt every
+       * 0 seconds and
+       * 10 ms */
+      rqtp.tv_sec=0;
+      rqtp.tv_nsec=10000000;
 
-		/* intererupt every
-         * 0 seconds and
-         * 10 ms */
-		rqtp.tv_sec=0;
-    	rqtp.tv_nsec=10000000;
+      while(1)
+      {
+         /* sleep */
+         nanosleep(&rqtp,NULL);
 
-		while(1)
-		{
-			/* send message */
-			mq_ret = mq_send(MessageQueue, &msg, sizeof(msg), 0);
-			if (mq_ret < 0)
-			{
-				switch(errno)
-				{
-					case EAGAIN:
-                  if (lasterror != errno) {
-                     lasterror = errno;
-      					printf("Error HW Timer can not generate an interrupt: %s\n", strerror(errno));
-                  }
-						break;
-					case EBADF:
-						printf("Not valued queue descriptor\n");
-						break;
-					case EMSGSIZE:
-						printf("Message buffer to small\n");
-						break;
-					case EINTR:
-						printf("Reception interrupted by a signal\n");
-						break;
-					default:
-						printf("other error\n");
-						break;
-				}
-				sleep(1);
-			}
-			else
-			{
-				if (-1 != lasterror)
-				{
-					printf("HW Timer generates interrupts\n");
-					lasterror = -1;
-				}
-			}
-			nanosleep(&rqtp,NULL);
-		}
-	}
-	exit(0);
+         /* the timer interrupt is the interrupt 4 */
+         interrupt = 4;
+
+         /* add simulated interrupt to the interrupt queue */
+         ciaaLibs_circBufPut(OSEK_IntCircBuf, &interrupt, 1);
+
+         /* indicate interrupt using a signal */
+         kill(getppid(), SIGALRM);
+      }
+   }
+   exit(0);
 }
 
 void OsekKillSigHandler(int status)
 {
-	PreCallService();
-	mq_unlink("/FreeOSEK");
-	exit(0);
-	PostCallService();
+   PreCallService();
+   mq_unlink("/FreeOSEK");
+   exit(0);
+   PostCallService();
 }
 
 /** @} doxygen end group definition */
