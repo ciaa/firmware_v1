@@ -60,7 +60,7 @@ TASK InitTask {
     AUTOSTART = TRUE {
         APPMODE = AppMode1;
     }
-    STACK = 512;
+    STACK = 120000;
     TYPE = BASIC;
     SCHEDULE = NON;
     RESOURCE = POSIXR;
@@ -70,7 +70,7 @@ TASK InitTask {
 TASK SerialEchoTask {
     PRIORITY = 5;
     ACTIVATION = 1;
-    STACK = 512;
+    STACK = 120000;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
     EVENT = POSIXE;
@@ -80,7 +80,7 @@ TASK SerialEchoTask {
 TASK PeriodicTask {
     PRIORITY = 10;
     ACTIVATION = 1;
-    STACK = 512;
+    STACK = 120000;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
     RESOURCE = POSIXR;

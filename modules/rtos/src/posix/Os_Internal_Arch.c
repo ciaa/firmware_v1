@@ -145,10 +145,18 @@ void PosixInterruptHandler(int signal)
       wait(NULL);
    }
 
+   /* repeat until the buffer is empty */
+   while(!ciaaLibs_circBufEmpty(OSEK_IntCircBuf))
+   {
+      /* read one interrupt */
+      ciaaLibs_circBufGet(OSEK_IntCircBuf, &interrupt, 1);
 
-   interrupt = 0;
+      /* only 0 .. 31 interrupts are allowed */
+      if (32 > interrupt)
       {
-         /* printf("Interrupt: %d\n",msg[0]); */
+#if 0
+         printf("Interrupt: %d\n",interrupt);
+#endif
          if ( (InterruptState) &&
                ( (InterruptMask & (1 << interrupt ) )  == 0 ) )
          {
@@ -159,6 +167,7 @@ void PosixInterruptHandler(int signal)
             InterruptFlag |= 1 << interrupt;
          }
       }
+   }
 
 }
 
@@ -173,7 +182,7 @@ void HWTimerFork(uint8 timer)
        * 0 seconds and
        * 10 ms */
       rqtp.tv_sec=0;
-      rqtp.tv_nsec=10000000;
+      rqtp.tv_nsec=1000000;
 
       while(1)
       {
