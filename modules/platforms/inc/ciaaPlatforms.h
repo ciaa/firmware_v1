@@ -146,7 +146,9 @@ extern "C" {
 #if   ( ( ARCH == posix ) && \
       ( ( CPUTYPE == posix32 ) || \
         ( CPUTYPE == posix64 ) ) )
-#elif ( ( ARCH == win ) )
+#elif ( ( ARCH == win ) && \
+      ( ( CPUTYPE == win32 ) || \
+        ( CPUTYPE == win64 ) ) )
 #elif ( ( ARCH == cortexM4 ) && \
         ( CPUTYPE == lpc43xx ) && \
         ( CPU == lpc4337 ) )

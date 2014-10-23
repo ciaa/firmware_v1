@@ -55,7 +55,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20090819 v0.2.1 MaCe rename file to Os_
+ * 20090719 v0.2.1 MaCe rename file to Os_
  * 20080922 v0.2.0 MaCe initial version
  */
 

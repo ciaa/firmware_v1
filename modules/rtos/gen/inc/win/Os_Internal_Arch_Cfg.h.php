@@ -74,11 +74,19 @@
 
 /*==================[typedef]================================================*/
 /** \brief Task Context Type */
+#if ( CPUTYPE == win64 )
+typedef struct {
+	uint64 tss_rsp;
+	uint64 tss_rbp;
+   uint64 tss_rip;
+} TaskContextType;
+#elif ( CPUTYPE == win32 )
 typedef struct {
 	uint32 tss_esp;
 	uint32 tss_ebp;
    uint32 tss_eip;
 } TaskContextType;
+#endif
 
 /** \brief Task Context Type */
 typedef TaskContextType* TaskContextRefType;

@@ -57,11 +57,20 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20090130 v0.1.1 MaCe change type uint8_least to uint8f
  * 20080810 v0.1.0 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "Os_Internal.h"
+#include "ciaaLibs_CircBuf.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <signal.h>
 
 /*==================[macros and definitions]=================================*/
 
@@ -70,8 +79,10 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+uint8 * OSEK_IntCircBuffer;
 
 /*==================[external data definition]===============================*/
+ciaaLibs_CircBufType * OSEK_IntCircBuf;
 
 /*==================[internal functions definition]==========================*/
 
@@ -83,54 +94,44 @@ void StartOs_Arch(void)
 	/* init every task */
 	for( loopi = 0; loopi < TASKS_COUNT; loopi++)
 	{
-		/* init stack */
-		ResetStack(loopi);
-
-		/* set entry point */
-      SetEntryPoint(loopi)
+        /* init stack */
+        ResetStack(loopi);
+        /* set entry point */
+        SetEntryPoint(loopi);
 	}
 
-	/* set event */
-	MessageSignal.sa_handler = PosixInterruptHandler;
-	(void)sigemptyset(&MessageSignal.sa_mask);
-	MessageSignal.sa_flags = 0;
+   /* initialize singals handler */
+   signal(SIGALRM,WinInterruptHandler);
+   signal(SIGUSR1,WinInterruptHandler);
+   signal(SIGCHLD,WinInterruptHandler);
 
-	if (sigaction(SIGUSR1, &MessageSignal, NULL) == -1)
-	{
-		printf("Error: SIGUSR1 can not be configured, error number: %d\n", errno);
-	}
+   /* shared memory for circular buffer management block */
+   OSEK_IntCircBuf = mmap(NULL,
+         sizeof(ciaaLibs_CircBufType),
+         PROT_READ | PROT_WRITE,
+         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
-	/* create shared memory */
-   if ((SharedMemory = shmget(1, sizeof(MessageQueueType), IPC_CREAT | 0666)) < 0) {
-      printf("shmget error\n");
-      exit(1);
-   }
+   /* shared memory for the circular buffer */
+   OSEK_IntCircBuffer = mmap(NULL,
+         sizeof(uint8) * 64,
+         PROT_READ | PROT_WRITE,
+         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
-   /* atach to the segment */
-   MessageQueue = (MessageQueueType*) shmat(SharedMemory, NULL, 0);
-   if (MessageQueue == (MessageQueueType *) -1)
+   /* init circular buffer */
+   ciaaLibs_circBufInit(OSEK_IntCircBuf, OSEK_IntCircBuffer, 64);
+
+   if (fork() == 0)
    {
-      printf("shmat error\n");
-      exit(1);
+      HWTimerFork(0);
    }
 
-	if (fork() == 0)
-	{
-		HWTimerFork(0);
-	}
+   /* enable interrupts */
+   InterruptState = 1;
 
-	if (fork() == 0)
-	{
-		HWTimerFork(1);
-	}
+   /* enable timer interrupt */
+   InterruptMask = 16;
 
-	/* enable interrupts */
-	InterruptState = 1;
-
-	/* enable timer interrupt */
-	InterruptMask = 16;
-
-	SaveWinStack();
+   SaveWinStack();
 }
 
 /** @} doxygen end group definition */

@@ -56,299 +56,161 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20090819 v0.1.1 MaCe rename file to Os_
+ * 20090719 v0.1.3 MaCe rename file to Os_
+ * 20090424 v0.1.2 MaCe use the right counter macros
+ * 20090130 v0.1.1 MaCe change type uint8_least to uint8f
  * 20080713 v0.1.0 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "Os_Internal.h"
+#include "ciaaLibs_CircBuf.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <signal.h>
 
 /*==================[macros and definitions]=================================*/
-
-/*==================[typedef]================================================*/
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-MessageQueueType *MessageQueue;
 
 /*==================[external data definition]===============================*/
 uint8	InterruptState;
 
+mqd_t MessageQueue;
+
+struct mq_attr MessageQueueAttr;
+
 struct sigaction MessageSignal;
 
-/* struct sigaction KillSignal; */
+struct sigaction KillSignal;
 
-/* pid_t OsekProcessID; */
+pid_t OsekProcessID;
 
-/* struct sigevent SignalEvent; */
+struct sigevent SignalEvent;
 
 uint32 OsekHWTimer0;
 
 InterruptFlagsType InterruptFlag;
 
-int SharedMemory;
+#ifdef CPUTYPE
+#if ( CPUTYPE == win64 )
+uint64 WinStack;
 
+uint64 OsekStack;
+#elif ( CPUTYPE == win32 )
 uint32 WinStack;
 
 uint32 OsekStack;
+#else /* #if ( CPUTYPE == win64 ) */
+#error Unknown CPUTYPE for ARCH win
+#endif /* #if ( CPUTYPE == win64 ) */
+#else /* #ifdef CPUTYPE */
+#error CPUTPYE is not defined
+#endif /* #idef CPUTYPE */
 
 /*==================[internal functions definition]==========================*/
-/** \brief SendMessage
- **
- ** This function transmit a message to the indicated
- ** message queue.
- **
- ** \param[in] Msg pointer to the Message Queue
- ** \param[in] Val value to be transmiteed
- ** \return 0 if error occurs
- **         1 if no error
- **/
-uint8 SendMessage(MessageQueueType *Msg, uint8 Val)
-{
-   uint8 ret = 1;
-
-   if (Msg == NULL)
-   {
-      ret = 0;
-   }
-   else
-   {
-
-      Msg->Lock++;
-      while(Msg->Lock != 1)
-      {
-         Msg->Lock--;
-         osekpause();
-         Msg->Lock++;
-      }
-
-      if (Msg->Count >= MESSAGE_QUEUE_LENGTH)
-      {
-         ret = 0;
-      }
-      else
-      {
-         Msg->Buffer[Msg->Last] = Val;
-         Msg->Last = (Msg->Last + 1) % MESSAGE_QUEUE_LENGTH;
-         Msg->Count++;
-      }
-
-      Msg->Lock--;
-   }
-
-   return ret;
-}
-
-/** \brief ReceiveMessage
- **
- ** This function receive a message from the indicated message
- ** queue.
- **
- ** \param[in] Msg pointer to the Message Queue
- ** \param[in] Val variabel where the received message shall be stored
- ** \return 0 if an error occurs
- **         1 if no errors.
- **/
-uint8 ReceiveMessage(MessageQueueType *Msg, uint8 *Val)
-{
-   uint8 ret = 1;
-
-   if (Msg == NULL)
-   {
-      ret = 0;
-   }
-   else
-   {
-
-      Msg->Lock++;
-      while(Msg->Lock != 1)
-      {
-         Msg->Lock--;
-         osekpause();
-         Msg->Lock++;
-      }
-
-      if (Msg->Count == 0)
-      {
-         ret = 0;
-      }
-      else
-      {
-         *Val = Msg->Buffer[Msg->First];
-         Msg->First = (Msg->First + 1) % MESSAGE_QUEUE_LENGTH;
-         Msg->Count--;
-      }
-
-      Msg->Lock--;
-
-   }
-
-   return ret;
-}
 
 /*==================[external functions definition]==========================*/
-void CallTask(TaskType OldTask, TaskType NewTask)
-{
-   /* save actual esp */
-   __asm__ __volatile__ ("movl %%esp, %%eax; addl $16, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_esp) : : "%eax" );
-
-   /* save actual ebp */
-   __asm__ __volatile__ ("movl %%ebp, %%eax; addl $48, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_ebp) : : "%eax" );
-
-   /* save return eip */
-   __asm__ __volatile__ ("movl 4(%%ebp), %%eax; movl %%eax, %0" : "=g" (TasksConst[OldTask].TaskContext->tss_eip) : : "%eax");
-
-   /* load new stack pointer */
-   __asm__ __volatile__ ("movl %0, %%esp;" : :  "g" (TasksConst[NewTask].TaskContext->tss_esp));
-
-   /* load new ebp and jmp to the new task */
-   __asm__ __volatile__ ("movl %0, %%ebx;" \
-                         "movl %1, %%ebp;" \
-                         "jmp *%%ebx;" : :  "g" (TasksConst[NewTask].TaskContext->tss_eip), "g" (TasksConst[NewTask].TaskContext->tss_ebp));
-}
-
-void CounterInterrupt(CounterType CounterID)
-{
-	uint8f loopi;
-	AlarmType AlarmID;
-
-	/* increment counter */
-	CountersVar[CounterID].Time = ( CountersVar[CounterID].Time + 1 ) % CountersConst[CounterID].MaxAllowedValue;
-
-	/* for alarms on this counter */
-	for(loopi = 0; loopi < CountersConst[CounterID].AlarmsCount; loopi++)
-	{
-		/* get alarm id */
-		AlarmID = CountersConst[CounterID].AlarmRef[loopi];
-
-		/* check if the alarm is eanble */
-		if (AlarmsVar[AlarmID].AlarmState == 1)
-		{
-			/* decrement alarm time */
-			AlarmsVar[AlarmID].AlarmTime--;
-
-			/* check if alarm time was reached */
-			if (AlarmsVar[AlarmID].AlarmTime == 0)
-			{
-				/* check if new alarm time has to be set */
-				if(AlarmsVar[AlarmID].AlarmCycleTime == 0)
-				{
-					/* disable alarm if no cycle was configured */
-					AlarmsVar[AlarmID].AlarmState = 0;
-				}
-				else
-				{
-					/* set new alarm cycle */
-					AlarmsVar[AlarmID].AlarmTime = AlarmsVar[AlarmID].AlarmCycleTime;
-				}
-
-				/* check the alarm action */
-				switch(AlarmsConst[AlarmID].AlarmAction)
-				{
-					case INCREMENT:
-						/* call counter function */
-						CounterInterrupt(AlarmsConst[AlarmID].AlarmActionInfo.Counter);
-						break;
-					case ACTIVATETASK:
-						/* activate task */
-						ActivateTask(AlarmsConst[AlarmID].AlarmActionInfo.TaskID);
-						break;
-					case ALARMCALLBACK:
-						/* callback */
-						if(AlarmsConst[AlarmID].AlarmActionInfo.CallbackFunction != NULL)
-						{
-							AlarmsConst[AlarmID].AlarmActionInfo.CallbackFunction();
-						}
-						break;
-#if (NO_EVENTS == DISABLE)
-					case SETEVENT:
-						/* set event */
-						SetEvent(AlarmsConst[AlarmID].AlarmActionInfo.TaskID, AlarmsConst[AlarmID].AlarmActionInfo.Event);
-						break;
-#endif
-					default:
-						/* some error ? */
-						break;
-				}
-			}
-		}
-	}
-}
-
 void OSEK_ISR_HWTimer0(void)
 {
-	CounterInterrupt(0);
+#if (ALARMS_COUNT != 0)
+   IncrementCounter(HardwareCounter, 1);
+#endif /* #if (ALARMS_COUNT != 0) */
 }
 
 void OSEK_ISR_HWTimer1(void)
 {
-	CounterInterrupt(1);
+#if (defined HWCOUNTER1)
+#if (ALARMS_COUNT != 0)
+   IncrementCounter(HWCOUNTER1, 1);
+#endif /* #if (ALARMS_COUNT != 0) */
+#endif /* #if (defined HWCOUNTER1) */
 }
 
-void PosixInterruptHandler(int status)
+void WinInterruptHandler(int signal)
 {
-	uint8 Msg;
-	sint8 ret;
+   uint8 interrupt;
 
-	ret = ReceiveMessage(MessageQueue, &Msg);
-	if (ret)
-	{
-		if (Msg < 32)
-		{
-			/* printf("Interrupt: %d\n",msg[0]); */
-			if ( (InterruptState) &&
-				  ( (InterruptMask & (1 << Msg ) )  == 0 ) )
-			{
-				InterruptTable[Msg]();
-			}
-			else
-			{
-				InterruptFlag |= 1 << Msg;
-			}
-		}
+   if (SIGCHLD == signal)
+   {
+      /* kill process */
+      wait(NULL);
+   }
 
-	}
+   /* repeat until the buffer is empty */
+   while(!ciaaLibs_circBufEmpty(OSEK_IntCircBuf))
+   {
+      /* read one interrupt */
+      ciaaLibs_circBufGet(OSEK_IntCircBuf, &interrupt, 1);
+
+      /* only 0 .. 31 interrupts are allowed */
+      if (32 > interrupt)
+      {
+#if 0
+         printf("Interrupt: %d\n",interrupt);
+#endif
+         if ( (InterruptState) &&
+               ( (InterruptMask & (1 << interrupt ) )  == 0 ) )
+         {
+            InterruptTable[interrupt]();
+         }
+         else
+         {
+            InterruptFlag |= 1 << interrupt;
+         }
+      }
+   }
+
 }
 
 void HWTimerFork(uint8 timer)
 {
-	char Msg;
-	struct timespec rqtp;
-	pid_t ppid;
+   struct timespec rqtp;
+   uint8 interrupt;
 
-	ppid = getppid();
-	MessageQueueType *MessageQueue;
+   if (timer <= 2)
+   {
+      /* intererupt every
+       * 0 seconds and
+       * 10 ms */
+      rqtp.tv_sec=0;
+      rqtp.tv_nsec=1000000;
 
-	MessageQueue = (MessageQueueType*) shmat(SharedMemory, NULL, 0);
+      while(1)
+      {
+         /* sleep */
+         nanosleep(&rqtp,NULL);
 
-	if (timer <= 2)
-	{
-		Msg = timer + 4;
+         /* the timer interrupt is the interrupt 4 */
+         interrupt = 4;
 
-		rqtp.tv_sec=0;
-   	rqtp.tv_nsec=1000000;
+         /* add simulated interrupt to the interrupt queue */
+         ciaaLibs_circBufPut(OSEK_IntCircBuf, &interrupt, 1);
 
-		while(1)
-		{
-			SendMessage(MessageQueue, Msg);
-			kill(ppid, SIGUSR1);
-			nanosleep(&rqtp,NULL);
-		}
-	}
-
-	exit(0);
+         /* indicate interrupt using a signal */
+         kill(getppid(), SIGALRM);
+      }
+   }
+   exit(0);
 }
 
 void OsekKillSigHandler(int status)
 {
-	exit(0);
+   PreCallService();
+   mq_unlink("/FreeOSEK");
+   exit(0);
+   PostCallService();
 }
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
