@@ -162,6 +162,8 @@ typedef uint16_t			uint16;
 typedef int32_t			sint32;
 /** \brief default unsigned 32 bits integer type definition */
 typedef uint32_t			uint32;
+/** \brief default unsigned 64 bits integer type definition */
+typedef uint64_t		uint64;
 
 /** \brief default signed 8 bits fast integer type definition */
 typedef int_least8_t		sint8_least;

@@ -67,7 +67,6 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaLibs_CircBuf.h"
 //#include "ucontext.h"	/* used to task changes */
-#include "mqueue.h"		/* used to simulate interrupts */
 #include "errno.h"		/* used to read errno */
 #include "stdio.h"		/* used to print debug information */
 #include "signal.h"		/* used to simulate interrupts */
@@ -328,25 +327,6 @@
  **/
 extern InterruptFlagsType InterruptFlag;
 
-/** \brief Message Queue
- **/
-extern mqd_t MessageQueue;
-
-/** \brief Message Queue Attributes
- **/
-extern struct mq_attr MessageQueueAttr;
-
-/** \brief Message Signal
- **/
-extern struct sigaction MessageSignal;
-
-/** \brief Kill Signal
- **/
-extern struct sigaction KillSignal;
-
-/** \brief Signal Event
- **/
-extern struct sigevent SignalEvent;
 
 /** \brief Osek Hardware Timer 0
  **/

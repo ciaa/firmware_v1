@@ -154,7 +154,8 @@ $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Creating library $(1)
-	$(AR) -rcs -o $(LIB_DIR)$(DS)$(strip $(1)).a $(foreach obj,$(2),$(OBJ_DIR)$(DS)$(obj))
+	#$(AR) -rcs -o $(LIB_DIR)$(DS)$(strip $(1)).a $(foreach obj,$(2),$(OBJ_DIR)$(DS)$(obj))
+	$(AR) -crs $(LIB_DIR)$(DS)$(strip $(1)).a $(foreach obj,$(2),$(OBJ_DIR)$(DS)$(obj))
 	@echo ' '
 endef
 
