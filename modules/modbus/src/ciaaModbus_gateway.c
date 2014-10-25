@@ -70,6 +70,9 @@
 /** \brief Total clients by gateway */
 #define CIAA_MODBUS_GATEWAY_TOTAL_CLIENTS    2
 
+/** \brief Limit consecutive calls to ciaaModbus_gatewayClientProcess */
+#define CIAA_MODBUS_GATEWAY_LIMIT_CALLS      5
+
 /** \brief state of client in gateway */
 typedef enum
 {
@@ -402,17 +405,22 @@ extern void ciaaModbus_gatewayMainTask(
       int32_t hModbusGW)
 {
    uint32_t loopi;
+   uint32_t countCall;
    int32_t ret;
 
    for (loopi = 0 ; loopi < CIAA_MODBUS_GATEWAY_TOTAL_CLIENTS ; loopi++)
    {
+      countCall = 0;
+
       do
       {
          ret = ciaaModbus_gatewayClientProcess(
                &ciaaModbus_gatewayObj[hModbusGW].client[loopi],
                ciaaModbus_gatewayObj[hModbusGW].server);
 
-      }while (ret > 0);
+         countCall++;
+
+      }while ( (ret > 0) && (countCall < CIAA_MODBUS_GATEWAY_LIMIT_CALLS) );
    }
 }
 
