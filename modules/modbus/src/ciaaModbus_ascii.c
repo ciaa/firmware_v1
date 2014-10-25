@@ -61,15 +61,15 @@
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_stdbool.h"
-#include "os.h"
 
 /*==================[macros and definitions]=================================*/
 
 /** \brief Modbus ASCII Object type */
 typedef struct
 {
-   bool inUse;                         /** <- Object in use */
-   int32_t fildes;                     /** <- File descriptor */
+   bool inUse;                                  /** <- Object in use */
+   int32_t fildes;                              /** <- File descriptor */
+   uint8_t buffer[CIAAMODBUS_ASCII_MAXLENGHT];  /** <- buffer */
 }ciaaModbus_asciiObjType;
 
 
@@ -301,42 +301,6 @@ extern int32_t ciaaModbus_ascii_read(int32_t fildes, uint8_t * buf)
 
 } /* end ciaaModbus_ascii_read */
 
-extern void ciaaModbus_ascii_write(int32_t fildes, uint8_t * buf, int32_t len)
-{
-   int32_t loopi, lenAscii;
-   uint32_t upper, lower;
-
-   /* Add LRC at end and increment len */
-   buf[len] = ciaaModbus_calcLRC(buf, len);
-   len++;
-
-   /* Verify correct len */
-   if (CIAAMODBUS_ASCII_MAXLENGHT >= (len * 2 + 3))
-   {
-      /* Convert to ASCII */
-      for (loopi = len ; loopi > 0 ; loopi--)
-      {
-         upper = (buf[loopi-1] >> 4) & 0x0F;
-         lower = (buf[loopi-1] >> 0) & 0x0F;
-
-         buf[loopi * 2 - 1] = ciaaModbus_binToAsciiTable[upper];
-         buf[loopi * 2 - 0] = ciaaModbus_binToAsciiTable[lower];
-      }
-
-      /* Add start character and increment len */
-      buf[0] = CIAAMODBUS_ASCII_START;
-      lenAscii = len * 2 + 1;
-
-      /* Add CRLF at end and increment len */
-      buf[lenAscii] = CIAAMODBUS_ASCII_END_1;
-      lenAscii++;
-      buf[lenAscii] = CIAAMODBUS_ASCII_END_2;
-      lenAscii++;
-
-      ciaaPOSIX_write(fildes, buf, lenAscii);
-   }
-
-}
 
 extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len)
 {
@@ -406,9 +370,6 @@ extern int32_t ciaaModbus_asciiOpen(int32_t fildes)
    /* initialize handler with valid value */
    hModbusAscii = 0;
 
-   /* enter critical section */
-   GetResource(MODBUSR);
-
    /* search a modbus ascii Object not in use */
    while ( (hModbusAscii < CIAA_MODBUS_TOTAL_TRANSPORT_ASCII) &&
            (ciaaModbus_asciiObj[hModbusAscii].inUse == true) )
@@ -430,14 +391,77 @@ extern int32_t ciaaModbus_asciiOpen(int32_t fildes)
       hModbusAscii = -1;
    }
 
-   /* exit critical section */
-   ReleaseResource(MODBUSR);
-
    return hModbusAscii;
 }
 
+extern void ciaaModbus_asciiTask(int32_t handler)
+{
 
+}
 
+extern void ciaaModbus_asciiRecvMsg(
+      int32_t handler,
+      uint8_t *id,
+      uint8_t *pdu,
+      uint32_t *size)
+{
+
+}
+
+void ciaaModbus_asciiSendMsg(
+      int32_t handler,
+      uint8_t id,
+      uint8_t *pdu,
+      uint32_t size)
+{
+   int32_t loopi, lenAscii;
+   uint32_t upper, lower;
+   uint8_t *buf;
+
+   buf = ciaaModbus_asciiObj[handler].buffer;
+
+   buf[0] = id;
+   for (loopi = 0 ; loopi < size ; loopi++)
+   {
+      buf[loopi+1] = pdu[loopi];
+   }
+
+   size++;
+
+   /* Add LRC at end and increment size */
+   buf[size] = ciaaModbus_calcLRC(buf, size);
+   size++;
+
+   /* Verify correct len */
+   if (CIAAMODBUS_ASCII_MAXLENGHT >= (size * 2 + 3))
+   {
+      /* Convert to ASCII */
+      for (loopi = size ; loopi > 0 ; loopi--)
+      {
+         upper = (buf[loopi-1] >> 4) & 0x0F;
+         lower = (buf[loopi-1] >> 0) & 0x0F;
+
+         buf[loopi * 2 - 1] = ciaaModbus_binToAsciiTable[upper];
+         buf[loopi * 2 - 0] = ciaaModbus_binToAsciiTable[lower];
+      }
+
+      /* Add start character and update lenAscii */
+      buf[0] = CIAAMODBUS_ASCII_START;
+      lenAscii = size * 2 + 1;
+
+      /* Add CRLF at end and increment lenAscii */
+      buf[lenAscii] = CIAAMODBUS_ASCII_END_1;
+      lenAscii++;
+      buf[lenAscii] = CIAAMODBUS_ASCII_END_2;
+      lenAscii++;
+
+      ciaaPOSIX_write(
+            ciaaModbus_asciiObj[handler].fildes,
+            buf,
+            lenAscii);
+   }
+
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
