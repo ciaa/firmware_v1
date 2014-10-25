@@ -71,9 +71,9 @@
 /** \brief Transport Object type */
 typedef struct
 {
-   bool inUse;                         /** <- Object in use */
    int32_t hModbusLowLayer;            /** <- Handler of low layer transport */
    ciaaModbus_transportModeEnum mode;  /** <- Transport Mode */
+   bool inUse;                         /** <- Object in use */
 }ciaaModbus_transportObjType;
 
 
