@@ -84,18 +84,6 @@
 /*==================[external data definition]===============================*/
 uint8	InterruptState;
 
-mqd_t MessageQueue;
-
-struct mq_attr MessageQueueAttr;
-
-struct sigaction MessageSignal;
-
-struct sigaction KillSignal;
-
-pid_t OsekProcessID;
-
-struct sigevent SignalEvent;
-
 uint32 OsekHWTimer0;
 
 InterruptFlagsType InterruptFlag;

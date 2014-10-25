@@ -100,7 +100,9 @@
  **/
 #define osekpause()			\
 {								\
+   PreCallService();    \
    (void)usleep(1); 		\
+   PostCallService();   \
 }
 
 /** \brief Call to an other Task

@@ -51,7 +51,7 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
@@ -61,27 +61,25 @@
  * 20090408 v0.1.2 Mace add ShutdownOs_Arch
  * 20090330 v0.1.2 MaCe update CallTask macro
  * 20090130 v0.1.1 MaCe remove std type definitions, now in Types.h
- * 20080725 v0.1.0 MaCe	initial version
+ * 20080725 v0.1.0 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaLibs_CircBuf.h"
-//#include "ucontext.h"	/* used to task changes */
-#include "mqueue.h"		/* used to simulate interrupts */
-#include "errno.h"		/* used to read errno */
-#include "stdio.h"		/* used to print debug information */
-#include "signal.h"		/* used to simulate interrupts */
-#include "unistd.h"		/* used to create a fork to poll the interrupts */
-#include "stdlib.h"		/* used to call exit to terminate the process */
-#include "time.h"			/* used to simulate the hardware timer */
+#include "stdio.h"      /* used to print debug information */
+#include "signal.h"     /* used to simulate interrupts */
+#include "unistd.h"     /* used to create a fork to poll the interrupts */
+#include "stdlib.h"     /* used to call exit to terminate the process */
+#include "time.h"       /* used to simulate the hardware timer */
 #include "string.h"     /* used to call the function strerror */
 
 /*==================[macros]=================================================*/
+
 /*==================[cputype macros]=========================================*/
 /** \brief win32 cputype definition */
-#define win32	1
+#define win32        1
 /** \brief win64 cputype definition */
-#define win64	2
+#define win64        2
 
 /** \brief Interrupt Secure Start Macro
  **
@@ -98,11 +96,11 @@
 /** \brief osekpause
  **
  **/
-#define osekpause()			\
-{							\
-   PreCallService();		\
-   (void)usleep(1); 		\
-   PostCallService();	    \
+#define osekpause()     \
+{                       \
+   PreCallService();    \
+   (void)usleep(1);     \
+   PostCallService();   \
 }
 
 /** \brief Jmp to an other Task
@@ -113,19 +111,19 @@
 #define JmpTask(task) \
 {                                                                                            \
    __asm__ __volatile__ ("movq %0, %%rsp;"                                                   \
-   "movq %2, %%rax;"                                                                         \
-   "movq %1, %%rbp;"                                                                         \
-   "jmp *%%rax;"                                                                             \
-      : :  "g" (TasksConst[(task)].TaskContext->tss_rsp), "g" (TasksConst[(task)].TaskContext->tss_rbp) , "g" (TasksConst[(task)].TaskContext->tss_rip) : "%rax"); \
+         "movq %2, %%rax;"                                                                         \
+         "movq %1, %%rbp;"                                                                         \
+         "jmp *%%rax;"                                                                             \
+         : :  "g" (TasksConst[(task)].TaskContext->tss_rsp), "g" (TasksConst[(task)].TaskContext->tss_rbp) , "g" (TasksConst[(task)].TaskContext->tss_rip) : "%rax"); \
 }
 #elif ( CPUTYPE == win32 )
 #define JmpTask(task) \
 {                                                                                            \
    __asm__ __volatile__ ("movl %0, %%esp;"                                                   \
-   "movl %2, %%eax;"                                                                         \
-   "movl %1, %%ebp;"                                                                         \
-   "jmp *%%eax;"                                                                             \
-      : :  "g" (TasksConst[(task)].TaskContext->tss_esp), "g" (TasksConst[(task)].TaskContext->tss_ebp) , "g" (TasksConst[(task)].TaskContext->tss_eip) : "%eax"); \
+         "movl %2, %%eax;"                                                                         \
+         "movl %1, %%ebp;"                                                                         \
+         "jmp *%%eax;"                                                                             \
+         : :  "g" (TasksConst[(task)].TaskContext->tss_esp), "g" (TasksConst[(task)].TaskContext->tss_ebp) , "g" (TasksConst[(task)].TaskContext->tss_eip) : "%eax"); \
 }
 #endif
 
@@ -204,12 +202,12 @@
 #if ( CPUTYPE == win64 )
 #define ResetStack(task)                                                                                              \
 {                                                                                                                     \
-      TasksConst[task].TaskContext->tss_rsp = (uint64)( TasksConst[task].StackPtr + TasksConst[task].StackSize - 8);  \
+   TasksConst[task].TaskContext->tss_rsp = (uint64)( TasksConst[task].StackPtr + TasksConst[task].StackSize - 8);  \
 }
 #elif ( CPUTYPE == win32 )
 #define ResetStack(task)                                                                                              \
 {                                                                                                                     \
-      TasksConst[task].TaskContext->tss_esp = (uint32)( TasksConst[task].StackPtr + TasksConst[task].StackSize - 4);  \
+   TasksConst[task].TaskContext->tss_esp = (uint32)( TasksConst[task].StackPtr + TasksConst[task].StackSize - 4);  \
 }
 #endif
 
@@ -218,15 +216,15 @@
 #define ISR_CANRX    2
 #define ISR_CANTX    3
 
-#define EnableOSInterrupts()															\
-	{																							\
-		InterruptMask &= (InterruptFlagsType)~(OSEK_OS_INTERRUPT_MASK);	\
-	}
+#define EnableOSInterrupts()                                            \
+{                                                                    \
+   InterruptMask &= (InterruptFlagsType)~(OSEK_OS_INTERRUPT_MASK);   \
+}
 
-#define EnableInterrupts()		\
-	{									\
-		InterruptState = 1;		\
-	}
+#define EnableInterrupts() \
+{                       \
+   InterruptState = 1;  \
+}
 
 /** \brief Get Counter Actual Value
  **
@@ -268,20 +266,20 @@
  ** This macro shall be called before calling any win system service
  **/
 #if ( CPUTYPE == win64 )
-#define PreCallService()      																  \
-{                                                                                             \
-   /* save osek stack */                                                                      \
-   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (OsekStack) : : "rax");  \
-   /* get win stack */                                                                        \
-   __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (WinStack) );                              \
+#define PreCallService()                                                                     \
+{                                                                                            \
+   /* save osek stack */                                                                     \
+   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (OsekStack) : : "rax"); \
+   /* get win stack */                                                                       \
+   __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (WinStack) );                             \
 }
 #elif ( CPUTYPE == win32 )
-#define PreCallService()      																  \
-{                                                                                             \
-   /* save osek stack */                                                                      \
-   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (OsekStack) : : "eax");  \
-   /* get win stack */                                                                        \
-   __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (WinStack) );                              \
+#define PreCallService()                                                                     \
+{                                                                                            \
+   /* save osek stack */                                                                     \
+   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (OsekStack) : : "eax"); \
+   /* get win stack */                                                                       \
+   __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (WinStack) );                             \
 }
 #endif
 
@@ -309,12 +307,11 @@
 
 /** \brief ShutdownOs Arch service
  **/
-#define	ShutdownOs_Arch()		\
-	{									\
-		PreCallService();			\
-		PostCallService();		\
-	}
-
+#define ShutdownOs_Arch()  \
+{                          \
+   PreCallService();       \
+   PostCallService();      \
+}
 
 /*==================[typedef]================================================*/
 
@@ -326,26 +323,6 @@
  ** activated, and so on.
  **/
 extern InterruptFlagsType InterruptFlag;
-
-/** \brief Message Queue
- **/
-extern mqd_t MessageQueue;
-
-/** \brief Message Queue Attributes
- **/
-extern struct mq_attr MessageQueueAttr;
-
-/** \brief Message Signal
- **/
-extern struct sigaction MessageSignal;
-
-/** \brief Kill Signal
- **/
-extern struct sigaction KillSignal;
-
-/** \brief Signal Event
- **/
-extern struct sigevent SignalEvent;
 
 /** \brief Osek Hardware Timer 0
  **/
