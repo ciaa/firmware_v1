@@ -72,7 +72,7 @@ typedef struct
 {
    bool inUse;                         /** <- Object in use */
    int32_t hModbusLowLayer;            /** <- Handler of low layer transport */
-   ciaaModbus_transportModeEnum mode; /** <- Transport Mode */
+   ciaaModbus_transportModeEnum mode;  /** <- Transport Mode */
 }ciaaModbus_transportObjType;
 
 
@@ -181,20 +181,76 @@ extern int32_t ciaaModbus_transportOpen(
    return hModbusTransport;
 }
 
-extern int32_t ciaaModbus_transportRecv(
-      int32_t hModTra,
-      uint8_t *buf,
-      uint32_t *len)
+
+extern void ciaaModbus_transportTask(int32_t handler)
 {
-   return 0;
+   switch (ciaaModbus_transportObj[handler].mode)
+   {
+      case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
+      case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
+         /* ciaaModbus_asciiTask(); */
+         break;
+
+      case CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER:
+      case CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE:
+         /* ciaaModbus_rtuTask(); */
+         break;
+
+      case CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER:
+      case CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE:
+         /* ciaaModbus_tcpTask() */
+         break;
+   }
 }
 
-extern int32_t ciaaModbus_transportSend(
-      int32_t hModTra,
-      uint8_t *buf,
-      uint32_t len)
+extern void ciaaModbus_transportRecvMsg(
+      int32_t handler,
+      uint8_t *id,
+      uint8_t *pdu,
+      uint32_t *size)
 {
-   return 0;
+   switch (ciaaModbus_transportObj[handler].mode)
+   {
+      case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
+      case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
+         /* ciaaModbus_asciiRecvMsg(); */
+         break;
+
+      case CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER:
+      case CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE:
+         /* ciaaModbus_rtuRecvMsg(); */
+         break;
+
+      case CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER:
+      case CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE:
+         /* ciaaModbus_tcpRecvMsg() */
+         break;
+   }
+}
+
+void ciaaModbus_transportSendMsg(
+      int32_t handler,
+      uint8_t id,
+      uint8_t *pdu,
+      uint32_t size)
+{
+   switch (ciaaModbus_transportObj[handler].mode)
+   {
+      case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
+      case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
+         /* ciaaModbus_asciiSendMsg(); */
+         break;
+
+      case CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER:
+      case CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE:
+         /* ciaaModbus_rtuSendMsg(); */
+         break;
+
+      case CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER:
+      case CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE:
+         /* ciaaModbus_tcpSendMsg() */
+         break;
+   }
 }
 
 /*==================[external functions definition]==========================*/
