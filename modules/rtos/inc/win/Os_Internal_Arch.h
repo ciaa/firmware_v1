@@ -141,7 +141,7 @@
    /* save actual rbp */                                                                                                                       \
    __asm__ __volatile__ ("movq %%rbp, %%rax; addq $96, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rbp) : : "%rax" ); \
    /* save return rip */                                                                                                                       \
-   __asm__ __volatile__ ("movl 8(%%rbp), %%rax; movq %%rax, %0" : "=g" (TasksConst[OldTask].TaskContext->tss_rip) : : "%rax");                 \
+   __asm__ __volatile__ ("movq 8(%%rbp), %%rax; movq %%rax, %0" : "=g" (TasksConst[OldTask].TaskContext->tss_rip) : : "%rax");                 \
    /* load new stack pointer */                                                                                                                \
    __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (TasksConst[NewTask].TaskContext->tss_rsp));                                                \
    /* load new rbp and jmp to the new task */                                                                                                  \
@@ -312,7 +312,6 @@
 #define	ShutdownOs_Arch()		\
 	{									\
 		PreCallService();			\
-		mq_unlink("/FreeOSEK");	\
 		PostCallService();		\
 	}
 

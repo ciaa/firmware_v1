@@ -205,7 +205,6 @@ void HWTimerFork(uint8 timer)
 void OsekKillSigHandler(int status)
 {
    PreCallService();
-   mq_unlink("/FreeOSEK");
    exit(0);
    PostCallService();
 }
