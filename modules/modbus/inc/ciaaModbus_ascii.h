@@ -98,7 +98,7 @@ extern "C" {
  */
 
 /** \brief Maximal length of a ascii modbus message */
-#define CIAAMODBUS_ASCII_MAXLENGHT  255
+#define CIAAMODBUS_ASCII_MAXLENGHT  512
 
 /** \brief Minimal length of a ascii modbus message */
 #define CIAAMODBUS_ASCII_MINLENGHT  9
@@ -176,6 +176,49 @@ extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len);
  **         >= 0 handler modbus
  **/
 extern int32_t ciaaModbus_asciiOpen(int32_t fildes);
+
+/** \brief CIAA Modbus ASCII task
+ **
+ ** This function perform task of modbus ascii:
+ **
+ ** \param[in] handler handler to perform task
+ ** \return
+ **/
+extern void ciaaModbus_asciiTask(int32_t handler);
+
+/** \brief Receive modbus message
+ **
+ ** This function receive a message
+ **
+ ** \param[in] handler handler in to recv msg
+ ** \param[out] id identification number of modbus message
+ ** \param[out] pdu buffer with stored pdu
+ ** \param[out] size size of pdu. If no valid message received
+ **             size must be less than 5
+ ** \return
+ **/
+extern void ciaaModbus_asciiRecvMsg(
+      int32_t handler,
+      uint8_t *id,
+      uint8_t *pdu,
+      uint32_t *size);
+
+/** \brief Send modbus message
+ **
+ ** This function send a message
+ **
+ ** \param[in] handler handler to send msg
+ ** \param[in] id identification number of modbus message
+ ** \param[in] pdu buffer with stored pdu
+ ** \param[in] size size of pdu
+ ** \return
+ **/
+void ciaaModbus_asciiSendMsg(
+      int32_t handler,
+      uint8_t id,
+      uint8_t *pdu,
+      uint32_t size);
+
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
