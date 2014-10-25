@@ -129,41 +129,47 @@ extern int32_t ciaaModbus_transportOpen(
       int32_t fildes,
       ciaaModbus_transportModeEnum mode);
 
-/** \brief Modbus Transport Receive
+/** \brief CIAA Modbus task transport
  **
- ** This function receive PDU on transport handler.
+ ** This function perform task of transport module:
  **
- ** \param[in] hModTra Handler Modbus Transport
- ** \param[out] buf with PDU received
- ** \param[out] len length of buffer.
- ** \return one of following values:
- **            CIAAMODBUS_TRANSPORT_RECV_NONE
- **            CIAAMODBUS_TRANSPORT_RECV_PROCCESING
- **            CIAAMODBUS_TRASNPORT_RECV_COMPLETE
- **
+ ** \param[in] handler handler to perform task
+ ** \return
  **/
-extern int32_t ciaaModbus_transportRecv(
-      int32_t hModTra,
-      uint8_t *buf,
-      uint32_t *len);
+extern void ciaaModbus_transportTask(int32_t handler);
 
-/** \brief Modbus Transport Send
+/** \brief Receive modbus message
  **
- ** This function send PDU on transport handler.
+ ** This function receive a message
  **
- ** \param[in] hModTra Handler Modbus Transport
- ** \param[in] buf with PDU to send
- ** \param[in] len length of buffer.
- ** \return one of following values:
- **            CIAAMODBUS_TRANSPORT_SEND_ERROR
- **            CIAAMODBUS_TRANSPORT_SEND_PROCESS
- **            CIAAMODBUS_TRANSPORT_SEND_COMPLETE
- **
+ ** \param[in] handler handler in to recv msg
+ ** \param[out] id identification number of modbus message
+ ** \param[out] pdu buffer with stored pdu
+ ** \param[out] size size of pdu. If no valid message received
+ **             size must be less than 5
+ ** \return
  **/
-extern int32_t ciaaModbus_transportSend(
-      int32_t hModTra,
-      uint8_t *buf,
-      uint32_t len);
+extern void ciaaModbus_transportRecvMsg(
+      int32_t handler,
+      uint8_t *id,
+      uint8_t *pdu,
+      uint32_t *size);
+
+/** \brief Send modbus message
+ **
+ ** This function send a message
+ **
+ ** \param[in] handler handler to send msg
+ ** \param[in] id identification number of modbus message
+ ** \param[in] pdu buffer with stored pdu
+ ** \param[in] size size of pdu
+ ** \return
+ **/
+void ciaaModbus_transportSendMsg(
+      int32_t handler,
+      uint8_t id,
+      uint8_t *pdu,
+      uint32_t size);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
