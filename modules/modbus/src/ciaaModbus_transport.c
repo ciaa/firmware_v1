@@ -57,6 +57,7 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaModbus_config.h"
 #include "ciaaModbus_transport.h"
+#include "ciaaModbus_ascii.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_stdbool.h"
 #include "os.h"
@@ -111,6 +112,7 @@ extern int32_t ciaaModbus_transportOpen(
       ciaaModbus_transportModeEnum mode)
 {
    int32_t hModbusTransport;
+   int32_t hModbusLowLayer;
 
    /* check parameter mode */
    if ( (mode == CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER) ||
@@ -136,31 +138,44 @@ extern int32_t ciaaModbus_transportOpen(
       /* if object available, use it */
       if (hModbusTransport < CIAA_MODBUS_TOTAL_TRANSPORTS)
       {
-         /* set object in use */
-         ciaaModbus_transportObj[hModbusTransport].inUse = true;
-
-         /* set low layer mode */
-         ciaaModbus_transportObj[hModbusTransport].mode = mode;
-
          switch (mode)
          {
             case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
             case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
-               /* ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer =
-               ciaaModbus_asciiOpen() */
+               /* open modbus ascii transport */
+               hModbusLowLayer = ciaaModbus_asciiOpen(fildes);
                break;
 
             case CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER:
             case CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE:
                /* ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer =
                ciaaModbus_rtuOpen() */
+               hModbusLowLayer = -1;
                break;
 
             case CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER:
             case CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE:
                /* ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer =
                ciaaModbus_tcpOpen() */
+               hModbusLowLayer = -1;
                break;
+         }
+         /* check if a valid low layer transport */
+         if (hModbusLowLayer >= 0)
+         {
+            /* set low layer transpor */
+            ciaaModbus_transportObj[hModbusTransport].hModbusLowLayer = hModbusLowLayer;
+
+            /* set object in use */
+            ciaaModbus_transportObj[hModbusTransport].inUse = true;
+
+            /* set low layer mode */
+            ciaaModbus_transportObj[hModbusTransport].mode = mode;
+         }
+         else
+         {
+            /* if invalid low layer transport, return invalid handler */
+            hModbusTransport = -1;
          }
       }
       else
