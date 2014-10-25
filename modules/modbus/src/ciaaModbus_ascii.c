@@ -57,12 +57,26 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaModbus_ascii.h"
 #include "ciaaModbus_transport.h"
+#include "ciaaModbus_config.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
+#include "ciaaPOSIX_stdbool.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
 
+/** \brief Modbus ASCII Object type */
+typedef struct
+{
+   bool inUse;                         /** <- Object in use */
+   int32_t fildes;                     /** <- File descriptor */
+}ciaaModbus_asciiObjType;
+
+
 /*==================[internal data declaration]==============================*/
+
+/** \brief Array of Modbus ASCII Object */
+static ciaaModbus_asciiObjType ciaaModbus_asciiObj[CIAA_MODBUS_TOTAL_TRANSPORT_ASCII];
 
 static const uint8_t ciaaModbus_binToAsciiTable[] =
    {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -387,7 +401,39 @@ extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len)
 
 extern int32_t ciaaModbus_asciiOpen(int32_t fildes)
 {
-   return 0;
+   int32_t hModbusAscii;
+
+   /* initialize handler with valid value */
+   hModbusAscii = 0;
+
+   /* enter critical section */
+   GetResource(MODBUSR);
+
+   /* search a modbus ascii Object not in use */
+   while ( (hModbusAscii < CIAA_MODBUS_TOTAL_TRANSPORT_ASCII) &&
+           (ciaaModbus_asciiObj[hModbusAscii].inUse == true) )
+   {
+      hModbusAscii++;
+   }
+
+   /* if object available, use it */
+   if (hModbusAscii < CIAA_MODBUS_TOTAL_TRANSPORT_ASCII)
+   {
+      /* set object in use */
+      ciaaModbus_asciiObj[hModbusAscii].inUse = true;
+
+      /* set low layer mode */
+      ciaaModbus_asciiObj[hModbusAscii].fildes = fildes;
+   }
+   else
+   {
+      hModbusAscii = -1;
+   }
+
+   /* exit critical section */
+   ReleaseResource(MODBUSR);
+
+   return hModbusAscii;
 }
 
 
