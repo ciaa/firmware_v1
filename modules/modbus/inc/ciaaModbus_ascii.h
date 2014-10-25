@@ -115,6 +115,13 @@ extern "C" {
 
 /*==================[external functions declaration]=========================*/
 
+/** \brief ciaaModbus_ascii initialization
+ **
+ ** Performs the initialization of the MODBUS ASCII
+ **
+ **/
+extern void ciaaModbus_asciiInit(void);
+
 /** \brief Init Modbus Ascii communication channel
  **
  ** \paran[in] fildes file descriptor serial port
