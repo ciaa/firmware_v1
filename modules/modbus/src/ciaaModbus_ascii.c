@@ -67,9 +67,10 @@
 /** \brief Modbus ASCII Object type */
 typedef struct
 {
-   bool inUse;                                  /** <- Object in use */
    int32_t fildes;                              /** <- File descriptor */
    uint8_t buffer[CIAAMODBUS_ASCII_MAXLENGHT];  /** <- buffer */
+   int32_t bufferSize;                          /** <- buffer size */
+   bool inUse;                                  /** <- Object in use */
 }ciaaModbus_asciiObjType;
 
 
@@ -78,37 +79,12 @@ typedef struct
 /** \brief Array of Modbus ASCII Object */
 static ciaaModbus_asciiObjType ciaaModbus_asciiObj[CIAA_MODBUS_TOTAL_TRANSPORT_ASCII];
 
-static const uint8_t ciaaModbus_binToAsciiTable[] =
+static const uint8_t ciaaModbus_binToAsciiTable[16] =
    {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
     'A', 'B', 'C', 'D', 'E', 'F'};
 
 
 /*==================[internal functions declaration]=========================*/
-/** \brief Receive the beggining of a ASCII Modbus Message
- **
- ** This function reads until the beggining of a modbus ascii
- ** is found.
- **
- ** \param[in] fildes file descriptor to read the data from
- ** \param[out] buf buffer to store the data, shall be at least
- **             CIAAMODBUS_ASCII_MAXLENGTH bytes long
- ** \return the length of the modbus ascii message
- **/
-static int32_t ciaaModbus_ascii_receiveFirst(int32_t fildes, uint8_t * buf);
-
-/** \brief Complete the reception of a ASCII Modbus Message
- **
- ** Check if the provided buffer has a complete ascii message. If not read the
- ** device to complete the ascii modbus message.
- **
- ** \param[in] fildes file descriptor to read the data from
- ** \param[out] buf buffer to store the data, shall be at least
- **             CIAAMODBUS_ASCII_MAXLENGTH bytes long
- ** \param[in] length length of the data already stored in the buffer
- ** \return the length of the modbus ascii message
- **/
-static int32_t ciaaModbus_ascii_completeReception(int32_t fildes,uint8_t * buf,
-      int8_t length);
 
 /*==================[internal data definition]===============================*/
 
@@ -149,159 +125,46 @@ static int32_t ciaaModbus_checkLRC(uint8_t * buf, int32_t len)
    return ret;
 }
 
-static int32_t ciaaModbus_ascii_receiveFirst(int32_t fildes, uint8_t * buf)
-{
-   int32_t begin;
-   int32_t read;
-   int32_t loopi;
-
-   /* read until the beginning of a ascii modbus is found */
-   do
-   {
-      /* set begin to an invalid value */
-      begin = -1;
-
-      /* max read CIAAMODBUS_ASCII_MAXLENGHT */
-      read = CIAAMODBUS_ASCII_MAXLENGHT;
-
-      /* no data, also read from device */
-      read = ciaaPOSIX_read(fildes, buf, read);
-
-      /* search for the begin of a modbus message */
-      for(loopi = 0; (loopi < read) && (-1 == begin); loopi++)
-      {
-         /* check for the begin of a ascii modbus message */
-         if (CIAAMODBUS_ASCII_START == buf[loopi])
-         {
-            begin = loopi;
-         }
-      }
-   } while (-1 == begin);
-
-   /* move the received part to the beginning of the buffer */
-   if (begin != 0)
-   {
-      for (loopi = begin; loopi < read; loopi ++)
-      {
-         buf[loopi-begin] = buf[loopi];
-      }
-   }
-
-   return read;
-} /* end ciaaModbus_ascii_receiveFirst */
-
-static int32_t ciaaModbus_ascii_completeReception(int32_t fildes, uint8_t * buf, int8_t length)
+/** \brief Check if Complete the reception of a ASCII Modbus Message
+ **
+ ** Check if the provided buffer has a complete ascii message.
+ **
+ ** \param[in] buf buffer
+ ** \param[in] length length of the data stored in the buffer
+ ** \return the length of the modbus ascii message
+ **         -1 if no complete message
+ **/
+static int32_t ciaaModbus_asciiCheckCompleteMsg(uint8_t * buf, int8_t length)
 {
    int32_t end;
    int32_t loopi;
-   int32_t sizeRead;
 
-   do
+   /* set end to an invalid value */
+   end = -1;
+
+   /* if the minimal bus length has been received */
+   if (CIAAMODBUS_ASCII_MINLENGHT < length)
    {
-      /* set end to an invalid value */
-      end = -1;
-
-      /* if the minimal bus length has been received */
-      if (CIAAMODBUS_ASCII_MINLENGHT < length)
+      /* search for the end of a modbus message */
+      for (loopi = CIAAMODBUS_ASCII_MINLENGHT-2;
+            (loopi < length -1) &&
+            (-1 == end);
+            loopi++)
       {
-         /* search for the end of a modbus message */
-         for (loopi = CIAAMODBUS_ASCII_MINLENGHT-2;
-               (loopi < length -1) &&
-               (-1 == end);
-               loopi++)
+         /* check if end has been found */
+         if ( (CIAAMODBUS_ASCII_END_1 == buf[loopi]) &&
+            (CIAAMODBUS_ASCII_END_2 == buf[loopi+1]) )
          {
-            /* check if end has been found */
-            if ( (CIAAMODBUS_ASCII_END_1 == buf[loopi]) &&
-               (CIAAMODBUS_ASCII_END_2 == buf[loopi+1]) )
-            {
-               /* set end position */
-               end = loopi + 2;
-            }
+            /* set end position */
+            end = loopi + 2;
          }
       }
-
-      /* if not ascii end found */
-      if (-1 == end)
-      {
-         /* and still place on the buffer */
-         if (CIAAMODBUS_ASCII_MAXLENGHT > length)
-         {
-            /* max read CIAAMODBUS_ASCII_MAXLENGHT - length */
-            sizeRead = CIAAMODBUS_ASCII_MAXLENGHT - length;
-
-            length += ciaaPOSIX_read(fildes, &buf[length], sizeRead);
-         }
-         else
-         {
-            /* the buffer is full, an ASCII message can not be so big,
-            * an invalid message has been received, the complete data
-            * will be ignored */
-            end = 0xFFFF;
-         }
-      }
-   } while (-1 == end);
+   }
 
    return end;
 } /* end ciaaModbus_ascii_completeReception */
 
 /*==================[external functions definition]==========================*/
-extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf)
-{
-   int32_t read;
-
-   do
-   {
-      /* start reading the modbus */
-      /* this functions reads the device until a start of modbus ascii is
-       * detected */
-      read = ciaaModbus_ascii_receiveFirst(fildes, buf);
-
-      /* this function check if the message is complete, if not continues reading
-       * the device until a complete modbus ascii message is available */
-      read = ciaaModbus_ascii_completeReception(fildes,
-         buf,
-         read);
-
-      /* complete reception returns 0xFFFF if an error occurs */
-   } while(0xFFFF == read);
-
-   /* return the length of the read buffer */
-   return read;
-
-} /* end ciaaModbus_ascii_receive */
-
-extern int32_t ciaaModbus_ascii_read(int32_t fildes, uint8_t * buf)
-{
-   int32_t len_ascii;
-   int32_t len_bin;
-   int32_t lrccheck;
-
-   do
-   {
-      /* read modbus ascii */
-      len_ascii = ciaaModbus_ascii_receive(fildes, buf);
-
-      /* convert to bin (not convert CRLF)*/
-      len_bin = ciaaModbus_ascii_ascii2bin(buf, len_ascii-2);
-
-      /* check lrc */
-      if (CIAAMODBUS_MSG_MINLENGTH <= len_bin)
-      {
-         lrccheck = ciaaModbus_checkLRC(buf, len_bin);
-         /* discard LRC */
-         len_bin--;
-      }
-
-      /* repeat while
-       * invalid lrc
-       * len_bin < CIAAMODBUS_MSG_MINLENGTH */
-   } while ( (CIAAMODBUS_MSG_MINLENGTH > len_bin) || (0 > lrccheck) );
-
-   return len_bin;
-
-} /* end ciaaModbus_ascii_read */
-
-
 extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len)
 {
    int32_t ret = 0;
@@ -385,6 +248,9 @@ extern int32_t ciaaModbus_asciiOpen(int32_t fildes)
 
       /* set low layer mode */
       ciaaModbus_asciiObj[hModbusAscii].fildes = fildes;
+
+      /* empty buffer */
+      ciaaModbus_asciiObj[hModbusAscii].bufferSize = 0;
    }
    else
    {
@@ -396,7 +262,65 @@ extern int32_t ciaaModbus_asciiOpen(int32_t fildes)
 
 extern void ciaaModbus_asciiTask(int32_t handler)
 {
+   int32_t begin;
+   int32_t read;
+   int32_t loopi;
 
+   uint8_t *buf;
+
+   /* set pointer to buffer */
+   buf = ciaaModbus_asciiObj[handler].buffer;
+
+   /* set begin to an invalid value */
+   begin = -1;
+
+   /* max read */
+   read = CIAAMODBUS_ASCII_MAXLENGHT -
+         ciaaModbus_asciiObj[handler].bufferSize;
+
+   /* read from device */
+   read = ciaaPOSIX_read(
+         ciaaModbus_asciiObj[handler].fildes,
+         &buf[ciaaModbus_asciiObj[handler].bufferSize],
+         read);
+
+   /* if received data process */
+   if (read > 0)
+   {
+      /* search for START character */
+      for (loopi = 0 ; (loopi < read) && (-1 == begin) ; loopi++)
+      {
+         /* check for the begin of a ascii modbus message */
+         if (CIAAMODBUS_ASCII_START == buf[loopi+ciaaModbus_asciiObj[handler].bufferSize])
+         {
+            begin = loopi+ciaaModbus_asciiObj[handler].bufferSize;
+         }
+      }
+
+      /* move the received part to the beginning of the buffer */
+      if (begin > 0)
+      {
+         for (loopi = begin; loopi < read; loopi++)
+         {
+            buf[loopi-begin] = buf[loopi];
+         }
+
+         /* set new buffer size */
+         ciaaModbus_asciiObj[handler].bufferSize = read;
+      }
+      else
+      {
+         /* increment buffer size */
+         ciaaModbus_asciiObj[handler].bufferSize += read;
+
+         /* checks if the maximum size reached */
+         if (ciaaModbus_asciiObj[handler].bufferSize == CIAAMODBUS_ASCII_MAXLENGHT)
+         {
+            /* if reached discards all data */
+            ciaaModbus_asciiObj[handler].bufferSize = 0;
+         }
+      }
+   }
 }
 
 extern void ciaaModbus_asciiRecvMsg(
@@ -405,7 +329,53 @@ extern void ciaaModbus_asciiRecvMsg(
       uint8_t *pdu,
       uint32_t *size)
 {
+   int32_t loopi;
+   int32_t len_ascii;
+   int32_t len_bin;
 
+   len_ascii = ciaaModbus_asciiCheckCompleteMsg(
+         ciaaModbus_asciiObj[handler].buffer,
+         ciaaModbus_asciiObj[handler].bufferSize);
+
+   if (len_ascii > 0)
+   {
+      /* empty buffer for the upcoming receptions */
+      ciaaModbus_asciiObj[handler].bufferSize = 0;
+
+      /* convert to bin (not convert CRLF)*/
+      len_bin = ciaaModbus_ascii_ascii2bin(
+            ciaaModbus_asciiObj[handler].buffer,
+            len_ascii-2);
+
+      /* check lrc */
+      if ( ciaaModbus_checkLRC(
+           ciaaModbus_asciiObj[handler].buffer,
+           len_bin) )
+      {
+         /* discard LRC */
+         len_bin--;
+
+         /* copy pdu */
+         for (loopi = 0 ; loopi < len_bin ; loopi++)
+         {
+            pdu[loopi] = ciaaModbus_asciiObj[handler].buffer[loopi+1];
+         }
+
+         /* copy id */
+         *id = ciaaModbus_asciiObj[handler].buffer[0];
+
+         /* copy size */
+         *size = len_bin - 1;
+      }
+      else
+      {
+         *size = 0;
+      }
+   }
+   else
+   {
+      *size = 0;
+   }
 }
 
 void ciaaModbus_asciiSendMsg(
@@ -418,14 +388,19 @@ void ciaaModbus_asciiSendMsg(
    uint32_t upper, lower;
    uint8_t *buf;
 
+   /* set pointer to buffer */
    buf = ciaaModbus_asciiObj[handler].buffer;
 
+   /* copy id */
    buf[0] = id;
+
+   /* copy pdu */
    for (loopi = 0 ; loopi < size ; loopi++)
    {
       buf[loopi+1] = pdu[loopi];
    }
 
+   /* increment size to include id */
    size++;
 
    /* Add LRC at end and increment size */
@@ -460,7 +435,6 @@ void ciaaModbus_asciiSendMsg(
             buf,
             lenAscii);
    }
-
 }
 
 /** @} doxygen end group definition */
