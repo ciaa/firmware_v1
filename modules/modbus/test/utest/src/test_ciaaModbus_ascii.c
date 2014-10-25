@@ -83,6 +83,8 @@ static stubType read_stub;
 
 static writeStubType write_stub;
 
+static int32_t hModbusAscii;
+
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -97,6 +99,9 @@ void setUp(void)
 {
    ciaaPOSIX_read_init();
    ciaaPOSIX_write_init();
+
+   ciaaModbus_asciiInit();
+   hModbusAscii = ciaaModbus_asciiOpen(1);
 }
 
 /** \brief tear Down function
@@ -471,6 +476,34 @@ void test_ciaaModbus_ascii_ascii2bin_03(void)
    TEST_ASSERT_EQUAL_INT(-1, lenout[0]);
 }
 
+
+/** \brief test ciaaModbus_ascii_read */
+void test_ciaaModbus_ascii_read_01(void) {
+   int32_t read;
+   int8_t buf[500];
+   int8_t msgAscii[] = ":00010203040506070809";
+   int8_t msgBin[100];
+   int32_t lenMsgBin;
+
+   /* set stub callback */
+   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
+   memset(buf, 0, sizeof(buf));
+
+   /* obtain msg in binary */
+   lenMsgBin = tst_convert2bin(msgBin, msgAscii, strlen(msgAscii));
+
+   /* set input buffer */
+   ciaaPOSIX_read_add(msgAscii, 1, 1);
+
+   ciaaModbus_asciiTask(hModbusAscii);
+
+   /* receive data */
+   ciaaModbus_asciiRecvMsg(hModbusAscii, &buf[0], &buf[1], &read);
+
+   /* check received data */
+   TEST_ASSERT_EQUAL_INT8_ARRAY(msgBin, buf, lenMsgBin);
+   TEST_ASSERT_EQUAL_INT(lenMsgBin, read+1);
+}
 
 
 /** @} doxygen end group definition */
