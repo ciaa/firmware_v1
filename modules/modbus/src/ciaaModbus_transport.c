@@ -203,7 +203,7 @@ extern void ciaaModbus_transportTask(int32_t handler)
    {
       case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
       case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
-         /* ciaaModbus_asciiTask(); */
+         ciaaModbus_asciiTask(ciaaModbus_transportObj[handler].hModbusLowLayer);
          break;
 
       case CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER:
@@ -228,7 +228,11 @@ extern void ciaaModbus_transportRecvMsg(
    {
       case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
       case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
-         /* ciaaModbus_asciiRecvMsg(); */
+         ciaaModbus_asciiRecvMsg(
+               ciaaModbus_transportObj[handler].hModbusLowLayer,
+               id,
+               pdu,
+               size);
          break;
 
       case CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER:
@@ -253,7 +257,11 @@ void ciaaModbus_transportSendMsg(
    {
       case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
       case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
-         /* ciaaModbus_asciiSendMsg(); */
+         ciaaModbus_asciiSendMsg(
+               ciaaModbus_transportObj[handler].hModbusLowLayer,
+               id,
+               pdu,
+               size);
          break;
 
       case CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER:
