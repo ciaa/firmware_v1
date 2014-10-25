@@ -156,29 +156,7 @@ extern int32_t ciaaModbus_slaveOpen(
 
 extern void ciaaModbus_slaveTask(int32_t hModbusSlave)
 {
-/*  int32_t ret;
-   uint32_t len;
 
-   ret = ciaaModbus_transportRecv(
-         handlerModTra,
-         buffer
-         &len);
-
-   if (ret == CIAAMODBUS_TRASNPORT_RECV_COMPLETE)
-   {
-      if (buffer[0] == CIAA_BLINKING_MODBUS_ID)
-      {
-         len = ciaaModbus_slaveProcess(
-               &buffer[1],
-               &callbacksStruct);
-
-         ciaaModbus_transportSend(
-               handlerModTra,
-               buffer,
-               len+1);
-      }
-   }
-   */
 }
 
 
