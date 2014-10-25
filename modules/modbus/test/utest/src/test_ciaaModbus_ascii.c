@@ -55,6 +55,7 @@
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaModbus_ascii.h"
+#include "string.h"
 
 /*==================[macros and definitions]=================================*/
 /** \brief Type for the stub read functions */
@@ -477,8 +478,8 @@ void test_ciaaModbus_ascii_ascii2bin_03(void)
 }
 
 
-/** \brief test ciaaModbus_ascii_read */
-void test_ciaaModbus_ascii_read_01(void) {
+/** \brief test ciaaModbus_asciiRecvMsg*/
+void test_ciaaModbus_asciiRecvMsg_01(void) {
    int32_t read;
    int8_t buf[500];
    int8_t msgAscii[] = ":00010203040506070809";
@@ -505,6 +506,58 @@ void test_ciaaModbus_ascii_read_01(void) {
    TEST_ASSERT_EQUAL_INT(lenMsgBin, read+1);
 }
 
+/** \brief test ciaaModbus_asciiSendMsg */
+void test_ciaaModbus_asciiSendMsg_01(void)
+{
+   int32_t fildes = 1;
+   uint8_t buf[10][2][500];
+   int32_t lenin[10];
+   int32_t lenout[10];
+
+   /* set stub callback */
+   ciaaPOSIX_write_StubWithCallback(ciaaPOSIX_write_stub);
+   ciaaPOSIX_memcpy_StubWithCallback(memcpy);
+
+   strcpy(buf[0][0],
+         ":0001020304050607");
+        /*012345678901234567890123456789012345678901234567890123456789*/
+        /*          1         2         3         4         5         */
+   strcpy(buf[1][0],
+         ":000102030405060712AF3DA1");
+        /*012345678901234567890123456789012345678901234567890123456789*/
+        /*          1         2         3         4         5         */
+
+   /* set input buffer */
+   lenin[0] = tst_asciipdu(buf[0][0], 1, 1);
+   lenin[1] = tst_asciipdu(buf[1][0], 1, 1);
+
+   /* copy the buffer */
+   strcpy(buf[0][1], buf[0][0]);
+   strcpy(buf[1][1], buf[1][0]);
+
+   /* convert to binary. LRC and CRLF no converted to binary*/
+   lenout[0] = tst_convert2bin(buf[0][1], buf[0][1], lenin[0] - 4);
+   lenout[1] = tst_convert2bin(buf[1][1], buf[1][1], lenin[1] - 4);
+
+   /* transmit binary */
+   ciaaModbus_asciiSendMsg(
+         hModbusAscii,
+         buf[0][1][0],
+         &buf[0][1][1],
+         lenout[0]-1);
+
+   ciaaModbus_asciiSendMsg(
+            hModbusAscii,
+            buf[1][1][0],
+            &buf[1][1][1],
+            lenout[1]-1);
+
+   TEST_ASSERT_EQUAL_INT(2, write_stub.count);
+   TEST_ASSERT_EQUAL_INT(lenin[0], write_stub.len[0]);
+   TEST_ASSERT_EQUAL_INT(lenin[1], write_stub.len[1]);
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[0][0], write_stub.buf[0], lenin[0]);
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[1][0], write_stub.buf[1], lenin[1]);
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
