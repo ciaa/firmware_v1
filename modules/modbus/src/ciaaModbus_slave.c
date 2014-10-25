@@ -69,9 +69,9 @@
 
 typedef struct
 {
-   bool inUse;
    const ciaaModbus_slaveCmd_type *cmd;
    uint8_t id;
+   bool inUse;
 }ciaaModbus_slaveObj_type;
 
 

@@ -119,13 +119,10 @@ typedef void (*ciaaModbus_sendMsgType)(int32_t handler, uint8_t id, uint8_t *pdu
 /** \brief Client Modbus type */
 typedef struct
 {
-   bool inUse;                         /** <- Object in use                  */
    int32_t handler;                    /** <- handler of module (slave, master,
                                               transport)                     */
-   ciaaModbus_clientStateEnum state;   /** <- State of client */
    uint8_t buffer[256];                /** <- buffer to store modbus message
                                               received TODO: use macro       */
-   uint8_t id;                         /** <- id of message received         */
    uint32_t size;                      /** <- size of message received       */
    int32_t indexServer;                /** <- index server to send message   */
    ciaaModbus_taskType task;           /** <- function task of module (master,
@@ -134,22 +131,25 @@ typedef struct
                                               (master, transport)            */
    ciaaModbus_sendMsgType sendMsg;     /** <- function sendMsg of module
                                               (master, transport)            */
+   ciaaModbus_clientStateEnum state;   /** <- State of client */
+   uint8_t id;                         /** <- id of message received         */
+   bool inUse;                         /** <- Object in use                  */
 }ciaaModbus_gatewayClientType;
 
 /** \brief Server Modbus type */
 typedef struct
 {
-   bool inUse;                         /** <- Object in use                  */
    int32_t handler;                    /** <- handler of module (slave,
                                               transport)                     */
-   bool busy;                          /** <- indicate slave busy */
-   uint8_t id;                         /** <- id of slave, 0 if it transport */
    ciaaModbus_taskType task;           /** <- function task of module (master,
                                               transport)                     */
    ciaaModbus_recvMsgType recvMsg;     /** <- function recvMsg of module
                                               (master, transport)            */
    ciaaModbus_sendMsgType sendMsg;     /** <- function sendMsg of module
                                               (master, transport)            */
+   uint8_t id;                         /** <- id of slave, 0 if it transport */
+   bool inUse;                         /** <- Object in use                  */
+   bool busy;                          /** <- indicate slave busy */
 }ciaaModbus_gatewayServerType;
 
 
