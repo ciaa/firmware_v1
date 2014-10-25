@@ -219,16 +219,38 @@ extern int32_t ciaaModbus_slaveClose(
 extern void ciaaModbus_slaveTask(int32_t hModbusSlave);
 
 
-/** \brief Process modbus request
+/** \brief Receive modbus message
  **
- ** \param[inout] buf buffer with the modbus data
- ** \param[in] cmd pointer to struct call backs modbus function
- ** \return length of data on the buffer
+ ** This function receive a message from slave
+ **
+ ** \param[in] handler handler to recv msg
+ ** \param[out] id identification number of modbus message
+ ** \param[out] pdu buffer with stored pdu
+ ** \param[out] size size of pdu. If no valid message received
+ **             size must be less than 5
+ ** \return
  **/
-extern int32_t ciaaModbus_slaveProcess(
-   uint8_t * buf,
-   const ciaaModbus_slaveCmd_type *cmd
-   );
+void ciaaModbus_slaveRecvMsg(
+      int32_t handler,
+      uint8_t *id,
+      uint8_t *pdu,
+      uint32_t *size);
+
+/** \brief Send modbus message
+ **
+ ** This send a message to slave
+ **
+ ** \param[in] handler handler to send msg
+ ** \param[in] id identification number of modbus message
+ ** \param[in] pdu buffer with stored pdu
+ ** \param[in] size size of pdu
+ ** \return
+ **/
+void ciaaModbus_slaveSendMsgType(
+      int32_t handler,
+      uint8_t id,
+      uint8_t *pdu,
+      uint32_t size);
 
 
 /*==================[cplusplus]==============================================*/
