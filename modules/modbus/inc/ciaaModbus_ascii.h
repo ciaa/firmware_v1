@@ -114,61 +114,6 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Read ascii modbus pdu and convert to bin
- **
- ** \param[in] fildes file descriptor to read the data from
- ** \param[out] buf buffer to write the data, shall be at least
- **             CIAAMODBUS_ASCII_MAXLENGTH bytes long
- ** \return the length of the received modbus pdu (in bin format) in bytes
- **/
-extern int32_t ciaaModbus_ascii_read(int32_t fildes, uint8_t * buf);
-
-/** \brief Write ascii modbus pdu and convert to bin
- **
- ** \param[in] fildes file descriptor to read the data from
- ** \param[in] buf buffer to write the data
- ** \param[in] len lenght of the buffer
- ** \return the length of the received modbus pdu (in bin format) in bytes
- **/
-extern void ciaaModbus_ascii_write(int32_t fildes, uint8_t * buf, int32_t len);
-
-/** \brief Receive a ASCII Modbus Message
- **
- ** \param[in] fildes file descriptor to read the data from
- ** \param[out] buf buffer to store the data, shall be at least
- **             CIAAMODBUS_ASCII_MAXLENGTH bytes long
- ** \return the length of the modbus ascii message
- **
- ** \remarks This function shall not be called from outside this file.
- **          Is not static due to the tests.
- **/
-extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf);
-
-/** \brief Convert Modbus bin to ascii
- **
- ** This function convert a modbus bin to ascii.
- **
- ** \param[in] length length of the buffer to be converted
- ** \param[inout] buf pointer to the bin buffer to be converted
- **
- ** \remarks This function shall not be called from outside this file.
- **          Is not static due to the tests.
- **/
-extern void ciaaModbus_bin2ascii(uint8_t length, uint8_t * buf);
-
-/** \brief Convert received ascii data to bin
- **
- ** \param[inout] buf input ascii buffer starting with : and without CRLF
- **               and output bin buffer
- ** \para[in] len length of the ascii buffer
- ** \return -1 if error, lenght of the binary data
- **
- ** \remarks This function shall not be called from outside this file.
- **          Is not static due to the tests.
- **/
-extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len);
-
-
 /** \brief Init Modbus Ascii communication channel
  **
  ** \paran[in] fildes file descriptor serial port
