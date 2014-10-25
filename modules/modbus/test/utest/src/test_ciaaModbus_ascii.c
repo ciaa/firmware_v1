@@ -57,12 +57,31 @@
 #include "ciaaModbus_ascii.h"
 
 /*==================[macros and definitions]=================================*/
+/** \brief Type for the stub read functions */
+typedef struct {
+   int32_t fildes;         /** <= Check for this descriptor */
+   int8_t buf[500];        /** <= ascii buffer */
+   int32_t totalLength;    /** <= total data length */
+   int8_t length[500];     /** <= count of bytes to be returned in each call */
+   int32_t count;          /** <= count the count of calls */
+} stubType;
+
+typedef struct {
+   int32_t fildes;
+   uint8_t buf[10][500];
+   int32_t len[10];
+   int32_t count;
+} writeStubType;
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
+static int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc);
 
 /*==================[internal data definition]===============================*/
+static stubType read_stub;
+
+static writeStubType write_stub;
 
 /*==================[external data definition]===============================*/
 
@@ -76,6 +95,8 @@
  **/
 void setUp(void)
 {
+   ciaaPOSIX_read_init();
+   ciaaPOSIX_write_init();
 }
 
 /** \brief tear Down function
@@ -91,6 +112,364 @@ void doNothing(void)
 {
 }
 
+/**** Helper Functions ****/
+
+/** \brief Init posix write stub */
+void ciaaPOSIX_write_init(void)
+{
+   int32_t loopi, loopj;
+
+   write_stub.fildes = 0;
+   write_stub.count = 0;
+
+   for(loopi = 0; loopi < 10; loopi++)
+   {
+      write_stub.len[loopi] = 0;
+      for(loopj = 0; loopj < 500; loopj++)
+      {
+         write_stub.buf[loopi][loopj] = 0xA5;
+      }
+   }
+}
+
+/** \brief Init posix read stub */
+void ciaaPOSIX_read_init(void)
+{
+   int32_t loopi;
+
+   read_stub.fildes = 0;
+   read_stub.totalLength = 0;
+   read_stub.count = 0;
+
+   for(loopi = 0; loopi < sizeof(read_stub.buf); loopi++)
+   {
+      read_stub.buf[loopi] = 0;
+   }
+
+   for(loopi = 0; loopi < sizeof(read_stub.length); loopi++)
+   {
+      read_stub.length[loopi] = 0;
+   }
+}
+
+/** \brief Add data to posix stub read buffer
+ **
+ ** \param[in] data pointer containing the data
+ ** \param[in] addEnd see table below
+ ** \param[in] addLrc see table below
+ **
+ ** +--------+--------+-----------------------------------------------------+
+ ** | addEnd | addLrc | description                                         |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   0    |   0    | data is used as is, no CR/LF is added at the end of |
+ ** |        |        | the message.                                        |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   0    |   1    | LRC is set in the position data[length-3/4]         |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   1    |   0    | CRLF is appended after data[length-1]               |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   1    |   1    | LRC and CRLF are appended after data[length-1]      |
+ ** +--------+--------+-----------------------------------------------------+
+ **
+ ** \return lenght of bytes written to the buffer
+ **/
+int32_t ciaaPOSIX_read_add(char * data, int8_t addEnd, int8_t addLrc)
+{
+   int32_t ret = 0;
+   int32_t loopi;
+   uint8_t lrc = 0;
+   uint8_t aux;
+   int32_t startpos = read_stub.totalLength;
+
+   memcpy(&read_stub.buf[startpos], data, strlen(data)+1);
+   ret = tst_asciipdu(&read_stub.buf[startpos], addEnd, addLrc);
+
+   read_stub.totalLength += ret;
+
+   return ret;
+} /* end ciaaPOSIX_read_add */
+
+ssize_t ciaaPOSIX_read_stub(int32_t fildes, void * buf, ssize_t nbyte)
+{
+   ssize_t ret;
+   ssize_t trans = 0;
+   int32_t loopi;
+
+   /* calculate the already transmitted length */
+   for(loopi = 0; loopi < read_stub.count; loopi++)
+   {
+      trans += read_stub.length[loopi];
+   }
+
+   /* length to be returned */
+   ret = read_stub.length[read_stub.count];
+   /* is 0 return the rest of the available data */
+   if (0 == ret)
+   {
+      ret = read_stub.totalLength - trans;
+   }
+
+   /* check that the buffer is big enought */
+   if (nbyte < ret)
+   {
+      /* force failed */
+      TEST_ASSERT_TRUE(0);
+   }
+
+   /* copy data to the modbus handler */
+   memcpy(buf, &read_stub.buf[trans], ret);
+
+   /* increment count */
+   read_stub.count++;
+
+   return ret;
+}
+
+ssize_t ciaaPOSIX_write_stub(int32_t fildes, void * buf, ssize_t nbyte)
+{
+   memcpy(write_stub.buf[write_stub.count], buf, nbyte);
+   write_stub.len[write_stub.count] = nbyte;
+   write_stub.count++;
+}
+
+/** \brief convert ascii to bin for the tests
+ **
+ ** \param[out] dst destination buffer in binary format
+ ** \param[in] src source buffer in ascii format starting with :
+ **                and without CRLF
+ ** \param[in] len length of the ascii buffer
+ ** \return lenght of the binary buffer
+ **
+ **/
+int32_t tst_convert2bin(uint8_t * dst, uint8_t * src, int32_t len)
+{
+   int32_t ret = 0;
+   int32_t loopi;
+   uint8_t aux;
+
+   for(loopi = 1; (loopi < len) && (-1 != ret); loopi++)
+   {
+      if ( ('0' <= src[loopi]) && ('9' >= src[loopi]) )
+      {
+         aux = (src[loopi] - '0') << 4;
+      } else if ( ('A' <= src[loopi]) && ('F' >= src[loopi]) )
+      {
+         aux = (src[loopi] - 'A' + 10)  << 4;
+      } else
+      {
+         ret = -2;
+      }
+
+      loopi++;
+
+      if ( ('0' <= src[loopi]) && ('9' >= src[loopi]) )
+      {
+         aux += (src[loopi] - '0');
+      } else if ( ('A' <= src[loopi]) && ('F' >= src[loopi]) )
+      {
+         aux += (src[loopi] - 'A' + 10);
+      } else
+      {
+         ret = -2;
+      }
+
+      *dst = aux;
+      dst++;
+
+      ret++;
+   }
+
+   return ret;
+}
+
+/** \brief Prepare ascii pdu
+ **
+ ** \param[in] buf pointer containing the data
+ ** \param[in] addEnd see table below
+ ** \param[in] addLrc see table below
+ **
+ ** +--------+--------+-----------------------------------------------------+
+ ** | addEnd | addLrc | description                                         |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   0    |   0    | data is used as is, no CR/LF is added at the end of |
+ ** |        |        | the message.                                        |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   0    |   1    | LRC is set in the position data[length-3/4]         |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   1    |   0    | CRLF is appended after data[length-1]               |
+ ** +--------+--------+-----------------------------------------------------+
+ ** |   1    |   1    | LRC and CRLF are appended after data[length-1]      |
+ ** +--------+--------+-----------------------------------------------------+
+ **
+ ** \return lenght of bytes written to the buffer
+ **/
+static int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc)
+{
+   int32_t len = strlen(buf);
+   int32_t loopi;
+   int32_t ret = strlen(buf);
+   uint8_t aux;
+   uint8_t lrc = 0;
+
+   if ((!addEnd) && (!addLrc))
+   {
+      /* nothing to do */
+   }
+   else if ((!addEnd) && (addLrc))
+   {
+      /* calculate lrc */
+      for(loopi = 1; loopi < len-4; loopi++)
+      {
+         if ( ('0' <= buf[loopi]) && ('9' >= buf[loopi]) )
+         {
+            aux = (buf[loopi] - '0') << 4;
+         } else if ( ('A' <= buf[loopi]) && ('F' >= buf[loopi]) )
+         {
+            aux = (buf[loopi] - 'A' + 10)  << 4;
+         }
+
+         loopi++;
+
+         if ( ('0' <= buf[loopi]) && ('9' >= buf[loopi]) )
+         {
+            aux += (buf[loopi] - '0');
+         } else if ( ('A' <= buf[loopi]) && ('F' >= buf[loopi]) )
+         {
+            aux += (buf[loopi] - 'A' + 10);
+         }
+
+         lrc += aux;
+      }
+
+      /* complement 2 of lrc */
+      lrc = (uint8_t) -lrc;
+
+      /* set lrc */
+      buf[ret-4] = ( ( (lrc >> 4) > 9 ) ? ( ( (lrc >> 4) -10 ) + 'A' ) : ( (lrc >> 4) + '0' ) );
+      buf[ret-3] = ( ( (lrc & 0xF) > 9 ) ? ( ( (lrc & 0xF) -10 ) + 'A' ) : ( (lrc & 0xF) + '0' ) );
+   }
+   else if ((addEnd) && (!addLrc))
+   {
+      ret += 2;
+
+      /* add CRLF */
+      buf[ret-2] = 0x0D;
+      buf[ret-1] = 0x0A;
+   }
+   else
+   {
+      /* calculate lrc */
+      for(loopi = 1; loopi < len; loopi++)
+      {
+         if ( ('0' <= buf[loopi]) && ('9' >= buf[loopi]) )
+         {
+            aux = (buf[loopi] - '0') << 4;
+         } else if ( ('A' <= buf[loopi]) && ('F' >= buf[loopi]) )
+         {
+            aux = (buf[loopi] - 'A' + 10)  << 4;
+         }
+
+         loopi++;
+
+         if ( ('0' <= buf[loopi]) && ('9' >= buf[loopi]) )
+         {
+            aux += (buf[loopi] - '0');
+         } else if ( ('A' <= buf[loopi]) && ('F' >= buf[loopi]) )
+         {
+            aux += (buf[loopi] - 'A' + 10);
+         }
+
+         lrc += aux;
+      }
+
+      /* complement 2 of lrc */
+      lrc = (uint8_t) -lrc;
+
+      /* set lrc */
+      ret += 2;
+      buf[ret-2] = ( ( (lrc >> 4) > 9 ) ? ( ( (lrc >> 4) -10 ) + 'A' ) : ( (lrc >> 4) + '0' ) );
+      buf[ret-1] = ( ( (lrc & 0xF) > 9 ) ? ( ( (lrc & 0xF) -10 ) + 'A' ) : ( (lrc & 0xF) + '0' ) );
+
+      /* add CRLF */
+      ret += 2;
+      buf[ret-2] = 0x0D;
+      buf[ret-1] = 0x0A;
+   }
+
+   return ret;
+} /* end tst_asciipdu */
+
+
+/** \brief test ciaaModbus_ascii_ascii2bin
+ */
+void test_ciaaModbus_ascii_ascii2bin_01(void)
+{
+   int32_t lenin[10];
+   int32_t lenout[10];
+   uint8_t buf[10][2][500];
+   int32_t buflen[10];
+
+   strcpy(buf[0][0],
+         ":000102030405060708090A0B0C0D0E0F");
+        /*012345678901234567890123456789012345678901234567890123456789*/
+        /*          1         2         3         4         5         */
+   /* set input buffer (only add LRC) */
+   lenin[0] = tst_asciipdu(buf[0][0], 0, 1);
+   /* copy the buffer */
+   strcpy(buf[0][1], buf[0][0]);
+
+   /* call tested function */
+   lenout[0] = ciaaModbus_ascii_ascii2bin(buf[0][0], lenin[0]);
+
+   TEST_ASSERT_EQUAL_INT(tst_convert2bin(buf[0][1], buf[0][1], lenin[0]), lenout[0]);
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[0][1], buf[0][0], lenout[0]);
+}
+
+/** \brief test ciaaModbus_ascii_ascii2bin
+ ** second nibble wrong
+ */
+void test_ciaaModbus_ascii_ascii2bin_02(void)
+{
+   int32_t lenin[10];
+   int32_t lenout[10];
+   uint8_t buf[10][2][500];
+   int32_t buflen[10];
+
+   strcpy(buf[0][0],
+         ":000G");
+   /* set input buffer (only add LRC) */
+   lenin[0] = tst_asciipdu(buf[0][0], 0, 1);
+   /* copy the buffer */
+   strcpy(buf[0][1], buf[0][0]);
+
+   /* call tested function */
+   lenout[0] = ciaaModbus_ascii_ascii2bin(buf[0][0], lenin[0]);
+
+   TEST_ASSERT_EQUAL_INT(-1, lenout[0]);
+}
+
+/** \brief test ciaaModbus_ascii_ascii2bin
+ ** first nibble wrong
+ */
+void test_ciaaModbus_ascii_ascii2bin_03(void)
+{
+   int32_t lenin[10];
+   int32_t lenout[10];
+   uint8_t buf[10][2][500];
+   int32_t buflen[10];
+
+   strcpy(buf[0][0],
+         ":00G0");
+   /* set input buffer (only add LRC) */
+   lenin[0] = tst_asciipdu(buf[0][0], 0, 1);
+   /* copy the buffer */
+   strcpy(buf[0][1], buf[0][0]);
+
+   /* call tested function */
+   lenout[0] = ciaaModbus_ascii_ascii2bin(buf[0][0], lenin[0]);
+
+   TEST_ASSERT_EQUAL_INT(-1, lenout[0]);
+}
 
 
 
