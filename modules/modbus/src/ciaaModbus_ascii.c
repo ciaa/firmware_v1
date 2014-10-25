@@ -226,6 +226,15 @@ extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len)
 } /* end ciaaModbus_ascii_ascii2bin */
 
 
+extern void ciaaModbus_asciiInit(void)
+{
+   int32_t loopi;
+
+   for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_TRANSPORT_ASCII ; loopi++)
+   {
+      ciaaModbus_asciiObj[loopi].inUse = false;
+   }
+}
 extern int32_t ciaaModbus_asciiOpen(int32_t fildes)
 {
    int32_t hModbusAscii;
