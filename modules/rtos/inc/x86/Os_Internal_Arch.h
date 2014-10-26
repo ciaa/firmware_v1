@@ -76,10 +76,10 @@
 /*==================[macros]=================================================*/
 
 /*==================[cputype macros]=========================================*/
-/** \brief win32 cputype definition */
-#define win32        1
-/** \brief win64 cputype definition */
-#define win64        2
+/** \brief ia32 cputype definition */
+#define ia32        1
+/** \brief ia64 cputype definition */
+#define ia64        2
 
 /** \brief Interrupt Secure Start Macro
  **
@@ -107,7 +107,7 @@
  **
  ** This function jmps to the indicated task.
  **/
-#if ( CPUTYPE == win64 )
+#if ( CPUTYPE == ia64 )
 #define JmpTask(task) \
 {                                                                                            \
    __asm__ __volatile__ ("movq %0, %%rsp;"                                                   \
@@ -116,7 +116,7 @@
          "jmp *%%rax;"                                                                             \
          : :  "g" (TasksConst[(task)].TaskContext->tss_rsp), "g" (TasksConst[(task)].TaskContext->tss_rbp) , "g" (TasksConst[(task)].TaskContext->tss_rip) : "%rax"); \
 }
-#elif ( CPUTYPE == win32 )
+#elif ( CPUTYPE == ia32 )
 #define JmpTask(task) \
 {                                                                                            \
    __asm__ __volatile__ ("movl %0, %%esp;"                                                   \
@@ -131,7 +131,7 @@
  **
  ** This function jmps to the indicated task.
  **/
-#if ( CPUTYPE == win64 )
+#if ( CPUTYPE == ia64 )
 #define CallTask(OldTask, NewTask) \
 {                                                                                                                                              \
    /* save actual rsp */                                                                                                                       \
@@ -145,7 +145,7 @@
    /* load new rbp and jmp to the new task */                                                                                                  \
    __asm__ __volatile__ ("movq %0, %%rbx; movq %1, %%rbp; jmp *%%rbx;" : : "g" (TasksConst[NewTask].TaskContext->tss_rip), "g" (TasksConst[NewTask].TaskContext->tss_rbp)); \
 }
-#elif ( CPUTYPE == win32 )
+#elif ( CPUTYPE == ia32 )
 #define CallTask(OldTask, NewTask) \
 {                                                                                                                                              \
    /* save actual esp */                                                                                                                       \
@@ -162,7 +162,7 @@
 #endif
 
 /** \brief Save context */
-#if ( CPUTYPE == win64 )
+#if ( CPUTYPE == ia64 )
 #define SaveContext(task)                                                                                                       \
 {                                                                                                                               \
    /* save actual rsp */                                                                                                        \
@@ -173,7 +173,7 @@
    __asm__ __volatile__ ("movq $_next, %%rax; movq %%rax, %0;" : "=g" (TasksConst[(task)].TaskContext->tss_rip) : : "%rax");    \
    __asm__ __volatile__ ("_next:");                                                                                             \
 }
-#elif ( CPUTYPE == win32 )
+#elif ( CPUTYPE == ia32 )
 #define SaveContext(task)                                                                                                       \
 {                                                                                                                               \
    /* save actual esp */                                                                                                        \
@@ -187,24 +187,24 @@
 #endif
 
 /** \brief Set the entry point for a task */
-#if ( CPUTYPE == win64 )
+#if ( CPUTYPE == ia64 )
 #define SetEntryPoint(task)                                                                                           \
 {                                                                                                                     \
    TasksConst[(task)].TaskContext->tss_rip = (uint64)TasksConst[(task)].EntryPoint;                                   \
 }
-#elif ( CPUTYPE == win32 )
+#elif ( CPUTYPE == ia32 )
 #define SetEntryPoint(task)                                                                                           \
 {                                                                                                                     \
    TasksConst[(task)].TaskContext->tss_eip = (uint32)TasksConst[(task)].EntryPoint;                                   \
 }
 #endif
 /** \brief */
-#if ( CPUTYPE == win64 )
+#if ( CPUTYPE == ia64 )
 #define ResetStack(task)                                                                                              \
 {                                                                                                                     \
    TasksConst[task].TaskContext->tss_rsp = (uint64)( TasksConst[task].StackPtr + TasksConst[task].StackSize - 8);  \
 }
-#elif ( CPUTYPE == win32 )
+#elif ( CPUTYPE == ia32 )
 #define ResetStack(task)                                                                                              \
 {                                                                                                                     \
    TasksConst[task].TaskContext->tss_esp = (uint32)( TasksConst[task].StackPtr + TasksConst[task].StackSize - 4);  \
@@ -247,13 +247,13 @@
  **/
 #define PostIsr2_Arch(isr)
 
-#if ( CPUTYPE == win64 )
+#if ( CPUTYPE == ia64 )
 #define SaveWinStack()                                                                      \
 {                                                                                           \
    /* save actual win stack */                                                              \
    __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (WinStack) : : "rax"); \
 }
-#elif ( CPUTYPE == win32 )
+#elif ( CPUTYPE == ia32 )
 #define SaveWinStack()                                                                      \
 {                                                                                           \
    /* save actual win esp */                                                                \
@@ -265,7 +265,7 @@
  **
  ** This macro shall be called before calling any win system service
  **/
-#if ( CPUTYPE == win64 )
+#if ( CPUTYPE == ia64 )
 #define PreCallService()                                                                     \
 {                                                                                            \
    /* save osek stack */                                                                     \
@@ -273,7 +273,7 @@
    /* get win stack */                                                                       \
    __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (WinStack) );                             \
 }
-#elif ( CPUTYPE == win32 )
+#elif ( CPUTYPE == ia32 )
 #define PreCallService()                                                                     \
 {                                                                                            \
    /* save osek stack */                                                                     \
@@ -287,7 +287,7 @@
  **
  ** This macro shall be called after calling any win system service
  **/
-#if ( CPUTYPE == win64 )
+#if ( CPUTYPE == ia64 )
 #define PostCallService()                                                                       \
 {                                                                                               \
    /* save actual win stack */                                                                  \
@@ -295,7 +295,7 @@
    /* get osek stack */                                                                         \
    __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (OsekStack) );                               \
 }
-#elif ( CPUTYPE == win32 )
+#elif ( CPUTYPE == ia32 )
 #define PostCallService()                                                                       \
 {                                                                                               \
    /* save actual win stack */                                                                  \
@@ -338,13 +338,13 @@ extern ciaaLibs_CircBufType * OSEK_IntCircBuf;
  ** (linux) services from FreeOSEK
  **/
 #ifdef CPUTYPE
-#if ( CPUTYPE == win64 )
+#if ( CPUTYPE == ia64 )
 extern uint64 WinStack;
-#elif ( CPUTYPE == win32 )
+#elif ( CPUTYPE == ia32 )
 extern uint32 WinStack;
-#else /* #if ( CPUTYPE == win64 ) */
+#else /* #if ( CPUTYPE == ia64 ) */
 #error Unknown CPUTYPE for ARCH win
-#endif /* #if ( CPUTYPE == win64 ) */
+#endif /* #if ( CPUTYPE == ia64 ) */
 #else /* #ifdef CPUTYPE */
 #error CPUTPYE is not defined
 #endif /* #idef CPUTYPE */
@@ -355,13 +355,13 @@ extern uint32 WinStack;
  ** This variable is used to save the Osek stack while calling a win
  ** service
  **/
-#if ( CPUTYPE == win64 )
+#if ( CPUTYPE == ia64 )
 extern uint64 OsekStack;
-#elif ( CPUTYPE == win32 )
+#elif ( CPUTYPE == ia32 )
 extern uint32 OsekStack;
-#else /* #if ( CPUTYPE == win64 ) */
+#else /* #if ( CPUTYPE == ia64 ) */
 #error Unknown CPUTYPE for ARCH win
-#endif /* #if ( CPUTYPE == win64 ) */
+#endif /* #if ( CPUTYPE == ia64 ) */
 
 /*==================[external functions declaration]=========================*/
 /** \brief Win Interrupt Handler

@@ -89,17 +89,17 @@ uint32 OsekHWTimer0;
 InterruptFlagsType InterruptFlag;
 
 #ifdef CPUTYPE
-#if ( CPUTYPE == win64 )
+#if ( CPUTYPE == ia64 )
 uint64 WinStack;
 
 uint64 OsekStack;
-#elif ( CPUTYPE == win32 )
+#elif ( CPUTYPE == ia32 )
 uint32 WinStack;
 
 uint32 OsekStack;
-#else /* #if ( CPUTYPE == win64 ) */
+#else /* #if ( CPUTYPE == ia64 ) */
 #error Unknown CPUTYPE for ARCH win
-#endif /* #if ( CPUTYPE == win64 ) */
+#endif /* #if ( CPUTYPE == ia64 ) */
 #else /* #ifdef CPUTYPE */
 #error CPUTPYE is not defined
 #endif /* #idef CPUTYPE */

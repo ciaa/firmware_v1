@@ -61,9 +61,7 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPlatforms.h"
 
-#if (posix == ARCH)
-#include "stdint.h"
-#elif (win == ARCH)
+#if (x86 == ARCH)
 #include "stdint.h"
 #elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
         ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) )

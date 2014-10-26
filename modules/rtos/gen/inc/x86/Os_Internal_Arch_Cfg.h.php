@@ -74,13 +74,13 @@
 
 /*==================[typedef]================================================*/
 /** \brief Task Context Type */
-#if ( CPUTYPE == win64 )
+#if ( CPUTYPE == ia64 )
 typedef struct {
 	uint64 tss_rsp;
 	uint64 tss_rbp;
    uint64 tss_rip;
 } TaskContextType;
-#elif ( CPUTYPE == win32 )
+#elif ( CPUTYPE == ia32 )
 typedef struct {
 	uint32 tss_esp;
 	uint32 tss_ebp;
