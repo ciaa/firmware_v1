@@ -1,4 +1,7 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2008, 2009 Mariano Cerdeiro
+ * Copyright 2014, ACSE & CADIEEL
+ *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *      CADIEEL: http://www.cadieel.org.ar
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,77 +33,101 @@
  *
  */
 
-#ifndef _CIAADRIVERUART_INTERNAL_H_
-#define _CIAADRIVERUART_INTERNAL_H_
-/** \brief Internal Header file of UART Driver
+#ifndef _OS_ARCH_H_
+#define _OS_ARCH_H_
+/** \brief FreeOSEK Os Architecture Dependent Header File
+ **
+ ** This file is included form os.h and defines macros
+ ** and types which depends on the architecture.
+ **
+ ** \file win/Os_Arch.h
+ ** \arch win
  **
  **/
 
-/** \addtogroup CIAA_Firmware CIAA Firmware
+/** \addtogroup FreeOSEK
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup FreeOSEK_Os
  ** @{ */
-/** \addtogroup UART UART Drivers
+/** \addtogroup FreeOSEK_Os_Global
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe			 Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140528 v0.0.1 initials initial version
+ * 20090719 v0.1.1 MaCe rename file to Os_
+ * 20080725 v0.1.0 MaCe	initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*==================[macros]=================================================*/
+/** \brief Enable All Interrupts Arch */
+#define EnableAllInterrupts_Arch()	ResumeAllInterrupts_Arch()
+
+/** \brief Disable All Interrupts Arch */
+#define DisableAllInterrupts_Arch() SuspendAllInterrupts_Arch()
+
+/** \brief Resume All Interrupts Arch */
+#define ResumeAllInterrupts_Arch()						\
+	{																\
+		InterruptState = ((InterruptStateType)1U);	\
+		ScheduleInterrupts();								\
+	}
+
+/** \brief Suspend All Interrupts Arch */
+#define SuspendAllInterrupts_Arch()						\
+	{																\
+		InterruptState = ((InterruptStateType)0U);	\
+	}
+
+/** \brief Resume OS Interrupts Arch */
+#define ResumeOSInterrupts_Arch()													\
+	{																							\
+		InterruptMask &= (InterruptFlagsType)~(OSEK_OS_INTERRUPT_MASK);	\
+	}
+
+
+/** \brief Suspend OS Interrupts Arch */
+#define SuspendOSInterrupts_Arch()					\
+	{															\
+		InterruptMask |= OSEK_OS_INTERRUPT_MASK;	\
+	}
 
 /*==================[typedef]================================================*/
-/** \brief Buffer Structure */
-typedef struct {
-   uint16_t length;
-   uint8_t buffer[2048];
-} ciaaDriverUart_bufferType;
+/** \brief Interrupt type definition */
+typedef unsigned int InterruptFlagsType;
 
-/** \brief Uart Type */
-typedef struct {
-   ciaaDriverUart_bufferType rxBuffer;
-   ciaaDriverUart_bufferType txBuffer;
-} ciaaDriverUart_uartType;
+/** \brief Interrupt state type definition */
+typedef unsigned char InterruptStateType;
 
 /*==================[external data declaration]==============================*/
-/** \brief Uart 0 */
-extern ciaaDriverUart_uartType ciaaDriverUart_uart0;
+/** \brief Interrupt Mask
+ **
+ ** This variable mask the interrupts. Interrupts which are masked are
+ ** not going to be executed until the mask is cleared.
+ **/
+extern InterruptFlagsType InterruptMask;
 
-/** \brief Uart 1 */
-extern ciaaDriverUart_uartType ciaaDriverUart_uart1;
+/** \brief Interrupt State
+ **
+ ** If this variable is set the intterupts are enable, if it is 0
+ ** interrupts are disable.
+ **/
+extern InterruptStateType InterruptState;
 
 /*==================[external functions declaration]=========================*/
-extern void ciaaDriverUart_uart0_rxIndication(void);
+extern void ScheduleInterrupts(void);
 
-extern void ciaaDriverUart_uart0_txConfirmation(void);
-
-extern void ciaaDriverUart_uart1_rxIndication(void);
-
-extern void ciaaDriverUart_uart1_txConfirmation(void);
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAADRIVERUART_INTERNAL_H_ */
+#endif /* #ifndef _OS_ARCH_H_ */
 

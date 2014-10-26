@@ -84,22 +84,18 @@ extern "C" {
 #endif
 
 /****** ARCH macro definitions ******/
-/** \brief ARCH posix */
-#define posix                 1
-/** \brief ARCH win */
-#define win                   2
+/** \brief ARCH x86 */
+#define x86                   1
 /** \brief ARCH cortexM4 */
-#define cortexM4              3
+#define cortexM4              2
 
 /****** CPUTYPE macro definitions ******/
-/*** CPUTYPES for ARCH=posix ***/
-/** \brief CPUTTYPE posix32 */
-#define posix32               1
+/*** CPUTYPES for ARCH=x86 ***/
+/** \brief CPUTTYPE ia32 */
+#define ia32                  1
 
-/** \brief CPUTTYPE posix64 */
-#define posix64               2
-
-/*** CPUTYPES for ARCH=win ***/
+/** \brief CPUTTYPE ia64 */
+#define ia64                  2
 
 /*** CPUTYPES for ARCH=cortexM4 ***/
 #define lpc43xx               1
@@ -108,11 +104,9 @@ extern "C" {
 #define k60_120               2
 
 /****** CPU macro definitions ******/
-/*** CPU for ARCH=posix CPUTYPE=posix32 ***/
+/*** CPU for ARCH=x86 CPUTYPE=ia32 ***/
 
-/*** CPU for ARCH=posix CPUTYPE=posix64 ***/
-
-/*** CPU for ARCH=win CPUTYPE= ***/
+/*** CPU for ARCH=x86 CPUTYPE=ia64 ***/
 
 /*** CPU for ARCH=cortexM4 CPUTYPE=lpc43xx ***/
 #define lpc4337               1
@@ -122,10 +116,10 @@ extern "C" {
 
 /****** CIAAPLATFORM_REGLENGTH ******/
 /** \brief definition of the lenght of the register */
-#if (ARCH == posix)
-#if (CPUTYPE == posix32)
+#if (ARCH == x86)
+#if (CPUTYPE == ia32)
 #define CIAAPLATFORM_REGLENGTH      32
-#elif (CPUTYPE == posix64)
+#elif (CPUTYPE == ia64)
 #define CIAAPLATFORM_REGLENGTH      64
 #endif
 #endif
@@ -141,19 +135,15 @@ extern "C" {
 
 #endif
 
-/* TODO validate the selected architecture */
-#if 0
-#if   ( ( ARCH == posix ) && \
-      ( ( CPUTYPE == posix32 ) || \
-        ( CPUTYPE == posix64 ) ) )
-#elif ( ( ARCH == win ) )
+#if   ( ( ARCH == x86 ) && \
+      ( ( CPUTYPE == ia32 ) || \
+        ( CPUTYPE == ia64 ) ) )
 #elif ( ( ARCH == cortexM4 ) && \
         ( CPUTYPE == lpc43xx ) && \
         ( CPU == lpc4337 ) )
+#else
 #error the entered architecture is not supported... :(
 #endif
-#endif
-
 
 /*==================[typedef]================================================*/
 

@@ -52,37 +52,35 @@
 # +--------------+---------------+----------------+--------------+
 # |      ARCH    |    CPUTYPE    |      CPU       | COMPILER     |
 # +--------------+---------------+----------------+--------------+
-# | win          | win32         |                | gcc          |
-# +--------------+---------------+----------------+--------------+
-# | posix        | posix32       |                | gcc          |
-# |              | posix64       |                |              |
+# | x86          | ia32          |                | gcc          |
+# |              | ia64          |                |              |
 # +--------------+---------------+----------------+--------------+
 # | cortexM4     | lpc43xx       | lpc4337        | gcc          |
 # |              | k60_120       | mk60fx512vlq15 | gcc          |
 # +--------------+---------------+----------------+--------------+
 #
-ARCH           ?= posix
-CPUTYPE        ?= posix64
-CPU            ?=
+ARCH           ?= x86
+CPUTYPE        ?= ia64
+CPU            ?= none
 COMPILER       ?= gcc
 
 DS             ?= /
 # Project
 #
 # Available projects are:
-# examples/blinking				(example with rtos and posix)
-# examples/blinking_base		(example without rtos and without posix)
-# examples/blinking_wo_rtos 	(example with posix without rtos)
-# examples/blinking_wo_posix	(example with rtos without rtos)
-# examples/blinking_modbus		(example with rtos, posix and using modbus)
+# examples/blinking           (example with rtos and posix)
+# examples/blinking_base      (example without rtos and without posix)
+# examples/blinking_wo_rtos   (example with posix without rtos)
+# examples/blinking_wo_posix  (example with rtos without rtos)
+# examples/blinking_modbus    (example with rtos, posix and using modbus)
 #
 PROJECT ?= examples$(DS)blinking
 
 #
 # tools
-WIN_TOOL_PATH	 		?=
-LINUX_TOOLS_PATH 		?= $(DS)opt$(DS)ciaa_tools
-kconfig					?= $(LINUX_TOOLS_PATH)$(DS)kconfig$(DS)kconfig-qtconf
+WIN_TOOL_PATH        ?=
+LINUX_TOOLS_PATH     ?= $(DS)opt$(DS)ciaa_tools
+kconfig              ?= $(LINUX_TOOLS_PATH)$(DS)kconfig$(DS)kconfig-qtconf
 
 ###############################################################################
 # get OS
@@ -94,32 +92,32 @@ ifeq ($(OS),Windows_NT)
 CS             = ;
 # Command for multiline echo
 MULTILINE_ECHO = echo -e
-OS 				= WIN
+OS             = WIN
 else
 # NON WINDOWS OS
 # Command line separator
-CS					= ;
+CS             = ;
 # Comand for multiline echo
 MULTILINE_ECHO = echo -n
-	UNAME_S := $(shell uname -s)
-	ifeq ($(UNAME_S),Linux)
-		# LINUX
-	endif
-	ifeq ($(UNAME_S),Darwin)
-		# MACOS
-	endif
+   UNAME_S := $(shell uname -s)
+   ifeq ($(UNAME_S),Linux)
+      # LINUX
+   endif
+   ifeq ($(UNAME_S),Darwin)
+      # MACOS
+   endif
 endif
 ###############################################################################
 # get root dir
 ROOT_DIR := .
 # out dir
-OUT_DIR	= $(ROOT_DIR)$(DS)out
+OUT_DIR   = $(ROOT_DIR)$(DS)out
 # object dir
 OBJ_DIR  = $(OUT_DIR)$(DS)obj
 # lib dir
-LIB_DIR	= $(OUT_DIR)$(DS)lib
+LIB_DIR  = $(OUT_DIR)$(DS)lib
 # bin dir
-BIN_DIR	= $(OUT_DIR)$(DS)bin
+BIN_DIR  = $(OUT_DIR)$(DS)bin
 # include needed project
 include $(PROJECT)$(DS)mak$(DS)Makefile
 # include needed modules
@@ -211,21 +209,21 @@ include $(foreach mod,$($(tst_mod)_TST_MOD),modules$(DS)$(mod)$(DS)mak$(DS)Makef
 
 MTEST_SRC_FILES = $($(tst_mod)_PATH)$(DS)test$(DS)utest$(DS)src$(DS)test_$(tst_file).c
 
-UNITY_INC = externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src                  	\
-				externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src                  	\
-				out$(DS)ceedling$(DS)mocks                                           	\
-				$(foreach mod,$($(tst_mod)_TST_MOD),$($(mod)_INC_PATH))						\
-				$($(tst_mod)_TST_INC_PATH)																\
-				$($(tst_mod)_INC_PATH)
+UNITY_INC = externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src                     \
+            externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src                     \
+            out$(DS)ceedling$(DS)mocks                                              \
+            $(foreach mod,$($(tst_mod)_TST_MOD),$($(mod)_INC_PATH))                 \
+            $($(tst_mod)_TST_INC_PATH)                                              \
+$($(tst_mod)_INC_PATH)
 
-UNITY_SRC = modules$(DS)$(tst_mod)$(DS)test$(DS)utest$(DS)src$(DS)test_$(tst_file).c 			\
-				$(RUNNERS_OUT_DIR)$(DS)test_$(tst_file)_Runner.c	\
-				modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c								\
-				externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src$(DS)unity.c 			\
-				externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src$(DS)cmock.c 			\
-				$(foreach file,$(filter-out $(tst_file).c,$(notdir $($(tst_mod)_SRC_FILES))), out$(DS)ceedling$(DS)mocks$(DS)mock_$(file))	\
-				$(foreach mods,$($(tst_mod)_TST_MOD), $(foreach files, $(notdir $($(mods)_SRC_FILES)), out$(DS)ceedling$(DS)mocks$(DS)mock_$(files)))	\
-				$(foreach tst_mocks, $($(tst_mod)_TST_MOCKS), out$(DS)ceedling$(DS)mocks$(DS)mock_$(tst_mocks))
+UNITY_SRC = modules$(DS)$(tst_mod)$(DS)test$(DS)utest$(DS)src$(DS)test_$(tst_file).c \
+            $(RUNNERS_OUT_DIR)$(DS)test_$(tst_file)_Runner.c                         \
+            modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c                         \
+            externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src$(DS)unity.c          \
+            externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src$(DS)cmock.c          \
+            $(foreach file,$(filter-out $(tst_file).c,$(notdir $($(tst_mod)_SRC_FILES))), out$(DS)ceedling$(DS)mocks$(DS)mock_$(file)) \
+            $(foreach mods,$($(tst_mod)_TST_MOD), $(foreach files, $(notdir $($(mods)_SRC_FILES)), out$(DS)ceedling$(DS)mocks$(DS)mock_$(files))) \
+            $(foreach tst_mocks, $($(tst_mod)_TST_MOCKS), out$(DS)ceedling$(DS)mocks$(DS)mock_$(tst_mocks))
 # Needed Unity Obj files
 UNITY_OBJ = $(notdir $(UNITY_SRC:.c=.o))
 # Add the search patterns
@@ -339,7 +337,7 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	$(AS) $(AFLAGS) $< -o $(OBJ_DIR)$(DS)$@
 
 ###############################################################################
-# Incremental Build	(IDE: Build)
+# Incremental Build (IDE: Build)
 # link rule
 
 # New rules for LIBS dependencies
@@ -366,10 +364,10 @@ debug : $(BIN_DIR)$(DS)$(project).bin
 
 ###############################################################################
 # rtos OSEK generation
-GENDIR			= $(OUT_DIR)$(DS)gen
+GENDIR = $(OUT_DIR)$(DS)gen
 generate : $(OIL_FILES)
-		php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
-			$(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GENDIR)
+	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
+		$(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GENDIR)
 
 ###############################################################################
 # doxygen
@@ -553,7 +551,7 @@ docbook:
 clean_generate: clean generate
 
 ###############################################################################
-# Incremental Build	(IDE: Build)
+# Incremental Build (IDE: Build)
 all: clean generate
 	make
 
@@ -591,3 +589,4 @@ doc: doxygen
 	@echo Generating CIAA Firmware documentation
 	@echo This rule is still not implemented see: https://github.com/ciaa/Firmware/issues/10
 	@exit 1
+

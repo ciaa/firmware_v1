@@ -35,8 +35,8 @@
 
 /** \brief FreeOSEK Os Arch Implementation File
  **
- ** \file posix/Os_Arch.c
- ** \arch posix
+ ** \file win/Os_Arch.c
+ ** \arch win
  **/
 
 /** \addtogroup FreeOSEK

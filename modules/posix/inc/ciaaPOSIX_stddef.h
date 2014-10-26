@@ -67,9 +67,7 @@
 extern "C" {
 #endif
 
-#if (posix == ARCH)
-#include "stddef.h"
-#elif (win == ARCH)
+#if (x86 == ARCH)
 #include "stddef.h"
 #elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
         ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) )
@@ -80,11 +78,11 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-#if (win != ARCH)
+#if (x86 == ARCH)
 #include "sys/types.h"
-#elif (win == ARCH)
+#if 0
 #include "stddef.h"
-#include "sys/types.h"
+#endif
 #endif
 
 /*==================[external data declaration]==============================*/
