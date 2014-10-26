@@ -68,8 +68,8 @@
 typedef struct
 {
    int32_t fildes;                              /** <- File descriptor */
-   uint8_t buffer[CIAAMODBUS_ASCII_MAXLENGHT];  /** <- buffer */
    int32_t bufferSize;                          /** <- buffer size */
+   uint8_t buffer[CIAAMODBUS_ASCII_MAXLENGHT];  /** <- buffer */
    bool inUse;                                  /** <- Object in use */
 }ciaaModbus_asciiObjType;
 
