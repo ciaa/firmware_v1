@@ -73,7 +73,9 @@
 #include <signal.h>
 
 /*==================[macros and definitions]=================================*/
-
+#ifndef MAP_ANONYMOUS
+  #define MAP_ANONYMOUS MAP_ANON
+#endif
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
