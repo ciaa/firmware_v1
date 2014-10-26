@@ -64,7 +64,7 @@
 #include "os.h"
 
 /* in windows and posix also include posix interfaces */
-#if ( (ARCH == win) || (ARCH == posix) )
+#if (ARCH == x86)
 #include "stdio.h"
 #include "stdarg.h"
 #include "Os_Internal.h"
@@ -284,7 +284,7 @@ extern int32_t ciaaPOSIX_printf(const char * format, ...)
 {
    int32_t ret;
 
-#if ( (ARCH == win) || (ARCH == posix) )
+#if (ARCH == x86)
    /* OS pre call service, changes stack to system stack */
    /* #36 TODO */
    PreCallService();

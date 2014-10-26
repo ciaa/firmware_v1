@@ -33,101 +33,109 @@
  *
  */
 
-#ifndef _OS_ARCH_H_
-#define _OS_ARCH_H_
-/** \brief FreeOSEK Os Architecture Dependent Header File
+/** \brief FreeOSEK Os StartOs Architecture Dependece Implementation File
  **
- ** This file is included form os.h and defines macros
- ** and types which depends on the architecture.
+ ** This file implements the StartOs Arch API
  **
- ** \file win/Os_Arch.h
+ ** \file win/StartOs_Arch.c
  ** \arch win
- **
  **/
 
 /** \addtogroup FreeOSEK
  ** @{ */
 /** \addtogroup FreeOSEK_Os
  ** @{ */
-/** \addtogroup FreeOSEK_Os_Global
+/** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
-
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * v0.1.0 20080725 MaCe	initial version
+ * 20090130 v0.1.1 MaCe change type uint8_least to uint8f
+ * 20080810 v0.1.0 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
+#include "Os_Internal.h"
+#include "ciaaLibs_CircBuf.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <signal.h>
 
-/*==================[macros]=================================================*/
-/** \brief Enable All Interrupts Arch */
-#define EnableAllInterrupts_Arch()	ResumeAllInterrupts_Arch()
+/*==================[macros and definitions]=================================*/
 
-/** \brief Disable All Interrupts Arch */
-#define DisableAllInterrupts_Arch() SuspendAllInterrupts_Arch()
+/*==================[internal data declaration]==============================*/
 
-/** \brief Resume All Interrupts Arch */
-#define ResumeAllInterrupts_Arch()						\
-	{																\
-		InterruptState = ((InterruptStateType)1U);	\
-		ScheduleInterrupts();								\
+/*==================[internal functions declaration]=========================*/
+
+/*==================[internal data definition]===============================*/
+uint8 * OSEK_IntCircBuffer;
+
+/*==================[external data definition]===============================*/
+ciaaLibs_CircBufType * OSEK_IntCircBuf;
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+void StartOs_Arch(void)
+{
+	uint8f loopi;
+
+	/* init every task */
+	for( loopi = 0; loopi < TASKS_COUNT; loopi++)
+	{
+        /* init stack */
+        ResetStack(loopi);
+        /* set entry point */
+        SetEntryPoint(loopi);
 	}
 
-/** \brief Suspend All Interrupts Arch */
-#define SuspendAllInterrupts_Arch()						\
-	{																\
-		InterruptState = ((InterruptStateType)0U);	\
-	}
+   /* initialize singals handler */
+   signal(SIGALRM,WinInterruptHandler);
+   signal(SIGUSR1,WinInterruptHandler);
+   signal(SIGCHLD,WinInterruptHandler);
 
-/** \brief Resume OS Interrupts Arch */
-#define ResumeOSInterrupts_Arch()													\
-	{																							\
-		InterruptMask &= (InterruptFlagsType)~(OSEK_OS_INTERRUPT_MASK);	\
-	}
+   /* shared memory for circular buffer management block */
+   OSEK_IntCircBuf = mmap(NULL,
+         sizeof(ciaaLibs_CircBufType),
+         PROT_READ | PROT_WRITE,
+         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
+   /* shared memory for the circular buffer */
+   OSEK_IntCircBuffer = mmap(NULL,
+         sizeof(uint8) * 64,
+         PROT_READ | PROT_WRITE,
+         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
-/** \brief Suspend OS Interrupts Arch */
-#define SuspendOSInterrupts_Arch()					\
-	{															\
-		InterruptMask |= OSEK_OS_INTERRUPT_MASK;	\
-	}
+   /* init circular buffer */
+   ciaaLibs_circBufInit(OSEK_IntCircBuf, OSEK_IntCircBuffer, 64);
 
-/*==================[typedef]================================================*/
-/** \brief Interrupt type definition */
-typedef unsigned int InterruptFlagsType;
+   if (fork() == 0)
+   {
+      HWTimerFork(0);
+   }
 
-/** \brief Interrupt state type definition */
-typedef unsigned char InterruptStateType;
+   /* enable interrupts */
+   InterruptState = 1;
 
-/*==================[external data declaration]==============================*/
-/** \brief Interrupt Mask
- **
- ** This variable mask the interrupts. Interrupts which are masked are
- ** not going to be executed until the mask is cleared.
- **/
-extern InterruptFlagsType InterruptMask;
+   /* enable timer interrupt */
+   InterruptMask = 16;
 
-/** \brief Interrupt State
- **
- ** If this variable is set the intterupts are enable, if it is 0
- ** interrupts are disable.
- **/
-extern InterruptStateType InterruptState;
-
-/*==================[external functions declaration]=========================*/
-extern void ScheduleInterrupts(void);
+   SaveWinStack();
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _OS_ARCH_H_ */
 

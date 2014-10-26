@@ -1,7 +1,3 @@
-/********************************************************
- * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
- ********************************************************/
-
 /* Copyright 2008, 2009 Mariano Cerdeiro
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
@@ -37,9 +33,10 @@
  *
  */
 
-/** \brief FreeOSEK Os Generated Internal Achitecture Configuration Implementation File
+/** \brief FreeOSEK Os Internal Arch Implementation File
  **
- ** \file Os_Internal_Arch_Cfg.c
+ ** \file win/Os_Internal_Arch.c
+ ** \arch win
  **/
 
 /** \addtogroup FreeOSEK
@@ -48,6 +45,7 @@
  ** @{ */
 /** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
+
 
 /*
  * Initials     Name
@@ -58,12 +56,22 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20090719 v0.1.2 MaCe rename file to Os_
+ * 20090719 v0.1.3 MaCe rename file to Os_
+ * 20090424 v0.1.2 MaCe use the right counter macros
+ * 20090130 v0.1.1 MaCe change type uint8_least to uint8f
  * 20080713 v0.1.0 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "Os_Internal.h"
+#include "ciaaLibs_CircBuf.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <signal.h>
 
 /*==================[macros and definitions]=================================*/
 
@@ -74,108 +82,122 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-<?php
-foreach ($tasks as $task)
-{
-	print "/** \brief $task context */\n";
-	print "TaskContextType TaskContext" . $task . ";\n";
-}
-print "\n";
+uint8	InterruptState;
 
-?>
+uint32 OsekHWTimer0;
 
-InterruptType InterruptTable[INTERUPTS_COUNT] =
-{
-<?php
-$intnames = $config->getList("/OSEK","ISR");
-for ($loopi = 0; $loopi < 32; $loopi++)
-{
-	if ($loopi<8)
-	{
-		switch($loopi)
-		{
-			case 0:
-			case 1:
-			case 2:
-			case 3:
-				print "	OSEK_ISR_NoHandler, /* no interrupt handler for interrupt $loopi */\n";
-				break;
-			case 4:
-				print "	OSEK_ISR_HWTimer0, /* HW Timer 0 Interrupt handler */\n";
-				break;
-			case 5:
-				print "	OSEK_ISR_HWTimer1, /* HW Timer 1 Interrupt handler */\n";
-				break;
-			case 6:
-			case 7:
-				print "	OSEK_ISR_NoHandler, /* no interrupt handler for interrupt $loopi */\n";
-				break;
-		}
-	}
-	else
-	{
-		$flag = false;
-		foreach ($intnames as $int)
-		{
-			$inttype = $config->getValue("/OSEK/" . $int,"INTERRUPT");
-			$intcat = $config->getValue("/OSEK/" . $int,"CATEGORY");
-			switch($inttype)
-			{
-				case "INT_CANRX":
-					if($loopi == 8)
-					{
-						if($intcat == "1")
-						{
-							print "	OSEK_ISR_$int, /* interrupt handler $loopi */\n";
-							$flag = true;
-						}
-						elseif($intcat == "2")
-						{
-							print "	OSEK_ISR2_$int, /* interrupt handler $loopi */\n";
-							$flag = true;
-						}
-						else
-						{
-							error("Interrupt $int type $inttype has an invalid category $intcat");
-						}
-					}
-					break;
-				case "INT_CANTX":
-					if($loopi == 9)
-					{
-						if($intcat == "1")
-						{
-							print "	OSEK_ISR_$int, /* interrupt handler $loopi */\n";
-							$flag = true;
-						}
-						elseif($intcat == "2")
-						{
-							print "	OSEK_ISR2_$int, /* interrupt handler $loopi */\n";
-							$flag = true;
-						}
-						else
-						{
-							error("Interrupt $int type $inttype has an invalid category $intcat");
-						}
-					}
-					break;
-			}
-		}
-		if ($flag == false)
-		{
-			print "	OSEK_ISR_NoHandler, /* no interrupt handler for interrupt $loopi */\n";
-		}
-	}
-}
-?>
-};
+InterruptFlagsType InterruptFlag;
+
+#ifdef CPUTYPE
+#if ( CPUTYPE == ia64 )
+uint64 WinStack;
+
+uint64 OsekStack;
+#elif ( CPUTYPE == ia32 )
+uint32 WinStack;
+
+uint32 OsekStack;
+#else /* #if ( CPUTYPE == ia64 ) */
+#error Unknown CPUTYPE for ARCH win
+#endif /* #if ( CPUTYPE == ia64 ) */
+#else /* #ifdef CPUTYPE */
+#error CPUTPYE is not defined
+#endif /* #idef CPUTYPE */
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+void OSEK_ISR_HWTimer0(void)
+{
+#if (ALARMS_COUNT != 0)
+   IncrementCounter(HardwareCounter, 1);
+#endif /* #if (ALARMS_COUNT != 0) */
+}
+
+void OSEK_ISR_HWTimer1(void)
+{
+#if (defined HWCOUNTER1)
+#if (ALARMS_COUNT != 0)
+   IncrementCounter(HWCOUNTER1, 1);
+#endif /* #if (ALARMS_COUNT != 0) */
+#endif /* #if (defined HWCOUNTER1) */
+}
+
+void WinInterruptHandler(int signal)
+{
+   uint8 interrupt;
+
+   if (SIGCHLD == signal)
+   {
+      /* kill process */
+      wait(NULL);
+   }
+
+   /* repeat until the buffer is empty */
+   while(!ciaaLibs_circBufEmpty(OSEK_IntCircBuf))
+   {
+      /* read one interrupt */
+      ciaaLibs_circBufGet(OSEK_IntCircBuf, &interrupt, 1);
+
+      /* only 0 .. 31 interrupts are allowed */
+      if (32 > interrupt)
+      {
+#if 0
+         printf("Interrupt: %d\n",interrupt);
+#endif
+         if ( (InterruptState) &&
+               ( (InterruptMask & (1 << interrupt ) )  == 0 ) )
+         {
+            InterruptTable[interrupt]();
+         }
+         else
+         {
+            InterruptFlag |= 1 << interrupt;
+         }
+      }
+   }
+
+}
+
+void HWTimerFork(uint8 timer)
+{
+   struct timespec rqtp;
+   uint8 interrupt;
+
+   if (timer <= 2)
+   {
+      /* intererupt every
+       * 0 seconds and
+       * 10 ms */
+      rqtp.tv_sec=0;
+      rqtp.tv_nsec=1000000;
+
+      while(1)
+      {
+         /* sleep */
+         nanosleep(&rqtp,NULL);
+
+         /* the timer interrupt is the interrupt 4 */
+         interrupt = 4;
+
+         /* add simulated interrupt to the interrupt queue */
+         ciaaLibs_circBufPut(OSEK_IntCircBuf, &interrupt, 1);
+
+         /* indicate interrupt using a signal */
+         kill(getppid(), SIGALRM);
+      }
+   }
+   exit(0);
+}
+
+void OsekKillSigHandler(int status)
+{
+   PreCallService();
+   exit(0);
+   PostCallService();
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

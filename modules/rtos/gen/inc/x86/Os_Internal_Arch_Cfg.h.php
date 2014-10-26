@@ -1,3 +1,7 @@
+/********************************************************
+ * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
+ ********************************************************/
+
 /* Copyright 2008, 2009 Mariano Cerdeiro
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
@@ -33,76 +37,70 @@
  *
  */
 
-/** \brief FreeOSEK Os Arch Implementation File
+#ifndef _OS_INTERNAL_ARCH_CFG_H_
+#define _OS_INTERNAL_ARCH_CFG_H_
+/** \brief FreeOSEK Os Generated Internal Architecture Configuration Header File
  **
- ** \file win/Os_Arch.c
- ** \arch win
+ ** This file content the internal generated architecture dependent
+ ** configuration of FreeOSEK Os.
+ **
+ ** \file Os_Internal_Arch_Cfg.h
  **/
 
 /** \addtogroup FreeOSEK
  ** @{ */
 /** \addtogroup FreeOSEK_Os
  ** @{ */
-/** \addtogroup FreeOSEK_Os_Global
+/** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * MaCe			 Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20090819 v0.2.1 MaCe rename file to Os_
- * 20080922 v0.2.0 MaCe initial version
+ * 20090719 v0.1.1 MaCe rename file to Os_
+ * 20080713 v0.1.0 MaCe	initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "Os_Internal.h"
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
+#define INTERUPTS_COUNT		32
 
-/*==================[internal data declaration]==============================*/
+/*==================[typedef]================================================*/
+/** \brief Task Context Type */
+#if ( CPUTYPE == ia64 )
+typedef struct {
+	uint64 tss_rsp;
+	uint64 tss_rbp;
+   uint64 tss_rip;
+} TaskContextType;
+#elif ( CPUTYPE == ia32 )
+typedef struct {
+	uint32 tss_esp;
+	uint32 tss_ebp;
+   uint32 tss_eip;
+} TaskContextType;
+#endif
 
-/*==================[internal functions declaration]=========================*/
+/** \brief Task Context Type */
+typedef TaskContextType* TaskContextRefType;
 
-/*==================[internal data definition]===============================*/
+/** \brief InterruptType Type definition */
+typedef void (*InterruptType)(void);
 
-/*==================[external data definition]===============================*/
-InterruptFlagsType InterruptMask;
+/*==================[external data declaration]==============================*/
+extern InterruptType InterruptTable[INTERUPTS_COUNT];
 
-InterruptStateType InterruptState;
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-void ScheduleInterrupts(void)
-{
-	int loopi = 0;
-	uint32 InterruptToBeExecuted;
-
-	if (InterruptState)
-	{
-		InterruptToBeExecuted = ( InterruptFlag & ( (InterruptFlagsType) ~InterruptMask ) );
-		while(InterruptToBeExecuted != 0)
-		{
-			if (InterruptToBeExecuted & 1)
-			{
-				InterruptFlag &= ~(1<<loopi);
-
-				InterruptTable[loopi]();
-			}
-
-			InterruptToBeExecuted >>=1;
-			loopi++;
-		}
-	}
-}
+/*==================[external functions declaration]=========================*/
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
+#endif /* #ifndef _OS_INTERNAL_ARCH_CFG_H_ */
