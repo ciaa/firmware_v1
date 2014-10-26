@@ -231,7 +231,7 @@ extern int32_t ciaaSerialDevices_close(ciaaDevices_deviceType const * const devi
 
 extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const device, int32_t request, void* param)
 {
-   int32_t ret;
+   int32_t ret=0;
 
    ciaaSerialDevices_deviceType * serialDevice = (ciaaSerialDevices_deviceType *) device->layer;
    ciaaLibs_CircBufType * cbuf;
