@@ -136,11 +136,9 @@ static int32_t ciaaModbus_checkLRC(uint8_t * buf, int32_t len)
  **/
 static int32_t ciaaModbus_asciiCheckCompleteMsg(uint8_t * buf, int8_t length)
 {
-   int32_t end;
    int32_t loopi;
-
    /* set end to an invalid value */
-   end = -1;
+   int32_t end = -1;
 
    /* if the minimal bus length has been received */
    if (CIAAMODBUS_ASCII_MINLENGHT < length)
