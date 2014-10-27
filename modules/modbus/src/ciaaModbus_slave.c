@@ -59,17 +59,18 @@
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_stdbool.h"
 #include "ciaaModbus_slave.h"
+#include "ciaaModbus_protocol.h"
 #include "ciaaModbus_config.h"
 #include "os.h"
 
 /*==================[macros and definitions]=================================*/
 
-#define CIAA_MODBUS_SLAVE_MIN_ID_VALUE    1
-#define CIAA_MODBUS_SLAVE_MAX_ID_VALUE    247
 
 typedef struct
 {
    const ciaaModbus_slaveCmd_type *cmd;
+   uint8_t *buf;
+   uint32_t size;
    uint8_t id;
    bool inUse;
 }ciaaModbus_slaveObj_type;
@@ -94,9 +95,11 @@ extern void ciaaModbus_slaveInit(void)
 
    for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_SLAVES ; loopi++)
    {
-      ciaaModbus_slaveObj[loopi].inUse = false;
       ciaaModbus_slaveObj[loopi].cmd = NULL;
+      ciaaModbus_slaveObj[loopi].buf = NULL;
+      ciaaModbus_slaveObj[loopi].size = 0;
       ciaaModbus_slaveObj[loopi].id = 0;
+      ciaaModbus_slaveObj[loopi].inUse = false;
    }
 }
 
@@ -154,26 +157,84 @@ extern int32_t ciaaModbus_slaveOpen(
    return hModbusSlave;
 }
 
-extern void ciaaModbus_slaveTask(int32_t hModbusSlave)
+extern void ciaaModbus_slaveTask(int32_t handler)
+{
+   uint32_t ret = 0;
+   ciaaModbus_slaveCmd_type const *cmd = ciaaModbus_slaveObj[handler].cmd;
+   uint8_t *buf = ciaaModbus_slaveObj[handler].buf;
+   uint16_t quantity;
+   uint16_t address;
+   uint8_t exceptioncode = 0;
+   uint8_t function = ciaaModbus_slaveObj[handler].buf[0];
+
+   if (ciaaModbus_slaveObj[handler].size)
+   {
+      switch(function)
+      {
+         case CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS:
+            if (cmd->cmd0x03ReadHoldingReg == NULL)
+            {
+               exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
+            }
+            else
+            {
+               quantity = ciaaModbus_readInt(&buf[3]);
+
+               if ( (0x007D < quantity) || (1 > quantity) )
+               {
+                  /* report invalid quantity of registers */
+                  exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
+               }
+               else
+               {
+                  address = ciaaModbus_readInt(&buf[1]);
+                  ret = cmd->cmd0x03ReadHoldingReg(address, quantity, &exceptioncode, &buf[2]);
+                  /* report byte count */
+                  buf[1] = ret * 2;
+                  ret = 2 + buf[1];
+               }
+            }
+            break;
+
+         default:
+            exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
+            break;
+      }
+   }
+
+   if (exceptioncode != 0)
+   {
+      /* set error flag */
+      buf[0] |= 0x80;
+      /* report exception code */
+      buf[1] = exceptioncode;
+      /* return 2 bytes */
+      ret = 2;
+   }
+
+   ciaaModbus_slaveObj[handler].size = ret;
+}
+
+
+void ciaaModbus_slaveRecvMsg(
+      int32_t handler,
+      uint8_t *id,
+      uint8_t *pdu,
+      uint32_t *size)
 {
 
 }
 
-
-/** \brief Process modbus request
- **
- ** \param[inout] buf buffer with the modbus data
- ** \param[in] len length of the buffer
- ** \param[in] cmd pointer to struct call backs modbus function
- ** \return length of data on the buffer
- **/
-extern int32_t ciaaModbus_slaveProcess(
-      uint8_t * buf,
-      const ciaaModbus_slaveCmd_type *cmd
-      )
+void ciaaModbus_slaveSendMsgType(
+      int32_t handler,
+      uint8_t id,
+      uint8_t *pdu,
+      uint32_t size)
 {
-   return 0;
+   ciaaModbus_slaveObj[handler].buf = pdu;
+   ciaaModbus_slaveObj[handler].size = size;
 }
+
 
 
 /** @} doxygen end group definition */
