@@ -66,10 +66,23 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 /****** error codes ******/
-#define CIAAMODBUS_E_FNC_NOT_SUPPORTED    0x01
-#define CIAAMODBUS_E_WRONG_STR_ADDR       0x02
-#define CIAAMODBUS_E_WRONG_REG_QTY        0x03
-#define CIAAMODBUS_E_FNC_ERROR            0x04
+#define CIAA_MODBUS_E_FNC_NOT_SUPPORTED            0x01
+#define CIAA_MODBUS_E_WRONG_STR_ADDR               0x02
+#define CIAA_MODBUS_E_WRONG_REG_QTY                0x03
+#define CIAA_MODBUS_E_FNC_ERROR                    0x04
+
+/****** functions ******/
+#define CIAA_MODBUS_FCN_READ_COILS                 0x01
+#define CIAA_MODBUS_FCN_READ_DISCRETE_INPUTS       0x02
+#define CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS     0x03
+#define CIAA_MODBUS_FCN_READ_INPUT_REGISTERS       0x04
+#define CIAA_MODBUS_FCN_WRITE_SINGLE_COIL          0x05
+#define CIAA_MODBUS_FCN_WRITE_SINGLE_REGISTER      0x06
+#define CIAA_MODBUS_FCN_WRITE_MULTIPLE_COILS       0x0F
+#define CIAA_MODBUS_FCN_WRITE_MULTIPLE_REGISTERS   0x10
+
+#define CIAA_MODBUS_SLAVE_MIN_ID_VALUE    1
+#define CIAA_MODBUS_SLAVE_MAX_ID_VALUE    247
 
 
 /*==================[typedef]================================================*/
