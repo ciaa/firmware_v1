@@ -54,6 +54,7 @@
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaModbus_slave.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -99,7 +100,16 @@ static const ciaaModbus_slaveCmd_type callbacksStruct =
  **/
 void setUp(void)
 {
+   /* ignore calls GetResource */
+   GetResource_CMockIgnoreAndReturn(E_OK);
+
+   /* ignore calls ReleaseResource */
+   ReleaseResource_CMockIgnoreAndReturn(E_OK);
+
+   /* perform the initialization of modbus slave */
    ciaaModbus_slaveInit();
+
+   /* open modbus slave */
    hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
 }
 
@@ -136,6 +146,9 @@ void test_ciaaModbus_slaveSendMsg(void)
          &id,
          pduRecv,
          size);
+
+   //TEST_ASSERT_EQUAL_UINT8_ARRAY
+
 }
 
 
