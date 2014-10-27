@@ -57,9 +57,33 @@
 
 /*==================[macros and definitions]=================================*/
 
-/*==================[internal data declaration]==============================*/
+#define SLAVE_ID  2
 
 /*==================[internal functions declaration]=========================*/
+static uint16_t cmd0x03ReadHoldingReg(
+       uint16_t start,
+       uint16_t quantity,
+       uint8_t * exceptioncode,
+       uint8_t * buf
+       );
+
+/*==================[internal data declaration]==============================*/
+static int32_t hModbusSlave;
+
+static const ciaaModbus_slaveCmd_type callbacksStruct =
+{
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+};
+
+
 
 /*==================[internal data definition]===============================*/
 
@@ -75,6 +99,8 @@
  **/
 void setUp(void)
 {
+   ciaaModbus_slaveInit();
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
 }
 
 /** \brief tear Down function
@@ -90,7 +116,27 @@ void doNothing(void)
 {
 }
 
+void test_ciaaModbus_slaveSendMsg(void)
+{
+   uint8_t pduSend[] = {0x03, 0x00, 0x00, 0x00, 0x01};
+   uint8_t pduRecv[50];
+   uint8_t id;
+   uint32_t size;
 
+   ciaaModbus_slaveSendMsgType(
+         hModbusSlave,
+         SLAVE_ID,
+         pduSend,
+         5);
+
+   ciaaModbus_slaveTask(hModbusSlave);
+
+   ciaaModbus_slaveRecvMsg(
+         hModbusSlave,
+         &id,
+         pduRecv,
+         size);
+}
 
 
 /** @} doxygen end group definition */
