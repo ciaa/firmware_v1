@@ -214,9 +214,9 @@ extern int32_t ciaaModbus_slaveClose(
 
 /** \brief Process task of Slave Modbus
  **
- ** \param[in] hModbusSlave Handler Modbus Slave
+ ** \param[in] handler Handler Modbus Slave
  **/
-extern void ciaaModbus_slaveTask(int32_t hModbusSlave);
+extern void ciaaModbus_slaveTask(int32_t handler);
 
 
 /** \brief Receive modbus message
