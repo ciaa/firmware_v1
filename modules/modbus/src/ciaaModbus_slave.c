@@ -222,7 +222,16 @@ void ciaaModbus_slaveRecvMsg(
       uint8_t *pdu,
       uint32_t *size)
 {
+   uint32_t loopi;
 
+   *id = ciaaModbus_slaveObj[handler].id;
+
+   for (loopi = 0 ; loopi < ciaaModbus_slaveObj[handler].size ; loopi++)
+   {
+      pdu[loopi] = ciaaModbus_slaveObj[handler].buf[loopi];
+   }
+
+   *size = ciaaModbus_slaveObj[handler].size;
 }
 
 void ciaaModbus_slaveSendMsgType(
