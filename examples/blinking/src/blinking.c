@@ -101,6 +101,11 @@ static int32_t fd_uart1;
  */
 static int32_t fd_uart2;
 
+/** \brief Periodic Task Counter
+ *
+ */
+static uint32_t Periodic_Task_Counter;
+
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -180,6 +185,7 @@ TASK(InitTask)
    ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL, (void *)ciaaFIFO_TRIGGER_LEVEL3);
 
    /* activate example tasks */
+   Periodic_Task_Counter = 0;
    SetRelAlarm(ActivatePeriodicTask, 200, 200);
 
    /* Activates the SerialEchoTask task */
@@ -260,7 +266,10 @@ TASK(PeriodicTask)
    /* write */
    ciaaPOSIX_write(fd_out, &outputs, 1);
 
-   ciaaPOSIX_printf("Periodic Task!\n");
+   /* Print Task info */
+   Periodic_Task_Counter++;
+   ciaaPOSIX_printf("Periodic Task: %d\n", Periodic_Task_Counter);
+   
    /* end PeriodicTask */
    TerminateTask();
 }
