@@ -561,6 +561,14 @@ generate_make: generate
 	make
 
 ###############################################################################
+# Run the bin file
+run:
+	@echo ' '
+	@echo ===============================================================================
+	@echo Running the file: $(LD_TARGET)
+	$(LD_TARGET)
+
+###############################################################################
 # Run all FreeOSEK Tests
 rtostests:
 	mkdir -p $(OUT_DIR)$(DS)doc$(DS)ctest

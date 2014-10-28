@@ -37,8 +37,8 @@
  **
  ** This file implements the StartOs Arch API
  **
- ** \file win/StartOs_Arch.c
- ** \arch win
+ ** \file x86/StartOs_Arch.c
+ ** \arch x86
  **/
 
 /** \addtogroup FreeOSEK
@@ -101,9 +101,9 @@ void StartOs_Arch(void)
 	}
 
    /* initialize singals handler */
-   signal(SIGALRM,WinInterruptHandler);
-   signal(SIGUSR1,WinInterruptHandler);
-   signal(SIGCHLD,WinInterruptHandler);
+   signal(SIGALRM,OsInterruptHandler);
+   signal(SIGUSR1,OsInterruptHandler);
+   signal(SIGCHLD,OsInterruptHandler);
 
    /* shared memory for circular buffer management block */
    OSEK_IntCircBuf = mmap(NULL,
@@ -131,7 +131,7 @@ void StartOs_Arch(void)
    /* enable timer interrupt */
    InterruptMask = 16;
 
-   SaveWinStack();
+   SaveOsStack();
 }
 
 /** @} doxygen end group definition */
