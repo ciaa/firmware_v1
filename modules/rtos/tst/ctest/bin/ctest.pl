@@ -564,7 +564,7 @@ foreach $testfn (@tests)
          $outmakeclean = `make clean`;
          $outmakecleanstatus = $?;
          info("make clean status: $outmakecleanstatus");
-         info("make clean output:\n$outmakeclean");
+         logffull("make clean output:\n$outmakeclean");
 
          mkdir("out/gen/etc/");
 
@@ -576,7 +576,7 @@ foreach $testfn (@tests)
             $outmakegenerate = `make generate PROJECT=out/rtos/$test/$config`;
             $outmakegeneratestatus = $?;
             info("make generate status: $outmakegeneratestatus");
-            info("make generate output:\n$outmakegenerate");
+            logffull("make generate output:\n$outmakegenerate");
             if ($debug)
             {
                print "$outmakegenerate";
@@ -587,7 +587,7 @@ foreach $testfn (@tests)
                $outmake = `make PROJECT=out/rtos/$test/$config`;
                $outmakestatus = $?;
                info("make status: $outmakestatus");
-               info("make output:\n$outmake");
+               logffull("make output:\n$outmake");
                if ($debug)
                {
                   print "$outmake";
