@@ -60,17 +60,21 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaLibs_CircBuf.h"
+#include <signal.h>
+#include <unistd.h>
 
 /*==================[macros]=================================================*/
 #define TriggerISR2_Arch()                                                 \
       do {                                                                 \
-        	int mq_ret;                                                       \
-         char msg = 8;                                                     \
-         mq_ret = mq_send(MessageQueue, &msg, sizeof(msg), 0);             \
-         if (mq_ret < 0) {                                                 \
-            printf("Trigger ISR2 Failed: %d %s\n", errno, strerror(errno));\
-            sleep(3);                                                      \
-         }                                                                 \
+         /* force interrupt 8 */                                           \
+         uint8 interrupt = 8;                                              \
+                                                                           \
+         /* add simulated interrupt to the interrupt queue */              \
+         ciaaLibs_circBufPut(OSEK_IntCircBuf, &interrupt, 1);              \
+                                                                           \
+         /* indicate interrupt using a signal */                           \
+         kill(getpid(), SIGALRM);                                          \
       } while(0)
 
 /*==================[typedef]================================================*/

@@ -378,7 +378,7 @@ sub CreateTestProject
   `mkdir -p $base/src`;
   `mkdir -p $base/mak`;
   `mkdir -p $base/inc`;
-  `mkdir -p $base/inc/posix`;
+  `mkdir -p $base/inc/x86`;
   # get configuration file for this project
   $org = "modules/rtos/tst/ctest/etc/" . $test . ".oil";
   $dst = "$base/etc/$test-$config.oil";
@@ -400,13 +400,17 @@ sub CreateTestProject
   print FILE "\$(project)_SRC_PATH += \$(\$(project)_PATH)\$(DS)src\$(DS) \\\n";
   print FILE " modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)src\$(DS)\n\n";
   print FILE "INCLUDE += \$(\$(project)_PATH)\$(DS)inc \\\n";
-  print FILE " \$(\$(project)_PATH)\$(DS)inc\$(DS)posix \\\n";
+  print FILE " \$(\$(project)_PATH)\$(DS)inc\$(DS)x86\\\n";
   print FILE " modules/posix/inc\n";
   print FILE "SRC_FILES += \$(wildcard \$(\$(project)_PATH)\$(DS)src\$(DS)*.c) \\\n";
   print FILE " modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)src\$(DS)ctest_rst.c\n\n";
   print FILE "OIL_FILES += \$(\$(project)_PATH)\$(DS)etc\$(DS)\$(project).oil\n\n";
   print FILE "MODS = modules\$(DS)bsp \\\n";
   print FILE " modules\$(DS)platforms \\\n";
+  print FILE " modules\$(DS)libs \\\n";
+  print FILE " modules\$(DS)posix \\\n";
+  print FILE " modules\$(DS)config \\\n";
+  print FILE " modules\$(DS)ciaak \\\n";
   print FILE " modules\$(DS)rtos\n\n";
   print FILE "rtos_GEN_FILES += modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)gen\$(DS)inc\$(DS)ctest_cfg.h.php\n\n";
   print FILE "CFLAGS += -D$test\n";
@@ -415,7 +419,7 @@ sub CreateTestProject
   copy("modules/rtos/tst/ctest/src/$test.c","$base/src/$test.c");
   copy("modules/rtos/tst/ctest/inc/$test.h","$base/inc/$test.h");
   copy("modules/rtos/tst/ctest/inc/ctest.h","$base/inc/ctest.h");
-  copy("modules/rtos/tst/ctest/inc/posix/ctest_arch.h","$base/inc/posix/ctest_arch.h");
+  copy("modules/rtos/tst/ctest/inc/x86/ctest_arch.h","$base/inc/x86/ctest_arch.h");
 }
 
 sub finish
@@ -590,11 +594,10 @@ foreach $testfn (@tests)
                }
                if ($outmakestatus == 0)
                {
-                  $out = $BINDIR . "/" . $test . "-" . $config . ".";
+                  $out = $BINDIR . "/" . $test . "-" . $config . ".exe";
                   info("debug of $test in $out");
                   $dbgfile = "modules/rtos/tst/ctest/dbg/" . $ARCH . "/gcc/debug.scr";
                   info("$GDB $out -x $dbgfile");
-                  `rm /dev/mqueue/*`;
                   if($debug == 0)
                   {
                      #$outdbg = `$GDB $out -x $dbgfile`;
@@ -604,7 +607,6 @@ foreach $testfn (@tests)
                   {
                      exec("$GDB $out");
                   }
-                  `rm /dev/mqueue/*`;
                   `pkill ctest_`;
                   $outdbg = "";
                   $outdbgstatus = $?;
