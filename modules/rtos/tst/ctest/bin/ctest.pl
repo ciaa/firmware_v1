@@ -317,6 +317,7 @@ sub readparam
          when ("DIR") { $DIR = $val; }
          when ("LOG") { $logfile = $val; }
          when ("LOGFULL") { $logfilefull = $val; }
+		 when ("CLEAN_GENERATE") { $clean_generate = $val; }
          when ("TESTS") { $TESTS = $val; }
          when ("RES") { $RES = $val; }
          when ("TESTCASES") { $TESTCASES = $val; }
@@ -560,26 +561,42 @@ foreach $testfn (@tests)
 
          $error = "";
 
-         info("make clean of $test");
-         $outmakeclean = `make clean`;
-         $outmakecleanstatus = $?;
-         info("make clean status: $outmakecleanstatus");
-         logffull("make clean output:\n$outmakeclean");
+         if($clean_generate != 0)
+         {
+            info("make clean of $test");
+            $outmakeclean = `make clean`;
+            $outmakecleanstatus = $?;
+            info("make clean status: $outmakecleanstatus");
+            logffull("make clean output:\n$outmakeclean");
+         }
+         else
+         {
+            info("skipping make clean of $test");
+			$outmakecleanstatus = 0;
+         }
 
          mkdir("out/gen/etc/");
 
 
          if ($outmakecleanstatus == 0)
          {
-            info("make generate of $test");
-            info("running \"make generate PROJECT=out/rtos/$test/$config");
-            $outmakegenerate = `make generate PROJECT=out/rtos/$test/$config`;
-            $outmakegeneratestatus = $?;
-            info("make generate status: $outmakegeneratestatus");
-            logffull("make generate output:\n$outmakegenerate");
-            if ($debug)
+            if($clean_generate != 0)
+            {		 
+               info("make generate of $test");
+               info("running \"make generate PROJECT=out/rtos/$test/$config");
+               $outmakegenerate = `make generate PROJECT=out/rtos/$test/$config`;
+               $outmakegeneratestatus = $?;
+               info("make generate status: $outmakegeneratestatus");
+               logffull("make generate output:\n$outmakegenerate");
+               if ($debug)
+               {
+                  print "$outmakegenerate";
+               }
+            }
+            else
             {
-               print "$outmakegenerate";
+               info("skipping make generate of $test");
+			   $outmakegeneratestatus = 0;
             }
             if ($outmakegeneratestatus == 0)
             {

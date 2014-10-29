@@ -572,7 +572,8 @@ run:
 # Run all FreeOSEK Tests
 rtostests:
 	mkdir -p $(OUT_DIR)$(DS)doc$(DS)ctest
-	@echo GDB:$(GDB)> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo GDB:$(GDB) $(GFLAGS) >> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo CLEAN_GENERATE:1 >> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo BINDIR:$(BIN_DIR)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo DIR:$(DS)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo ARCH:$(ARCH)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
