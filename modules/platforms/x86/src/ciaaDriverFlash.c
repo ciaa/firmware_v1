@@ -33,9 +33,9 @@
  *
  */
 
-#ifndef _CIAADRIVERFLASH_INTERNAL_H_
-#define _CIAADRIVERFLASH_INTERNAL_H_
-/** \brief Internal Header file of UART Driver
+/** \brief CIAA Flash Posix Driver
+ **
+ ** Simulated Flash Driver for Posix for testing proposes
  **
  **/
 
@@ -43,7 +43,7 @@
  ** @{ */
 /** \addtogroup Drivers CIAA Drivers
  ** @{ */
-/** \addtogroup UART UART Drivers
+/** \addtogroup Flash Flash Drivers
  ** @{ */
 
 /*
@@ -62,26 +62,60 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaDriverFlash.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal data definition]===============================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[external data definition]===============================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
+{
+   return device;
 }
-#endif
+
+extern int32_t ciaaDriverFlash_close(ciaaDevices_deviceType const * const device)
+{
+   return -1;
+}
+
+extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
+{
+   int32_t ret = -1;
+
+   return ret;
+}
+
+extern int32_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
+{
+   int32_t ret = -1;
+
+   return ret;
+}
+
+extern int32_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
+{
+   int32_t ret = -1;
+
+   return ret;
+}
+
+void ciaaDriverFlash_init(void)
+{
+
+}
+
+/*==================[interrupt handlers]=====================================*/
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAADRIVERFLASH_INTERNAL_H_ */
+
