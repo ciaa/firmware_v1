@@ -317,7 +317,7 @@ sub readparam
          when ("DIR") { $DIR = $val; }
          when ("LOG") { $logfile = $val; }
          when ("LOGFULL") { $logfilefull = $val; }
-		 when ("CLEAN_GENERATE") { $clean_generate = $val; }
+         when ("CLEAN_GENERATE") { $clean_generate = $val; }
          when ("TESTS") { $TESTS = $val; }
          when ("RES") { $RES = $val; }
          when ("TESTCASES") { $TESTCASES = $val; }
