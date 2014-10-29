@@ -160,7 +160,7 @@ extern void ciaaModbus_bin2ascii(uint8_t length, uint8_t * buf);
  **
  ** \param[inout] buf input ascii buffer starting with : and without CRLF
  **               and output bin buffer
- ** \paran[in] len length of the ascii buffer
+ ** \para[in] len length of the ascii buffer
  ** \return -1 if error, lenght of the binary data
  **
  ** \remarks This function shall not be called from outside this file.
