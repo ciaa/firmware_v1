@@ -129,8 +129,17 @@ void OsInterruptHandler(int signal)
 
    if (SIGCHLD == signal)
    {
-      /* kill process */
+      printf("SigChild %d\n", getpid());   
+      /* wait for an ending child */
       wait(NULL);
+      /* kill Main process */
+	  OsekKillSigHandler(0);
+   }
+   if (SIGTERM == signal)
+   {
+      printf("SigTerm %d\n", getpid());   
+      /* Terminate Child process */
+      *Os_Terminate_Flag = true;
    }
 
    /* repeat until the buffer is empty */
@@ -170,9 +179,9 @@ void HWTimerFork(uint8 timer)
        * 0 seconds and
        * 10 ms */
       rqtp.tv_sec=0;
-      rqtp.tv_nsec=1000000;
+      rqtp.tv_nsec=9000000;
 
-      while(1)
+      while(*Os_Terminate_Flag == false)
       {
          /* sleep */
          nanosleep(&rqtp,NULL);

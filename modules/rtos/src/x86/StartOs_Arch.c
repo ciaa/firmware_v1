@@ -84,6 +84,8 @@ uint8 * OSEK_IntCircBuffer;
 /*==================[external data definition]===============================*/
 ciaaLibs_CircBufType * OSEK_IntCircBuf;
 
+bool * Os_Terminate_Flag;
+
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
@@ -104,7 +106,8 @@ void StartOs_Arch(void)
    signal(SIGALRM,OsInterruptHandler);
    signal(SIGUSR1,OsInterruptHandler);
    signal(SIGCHLD,OsInterruptHandler);
-
+   signal(SIGTERM,OsInterruptHandler);
+   
    /* shared memory for circular buffer management block */
    OSEK_IntCircBuf = mmap(NULL,
          sizeof(ciaaLibs_CircBufType),
@@ -117,14 +120,22 @@ void StartOs_Arch(void)
          PROT_READ | PROT_WRITE,
          MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
-   /* init circular buffer */
+		 /* init circular buffer */
    ciaaLibs_circBufInit(OSEK_IntCircBuf, OSEK_IntCircBuffer, 64);
-
+ 
+   /* shared memory for the circular buffer */
+   Os_Terminate_Flag = mmap(NULL,
+         sizeof(bool),
+         PROT_READ | PROT_WRITE,
+         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+   *Os_Terminate_Flag = false;
+   
    if (fork() == 0)
    {
+      printf("Child %d\n", getpid());
       HWTimerFork(0);
    }
-
+   printf("Parent %d\n", getpid());
    /* enable interrupts */
    InterruptState = 1;
 

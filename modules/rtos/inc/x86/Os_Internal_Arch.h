@@ -325,6 +325,10 @@
  **/
 extern InterruptFlagsType InterruptFlag;
 
+/** \brief Os Terminate Flag
+ **/
+extern bool * Os_Terminate_Flag;
+
 /** \brief Osek Hardware Timer 0
  **/
 extern uint32 OsekHWTimer0;
