@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 # Copyright 2008, 2009, 2014 Mariano Cerdeiro
+# Copyright 2014, Juan Cecconi
 # Copyright 2014, ACSE & CADIEEL
 #      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #      CADIEEL: http://www.cadieel.org.ar
@@ -315,6 +316,7 @@ sub readparam
          when ("CPUTYPE") { $CPUTYPE = $val; }
          when ("CPU") { $CPU = $val; }
          when ("DIR") { $DIR = $val; }
+         when ("DEBUG_CTESTS") { $debug = $val; }
          when ("LOG") { $logfile = $val; }
          when ("LOGFULL") { $logfilefull = $val; }
          when ("CLEAN_GENERATE") { $clean_generate = $val; }
@@ -479,26 +481,17 @@ print "INFO: ------- LICENSE END -------\n";
 
 if ($#ARGV + 1 < 2)
 {
-   info("ctest.pl -f ctest.cfg [ctest_tm_01] [--debug SEQUENCE]");
+   info("ctest.pl -f ctest.cfg [ctest_xx_yy] [subtestcase]");
 }
 
+#Example: 'full-preemptive' or empty
+$subtestcase = $ARGV[3];
+#Example: 'ctest_tm_01:Test Sequence 1' or empty
 $onlytc = $ARGV[2];
 
 $cfgfile = $ARGV[1];
 
 info("Configuration file: $cfgfile");
-
-if ($ARGV[3] eq "--debug")
-{
-   $debug = 1;
-   $subtestcase = $ARGV[4];
-   print "Debugging modes for: " . $subtestcase . "\n";
-}
-else
-{
-   $debug = 0;
-   $subtestcase = -1;
-}
 
 readparam($cfgfile);
 
@@ -525,6 +518,15 @@ if($onlytc ne "")
    }
 }
 
+if ($subtestcase ne "")
+{
+   print "Sub Test Case: " . $subtestcase . "\n";
+}
+if($debug != 0)
+{
+   print "Debug Mode: Enabled!\n";
+}
+
 foreach $testfn (@tests)
 {
    @test = split(/:/,$testfn);
@@ -541,9 +543,9 @@ foreach $testfn (@tests)
 
       $testcasecount++;
 
-      if($subtestcase>0)
+      if($subtestcase)
       {
-         if($subtestcase == $testcasecount)
+         if($subtestcase eq $config)
          {
             $runthistestcase = 1;
          }
@@ -571,7 +573,7 @@ foreach $testfn (@tests)
          }
          else
          {
-            info("skipping make clean of $test");
+            info("WARNING: skipping make clean of $test");
 			$outmakecleanstatus = 0;
          }
 
@@ -595,7 +597,7 @@ foreach $testfn (@tests)
             }
             else
             {
-               info("skipping make generate of $test");
+               info("WARNING: skipping make generate of $test");
 			   $outmakegeneratestatus = 0;
             }
             if ($outmakegeneratestatus == 0)
