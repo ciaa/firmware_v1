@@ -450,6 +450,7 @@ sub logffull
 
 
 print "ciaaFirmware RTOS Generator - Copyright 2008, 2009, 2014 Mariano Cerdeiro\n";
+print "                              Copyright 2014, Juan Cecconi\n";
 print "                              Copyright 2014, ACSE & CADIEEL\n";
 print "         ACSE : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/\n";
 print "         CADIEEL: http://www.cadieel.org.ar\n\n";
@@ -492,6 +493,8 @@ $onlytc = $ARGV[2];
 $cfgfile = $ARGV[1];
 
 info("Configuration file: $cfgfile");
+info("Removing old files");
+system("rm -rf out/rtos/*");
 
 readparam($cfgfile);
 
@@ -562,7 +565,7 @@ foreach $testfn (@tests)
          CreateTestProject($test, $config);
 
          $error = "";
-
+		 
          if($clean_generate != 0)
          {
             info("make clean of $test");
@@ -578,7 +581,6 @@ foreach $testfn (@tests)
          }
 
          mkdir("out/gen/etc/");
-
 
          if ($outmakecleanstatus == 0)
          {

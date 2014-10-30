@@ -125,6 +125,11 @@ OBJ_DIR  = $(OUT_DIR)$(DS)obj
 LIB_DIR  = $(OUT_DIR)$(DS)lib
 # bin dir
 BIN_DIR  = $(OUT_DIR)$(DS)bin
+# rtos gen dir
+GEN_DIR = $(OUT_DIR)$(DS)gen
+# rtos test gen dir
+RTOS_TEST_GEN_DIR = $(OUT_DIR)$(DS)rtos
+
 # include needed project
 include $(PROJECT)$(DS)mak$(DS)Makefile
 # include needed modules
@@ -371,10 +376,9 @@ debug : $(BIN_DIR)$(DS)$(project).bin
 
 ###############################################################################
 # rtos OSEK generation
-GENDIR = $(OUT_DIR)$(DS)gen
 generate : $(OIL_FILES)
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
-		$(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GENDIR)
+		$(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 
 ###############################################################################
 # doxygen
@@ -533,7 +537,7 @@ clean:
 	@echo Removing bin files
 	@rm -rf $(BIN_DIR)$(DS)*
 	@echo Removing RTOS generated files
-	@rm -rf $(GENDIR)$(DS)*
+	@rm -rf $(GEN_DIR)$(DS)*
 	@echo Removing mocks
 	@rm -rf $(MOCKS_OUT_DIR)$(DS)*
 	@echo Removing Unity Runners files
