@@ -50,7 +50,7 @@ OS	ExampleOS {
     STARTUPHOOK = FALSE;
     SHUTDOWNHOOK = FALSE;
     USERESSCHEDULER = FALSE;
-    MEMMAP = FALSE;	
+    MEMMAP = FALSE;
 };
 
 TASK InitTask {
@@ -59,7 +59,11 @@ TASK InitTask {
     AUTOSTART = TRUE {
         APPMODE = AppMode1;
     }
-    STACK = 512;
+    /* To run an embedded system you may reduce the stack size, but to allow */
+    /* the simulation of the application on windows/linux you will need at   */
+    /* least 2048 bytes stack. HW interruptions are simulated using signals  */
+    /* and signals need around 1500 bytes stack in 64 bits systems.          */
+    STACK = 2048;
     TYPE = BASIC;
     SCHEDULE = NON;
     RESOURCE = POSIXR;
@@ -68,7 +72,11 @@ TASK InitTask {
 TASK Blinking {
     PRIORITY = 5;
     ACTIVATION = 1;
-    STACK = 512;
+    /* To run an embedded system you may reduce the stack size, but to allow */
+    /* the simulation of the application on windows/linux you will need at   */
+    /* least 2048 bytes stack. HW interruptions are simulated using signals  */
+    /* and signals need around 1500 bytes stack in 64 bits systems.          */
+    STACK = 2048;
     TYPE = BASIC;
     SCHEDULE = NON;
     RESOURCE = POSIXR;
@@ -77,7 +85,11 @@ TASK Blinking {
 TASK ModbusSlave {
     PRIORITY = 1;
     ACTIVATION = 1;
-    STACK = 512;
+    /* To run an embedded system you may reduce the stack size, but to allow */
+    /* the simulation of the application on windows/linux you will need at   */
+    /* least 2048 bytes stack. HW interruptions are simulated using signals  */
+    /* and signals need around 1500 bytes stack in 64 bits systems.          */
+    STACK = 2048;
     TYPE = EXTENDED;
     SCHEDULE = FULL;
     RESOURCE = POSIXR;

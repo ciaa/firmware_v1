@@ -37,8 +37,8 @@
 #define _OS_INTERNAL_ARCH_H_
 /** \brief FreeOSEK Os Internal Architecture Dependent Header File
  **
- ** \file win/Os_Internal_Arch.h
- ** \arch win
+ ** \file x86/Os_Internal_Arch.h
+ ** \arch x86
  **/
 
 /** \addtogroup FreeOSEK
@@ -52,6 +52,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi
  */
 
 /*
@@ -248,58 +249,58 @@
 #define PostIsr2_Arch(isr)
 
 #if ( CPUTYPE == ia64 )
-#define SaveWinStack()                                                                      \
+#define SaveOsStack()                                                                      \
 {                                                                                           \
-   /* save actual win stack */                                                              \
-   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (WinStack) : : "rax"); \
+   /* save actual Os stack */                                                              \
+   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (OsStack) : : "rax"); \
 }
 #elif ( CPUTYPE == ia32 )
-#define SaveWinStack()                                                                      \
+#define SaveOsStack()                                                                      \
 {                                                                                           \
-   /* save actual win esp */                                                                \
-   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (WinStack) : : "eax"); \
+   /* save actual Os esp */                                                                \
+   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (OsStack) : : "eax"); \
 }
 #endif
 
 /** \brief Pre Call Service
  **
- ** This macro shall be called before calling any win system service
+ ** This macro shall be called before calling any Os system service
  **/
 #if ( CPUTYPE == ia64 )
 #define PreCallService()                                                                     \
 {                                                                                            \
    /* save osek stack */                                                                     \
    __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (OsekStack) : : "rax"); \
-   /* get win stack */                                                                       \
-   __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (WinStack) );                             \
+   /* get Os stack */                                                                       \
+   __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (OsStack) );                             \
 }
 #elif ( CPUTYPE == ia32 )
 #define PreCallService()                                                                     \
 {                                                                                            \
    /* save osek stack */                                                                     \
    __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (OsekStack) : : "eax"); \
-   /* get win stack */                                                                       \
-   __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (WinStack) );                             \
+   /* get Os stack */                                                                       \
+   __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (OsStack) );                             \
 }
 #endif
 
 /** \brief Post Call Service
  **
- ** This macro shall be called after calling any win system service
+ ** This macro shall be called after calling any Os system service
  **/
 #if ( CPUTYPE == ia64 )
 #define PostCallService()                                                                       \
 {                                                                                               \
-   /* save actual win stack */                                                                  \
-   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (WinStack) : : "rax");     \
+   /* save actual Os stack */                                                                  \
+   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (OsStack) : : "rax");     \
    /* get osek stack */                                                                         \
    __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (OsekStack) );                               \
 }
 #elif ( CPUTYPE == ia32 )
 #define PostCallService()                                                                       \
 {                                                                                               \
-   /* save actual win stack */                                                                  \
-   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (WinStack) : : "eax");     \
+   /* save actual Os stack */                                                                  \
+   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (OsStack) : : "eax");     \
    /* get osek stack */                                                                         \
    __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (OsekStack) );                               \
 }
@@ -318,7 +319,7 @@
 /*==================[external data declaration]==============================*/
 /** \brief Interrupt Falg
  **
- ** This variable indicate the state of the win interrupts. If bit 0 is set
+ ** This variable indicate the state of the Os interrupts. If bit 0 is set
  ** interrupt 0 has been activated, if bit 1 is set interrupt 1 has been
  ** activated, and so on.
  **/
@@ -332,18 +333,18 @@ extern uint8 * OSEK_IntCircBuffer;
 
 extern ciaaLibs_CircBufType * OSEK_IntCircBuf;
 
-/** \brief Win Stack
+/** \brief Os Stack
  **
- ** This variable is used to save the win stack used to call the system
+ ** This variable is used to save the Os stack used to call the system
  ** (linux) services from FreeOSEK
  **/
 #ifdef CPUTYPE
 #if ( CPUTYPE == ia64 )
-extern uint64 WinStack;
+extern uint64 OsStack;
 #elif ( CPUTYPE == ia32 )
-extern uint32 WinStack;
+extern uint32 OsStack;
 #else /* #if ( CPUTYPE == ia64 ) */
-#error Unknown CPUTYPE for ARCH win
+#error Unknown CPUTYPE for ARCH x86
 #endif /* #if ( CPUTYPE == ia64 ) */
 #else /* #ifdef CPUTYPE */
 #error CPUTPYE is not defined
@@ -352,7 +353,7 @@ extern uint32 WinStack;
 
 /** \brief Osek Stack
  **
- ** This variable is used to save the Osek stack while calling a win
+ ** This variable is used to save the Osek stack while calling a Os
  ** service
  **/
 #if ( CPUTYPE == ia64 )
@@ -360,15 +361,15 @@ extern uint64 OsekStack;
 #elif ( CPUTYPE == ia32 )
 extern uint32 OsekStack;
 #else /* #if ( CPUTYPE == ia64 ) */
-#error Unknown CPUTYPE for ARCH win
+#error Unknown CPUTYPE for ARCH x86
 #endif /* #if ( CPUTYPE == ia64 ) */
 
 /*==================[external functions declaration]=========================*/
-/** \brief Win Interrupt Handler
+/** \brief Os Interrupt Handler
  **
  ** This function is called every time when a interrupt message is received.
  **/
-extern void WinInterruptHandler(int status);
+extern void OsInterruptHandler(int status);
 
 extern void HWTimerFork(uint8 timer);
 

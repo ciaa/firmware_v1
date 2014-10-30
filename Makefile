@@ -561,10 +561,19 @@ generate_make: generate
 	make
 
 ###############################################################################
+# Run the bin file
+run:
+	@echo ' '
+	@echo ===============================================================================
+	@echo Running the file: $(LD_TARGET)
+	$(LD_TARGET)
+
+###############################################################################
 # Run all FreeOSEK Tests
 rtostests:
 	mkdir -p $(OUT_DIR)$(DS)doc$(DS)ctest
-	@echo GDB:$(GDB)> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo GDB:$(GDB) $(GFLAGS) > $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo CLEAN_GENERATE:1 >> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo BINDIR:$(BIN_DIR)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo DIR:$(DS)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo ARCH:$(ARCH)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf

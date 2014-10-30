@@ -124,7 +124,11 @@ extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag)
          for(loopi = 0; (loopi < ciaaPOSIX_stdio_MAXFILDES) && (-1 == ret); loopi++)
          {
             /* enter critical section */
+#ifdef POSIXR
             GetResource(POSIXR);
+#else /* #ifdef POSIXR */
+            SuspendOSInterrupts();
+#endif /* #ifdef POSIXR */
 
             /* if file descriptor not used, use it */
             if (NULL == ciaaPOSIX_stdio_fildes[loopi].device)
@@ -137,7 +141,11 @@ extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag)
             }
 
             /* exit critical section */
+#ifdef POSIXR
             ReleaseResource(POSIXR);
+#else /* #ifdef POSIXR */
+            ResumeOSInterrupts();
+#endif /* #ifdef POSIXR */
          }
 
          /* if a file descriptor has been found */
@@ -157,13 +165,21 @@ extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag)
                /* device could not be opened */
 
                /* enter critical section */
+#ifdef POSIXR
                GetResource(POSIXR);
+#else /* #ifdef POSIXR */
+               SuspendOSInterrupts();
+#endif /* #ifdef POSIXR */
 
                /* remove device from file descriptor */
                ciaaPOSIX_stdio_fildes[ret].device = NULL;
 
                /* exit critical section */
+#ifdef POSIXR
                ReleaseResource(POSIXR);
+#else /* #ifdef POSIXR */
+               ResumeOSInterrupts();
+#endif /* #ifdef POSIXR */
 
                /* return an error */
                ret = -1;

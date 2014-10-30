@@ -316,8 +316,10 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
          serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT, (void*)true);
 
          /* if no data wait for it */
+#ifdef POSIXE
          WaitEvent(POSIXE);
          ClearEvent(POSIXE);
+#endif
 
          /* after the wait is not needed to check if data is avaibale on the
           * buffer. The event will be set first after adding some data into it */
@@ -376,8 +378,10 @@ extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const devi
          /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
          serialDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)true);
          /* wait to write all data or for the txConfirmation */
+#ifdef POSIXE
          WaitEvent(POSIXE);
          ClearEvent(POSIXE);
+#endif
       }
    }
    while (total < nbyte);
@@ -434,7 +438,9 @@ extern void ciaaSerialDevices_txConfirmation(ciaaDevices_deviceType const * cons
          serialDevice->blocked.fct = NULL;
 
          /* set task event */
+#ifdef POSIXE
          SetEvent(taskID, POSIXE);
+#endif
       }
    }
 }
@@ -489,7 +495,9 @@ extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const 
       serialDevice->blocked.fct = NULL;
 
       /* set task event */
+#ifdef POSIXE
       SetEvent(taskID, POSIXE);
+#endif
    }
 }
 

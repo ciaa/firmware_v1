@@ -35,8 +35,8 @@
 
 /** \brief FreeOSEK Os Internal Arch Implementation File
  **
- ** \file win/Os_Internal_Arch.c
- ** \arch win
+ ** \file x86/Os_Internal_Arch.c
+ ** \arch x86
  **/
 
 /** \addtogroup FreeOSEK
@@ -90,15 +90,15 @@ InterruptFlagsType InterruptFlag;
 
 #ifdef CPUTYPE
 #if ( CPUTYPE == ia64 )
-uint64 WinStack;
+uint64 OsStack;
 
 uint64 OsekStack;
 #elif ( CPUTYPE == ia32 )
-uint32 WinStack;
+uint32 OsStack;
 
 uint32 OsekStack;
 #else /* #if ( CPUTYPE == ia64 ) */
-#error Unknown CPUTYPE for ARCH win
+#error Unknown CPUTYPE for ARCH x86
 #endif /* #if ( CPUTYPE == ia64 ) */
 #else /* #ifdef CPUTYPE */
 #error CPUTPYE is not defined
@@ -123,7 +123,7 @@ void OSEK_ISR_HWTimer1(void)
 #endif /* #if (defined HWCOUNTER1) */
 }
 
-void WinInterruptHandler(int signal)
+void OsInterruptHandler(int signal)
 {
    uint8 interrupt;
 
