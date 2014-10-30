@@ -1,4 +1,5 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -51,6 +52,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi 
  */
 
 /*
@@ -129,7 +131,9 @@ void OsInterruptHandler(int signal)
 
    if (SIGCHLD == signal)
    {
-      printf("SigChild %d\n", getpid());   
+#if 0
+      printf("Signal:%d (%s), pid:%d\n",signal,strsignal(signal), getpid());
+#endif
       /* wait for an ending child */
       wait(NULL);
       /* kill Main process */
@@ -137,7 +141,6 @@ void OsInterruptHandler(int signal)
    }
    if (SIGTERM == signal)
    {
-      printf("SigTerm %d\n", getpid());   
       /* Terminate Child process */
       *Os_Terminate_Flag = true;
    }
@@ -179,7 +182,7 @@ void HWTimerFork(uint8 timer)
        * 0 seconds and
        * 10 ms */
       rqtp.tv_sec=0;
-      rqtp.tv_nsec=9000000;
+      rqtp.tv_nsec=1000000;
 
       while(*Os_Terminate_Flag == false)
       {

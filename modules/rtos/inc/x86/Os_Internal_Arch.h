@@ -1,4 +1,5 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar

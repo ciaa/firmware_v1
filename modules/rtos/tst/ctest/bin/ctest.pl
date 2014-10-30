@@ -43,6 +43,9 @@ $errors = 0;
 $warnings = 0;
 $fatalerrors = 0;
 
+#Hide experimental warning (given/when)
+no if $] >= 5.018, warnings => "experimental::smartmatch";
+
 sub htons
 {
    $val = 0;
@@ -628,18 +631,16 @@ foreach $testfn (@tests)
                   info("$GDB $out -x $dbgfile");
                   if($debug == 0)
                   {
-                     #$outdbg = `$GDB $out -x $dbgfile`;
-                     system("$GDB $out -x $dbgfile");
+                     $outdbg = `$GDB $out -x $dbgfile`;
                   }
                   else
                   {
                      exec("$GDB $out");
+					 $outdbg = "";
                   }
-                  `pkill ctest_`;
-                  $outdbg = "";
                   $outdbgstatus = $?;
                   info("debug status: $outdbgstatus");
-                  info("debug output:\n$outdbg");
+                  #info("debug output:\n$outdbg");
                   $outdbgstatus = 0;
                   if ($outdbgstatus == 0)
                   {

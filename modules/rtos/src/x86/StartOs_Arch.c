@@ -1,4 +1,5 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -52,6 +53,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi 
  */
 
 /*
@@ -132,10 +134,14 @@ void StartOs_Arch(void)
    
    if (fork() == 0)
    {
+#if 0
       printf("Child %d\n", getpid());
+#endif	  
       HWTimerFork(0);
    }
+#if 0
    printf("Parent %d\n", getpid());
+#endif	     
    /* enable interrupts */
    InterruptState = 1;
 
