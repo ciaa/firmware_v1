@@ -3,7 +3,6 @@ monitor reset
 monitor halt
 load
 monitor soft_reset_halt
-handle SIGUSR1 noprint nostop
 break ConfTestFinish
 c
 dump value out/rtos/TestResults.bin TestResults
