@@ -1,0 +1,15 @@
+target remote localhost:3333
+monitor reset
+monitor halt
+load
+monitor soft_reset_halt
+handle SIGUSR1 noprint nostop
+break ConfTestFinish
+c
+dump value out/rtos/TestResults.bin TestResults
+dump value out/rtos/TestResultsOk.bin TestResultsOk
+dump value out/rtos/SequenceCounter.bin SequenceCounter
+dump value out/rtos/SequenceCounterOk.bin SequenceCounterOk
+dump value out/rtos/ConfTestResult.bin ConfTestResult
+kill
+quit

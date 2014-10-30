@@ -1,7 +1,7 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, Mariano Cerdeiro
+/* Copyright 2008, 2009 Mariano Cerdeiro
+ * Copyright 2014, ACSE & CADIEEL
+ *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *      CADIEEL: http://www.cadieel.org.ar
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,68 +33,48 @@
  *
  */
 
-#ifndef _CIAAPOSIX_STDDEF_H_
-#define _CIAAPOSIX_STDDEF_H_
-/** \brief Short description of this file
+#ifndef _CTEST_ARCH_H_
+#define _CTEST_ARCH_H_
+/** \brief FreeOSEK Os Conformance Test
  **
- ** Long description of this file
- **
+ ** \file FreeOSEK/Os/tst/ctest/inc/posix/ctest_arch.h
  **/
 
-/** \addtogroup CIAA_Firmware CIAA Firmware
+/** \addtogroup FreeOSEK
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup FreeOSEK_Os
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_CT Conformance Test
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * MaCe			 Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140910 v0.0.1 MaCe add support for k60_120
+ * 20140503 v0.1.0 MaCe	initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaPlatforms.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#if (x86 == ARCH)
-#include "stddef.h"
-#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) )
-#include "stddef.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
 /*==================[macros]=================================================*/
+#define TriggerISR2_Arch()                                                 \
+      do {                                                                 \
+      } while(0)
 
 /*==================[typedef]================================================*/
-#if ( (x86 == ARCH) || (cortexM4 == ARCH) )
-#include "sys/types.h"
-#if 0
-#include "stddef.h"
-#endif
-#endif
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_STDDEF_H_ */
+#endif /* #ifndef _CTEST_ARCH_H_ */
 
