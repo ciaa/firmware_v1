@@ -216,6 +216,108 @@ extern "C" {
  ** Returned none
  **/
 #define ciaaPOSIX_IOCTL_SET_NONBLOCK_MODE              9
+
+/** \brief request to configure ioctl with aiindication
+ **
+
+ ** if ioctl is called with this request and param is != NULL the device
+ ** will be configured non blocking wiht ai indication.
+ **
+ **/
+#define ciaaPOSIX_IOCTL_AIINDICATION                   10
+
+/** \brief start conversion if not already on going
+ **
+
+ ** This ioctl command can be used to force the digital to analogic conversion. If the
+ ** conversion is already on going the call hay no effects.
+ **
+ **/
+#define ciaaPOSIX_IOCTL_STARTAO                        11
+
+/** \brief get current number of bytes stored in ai buffer
+ **
+
+ ** This ioctl command is used to see how many bytes are currently in the
+ ** analogic input queue, in order to avoid task blocking when calling read.
+ **
+ **/
+#define ciaaPOSIX_IOCTL_GET_AI_COUNT                   12
+
+/** \brief get current space left in ao buffer (in bytes)
+ **
+
+ ** This ioctl command is used to see how many bytes can be written in the
+ ** analogic output queue without being blocked by calling write
+ **
+ **/
+#define ciaaPOSIX_IOCTL_GET_AO_SPACE                   13
+
+/** \brief set Enabled/Disabled AO Interrupt for analogic devices
+ **
+ ** This ioctl command is used to set Enabled/Disabled AO Interrupt for any analogic device.
+ ** Possible values for arg are:
+
+ **   true (Enabled)
+ **   false (Enabled)
+ **
+ ** Returned none
+ **/
+#define ciaaPOSIX_IOCTL_SET_ENABLE_AO_INTERRUPT        14
+
+/** \brief set Enabled/Disabled AI Interrupt for analogic devices
+ **
+ ** This ioctl command is used to set Enabled/Disabled AI Interrupt for any analogic device.
+
+ ** Possible values for arg are:
+ **   true (Enabled)
+ **   false (Enabled)
+ **
+ ** Returned none
+ **/
+#define ciaaPOSIX_IOCTL_SET_ENABLE_AI_INTERRUPT        15
+
+/** \brief set channel for analogic input/output
+ **
+ ** This ioctl command is used to set the channel for any analogic input/output.
+ ** Possible values for arg are:
+ **   ciaaCHANNEL_0
+ **   ciaaCHANNEL_1
+ **   ciaaCHANNEL_2
+ **   ciaaCHANNEL_3
+ **
+ ** Returned none
+ **/
+#define ciaaPOSIX_IOCTL_SET_CHANNEL                    16
+
+/** \brief channel macros for input/output macros for analogic devices
+ **/
+#define ciaaCHANNEL_0        0
+#define ciaaCHANNEL_1        1
+#define ciaaCHANNEL_2        2
+#define ciaaCHANNEL_3        3
+
+/** \brief set resolution for analogic input/output
+ **
+ **/
+#define ciaaPOSIX_IOCTL_SET_SAMPLE_RATE                17
+
+/** \brief set resolution for analogic input device
+ **
+ **/
+#define ciaaPOSIX_IOCTL_SET_RESOLUTION                 18
+
+/** \brief resolution macros for input/output macros for analogic input device
+ **/
+#define ciaaRESOLUTION_10BITS       0
+#define ciaaRESOLUTION_9BITS        1
+#define ciaaRESOLUTION_8BITS        2
+#define ciaaRESOLUTION_7BITS        3
+#define ciaaRESOLUTION_6BITS        4
+#define ciaaRESOLUTION_5BITS        5
+#define ciaaRESOLUTION_4BITS        6
+#define ciaaRESOLUTION_3BITS        7
+
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/

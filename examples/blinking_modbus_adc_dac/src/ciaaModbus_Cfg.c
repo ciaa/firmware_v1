@@ -1,16 +1,7 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- *
- *    or
- *
- * Copyright 2014, Your Name <youremail@domain.com>
- *
- *    or
- *
- * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Gustavo Muro
+ * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
  *
  * This file is part of CIAA Firmware.
  *
@@ -42,39 +33,41 @@
  *
  */
 
-/** \brief Short description of this file
+/** \brief This file implements the Modbus configuration
  **
- ** Long description of this file
+ ** This file implements the configuration of the modbus
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup Modbus CIAA Modbus
  ** @{ */
 
 /*
  * Initials     Name
- * ---------------------------
+ * MaCe         Mariano Cerdeiro
+ * GMuro        Gustavo Muro  
+ * PR           Pablo Ridolfi
+ * JuCe         Juan Cecconi 
  *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20140713 v0.0.1 initials initial
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaak.h"
-/* TODO configuration dependent includes */
-#include "ciaaDevices.h"
-#include "ciaaSerialDevices.h"
-#include "ciaaDriverUart.h"
-#include "ciaaDriverAio.h"
-#include "ciaaDriverDio.h"
-
+#include "ciaaModbus_Cfg.h"
 #include "ciaaPOSIX_stdlib.h"
+
+/*******************[cfg needed includes]*************************************/
+/** This section shall contain the header files containing the decalartion of
+ ** the referenced functions.
+ **/
+#include "blinking_modbus_adc_dac.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -85,49 +78,61 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+#if (CIAAMODBUS_READ_HOLDING_REGISTERS == CIAAMODBUS_EN)
+ciaaModbus_cmdLst0x03Type ciaaModbus_cmdLst0x03[] = {
+   {
+      {
+         0x0000,
+         0x0001
+      },
+      readHoldingRegisters
+   },
+   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
+};
+#endif /* #if (CIAAMODBUS_READ_HOLDING_REGISTERS == CIAAMODBUS_EN) */
+
+#if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN)
+ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[] = {
+   {
+      {
+         0x0000,
+         0x0000
+      },
+      readInputRegisters
+   },
+   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
+};
+#endif /* #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN) */
+
+#if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN)
+ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[] = {
+   {
+      {
+         0x0000,
+         0x0001
+      },
+      writeSingleRegister
+   },
+   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
+};
+#endif /* #if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN) */
+
+#if (CIAAMODBUS_WRITE_MULTIPLE_REGISTERS == CIAAMODBUS_EN)
+ciaaModbus_cmdLst0x10Type ciaaModbus_cmdLst0x10[] = {
+   {
+      {
+         0x0000,
+         0x0001
+      },
+      writeMultipleRegisters
+   },
+   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
+};
+#endif /* #if (CIAAMODBUS_WRITE_MULTIPLE_REGISTERS == CIAAMODBUS_EN) */
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-void ciaak_start(void)
-{
-   /* init stdlib */
-   /* ATTENTION: ciaaPOSIX_stdlib_init has to be done before to any call to
-    * ciaaPOSIX_malloc or ciaak_malloc */
-   ciaaPOSIX_stdlib_init();
-
-   ciaaDevices_init();
-
-   ciaaSerialDevices_init();
-   ciaaDriverUart_init();
-
-   /* ciaaDioDevices_init(); */
-   ciaaDriverDio_init();
-
-   /* ADC & DAC only works in Cortex M4 */
-#if ( (ARCH == cortexM4) && (CPUTPYE == lpc43xx) )
-   ciaaAioDevices_init();
-   ciaaDriverAio_init();
-#endif
-}
-
-void *ciaak_malloc(size_t size)
-{
-   /* try to alloc memory */
-   void* ret = ciaaPOSIX_malloc(size);
-
-   /* kernel memory shall not failed :( */
-   if (NULL == ret)
-   {
-      ciaaPOSIX_printf("Kernel out of memory :( ...\n");
-      while(1)
-      {
-         /* TODO perform an kernel panic or like */
-      }
-   }
-
-   return ret;
-}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
