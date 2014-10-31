@@ -38,10 +38,6 @@ ISR ISR2 {
 	STACK = 2024;
 };
 
-RESOURCE = POSIXR;
-
-EVENT = POSIXE;
-
 APPMODE AppMode1;
 
 };
