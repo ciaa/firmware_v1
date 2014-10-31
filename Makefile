@@ -530,7 +530,7 @@ info:
 
 ###############################################################################
 # clean
-.PHONY: clean generate all
+.PHONY: clean generate all run
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
@@ -550,6 +550,10 @@ clean:
 	@rm -rf $(OUT_DIR)$(DS)coverage$(DS)*
 	@echo Removing object files
 	@rm -rf $(OBJ_DIR)$(DS)*
+
+clean_rtostests:
+	@echo Removing RTOS Test generated project files
+	@rm -rf $(RTOS_TEST_GEN_DIR)$(DS)*
 
 ###############################################################################
 # Generates docbook documentation

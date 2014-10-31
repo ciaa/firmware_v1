@@ -6,5 +6,5 @@ dump value out/rtos/TestResultsOk.bin TestResultsOk
 dump value out/rtos/SequenceCounter.bin SequenceCounter
 dump value out/rtos/SequenceCounterOk.bin SequenceCounterOk
 dump value out/rtos/ConfTestResult.bin ConfTestResult
-shell ps -W | awk '/ctest/,NF=1' | xargs kill -f
+shell ps -a | awk '/ctest/ {print $1; exit}' | xargs kill
 quit

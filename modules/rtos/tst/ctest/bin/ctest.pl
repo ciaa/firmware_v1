@@ -497,7 +497,10 @@ $cfgfile = $ARGV[1];
 
 info("Configuration file: $cfgfile");
 info("Removing old files");
-system("rm -rf out/rtos/*");
+if($clean_generate != 0)
+{
+   system("rm -rf out/rtos/*");
+}
 
 readparam($cfgfile);
 
@@ -636,7 +639,7 @@ foreach $testfn (@tests)
                   else
                   {
                      exec("$GDB $out");
-					 $outdbg = "";
+                     $outdbg = "";
                   }
                   $outdbgstatus = $?;
                   info("debug status: $outdbgstatus");
