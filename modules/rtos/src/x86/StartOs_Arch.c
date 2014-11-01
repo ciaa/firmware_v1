@@ -75,9 +75,11 @@
 #include <signal.h>
 
 /*==================[macros and definitions]=================================*/
+/* Mac OS X only suport deprecated macro version MAP_ANON  */
 #ifndef MAP_ANONYMOUS
-  #define MAP_ANONYMOUS MAP_ANON       /* MAC OSx not supoort new macro name */
+#define MAP_ANONYMOUS MAP_ANON
 #endif
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
