@@ -76,7 +76,7 @@
 
 /*==================[macros and definitions]=================================*/
 #ifndef MAP_ANONYMOUS
-  #define MAP_ANONYMOUS MAP_ANON
+  #define MAP_ANONYMOUS MAP_ANON       /* MAC OSx not supoort new macro name */
 #endif
 /*==================[internal data declaration]==============================*/
 
