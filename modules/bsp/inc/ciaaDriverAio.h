@@ -59,7 +59,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
-#include "ciaaAioDevices.h"
+#include "ciaaSerialDevices.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

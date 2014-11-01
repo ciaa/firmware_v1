@@ -143,13 +143,13 @@ static int32_t fd_out;
 
 /** \brief File descriptor for ADC
  *
- * Device path /dev/aio/adc/0
+ * Device path /dev/serial/aio/in/0
  */
 static int32_t fd_adc;
 
 /** \brief File descriptor for DAC
  *
- * Device path /dev/aio/dac/0
+ * Device path /dev/serial/aio/out/0
  */
 static int32_t fd_dac;
 
@@ -220,12 +220,12 @@ TASK(InitTask)
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
    /* open CIAA ADC */
-   fd_adc = ciaaPOSIX_open("/dev/aio/in/0", O_RDWR);
+   fd_adc = ciaaPOSIX_open("/dev/serial/aio/in/0", O_RDWR);
    ciaaPOSIX_ioctl(fd_adc, ciaaPOSIX_IOCTL_SET_SAMPLE_RATE, 10000);
    ciaaPOSIX_ioctl(fd_adc, ciaaPOSIX_IOCTL_SET_CHANNEL, ciaaCHANNEL_3);
 
    /* open CIAA DAC */
-   fd_dac = ciaaPOSIX_open("/dev/aio/out/0", O_RDWR);
+   fd_dac = ciaaPOSIX_open("/dev/serial/aio/out/0", O_RDWR);
 
    /* Activates the ModbusSlave task */
    ActivateTask(ModbusSlave);

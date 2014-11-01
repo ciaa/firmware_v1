@@ -30,91 +30,77 @@
  *
  */
 
-/** \brief Short description of this file
- **
- ** Long description of this file
+#ifndef _CIAADRIVERAIO_INTERNAL_H_
+#define _CIAADRIVERAIO_INTERNAL_H_
+/** \brief Internal Header file of Analog IO Driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup AIO Analog Input Output Drivers
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20141101 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaak.h"
-/* TODO configuration dependent includes */
-#include "ciaaDevices.h"
-#include "ciaaSerialDevices.h"
-#include "ciaaDriverUart.h"
-#include "ciaaDriverAio.h"
-#include "ciaaDriverDio.h"
+#include "ciaaPOSIX_stdint.h"
 
-#include "ciaaPOSIX_stdlib.h"
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
 
-/*==================[internal data declaration]==============================*/
+/*==================[typedef]================================================*/
+/** \brief Buffer Structure */
+typedef struct {
+   uint16_t length;
+   uint8_t buffer[2048];
+} ciaaDriverAio_bufferType;
 
-/*==================[internal functions declaration]=========================*/
+/** \brief Aio Type */
+typedef struct {
+   ciaaDriverAio_bufferType rxBuffer;
+   ciaaDriverAio_bufferType txBuffer;
+} ciaaDriverAio_uartType;
 
-/*==================[internal data definition]===============================*/
+/*==================[external data declaration]==============================*/
+/** \brief Aio 0 */
+extern ciaaDriverAio_uartType ciaaDriverAio_uart0;
 
-/*==================[external data definition]===============================*/
+/** \brief Aio 1 */
+extern ciaaDriverAio_uartType ciaaDriverAio_uart1;
 
-/*==================[internal functions definition]==========================*/
+/*==================[external functions declaration]=========================*/
+extern void ciaaDriverAio_uart0_rxIndication(void);
 
-/*==================[external functions definition]==========================*/
-void ciaak_start(void)
-{
-   /* init stdlib */
-   /* ATTENTION: ciaaPOSIX_stdlib_init has to be done before to any call to
-    * ciaaPOSIX_malloc or ciaak_malloc */
-   ciaaPOSIX_stdlib_init();
+extern void ciaaDriverAio_uart0_txConfirmation(void);
 
-   ciaaDevices_init();
+extern void ciaaDriverAio_uart1_rxIndication(void);
 
-   ciaaSerialDevices_init();
-   ciaaDriverUart_init();
+extern void ciaaDriverAio_uart1_txConfirmation(void);
 
-   /* ciaaDioDevices_init(); */
-   ciaaDriverDio_init();
-
-   /* ADC & DAC only works in Cortex M4 */
-   ciaaDriverAio_init();
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-void *ciaak_malloc(size_t size)
-{
-   /* try to alloc memory */
-   void* ret = ciaaPOSIX_malloc(size);
-
-   /* kernel memory shall not failed :( */
-   if (NULL == ret)
-   {
-      ciaaPOSIX_printf("Kernel out of memory :( ...\n");
-      while(1)
-      {
-         /* TODO perform an kernel panic or like */
-      }
-   }
-
-   return ret;
-}
-
+#endif
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CIAADRIVERAIO_INTERNAL_H_ */
 

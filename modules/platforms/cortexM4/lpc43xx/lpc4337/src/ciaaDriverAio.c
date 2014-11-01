@@ -93,7 +93,7 @@ ciaaDriverAioControl aioControl[3];
 
 /** \brief Device for ADC 0 */
 static ciaaDevices_deviceType ciaaDriverAio_in0 = {
-   "in/0",                        /** <= driver name */
+   "aio/in/0",                     /** <= driver name */
    ciaaDriverAio_open,             /** <= open function */
    ciaaDriverAio_close,            /** <= close function */
    ciaaDriverAio_read,             /** <= read function */
@@ -107,7 +107,7 @@ static ciaaDevices_deviceType ciaaDriverAio_in0 = {
 
 /** \brief Device for ADC 1 */
 static ciaaDevices_deviceType ciaaDriverAio_in1 = {
-   "in/1",                        /** <= driver name */
+   "aio/in/1",                     /** <= driver name */
    ciaaDriverAio_open,             /** <= open function */
    ciaaDriverAio_close,            /** <= close function */
    ciaaDriverAio_read,             /** <= read function */
@@ -121,7 +121,7 @@ static ciaaDevices_deviceType ciaaDriverAio_in1 = {
 
 /** \brief Device for DAC 0 */
 static ciaaDevices_deviceType ciaaDriverAio_out0 = {
-   "out/0",                        /** <= driver name */
+   "aio/out/0",                    /** <= driver name */
    ciaaDriverAio_open,             /** <= open function */
    ciaaDriverAio_close,            /** <= close function */
    ciaaDriverAio_read,             /** <= read function */
@@ -182,13 +182,13 @@ ciaaDriverAio_aioType ciaaDriverAio_aio2;
 static void ciaaDriverAio_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
    /* receive the data and forward to upper layer */
-   ciaaAioDevices_rxIndication(device->upLayer, nbyte);
+   ciaaSerialDevices_rxIndication(device->upLayer, nbyte);
 }
 
 static void ciaaDriverAio_txConfirmation(ciaaDevices_deviceType const * const device)
 {
    /* receive the data and forward to upper layer */
-   ciaaAioDevices_txConfirmation(device->upLayer, 1);
+   ciaaSerialDevices_txConfirmation(device->upLayer, 1);
 }
 
 void ciaa_lpc4337_aio_init(void)
@@ -208,7 +208,7 @@ void ciaa_lpc4337_aio_init(void)
    /* DAC Init */
    Chip_SCU_DAC_Analog_Config(); //select DAC function
    Chip_DAC_Init(LPC_DAC); //initialize DAC
-   Chip_DAC_SetDMATimeOut(LPC_DAC, 0xFFFF); 
+   Chip_DAC_SetDMATimeOut(LPC_DAC, 0xFFFF);
    Chip_DAC_ConfigDAConverterControl(LPC_DAC, (DAC_CNT_ENA | DAC_DMA_ENA));
 }
 
@@ -371,7 +371,7 @@ extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, 
                Chip_ADC_Int_SetChannelCmd((LPC_ADC_T *) pADC, adc_setup, ENABLE);
                *start_adc = true;
             }
-        	break;
+            break;
       }
    }
 
@@ -521,7 +521,7 @@ void ciaaDriverAio_init(void)
    /* add adc/dac driver to the list of devices */
    for(loopi = 0; loopi < ciaaDriverAioConst.countOfDevices; loopi++) {
       /* add each device */
-      ciaaAioDevices_addDriver(ciaaDriverAioConst.devices[loopi]);
+      ciaaSerialDevices_addDriver(ciaaDriverAioConst.devices[loopi]);
       /* init layer data for each device */
       *((ciaaDriverAio_aioType *)ciaaDriverAioConst.devices[loopi]->layer) = 0;
    }
