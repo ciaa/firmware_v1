@@ -68,6 +68,9 @@
 #define ciaaAioDevices_MAXDEVICES       20
 #define ciaaAioDevices_NONBLOCK_MODE    0x01
 
+extern void ciaaAioDevices_txConfirmation(ciaaDevices_deviceType const * const device, uint32_t const nbyte);
+extern void ciaaAioDevices_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte);
+
 /*==================[typedef]================================================*/
 typedef struct {
    TaskType taskID;
@@ -239,7 +242,7 @@ extern int32_t ciaaAioDevices_close(ciaaDevices_deviceType const * const device)
 
 extern int32_t ciaaAioDevices_ioctl(ciaaDevices_deviceType const * const device, int32_t request, void* param)
 {
-   int32_t ret;
+   int32_t ret=0;
 
    ciaaAioDevices_deviceType * aioDevice = (ciaaAioDevices_deviceType *) device->layer;
    ciaaLibs_CircBufType * cbuf;
