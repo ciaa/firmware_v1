@@ -216,7 +216,7 @@ extern ciaaDevices_deviceType * ciaaSerialDevices_open(char const * path,
    /* serial devices does not support that the drivers update the device */
    /* the returned device shall be the same as passed */
    ciaaPOSIX_assert(serialDevice->device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag) == device->loLayer);
-   //
+
    if(oflag & O_NONBLOCK)
    {
       serialDevice->flags |= ciaaSerialDevices_NONBLOCK_MODE;
@@ -231,7 +231,7 @@ extern int32_t ciaaSerialDevices_close(ciaaDevices_deviceType const * const devi
 
 extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const device, int32_t request, void* param)
 {
-   int32_t ret=0;
+   int32_t ret = 0;
 
    ciaaSerialDevices_deviceType * serialDevice = (ciaaSerialDevices_deviceType *) device->layer;
    ciaaLibs_CircBufType * cbuf;
@@ -254,7 +254,6 @@ extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const devi
          break;
 
       case ciaaPOSIX_IOCTL_RXINDICATION:
-         ret = 0;
          break;
 
       case ciaaPOSIX_IOCTL_SET_NONBLOCK_MODE:
