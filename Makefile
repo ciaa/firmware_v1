@@ -356,14 +356,15 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$($(LIB)_OBJ_FILES:.o=.d))))
 # New rules for project dependencies
 $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:.o=.d))))
+# libs with contains sources
+LIBS_WITH_SRC	= $(foreach LIB, $(LIBS), $(if $(filter %.c,$($(LIB)_SRC_FILES)),$(LIB)))
 
-
-$(project) : $(LIBS) $(OBJ_FILES)
+$(project) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
 	@echo ' '
-	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
+	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) -Xlinker --start-group $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(project)
@@ -502,6 +503,7 @@ info:
 	@echo ARCH/CPUTYPE/CPU...: $(ARCH)/$(CPUTYPE)/$(CPU)
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
+	@echo libraris with srcs.: $(LIBS_WITH_SRC)
 #	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
 #	@echo Lib Src Files......: $(LIBS_SRC_FILES)
 #	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)
