@@ -74,9 +74,48 @@
 /*==================[macros and definitions]=================================*/
 #define CIAA_BLINKING_MODBUS_ID     2
 
+#define CIAA_MODBUS_ADDRESS_INPUTS  0X0000
+#define CIAA_MODBUS_ADDRESS_OUTPUS  0X0001
+
 /*==================[internal data declaration]==============================*/
 
+/** \brief Holding Register Input
+ *
+ * Holding Register Inputs Variable
+ * Accessed through:
+ * - 0x03 Read Holding Register
+ * - 0x17 Read/Write multiple Register
+ */
+static uint16_t hr_ciaaInputs;
+
+/** \brief Holding Register Output
+ *
+ * Holding Register Output Variable
+ * Accessed through:
+ * - 0x03 Read Holding Register
+ * - 0x06 Write single Register
+ * - 0x10 Write multiple Register
+ * - 0x17 Read/Write multiple Register
+ */
+static uint16_t hr_ciaaOutputs;
+
+
 /*==================[internal functions declaration]=========================*/
+static uint16_t cmd0x03ReadHoldingReg(
+       uint16_t start,
+       uint16_t quantity,
+       uint8_t * exceptioncode,
+       uint8_t * buf
+       );
+
+static void cmd0x10WriteMultipleReg(
+      uint16_t start,
+      uint16_t quantity,
+      uint8_t bytecount,
+      uint8_t * exceptioncode,
+      uint8_t * buf
+      );
+
 
 /*==================[internal data definition]===============================*/
 static int32_t hModbusSlave;
@@ -85,19 +124,142 @@ static int32_t hModbusGateway;
 
 static const ciaaModbus_slaveCmd_type callbacksStruct =
 {
-   .cmd0x01ReadCoils = NULL,
-   .cmd0x02ReadDiscrteInputs = NULL,
-   .cmd0x03ReadHoldingReg = NULL,
-   .cmd0x04ReadInputReg = NULL,
-   .cmd0x05WriteSingleCoil = NULL,
-   .cmd0x06WriteSingleRegister = NULL,
-   .cmd0x0FWriteMultipleCoils = NULL,
-   .cmd0x10WriteMultipleReg = NULL,
+   NULL,
+   NULL,
+   cmd0x03ReadHoldingReg,
+   NULL,
+   NULL,
+   NULL,
+   NULL,
+   cmd0x10WriteMultipleReg,
+   NULL,
 };
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+static uint16_t cmd0x03ReadHoldingReg(
+       uint16_t start,
+       uint16_t quantity,
+       uint8_t * exceptioncode,
+       uint8_t * buf
+       )
+{
+   /* used to indicate total of registers reads */
+   int8_t ret = 0;
+   /* used to indicate quantity of registers processed */
+   uint16_t quantityRegProcessed;
+   /* loop to read all registers indicated */
+   do
+   {
+      /* select register address to be read */
+      switch (start)
+      {
+         /* read inputs of CIAA */
+         case CIAA_MODBUS_ADDRESS_INPUTS:
+            ciaaModbus_writeInt(buf, hr_ciaaInputs);
+            quantityRegProcessed = 1;
+            break;
+
+         /* read outputs of CIAA */
+         case CIAA_MODBUS_ADDRESS_OUTPUS:
+            ciaaModbus_writeInt(buf, hr_ciaaOutputs);
+            quantityRegProcessed = 1;
+            break;
+
+         /* wrong address */
+         default:
+            *exceptioncode = CIAA_MODBUS_E_WRONG_STR_ADDR;
+            quantityRegProcessed = -1;
+            break;
+      }
+
+      /* if quantityRegProcessed > 0, successful operation */
+      if (quantityRegProcessed > 0)
+      {
+         /* update buffer pointer to next register */
+         buf += (quantityRegProcessed*2);
+
+         /* next address to be read */
+         start += quantityRegProcessed;
+
+         /* increment count of registers */
+         ret += quantityRegProcessed;
+      }
+      else
+      {
+         /* an error occurred in reading */
+         ret = -1;
+      }
+      /* repeat until:
+      * - read total registers or
+      * - error occurs
+      */
+   }while ((ret > 0) && (ret < quantity));
+
+   return ret;
+}
+
+static void cmd0x10WriteMultipleReg(
+      uint16_t start,
+      uint16_t quantity,
+      uint8_t bytecount,
+      uint8_t * exceptioncode,
+      uint8_t * buf
+      )
+{
+   /* used to indicate quantity of registers processed */
+   uint16_t quantityRegProcessed;
+
+   /* loop to write all registers indicated */
+   do
+   {
+      /* select register address to be write */
+      switch (start)
+      {
+         /* inputs can not be written! */
+         case CIAA_MODBUS_ADDRESS_INPUTS:
+            *exceptioncode = CIAA_MODBUS_E_FNC_ERROR;
+            quantityRegProcessed = -1;
+            break;
+
+         /* write outputs */
+         case CIAA_MODBUS_ADDRESS_OUTPUS:
+            hr_ciaaOutputs = ciaaModbus_readInt(buf);
+            quantityRegProcessed = 1;
+            break;
+
+         /* wrong address */
+         default:
+            *exceptioncode = CIAA_MODBUS_E_WRONG_STR_ADDR;
+            quantityRegProcessed = -1;
+            break;
+      }
+
+      /* if quantityRegProcessed > 0, successful operation */
+      if (quantityRegProcessed > 0)
+      {
+         /* update buffer pointer to next register */
+         buf += (quantityRegProcessed*2);
+
+         /* next address to be write */
+         start += quantityRegProcessed;
+
+         quantity -= quantityRegProcessed;
+      }
+      else
+      {
+         quantity = 0;
+      }
+
+      /* repeat until:
+      * - read total registers or
+      * - error occurs
+      */
+   }while (0 < quantity);
+
+}
+
 
 /*==================[external functions definition]==========================*/
 /** \brief Main function
