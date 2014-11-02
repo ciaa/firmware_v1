@@ -68,6 +68,14 @@ static uint16_t cmd0x03ReadHoldingReg(
        uint8_t * buf
        );
 
+static void cmd0x10WriteMultipleReg(
+      uint16_t start,
+      uint16_t quantity,
+      uint8_t bytecount,
+      uint8_t * exceptioncode,
+      uint8_t * buf
+      );
+
 /*==================[internal data declaration]==============================*/
 static int32_t hModbusSlave;
 
@@ -98,6 +106,16 @@ static uint16_t cmd0x03ReadHoldingReg(
    return quantity;
 }
 
+static void cmd0x10WriteMultipleReg(
+      uint16_t start,
+      uint16_t quantity,
+      uint8_t bytecount,
+      uint8_t * exceptioncode,
+      uint8_t * buf
+      )
+{
+
+}
 
 /*==================[external functions definition]==========================*/
 /** \brief set Up function
@@ -311,17 +329,166 @@ void test_ciaaModbus_function0x03Msg_01(void)
          pduExpected[0],
          pduRecv[0],
          2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[0]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[0]);
 
    TEST_ASSERT_EQUAL_UINT8_ARRAY(
          pduExpected[1],
          pduRecv[1],
          2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[1]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[1]);
 
    TEST_ASSERT_EQUAL_UINT8_ARRAY(
          pduExpected[2],
          pduRecv[2],
          4);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[2]);
+   TEST_ASSERT_EQUAL_UINT32(4, size[2]);
 }
+
+/** \brief test write multiple registers
+ **
+ ** this function test write multiple registers on slave
+ **
+ **/
+void test_ciaaModbus_function0x10Msg_01(void)
+{
+   uint8_t pduSend[4][256] =
+   {
+      /* pdu: invalid quantity of registers */
+      {0x10, 0x00, 0x00, 0x00, 0x7C, 0xF8, 0X00, 0X00},
+      /* pdu: invalid quantity of registers */
+      {0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0X00, 0X00},
+      /* pdu: invalid byte count */
+      {0x10, 0x00, 0x00, 0x00, 0x01, 0x03, 0X00, 0X00},
+      /* pdu: ok */
+      {0x10, 0x00, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00},
+   };
+
+   uint8_t pduExpected[4][256] =
+   {
+      /* response: invalid quantity */
+      {0x90, 0x03},
+      /* response: invalid quantity */
+      {0x90, 0x03},
+      /* response: invalid quantity */
+      {0x90, 0x03},
+      /* response: ok */
+      {0x10, 0x00, 0x00, 0x00, 0x01},
+   };
+   uint8_t pduRecv[4][256];
+   uint8_t id[4];
+   uint32_t size[4];
+
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      cmd0x10WriteMultipleReg,
+      NULL,
+   };
+
+
+   /* open modbus slave */
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+
+   /* send, task and recv */
+   ciaaModbus_slaveSendMsgType(
+         hModbusSlave,
+         SLAVE_ID,
+         pduSend[0],
+         8);
+
+   ciaaModbus_slaveTask(hModbusSlave);
+
+   ciaaModbus_slaveRecvMsg(
+         hModbusSlave,
+         &id[0],
+         pduRecv[0],
+         &size[0]);
+
+   /* send, task and recv */
+   ciaaModbus_slaveSendMsgType(
+            hModbusSlave,
+            SLAVE_ID,
+            pduSend[1],
+            8);
+
+   ciaaModbus_slaveTask(hModbusSlave);
+
+   ciaaModbus_slaveRecvMsg(
+         hModbusSlave,
+         &id[1],
+         pduRecv[1],
+         &size[1]);
+
+   /* send, task and recv */
+   ciaaModbus_slaveSendMsgType(
+            hModbusSlave,
+            SLAVE_ID,
+            pduSend[2],
+            8);
+
+   ciaaModbus_slaveTask(hModbusSlave);
+
+   ciaaModbus_slaveRecvMsg(
+         hModbusSlave,
+         &id[2],
+         pduRecv[2],
+         &size[2]);
+
+   /* send, task and recv */
+   ciaaModbus_slaveSendMsgType(
+            hModbusSlave,
+            SLAVE_ID,
+            pduSend[3],
+            8);
+
+   ciaaModbus_slaveTask(hModbusSlave);
+
+   ciaaModbus_slaveRecvMsg(
+         hModbusSlave,
+         &id[3],
+         pduRecv[3],
+         &size[3]);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[0],
+         pduRecv[0],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[0]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[0]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[1],
+         pduRecv[1],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[1]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[1]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[2],
+         pduRecv[2],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[2]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[2]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[3],
+         pduRecv[3],
+         5);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[3]);
+   TEST_ASSERT_EQUAL_UINT32(5, size[3]);
+
+}
+
 
 
 
