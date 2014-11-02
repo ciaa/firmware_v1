@@ -350,6 +350,7 @@ extern void ciaaModbus_gatewayInit(void)
 extern int32_t ciaaModbus_gatewayOpen(void)
 {
    int32_t hModbusGW = 0;
+   uint32_t loopi;
 
    /* enter critical section */
    GetResource(MODBUSR);
@@ -367,6 +368,18 @@ extern int32_t ciaaModbus_gatewayOpen(void)
    {
       /* set object in use */
       ciaaModbus_gatewayObj[hModbusGW].inUse = true;
+
+      /* set servers not in use */
+      for (loopi = 0 ; loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS ; loopi++)
+      {
+         ciaaModbus_gatewayObj[hModbusGW].server[loopi].inUse = false;
+      }
+
+      /* set clients not in use */
+      for (loopi = 0 ; loopi < CIAA_MODBUS_GATEWAY_TOTAL_CLIENTS ; loopi++)
+      {
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].inUse = false;
+      }
    }
    else
    {
