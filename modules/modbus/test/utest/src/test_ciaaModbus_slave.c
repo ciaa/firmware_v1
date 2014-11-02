@@ -148,9 +148,9 @@ void doNothing(void)
 {
 }
 
-/** \brief test read holding registers
+/** \brief test function not supported
  **
- ** this function test read holding register on slave
+ ** this function test response "function not supported"
  **
  **/
 void test_ciaaModbus_functionNotSupported_00(void)
@@ -261,6 +261,7 @@ void test_ciaaModbus_function0x03Msg_01(void)
    uint8_t pduRecv[3][256];
    uint8_t id[3];
    uint32_t size[3];
+   uint32_t loopi;
 
    const ciaaModbus_slaveCmd_type callbacksStruct =
    {
@@ -279,50 +280,23 @@ void test_ciaaModbus_function0x03Msg_01(void)
    /* open modbus slave */
    hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
 
-   /* send, task and recv */
-   ciaaModbus_slaveSendMsgType(
-         hModbusSlave,
-         SLAVE_ID,
-         pduSend[0],
-         5);
-
-   ciaaModbus_slaveTask(hModbusSlave);
-
-   ciaaModbus_slaveRecvMsg(
-         hModbusSlave,
-         &id[0],
-         pduRecv[0],
-         &size[0]);
-
-   /* send, task and recv */
-   ciaaModbus_slaveSendMsgType(
+   for (loopi = 0 ; loopi < 3 ; loopi++)
+   {
+      /* send, task and recv */
+      ciaaModbus_slaveSendMsgType(
             hModbusSlave,
             SLAVE_ID,
-            pduSend[1],
+            pduSend[loopi],
             5);
 
-   ciaaModbus_slaveTask(hModbusSlave);
+      ciaaModbus_slaveTask(hModbusSlave);
 
-   ciaaModbus_slaveRecvMsg(
-         hModbusSlave,
-         &id[1],
-         pduRecv[1],
-         &size[1]);
-
-   /* send, task and recv */
-   ciaaModbus_slaveSendMsgType(
+      ciaaModbus_slaveRecvMsg(
             hModbusSlave,
-            SLAVE_ID,
-            pduSend[2],
-            5);
-
-   ciaaModbus_slaveTask(hModbusSlave);
-
-   ciaaModbus_slaveRecvMsg(
-         hModbusSlave,
-         &id[2],
-         pduRecv[2],
-         &size[2]);
+            &id[loopi],
+            pduRecv[loopi],
+            &size[loopi]);
+   }
 
    /* verify */
    TEST_ASSERT_EQUAL_UINT8_ARRAY(
@@ -380,6 +354,7 @@ void test_ciaaModbus_function0x10Msg_01(void)
    uint8_t pduRecv[4][256];
    uint8_t id[4];
    uint32_t size[4];
+   uint32_t loopi;
 
    const ciaaModbus_slaveCmd_type callbacksStruct =
    {
@@ -394,69 +369,26 @@ void test_ciaaModbus_function0x10Msg_01(void)
       NULL,
    };
 
-
    /* open modbus slave */
    hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
 
-   /* send, task and recv */
-   ciaaModbus_slaveSendMsgType(
-         hModbusSlave,
-         SLAVE_ID,
-         pduSend[0],
-         8);
-
-   ciaaModbus_slaveTask(hModbusSlave);
-
-   ciaaModbus_slaveRecvMsg(
-         hModbusSlave,
-         &id[0],
-         pduRecv[0],
-         &size[0]);
-
-   /* send, task and recv */
-   ciaaModbus_slaveSendMsgType(
+   for (loopi = 0 ; loopi < 4 ; loopi++)
+   {
+      /* send, task and recv */
+      ciaaModbus_slaveSendMsgType(
             hModbusSlave,
             SLAVE_ID,
-            pduSend[1],
+            pduSend[loopi],
             8);
 
-   ciaaModbus_slaveTask(hModbusSlave);
+      ciaaModbus_slaveTask(hModbusSlave);
 
-   ciaaModbus_slaveRecvMsg(
-         hModbusSlave,
-         &id[1],
-         pduRecv[1],
-         &size[1]);
-
-   /* send, task and recv */
-   ciaaModbus_slaveSendMsgType(
+      ciaaModbus_slaveRecvMsg(
             hModbusSlave,
-            SLAVE_ID,
-            pduSend[2],
-            8);
-
-   ciaaModbus_slaveTask(hModbusSlave);
-
-   ciaaModbus_slaveRecvMsg(
-         hModbusSlave,
-         &id[2],
-         pduRecv[2],
-         &size[2]);
-
-   /* send, task and recv */
-   ciaaModbus_slaveSendMsgType(
-            hModbusSlave,
-            SLAVE_ID,
-            pduSend[3],
-            8);
-
-   ciaaModbus_slaveTask(hModbusSlave);
-
-   ciaaModbus_slaveRecvMsg(
-         hModbusSlave,
-         &id[3],
-         pduRecv[3],
-         &size[3]);
+            &id[loopi],
+            pduRecv[loopi],
+            &size[loopi]);
+   }
 
    /* verify */
    TEST_ASSERT_EQUAL_UINT8_ARRAY(
