@@ -230,7 +230,7 @@ extern void ciaaModbus_slaveTask(int32_t handler);
  **             size must be less than 5
  ** \return
  **/
-void ciaaModbus_slaveRecvMsg(
+extern void ciaaModbus_slaveRecvMsg(
       int32_t handler,
       uint8_t *id,
       uint8_t *pdu,
@@ -246,12 +246,20 @@ void ciaaModbus_slaveRecvMsg(
  ** \param[in] size size of pdu
  ** \return
  **/
-void ciaaModbus_slaveSendMsgType(
+extern void ciaaModbus_slaveSendMsg(
       int32_t handler,
       uint8_t id,
       uint8_t *pdu,
       uint32_t size);
 
+/** \brief Get id of Slave
+ **
+ ** this function return id of slave
+ **
+ ** \param[in] handler handler of modbus slave
+ ** \return    slave id
+ **/
+extern uint8_t ciaaModbus_slaveGetId(int32_t handler);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

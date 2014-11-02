@@ -242,7 +242,7 @@ extern void ciaaModbus_slaveTask(int32_t handler)
 }
 
 
-void ciaaModbus_slaveRecvMsg(
+extern void ciaaModbus_slaveRecvMsg(
       int32_t handler,
       uint8_t *id,
       uint8_t *pdu,
@@ -260,7 +260,7 @@ void ciaaModbus_slaveRecvMsg(
    *size = ciaaModbus_slaveObj[handler].size;
 }
 
-void ciaaModbus_slaveSendMsgType(
+extern void ciaaModbus_slaveSendMsg(
       int32_t handler,
       uint8_t id,
       uint8_t *pdu,
@@ -270,7 +270,10 @@ void ciaaModbus_slaveSendMsgType(
    ciaaModbus_slaveObj[handler].size = size;
 }
 
-
+extern uint8_t ciaaModbus_slaveGetId(int32_t handler)
+{
+   return ciaaModbus_slaveObj[handler].id;
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
