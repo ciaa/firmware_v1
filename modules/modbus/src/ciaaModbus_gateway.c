@@ -428,16 +428,38 @@ extern int8_t ciaaModbus_gatewayAddTransport(
    /* enter critical section */
    GetResource(MODBUSR);
 
-   for (loopi = 0 ; loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS ; loopi++)
+   if (ciaaModbus_transportGetType(hModbusTransport))
    {
-      if (ciaaModbus_gatewayObj[hModbusGW].client[loopi].inUse == false)
+      /* transport master -> client */
+      for (loopi = 0 ; loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS ; loopi++)
       {
-         ciaaModbus_gatewayObj[hModbusGW].client[loopi].inUse = true;
-         ciaaModbus_gatewayObj[hModbusGW].client[loopi].handler = hModbusTransport;
-         ciaaModbus_gatewayObj[hModbusGW].client[loopi].recvMsg = ciaaModbus_transportRecvMsg;
-         ciaaModbus_gatewayObj[hModbusGW].client[loopi].sendMsg = ciaaModbus_transportSendMsg;
-         ciaaModbus_gatewayObj[hModbusGW].client[loopi].task = ciaaModbus_transportTask;
-         ret = 0;
+         if (ciaaModbus_gatewayObj[hModbusGW].client[loopi].inUse == false)
+         {
+            ciaaModbus_gatewayObj[hModbusGW].client[loopi].inUse = true;
+            ciaaModbus_gatewayObj[hModbusGW].client[loopi].handler = hModbusTransport;
+            ciaaModbus_gatewayObj[hModbusGW].client[loopi].recvMsg = ciaaModbus_transportRecvMsg;
+            ciaaModbus_gatewayObj[hModbusGW].client[loopi].sendMsg = ciaaModbus_transportSendMsg;
+            ciaaModbus_gatewayObj[hModbusGW].client[loopi].task = ciaaModbus_transportTask;
+            ret = 0;
+         }
+      }
+   }
+   else
+   {
+      /* transport slave -> server */
+      for (loopi = 0 ; loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS ; loopi++)
+      {
+         if (ciaaModbus_gatewayObj[hModbusGW].server[loopi].inUse == false)
+         {
+            ciaaModbus_gatewayObj[hModbusGW].server[loopi].inUse = true;
+            ciaaModbus_gatewayObj[hModbusGW].server[loopi].handler = hModbusTransport;
+            ciaaModbus_gatewayObj[hModbusGW].server[loopi].busy = false;
+            ciaaModbus_gatewayObj[hModbusGW].server[loopi].id = 0;
+            ciaaModbus_gatewayObj[hModbusGW].server[loopi].recvMsg = ciaaModbus_transportRecvMsg;
+            ciaaModbus_gatewayObj[hModbusGW].server[loopi].sendMsg = ciaaModbus_transportSendMsg;
+            ciaaModbus_gatewayObj[hModbusGW].server[loopi].task = ciaaModbus_transportTask;
+            ret = 0;
+         }
       }
    }
 
