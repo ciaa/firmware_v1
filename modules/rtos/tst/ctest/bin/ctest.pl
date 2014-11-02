@@ -300,7 +300,6 @@ sub EvaluateResults
          results("Test Result: $sctc - Test Case: " . getTestcaseName($loopi) . " - Result: " . @ts[$loopi] . " - ResultOk: " . @tsok[$loopi]);
       }
    }
-
    return $status;
 }
 
@@ -497,10 +496,7 @@ $cfgfile = $ARGV[1];
 
 info("Configuration file: $cfgfile");
 info("Removing old files");
-if($clean_generate != 0)
-{
-   system("rm -rf out/rtos/*");
-}
+system("rm -rf out/rtos/*");
 
 readparam($cfgfile);
 
@@ -610,8 +606,9 @@ foreach $testfn (@tests)
             }
             if ($outmakegeneratestatus == 0)
             {
+               # Make project skipping make dependencies
                info("make of $test");
-               $outmake = `make PROJECT=out/rtos/$test/$config`;
+               $outmake = `make PROJECT=out/rtos/$test/$config MAKE_DEPENDENCIES=0`;
                $outmakestatus = $?;
                info("make status: $outmakestatus");
                logffull("make output:\n$outmake");
@@ -650,6 +647,11 @@ foreach $testfn (@tests)
                      results("Test: $test - Config: $config");
                      $status = EvaluateResults();
                      results("Test: $test - Config: $config - Status: $status");
+                     # Append to the Tests Summary File
+                     $TestsSummaryFile = "out/rtos/TestsSummary.txt";
+                     open FILE, ">>$TestsSummaryFile" or die "$$TestsSummaryFile can not be openned: $!";
+                     print FILE "Status: $status - Test: $test - Config: $config \r\n";
+                     close(FILE);
                   }
                }
             }
@@ -660,6 +662,16 @@ foreach $testfn (@tests)
          }
       }
    }
+   # Print Tests Summary File
+   open FILE, "<$TestsSummaryFile" or die "$$TestsSummaryFile can not be openned: $!";
+   print FILE "\n**************** RTOS Test Summary ****************\n";
+   # iterate through each line in the file
+   while ( $line = <FILE> )
+   {
+      # print the individual line
+      print "$line";
+   }
+   close(FILE); 
 }
 
 close(LOGFILE);
