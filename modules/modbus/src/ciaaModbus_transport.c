@@ -276,6 +276,39 @@ void ciaaModbus_transportSendMsg(
    }
 }
 
+extern int8_t ciaaModbus_transportGetType(int32_t handler)
+{
+   int8_t ret;
+
+   if (ciaaModbus_transportObj[handler].inUse == true)
+   {
+      switch (ciaaModbus_transportObj[handler].mode)
+      {
+         case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
+         case CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER:
+         case CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER:
+            ret = 1;
+            break;
+
+         case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
+         case CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE:
+         case CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE:
+            ret = 0;
+            break;
+
+         default:
+            ret = -1;
+            break;
+      }
+   }
+   else
+   {
+      ret = -1;
+   }
+
+   return ret;
+}
+
 /*==================[external functions definition]==========================*/
 
 /** @} doxygen end group definition */
