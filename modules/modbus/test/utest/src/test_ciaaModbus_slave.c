@@ -191,7 +191,7 @@ void test_ciaaModbus_functionNotSupported_00(void)
    hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
 
    /* send, task and recv */
-   ciaaModbus_slaveSendMsgType(
+   ciaaModbus_slaveSendMsg(
          hModbusSlave,
          SLAVE_ID,
          pduSend[0],
@@ -206,7 +206,7 @@ void test_ciaaModbus_functionNotSupported_00(void)
          &size[0]);
 
    /* send, task and recv */
-   ciaaModbus_slaveSendMsgType(
+   ciaaModbus_slaveSendMsg(
             hModbusSlave,
             SLAVE_ID,
             pduSend[1],
@@ -283,7 +283,7 @@ void test_ciaaModbus_function0x03Msg_01(void)
    for (loopi = 0 ; loopi < 3 ; loopi++)
    {
       /* send, task and recv */
-      ciaaModbus_slaveSendMsgType(
+      ciaaModbus_slaveSendMsg(
             hModbusSlave,
             SLAVE_ID,
             pduSend[loopi],
@@ -375,7 +375,7 @@ void test_ciaaModbus_function0x10Msg_01(void)
    for (loopi = 0 ; loopi < 4 ; loopi++)
    {
       /* send, task and recv */
-      ciaaModbus_slaveSendMsgType(
+      ciaaModbus_slaveSendMsg(
             hModbusSlave,
             SLAVE_ID,
             pduSend[loopi],
