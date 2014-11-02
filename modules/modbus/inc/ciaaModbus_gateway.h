@@ -117,7 +117,7 @@ extern int8_t ciaaModbus_gatewayAddMaster(
  **/
 extern int8_t ciaaModbus_gatewayAddTransport(
       int32_t hModbusGW,
-      int32_t hModbusMaster);
+      int32_t hModbusTransport);
 
 /** \brief Execute task of gateway
  **

@@ -57,6 +57,7 @@
 
 #include "ciaaModbus_gateway.h"
 #include "ciaaModbus_transport.h"
+#include "ciaaModbus_slave.h"
 #include "ciaaModbus_config.h"
 #include "ciaaPOSIX_stdbool.h"
 #include "os.h"
@@ -383,7 +384,31 @@ extern int8_t ciaaModbus_gatewayAddSlave(
       int32_t hModbusGW,
       int32_t hModbusSlave)
 {
-   return 0;
+   uint32_t loopi;
+   int8_t ret = -1;
+
+   /* enter critical section */
+   GetResource(MODBUSR);
+
+   for (loopi = 0 ; loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS ; loopi++)
+   {
+      if (ciaaModbus_gatewayObj[hModbusGW].server[loopi].inUse == false)
+      {
+         ciaaModbus_gatewayObj[hModbusGW].server[loopi].inUse = true;
+         ciaaModbus_gatewayObj[hModbusGW].server[loopi].handler = hModbusSlave;
+         ciaaModbus_gatewayObj[hModbusGW].server[loopi].busy = false;
+         ciaaModbus_gatewayObj[hModbusGW].server[loopi].id = ciaaModbus_slaveGetId(hModbusSlave);
+         ciaaModbus_gatewayObj[hModbusGW].server[loopi].recvMsg = ciaaModbus_slaveRecvMsg;
+         ciaaModbus_gatewayObj[hModbusGW].server[loopi].sendMsg = ciaaModbus_slaveSendMsg;
+         ciaaModbus_gatewayObj[hModbusGW].server[loopi].task = ciaaModbus_slaveTask;
+         ret = 0;
+      }
+   }
+
+   /* exit critical section */
+   ReleaseResource(MODBUSR);
+
+   return ret;
 }
 
 extern int8_t ciaaModbus_gatewayAddMaster(
@@ -395,9 +420,31 @@ extern int8_t ciaaModbus_gatewayAddMaster(
 
 extern int8_t ciaaModbus_gatewayAddTransport(
       int32_t hModbusGW,
-      int32_t hModbusMaster)
+      int32_t hModbusTransport)
 {
-   return 0;
+   uint32_t loopi;
+   int8_t ret = -1;
+
+   /* enter critical section */
+   GetResource(MODBUSR);
+
+   for (loopi = 0 ; loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS ; loopi++)
+   {
+      if (ciaaModbus_gatewayObj[hModbusGW].client[loopi].inUse == false)
+      {
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].inUse = true;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].handler = hModbusTransport;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].recvMsg = ciaaModbus_transportRecvMsg;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].sendMsg = ciaaModbus_transportSendMsg;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].task = ciaaModbus_transportTask;
+         ret = 0;
+      }
+   }
+
+   /* exit critical section */
+   ReleaseResource(MODBUSR);
+
+   return ret;
 }
 
 
