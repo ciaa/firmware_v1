@@ -171,6 +171,17 @@ void ciaaModbus_transportSendMsg(
       uint8_t *pdu,
       uint32_t size);
 
+/** \brief Get transport type
+ **
+ ** This function indicate the type of transport (Master or Slave)
+ **
+ ** \param[in] handler handler of transport
+ ** \return    1 master
+ **            0 slave
+ **            -1 invalid transport or not initialized
+ **/
+extern int8_t ciaaModbus_transportGetType(int32_t handler);
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
