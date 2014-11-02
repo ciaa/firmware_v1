@@ -424,11 +424,14 @@ extern int8_t ciaaModbus_gatewayAddTransport(
 {
    uint32_t loopi;
    int8_t ret = -1;
+   int8_t transportType;
 
    /* enter critical section */
    GetResource(MODBUSR);
 
-   if (ciaaModbus_transportGetType(hModbusTransport))
+   transportType = ciaaModbus_transportGetType(hModbusTransport);
+
+   if (transportType == 1)
    {
       /* transport master -> client */
       for (loopi = 0 ; loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS ; loopi++)
@@ -444,9 +447,9 @@ extern int8_t ciaaModbus_gatewayAddTransport(
          }
       }
    }
-   else
+   else if (transportType == 0)
    {
-      /* transport slave -> server */
+          /* transport slave -> server */
       for (loopi = 0 ; loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS ; loopi++)
       {
          if (ciaaModbus_gatewayObj[hModbusGW].server[loopi].inUse == false)
