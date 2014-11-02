@@ -83,6 +83,11 @@ RTOSTESTS_CLEAN_GENERATE ?= 1
 RTOSTESTS_CTEST ?=
 RTOSTESTS_SUBTEST ?=
 
+# dependencies options
+#
+# Compile and make dependencies, or compile only and skip depencencies
+MAKE_DEPENDENCIES ?= 1
+
 #
 # tools
 WIN_TOOL_PATH        ?=
@@ -330,9 +335,14 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo Compiling 'c' file: $<
 	@echo ' '
 	$(CC) $(CFLAGS) $< -o $(OBJ_DIR)$(DS)$@
+ifeq ($(MAKE_DEPENDENCIES),1)
 	@echo ' '
 	@echo Generating dependencies...
 	$(CC) -MM $(CFLAGS) $< > $(OBJ_DIR)$(DS)$(@:.o=.d)
+else
+	@echo ' '
+	@echo Skipping make dependencies...
+endif
 
 %.o : %.cpp
 	@echo ' '
