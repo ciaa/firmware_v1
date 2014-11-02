@@ -159,11 +159,12 @@ extern int32_t ciaaModbus_slaveOpen(
 
 extern void ciaaModbus_slaveTask(int32_t handler)
 {
-   uint32_t ret = 0;
    ciaaModbus_slaveCmd_type const *cmd = ciaaModbus_slaveObj[handler].cmd;
+   uint32_t ret = 0;
    uint8_t *buf = ciaaModbus_slaveObj[handler].buf;
    uint16_t quantity;
    uint16_t address;
+   uint16_t byteCount;
    uint8_t exceptioncode = 0;
    uint8_t function = ciaaModbus_slaveObj[handler].buf[0];
 
@@ -192,6 +193,31 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                   /* report byte count */
                   buf[1] = ret * 2;
                   ret = 2 + buf[1];
+               }
+            }
+            break;
+
+         case CIAA_MODBUS_FCN_WRITE_MULTIPLE_REGISTERS:
+            if (cmd->cmd0x10WriteMultipleReg == NULL)
+            {
+               exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
+            }
+            else
+            {
+               address = ciaaModbus_readInt(&buf[1]);
+               quantity = ciaaModbus_readInt(&buf[3]);
+               byteCount = quantity * 2;
+
+               if ( (0x007B < quantity) || (1 > quantity)
+                  || (byteCount != buf[5]) )
+               {
+                  /* report invalid quantity of registers */
+                  exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
+               }
+               else
+               {
+                  cmd->cmd0x10WriteMultipleReg(address, quantity, byteCount, &exceptioncode, &buf[6]);
+                  ret = 5;
                }
             }
             break;
