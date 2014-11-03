@@ -358,7 +358,7 @@ extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, 
             }
             break;
 
-         case ciaaPOSIX_IOCTL_SET_ENABLE_AI_INTERRUPT:
+         case ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT:
             if((bool)(intptr_t)param == false)
             {
                NVIC_DisableIRQ(iADC);
@@ -395,7 +395,7 @@ extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, 
    {
       switch(request)
       {
-         case ciaaPOSIX_IOCTL_STARTAO:
+         case ciaaPOSIX_IOCTL_STARTTX:
             /* this one calls write */
             ciaaDriverAio_txConfirmation(device);
             ret = 0;
