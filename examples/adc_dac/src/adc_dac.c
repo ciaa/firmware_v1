@@ -150,12 +150,12 @@ TASK(InitTask)
    ciaak_start();
 
    /* open CIAA ADC */
-   fd_adc = ciaaPOSIX_open("/dev/serial/aio/in/0", O_RDWR);
+   fd_adc = ciaaPOSIX_open("/dev/serial/aio/in/0", O_RDONLY);
    ciaaPOSIX_ioctl(fd_adc, ciaaPOSIX_IOCTL_SET_SAMPLE_RATE, 10000);
    ciaaPOSIX_ioctl(fd_adc, ciaaPOSIX_IOCTL_SET_CHANNEL, ciaaCHANNEL_3);
 
    /* open CIAA DAC */
-   fd_dac = ciaaPOSIX_open("/dev/serial/aio/out/0", O_RDWR);
+   fd_dac = ciaaPOSIX_open("/dev/serial/aio/out/0", O_WRONLY);
 
    /* Activates the ModbusSlave task */
    ActivateTask(Analogic);

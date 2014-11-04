@@ -80,6 +80,19 @@ typedef uint8_t ContextType;
 typedef struct {
    uint8_t hwbuf[UART_AIO_FIFO_SIZE];
    uint8_t aiocnt;
+   union {
+      struct {
+         LPC_ADC_T *handler;          /** <= adc handler */
+         int32_t interrupt;           /** <= adc interrupt */
+         ADC_CLOCK_SETUP_T setup;     /** <= adc setup */
+         ADC_RESOLUTION_T resolution; /** <= adc resolution */
+         int32_t channel;             /** <= current adc channel */
+         bool start;                  /** <= adc start conversion flag */
+     } adc;
+     struct {
+         LPC_DAC_T *handler;          /** <= adc handler */
+     } dac;
+  };
 } ciaaDriverAioControl;
 
 /*==================[internal data declaration]==============================*/
@@ -144,25 +157,6 @@ static ciaaDriverConstType const ciaaDriverAioConst = {
    3
 };
 
-/** \brief adc0 setup */
-static ADC_CLOCK_SETUP_T ciaaDriverAio_adc0_setup;
-
-/** \brief adc1 setup */
-static ADC_CLOCK_SETUP_T ciaaDriverAio_adc1_setup;
-
-/** \brief current adc0 channel */
-static int32_t ciaaDriverAio_adc0_channel;
-
-/** \brief current adc1 channel */
-static int32_t ciaaDriverAio_adc1_channel;
-
-/** \brief adc0 start conversion flag */
-static bool ciaaDriverAio_adc0_start;
-
-/** \brief adc1 start conversion flag */
-static bool ciaaDriverAio_adc1_start;
-
-
 /*==================[external data definition]===============================*/
 
 extern ContextType ActualContext;
@@ -191,25 +185,59 @@ static void ciaaDriverAio_txConfirmation(ciaaDevices_deviceType const * const de
    ciaaSerialDevices_txConfirmation(device->upLayer, 1);
 }
 
+static void ciaaDriverAio_adcIRQHandler(ciaaDevices_deviceType const * const device)
+{
+   uint16_t *ptr;
+   uint16_t dataADC;
+   ciaaDriverAioControl *pAioControl;
+
+   ContextType ctx = ActualContext;
+   ActualContext = CONTEXT_ISR2;
+   pAioControl = (ciaaDriverAioControl *) device->layer;
+
+   /* Interrupt mode: Call the stream interrupt handler */
+   NVIC_DisableIRQ(pAioControl->adc.interrupt);
+   Chip_ADC_Int_SetChannelCmd(pAioControl->adc.handler, pAioControl->adc.channel, DISABLE);
+   Chip_ADC_ReadValue(pAioControl->adc.handler, pAioControl->adc.channel, &dataADC);
+
+   if (pAioControl->aiocnt < UART_AIO_FIFO_SIZE)
+   {
+      ptr = (uint16_t *) &(pAioControl->hwbuf[pAioControl->aiocnt]);
+      *ptr = dataADC;
+      pAioControl->aiocnt += sizeof(dataADC);
+   }
+   ciaaDriverAio_rxIndication(device, pAioControl->aiocnt);
+
+   NVIC_EnableIRQ(pAioControl->adc.interrupt);
+   Chip_ADC_Int_SetChannelCmd(pAioControl->adc.handler, pAioControl->adc.channel, ENABLE);
+
+   ActualContext = ctx;
+}
+
 void ciaa_lpc4337_aio_init(void)
 {
    /* ADC0 Init */
-   ciaaDriverAio_adc0_start = false;
-   Chip_ADC_Init(LPC_ADC0, &ciaaDriverAio_adc0_setup);
-   ciaaDriverAio_adc0_channel = -1;
-   Chip_ADC_SetBurstCmd(LPC_ADC0, DISABLE);
+   aioControl[0].adc.handler = LPC_ADC0;
+   aioControl[0].adc.interrupt = ADC0_IRQn;
+   aioControl[0].adc.start = false;
+   Chip_ADC_Init(aioControl[0].adc.handler, &(aioControl[0].adc.setup));
+   aioControl[0].adc.channel = -1;
+   Chip_ADC_SetBurstCmd(aioControl[0].adc.handler, DISABLE);
 
    /* ADC1 Init */
-   ciaaDriverAio_adc1_start = false;
-   Chip_ADC_Init(LPC_ADC1, &ciaaDriverAio_adc1_setup);
-   ciaaDriverAio_adc1_channel = -1;
-   Chip_ADC_SetBurstCmd(LPC_ADC1, DISABLE);
+   aioControl[1].adc.handler = LPC_ADC1;
+   aioControl[1].adc.interrupt = ADC1_IRQn;
+   aioControl[1].adc.start = false;
+   Chip_ADC_Init(aioControl[1].adc.handler, &(aioControl[1].adc.setup));
+   aioControl[1].adc.channel = -1;
+   Chip_ADC_SetBurstCmd(aioControl[1].adc.handler, DISABLE);
 
    /* DAC Init */
+   aioControl[2].dac.handler = LPC_DAC;
    Chip_SCU_DAC_Analog_Config(); //select DAC function
-   Chip_DAC_Init(LPC_DAC); //initialize DAC
-   Chip_DAC_SetDMATimeOut(LPC_DAC, 0xFFFF);
-   Chip_DAC_ConfigDAConverterControl(LPC_DAC, (DAC_CNT_ENA | DAC_DMA_ENA));
+   Chip_DAC_Init(aioControl[2].dac.handler); //initialize DAC
+   Chip_DAC_SetDMATimeOut(aioControl[2].dac.handler, 0xFFFF);
+   Chip_DAC_ConfigDAConverterControl(aioControl[2].dac.handler, (DAC_CNT_ENA | DAC_DMA_ENA));
 }
 
 
@@ -223,52 +251,34 @@ extern ciaaDevices_deviceType * ciaaDriverAio_open(char const * path,
 extern int32_t ciaaDriverAio_close(ciaaDevices_deviceType const * const device)
 {
    int32_t ret = -1;
+   ciaaDriverAioControl *pAioControl;
 
-   if (device == ciaaDriverAioConst.devices[0])
+   pAioControl = (ciaaDriverAioControl *) device->layer;
+
+   /* Inputs */
+   if ((device == ciaaDriverAioConst.devices[0]) || 
+       (device == ciaaDriverAioConst.devices[1]))
    {
-      NVIC_DisableIRQ(ADC0_IRQn);
-      Chip_ADC_Int_SetChannelCmd(LPC_ADC0, ciaaDriverAio_adc0_channel, DISABLE);
+      NVIC_DisableIRQ(pAioControl->adc.interrupt);
+      Chip_ADC_Int_SetChannelCmd(pAioControl->adc.handler, pAioControl->adc.channel, DISABLE);
       ret = 0;
    }
-   else if (device == ciaaDriverAioConst.devices[1])
-   {
-      NVIC_DisableIRQ(ADC1_IRQn);
-      Chip_ADC_Int_SetChannelCmd(LPC_ADC1, ciaaDriverAio_adc1_channel, DISABLE);
-      ret = 0;
-   }
-   else if (device == ciaaDriverAioConst.devices[2])
+
+   /* Outputs */   
+   if (device == ciaaDriverAioConst.devices[2])
    {
       ret = 0;
    }
+
    return ret;
 }
 
 extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
    int32_t ret = -1;
-   ADC_RESOLUTION_T resolution;
-   int32_t *adc_channel;
-   void *pADC;
-   int32_t iADC;
-   ADC_CLOCK_SETUP_T *adc_setup;
-   bool *start_adc;
+   ciaaDriverAioControl *pAioControl;
 
-   if (device == ciaaDriverAioConst.devices[0])
-   {
-        pADC = LPC_ADC0;
-        iADC = ADC0_IRQn;
-        adc_setup = &ciaaDriverAio_adc0_setup;
-        adc_channel = &ciaaDriverAio_adc0_channel;
-        start_adc = &ciaaDriverAio_adc0_start;
-   }
-   if (device == ciaaDriverAioConst.devices[1])
-   {
-        pADC = LPC_ADC1;
-        iADC = ADC1_IRQn;
-        adc_setup = &ciaaDriverAio_adc1_setup;
-        adc_channel = &ciaaDriverAio_adc1_channel;
-        start_adc = &ciaaDriverAio_adc1_start;
-   }
+   pAioControl = (ciaaDriverAioControl *) device->layer;
 
    /* Inputs */
    if ((device == ciaaDriverAioConst.devices[0]) ||
@@ -277,121 +287,110 @@ extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, 
       switch(request)
       {
          case ciaaPOSIX_IOCTL_SET_CHANNEL:
-            NVIC_DisableIRQ(iADC);
-            Chip_ADC_Int_SetChannelCmd((LPC_ADC_T *) pADC, *adc_channel, DISABLE);
-            Chip_ADC_EnableChannel((LPC_ADC_T *) pADC, *adc_channel, DISABLE);
+            NVIC_DisableIRQ(pAioControl->adc.interrupt);
+            Chip_ADC_Int_SetChannelCmd(pAioControl->adc.handler, pAioControl->adc.channel, DISABLE);
+            Chip_ADC_EnableChannel(pAioControl->adc.handler, pAioControl->adc.channel, DISABLE);
             switch((int32_t)param)
             {
                 case ciaaCHANNEL_0:
-                    *adc_channel = ADC_CH1;
+                    pAioControl->adc.channel = ADC_CH1;
                     ret = 0;
                     break;
                 case ciaaCHANNEL_1:
-                    *adc_channel = ADC_CH2;
+                    pAioControl->adc.channel = ADC_CH2;
                     ret = 0;
                     break;
                 case ciaaCHANNEL_2:
-                    *adc_channel = ADC_CH3;
+                    pAioControl->adc.channel = ADC_CH3;
                     ret = 0;
                     break;
                 case ciaaCHANNEL_3:
-                    *adc_channel = ADC_CH4;
+                    pAioControl->adc.channel = ADC_CH4;
                     ret = 0;
                     break;
             }
             if (ret == 0)
             {
-                NVIC_EnableIRQ(iADC);
-                Chip_ADC_EnableChannel((LPC_ADC_T *) pADC, *adc_channel, ENABLE);
-                Chip_ADC_Int_SetChannelCmd((LPC_ADC_T *) pADC, *adc_channel, ENABLE);
-                *start_adc = true;
+                NVIC_EnableIRQ(pAioControl->adc.interrupt);
+                Chip_ADC_EnableChannel(pAioControl->adc.handler, pAioControl->adc.channel, ENABLE);
+                Chip_ADC_Int_SetChannelCmd(pAioControl->adc.handler, pAioControl->adc.channel, ENABLE);
+                pAioControl->adc.start = true;
             }
             break;
 
          case ciaaPOSIX_IOCTL_SET_SAMPLE_RATE:
-            NVIC_DisableIRQ(iADC);
-            Chip_ADC_SetSampleRate((LPC_ADC_T *) pADC, adc_setup, (uint32_t)param);
-            NVIC_EnableIRQ(iADC);
+            NVIC_DisableIRQ(pAioControl->adc.interrupt);
+            Chip_ADC_SetSampleRate(pAioControl->adc.handler, &(pAioControl->adc.setup), (uint32_t)param);
+            NVIC_EnableIRQ(pAioControl->adc.interrupt);
             break;
 
          case ciaaPOSIX_IOCTL_SET_RESOLUTION:
-            NVIC_DisableIRQ(iADC);
+            NVIC_DisableIRQ(pAioControl->adc.interrupt);
             switch((int32_t)param)
             {
                 case ciaaRESOLUTION_10BITS:
-                    resolution = ADC_10BITS;
+                    pAioControl->adc.resolution = ADC_10BITS;
                     ret = 0;
                     break;
                 case ciaaRESOLUTION_9BITS:
-                    resolution = ADC_9BITS;
+                    pAioControl->adc.resolution = ADC_9BITS;
                     ret = 0;
                     break;
                 case ciaaRESOLUTION_8BITS:
-                    resolution = ADC_8BITS;
+                    pAioControl->adc.resolution = ADC_8BITS;
                     ret = 0;
                     break;
                 case ciaaRESOLUTION_7BITS:
-                    resolution = ADC_7BITS;
+                    pAioControl->adc.resolution = ADC_7BITS;
                     ret = 0;
                     break;
                 case ciaaRESOLUTION_6BITS:
-                    resolution = ADC_6BITS;
+                    pAioControl->adc.resolution = ADC_6BITS;
                     ret = 0;
                     break;
                 case ciaaRESOLUTION_5BITS:
-                    resolution = ADC_5BITS;
+                    pAioControl->adc.resolution = ADC_5BITS;
                     ret = 0;
                     break;
                 case ciaaRESOLUTION_4BITS:
-                    resolution = ADC_4BITS;
+                    pAioControl->adc.resolution = ADC_4BITS;
                     ret = 0;
                     break;
                 case ciaaRESOLUTION_3BITS:
-                    resolution = ADC_3BITS;
+                    pAioControl->adc.resolution = ADC_3BITS;
                     ret = 0;
                     break;
             }
             if (ret == 0)
             {
-                Chip_ADC_SetResolution((LPC_ADC_T *) pADC, adc_setup, resolution);
-                NVIC_EnableIRQ(iADC);
+                Chip_ADC_SetResolution(pAioControl->adc.handler, &(pAioControl->adc.setup), pAioControl->adc.resolution);
+                NVIC_EnableIRQ(pAioControl->adc.interrupt);
             }
             break;
 
          case ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT:
             if((bool)(intptr_t)param == false)
             {
-               NVIC_DisableIRQ(iADC);
-               Chip_ADC_Int_SetChannelCmd((LPC_ADC_T *) pADC, adc_setup, DISABLE);
-               *start_adc = false;
+               NVIC_DisableIRQ(pAioControl->adc.interrupt);
+               Chip_ADC_Int_SetChannelCmd(pAioControl->adc.handler, &(pAioControl->adc.setup), DISABLE);
+               pAioControl->adc.start = false;
             }
             else
             {
-               NVIC_EnableIRQ(iADC);
-               Chip_ADC_Int_SetChannelCmd((LPC_ADC_T *) pADC, adc_setup, ENABLE);
-               *start_adc = true;
+               NVIC_EnableIRQ(pAioControl->adc.interrupt);
+               Chip_ADC_Int_SetChannelCmd(pAioControl->adc.handler, &(pAioControl->adc.setup), ENABLE);
+               pAioControl->adc.start = true;
             }
             break;
       }
-   }
-
-   if (device == ciaaDriverAioConst.devices[0])
-   {
-      if (ciaaDriverAio_adc0_start == true)
+      if (pAioControl->adc.start == true)
       {
-         Chip_ADC_SetStartMode((LPC_ADC_T *) pADC, ADC_START_NOW, ADC_TRIGGERMODE_RISING);
-      }
-   }
-   if (device == ciaaDriverAioConst.devices[1])
-   {
-      if (ciaaDriverAio_adc0_start == true)
-      {
-          Chip_ADC_SetStartMode((LPC_ADC_T *) pADC, ADC_START_NOW, ADC_TRIGGERMODE_RISING);
+         Chip_ADC_SetStartMode(pAioControl->adc.handler, ADC_START_NOW, ADC_TRIGGERMODE_RISING);
       }
    }
 
    /* Outputs */
-   if ((device == ciaaDriverAioConst.devices[2]) )
+   if ((device == ciaaDriverAioConst.devices[2]))
    {
       switch(request)
       {
@@ -416,14 +415,15 @@ extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, 
 
 extern int32_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
 {
-   int32_t ret = -1;
    uint8_t i;
+   int32_t ret = -1;
    ciaaDriverAioControl *pAioControl;
 
    if (size != 0)
    {
+      /* Inputs */
       if ((device == ciaaDriverAioConst.devices[0]) ||
-          (device == ciaaDriverAioConst.devices[1]) )
+          (device == ciaaDriverAioConst.devices[1]))
       {
          pAioControl = (ciaaDriverAioControl *) device->layer;
 
@@ -452,14 +452,11 @@ extern int32_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, u
             }
          }
       }
-      else if (device == ciaaDriverAioConst.devices[2])
+      
+      /* Outputs */
+      if (device == ciaaDriverAioConst.devices[2])
       {
          /* Inputs can't be read. */
-         ret = -1;
-      }
-      else
-      {
-         /* Invalid device */
          ret = -1;
       }
    }
@@ -471,31 +468,33 @@ extern int32_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, 
    int32_t count;
    uint16_t *ptr;
    int32_t ret = -1;
+   ciaaDriverAioControl *pAioControl;
 
    if (size != 0)
    {
-      if (device == ciaaDriverAioConst.devices[0])
+      /* Inputs */
+      if ((device == ciaaDriverAioConst.devices[0]) ||
+          (device == ciaaDriverAioConst.devices[1]))
       {
          /* Inputs can't be written. */
          ret = -1;
       }
-      else if (device == ciaaDriverAioConst.devices[1])
+      
+      /* Outputs */
+      if (device == ciaaDriverAioConst.devices[2])
       {
-         /* Inputs can't be written. */
-         ret = -1;
-      }
-      else if(device == ciaaDriverAioConst.devices[2])
-      {
+         pAioControl = (ciaaDriverAioControl *) device->layer;
+
          count = size;
          ptr = (uint16_t *) buffer;
          while(count > 1)
          {
-            Chip_DAC_UpdateValue(LPC_DAC, *ptr);
+            Chip_DAC_UpdateValue(pAioControl->dac.handler, *ptr);
 
             /* save actual output state in layer data */
-            *((ciaaDriverAio_aioType *)device->layer) = *ptr;
+            /* *((ciaaDriverAio_aioType *)device->layer) = *ptr; */
 
-            while (!(Chip_DAC_GetIntStatus(LPC_DAC))) {}
+            while (!(Chip_DAC_GetIntStatus(pAioControl->dac.handler))) {}
 
             count -= 2;
             ptr ++;
@@ -503,10 +502,6 @@ extern int32_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, 
 
          /* 1 byte written */
          ret = size - count;
-      }
-      else
-      {
-         ret = -1;
       }
    }
    return ret;
@@ -529,58 +524,15 @@ void ciaaDriverAio_init(void)
 
 
 /*==================[interrupt hanlders]=====================================*/
+
 void ADC0_IRQHandler(void)
 {
-   uint16_t dataADC;
-   uint16_t *ptr;
-
-   ContextType ctx = ActualContext;
-   ActualContext = CONTEXT_ISR2;
-
-   /* Interrupt mode: Call the stream interrupt handler */
-   NVIC_DisableIRQ(ADC0_IRQn);
-   Chip_ADC_Int_SetChannelCmd(LPC_ADC0, ciaaDriverAio_adc0_channel, DISABLE);
-   Chip_ADC_ReadValue(LPC_ADC0, ciaaDriverAio_adc0_channel, &dataADC);
-
-   if (aioControl[0].aiocnt < UART_AIO_FIFO_SIZE)
-   {
-      ptr = &(aioControl[0].hwbuf[aioControl[0].aiocnt]);
-      *ptr = dataADC;
-      aioControl[0].aiocnt += sizeof(dataADC);
-   }
-   ciaaDriverAio_rxIndication(&ciaaDriverAio_in0, aioControl[0].aiocnt);
-
-   NVIC_EnableIRQ(ADC0_IRQn);
-   Chip_ADC_Int_SetChannelCmd(LPC_ADC0, ciaaDriverAio_adc0_channel, ENABLE);
-
-   ActualContext = ctx;
+   ciaaDriverAio_adcIRQHandler(&ciaaDriverAio_in0);
 }
 
 void ADC1_IRQHandler(void)
 {
-   uint16_t dataADC;
-   uint16_t *ptr;
-
-   ContextType ctx = ActualContext;
-   ActualContext = CONTEXT_ISR2;
-
-   /* Interrupt mode: Call the stream interrupt handler */
-   NVIC_DisableIRQ(ADC1_IRQn);
-   Chip_ADC_Int_SetChannelCmd(LPC_ADC1, ciaaDriverAio_adc1_channel, DISABLE);
-   Chip_ADC_ReadValue(LPC_ADC1, ciaaDriverAio_adc1_channel, &dataADC);
-
-   if (aioControl[1].aiocnt < UART_AIO_FIFO_SIZE)
-   {
-      ptr = &(aioControl[1].hwbuf[aioControl[1].aiocnt]);
-      *ptr = dataADC;
-      aioControl[1].aiocnt += sizeof(dataADC);
-   }
-   ciaaDriverAio_rxIndication(&ciaaDriverAio_in1, aioControl[1].aiocnt);
-
-   NVIC_EnableIRQ(ADC1_IRQn);
-   Chip_ADC_Int_SetChannelCmd(LPC_ADC1, ciaaDriverAio_adc1_channel, ENABLE);
-
-   ActualContext = ctx;
+   ciaaDriverAio_adcIRQHandler(&ciaaDriverAio_in1);
 }
 
 /** @} doxygen end group definition */
