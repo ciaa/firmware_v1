@@ -73,6 +73,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <pthread.h>
 
 /*==================[macros and definitions]=================================*/
 /* Mac OS X only suport deprecated macro version MAP_ANON  */
@@ -90,7 +91,9 @@ uint8 * OSEK_IntCircBuffer;
 /*==================[external data definition]===============================*/
 ciaaLibs_CircBufType * OSEK_IntCircBuf;
 
-bool * Os_Terminate_Flag;
+bool Os_Terminate_Flag;
+
+pthread_t Os_Thread_Timer;
 
 /*==================[internal functions definition]==========================*/
 
@@ -111,7 +114,6 @@ void StartOs_Arch(void)
    /* initialize singals handler */
    signal(SIGALRM,OsInterruptHandler);
    signal(SIGUSR1,OsInterruptHandler);
-   signal(SIGCHLD,OsInterruptHandler);
    signal(SIGTERM,OsInterruptHandler);
    
    /* shared memory for circular buffer management block */
@@ -126,25 +128,18 @@ void StartOs_Arch(void)
          PROT_READ | PROT_WRITE,
          MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
-		 /* init circular buffer */
+	/* init circular buffer */
    ciaaLibs_circBufInit(OSEK_IntCircBuf, OSEK_IntCircBuffer, 64);
- 
-   /* shared memory for the circular buffer */
-   Os_Terminate_Flag = mmap(NULL,
-         sizeof(bool),
-         PROT_READ | PROT_WRITE,
-         MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-   *Os_Terminate_Flag = false;
+   /* init Thread Terminate flag */
+   Os_Terminate_Flag = false;
    
-   if (fork() == 0)
+    if(0 != pthread_create(&Os_Thread_Timer, NULL, HWTimerThread, (void*)0))
    {
-#if 0
-      printf("Child %d\n", getpid());
-#endif	  
-      HWTimerFork(0);
+      printf("Error creating OS Thread timer!\n");
+      exit(-1);
    }
-#if 0
-   printf("Parent %d\n", getpid());
+ #if 0
+   printf("Process ID: %d\n", getpid());
 #endif	     
    /* enable interrupts */
    InterruptState = 1;

@@ -129,22 +129,15 @@ void OsInterruptHandler(int signal)
 {
    uint8 interrupt;
 
-   if (SIGCHLD == signal)
-   {
-#if 0
-      printf("Signal:%d (%s), pid:%d\n",signal,strsignal(signal), getpid());
-#endif
-      /* wait for an ending child */
-      wait(NULL);
-      /* kill Main process */
-	  OsekKillSigHandler(0);
-   }
    if (SIGTERM == signal)
    {
       /* Terminate Child process */
-      *Os_Terminate_Flag = true;
-   }
-
+      Os_Terminate_Flag = true;
+      /* wait for the second thread to finish */
+      pthread_join(Os_Thread_Timer, NULL);
+      /* kill Main process */
+      OsekKillSigHandler(0);
+   }      
    /* repeat until the buffer is empty */
    while(!ciaaLibs_circBufEmpty(OSEK_IntCircBuf))
    {
@@ -171,10 +164,11 @@ void OsInterruptHandler(int signal)
 
 }
 
-void HWTimerFork(uint8 timer)
+void* HWTimerThread(void *pThread_Arg)
 {
    struct timespec rqtp;
    uint8 interrupt;
+   uint8 timer = (uint8) pThread_Arg;
 
    if (timer <= 2)
    {
@@ -184,7 +178,7 @@ void HWTimerFork(uint8 timer)
       rqtp.tv_sec=0;
       rqtp.tv_nsec=1000000;
 
-      while(*Os_Terminate_Flag == false)
+      while(Os_Terminate_Flag == false)
       {
          /* sleep */
          nanosleep(&rqtp,NULL);
@@ -196,10 +190,10 @@ void HWTimerFork(uint8 timer)
          ciaaLibs_circBufPut(OSEK_IntCircBuf, &interrupt, 1);
 
          /* indicate interrupt using a signal */
-         kill(getppid(), SIGALRM);
+         kill(getpid(), SIGALRM);
       }
    }
-   exit(0);
+   return NULL;
 }
 
 void OsekKillSigHandler(int status)

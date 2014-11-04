@@ -326,10 +326,6 @@
  **/
 extern InterruptFlagsType InterruptFlag;
 
-/** \brief Os Terminate Flag
- **/
-extern bool * Os_Terminate_Flag;
-
 /** \brief Osek Hardware Timer 0
  **/
 extern uint32 OsekHWTimer0;
@@ -337,6 +333,10 @@ extern uint32 OsekHWTimer0;
 extern uint8 * OSEK_IntCircBuffer;
 
 extern ciaaLibs_CircBufType * OSEK_IntCircBuf;
+
+extern bool Os_Terminate_Flag;
+
+extern pthread_t Os_Thread_Timer;
 
 /** \brief Os Stack
  **
@@ -376,7 +376,7 @@ extern uint32 OsekStack;
  **/
 extern void OsInterruptHandler(int status);
 
-extern void HWTimerFork(uint8 timer);
+extern void* HWTimerThread(void *pThread_Arg);
 
 extern void OsekKillSigHandler(int status);
 
