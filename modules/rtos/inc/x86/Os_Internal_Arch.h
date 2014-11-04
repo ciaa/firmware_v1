@@ -137,9 +137,9 @@
 #define CallTask(OldTask, NewTask) \
 {                                                                                                                                              \
    /* save actual rsp */                                                                                                                       \
-   __asm__ __volatile__ ("movq %%rsp, %%rax; addq $32, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rsp) : : "%rax" ); \
+   __asm__ __volatile__ ("movq %%rsp, %%rax; addq $16, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rsp) : : "%rax" ); \
    /* save actual rbp */                                                                                                                       \
-   __asm__ __volatile__ ("movq %%rbp, %%rax; addq $96, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rbp) : : "%rax" ); \
+   __asm__ __volatile__ ("movq %%rbp, %%rax; addq $48, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rbp) : : "%rax" ); \
    /* save return rip */                                                                                                                       \
    __asm__ __volatile__ ("movq 8(%%rbp), %%rax; movq %%rax, %0" : "=g" (TasksConst[OldTask].TaskContext->tss_rip) : : "%rax");                 \
    /* load new stack pointer */                                                                                                                \
