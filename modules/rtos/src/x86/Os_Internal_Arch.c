@@ -74,6 +74,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <pthread.h>
 
 /*==================[macros and definitions]=================================*/
 
@@ -168,7 +169,7 @@ void* HWTimerThread(void *pThread_Arg)
 {
    struct timespec rqtp;
    uint8 interrupt;
-   uint8 timer = (uint8) pThread_Arg;
+   uint8 timer = (uint8) (intptr_t) pThread_Arg;
 
    if (timer <= 2)
    {
