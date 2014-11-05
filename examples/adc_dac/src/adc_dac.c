@@ -169,7 +169,7 @@ TASK(Analogic)
    uint16_t hr_ciaaDac;
 
    /* Read ADC. */
-   if (ciaaPOSIX_read(fd_adc, &hr_ciaaDac, sizeof(hr_ciaaDac)) < 1)
+   ciaaPOSIX_read(fd_adc, &hr_ciaaDac, sizeof(hr_ciaaDac));
 
    /* Signal gain. */
    hr_ciaaDac >>= 0;

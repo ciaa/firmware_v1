@@ -75,22 +75,26 @@ typedef struct  {
 
 typedef uint8_t ContextType;
 
-#define UART_AIO_FIFO_SIZE       (16)
+#define AIO_FIFO_SIZE       (16)
 
 typedef struct {
-   uint8_t hwbuf[UART_AIO_FIFO_SIZE];
-   uint8_t aiocnt;
+   uint8_t hwbuf[AIO_FIFO_SIZE];       /** <= buffer */
+   uint8_t cnt;                        /** count */
    union {
       struct {
-         LPC_ADC_T *handler;          /** <= adc handler */
-         int32_t interrupt;           /** <= adc interrupt */
-         ADC_CLOCK_SETUP_T setup;     /** <= adc setup */
-         ADC_RESOLUTION_T resolution; /** <= adc resolution */
-         int32_t channel;             /** <= current adc channel */
-         bool start;                  /** <= adc start conversion flag */
+         LPC_ADC_T *handler;           /** <= adc handler */
+         int32_t interrupt;            /** <= adc interrupt */
+         ADC_CLOCK_SETUP_T setup;      /** <= adc setup */
+         ADC_RESOLUTION_T resolution;  /** <= adc resolution */
+         int32_t channel;              /** <= current adc channel */
+         bool start;                   /** <= adc start conversion flag */
      } adc;
      struct {
-         LPC_DAC_T *handler;          /** <= adc handler */
+         LPC_DAC_T *handler;           /** <= dac handler */
+         LPC_GPDMA_T *dma_handler;     /** <= dma handler */
+         int32_t dma_interrupt;        /** <= dma interrupt */
+         uint8_t dma_channel;          /** <= dma channel */
+         uint8_t cnt;                 /** count */
      } dac;
   };
 } ciaaDriverAioControl;
@@ -179,10 +183,10 @@ static void ciaaDriverAio_rxIndication(ciaaDevices_deviceType const * const devi
    ciaaSerialDevices_rxIndication(device->upLayer, nbyte);
 }
 
-static void ciaaDriverAio_txConfirmation(ciaaDevices_deviceType const * const device)
+static void ciaaDriverAio_txConfirmation(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
    /* receive the data and forward to upper layer */
-   ciaaSerialDevices_txConfirmation(device->upLayer, 1);
+   ciaaSerialDevices_txConfirmation(device->upLayer, nbyte);
 }
 
 static void ciaaDriverAio_adcIRQHandler(ciaaDevices_deviceType const * const device)
@@ -200,16 +204,39 @@ static void ciaaDriverAio_adcIRQHandler(ciaaDevices_deviceType const * const dev
    Chip_ADC_Int_SetChannelCmd(pAioControl->adc.handler, pAioControl->adc.channel, DISABLE);
    Chip_ADC_ReadValue(pAioControl->adc.handler, pAioControl->adc.channel, &dataADC);
 
-   if (pAioControl->aiocnt < UART_AIO_FIFO_SIZE)
+   if (pAioControl->cnt < AIO_FIFO_SIZE)
    {
-      ptr = (uint16_t *) &(pAioControl->hwbuf[pAioControl->aiocnt]);
+      ptr = (uint16_t *) &(pAioControl->hwbuf[pAioControl->cnt]);
       *ptr = dataADC;
-      pAioControl->aiocnt += sizeof(dataADC);
+      pAioControl->cnt += sizeof(dataADC);
    }
-   ciaaDriverAio_rxIndication(device, pAioControl->aiocnt);
+   ciaaDriverAio_rxIndication(device, pAioControl->cnt);
 
    NVIC_EnableIRQ(pAioControl->adc.interrupt);
    Chip_ADC_Int_SetChannelCmd(pAioControl->adc.handler, pAioControl->adc.channel, ENABLE);
+
+   ActualContext = ctx;
+}
+
+static void ciaaDriverAio_dacIRQHandler(ciaaDevices_deviceType const * const device)
+{
+   ciaaDriverAioControl *pAioControl;
+
+   ContextType ctx = ActualContext;
+   ActualContext = CONTEXT_ISR2;
+
+   pAioControl = (ciaaDriverAioControl *) device->layer;
+   NVIC_DisableIRQ(pAioControl->dac.dma_interrupt);
+
+   if (Chip_GPDMA_Interrupt(pAioControl->dac.dma_handler, pAioControl->dac.dma_channel) == SUCCESS) 
+   {
+      ciaaDriverAio_txConfirmation(device, pAioControl->dac.cnt);
+      Chip_GPDMA_Stop(pAioControl->dac.dma_handler, pAioControl->dac.dma_channel);  
+   }
+   else
+   {
+       NVIC_EnableIRQ(pAioControl->dac.dma_interrupt);
+   }
 
    ActualContext = ctx;
 }
@@ -232,12 +259,23 @@ void ciaa_lpc4337_aio_init(void)
    aioControl[1].adc.channel = -1;
    Chip_ADC_SetBurstCmd(aioControl[1].adc.handler, DISABLE);
 
+
    /* DAC Init */
    aioControl[2].dac.handler = LPC_DAC;
    Chip_SCU_DAC_Analog_Config(); //select DAC function
    Chip_DAC_Init(aioControl[2].dac.handler); //initialize DAC
    Chip_DAC_SetDMATimeOut(aioControl[2].dac.handler, 0xFFFF);
-   Chip_DAC_ConfigDAConverterControl(aioControl[2].dac.handler, (DAC_CNT_ENA | DAC_DMA_ENA));
+   Chip_DAC_ConfigDAConverterControl(aioControl[2].dac.handler, DAC_CNT_ENA | DAC_DMA_ENA);
+
+   /* Initialize GPDMA controller */
+   aioControl[2].dac.dma_handler = LPC_GPDMA;
+   Chip_GPDMA_Init(aioControl[2].dac.dma_handler);
+
+   /* Setup GPDMA interrupt */
+   aioControl[2].dac.dma_interrupt = DMA_IRQn;
+   NVIC_DisableIRQ(aioControl[2].dac.dma_interrupt);
+   NVIC_SetPriority(aioControl[2].dac.dma_interrupt, ((0x01 << 3) | 0x01));
+   NVIC_EnableIRQ(aioControl[2].dac.dma_interrupt);
 }
 
 
@@ -396,7 +434,7 @@ extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, 
       {
          case ciaaPOSIX_IOCTL_STARTTX:
             /* this one calls write */
-            ciaaDriverAio_txConfirmation(device);
+            ciaaDriverAio_txConfirmation(device, 1);
             ret = 0;
             break;
 
@@ -427,26 +465,26 @@ extern int32_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, u
       {
          pAioControl = (ciaaDriverAioControl *) device->layer;
 
-         if (size > pAioControl->aiocnt)
+         if (size > pAioControl->cnt)
          {
             /* buffer has enough space */
-            ret = pAioControl->aiocnt;
-            pAioControl->aiocnt = 0;
+            ret = pAioControl->cnt;
+            pAioControl->cnt = 0;
          }
          else
          {
             /* buffer hasn't enough space */
             ret = size;
-            pAioControl->aiocnt -= size;
+            pAioControl->cnt -= size;
          }
          for(i = 0; i < ret; i++)
          {
             buffer[i] = pAioControl->hwbuf[i];
          }
-         if (pAioControl->aiocnt != 0)
+         if (pAioControl->cnt != 0)
          {
             /* We removed data from the buffer, it is time to reorder it */
-            for(i = 0; i < pAioControl->aiocnt ; i++)
+            for(i = 0; i < pAioControl->cnt ; i++)
             {
                pAioControl->hwbuf[i] = pAioControl->hwbuf[i + ret];
             }
@@ -465,10 +503,12 @@ extern int32_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, u
 
 extern int32_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
+   uint8_t samples;
    int32_t count;
    uint16_t *ptr;
-   int32_t ret = -1;
+   uint32_t dmaBuffer[AIO_FIFO_SIZE];
    ciaaDriverAioControl *pAioControl;
+   int32_t ret = -1;
 
    if (size != 0)
    {
@@ -485,23 +525,33 @@ extern int32_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, 
       {
          pAioControl = (ciaaDriverAioControl *) device->layer;
 
+         /* pre-format the data to DACR register */
+         samples = 0;
          count = size;
          ptr = (uint16_t *) buffer;
-         while(count > 1)
+         while((count > 1) && (samples < AIO_FIFO_SIZE))
          {
-            Chip_DAC_UpdateValue(pAioControl->dac.handler, *ptr);
-
-            /* save actual output state in layer data */
-            /* *((ciaaDriverAio_aioType *)device->layer) = *ptr; */
-
-            while (!(Chip_DAC_GetIntStatus(pAioControl->dac.handler))) {}
-
+            dmaBuffer[samples] = (uint32_t) (DAC_VALUE(*ptr) | DAC_BIAS_EN);
             count -= 2;
             ptr ++;
+            samples ++;
          }
+         if (samples)
+         {
+            NVIC_DisableIRQ(pAioControl->dac.dma_interrupt);
 
-         /* 1 byte written */
-         ret = size - count;
+            /* Get the free channel for DMA transfer */
+            pAioControl->dac.dma_channel = Chip_GPDMA_GetFreeChannel(pAioControl->dac.dma_handler, GPDMA_CONN_DAC);
+
+            /* Start DMA transfer */
+            Chip_GPDMA_Transfer(pAioControl->dac.dma_handler, pAioControl->dac.dma_channel, 
+                                   (uint32_t) &dmaBuffer, GPDMA_CONN_DAC, 
+                                   GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, samples);
+
+            /* Bytes transfered */
+            pAioControl->dac.cnt = size - count;
+            ret = pAioControl->dac.cnt;
+         }
       }
    }
    return ret;
@@ -533,6 +583,11 @@ void ADC0_IRQHandler(void)
 void ADC1_IRQHandler(void)
 {
    ciaaDriverAio_adcIRQHandler(&ciaaDriverAio_in1);
+}
+
+void DMA_IRQHandler(void)
+{
+   ciaaDriverAio_dacIRQHandler(&ciaaDriverAio_out0);
 }
 
 /** @} doxygen end group definition */
