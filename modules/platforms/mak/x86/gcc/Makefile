@@ -43,7 +43,7 @@ GDB = gdb
 NM = nm
 # COMPILER,  LINKER, AND DEBUGGER OPTIONS
 CFLAGS += -c -Wall -ggdb3
-LFLAGS += $(LINKSCRIPT)
+LFLAGS += $(LINKSCRIPT) -lpthread
 GFLAGS += -silent -batch
 # Optional POST BUILD
 POST_BUILD +=

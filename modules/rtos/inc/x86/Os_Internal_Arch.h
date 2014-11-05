@@ -137,9 +137,9 @@
 #define CallTask(OldTask, NewTask) \
 {                                                                                                                                              \
    /* save actual rsp */                                                                                                                       \
-   __asm__ __volatile__ ("movq %%rsp, %%rax; addq $32, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rsp) : : "%rax" ); \
+   __asm__ __volatile__ ("movq %%rsp, %%rax; addq $16, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rsp) : : "%rax" ); \
    /* save actual rbp */                                                                                                                       \
-   __asm__ __volatile__ ("movq %%rbp, %%rax; addq $96, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rbp) : : "%rax" ); \
+   __asm__ __volatile__ ("movq %%rbp, %%rax; addq $48, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rbp) : : "%rax" ); \
    /* save return rip */                                                                                                                       \
    __asm__ __volatile__ ("movq 8(%%rbp), %%rax; movq %%rax, %0" : "=g" (TasksConst[OldTask].TaskContext->tss_rip) : : "%rax");                 \
    /* load new stack pointer */                                                                                                                \
@@ -326,10 +326,6 @@
  **/
 extern InterruptFlagsType InterruptFlag;
 
-/** \brief Os Terminate Flag
- **/
-extern bool * Os_Terminate_Flag;
-
 /** \brief Osek Hardware Timer 0
  **/
 extern uint32 OsekHWTimer0;
@@ -337,6 +333,10 @@ extern uint32 OsekHWTimer0;
 extern uint8 * OSEK_IntCircBuffer;
 
 extern ciaaLibs_CircBufType * OSEK_IntCircBuf;
+
+extern bool Os_Terminate_Flag;
+
+extern pthread_t Os_Thread_Timer;
 
 /** \brief Os Stack
  **
@@ -376,7 +376,7 @@ extern uint32 OsekStack;
  **/
 extern void OsInterruptHandler(int status);
 
-extern void HWTimerFork(uint8 timer);
+extern void* HWTimerThread(void *pThread_Arg);
 
 extern void OsekKillSigHandler(int status);
 
