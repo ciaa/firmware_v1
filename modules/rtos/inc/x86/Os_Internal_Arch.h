@@ -135,17 +135,18 @@
  **/
 #if ( CPUTYPE == ia64 )
 #define CallTask(OldTask, NewTask) \
-{                                                                                                                                              \
-   /* save actual rsp */                                                                                                                       \
-   __asm__ __volatile__ ("movq %%rsp, %%rax; addq $16, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rsp) : : "%rax" ); \
-   /* save actual rbp */                                                                                                                       \
-   __asm__ __volatile__ ("movq %%rbp, %%rax; addq $48, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rbp) : : "%rax" ); \
-   /* save return rip */                                                                                                                       \
-   __asm__ __volatile__ ("movq 8(%%rbp), %%rax; movq %%rax, %0" : "=g" (TasksConst[OldTask].TaskContext->tss_rip) : : "%rax");                 \
-   /* load new stack pointer */                                                                                                                \
-   __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (TasksConst[NewTask].TaskContext->tss_rsp));                                                \
-   /* load new rbp and jmp to the new task */                                                                                                  \
-   __asm__ __volatile__ ("movq %0, %%rbx; movq %1, %%rbp; jmp *%%rbx;" : : "g" (TasksConst[NewTask].TaskContext->tss_rip), "g" (TasksConst[NewTask].TaskContext->tss_rbp)); \
+{                                                                                                                                \
+   /* save actual rsp */                                                                                                         \
+   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (TasksConst[(OldTask)].TaskContext->tss_rsp) : : "%rax" );  \
+   /* save actual rbp */                                                                                                         \
+   __asm__ __volatile__ ("movq %%rbp, %%rax; movq %%rax, %0;" : "=g" (TasksConst[(OldTask)].TaskContext->tss_rbp) : : "%rax" );  \
+   /* save return rip */                                                                                                         \
+   __asm__ __volatile__ ("movq $_next, %%rax; movq %%rax, %0;" : "=g" (TasksConst[(OldTask)].TaskContext->tss_rip) : : "%rax");  \
+   /* load new stack pointer */                                                                                                  \
+   __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (TasksConst[(NewTask)].TaskContext->tss_rsp));                                \
+   /* load new rbp and jmp to the new task */                                                                                    \
+   __asm__ __volatile__ ("movq %0, %%rbx; movq %1, %%rbp; jmp *%%rbx;" : : "g" (TasksConst[(NewTask)].TaskContext->tss_rip), "g" (TasksConst[(NewTask)].TaskContext->tss_rbp)); \
+   __asm__ __volatile__ ("_next:");                                                                                              \
 }
 #elif ( CPUTYPE == ia32 )
 #define CallTask(OldTask, NewTask) \
