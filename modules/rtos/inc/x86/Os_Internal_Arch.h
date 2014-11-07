@@ -145,22 +145,23 @@
    /* load new stack pointer */                                                                                                  \
    __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (TasksConst[(NewTask)].TaskContext->tss_rsp));                                \
    /* load new rbp and jmp to the new task */                                                                                    \
-   __asm__ __volatile__ ("movq %0, %%rbx; movq %1, %%rbp; jmp *%%rbx;" : : "g" (TasksConst[(NewTask)].TaskContext->tss_rip), "g" (TasksConst[(NewTask)].TaskContext->tss_rbp)); \
+   __asm__ __volatile__ ("movq %0, %%rbx; movq %1, %%rbp; jmp *%%rbx;" : : "g" (TasksConst[(NewTask)].TaskContext->tss_rip), "g" (TasksConst[(NewTask)].TaskContext->tss_rbp));                                                                                                       \
    __asm__ __volatile__ ("_next:");                                                                                              \
 }
 #elif ( CPUTYPE == ia32 )
 #define CallTask(OldTask, NewTask) \
-{                                                                                                                                              \
-   /* save actual esp */                                                                                                                       \
-   __asm__ __volatile__ ("movl %%esp, %%eax; addl $16, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_esp) : : "%eax" ); \
-   /* save actual ebp */                                                                                                                       \
-   __asm__ __volatile__ ("movl %%ebp, %%eax; addl $48, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_ebp) : : "%eax" ); \
-   /* save return eip */                                                                                                                       \
-   __asm__ __volatile__ ("movl 4(%%ebp), %%eax; movl %%eax, %0" : "=g" (TasksConst[OldTask].TaskContext->tss_eip) : : "%eax");                 \
-   /* load new stack pointer */                                                                                                                \
-   __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (TasksConst[NewTask].TaskContext->tss_esp));                                                \
-   /* load new ebp and jmp to the new task */                                                                                                  \
-   __asm__ __volatile__ ("movl %0, %%ebx; movl %1, %%ebp; jmp *%%ebx;" : : "g" (TasksConst[NewTask].TaskContext->tss_eip), "g" (TasksConst[NewTask].TaskContext->tss_ebp)); \
+{                                                                                                                                \
+   /* save actual esp */                                                                                                         \
+   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_esp) : : "%eax" );    \
+   /* save actual ebp */                                                                                                         \
+   __asm__ __volatile__ ("movl %%ebp, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_ebp) : : "%eax" );    \
+   /* save return eip */                                                                                                         \
+   __asm__ __volatile__ ("movl $_next, %%eax; movl %%eax, %0" : "=g" (TasksConst[OldTask].TaskContext->tss_eip) : : "%eax");     \
+   /* load new stack pointer */                                                                                                  \
+   __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (TasksConst[NewTask].TaskContext->tss_esp));                                  \
+   /* load new ebp and jmp to the new task */                                                                                    \
+   __asm__ __volatile__ ("movl %0, %%ebx; movl %1, %%ebp; jmp *%%ebx;" : : "g" (TasksConst[NewTask].TaskContext->tss_eip), "g" (TasksConst[NewTask].TaskContext->tss_ebp));                                                                                                       \
+   __asm__ __volatile__ ("_next:");                                                                                              \
 }
 #endif
 
