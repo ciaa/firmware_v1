@@ -269,7 +269,8 @@ void ciaa_lpc4337_aio_init(void)
    aioControl[2].adc_dac.dac.handler = LPC_DAC;
    Chip_SCU_DAC_Analog_Config(); //select DAC function
    Chip_DAC_Init(aioControl[2].adc_dac.dac.handler); //initialize DAC
-   Chip_DAC_SetDMATimeOut(aioControl[2].adc_dac.dac.handler, 0xFFFF);
+   Chip_DAC_SetBias(aioControl[2].adc_dac.dac.handler, DAC_MAX_UPDATE_RATE_400kHz);
+   Chip_DAC_SetDMATimeOut(aioControl[2].adc_dac.dac.handler, 0xffff);
    Chip_DAC_ConfigDAConverterControl(aioControl[2].adc_dac.dac.handler, DAC_CNT_ENA | DAC_DMA_ENA);
 
    /* Initialize GPDMA controller */
@@ -319,6 +320,8 @@ extern int32_t ciaaDriverAio_close(ciaaDevices_deviceType const * const device)
 extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
    ciaaDriverAioControlType *pAioControl;
+   uint32_t freq;
+   uint32_t value;
    int32_t ret = -1;
 
    pAioControl = (ciaaDriverAioControlType *) device->layer;
@@ -453,7 +456,23 @@ extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, 
             break;
 
          case ciaaPOSIX_IOCTL_SET_SAMPLE_RATE:
-            /*Chip_DAC_SetDMATimeOut(pAioControl->adc_dac.dac.handler, Chip_Clock_GetPeripheralClockRate() / (uint32_t)param);*/
+            freq = (uint32_t) param;
+            if (freq < 7)
+            {
+                value = 0xffff;
+                Chip_DAC_SetBias(pAioControl->adc_dac.dac.handler, DAC_MAX_UPDATE_RATE_400kHz);
+            }
+            else if ((freq >= 7) && (freq < 400000))
+            {
+                value = 400000 / freq;
+                Chip_DAC_SetBias(pAioControl->adc_dac.dac.handler, DAC_MAX_UPDATE_RATE_400kHz);
+            }
+            else
+            {
+                value = 10000000 / freq;
+                Chip_DAC_SetBias(pAioControl->adc_dac.dac.handler, DAC_MAX_UPDATE_RATE_1MHz);
+            }
+            Chip_DAC_SetDMATimeOut(pAioControl->adc_dac.dac.handler, value);
             break;
       }
    }
