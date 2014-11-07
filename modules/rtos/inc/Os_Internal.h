@@ -113,10 +113,7 @@
  ** This interface release the internal resources of the actual task
  **/
 #define ReleaseInternalResources()							\
-{																	\
-   /* set the priority to the normal value */		\
-   TasksVar[GetRunningTask()].ActualPriority =		\
-   TasksConst[GetRunningTask()].StaticPriority;		\
+{																	   \
 }
 
 /** \brief Invalid Context */
