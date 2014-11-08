@@ -212,7 +212,7 @@ static int8_t ciaaModbus_gatewayClientProcess(
                   &client->size);
 
             /* check if a valid message received */
-            if (client->size >= CIAAMODBUS_MSG_MINLENGTH)
+            if (client->size >= CIAAMODBUS_REQ_PDU_MINLENGTH)
             {
                /* if a valid message received, step next state */
                client->state = CIAA_MODBUS_CLIENT_STATE_ROUTING;
@@ -300,7 +300,7 @@ static int8_t ciaaModbus_gatewayClientProcess(
                   &client->size);
 
             /* check if a valid message received */
-            if (client->size >= CIAAMODBUS_MSG_MINLENGTH)
+            if (client->size >= CIAAMODBUS_RSP_PDU_MINLENGTH)
             {
                /* if a valid message received, send to client */
                client->sendMsg(
