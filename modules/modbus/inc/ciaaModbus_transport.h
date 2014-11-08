@@ -83,8 +83,15 @@ extern "C" {
 
 
 
-/** \brief Min lenght of a modbus pdu */
-#define CIAAMODBUS_MSG_MINLENGTH          0x05
+/** \brief Min lenght of a modbus request pdu */
+#define CIAAMODBUS_REQ_PDU_MINLENGTH            0x01
+
+/** \brief Min lenght of a modbus response pdu */
+#define CIAAMODBUS_RSP_PDU_MINLENGTH            0x02
+
+/** \brief Min lenght of a modbus exception response pdu */
+#define CIAAMODBUS_EXCEP_RSP_PDU_MINLENGTH      0x02
+
 
 /*==================[typedef]================================================*/
 typedef enum
