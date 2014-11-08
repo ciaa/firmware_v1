@@ -105,7 +105,8 @@ sub GetTestSequences
    while (my $line = <TSF>)
    {
       chomp($line);
-      if ($line ne "")
+      # Skips empty lines and starting with # (comments)
+      if ($line ne "" && substr($line, 0, 1) !~ /^\#/)
       {
          $tabcount = ($line =~ tr/\t//);
          if ($tabcount == 0)
@@ -132,7 +133,8 @@ sub GetTestSequencesConfigs
    while (my $line = <TSF>)
    {
       chomp($line);
-      if ($line ne "")
+      # Skips empty lines and starting with # (comments)
+      if ($line ne "" && substr($line, 0, 1) !~ /^\#/)      
       {
          $tabcount = ($line =~ tr/\t//);
          $line =~ s/\t+//;
@@ -177,8 +179,9 @@ sub GetTestSequencesCon
    {
       chomp($line);
       # removes carry return + line-feed
-	  $line =~ tr/\r\n//d;
-      if ($line ne "")
+	   $line =~ tr/\r\n//d;
+      # Skips empty lines and starting with # (comments)
+      if ($line ne "" && substr($line, 0, 1) !~ /^\#/)     
       {
          # Count TABs
          $tabcount = ($line =~ tr/\t//);
