@@ -253,7 +253,7 @@ extern int32_t ciaaModbus_asciiOpen(int32_t fildes)
       /* set object in use */
       ciaaModbus_asciiObj[hModbusAscii].inUse = true;
 
-      /* set low layer mode */
+      /* set low layer file descriptor */
       ciaaModbus_asciiObj[hModbusAscii].fildes = fildes;
 
       /* empty buffer */
