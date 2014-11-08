@@ -318,7 +318,7 @@ TASK(InitTask)
    /* init the ciaa kernel */
    ciaak_start();
 
-   fdSerialPort = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+   fdSerialPort = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR | O_NONBLOCK);
 
    /* Open Modbus Slave */
    hModbusSlave = ciaaModbus_slaveOpen(
