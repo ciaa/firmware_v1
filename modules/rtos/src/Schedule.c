@@ -105,7 +105,8 @@
        ** are E_OS_CALLEVEL, E_OS_RESOURCE */
       ret = E_OS_CALLEVEL;
    }
-   else if (GetRunningTask() != INVALID_TASK)
+   else if ( (GetRunningTask() != INVALID_TASK) &&
+             (GetCallingContext() == CONTEXT_TASK) )
    {
       if ( TasksVar[GetRunningTask()].Resources != 0 )
       {
@@ -183,6 +184,9 @@
 
             /* set as running task */
             SetRunningTask(nexttask);
+         
+            /* set actual context task */
+            SetActualContext(CONTEXT_TASK);
 
 #if (HOOK_PRETASKHOOK == ENABLE)
             PreTaskHook();
