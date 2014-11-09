@@ -175,9 +175,17 @@
          if ( ( TasksConst[GetRunningTask()].ConstFlags.Preemtive ) &&
                ( ret == E_OK )	)
          {
+            /* This is needed to avoid Schedule to perform standard checks
+             * which are done when normally called from the application
+             * the actual context has to be task so is not need to store it */
+            SetActualContext(CONTEXT_SYS);
+
             /* \req OSEK_SYS_3.1.4 Rescheduling shall take place only if called from a
              * preemptable task. */
             (void)Schedule();
+
+            /* restore the old context */
+            SetActualContext(CONTEXT_TASK);
          }
       }
 #endif /* #if (NON_PREEMPTIVE == DISABLE) */
