@@ -169,7 +169,7 @@ ISR(ISR2)
     * Issue in TestPlan RM_03 Call GetResource and ReleaseResource from ISR2
     */
    ret = GetResource(Resource1);
-   ASSERT(RM_03, ret != E_OK);
+   ASSERT(RM_03, ret == E_OK);
 
    Sequence(4);
    /* \treq RM_10 nmf B1B2E1E2 e Call ReleaseResource() from ISR category 2
@@ -180,7 +180,7 @@ ISR(ISR2)
     * Issue in TestPlan Call GetResource and ReleaseResource from ISR2
     */
    ret = ReleaseResource(Resource1);
-   ASSERT(RM_10, ret != E_OK);
+   ASSERT(RM_10, ret == E_OK);
 }
 
 #if ( ISR_CATEGORY_3 == ENABLE )
@@ -190,7 +190,7 @@ ISR(ISR3)
 
    EnterISR();
 
-   /* ISR3 are not supported by FreeOSEK OS*/
+   /* ISR3 are not supported by FreeOSEK OS */
 
    LeaveISR();
 }
