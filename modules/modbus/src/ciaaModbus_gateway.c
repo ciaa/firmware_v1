@@ -444,7 +444,7 @@ extern int8_t ciaaModbus_gatewayAddTransport(
 
    transportType = ciaaModbus_transportGetType(hModbusTransport);
 
-   if (transportType == 0)
+   if (transportType == CIAAMODBUS_TRANSPORT_TYPE_SLAVE)
    {
       /* transport slave -> client */
       for (loopi = 0 ; (loopi < CIAA_MODBUS_GATEWAY_TOTAL_CLIENTS) && (ret != 0) ; loopi++)
@@ -460,7 +460,7 @@ extern int8_t ciaaModbus_gatewayAddTransport(
          }
       }
    }
-   else if (transportType == 1)
+   else if (transportType == CIAAMODBUS_TRANSPORT_TYPE_MASTER)
    {
           /* transport master -> server */
       for (loopi = 0 ; (loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS) && (ret != 0) ; loopi++)

@@ -176,9 +176,10 @@ void ciaaModbus_transportSendMsg(
  ** This function indicate the type of transport (Master or Slave)
  **
  ** \param[in] handler handler of transport
- ** \return    1 master
- **            0 slave
- **            -1 invalid transport or not initialized
+ ** \return    CIAAMODBUS_TRANSPORT_TYPE_MASTER  -> master
+ **            CIAAMODBUS_TRANSPORT_TYPE_SLAVE   -> slave
+ **            CIAAMODBUS_TRANSPORT_TYPE_INVALID -> invalid transport or
+ **            not initialized
  **/
 extern int8_t ciaaModbus_transportGetType(int32_t handler);
 
