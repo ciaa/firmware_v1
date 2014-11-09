@@ -287,17 +287,17 @@ extern int8_t ciaaModbus_transportGetType(int32_t handler)
          case CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER:
          case CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER:
          case CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER:
-            ret = 1;
+            ret = CIAAMODBUS_TRANSPORT_TYPE_MASTER;
             break;
 
          case CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE:
          case CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE:
          case CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE:
-            ret = 0;
+            ret = CIAAMODBUS_TRANSPORT_TYPE_SLAVE;
             break;
 
          default:
-            ret = -1;
+            ret = CIAAMODBUS_TRANSPORT_TYPE_INVALID;
             break;
       }
    }
