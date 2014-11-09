@@ -67,22 +67,6 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 
-/** \brief PDU is not received */
-#define CIAAMODBUS_TRANSPORT_RECV_NONE         -1
-/** \brief Processing incoming PDU */
-#define CIAAMODBUS_TRANSPORT_RECV_PROCCESING    0
-/** \brief PDU received */
-#define CIAAMODBUS_TRASNPORT_RECV_COMPLETE      1
-
-/** \brief an error occurred while sending PDU */
-#define CIAAMODBUS_TRANSPORT_SEND_ERROR        -1
-/** \brief send in process */
-#define CIAAMODBUS_TRANSPORT_SEND_PROCESS       0
-/** \brief PDU send complete */
-#define CIAAMODBUS_TRANSPORT_SEND_COMPLETE      1
-
-
-
 /** \brief Min lenght of a modbus request pdu */
 #define CIAAMODBUS_REQ_PDU_MINLENGTH            0x01
 
@@ -91,6 +75,15 @@ extern "C" {
 
 /** \brief Min lenght of a modbus exception response pdu */
 #define CIAAMODBUS_EXCEP_RSP_PDU_MINLENGTH      0x02
+
+/** \brief Trasnsport type Master */
+#define CIAAMODBUS_TRANSPORT_TYPE_MASTER        1
+
+/** \brief Trasnsport type Salve */
+#define CIAAMODBUS_TRANSPORT_TYPE_SLAVE         0
+
+/** \brief Trasnsport type Invalid */
+#define CIAAMODBUS_TRANSPORT_TYPE_INVALID       -1
 
 
 /*==================[typedef]================================================*/
