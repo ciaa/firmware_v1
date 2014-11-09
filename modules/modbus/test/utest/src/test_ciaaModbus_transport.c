@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,9 +30,7 @@
  *
  */
 
-/** \brief This file implements the Modbus configuration
- **
- ** This file implements the configuration of the modbus
+/** \brief This file implements the test of the modbus library
  **
  **/
 
@@ -43,25 +41,21 @@
 
 /*
  * Initials     Name
- * MaCe         Mariano Cerdeiro
- *
+ * ---------------------------
+ * GMuro        Gustavo Muro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140713 v0.0.1 initials initial
+ * 20140906 v0.0.1 GMuro implement first tests
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaModbus_Cfg.h"
-#include "ciaaPOSIX_stdlib.h"
-
-/*******************[cfg needed includes]*************************************/
-/** This section shall contain the header files containing the decalartion of
- ** the referenced functions.
- **/
-#include "blinking_modbus.h"
+#include "unity.h"
+#include "ciaaModbus_transport.h"
+#include "mock_ciaaPOSIX_stdio.h"
+#include "string.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -72,36 +66,39 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-#if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN)
-ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[] = {
-   {
-      {
-         0x0000,
-         0x0000
-      },
-      readInputRegisters
-   },
-   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
-};
-#endif /* #if (CIAAMODBUS_READ_INPUT_REGISTERS == CIAAMODBUS_EN) */
-
-#if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN)
-ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[] = {
-   {
-      {
-         0x0000,
-         0x0000
-      },
-      writeSingleRegister
-   },
-   { { 0x0000, 0x0000 }, NULL /** <= last entry */ }
-};
-#endif /* #if (CIAAMODBUS_WRITE_SINGLE_REGISTER == CIAAMODBUS_EN) */
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+/** \brief set Up function
+ **
+ ** This function is called before each test case is executed
+ **
+ **/
+void setUp(void)
+{
+}
 
+/** \brief tear Down function
+ **
+ ** This function is called after each test case is executed
+ **
+ **/
+void tearDown(void)
+{
+}
+
+void doNothing(void)
+{
+}
+
+/** \brief Test ciaaModbus_transportInit
+ **
+ **/
+void test_ciaaModbus_transportInit_01(void)
+{
+
+}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

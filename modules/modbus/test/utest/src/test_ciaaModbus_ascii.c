@@ -55,7 +55,6 @@
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaModbus_ascii.h"
-#include "mock_ciaaPOSIX_stdio.h"
 #include "string.h"
 
 /*==================[macros and definitions]=================================*/
@@ -65,7 +64,7 @@ typedef struct {
    int8_t buf[500];        /** <= ascii buffer */
    int32_t totalLength;    /** <= total data length */
    int8_t length[500];     /** <= count of bytes to be returned in each call */
-   int32_t count;           /** <= count the count of calls */
+   int32_t count;          /** <= count the count of calls */
 } stubType;
 
 typedef struct {
@@ -85,6 +84,8 @@ static stubType read_stub;
 
 static writeStubType write_stub;
 
+static int32_t hModbusAscii;
+
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -95,9 +96,13 @@ static writeStubType write_stub;
  ** This function is called before each test case is executed
  **
  **/
-void setUp(void) {
+void setUp(void)
+{
    ciaaPOSIX_read_init();
    ciaaPOSIX_write_init();
+
+   ciaaModbus_asciiInit();
+   hModbusAscii = ciaaModbus_asciiOpen(1);
 }
 
 /** \brief tear Down function
@@ -105,12 +110,13 @@ void setUp(void) {
  ** This function is called after each test case is executed
  **
  **/
-void tearDown(void) {
+void tearDown(void)
+{
 }
 
-void doNothing(void) {
+void doNothing(void)
+{
 }
-
 
 /**** Helper Functions ****/
 
@@ -399,246 +405,6 @@ static int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc)
    return ret;
 } /* end tst_asciipdu */
 
-/** \brief Test ciaaModbus_ascii_receive
- **
- ** Receive a complete Modbus ascii message in one ciaaPOSIX_read call.
- **
- **/
-void test_ciaaModbus_ascii_receive_01(void) {
-   int32_t read;
-   int32_t fildes = 1;
-   int8_t buf[500];
-
-   /* set stub callback */
-   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
-   memset(buf, 0, sizeof(buf));
-
-   /* set input buffer */
-   ciaaPOSIX_read_add(":00010203040506070809", 1, 1);
-
-   /* receive data */
-   read = ciaaModbus_ascii_receive(fildes, buf);
-
-   /* check received data */
-   TEST_ASSERT_EQUAL_INT8_ARRAY(read_stub.buf, buf, read_stub.totalLength);
-   TEST_ASSERT_EQUAL_INT(read_stub.totalLength, read);
-   TEST_ASSERT_EQUAL_INT(read_stub.count, 1);
-}
-
-/** \brief Test ciaaModbus_ascii_receive
- **
- ** Receive 10 bytes in the first ciaaPOSIX_read call and the rest in the
- ** second call.
- **
- **/
-void test_ciaaModbus_ascii_receive_02(void) {
-   int32_t read;
-   int32_t fildes = 1;
-   int8_t buf[500];
-
-   /* set stub callback */
-   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
-   memset(buf, 0, sizeof(buf));
-
-   /* set input buffer */
-   ciaaPOSIX_read_add(":00010203040506070809", 1, 1);
-   /* only return 10 bytes in the first read call */
-   read_stub.length[0] = 10;
-
-   /* receive data */
-   read = ciaaModbus_ascii_receive(fildes, buf);
-
-   /* check received data */
-   TEST_ASSERT_EQUAL_INT8_ARRAY(read_stub.buf, buf, read_stub.totalLength);
-   TEST_ASSERT_EQUAL_INT(read_stub.totalLength, read);
-   TEST_ASSERT_EQUAL_INT(2, read_stub.count);
-}
-
-
-/** \brief Test ciaaModbus_ascii_receive
- **
- ** Receive 10, 8, 2, rest from ciaaPOSIX_read.
- **
- **/
-void test_ciaaModbus_ascii_receive_03(void) {
-   int32_t read;
-   int32_t fildes = 1;
-   int8_t buf[500];
-
-   /* set stub callback */
-   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
-   memset(buf, 0, sizeof(buf));
-
-   /* set input buffer */
-   ciaaPOSIX_read_add(":000102030405060708090A0B0C0D0E0F", 1, 1);
-   /* only return 10 bytes in the first read call */
-   read_stub.length[0] = 10;
-   read_stub.length[1] = 8;
-   read_stub.length[2] = 2;
-
-   /* receive data */
-   read = ciaaModbus_ascii_receive(fildes, buf);
-
-   /* check received data */
-   TEST_ASSERT_EQUAL_INT8_ARRAY(read_stub.buf, buf, read_stub.totalLength);
-   TEST_ASSERT_EQUAL_INT(read_stub.totalLength, read);
-   TEST_ASSERT_EQUAL_INT(read_stub.count, 4);
-}
-
-/** \brief Test ciaaModbus_ascii_receive
- **
- ** Receive reads with multi frames. One of the calls to ciaaPOSIX_read returns
- ** the end of a ascii modbus message and the beginning of the next one.
- **
- **/
-void test_ciaaModbus_ascii_receive_04(void) {
-   int32_t read[2];
-   int32_t len[2];
-   int32_t fildes = 1;
-   int8_t buf[2][500];
-
-   /* set stub callback */
-   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
-   ciaaPOSIX_memcpy_StubWithCallback(memcpy);
-
-   /* init read */
-   ciaaPOSIX_read_init();
-   memset(buf, 0, sizeof(buf));
-
-   /* set input buffer */
-   len[0] = ciaaPOSIX_read_add(
-         ":0001020304050607", 1, 1);
-        /*012345678901234567890123456789012345678901234567890123456789*/
-        /*          1         2         3         4         5         */
-
-   len[1] = ciaaPOSIX_read_add(
-         ":000102030405060708090A0B0C0D0E0F", 1, 1);
-        /*012345678901234567890123456789012345678901234567890123456789*/
-        /*          1         2         3         4         5         */
-
-   /* only return 10 bytes in the first read call */
-   read_stub.length[0] = 10;
-   /* return the remaining 11 bytes */
-   read_stub.length[1] = 11;
-
-   /* only return 2 bytes in the first read call */
-   read_stub.length[2] = 2;
-   /* only return 10 bytes in the second read call */
-   read_stub.length[3] = 10;
-
-   /* receive data */
-   read[0] = ciaaModbus_ascii_receive(fildes, buf[0]);
-   read[1] = ciaaModbus_ascii_receive(fildes, buf[1]);
-
-   /* check received data */
-   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[0], &buf[0], len[0]);
-   TEST_ASSERT_EQUAL_INT(len[0], read[0]);
-   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[21], &buf[1], len[1]);
-   TEST_ASSERT_EQUAL_INT(len[1], read[1]);
-   TEST_ASSERT_EQUAL_INT(read_stub.count, 5);
-}
-
-/** \brief Test ciaaModbus_ascii_receive
- **
- ** Receive reads with multi frames. One of the calls to ciaaPOSIX_read returns
- ** the end of a ascii modbus message and the beginning of the next one.
- **
- **/
-void test_ciaaModbus_ascii_receive_05(void) {
-   int32_t read[4];
-   int32_t len[4];
-   int32_t fildes = 1;
-   int8_t buf[4][500];
-
-   /* set stub callback */
-   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
-   ciaaPOSIX_memcpy_StubWithCallback(memcpy);
-
-   /* init read */
-   ciaaPOSIX_read_init();
-   memset(buf, 0, sizeof(buf));
-
-   /* set input buffer */
-   len[0] = ciaaPOSIX_read_add(
-         ":0001020304050607", 1, 1);
-        /*012345678901234567890123456789012345678901234567890123456789*/
-        /*          1         2         3         4         5         */
-
-   len[1] = ciaaPOSIX_read_add(
-         ":000102030405060708090A0B0C0D0E0F", 1, 1);
-        /*012345678901234567890123456789012345678901234567890123456789*/
-        /*          1         2         3         4         5         */
-
-   len[2] = ciaaPOSIX_read_add(
-         ":AC13A1123445060708090A0B0E0F", 1, 1);
-        /*012345678901234567890123456789012345678901234567890123456789*/
-        /*          1         2         3         4         5         */
-
-   len[3] = ciaaPOSIX_read_add(
-         ":0102030405060708090A0B0C330E0F", 1, 1);
-        /*012345678901234567890123456789012345678901234567890123456789*/
-        /*          1         2         3         4         5         */
-
-   /* return 21 bytes in the first read call */
-   read_stub.length[0] = 21;
-
-   /* only return 30 bytes in the first read call */
-   read_stub.length[1] = 30;
-   /* return the remaining 7 bytes in second read call */
-   read_stub.length[2] = 7;
-
-   /* only return 3 bytes in the first read call */
-   read_stub.length[3] = 3;
-   /* only return 10 bytes in the second read call */
-   read_stub.length[4] = 10;
-   /* return the remaining 20 bytes in third read call */
-   read_stub.length[5] = 20;
-
-   /* receive data */
-   read[0] = ciaaModbus_ascii_receive(fildes, buf[0]);
-   read[1] = ciaaModbus_ascii_receive(fildes, buf[1]);
-   read[2] = ciaaModbus_ascii_receive(fildes, buf[2]);
-   read[3] = ciaaModbus_ascii_receive(fildes, buf[3]);
-
-   /* check received data */
-   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[0], &buf[0], len[0]);
-   TEST_ASSERT_EQUAL_INT(len[0], read[0]);
-   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[21], &buf[1], read[1]);
-   TEST_ASSERT_EQUAL_INT(len[1], read[1]);
-   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[21+37], &buf[2], read[2]);
-   TEST_ASSERT_EQUAL_INT(len[2], read[2]);
-   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[21+37+33], &buf[3], read[3]);
-   TEST_ASSERT_EQUAL_INT(len[3], read[3]);
-   TEST_ASSERT_EQUAL_INT(7, read_stub.count);
-}
-
-/** \brief Test ciaaModbus_ascii_receive
- **
- ** Receive a complete Modbus ascii message in one ciaaPOSIX_read call.
- ** First byte != ':'
- **
- **/
-void test_ciaaModbus_ascii_receive_06(void)
-{
-   int32_t read;
-   int32_t fildes = 1;
-   int8_t buf[500];
-
-   /* set stub callback */
-   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
-   memset(buf, 0, sizeof(buf));
-
-   /* set input buffer */
-   ciaaPOSIX_read_add("0:00010203040506070809", 1, 1);
-
-   /* receive data */
-   read = ciaaModbus_ascii_receive(fildes, buf);
-
-   /* check received data */
-   TEST_ASSERT_EQUAL_INT8_ARRAY(&read_stub.buf[1], buf, read_stub.totalLength-1);
-   TEST_ASSERT_EQUAL_INT(read_stub.totalLength-1, read);
-   TEST_ASSERT_EQUAL_INT(read_stub.count, 1);
-}
 
 /** \brief test ciaaModbus_ascii_ascii2bin
  */
@@ -712,8 +478,36 @@ void test_ciaaModbus_ascii_ascii2bin_03(void)
 }
 
 
-/** \brief test ciaaModbus_ascii_write */
-void test_ciaaModbus_ascii_send_01(void)
+/** \brief test ciaaModbus_asciiRecvMsg*/
+void test_ciaaModbus_asciiRecvMsg_01(void) {
+   int32_t read;
+   int8_t buf[500];
+   int8_t msgAscii[] = ":00010203040506070809";
+   int8_t msgBin[100];
+   int32_t lenMsgBin;
+
+   /* set stub callback */
+   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
+   memset(buf, 0, sizeof(buf));
+
+   /* obtain msg in binary */
+   lenMsgBin = tst_convert2bin(msgBin, msgAscii, strlen(msgAscii));
+
+   /* set input buffer */
+   ciaaPOSIX_read_add(msgAscii, 1, 1);
+
+   ciaaModbus_asciiTask(hModbusAscii);
+
+   /* receive data */
+   ciaaModbus_asciiRecvMsg(hModbusAscii, &buf[0], &buf[1], &read);
+
+   /* check received data */
+   TEST_ASSERT_EQUAL_INT8_ARRAY(msgBin, buf, lenMsgBin);
+   TEST_ASSERT_EQUAL_INT(lenMsgBin, read+1);
+}
+
+/** \brief test ciaaModbus_asciiSendMsg */
+void test_ciaaModbus_asciiSendMsg_01(void)
 {
    int32_t fildes = 1;
    uint8_t buf[10][2][500];
@@ -746,8 +540,17 @@ void test_ciaaModbus_ascii_send_01(void)
    lenout[1] = tst_convert2bin(buf[1][1], buf[1][1], lenin[1] - 4);
 
    /* transmit binary */
-   ciaaModbus_ascii_write(fildes,buf[0][1],lenout[0]);
-   ciaaModbus_ascii_write(fildes,buf[1][1],lenout[1]);
+   ciaaModbus_asciiSendMsg(
+         hModbusAscii,
+         buf[0][1][0],
+         &buf[0][1][1],
+         lenout[0]-1);
+
+   ciaaModbus_asciiSendMsg(
+            hModbusAscii,
+            buf[1][1][0],
+            &buf[1][1][1],
+            lenout[1]-1);
 
    TEST_ASSERT_EQUAL_INT(2, write_stub.count);
    TEST_ASSERT_EQUAL_INT(lenin[0], write_stub.len[0]);
@@ -755,35 +558,6 @@ void test_ciaaModbus_ascii_send_01(void)
    TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[0][0], write_stub.buf[0], lenin[0]);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[1][0], write_stub.buf[1], lenin[1]);
 }
-
-/** \brief test ciaaModbus_ascii_read */
-void test_ciaaModbus_ascii_read_01(void) {
-   int32_t read;
-   int32_t fildes = 1;
-   int8_t buf[500];
-   int8_t msgAscii[] = ":00010203040506070809";
-   int8_t msgBin[100];
-   int32_t lenMsgBin;
-
-   /* set stub callback */
-   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
-   memset(buf, 0, sizeof(buf));
-
-   /* obtain msg in binary */
-   lenMsgBin = tst_convert2bin(msgBin, msgAscii, strlen(msgAscii));
-
-   /* set input buffer */
-   ciaaPOSIX_read_add(msgAscii, 1, 1);
-
-   /* receive data */
-   read = ciaaModbus_ascii_read(fildes, buf);
-
-   /* check received data */
-   TEST_ASSERT_EQUAL_INT8_ARRAY(msgBin, buf, lenMsgBin);
-   TEST_ASSERT_EQUAL_INT(lenMsgBin, read);
-}
-
-
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,12 +30,12 @@
  *
  */
 
-#ifndef _CIAAMODBUS_ASCII_H_
-#define _CIAAMODBUS_ASCII_H_
-/** \brief Modbus ASCII Header File
+#ifndef _CIAAMODBUSGATEWAY_H_
+#define _CIAAMODBUSGATEWAY_H_
+/** \brief Modbus Slave Header File
  **
- ** This files shall be included by moodules using the itnerfaces provided by
- ** the Modbus
+ ** This files shall be included by moodules using the interfaces provided by
+ ** the Modbus Slave
  **
  **/
 
@@ -47,7 +47,8 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * GMuro        Gustavo Muro
+ *
  */
 
 /*
@@ -65,111 +66,65 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief Modbus ASCII Start Addres ":" */
-#define CIAAMODBUS_ASCII_START      0x3A
-
-/** \brief Modbus ASCII 0 */
-#define CIAAMODBUS_ASCII_0          0x30
-
-/** \brief Modbus ASCII 9 */
-#define CIAAMODBUS_ASCII_9          0x39
-
-/** \brief Modbus ASCII A */
-#define CIAAMODBUS_ASCII_A          0x41
-
-/** \brief Modbus ASCII F */
-#define CIAAMODBUS_ASCII_F          0x46
-
-/*
- * :AAFF0011..DDCCEE
- * |\|\|\|\|\|\|\|\|
- * | | | | | | | | |
- * | | | | | | | | +-- 2 bytes: CRLF end of the modbus ascii (0x0D, 0x0A)
- * | | | | | | | |
- * | | | | | | | +-- 2 bytes: LRC Check
- * | | | | | | |
- * | | | +-+-+-+-- n times 2 bytes: data
- * | | |
- * | | +-- 2 bytes: function
- * | |
- * | +-- 2 bytes: addres
- * |
- * +-- 1 byte: start delimiter ascii : (0x3A)
- */
-
-/** \brief Maximal length of a ascii modbus message */
-#define CIAAMODBUS_ASCII_MAXLENGHT  512
-
-/** \brief Minimal length of a ascii modbus message */
-#define CIAAMODBUS_ASCII_MINLENGHT  9
-
-/** \brief */
-#define CIAAMODBUS_ASCII_END_1      0x0D
-
-/** \brief */
-#define CIAAMODBUS_ASCII_END_2      0x0A
 
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief ciaaModbus_ascii initialization
- **
- ** Performs the initialization of the MODBUS ASCII
- **
- **/
-extern void ciaaModbus_asciiInit(void);
 
-/** \brief Init Modbus Ascii communication channel
+/** \brief ciaaModbus_gateway initialization
  **
- ** \paran[in] fildes file descriptor serial port
- ** \return -1 if error
- **         >= 0 handler modbus
+ ** Performs the initialization of the MODBUS Gateway
+ **
  **/
-extern int32_t ciaaModbus_asciiOpen(int32_t fildes);
+extern void ciaaModbus_gatewayInit(void);
 
-/** \brief CIAA Modbus ASCII task
+/** \brief Open Modbus Gateway
  **
- ** This function perform task of modbus ascii:
- **
- ** \param[in] handler handler to perform task
- ** \return
+ ** \return handler Modbus Gateway
  **/
-extern void ciaaModbus_asciiTask(int32_t handler);
+extern int32_t ciaaModbus_gatewayOpen(void);
 
-/** \brief Receive modbus message
+/** \brief Add slave to Modbus Gateway
  **
- ** This function receive a message
- **
- ** \param[in] handler handler in to recv msg
- ** \param[out] id identification number of modbus message
- ** \param[out] pdu buffer with stored pdu
- ** \param[out] size size of pdu. If no valid message received
- **             size must be less than 5
- ** \return
+ ** \param[in] hModbusGW handler Modbus Gateway
+ ** \param[in] hModbusSlave handler slave
+ ** \return 0 if ok
+ **         -1 if error occurs
  **/
-extern void ciaaModbus_asciiRecvMsg(
-      int32_t handler,
-      uint8_t *id,
-      uint8_t *pdu,
-      uint32_t *size);
+extern int8_t ciaaModbus_gatewayAddSlave(
+      int32_t hModbusGW,
+      int32_t hModbusSlave);
 
-/** \brief Send modbus message
+/** \brief Add master to Modbus Gateway
  **
- ** This function send a message
- **
- ** \param[in] handler handler to send msg
- ** \param[in] id identification number of modbus message
- ** \param[in] pdu buffer with stored pdu
- ** \param[in] size size of pdu
- ** \return
+ ** \param[in] hModbusGW handler Modbus Gateway
+ ** \param[in] hModbusMaster handler Master
+ ** \return 0 if ok
+ **         -1 if error occurs
  **/
-void ciaaModbus_asciiSendMsg(
-      int32_t handler,
-      uint8_t id,
-      uint8_t *pdu,
-      uint32_t size);
+extern int8_t ciaaModbus_gatewayAddMaster(
+      int32_t hModbusGW,
+      int32_t hModbusMaster);
+
+/** \brief Add transport to Modbus Gateway
+ **
+ ** \param[in] hModbusGW handler Modbus Gateway
+ ** \param[in] hModbusTransport handler Transport
+ ** \return 0 if ok
+ **         -1 if error occurs
+ **/
+extern int8_t ciaaModbus_gatewayAddTransport(
+      int32_t hModbusGW,
+      int32_t hModbusTransport);
+
+/** \brief Execute task of gateway
+ **
+ ** \param[in] hModbusGW handler Gateway
+ **/
+extern void ciaaModbus_gatewayMainTask(
+      int32_t hModbusGW);
 
 
 /*==================[cplusplus]==============================================*/
@@ -179,5 +134,5 @@ void ciaaModbus_asciiSendMsg(
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUS_ASCII_H_ */
+#endif /* #ifndef _CIAAMODBUSGATEWAY_H_ */
 
