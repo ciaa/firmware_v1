@@ -635,7 +635,18 @@ foreach $testfn (@tests)
                   if($debug == 0)
                   {
                      $outdbg = `$GDB $out -x $dbgfile`;
-                  }
+                     if ($ARCH eq "x86")
+                     {
+                        # if it fails, then capture ASSERT message with the condition, File and Line that failed and print it!
+                        my $Test_Asserted = index($outdbg, "ASSERT");
+                        if($Test_Asserted != -1)
+                        {
+                           my $Str_Assert = substr($outdbg, $Test_Asserted);
+                           $Str_Assert = substr($Str_Assert,0, index($Str_Assert, "\n"));
+                           print("ERROR, $Str_Assert\n");
+                        }
+                     }
+                   }
                   else
                   {
                      exec("$GDB $out");
@@ -665,18 +676,18 @@ foreach $testfn (@tests)
          }
       }
    }
-   # Print Tests Summary File
-   open FILE, "<$TestsSummaryFile" or die "$$TestsSummaryFile can not be openned: $!";
-   print FILE "\n**************** RTOS Test Summary ****************\n";
-   # iterate through each line in the file
-   while ( $line = <FILE> )
-   {
-      # print the individual line
-      print "$line";
-   }
-   close(FILE); 
 }
-
+# Print Tests Summary File
+open FILE, "<$TestsSummaryFile" or die "$$TestsSummaryFile can not be openned: $!";
+print FILE "\n**************** RTOS Test Summary ****************\n";
+# iterate through each line in the file
+while ( $line = <FILE> )
+{
+   # print the individual line
+   print "$line";
+}
+close(FILE); 
+   
 close(LOGFILE);
 close(LOGFILEFULL);
 close(RESFILE);

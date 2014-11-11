@@ -1,4 +1,5 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -51,6 +52,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe			 Mariano Cerdeiro
+ * JuCe         Juan Cecconi
  */
 
 /*
@@ -371,11 +373,42 @@ void ConfTestEvaluation
  ** \param[in] tc represent the test case
  ** \param[in] cond condition to be tested
  **/
-extern void ASSERT
-(
-	uint8f tc,
-	boolean cond
-);
+#if (x86 == ARCH)
+#define ASSERT(tc,cond) \
+{                                                                                      \
+   if (cond)                                                                           \
+   {                                                                                   \
+      TestResults[(tc)>>2] |=	FAILED << ( ( tc & 3 ) * 2 );                            \
+      printf("ASSERT failed: '%s', FILE:%s, LINE: %d\n", #cond, __FILE__, __LINE__);   \
+      fflush(stdout);                                                                  \
+      ConfTestFinish();                                                                \
+   }                                                                                   \
+   else                                                                                \
+   {                                                                                   \
+      if ( ( TestResults[(tc)>>2] >> ( (tc & 3 ) * 2 ) ) != FAILED )                   \
+      {                                                                                \
+         TestResults[(tc)>>2] |=	OK << ( ( tc & 3 ) * 2 );                             \
+      }                                                                                \
+   }                                                                                   \
+}
+#endif
+#if (cortexM4 == ARCH)
+#define ASSERT(tc,cond) \
+{                                                                                      \
+   if (cond)                                                                           \
+   {                                                                                   \
+      TestResults[(tc)>>2] |=	FAILED << ( ( tc & 3 ) * 2 );                            \
+      while(1);                                                                        \
+   }                                                                                   \
+   else                                                                                \
+   {                                                                                   \
+      if ( ( TestResults[(tc)>>2] >> ( (tc & 3 ) * 2 ) ) != FAILED )                   \
+      {                                                                                \
+         TestResults[(tc)>>2] |=	OK << ( ( tc & 3 ) * 2 );                             \
+      }                                                                                \
+   }                                                                                   \
+}
+#endif
 
 extern void Sequence
 (
