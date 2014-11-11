@@ -558,9 +558,10 @@ if($debug != 0)
    print "Debug Mode: Enabled!\n";
 }
 
+my $TestsSummaryFile;
+
 foreach $testfn (@tests)
 {
-   my $TestsSummaryFile;
    @test = split(/:/,$testfn);
    $test = @test[0];
 
@@ -713,7 +714,7 @@ foreach $testfn (@tests)
    }
 }
 # Print Tests Summary File
-open FILE, "<$TestsSummaryFile" or die "$$TestsSummaryFile can not be opened: $!";
+open FILE, "<$TestsSummaryFile" or die "$TestsSummaryFile can not be opened: $!";
 print FILE "\n**************** RTOS Test Summary ****************\n";
 # iterate through each line in the file
 while ( $line = <FILE> )
