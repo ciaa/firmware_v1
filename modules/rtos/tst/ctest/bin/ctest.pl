@@ -65,7 +65,7 @@ sub getTestcaseName
    my $index = @_[0];
    my @testcasename;
 
-   open TESTCASES, $TESTCASES or die "$TESTCASES can not be openned: $!";
+   open TESTCASES, $TESTCASES or die "$TESTCASES can not be opened: $!";
    @testcasename = <TESTCASES>;
    close (TESTCASES);
    chomp(@testcasename[$index]);
@@ -74,7 +74,7 @@ sub getTestcaseName
 
 sub GetTestCases
 {
-   open TC, "<@_[0]" or die "@_[0] can not be openned: $!";
+   open TC, "<@_[0]" or die "@_[0] can not be opened: $!";
    my $val;
    my @ret;
    read(TC, $val, 35, 0);
@@ -246,10 +246,10 @@ sub EvaluateResults
 
    $tsseqfile = "out/rtos/SequenceCounter.bin";
    $tsseqfileok = "out/rtos/SequenceCounterOk.bin";
-   open SC, "<$tsseqfile" or die "$tsseqfile can not be openned: $!";
+   open SC, "<$tsseqfile" or die "$tsseqfile can not be opened: $!";
    read(SC, $sc, 4, 0);
    close(SC);
-   open SC, "<$tsseqfileok" or die "$tsseqfileok can not be openned: $!";
+   open SC, "<$tsseqfileok" or die "$tsseqfileok can not be opened: $!";
    read(SC, $scok, 4, 0);
    close(SC);
 
@@ -293,7 +293,7 @@ sub EvaluateResults
          $failed = 1;
          $failedtotal = 1;
          $failedcounter++;
-         $status = "FAILED";
+         $status = "FAILED (TEST)";
          $sctc = "FAILED";
          results("Test Result: $sctc - Test Case: " . getTestcaseName($loopi) . " - Result: " . @ts[$loopi] . " - ResultOk: " . @tsok[$loopi]);
       }
@@ -308,7 +308,7 @@ sub EvaluateResults
 
 sub readparam
 {
-   open CFG, "<@_[0]" or die "Config file @_[0] can not be openned: $!";
+   open CFG, "<@_[0]" or die "Config file @_[0] can not be opened: $!";
    while (my $line = <CFG>)
    {
       chomp($line);
@@ -513,23 +513,46 @@ info("Starting FreeOSEK Conformance Test Runner");
 
 if($onlytc ne "")
 {
-   print "Running only one Test Configuration: " . $onlytc . "\n";
-   @tmptests = @tests;
-   @tests = ();
-
-   foreach (@tmptests)
+   # Run selective Tests...
+   if ($subtestcase ne "")
    {
-      if(index($_,$onlytc)>-1)
+      # There is a specific subtestcase, to start with
+      print "Running only one Test Configuration: " . $onlytc . "\n";
+      print "Sub Test Case: " . $subtestcase . "\n";
+      @tmptests = @tests;
+      @tests = ();
+
+      foreach (@tmptests)
       {
-         push(@tests, $_);
+         if(index($_,$onlytc)>-1)
+         {
+            push(@tests, $_);
+         }
+      }
+   }
+   else
+   {
+      # There isn´t a specific subtestcase, to start from this Test to the end...
+      my $Test_Found;
+      print "Starting from Test Configuration: " . $onlytc . "\n";
+      @tmptests = @tests;
+      @tests = ();
+      $Test_Found = 0;
+      foreach (@tmptests)
+      {
+         if(index($_,$onlytc)>-1)
+         {
+            # This is the initial Test, start from here!
+            $Test_Found = 1;
+         }
+         if($Test_Found == 1)
+         {
+            push(@tests, $_);
+         }
       }
    }
 }
 
-if ($subtestcase ne "")
-{
-   print "Sub Test Case: " . $subtestcase . "\n";
-}
 if($debug != 0)
 {
    print "Debug Mode: Enabled!\n";
@@ -537,11 +560,13 @@ if($debug != 0)
 
 foreach $testfn (@tests)
 {
+   my $TestsSummaryFile;
    @test = split(/:/,$testfn);
    $test = @test[0];
 
    info("Testing $test");
 
+   $TestsSummaryFile = "out/rtos/TestsSummary.txt";
    @configs = GetTestSequencesConfigs($TESTS, $testfn);
 
    foreach $config (@configs)
@@ -605,7 +630,7 @@ foreach $testfn (@tests)
             else
             {
                info("WARNING: skipping make generate of $test");
-			   $outmakegeneratestatus = 0;
+               $outmakegeneratestatus = 0;
             }
             if ($outmakegeneratestatus == 0)
             {
@@ -662,15 +687,25 @@ foreach $testfn (@tests)
                      $status = EvaluateResults();
                      results("Test: $test - Config: $config - Status: $status");
                      # Append to the Tests Summary File
-                     $TestsSummaryFile = "out/rtos/TestsSummary.txt";
-                     open FILE, ">>$TestsSummaryFile" or die "$$TestsSummaryFile can not be openned: $!";
+                     open FILE, ">>$TestsSummaryFile" or die "$$TestsSummaryFile can not be opened: $!";
                      print FILE "Status: $status - Test: $test - Config: $config \r\n";
                      close(FILE);
                   }
                }
+               else
+               {
+                  # Make Failed...Append to the Tests Summary File
+                  open FILE, ">>$TestsSummaryFile" or die "$$TestsSummaryFile can not be opened: $!";
+                  print FILE "Status: FAILED (MAKE) - Test: $test - Config: $config \r\n";
+                  close(FILE);
+               }
             }
             else
             {
+               # Make Generate Failed...Append to the Tests Summary File
+               open FILE, ">>$TestsSummaryFile" or die "$$TestsSummaryFile can not be opened: $!";
+               print FILE "Status: FAILED (MAKE GENERATE) - Test: $test - Config: $config \r\n";
+               close(FILE);
                exit();
             }
          }
@@ -678,7 +713,7 @@ foreach $testfn (@tests)
    }
 }
 # Print Tests Summary File
-open FILE, "<$TestsSummaryFile" or die "$$TestsSummaryFile can not be openned: $!";
+open FILE, "<$TestsSummaryFile" or die "$$TestsSummaryFile can not be opened: $!";
 print FILE "\n**************** RTOS Test Summary ****************\n";
 # iterate through each line in the file
 while ( $line = <FILE> )
