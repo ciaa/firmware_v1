@@ -306,7 +306,7 @@ results:
 
 ###############################################################################
 # rule to generate the mocks
-mocks: clean
+mocks:
 	@echo ' '
 	@echo ===============================================================================
 	@$(MULTILINE_ECHO) "Creating Mocks for: \n $(foreach mock, $(FILES_TO_MOCK),     $(mock)\n)"
