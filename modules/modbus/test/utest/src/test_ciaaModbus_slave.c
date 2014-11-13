@@ -53,6 +53,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "unity.h"
+#include "ciaaModbus_config.h"
 #include "ciaaModbus_slave.h"
 #include "os.h"
 
@@ -180,6 +181,45 @@ void test_ciaaModbus_slaveOpen_01(void)
 
    TEST_ASSERT_EQUAL_INT32(hModbusSlave[1],-1);
 }
+
+/** \brief test function Open
+ **
+ ** this function call open more times than allowed
+ **
+ **/
+void test_ciaaModbus_slaveOpen_02(void)
+{
+   int32_t loopi;
+   int32_t hModbusSlave[CIAA_MODBUS_TOTAL_SLAVES+1];
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+   };
+
+   for (loopi = 0 ; loopi < (CIAA_MODBUS_TOTAL_SLAVES+1) ; loopi++)
+   {
+      /* open modbus slave id = 0*/
+      hModbusSlave[loopi] = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+   }
+
+   for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_SLAVES ; loopi++)
+   {
+      /* verify */
+      TEST_ASSERT_NOT_EQUAL(hModbusSlave[loopi],-1);
+   }
+
+   TEST_ASSERT_EQUAL(hModbusSlave[loopi],-1);
+}
+
+
 
 /** \brief test function not supported
  **
