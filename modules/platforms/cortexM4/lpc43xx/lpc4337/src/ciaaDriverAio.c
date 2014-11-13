@@ -57,7 +57,6 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverAio.h"
-#include "ciaaDriverAio_Internal.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_string.h"
@@ -169,15 +168,6 @@ static ciaaDriverConstType const ciaaDriverAioConst = {
 /*==================[external data definition]===============================*/
 
 extern ContextType ActualContext;
-
-/** \brief Aio 0 */
-ciaaDriverAio_aioType ciaaDriverAio_aio0;
-
-/** \brief Aio 1 */
-ciaaDriverAio_aioType ciaaDriverAio_aio1;
-
-/** \brief Aio 2 */
-ciaaDriverAio_aioType ciaaDriverAio_aio2;
 
 /*==================[internal functions definition]==========================*/
 
@@ -595,8 +585,6 @@ void ciaaDriverAio_init(void)
    for(loopi = 0; loopi < ciaaDriverAioConst.countOfDevices; loopi++) {
       /* add each device */
       ciaaSerialDevices_addDriver(ciaaDriverAioConst.devices[loopi]);
-      /* init layer data for each device */
-      *((ciaaDriverAio_aioType *)ciaaDriverAioConst.devices[loopi]->layer) = 0;
    }
 }
 

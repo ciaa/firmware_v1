@@ -146,7 +146,7 @@ void OsInterruptHandler(int signal)
       ciaaLibs_circBufGet(OSEK_IntCircBuf, &interrupt, 1);
 
       /* only 0 .. 31 interrupts are allowed */
-      if (32 > interrupt)
+      if (INTERRUPTS_COUNT > interrupt)
       {
 #if 0
          printf("Interrupt: %d\n",interrupt);
@@ -184,7 +184,7 @@ void* HWTimerThread(void *pThread_Arg)
          /* sleep */
          nanosleep(&rqtp,NULL);
 
-         /* the timer interrupt is the interrupt 4 */
+         /* the timer interrupt is the interrupt number 4 */
          interrupt = 4;
 
          /* add simulated interrupt to the interrupt queue */

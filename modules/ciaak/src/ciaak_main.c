@@ -92,7 +92,6 @@ void ciaak_start(void)
    /* ciaaDioDevices_init(); */
    ciaaDriverDio_init();
 
-   /* ADC & DAC only works in Cortex M4 */
    ciaaDriverAio_init();
 }
 
