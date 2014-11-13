@@ -148,6 +148,39 @@ void doNothing(void)
 {
 }
 
+/** \brief test function Open
+ **
+ ** this function call slaveOpen with invalid id
+ **
+ **/
+void test_ciaaModbus_slaveOpen_01(void)
+{
+   int32_t hModbusSlave[2];
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+   };
+
+   /* open modbus slave id = 0*/
+   hModbusSlave[0] = ciaaModbus_slaveOpen(&callbacksStruct, 0);
+
+   /* open modbus slave id = 248*/
+   hModbusSlave[1] = ciaaModbus_slaveOpen(&callbacksStruct, 248);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_INT32(hModbusSlave[0],-1);
+
+   TEST_ASSERT_EQUAL_INT32(hModbusSlave[1],-1);
+}
+
 /** \brief test function not supported
  **
  ** this function test response "function not supported"
