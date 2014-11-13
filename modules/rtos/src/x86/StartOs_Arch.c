@@ -144,9 +144,14 @@ void StartOs_Arch(void)
    /* enable interrupts */
    InterruptState = 1;
 
-   /* enable timer interrupt */
-   InterruptMask = 16;
-
+   /* enable HWTimer0,  interrupt 4 */
+   InterruptMask = (1 << 4);
+   
+#if (defined HWCOUNTER1)
+   /* enable HWTimer0,  interrupt 5 */
+   InterruptMask |= (1 << 5);
+#endif
+   
    SaveOsStack();
 }
 
