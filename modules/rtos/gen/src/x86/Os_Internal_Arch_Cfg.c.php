@@ -83,7 +83,7 @@ print "\n";
 
 ?>
 
-InterruptType InterruptTable[INTERUPTS_COUNT] =
+InterruptType InterruptTable[INTERRUPTS_COUNT] =
 {
 <?php
 $intnames = $config->getList("/OSEK","ISR");

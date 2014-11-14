@@ -745,8 +745,9 @@ WARN_LOGFILE           =
 
 INPUT                  = modules             \
                          doc                 \
+                         examples            \
                          README              \
-                         doc/CREDITS        \
+                         doc/CREDITS         \
                          doc/RELEASENOTES
 
 

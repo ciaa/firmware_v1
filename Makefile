@@ -76,6 +76,18 @@ DS             ?= /
 #
 PROJECT ?= examples$(DS)blinking
 
+# rtostests options
+#
+RTOSTESTS_DEBUG_CTESTS ?= 0
+RTOSTESTS_CLEAN_GENERATE ?= 1
+RTOSTESTS_CTEST ?=
+RTOSTESTS_SUBTEST ?=
+
+# dependencies options
+#
+# Compile and make dependencies, or compile only and skip depencencies
+MAKE_DEPENDENCIES ?= 1
+
 #
 # tools
 WIN_TOOL_PATH        ?=
@@ -118,6 +130,11 @@ OBJ_DIR  = $(OUT_DIR)$(DS)obj
 LIB_DIR  = $(OUT_DIR)$(DS)lib
 # bin dir
 BIN_DIR  = $(OUT_DIR)$(DS)bin
+# rtos gen dir
+GEN_DIR = $(OUT_DIR)$(DS)gen
+# rtos test gen dir
+RTOS_TEST_GEN_DIR = $(OUT_DIR)$(DS)rtos
+
 # include needed project
 include $(PROJECT)$(DS)mak$(DS)Makefile
 # include needed modules
@@ -152,7 +169,6 @@ $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Creating library $(1)
-	#$(AR) -rcs -o $(LIB_DIR)$(DS)$(strip $(1)).a $(foreach obj,$(2),$(OBJ_DIR)$(DS)$(obj))
 	$(AR) -crs $(LIB_DIR)$(DS)$(strip $(1)).a $(foreach obj,$(2),$(OBJ_DIR)$(DS)$(obj))
 	@echo ' '
 endef
@@ -319,9 +335,14 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo Compiling 'c' file: $<
 	@echo ' '
 	$(CC) $(CFLAGS) $< -o $(OBJ_DIR)$(DS)$@
+ifeq ($(MAKE_DEPENDENCIES),1)
 	@echo ' '
 	@echo Generating dependencies...
 	$(CC) -MM $(CFLAGS) $< > $(OBJ_DIR)$(DS)$(@:.o=.d)
+else
+	@echo ' '
+	@echo Skipping make dependencies...
+endif
 
 %.o : %.cpp
 	@echo ' '
@@ -345,14 +366,15 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$($(LIB)_OBJ_FILES:.o=.d))))
 # New rules for project dependencies
 $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:.o=.d))))
+# libs with contains sources
+LIBS_WITH_SRC	= $(foreach LIB, $(LIBS), $(if $(filter %.c,$($(LIB)_SRC_FILES)),$(LIB)))
 
-
-$(project) : $(LIBS) $(OBJ_FILES)
+$(project) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
 	@echo ' '
-	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) -Xlinker --start-group $(foreach lib, $(LIBS), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
+	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) -Xlinker --start-group $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(project)
@@ -365,10 +387,9 @@ debug : $(BIN_DIR)$(DS)$(project).bin
 
 ###############################################################################
 # rtos OSEK generation
-GENDIR = $(OUT_DIR)$(DS)gen
 generate : $(OIL_FILES)
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
-		$(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GENDIR)
+		$(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 
 ###############################################################################
 # doxygen
@@ -492,6 +513,7 @@ info:
 	@echo ARCH/CPUTYPE/CPU...: $(ARCH)/$(CPUTYPE)/$(CPU)
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
+	@echo libraris with srcs.: $(LIBS_WITH_SRC)
 #	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
 #	@echo Lib Src Files......: $(LIBS_SRC_FILES)
 #	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)
@@ -520,14 +542,14 @@ info:
 
 ###############################################################################
 # clean
-.PHONY: clean generate all
+.PHONY: clean generate all run
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
 	@echo Removing bin files
 	@rm -rf $(BIN_DIR)$(DS)*
 	@echo Removing RTOS generated files
-	@rm -rf $(GENDIR)$(DS)*
+	@rm -rf $(GEN_DIR)$(DS)*
 	@echo Removing mocks
 	@rm -rf $(MOCKS_OUT_DIR)$(DS)*
 	@echo Removing Unity Runners files
@@ -540,6 +562,10 @@ clean:
 	@rm -rf $(OUT_DIR)$(DS)coverage$(DS)*
 	@echo Removing object files
 	@rm -rf $(OBJ_DIR)$(DS)*
+
+clean_rtostests:
+	@echo Removing RTOS Test generated project files
+	@rm -rf $(RTOS_TEST_GEN_DIR)$(DS)*
 
 ###############################################################################
 # Generates docbook documentation
@@ -562,11 +588,21 @@ generate_make: generate
 	make
 
 ###############################################################################
+# Run the bin file
+run:
+	@echo ' '
+	@echo ===============================================================================
+	@echo Running the file: $(LD_TARGET)
+	$(LD_TARGET)
+
+###############################################################################
 # Run all FreeOSEK Tests
 rtostests:
 	mkdir -p $(OUT_DIR)$(DS)doc$(DS)ctest
-	@echo GDB:$(GDB)> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo GDB:$(GDB) $(GFLAGS) > $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo CLEAN_GENERATE:$(RTOSTESTS_CLEAN_GENERATE) >> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo BINDIR:$(BIN_DIR)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo DEBUG_CTESTS:$(RTOSTESTS_DEBUG_CTESTS)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo DIR:$(DS)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo ARCH:$(ARCH)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo CPUTYPE:$(CPUTYPE)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
@@ -576,7 +612,7 @@ rtostests:
 	@echo LOGFULL:$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctestfull.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo TESTS:$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)cfg$(DS)ctestcases.cfg>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo TESTCASES:$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)cfg$(DS)testcases.cfg>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf $(RTOSTESTS_CTEST) $(RTOSTESTS_SUBTEST)
 
 
 ###############################################################################

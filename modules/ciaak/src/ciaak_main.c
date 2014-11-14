@@ -1,16 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- *
- *    or
- *
- * Copyright 2014, Your Name <youremail@domain.com>
- *
- *    or
- *
- * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -71,6 +59,7 @@
 #include "ciaaDevices.h"
 #include "ciaaSerialDevices.h"
 #include "ciaaDriverUart.h"
+#include "ciaaDriverAio.h"
 #include "ciaaDriverDio.h"
 
 #include "ciaaPOSIX_stdlib.h"
@@ -96,9 +85,14 @@ void ciaak_start(void)
    ciaaPOSIX_stdlib_init();
 
    ciaaDevices_init();
+
    ciaaSerialDevices_init();
    ciaaDriverUart_init();
+
+   /* ciaaDioDevices_init(); */
    ciaaDriverDio_init();
+
+   ciaaDriverAio_init();
 }
 
 void *ciaak_malloc(size_t size)

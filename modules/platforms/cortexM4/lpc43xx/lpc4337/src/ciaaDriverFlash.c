@@ -33,9 +33,9 @@
  *
  */
 
-/** \brief CIAA Flash Driver for K60_120
+/** \brief CIAA Flash Driver for LPC4337
  **
- ** Implements the Flash Driver for K60_120
+ ** Implements the Flash Driver for LPC4337
  **
  **/
 

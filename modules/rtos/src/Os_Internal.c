@@ -161,6 +161,12 @@ TaskType GetNextTask
 	void
 )
 {
+   /* if at least one resource is configured */
+#if (RESOURCES_COUNT != 0)
+   TaskType resTask = INVALID_TASK;
+   uint8 prio = 0;
+#endif /* #if (RESOURCES_COUNT != 0) */
+
 	uint8f loopi;
 	boolean found = FALSE;
 	TaskType ret = INVALID_TASK;
@@ -178,6 +184,32 @@ TaskType GetNextTask
 			found = TRUE;
 		}
 	}
+
+   /* if at least one resource is configured */
+#if (RESOURCES_COUNT != 0)
+   for (loopi = 0; loopi < TASKS_COUNT; loopi++)
+   {
+      /* if at least one resource is occupied */
+		if ( ( 0 != TasksVar[loopi].Resources ) &&
+           /* and the prio is higher */
+           ( TasksVar[loopi].ActualPriority > prio ) )
+      {
+         /* remember this task and its prio */
+         resTask = loopi;
+         prio = TasksVar[loopi].ActualPriority;
+      }
+   }
+
+   /* if the resource task is a valid one */
+   if ( (INVALID_TASK != resTask) &&
+        /* and the resource task has the same or higher prio than the task
+         * found in the ready list */
+        (prio >= TasksVar[ret].ActualPriority) )
+   {
+      /* next task to be executed is the task using the resource */
+      ret = resTask;
+   }
+#endif /* #if (RESOURCES_COUNT != 0) */
 
 	return ret;
 }

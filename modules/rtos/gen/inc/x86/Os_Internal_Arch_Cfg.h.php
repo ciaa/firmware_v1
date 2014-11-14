@@ -70,7 +70,7 @@
 /*==================[inclusions]=============================================*/
 
 /*==================[macros]=================================================*/
-#define INTERUPTS_COUNT		32
+#define INTERRUPTS_COUNT		32
 
 /*==================[typedef]================================================*/
 /** \brief Task Context Type */
@@ -95,7 +95,7 @@ typedef TaskContextType* TaskContextRefType;
 typedef void (*InterruptType)(void);
 
 /*==================[external data declaration]==============================*/
-extern InterruptType InterruptTable[INTERUPTS_COUNT];
+extern InterruptType InterruptTable[INTERRUPTS_COUNT];
 
 /*==================[external functions declaration]=========================*/
 

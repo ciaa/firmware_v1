@@ -46,6 +46,26 @@ ALARM Alarm1 {
 	AUTOSTART = FALSE;
 };
 
+COUNTER HardwareCounter {
+   MAXALLOWEDVALUE = 100;
+   TICKSPERBASE = 1;
+   MINCYCLE = 1;
+   TYPE = HARDWARE;
+   COUNTER = HWCOUNTER0;
+};
+
+ALARM IncrementSWCounter {
+   COUNTER = HardwareCounter;
+   ACTION = INCREMENT {
+      COUNTER = Counter1;
+   };
+   AUTOSTART = TRUE {
+      APPMODE = AppMode1;
+      ALARMTIME = 1;
+      CYCLETIME = 1;
+   };
+};
+
 APPMODE AppMode1;
 
 };

@@ -43,9 +43,9 @@ rtos_SRC_PATH 	      = $(rtos_PATH)$(DS)src
 rtos_INC_PATH 	      = $(rtos_PATH)$(DS)inc								\
 	$(rtos_PATH)$(DS)inc$(DS)$(ARCH)										\
 	$(rtos_PATH)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)							\
-	$(GENDIR)$(DS)inc														\
-	$(GENDIR)$(DS)inc$(DS)$(ARCH)											\
-	$(GENDIR)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)
+	$(GEN_DIR)$(DS)inc														\
+	$(GEN_DIR)$(DS)inc$(DS)$(ARCH)											\
+	$(GEN_DIR)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)
 # library source files
 rtos_SRC_FILES 	      = $(wildcard $(rtos_SRC_PATH)$(DS)*.c)				\
 						$(wildcard $(rtos_SRC_PATH)$(DS)$(ARCH)$(DS)*.c)	\

@@ -1,4 +1,7 @@
 /* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Gustavo Muro
+ * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,17 +33,19 @@
  *
  */
 
-#ifndef _CIAAMODBUS_CFG_H_
-#define _CIAAMODBUS_CFG_H_
-/** \brief Modbus Header Configuration File
+#ifndef _BLINKING_MODBUS_H_
+#define _BLINKING_MODBUS_H_
+/** \brief Blinking Modbus example header file
  **
- ** This files configures the ciaamodbus
+ ** This is a mini example of the CIAA Firmware
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Modbus CIAA Modbus
+/** \addtogroup Examples CIAA Firmware Examples
+ ** @{ */
+/** \addtogroup Blinking_Modbus Blinking Modbus example header file
  ** @{ */
 
 /*
@@ -48,47 +53,26 @@
  * ---------------------------
  * MaCe         Mariano Cerdeiro
  * GMuro        Gustavo Muro
+ * PR           Pablo Ridolfi
+ * JuCe         Juan Cecconi 
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140713 v0.0.1 initials initial
+ * 20140805 v0.0.1   GMuro first functional version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*==================[macros]=================================================*/
-#define CIAAMODBUS_EN            1
-
-#define CIAAMODBUS_DIS           0
-
-/** \brief Id of the own slave */
-#define CIAAMODBUS_SLAVE_ID      2
-
-/** \brief Enables/Disables service 0x03 Read Holding Registers
- **/
-#define CIAAMODBUS_READ_HOLDING_REGISTERS       CIAAMODBUS_EN
-
-/** \brief Enables/Disables service 0x04 Read Input Registers
- **/
-#define CIAAMODBUS_READ_INPUT_REGISTERS         CIAAMODBUS_EN
-
-/** \brief Enables/Disables service 0x06 Write Single Register
- **/
-#define CIAAMODBUS_WRITE_SINGLE_REGISTER        CIAAMODBUS_EN
-
-/** \brief Enables/Disables service 0x10 Write Multiple Registers
- **/
-#define CIAAMODBUS_WRITE_MULTIPLE_REGISTERS     CIAAMODBUS_EN
 
 /*==================[typedef]================================================*/
+
+/*==================[external data declaration]==============================*/
+
+/*==================[external functions declaration]=========================*/
 /** \brief Modbus Command Read Holding Registers callback
  **
  ** This function is called by the modbus and provided by the application which
@@ -107,7 +91,7 @@ extern "C" {
  ** \remarks exceptionCode parameter shall only be used if -1 is returned in
  **          other case the pointer shall not be written.
  **/
-typedef int8_t (*ciaaModbus_readHoldingRegistersFctType)(
+extern int8_t readHoldingRegisters(
       uint16_t startingAddress,
       uint16_t quantityOfHoldingRegisters,
       uint8_t * exceptionCode,
@@ -131,7 +115,7 @@ typedef int8_t (*ciaaModbus_readHoldingRegistersFctType)(
  ** \remarks exceptionCode parameter shall only be used if -1 is returned in
  **          other case the pointer shall not be written.
  **/
-typedef int8_t (*ciaaModbus_readInputRegistersFctType)(
+extern int8_t readInputRegisters(
       uint16_t startingAddress,
       uint16_t quantityOfInputRegisters,
       uint8_t * exceptionCode,
@@ -153,7 +137,7 @@ typedef int8_t (*ciaaModbus_readInputRegistersFctType)(
  ** \remarks exceptionCode parameter shall only be used if -1 is returned in
  **          other case the pointer shall not be written.
  **/
-typedef int8_t (*ciaaModbus_writeSingleRegisterFctType)(
+extern int8_t writeSingleRegister(
       uint16_t registerAddress,
       uint16_t registerValue,
       uint8_t * exceptionCode
@@ -175,7 +159,7 @@ typedef int8_t (*ciaaModbus_writeSingleRegisterFctType)(
  ** \remarks exceptionCode parameter shall only be used if -1 is returned in
  **          other case the pointer shall not be written.
  **/
-typedef int8_t (*ciaaModbus_writeMultipleRegistersFctType)(
+extern int8_t writeMultipleRegisters(
       uint16_t startingAddress,
       uint16_t quantityOfRegisters,
       uint8_t * exceptionCode,
@@ -183,51 +167,9 @@ typedef int8_t (*ciaaModbus_writeMultipleRegistersFctType)(
       );
 
 
-/** \brief Address range
- **/
-typedef struct {
-   uint16_t minAdd;
-   uint16_t maxAdd;
-} ciaaModbus_addressRangeType;
-
-/** \brief Command list type */
-typedef struct {
-   ciaaModbus_addressRangeType range;
-   ciaaModbus_readHoldingRegistersFctType fct;
-} ciaaModbus_cmdLst0x03Type;
-
-/** \brief Command list type */
-typedef struct {
-   ciaaModbus_addressRangeType range;
-   ciaaModbus_readInputRegistersFctType fct;
-} ciaaModbus_cmdLst0x04Type;
-
-/** \brief Command list type */
-typedef struct {
-   ciaaModbus_addressRangeType range;
-   ciaaModbus_writeSingleRegisterFctType fct;
-} ciaaModbus_cmdLst0x06Type;
-
-/** \brief Command list type */
-typedef struct {
-   ciaaModbus_addressRangeType range;
-   ciaaModbus_writeMultipleRegistersFctType fct;
-} ciaaModbus_cmdLst0x10Type;
-
-/*==================[external data declaration]==============================*/
-extern ciaaModbus_cmdLst0x03Type ciaaModbus_cmdLst0x03[];
-extern ciaaModbus_cmdLst0x04Type ciaaModbus_cmdLst0x04[];
-extern ciaaModbus_cmdLst0x06Type ciaaModbus_cmdLst0x06[];
-extern ciaaModbus_cmdLst0x10Type ciaaModbus_cmdLst0x10[];
-
-/*==================[external functions declaration]=========================*/
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUS_CFG_H_ */
+#endif /* #ifndef _BLINKING_MODBUS_H_ */
 

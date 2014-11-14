@@ -35,8 +35,8 @@
 
 /** \brief FreeOSEK Os Arch Implementation File
  **
- ** \file win/Os_Arch.c
- ** \arch win
+ ** \file x86/Os_Arch.c
+ ** \arch x86
  **/
 
 /** \addtogroup FreeOSEK

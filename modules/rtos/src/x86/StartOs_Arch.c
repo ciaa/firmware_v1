@@ -1,4 +1,5 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -37,8 +38,8 @@
  **
  ** This file implements the StartOs Arch API
  **
- ** \file win/StartOs_Arch.c
- ** \arch win
+ ** \file x86/StartOs_Arch.c
+ ** \arch x86
  **/
 
 /** \addtogroup FreeOSEK
@@ -52,6 +53,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi 
  */
 
 /*
@@ -71,11 +73,14 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <pthread.h>
 
 /*==================[macros and definitions]=================================*/
+/* Mac OS X only suport deprecated macro version MAP_ANON  */
 #ifndef MAP_ANONYMOUS
-  #define MAP_ANONYMOUS MAP_ANON
+#define MAP_ANONYMOUS MAP_ANON
 #endif
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -85,6 +90,10 @@ uint8 * OSEK_IntCircBuffer;
 
 /*==================[external data definition]===============================*/
 ciaaLibs_CircBufType * OSEK_IntCircBuf;
+
+bool Os_Terminate_Flag;
+
+pthread_t Os_Thread_Timer;
 
 /*==================[internal functions definition]==========================*/
 
@@ -103,10 +112,10 @@ void StartOs_Arch(void)
 	}
 
    /* initialize singals handler */
-   signal(SIGALRM,WinInterruptHandler);
-   signal(SIGUSR1,WinInterruptHandler);
-   signal(SIGCHLD,WinInterruptHandler);
-
+   signal(SIGALRM,OsInterruptHandler);
+   signal(SIGUSR1,OsInterruptHandler);
+   signal(SIGTERM,OsInterruptHandler);
+   
    /* shared memory for circular buffer management block */
    OSEK_IntCircBuf = mmap(NULL,
          sizeof(ciaaLibs_CircBufType),
@@ -119,21 +128,31 @@ void StartOs_Arch(void)
          PROT_READ | PROT_WRITE,
          MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 
-   /* init circular buffer */
+	/* init circular buffer */
    ciaaLibs_circBufInit(OSEK_IntCircBuf, OSEK_IntCircBuffer, 64);
-
-   if (fork() == 0)
+   /* init Thread Terminate flag */
+   Os_Terminate_Flag = false;
+   
+    if(0 != pthread_create(&Os_Thread_Timer, NULL, HWTimerThread, (void*)0))
    {
-      HWTimerFork(0);
+      printf("Error creating OS Thread timer!\n");
+      exit(-1);
    }
-
+ #if 0
+   printf("Process ID: %d\n", getpid());
+#endif	     
    /* enable interrupts */
    InterruptState = 1;
 
-   /* enable timer interrupt */
-   InterruptMask = 16;
-
-   SaveWinStack();
+   /* enable HWTimer0,  interrupt 4 */
+   InterruptMask = (1 << 4);
+   
+#if (defined HWCOUNTER1)
+   /* enable HWTimer0,  interrupt 5 */
+   InterruptMask |= (1 << 5);
+#endif
+   
+   SaveOsStack();
 }
 
 /** @} doxygen end group definition */

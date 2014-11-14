@@ -41,9 +41,10 @@ AR = ar
 AS = as
 GDB = gdb
 NM = nm
-# COMPILER AND LINKER OPTIONS
+# COMPILER,  LINKER, AND DEBUGGER OPTIONS
 CFLAGS += -c -Wall -ggdb3
-LFLAGS += $(LINKSCRIPT)
+LFLAGS += $(LINKSCRIPT) -lpthread
+GFLAGS += -silent -batch
 # Optional POST BUILD
 POST_BUILD +=
 

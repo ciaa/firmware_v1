@@ -98,7 +98,7 @@ extern "C" {
  */
 
 /** \brief Maximal length of a ascii modbus message */
-#define CIAAMODBUS_ASCII_MAXLENGHT  255
+#define CIAAMODBUS_ASCII_MAXLENGHT  512
 
 /** \brief Minimal length of a ascii modbus message */
 #define CIAAMODBUS_ASCII_MINLENGHT  9
@@ -114,59 +114,63 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Read ascii modbus pdu and convert to bin
+/** \brief ciaaModbus_ascii initialization
  **
- ** \param[in] fildes file descriptor to read the data from
- ** \param[out] buf buffer to write the data, shall be at least
- **             CIAAMODBUS_ASCII_MAXLENGTH bytes long
- ** \return the length of the received modbus pdu (in bin format) in bytes
+ ** Performs the initialization of the MODBUS ASCII
+ **
  **/
-extern int32_t ciaaModbus_ascii_read(int32_t fildes, uint8_t * buf);
+extern void ciaaModbus_asciiInit(void);
 
-/** \brief Write ascii modbus pdu and convert to bin
+/** \brief Init Modbus Ascii communication channel
  **
- ** \param[in] fildes file descriptor to read the data from
- ** \param[in] buf buffer to write the data
- ** \param[in] len lenght of the buffer
- ** \return the length of the received modbus pdu (in bin format) in bytes
+ ** \paran[in] fildes file descriptor serial port
+ ** \return -1 if error
+ **         >= 0 handler modbus
  **/
-extern void ciaaModbus_ascii_write(int32_t fildes, uint8_t * buf, int32_t len);
+extern int32_t ciaaModbus_asciiOpen(int32_t fildes);
 
-/** \brief Receive a ASCII Modbus Message
+/** \brief CIAA Modbus ASCII task
  **
- ** \param[in] fildes file descriptor to read the data from
- ** \param[out] buf buffer to store the data, shall be at least
- **             CIAAMODBUS_ASCII_MAXLENGTH bytes long
- ** \return the length of the modbus ascii message
+ ** This function perform task of modbus ascii:
  **
- ** \remarks This function shall not be called from outside this file.
- **          Is not static due to the tests.
+ ** \param[in] handler handler to perform task
+ ** \return
  **/
-extern int32_t ciaaModbus_ascii_receive(int32_t fildes, uint8_t * buf);
+extern void ciaaModbus_asciiTask(int32_t handler);
 
-/** \brief Convert Modbus bin to ascii
+/** \brief Receive modbus message
  **
- ** This function convert a modbus bin to ascii.
+ ** This function receive a message
  **
- ** \param[in] length length of the buffer to be converted
- ** \param[inout] buf pointer to the bin buffer to be converted
- **
- ** \remarks This function shall not be called from outside this file.
- **          Is not static due to the tests.
+ ** \param[in] handler handler in to recv msg
+ ** \param[out] id identification number of modbus message
+ ** \param[out] pdu buffer with stored pdu
+ ** \param[out] size size of pdu. If no valid message received
+ **             size must be less than 5
+ ** \return
  **/
-extern void ciaaModbus_bin2ascii(uint8_t length, uint8_t * buf);
+extern void ciaaModbus_asciiRecvMsg(
+      int32_t handler,
+      uint8_t *id,
+      uint8_t *pdu,
+      uint32_t *size);
 
-/** \brief Convert received ascii data to bin
+/** \brief Send modbus message
  **
- ** \param[inout] buf input ascii buffer starting with : and without CRLF
- **               and output bin buffer
- ** \paran[in] len length of the ascii buffer
- ** \return -1 if error, lenght of the binary data
+ ** This function send a message
  **
- ** \remarks This function shall not be called from outside this file.
- **          Is not static due to the tests.
+ ** \param[in] handler handler to send msg
+ ** \param[in] id identification number of modbus message
+ ** \param[in] pdu buffer with stored pdu
+ ** \param[in] size size of pdu
+ ** \return
  **/
-extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len);
+void ciaaModbus_asciiSendMsg(
+      int32_t handler,
+      uint8_t id,
+      uint8_t *pdu,
+      uint32_t size);
+
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

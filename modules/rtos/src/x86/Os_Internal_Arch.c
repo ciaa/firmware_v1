@@ -1,4 +1,5 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -35,8 +36,8 @@
 
 /** \brief FreeOSEK Os Internal Arch Implementation File
  **
- ** \file win/Os_Internal_Arch.c
- ** \arch win
+ ** \file x86/Os_Internal_Arch.c
+ ** \arch x86
  **/
 
 /** \addtogroup FreeOSEK
@@ -51,6 +52,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi 
  */
 
 /*
@@ -72,6 +74,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <signal.h>
+#include <pthread.h>
 
 /*==================[macros and definitions]=================================*/
 
@@ -90,15 +93,15 @@ InterruptFlagsType InterruptFlag;
 
 #ifdef CPUTYPE
 #if ( CPUTYPE == ia64 )
-uint64 WinStack;
+uint64 OsStack;
 
 uint64 OsekStack;
 #elif ( CPUTYPE == ia32 )
-uint32 WinStack;
+uint32 OsStack;
 
 uint32 OsekStack;
 #else /* #if ( CPUTYPE == ia64 ) */
-#error Unknown CPUTYPE for ARCH win
+#error Unknown CPUTYPE for ARCH x86
 #endif /* #if ( CPUTYPE == ia64 ) */
 #else /* #ifdef CPUTYPE */
 #error CPUTPYE is not defined
@@ -123,16 +126,19 @@ void OSEK_ISR_HWTimer1(void)
 #endif /* #if (defined HWCOUNTER1) */
 }
 
-void WinInterruptHandler(int signal)
+void OsInterruptHandler(int signal)
 {
    uint8 interrupt;
 
-   if (SIGCHLD == signal)
+   if (SIGTERM == signal)
    {
-      /* kill process */
-      wait(NULL);
-   }
-
+      /* Terminate Child process */
+      Os_Terminate_Flag = true;
+      /* wait for the second thread to finish */
+      pthread_join(Os_Thread_Timer, NULL);
+      /* kill Main process */
+      OsekKillSigHandler(0);
+   }      
    /* repeat until the buffer is empty */
    while(!ciaaLibs_circBufEmpty(OSEK_IntCircBuf))
    {
@@ -140,7 +146,7 @@ void WinInterruptHandler(int signal)
       ciaaLibs_circBufGet(OSEK_IntCircBuf, &interrupt, 1);
 
       /* only 0 .. 31 interrupts are allowed */
-      if (32 > interrupt)
+      if (INTERRUPTS_COUNT > interrupt)
       {
 #if 0
          printf("Interrupt: %d\n",interrupt);
@@ -159,10 +165,11 @@ void WinInterruptHandler(int signal)
 
 }
 
-void HWTimerFork(uint8 timer)
+void* HWTimerThread(void *pThread_Arg)
 {
    struct timespec rqtp;
    uint8 interrupt;
+   uint8 timer = (uint8) (intptr_t) pThread_Arg;
 
    if (timer <= 2)
    {
@@ -172,22 +179,22 @@ void HWTimerFork(uint8 timer)
       rqtp.tv_sec=0;
       rqtp.tv_nsec=1000000;
 
-      while(1)
+      while(Os_Terminate_Flag == false)
       {
          /* sleep */
          nanosleep(&rqtp,NULL);
 
-         /* the timer interrupt is the interrupt 4 */
+         /* the timer interrupt is the interrupt number 4 */
          interrupt = 4;
 
          /* add simulated interrupt to the interrupt queue */
          ciaaLibs_circBufPut(OSEK_IntCircBuf, &interrupt, 1);
 
          /* indicate interrupt using a signal */
-         kill(getppid(), SIGALRM);
+         kill(getpid(), SIGALRM);
       }
    }
-   exit(0);
+   return NULL;
 }
 
 void OsekKillSigHandler(int status)

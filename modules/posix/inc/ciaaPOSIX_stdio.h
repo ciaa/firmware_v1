@@ -216,6 +216,48 @@ extern "C" {
  ** Returned none
  **/
 #define ciaaPOSIX_IOCTL_SET_NONBLOCK_MODE              9
+
+/** \brief set channel for analogic input/output
+ **
+ ** This ioctl command is used to set the channel for any analogic input/output.
+ ** Possible values for arg are:
+ **   ciaaCHANNEL_0
+ **   ciaaCHANNEL_1
+ **   ciaaCHANNEL_2
+ **   ciaaCHANNEL_3
+ **
+ ** Returned none
+ **/
+#define ciaaPOSIX_IOCTL_SET_CHANNEL                    10
+
+/** \brief channel macros for input/output macros for analogic devices
+ **/
+#define ciaaCHANNEL_0        0
+#define ciaaCHANNEL_1        1
+#define ciaaCHANNEL_2        2
+#define ciaaCHANNEL_3        3
+
+/** \brief set resolution for analogic input/output
+ **
+ **/
+#define ciaaPOSIX_IOCTL_SET_SAMPLE_RATE                11
+
+/** \brief set resolution for analogic input device
+ **
+ **/
+#define ciaaPOSIX_IOCTL_SET_RESOLUTION                 12
+
+/** \brief resolution macros for input/output macros for analogic input device
+ **/
+#define ciaaRESOLUTION_10BITS       0
+#define ciaaRESOLUTION_9BITS        1
+#define ciaaRESOLUTION_8BITS        2
+#define ciaaRESOLUTION_7BITS        3
+#define ciaaRESOLUTION_6BITS        4
+#define ciaaRESOLUTION_5BITS        5
+#define ciaaRESOLUTION_4BITS        6
+#define ciaaRESOLUTION_3BITS        7
+
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
@@ -253,7 +295,7 @@ extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag);
  ** \param[in] fildes file descriptor to be closed
  ** \return    -1 if failed, 0 in other if success.
  **
- ** \ramarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
+ ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
  **          ciaaPOSIX_write may be called reentrant but with different file
  **          descriptor. If one of this function is called with a specific file
  **          descriptor the caller has to wait until return before calling other
@@ -270,7 +312,7 @@ extern int32_t ciaaPOSIX_close(int32_t fildes);
  ** \param[in] param   parameter for io control
  ** \return     -1 if failed, != -1 if success
  **
- ** \ramarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
+ ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
  **          ciaaPOSIX_write may be called reentrant but with different file
  **          descriptor. If one of this function is called with a specific file
  **          descriptor the caller has to wait until return before calling other
@@ -288,7 +330,7 @@ extern int32_t ciaaPOSIX_ioctl(int32_t fildes, int32_t request, void* param);
  ** \return -1 if failed, a non negative integer representing the count of
  **         read bytes if success
  **
- ** \ramarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
+ ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
  **          ciaaPOSIX_write may be called reentrant but with different file
  **          descriptor. If one of this function is called with a specific file
  **          descriptor the caller has to wait until return before calling other
@@ -308,7 +350,7 @@ extern ssize_t ciaaPOSIX_read(int32_t fildes, void * buf, ssize_t nbyte);
  ** \return -1 if failed, a non negative integer representing the count of
  **         written bytes if success
  **
- ** \ramarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
+ ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
  **          ciaaPOSIX_write may be called reentrant but with different file
  **          descriptor. If one of this function is called with a specific file
  **          descriptor the caller has to wait until return before calling other

@@ -1,4 +1,5 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -37,8 +38,8 @@
 #define _OS_INTERNAL_ARCH_H_
 /** \brief FreeOSEK Os Internal Architecture Dependent Header File
  **
- ** \file win/Os_Internal_Arch.h
- ** \arch win
+ ** \file x86/Os_Internal_Arch.h
+ ** \arch x86
  **/
 
 /** \addtogroup FreeOSEK
@@ -52,6 +53,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi
  */
 
 /*
@@ -133,31 +135,33 @@
  **/
 #if ( CPUTYPE == ia64 )
 #define CallTask(OldTask, NewTask) \
-{                                                                                                                                              \
-   /* save actual rsp */                                                                                                                       \
-   __asm__ __volatile__ ("movq %%rsp, %%rax; addq $32, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rsp) : : "%rax" ); \
-   /* save actual rbp */                                                                                                                       \
-   __asm__ __volatile__ ("movq %%rbp, %%rax; addq $96, %%rax; movq %%rax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_rbp) : : "%rax" ); \
-   /* save return rip */                                                                                                                       \
-   __asm__ __volatile__ ("movq 8(%%rbp), %%rax; movq %%rax, %0" : "=g" (TasksConst[OldTask].TaskContext->tss_rip) : : "%rax");                 \
-   /* load new stack pointer */                                                                                                                \
-   __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (TasksConst[NewTask].TaskContext->tss_rsp));                                                \
-   /* load new rbp and jmp to the new task */                                                                                                  \
-   __asm__ __volatile__ ("movq %0, %%rbx; movq %1, %%rbp; jmp *%%rbx;" : : "g" (TasksConst[NewTask].TaskContext->tss_rip), "g" (TasksConst[NewTask].TaskContext->tss_rbp)); \
+{                                                                                                                                \
+   /* save actual rsp */                                                                                                         \
+   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (TasksConst[(OldTask)].TaskContext->tss_rsp) : : "%rax" );  \
+   /* save actual rbp */                                                                                                         \
+   __asm__ __volatile__ ("movq %%rbp, %%rax; movq %%rax, %0;" : "=g" (TasksConst[(OldTask)].TaskContext->tss_rbp) : : "%rax" );  \
+   /* save return rip */                                                                                                         \
+   __asm__ __volatile__ ("movq $_next, %%rax; movq %%rax, %0;" : "=g" (TasksConst[(OldTask)].TaskContext->tss_rip) : : "%rax");  \
+   /* load new stack pointer */                                                                                                  \
+   __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (TasksConst[(NewTask)].TaskContext->tss_rsp));                                \
+   /* load new rbp and jmp to the new task */                                                                                    \
+   __asm__ __volatile__ ("movq %0, %%rbx; movq %1, %%rbp; jmp *%%rbx;" : : "g" (TasksConst[(NewTask)].TaskContext->tss_rip), "g" (TasksConst[(NewTask)].TaskContext->tss_rbp));                                                                                                       \
+   __asm__ __volatile__ ("_next:");                                                                                              \
 }
 #elif ( CPUTYPE == ia32 )
 #define CallTask(OldTask, NewTask) \
-{                                                                                                                                              \
-   /* save actual esp */                                                                                                                       \
-   __asm__ __volatile__ ("movl %%esp, %%eax; addl $16, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_esp) : : "%eax" ); \
-   /* save actual ebp */                                                                                                                       \
-   __asm__ __volatile__ ("movl %%ebp, %%eax; addl $48, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_ebp) : : "%eax" ); \
-   /* save return eip */                                                                                                                       \
-   __asm__ __volatile__ ("movl 4(%%ebp), %%eax; movl %%eax, %0" : "=g" (TasksConst[OldTask].TaskContext->tss_eip) : : "%eax");                 \
-   /* load new stack pointer */                                                                                                                \
-   __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (TasksConst[NewTask].TaskContext->tss_esp));                                                \
-   /* load new ebp and jmp to the new task */                                                                                                  \
-   __asm__ __volatile__ ("movl %0, %%ebx; movl %1, %%ebp; jmp *%%ebx;" : : "g" (TasksConst[NewTask].TaskContext->tss_eip), "g" (TasksConst[NewTask].TaskContext->tss_ebp)); \
+{                                                                                                                                \
+   /* save actual esp */                                                                                                         \
+   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_esp) : : "%eax" );    \
+   /* save actual ebp */                                                                                                         \
+   __asm__ __volatile__ ("movl %%ebp, %%eax; movl %%eax, %0;" : "=g" (TasksConst[OldTask].TaskContext->tss_ebp) : : "%eax" );    \
+   /* save return eip */                                                                                                         \
+   __asm__ __volatile__ ("movl $_next, %%eax; movl %%eax, %0" : "=g" (TasksConst[OldTask].TaskContext->tss_eip) : : "%eax");     \
+   /* load new stack pointer */                                                                                                  \
+   __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (TasksConst[NewTask].TaskContext->tss_esp));                                  \
+   /* load new ebp and jmp to the new task */                                                                                    \
+   __asm__ __volatile__ ("movl %0, %%ebx; movl %1, %%ebp; jmp *%%ebx;" : : "g" (TasksConst[NewTask].TaskContext->tss_eip), "g" (TasksConst[NewTask].TaskContext->tss_ebp));                                                                                                       \
+   __asm__ __volatile__ ("_next:");                                                                                              \
 }
 #endif
 
@@ -248,58 +252,58 @@
 #define PostIsr2_Arch(isr)
 
 #if ( CPUTYPE == ia64 )
-#define SaveWinStack()                                                                      \
+#define SaveOsStack()                                                                      \
 {                                                                                           \
-   /* save actual win stack */                                                              \
-   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (WinStack) : : "rax"); \
+   /* save actual Os stack */                                                              \
+   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (OsStack) : : "rax"); \
 }
 #elif ( CPUTYPE == ia32 )
-#define SaveWinStack()                                                                      \
+#define SaveOsStack()                                                                      \
 {                                                                                           \
-   /* save actual win esp */                                                                \
-   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (WinStack) : : "eax"); \
+   /* save actual Os esp */                                                                \
+   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (OsStack) : : "eax"); \
 }
 #endif
 
 /** \brief Pre Call Service
  **
- ** This macro shall be called before calling any win system service
+ ** This macro shall be called before calling any Os system service
  **/
 #if ( CPUTYPE == ia64 )
 #define PreCallService()                                                                     \
 {                                                                                            \
    /* save osek stack */                                                                     \
    __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (OsekStack) : : "rax"); \
-   /* get win stack */                                                                       \
-   __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (WinStack) );                             \
+   /* get Os stack */                                                                       \
+   __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (OsStack) );                             \
 }
 #elif ( CPUTYPE == ia32 )
 #define PreCallService()                                                                     \
 {                                                                                            \
    /* save osek stack */                                                                     \
    __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (OsekStack) : : "eax"); \
-   /* get win stack */                                                                       \
-   __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (WinStack) );                             \
+   /* get Os stack */                                                                       \
+   __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (OsStack) );                             \
 }
 #endif
 
 /** \brief Post Call Service
  **
- ** This macro shall be called after calling any win system service
+ ** This macro shall be called after calling any Os system service
  **/
 #if ( CPUTYPE == ia64 )
 #define PostCallService()                                                                       \
 {                                                                                               \
-   /* save actual win stack */                                                                  \
-   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (WinStack) : : "rax");     \
+   /* save actual Os stack */                                                                  \
+   __asm__ __volatile__ ("movq %%rsp, %%rax; movq %%rax, %0;" : "=g" (OsStack) : : "rax");     \
    /* get osek stack */                                                                         \
    __asm__ __volatile__ ("movq %0, %%rsp;" : : "g" (OsekStack) );                               \
 }
 #elif ( CPUTYPE == ia32 )
 #define PostCallService()                                                                       \
 {                                                                                               \
-   /* save actual win stack */                                                                  \
-   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (WinStack) : : "eax");     \
+   /* save actual Os stack */                                                                  \
+   __asm__ __volatile__ ("movl %%esp, %%eax; movl %%eax, %0;" : "=g" (OsStack) : : "eax");     \
    /* get osek stack */                                                                         \
    __asm__ __volatile__ ("movl %0, %%esp;" : : "g" (OsekStack) );                               \
 }
@@ -318,7 +322,7 @@
 /*==================[external data declaration]==============================*/
 /** \brief Interrupt Falg
  **
- ** This variable indicate the state of the win interrupts. If bit 0 is set
+ ** This variable indicate the state of the Os interrupts. If bit 0 is set
  ** interrupt 0 has been activated, if bit 1 is set interrupt 1 has been
  ** activated, and so on.
  **/
@@ -332,18 +336,22 @@ extern uint8 * OSEK_IntCircBuffer;
 
 extern ciaaLibs_CircBufType * OSEK_IntCircBuf;
 
-/** \brief Win Stack
+extern bool Os_Terminate_Flag;
+
+extern pthread_t Os_Thread_Timer;
+
+/** \brief Os Stack
  **
- ** This variable is used to save the win stack used to call the system
+ ** This variable is used to save the Os stack used to call the system
  ** (linux) services from FreeOSEK
  **/
 #ifdef CPUTYPE
 #if ( CPUTYPE == ia64 )
-extern uint64 WinStack;
+extern uint64 OsStack;
 #elif ( CPUTYPE == ia32 )
-extern uint32 WinStack;
+extern uint32 OsStack;
 #else /* #if ( CPUTYPE == ia64 ) */
-#error Unknown CPUTYPE for ARCH win
+#error Unknown CPUTYPE for ARCH x86
 #endif /* #if ( CPUTYPE == ia64 ) */
 #else /* #ifdef CPUTYPE */
 #error CPUTPYE is not defined
@@ -352,7 +360,7 @@ extern uint32 WinStack;
 
 /** \brief Osek Stack
  **
- ** This variable is used to save the Osek stack while calling a win
+ ** This variable is used to save the Osek stack while calling a Os
  ** service
  **/
 #if ( CPUTYPE == ia64 )
@@ -360,17 +368,17 @@ extern uint64 OsekStack;
 #elif ( CPUTYPE == ia32 )
 extern uint32 OsekStack;
 #else /* #if ( CPUTYPE == ia64 ) */
-#error Unknown CPUTYPE for ARCH win
+#error Unknown CPUTYPE for ARCH x86
 #endif /* #if ( CPUTYPE == ia64 ) */
 
 /*==================[external functions declaration]=========================*/
-/** \brief Win Interrupt Handler
+/** \brief Os Interrupt Handler
  **
  ** This function is called every time when a interrupt message is received.
  **/
-extern void WinInterruptHandler(int status);
+extern void OsInterruptHandler(int status);
 
-extern void HWTimerFork(uint8 timer);
+extern void* HWTimerThread(void *pThread_Arg);
 
 extern void OsekKillSigHandler(int status);
 

@@ -1,4 +1,5 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -49,6 +50,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi
  */
 
 /*
@@ -704,26 +706,6 @@ uint32f SequenceCounter;
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-void ASSERT
-(
-	uint8f tc,
-	boolean cond
-)
-{
-   if (cond)
-   {
-		TestResults[(tc)>>2] |=	FAILED << ( ( tc & 3 ) * 2 );
-		while(1);
-   }
-	else
-	{
-		if ( ( TestResults[(tc)>>2] >> ( (tc & 3 ) * 2 ) ) != FAILED )
-		{
-			TestResults[(tc)>>2] |=	OK << ( ( tc & 3 ) * 2 );
-		}
-	}
-}
-
 void ConfTestEvaluation
 (
 	void

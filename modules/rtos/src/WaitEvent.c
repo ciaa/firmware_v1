@@ -97,17 +97,17 @@ StatusType WaitEvent
    StatusType ret = E_OK;
 
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
-   if ( !TasksConst[GetRunningTask()].ConstFlags.Extended )
-   {
-      /* \req OSEK_SYS_3.18.4-1/3 Extra possible return values in Extended mode
-       * are E_OS_ACCESS, E_OS_RESOURCE, E_OS_CALLEVEL */
-      ret = E_OS_ACCESS;
-   }
-   else if ( GetCallingContext() != CONTEXT_TASK )
+   if ( GetCallingContext() != CONTEXT_TASK )
    {
       /* \req OSEK_SYS_3.18.4-2/3 Extra possible return values in Extended mode
        * are E_OS_ACCESS, E_OS_RESOURCE, E_OS_CALLEVEL */
       ret = E_OS_CALLEVEL;
+   }
+   else if ( !TasksConst[GetRunningTask()].ConstFlags.Extended )
+   {
+      /* \req OSEK_SYS_3.18.4-1/3 Extra possible return values in Extended mode
+       * are E_OS_ACCESS, E_OS_RESOURCE, E_OS_CALLEVEL */
+      ret = E_OS_ACCESS;
    }
    else if ( TasksVar[GetRunningTask()].Resources != 0 )
    {

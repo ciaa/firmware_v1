@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 # Copyright 2008, 2009, 2014 Mariano Cerdeiro
+# Copyright 2014, Juan Cecconi
 # Copyright 2014, ACSE & CADIEEL
 #      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #      CADIEEL: http://www.cadieel.org.ar
@@ -42,6 +43,9 @@ $errors = 0;
 $warnings = 0;
 $fatalerrors = 0;
 
+#Hide experimental warning (given/when)
+no if $] >= 5.018, warnings => "experimental::smartmatch";
+
 sub htons
 {
    $val = 0;
@@ -61,7 +65,7 @@ sub getTestcaseName
    my $index = @_[0];
    my @testcasename;
 
-   open TESTCASES, $TESTCASES or die "$TESTCASES can not be openned: $!";
+   open TESTCASES, $TESTCASES or die "$TESTCASES can not be opened: $!";
    @testcasename = <TESTCASES>;
    close (TESTCASES);
    chomp(@testcasename[$index]);
@@ -70,7 +74,7 @@ sub getTestcaseName
 
 sub GetTestCases
 {
-   open TC, "<@_[0]" or die "@_[0] can not be openned: $!";
+   open TC, "<@_[0]" or die "@_[0] can not be opened: $!";
    my $val;
    my @ret;
    read(TC, $val, 35, 0);
@@ -101,7 +105,8 @@ sub GetTestSequences
    while (my $line = <TSF>)
    {
       chomp($line);
-      if ($line ne "")
+      # Skips empty lines and starting with # (comments)
+      if ($line ne "" && substr($line, 0, 1) !~ /^\#/)
       {
          $tabcount = ($line =~ tr/\t//);
          if ($tabcount == 0)
@@ -128,7 +133,8 @@ sub GetTestSequencesConfigs
    while (my $line = <TSF>)
    {
       chomp($line);
-      if ($line ne "")
+      # Skips empty lines and starting with # (comments)
+      if ($line ne "" && substr($line, 0, 1) !~ /^\#/)      
       {
          $tabcount = ($line =~ tr/\t//);
          $line =~ s/\t+//;
@@ -173,8 +179,9 @@ sub GetTestSequencesCon
    {
       chomp($line);
       # removes carry return + line-feed
-	  $line =~ tr/\r\n//d;
-      if ($line ne "")
+	   $line =~ tr/\r\n//d;
+      # Skips empty lines and starting with # (comments)
+      if ($line ne "" && substr($line, 0, 1) !~ /^\#/)     
       {
          # Count TABs
          $tabcount = ($line =~ tr/\t//);
@@ -239,10 +246,10 @@ sub EvaluateResults
 
    $tsseqfile = "out/rtos/SequenceCounter.bin";
    $tsseqfileok = "out/rtos/SequenceCounterOk.bin";
-   open SC, "<$tsseqfile" or die "$tsseqfile can not be openned: $!";
+   open SC, "<$tsseqfile" or die "$tsseqfile can not be opened: $!";
    read(SC, $sc, 4, 0);
    close(SC);
-   open SC, "<$tsseqfileok" or die "$tsseqfileok can not be openned: $!";
+   open SC, "<$tsseqfileok" or die "$tsseqfileok can not be opened: $!";
    read(SC, $scok, 4, 0);
    close(SC);
 
@@ -286,7 +293,7 @@ sub EvaluateResults
          $failed = 1;
          $failedtotal = 1;
          $failedcounter++;
-         $status = "FAILED";
+         $status = "FAILED (TEST)";
          $sctc = "FAILED";
          results("Test Result: $sctc - Test Case: " . getTestcaseName($loopi) . " - Result: " . @ts[$loopi] . " - ResultOk: " . @tsok[$loopi]);
       }
@@ -296,13 +303,12 @@ sub EvaluateResults
          results("Test Result: $sctc - Test Case: " . getTestcaseName($loopi) . " - Result: " . @ts[$loopi] . " - ResultOk: " . @tsok[$loopi]);
       }
    }
-
    return $status;
 }
 
 sub readparam
 {
-   open CFG, "<@_[0]" or die "Config file @_[0] can not be openned: $!";
+   open CFG, "<@_[0]" or die "Config file @_[0] can not be opened: $!";
    while (my $line = <CFG>)
    {
       chomp($line);
@@ -315,8 +321,10 @@ sub readparam
          when ("CPUTYPE") { $CPUTYPE = $val; }
          when ("CPU") { $CPU = $val; }
          when ("DIR") { $DIR = $val; }
+         when ("DEBUG_CTESTS") { $debug = $val; }
          when ("LOG") { $logfile = $val; }
          when ("LOGFULL") { $logfilefull = $val; }
+         when ("CLEAN_GENERATE") { $clean_generate = $val; }
          when ("TESTS") { $TESTS = $val; }
          when ("RES") { $RES = $val; }
          when ("TESTCASES") { $TESTCASES = $val; }
@@ -378,7 +386,7 @@ sub CreateTestProject
   `mkdir -p $base/src`;
   `mkdir -p $base/mak`;
   `mkdir -p $base/inc`;
-  `mkdir -p $base/inc/posix`;
+  `mkdir -p $base/inc/$ARCH`;
   # get configuration file for this project
   $org = "modules/rtos/tst/ctest/etc/" . $test . ".oil";
   $dst = "$base/etc/$test-$config.oil";
@@ -400,13 +408,17 @@ sub CreateTestProject
   print FILE "\$(project)_SRC_PATH += \$(\$(project)_PATH)\$(DS)src\$(DS) \\\n";
   print FILE " modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)src\$(DS)\n\n";
   print FILE "INCLUDE += \$(\$(project)_PATH)\$(DS)inc \\\n";
-  print FILE " \$(\$(project)_PATH)\$(DS)inc\$(DS)posix \\\n";
+  print FILE " \$(\$(project)_PATH)\$(DS)inc\$(DS)$ARCH\\\n";
   print FILE " modules/posix/inc\n";
   print FILE "SRC_FILES += \$(wildcard \$(\$(project)_PATH)\$(DS)src\$(DS)*.c) \\\n";
   print FILE " modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)src\$(DS)ctest_rst.c\n\n";
   print FILE "OIL_FILES += \$(\$(project)_PATH)\$(DS)etc\$(DS)\$(project).oil\n\n";
   print FILE "MODS = modules\$(DS)bsp \\\n";
   print FILE " modules\$(DS)platforms \\\n";
+  print FILE " modules\$(DS)libs \\\n";
+  print FILE " modules\$(DS)posix \\\n";
+  print FILE " modules\$(DS)config \\\n";
+  print FILE " modules\$(DS)ciaak \\\n";
   print FILE " modules\$(DS)rtos\n\n";
   print FILE "rtos_GEN_FILES += modules\$(DS)rtos\$(DS)tst\$(DS)ctest\$(DS)gen\$(DS)inc\$(DS)ctest_cfg.h.php\n\n";
   print FILE "CFLAGS += -D$test\n";
@@ -415,7 +427,7 @@ sub CreateTestProject
   copy("modules/rtos/tst/ctest/src/$test.c","$base/src/$test.c");
   copy("modules/rtos/tst/ctest/inc/$test.h","$base/inc/$test.h");
   copy("modules/rtos/tst/ctest/inc/ctest.h","$base/inc/ctest.h");
-  copy("modules/rtos/tst/ctest/inc/posix/ctest_arch.h","$base/inc/posix/ctest_arch.h");
+  copy("modules/rtos/tst/ctest/inc/$ARCH/ctest_arch.h","$base/inc/$ARCH/ctest_arch.h");
 }
 
 sub finish
@@ -443,6 +455,7 @@ sub logffull
 
 
 print "ciaaFirmware RTOS Generator - Copyright 2008, 2009, 2014 Mariano Cerdeiro\n";
+print "                              Copyright 2014, Juan Cecconi\n";
 print "                              Copyright 2014, ACSE & CADIEEL\n";
 print "         ACSE : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/\n";
 print "         CADIEEL: http://www.cadieel.org.ar\n\n";
@@ -474,26 +487,19 @@ print "INFO: ------- LICENSE END -------\n";
 
 if ($#ARGV + 1 < 2)
 {
-   info("ctest.pl -f ctest.cfg [ctest_tm_01] [--debug SEQUENCE]");
+   info("ctest.pl -f ctest.cfg [ctest_xx_yy] [subtestcase]");
 }
 
+#Example: 'full-preemptive' or empty
+$subtestcase = $ARGV[3];
+#Example: 'ctest_tm_01:Test Sequence 1' or empty
 $onlytc = $ARGV[2];
 
 $cfgfile = $ARGV[1];
 
 info("Configuration file: $cfgfile");
-
-if ($ARGV[3] eq "--debug")
-{
-   $debug = 1;
-   $subtestcase = $ARGV[4];
-   print "Debugging modes for: " . $subtestcase . "\n";
-}
-else
-{
-   $debug = 0;
-   $subtestcase = -1;
-}
+info("Removing old files");
+system("rm -rf out/rtos/*");
 
 readparam($cfgfile);
 
@@ -507,18 +513,52 @@ info("Starting FreeOSEK Conformance Test Runner");
 
 if($onlytc ne "")
 {
-   print "Running only one Test Configuration: " . $onlytc . "\n";
-   @tmptests = @tests;
-   @tests = ();
-
-   foreach (@tmptests)
+   # Run selective Tests...
+   if ($subtestcase ne "")
    {
-      if(index($_,$onlytc)>-1)
+      # There is a specific subtestcase, to start with
+      print "Running only one Test Configuration: " . $onlytc . "\n";
+      print "Sub Test Case: " . $subtestcase . "\n";
+      @tmptests = @tests;
+      @tests = ();
+
+      foreach (@tmptests)
       {
-         push(@tests, $_);
+         if(index($_,$onlytc)>-1)
+         {
+            push(@tests, $_);
+         }
+      }
+   }
+   else
+   {
+      # There isn´t a specific subtestcase, to start from this Test to the end...
+      my $Test_Found;
+      print "Starting from Test Configuration: " . $onlytc . "\n";
+      @tmptests = @tests;
+      @tests = ();
+      $Test_Found = 0;
+      foreach (@tmptests)
+      {
+         if(index($_,$onlytc)>-1)
+         {
+            # This is the initial Test, start from here!
+            $Test_Found = 1;
+         }
+         if($Test_Found == 1)
+         {
+            push(@tests, $_);
+         }
       }
    }
 }
+
+if($debug != 0)
+{
+   print "Debug Mode: Enabled!\n";
+}
+
+my $TestsSummaryFile;
 
 foreach $testfn (@tests)
 {
@@ -527,6 +567,7 @@ foreach $testfn (@tests)
 
    info("Testing $test");
 
+   $TestsSummaryFile = "out/rtos/TestsSummary.txt";
    @configs = GetTestSequencesConfigs($TESTS, $testfn);
 
    foreach $config (@configs)
@@ -536,9 +577,9 @@ foreach $testfn (@tests)
 
       $testcasecount++;
 
-      if($subtestcase>0)
+      if($subtestcase)
       {
-         if($subtestcase == $testcasecount)
+         if($subtestcase eq $config)
          {
             $runthistestcase = 1;
          }
@@ -555,79 +596,134 @@ foreach $testfn (@tests)
          CreateTestProject($test, $config);
 
          $error = "";
-
-         info("make clean of $test");
-         $outmakeclean = `make clean`;
-         $outmakecleanstatus = $?;
-         info("make clean status: $outmakecleanstatus");
-         info("make clean output:\n$outmakeclean");
+		 
+         if($clean_generate != 0)
+         {
+            info("make clean of $test");
+            $outmakeclean = `make clean`;
+            $outmakecleanstatus = $?;
+            info("make clean status: $outmakecleanstatus");
+            logffull("make clean output:\n$outmakeclean");
+         }
+         else
+         {
+            info("WARNING: skipping make clean of $test");
+			$outmakecleanstatus = 0;
+         }
 
          mkdir("out/gen/etc/");
 
-
          if ($outmakecleanstatus == 0)
          {
-            info("make generate of $test");
-            info("running \"make generate PROJECT=out/rtos/$test/$config");
-            $outmakegenerate = `make generate PROJECT=out/rtos/$test/$config`;
-            $outmakegeneratestatus = $?;
-            info("make generate status: $outmakegeneratestatus");
-            info("make generate output:\n$outmakegenerate");
-            if ($debug)
+            if($clean_generate != 0)
+            {		 
+               info("make generate of $test");
+               info("running \"make generate PROJECT=out/rtos/$test/$config");
+               $outmakegenerate = `make generate PROJECT=out/rtos/$test/$config`;
+               $outmakegeneratestatus = $?;
+               info("make generate status: $outmakegeneratestatus");
+               logffull("make generate output:\n$outmakegenerate");
+               if ($debug)
+               {
+                  print "$outmakegenerate";
+               }
+            }
+            else
             {
-               print "$outmakegenerate";
+               info("WARNING: skipping make generate of $test");
+               $outmakegeneratestatus = 0;
             }
             if ($outmakegeneratestatus == 0)
             {
+               # Make project skipping make dependencies
                info("make of $test");
-               $outmake = `make PROJECT=out/rtos/$test/$config`;
+               $outmake = `make PROJECT=out/rtos/$test/$config MAKE_DEPENDENCIES=0`;
                $outmakestatus = $?;
                info("make status: $outmakestatus");
-               info("make output:\n$outmake");
+               logffull("make output:\n$outmake");
                if ($debug)
                {
                   print "$outmake";
                }
                if ($outmakestatus == 0)
                {
-                  $out = $BINDIR . "/" . $test . "-" . $config . ".";
-                  info("debug of $test in $out");
-                  $dbgfile = "modules/rtos/tst/ctest/dbg/" . $ARCH . "/gcc/debug.scr";
-                  info("$GDB $out -x $dbgfile");
-                  `rm /dev/mqueue/*`;
-                  if($debug == 0)
+                  if ($ARCH eq "cortexM4")
                   {
-                     #$outdbg = `$GDB $out -x $dbgfile`;
-                     system("$GDB $out -x $dbgfile");
+                     $out = $BINDIR . "/" . $test . "-" . $config . ".axf";
                   }
                   else
                   {
-                     exec("$GDB $out");
+                     $out = $BINDIR . "/" . $test . "-" . $config . ".exe";
                   }
-                  `rm /dev/mqueue/*`;
-                  `pkill ctest_`;
-                  $outdbg = "";
+                  info("debug of $test in $out");
+                  $dbgfile = "modules/rtos/tst/ctest/dbg/" . $ARCH . "/gcc/debug.scr";
+                  info("$GDB $out -x $dbgfile");
+                  if($debug == 0)
+                  {
+                     $outdbg = `$GDB $out -x $dbgfile`;
+                     if ($ARCH eq "x86")
+                     {
+                        # if it fails, then capture ASSERT message with the condition, File and Line that failed and print it!
+                        my $Test_Asserted = index($outdbg, "ASSERT");
+                        if($Test_Asserted != -1)
+                        {
+                           my $Str_Assert = substr($outdbg, $Test_Asserted);
+                           $Str_Assert = substr($Str_Assert,0, index($Str_Assert, "\n"));
+                           print("ERROR, $Str_Assert\n");
+                        }
+                     }
+                   }
+                  else
+                  {
+                     exec("$GDB $out");
+                     $outdbg = "";
+                  }
                   $outdbgstatus = $?;
                   info("debug status: $outdbgstatus");
-                  info("debug output:\n$outdbg");
+                  #info("debug output:\n$outdbg");
                   $outdbgstatus = 0;
                   if ($outdbgstatus == 0)
                   {
                      results("Test: $test - Config: $config");
                      $status = EvaluateResults();
                      results("Test: $test - Config: $config - Status: $status");
+                     # Append to the Tests Summary File
+                     open FILE, ">>$TestsSummaryFile" or die "$$TestsSummaryFile can not be opened: $!";
+                     print FILE "Status: $status - Test: $test - Config: $config \r\n";
+                     close(FILE);
                   }
+               }
+               else
+               {
+                  # Make Failed...Append to the Tests Summary File
+                  open FILE, ">>$TestsSummaryFile" or die "$$TestsSummaryFile can not be opened: $!";
+                  print FILE "Status: FAILED (MAKE) - Test: $test - Config: $config \r\n";
+                  close(FILE);
                }
             }
             else
             {
+               # Make Generate Failed...Append to the Tests Summary File
+               open FILE, ">>$TestsSummaryFile" or die "$$TestsSummaryFile can not be opened: $!";
+               print FILE "Status: FAILED (MAKE GENERATE) - Test: $test - Config: $config \r\n";
+               close(FILE);
                exit();
             }
          }
       }
    }
 }
-
+# Print Tests Summary File
+open FILE, "<$TestsSummaryFile" or die "$TestsSummaryFile can not be opened: $!";
+print FILE "\n**************** RTOS Test Summary ****************\n";
+# iterate through each line in the file
+while ( $line = <FILE> )
+{
+   # print the individual line
+   print "$line";
+}
+close(FILE); 
+   
 close(LOGFILE);
 close(LOGFILEFULL);
 close(RESFILE);

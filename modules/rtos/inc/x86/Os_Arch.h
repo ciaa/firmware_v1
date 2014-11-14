@@ -40,8 +40,8 @@
  ** This file is included form os.h and defines macros
  ** and types which depends on the architecture.
  **
- ** \file win/Os_Arch.h
- ** \arch win
+ ** \file x86/Os_Arch.h
+ ** \arch x86
  **
  **/
 

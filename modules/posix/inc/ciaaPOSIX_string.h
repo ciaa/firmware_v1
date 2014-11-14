@@ -81,7 +81,7 @@ extern char * ciaaPOSIX_strcpy(char * dest, char const * src);
 /** \brief get string length
  **
  ** \param[in] s string to compute the length
- ** \raturn string length of s
+ ** \return string length of s
  **
  **/
 extern size_t ciaaPOSIX_strlen(char const * s);

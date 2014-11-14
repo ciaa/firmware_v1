@@ -75,8 +75,7 @@ extern "C" {
 /** \brief bool type definition */
 #ifndef bool
 typedef uint8_t bool;
-#endif 
-
+#endif
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
