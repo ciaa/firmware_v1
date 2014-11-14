@@ -52,7 +52,7 @@
  * DC           Daniel Cohen
  * EV           Esteban Volentini
  * MG           Matias Giori
- * FS           Franco Salinas  
+ * FS           Franco Salinas
  */
 
 /*
@@ -61,8 +61,10 @@
  * 20141006 v0.0.1  EV  first initial version
  */
 
-/*==================[inclusions]=============================================*/
+ /*==================[inclusions]=============================================*/
 #include "os.h"               /* <= operating system header */
+#include "ciaaPOSIX_stdio.h"  /* <= device handler header */
+#include "ciaaPOSIX_string.h" /* <= string header */
 #include "ciaak.h"            /* <= ciaa kernel header */
 #include "bootloader.h"       /* <= own header */
 
@@ -73,6 +75,29 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+/** \brief File descriptor for digital input ports
+ *
+ * Device path /dev/dio/in/0
+ */
+static int32_t fd_in;
+
+/** \brief File descriptor for digital output ports
+ *
+ * Device path /dev/dio/out/0
+ */
+static int32_t fd_out;
+
+/** \brief File descriptor of the USB uart
+ *
+ * Device path /dev/serial/uart/1
+ */
+static int32_t fd_uart1;
+
+/** \brief File descriptor of the RS232 uart
+ *
+ * Device path /dev/serial/uart/2
+ */
+static int32_t fd_uart2;
 
 /*==================[external data definition]===============================*/
 
@@ -133,23 +158,72 @@ TASK(InitTask)
    /* init CIAA kernel and devices */
    ciaak_start();
 
+   ciaaPOSIX_printf("Starting Bootloader Tasks\r\n");
+
+   /* open CIAA digital inputs */
+   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
+
+   /* open CIAA digital outputs */
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+
+   /* open UART connected to USB bridge (FT2232) */
+   fd_uart1 = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+
+   /* open UART connected to RS232 connector */
+   fd_uart2 = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+
+   /* change baud rate for uart usb */
+   //ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);
+
+   /* change FIFO TRIGGER LEVEL for uart usb */
+   //ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL, (void *)ciaaFIFO_TRIGGER_LEVEL3);
+
+   /* activate example tasks */
+   //SetRelAlarm(ActivatePeriodicTask, 200, 200);
+
    /* Activates the SerialEchoTask task */
-   //ActivateTask(MainTask);
+   ActivateTask(SerialEchoTask);
 
    /* end InitTask */
    TerminateTask();
 }
 
-/** \brief Main Task
+/** \brief Serial Echo Task
  *
  * This tasks waits for input data from fd_uart1 and writes the received data
  * to fd_uart1 and fd_uart2. This taks alos blinkgs the output 5.
  *
  */
-TASK(MainTask)
+TASK(SerialEchoTask)
 {
+   int8_t buf[20];   /* buffer for uart operation              */
+   uint8_t outputs;  /* to store outputs status                */
+   int32_t ret;      /* return value variable for posix calls  */
+
+   /* send a message to the world :) */
+   char message[] = "Hi! :)\nSerialEchoTask: Waiting for characters...\n";
+   ciaaPOSIX_write(fd_uart1, message, ciaaPOSIX_strlen(message));
+
    while(1)
    {
+      /* wait for any character ... */
+      ret = ciaaPOSIX_read(fd_uart1, buf, 19);
+
+      if(ret > 0)
+      {
+         buf[ret] = 0;
+         ciaaPOSIX_printf("Data Read: %s \r\n", buf);
+         /* ... and write them to the same device */
+         //ciaaPOSIX_write(fd_uart1, buf, ret);
+
+         /* also write them to the other device */
+         //ciaaPOSIX_write(fd_uart2, buf, ret);
+      }
+
+      /* blink output 5 with each loop */
+      //ciaaPOSIX_read(fd_out, &outputs, 1);
+      //outputs ^= 0x20;
+      //ciaaPOSIX_write(fd_out, &outputs, 1);
    }
 }
 
@@ -161,9 +235,41 @@ TASK(MainTask)
  */
 TASK(PeriodicTask)
 {
+   /*
+    * Example:
+    *    Read inputs 0..3, update outputs 0..3.
+    *    Blink output 4
+    */
+
+   /* variables to store input/output status */
+   uint8_t inputs = 0, outputs = 0;
+   int8_t buf[20];   /* buffer for uart operation              */
+   int32_t ret;      /* return value variable for posix calls  */
+
+   /* read inputs */
+   //ciaaPOSIX_read(fd_uart1, &inputs, 1);
+
+   /* read outputs */
+   //ciaaPOSIX_read(fd_out, &outputs, 1);
+
+   /* update outputs with inputs */
+   //outputs &= 0xF0;
+   //outputs |= inputs & 0x0F;
+
+   /* blink */
+   //outputs ^= 0x10;
+
+   /* write */
+   //ciaaPOSIX_write(fd_out, &outputs, 1);
+
+   //ciaaPOSIX_printf("Periodic Task Active\r\n");
+   //ciaaPOSIX_write(fd_uart1, "Hola\r\n", 6);
+   //ret = ciaaPOSIX_read(fd_uart1, buf, 1);
+
    /* end PeriodicTask */
    TerminateTask();
 }
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
