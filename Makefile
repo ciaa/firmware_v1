@@ -401,7 +401,7 @@ doxygen:
 # openocd
 include modules$(DS)tools$(DS)openocd$(DS)mak$(DS)Makefile
 
-OPENOCD_CFG := $(wildcard $(OPENOCD_CFG))
+#OPENOCD_CFG := $(wildcard $(OPENOCD_CFG))
 
 openocd:
 # if windows or posix shows an error
@@ -416,8 +416,9 @@ ifeq ($(OPENOCD_CFG),)
 	@echo ERROR: Your CPU: $(CPU) may not be supported...
 else
 	@echo ===============================================================================
-	@echo Starting OpenOCD with $(OPENOCD_CFG) as background task.
-	openocd -f $(OPENOCD_CFG) &
+	@echo Starting OpenOCD...
+	@echo ' '   
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS)
 endif
 endif
 endif
