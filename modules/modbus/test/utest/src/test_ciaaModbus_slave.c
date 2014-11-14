@@ -259,24 +259,29 @@ void test_ciaaModbus_slaveGetId_01(void)
  **/
 void test_ciaaModbus_functionNotSupported_00(void)
 {
-   uint8_t pduSend[2][256] =
+   uint8_t pduSend[3][256] =
    {
       /* pdu: invalid function */
       {0x00, 0x00, 0x00, 0x00, 0x00},
-      /* pdu: function 0x01 */
+      /* pdu: function 0x03 */
       {0x03, 0x00, 0x00, 0x00, 0x00},
+      /* pdu: function 0x10 */
+      {0x10, 0x00, 0x00, 0x00, 0x00},
    };
 
-   uint8_t pduExpected[2][256] =
+   uint8_t pduExpected[3][256] =
    {
       /* response: invalid function */
       {0x80, 0x01},
       /* response: invalid function */
       {0x83, 0x01},
+      /* response: invalid function */
+      {0x90, 0x01},
    };
-   uint8_t pduRecv[2][256];
-   uint8_t id[2];
-   uint32_t size[2];
+   uint8_t pduRecv[3][256];
+   uint8_t id[3];
+   uint32_t size[3];
+   uint32_t loopi;
 
    const ciaaModbus_slaveCmd_type callbacksStruct =
    {
@@ -294,46 +299,40 @@ void test_ciaaModbus_functionNotSupported_00(void)
    /* open modbus slave */
    hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
 
-   /* send, task and recv */
-   ciaaModbus_slaveSendMsg(
-         hModbusSlave,
-         SLAVE_ID,
-         pduSend[0],
-         5);
-
-   ciaaModbus_slaveTask(hModbusSlave);
-
-   ciaaModbus_slaveRecvMsg(
-         hModbusSlave,
-         &id[0],
-         pduRecv[0],
-         &size[0]);
-
-   /* send, task and recv */
-   ciaaModbus_slaveSendMsg(
+   for (loopi = 0 ; loopi < 3 ; loopi++)
+   {
+      /* send */
+      ciaaModbus_slaveSendMsg(
             hModbusSlave,
             SLAVE_ID,
-            pduSend[1],
+            pduSend[loopi],
             5);
 
-   ciaaModbus_slaveTask(hModbusSlave);
+      /* task and recv */
+      ciaaModbus_slaveTask(hModbusSlave);
 
-   ciaaModbus_slaveRecvMsg(
-         hModbusSlave,
-         &id[1],
-         pduRecv[1],
-         &size[1]);
+      /* recv */
+      ciaaModbus_slaveRecvMsg(
+            hModbusSlave,
+            &id[loopi],
+            pduRecv[loopi],
+            &size[loopi]);
+   }
 
-   /* verify */
-   TEST_ASSERT_EQUAL_UINT8_ARRAY(
-         pduExpected[0],
-         pduRecv[0],
-         2);
+   for (loopi = 0 ; loopi < 3 ; loopi++)
+   {
+      /* verify PDU */
+      TEST_ASSERT_EQUAL_UINT8_ARRAY(
+            pduExpected[loopi],
+            pduRecv[loopi],
+            2);
 
-   TEST_ASSERT_EQUAL_UINT8_ARRAY(
-         pduExpected[1],
-         pduRecv[1],
-         2);
+      /* verify size */
+      TEST_ASSERT_EQUAL_UINT8(2, size[loopi]);
+
+      /* verify id */
+      TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[loopi]);
+   }
 }
 
 /** \brief test read holding registers
