@@ -73,6 +73,11 @@ typedef struct
    bool inUse;                                  /** <- Object in use */
 }ciaaModbus_asciiObjType;
 
+/** \brief LRC correct macro */
+#define CIAAMODBUS_ASCII_LRC_OK     1
+
+/** \brief LRC incorrect macro */
+#define CIAAMODBUS_ASCII_LRC_NOK    0
 
 /*==================[internal data declaration]==============================*/
 
@@ -109,9 +114,17 @@ static uint8_t ciaaModbus_calcLRC(uint8_t * buf, int32_t len)
    return lrc;
 }
 
+/** \brief check lrc of ASCII Modbus Message
+ **
+ ** \param[in] buf buffer
+ ** \param[in] length length of the data stored in the buffer
+ **            (include lrc)
+ ** \return CIAAMODBUS_ASCII_LRC_OK if correct
+ **         CIAAMODBUS_ASCII_LRC_NOK if wrong
+ **/
 static int32_t ciaaModbus_checkLRC(uint8_t * buf, int32_t len)
 {
-   int32_t ret = -1;
+   int32_t ret = CIAAMODBUS_ASCII_LRC_NOK;
    uint8_t lrc = 0;
 
    lrc = ciaaModbus_calcLRC(buf, len-1);
@@ -119,7 +132,7 @@ static int32_t ciaaModbus_checkLRC(uint8_t * buf, int32_t len)
    /* check lrc */
    if (buf[len-1] == lrc)
    {
-      ret = 1;
+      ret = CIAAMODBUS_ASCII_LRC_OK;
    }
 
    return ret;
@@ -357,7 +370,7 @@ extern void ciaaModbus_asciiRecvMsg(
       /* check lrc */
       if ( ciaaModbus_checkLRC(
            ciaaModbus_asciiObj[handler].buffer,
-           len_bin) )
+           len_bin) == CIAAMODBUS_ASCII_LRC_OK)
       {
          /* discard LRC */
          len_bin--;
