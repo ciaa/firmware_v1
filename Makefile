@@ -114,9 +114,14 @@ MULTILINE_ECHO = echo -n
    UNAME_S := $(shell uname -s)
    ifeq ($(UNAME_S),Linux)
       # LINUX
+      START_GROUP = -Xlinker --start-group
+      END_GROUP = -Xlinker --end-group
    endif
    ifeq ($(UNAME_S),Darwin)
       # MACOS
+      START_GROUP = -all_load
+      CFLAGS += -m32
+      LFLAGS += -m32 -Xlinker -no_pie
    endif
 endif
 ###############################################################################
@@ -374,7 +379,7 @@ $(project) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
 	@echo ' '
-	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) -Xlinker --start-group $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
+	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) $(START_GROUP) $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) $(END_GROUP) -o $(LD_TARGET) $(LFLAGS)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(project)
