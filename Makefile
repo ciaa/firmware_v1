@@ -99,29 +99,36 @@ kconfig              ?= $(LINUX_TOOLS_PATH)$(DS)kconfig$(DS)kconfig-qtconf
 #
 # This part of the makefile is used to detect your OS. Depending on the OS
 ifeq ($(OS),Windows_NT)
-# WINDOWS
-# Command line separator
-CS             = ;
-# Command for multiline echo
-MULTILINE_ECHO = echo -e
-OS             = WIN
+   # WINDOWS
+   # Command line separator
+   CS             = ;
+   # Command for multiline echo
+   MULTILINE_ECHO = echo -e
+   OS             = WIN
+   # Libraries group linker parameters
+   START_GROUP = -Xlinker --start-group
+   END_GROUP = -Xlinker --end-group
 else
-# NON WINDOWS OS
-# Command line separator
-CS             = ;
-# Comand for multiline echo
-MULTILINE_ECHO = echo -n
+   # NON WINDOWS OS
+   # Command line separator
+   CS             = ;
+   # Comand for multiline echo
+   MULTILINE_ECHO = echo -n
    UNAME_S := $(shell uname -s)
    ifeq ($(UNAME_S),Linux)
       # LINUX
+	  # Libraries group linker parameters
       START_GROUP = -Xlinker --start-group
       END_GROUP = -Xlinker --end-group
    endif
    ifeq ($(UNAME_S),Darwin)
       # MACOS
-      START_GROUP = -all_load
+	  # Compile in 32 bits mode
       CFLAGS += -m32
+	  # 32 bits non relocable excutable image
       LFLAGS += -m32 -Xlinker -no_pie
+	  # Libraries group linker parameters
+      START_GROUP = -all_load
    endif
 endif
 ###############################################################################

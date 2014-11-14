@@ -64,7 +64,6 @@
 #include "OS_Internal.h"
 #include "stdio.h"
 #include "fcntl.h"
-//#include "ioctl.h"
 
 #include "sys/socket.h"
 #include "sys/types.h"
@@ -72,6 +71,11 @@
 
 
 /*==================[macros and definitions]=================================*/
+/** \brief Cygwin only support deprecated macro FASYNC */
+ #ifndef O_ASYNC
+	#define O_ASYNC FASYNC
+ #endif
+ 
 /** \brief Pointer to Devices */
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
