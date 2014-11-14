@@ -68,6 +68,24 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+/****** error codes ******/
+#define CIAA_MODBUS_E_FNC_NOT_SUPPORTED            0x01
+#define CIAA_MODBUS_E_WRONG_STR_ADDR               0x02
+#define CIAA_MODBUS_E_WRONG_REG_QTY                0x03
+#define CIAA_MODBUS_E_FNC_ERROR                    0x04
+
+/****** functions ******/
+#define CIAA_MODBUS_FCN_READ_COILS                 0x01
+#define CIAA_MODBUS_FCN_READ_DISCRETE_INPUTS       0x02
+#define CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS     0x03
+#define CIAA_MODBUS_FCN_READ_INPUT_REGISTERS       0x04
+#define CIAA_MODBUS_FCN_WRITE_SINGLE_COIL          0x05
+#define CIAA_MODBUS_FCN_WRITE_SINGLE_REGISTER      0x06
+#define CIAA_MODBUS_FCN_WRITE_MULTIPLE_COILS       0x0F
+#define CIAA_MODBUS_FCN_WRITE_MULTIPLE_REGISTERS   0x10
+
+#define CIAA_MODBUS_SLAVE_MIN_ID_VALUE             1
+#define CIAA_MODBUS_SLAVE_MAX_ID_VALUE             247
 
 /** \brief Modbus slave types */
 #if CIAA_MODBUS_TOTAL_SLAVES > 0
@@ -307,6 +325,34 @@ extern int32_t ciaaModbus_transportOpen(
       ciaaModbus_transportModeEnum mode);
 
 #endif   /* end Modbus Transport interfaces */
+
+/** \brief Read Integer from modbus
+ **
+ ** As described in modbus specification, the modbus uses a bigendian format to
+ ** transmit integers. This function shall be used to access integers.
+ **
+ ** \param[in] add address of the first byte of the integer to be read.
+ **
+ **/
+#define ciaaModbus_readInt(add) \
+   ( (((uint8_t*)(add))[0] << 8) | (((uint8_t*)(add))[1]))
+
+
+/** \brief Write Integer in modbus buffer
+ **
+ ** As described in modbus specification, the modbus uses a bigendian format to
+ ** transmit integers. This function shall be used to access integers.
+ **
+ ** \param[in] add address of the first byte of the integer to be write.
+ ** \param[in] num integer to be write.
+ **
+ **/
+#define ciaaModbus_writeInt(add,num) \
+   do {                                                        \
+      (((uint8_t*)(add))[0] = ((uint16_t)(num) >> 8) & 0XFF);  \
+      (((uint8_t*)(add))[1] = ((uint16_t)(num) >> 0) & 0XFF);  \
+   }while (0)
+
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
