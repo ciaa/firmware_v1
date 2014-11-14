@@ -219,7 +219,38 @@ void test_ciaaModbus_slaveOpen_02(void)
    TEST_ASSERT_EQUAL(hModbusSlave[loopi],-1);
 }
 
+/** \brief test function GetId
+ **
+ ** this function test slaveGetId
+ **
+ **/
+void test_ciaaModbus_slaveGetId_01(void)
+{
+   int32_t loopi;
+   int32_t hModbusSlave;
+   uint8_t id;
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+   };
 
+   /* open modbus slave */
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+
+   /* get id of slave */
+   id = ciaaModbus_slaveGetId(hModbusSlave);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id);
+}
 
 /** \brief test function not supported
  **
