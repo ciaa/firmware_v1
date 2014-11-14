@@ -59,6 +59,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaModbus.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -87,16 +88,6 @@ extern "C" {
 
 
 /*==================[typedef]================================================*/
-typedef enum
-{
-   CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER = 0,
-   CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE,
-   CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER,
-   CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE,
-   CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER,
-   CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE,
-}ciaaModbus_transportModeEnum;
-
 
 /*==================[external data declaration]==============================*/
 
@@ -108,26 +99,6 @@ typedef enum
  **
  **/
 extern void ciaaModbus_transportInit(void);
-
-/** \brief Open Modbus Transport
- **
- ** This function initialize Modbus Transport with device indicate in fildes
- ** and selected mode. Also reserves the buffer for reception and
- ** transmission.
- **
- ** \param[in] fildes File Descriptor to write and read data
- ** \param[in] mode mode may take one of the following values:
- **            CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER
- **            CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE
- **            CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER
- **            CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE
- **            CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER
- **            CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE
- ** \return handler of Modbus Transport
- **/
-extern int32_t ciaaModbus_transportOpen(
-      int32_t fildes,
-      ciaaModbus_transportModeEnum mode);
 
 /** \brief CIAA Modbus task transport
  **

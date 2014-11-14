@@ -59,6 +59,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaModbus.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -79,53 +80,6 @@ extern "C" {
  **
  **/
 extern void ciaaModbus_gatewayInit(void);
-
-/** \brief Open Modbus Gateway
- **
- ** \return handler Modbus Gateway
- **/
-extern int32_t ciaaModbus_gatewayOpen(void);
-
-/** \brief Add slave to Modbus Gateway
- **
- ** \param[in] hModbusGW handler Modbus Gateway
- ** \param[in] hModbusSlave handler slave
- ** \return 0 if ok
- **         -1 if error occurs
- **/
-extern int8_t ciaaModbus_gatewayAddSlave(
-      int32_t hModbusGW,
-      int32_t hModbusSlave);
-
-/** \brief Add master to Modbus Gateway
- **
- ** \param[in] hModbusGW handler Modbus Gateway
- ** \param[in] hModbusMaster handler Master
- ** \return 0 if ok
- **         -1 if error occurs
- **/
-extern int8_t ciaaModbus_gatewayAddMaster(
-      int32_t hModbusGW,
-      int32_t hModbusMaster);
-
-/** \brief Add transport to Modbus Gateway
- **
- ** \param[in] hModbusGW handler Modbus Gateway
- ** \param[in] hModbusTransport handler Transport
- ** \return 0 if ok
- **         -1 if error occurs
- **/
-extern int8_t ciaaModbus_gatewayAddTransport(
-      int32_t hModbusGW,
-      int32_t hModbusTransport);
-
-/** \brief Execute task of gateway
- **
- ** \param[in] hModbusGW handler Gateway
- **/
-extern void ciaaModbus_gatewayMainTask(
-      int32_t hModbusGW);
-
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

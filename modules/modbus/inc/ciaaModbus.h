@@ -183,6 +183,22 @@ typedef struct
 }ciaaModbus_slaveCmd_type;
 #endif   /* end Modbus slave types */
 
+/** \brief Modbus Transport types */
+#if ( (CIAA_MODBUS_TOTAL_TRANSPORT_ASCII + CIAA_MODBUS_TOTAL_TRANSPORT_RTU + \
+       CIAA_MODBUS_TOTAL_TRANSPORT_TCP ) > 0 )
+
+typedef enum
+{
+   CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER = 0,
+   CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE,
+   CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER,
+   CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE,
+   CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER,
+   CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE,
+}ciaaModbus_transportModeEnum;
+
+#endif   /* end Modbus Transport types */
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
@@ -266,18 +282,31 @@ extern void ciaaModbus_gatewayMainTask(
 
 #endif   /* end Modbus gateway interfaces */
 
-/** \brief Modbus ASCII interfaces */
-#if CIAA_MODBUS_TOTAL_GATEWAY > 0
+/** \brief Modbus Transport interfaces */
+#if ( (CIAA_MODBUS_TOTAL_TRANSPORT_ASCII + CIAA_MODBUS_TOTAL_TRANSPORT_RTU + \
+       CIAA_MODBUS_TOTAL_TRANSPORT_TCP ) > 0 )
 
-/** \brief Init Modbus Ascii communication channel
+/** \brief Open Modbus Transport
  **
- ** \paran[in] fildes file descriptor serial port
- ** \return -1 if error
- **         >= 0 handler modbus
+ ** This function initialize Modbus Transport with device indicate in fildes
+ ** and selected mode. Also reserves the buffer for reception and
+ ** transmission.
+ **
+ ** \param[in] fildes File Descriptor to write and read data
+ ** \param[in] mode mode may take one of the following values:
+ **            CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER
+ **            CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE
+ **            CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER
+ **            CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE
+ **            CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER
+ **            CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE
+ ** \return handler of Modbus Transport
  **/
-extern int32_t ciaaModbus_asciiOpen(int32_t fildes);
+extern int32_t ciaaModbus_transportOpen(
+      int32_t fildes,
+      ciaaModbus_transportModeEnum mode);
 
-#endif   /* end Modbus ASCII interfaces */
+#endif   /* end Modbus Transport interfaces */
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
