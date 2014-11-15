@@ -173,14 +173,18 @@ extern void ciaaModbus_slaveTask(int32_t handler)
       switch(function)
       {
          case CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS:
+            /* verify if function is supported by application */
             if (cmd->cmd0x03ReadHoldingReg == NULL)
             {
+               /* function not supported */
                exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
             }
             else
             {
+               /* obtain quantity of registers from buffer */
                quantity = ciaaModbus_readInt(&buf[3]);
 
+               /* check correct range */
                if ( (0x007D < quantity) || (1 > quantity) )
                {
                   /* report invalid quantity of registers */
@@ -188,26 +192,40 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                }
                else
                {
+                  /* obtain address of registers from buffer */
                   address = ciaaModbus_readInt(&buf[1]);
+
+                  /* perform application function */
                   ret = cmd->cmd0x03ReadHoldingReg(address, quantity, &exceptioncode, &buf[2]);
+
                   /* report byte count */
                   buf[1] = ret * 2;
+
+                  /* set length of message */
                   ret = 2 + buf[1];
                }
             }
             break;
 
          case CIAA_MODBUS_FCN_WRITE_MULTIPLE_REGISTERS:
+            /* verify if function is supported by application */
             if (cmd->cmd0x10WriteMultipleReg == NULL)
             {
+               /* function not supported */
                exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
             }
             else
             {
+               /* obtain address of registers from buffer */
                address = ciaaModbus_readInt(&buf[1]);
+
+               /* obtain quantity of registers from buffer */
                quantity = ciaaModbus_readInt(&buf[3]);
+
+               /* calculate byte count to compare with received */
                byteCount = quantity * 2;
 
+               /* check correct range */
                if ( (0x007B < quantity) || (1 > quantity)
                   || (byteCount != buf[5]) )
                {
@@ -216,15 +234,21 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                }
                else
                {
+                  /* perform application function */
                   cmd->cmd0x10WriteMultipleReg(address, quantity, byteCount, &exceptioncode, &buf[6]);
+
+                  /* set length of message */
                   ret = 5;
                }
             }
             break;
 
          default:
+            /* function not supported with modbus slave module */
+            /* TODO: provide callback to application callback */
             exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
             break;
+
       }
    }
 
