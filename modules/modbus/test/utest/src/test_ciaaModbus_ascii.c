@@ -55,6 +55,7 @@
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaModbus_ascii.h"
+#include "ciaaModbus_config.h"
 #include "string.h"
 
 /*==================[macros and definitions]=================================*/
@@ -102,7 +103,6 @@ void setUp(void)
    ciaaPOSIX_write_init();
 
    ciaaModbus_asciiInit();
-   hModbusAscii = ciaaModbus_asciiOpen(1);
 }
 
 /** \brief tear Down function
@@ -496,6 +496,9 @@ void test_ciaaModbus_asciiRecvMsg_01(void) {
    /* set input buffer */
    ciaaPOSIX_read_add(msgAscii, 1, 1);
 
+   /* open modbus ascii */
+   hModbusAscii = ciaaModbus_asciiOpen(1);
+
    ciaaModbus_asciiTask(hModbusAscii);
 
    /* receive data */
@@ -504,6 +507,60 @@ void test_ciaaModbus_asciiRecvMsg_01(void) {
    /* check received data */
    TEST_ASSERT_EQUAL_INT8_ARRAY(msgBin, buf, lenMsgBin);
    TEST_ASSERT_EQUAL_INT(lenMsgBin, read+1);
+}
+
+/** \brief test ciaaModbus_asciiRecvMsg
+ ** incomplete msg */
+void test_ciaaModbus_asciiRecvMsg_02(void) {
+   int32_t read;
+   int8_t buf[500];
+   int8_t msgAscii[] = ":00010203040506070809";
+   int8_t msgBin[100];
+   int32_t lenMsgBin;
+
+   /* set stub callback */
+   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
+
+   /* set input buffer without CRLF */
+   ciaaPOSIX_read_add(msgAscii, 0, 1);
+
+   /* open modbus ascii */
+   hModbusAscii = ciaaModbus_asciiOpen(1);
+
+   ciaaModbus_asciiTask(hModbusAscii);
+
+   /* receive data */
+   ciaaModbus_asciiRecvMsg(hModbusAscii, &buf[0], &buf[1], &read);
+
+   /* check received data */
+   TEST_ASSERT_EQUAL_INT(0, read);
+}
+
+/** \brief test ciaaModbus_asciiRecvMsg
+ ** invalid LRC */
+void test_ciaaModbus_asciiRecvMsg_03(void) {
+   int32_t read;
+   int8_t buf[500];
+   int8_t msgAscii[] = ":00010203040506070809";
+   int8_t msgBin[100];
+   int32_t lenMsgBin;
+
+   /* set stub callback */
+   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
+
+   /* set input buffer without LRC */
+   ciaaPOSIX_read_add(msgAscii, 1, 0);
+
+   /* open modbus ascii */
+   hModbusAscii = ciaaModbus_asciiOpen(1);
+
+   ciaaModbus_asciiTask(hModbusAscii);
+
+   /* receive data */
+   ciaaModbus_asciiRecvMsg(hModbusAscii, &buf[0], &buf[1], &read);
+
+   /* check received data */
+   TEST_ASSERT_EQUAL_INT(0, read);
 }
 
 /** \brief test ciaaModbus_asciiSendMsg */
@@ -539,6 +596,9 @@ void test_ciaaModbus_asciiSendMsg_01(void)
    lenout[0] = tst_convert2bin(buf[0][1], buf[0][1], lenin[0] - 4);
    lenout[1] = tst_convert2bin(buf[1][1], buf[1][1], lenin[1] - 4);
 
+   /* open modbus ascii */
+   hModbusAscii = ciaaModbus_asciiOpen(1);
+
    /* transmit binary */
    ciaaModbus_asciiSendMsg(
          hModbusAscii,
@@ -558,6 +618,32 @@ void test_ciaaModbus_asciiSendMsg_01(void)
    TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[0][0], write_stub.buf[0], lenin[0]);
    TEST_ASSERT_EQUAL_UINT8_ARRAY(buf[1][0], write_stub.buf[1], lenin[1]);
 }
+
+/** \brief test function Open
+ **
+ ** this function call open more times than allowed
+ **
+ **/
+void test_ciaaModbus_asciiOpen_01(void)
+{
+   int32_t loopi;
+   int32_t hModbusAscii[CIAA_MODBUS_TOTAL_TRANSPORT_ASCII+1];
+
+   for (loopi = 0 ; loopi < (CIAA_MODBUS_TOTAL_TRANSPORT_ASCII+1) ; loopi++)
+   {
+      /* open modbus ascii fd = 0*/
+      hModbusAscii[loopi] = ciaaModbus_asciiOpen(0);
+   }
+
+   for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_TRANSPORT_ASCII ; loopi++)
+   {
+      /* verify */
+      TEST_ASSERT_NOT_EQUAL(hModbusAscii[loopi],-1);
+   }
+
+   TEST_ASSERT_EQUAL(hModbusAscii[loopi],-1);
+}
+
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
