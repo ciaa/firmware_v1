@@ -608,9 +608,9 @@ rtostests:
 	@echo ARCH:$(ARCH)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo CPUTYPE:$(CPUTYPE)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo CPU:$(CPU)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo RES:$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctestresults.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo LOG:$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo LOGFULL:$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctestfull.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo RES:$(OUT_DIR)$(DS)rtos$(DS)doc$(DS)ctest$(DS)ctestresults.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo LOG:$(OUT_DIR)$(DS)rtos$(DS)doc$(DS)ctest$(DS)ctest.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo LOGFULL:$(OUT_DIR)$(DS)rtos$(DS)doc$(DS)ctest$(DS)ctestfull.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo TESTS:$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)cfg$(DS)ctestcases.cfg>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo TESTCASES:$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)cfg$(DS)testcases.cfg>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf $(RTOSTESTS_CTEST) $(RTOSTESTS_SUBTEST)
