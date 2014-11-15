@@ -212,6 +212,46 @@ extern void ciaaModbus_slaveTask(int32_t handler)
             }
             break;
 
+         case CIAA_MODBUS_FCN_READ_DISCRETE_INPUTS:
+            /* verify if function is supported by application */
+            if (cmd->cmd0x02ReadDiscrteInputs == NULL)
+            {
+               /* function not supported */
+               exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
+            }
+            else
+            {
+               /* obtain quantity of discrete inputs from buffer */
+               quantity = ciaaModbus_readInt(&buf[3]);
+
+               /* check correct range */
+               if ( (0x07D0 < quantity) || (1 > quantity) )
+               {
+                  /* report invalid quantity of registers */
+                  exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
+               }
+               else
+               {
+                  /* obtain address of registers from buffer */
+                  address = ciaaModbus_readInt(&buf[1]);
+
+                  /* perform application function */
+                  ret = cmd->cmd0x02ReadDiscrteInputs(address, quantity, &exceptioncode, &buf[2]);
+
+                  /* report byte count */
+                  buf[1] = ret / 8;
+
+                  if (ret % 8)
+                  {
+                     buf[1]++;
+                  }
+
+                  /* set length of message */
+                  ret = 2 + buf[1];
+               }
+            }
+            break;
+
          case CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS:
             /* verify if function is supported by application */
             if (cmd->cmd0x03ReadHoldingReg == NULL)
