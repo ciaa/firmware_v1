@@ -62,9 +62,9 @@
 /** \brief Type for the stub read functions */
 typedef struct {
    int32_t fildes;         /** <= Check for this descriptor */
-   int8_t buf[500];        /** <= ascii buffer */
+   int8_t buf[600];        /** <= ascii buffer */
    int32_t totalLength;    /** <= total data length */
-   int8_t length[500];     /** <= count of bytes to be returned in each call */
+   int32_t length[500];    /** <= count of bytes to be returned in each call */
    int32_t count;          /** <= count the count of calls */
 } stubType;
 
@@ -562,6 +562,131 @@ void test_ciaaModbus_asciiRecvMsg_03(void) {
    /* check received data */
    TEST_ASSERT_EQUAL_INT(0, read);
 }
+
+/** \brief test ciaaModbus_asciiRecvMsg
+ ** receive twice */
+void test_ciaaModbus_asciiRecvMsg_04(void) {
+   int32_t read;
+   int8_t buf[500];
+   int8_t msgAscii1[] = ":0001020304";
+   int8_t msgAscii2[] = ":0506070809";
+   int8_t msgBin[100];
+   int32_t lenMsgBin;
+
+   /* set stub callback */
+   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
+
+   memset(buf, 0, sizeof(buf));
+
+   /* obtain msg in binary */
+   lenMsgBin = tst_convert2bin(msgBin, msgAscii2, strlen(msgAscii2));
+
+   /* set input buffer */
+   ciaaPOSIX_read_add(msgAscii1, 1, 1);
+   ciaaPOSIX_read_add(msgAscii2, 1, 1);
+
+   /* open modbus ascii */
+   hModbusAscii = ciaaModbus_asciiOpen(1);
+
+   /* perform task */
+   ciaaModbus_asciiTask(hModbusAscii);
+
+   /* receive data */
+   ciaaModbus_asciiRecvMsg(hModbusAscii, &buf[0], &buf[1], &read);
+
+   /* check received data */
+   TEST_ASSERT_EQUAL_INT(lenMsgBin, read+1);
+   TEST_ASSERT_EQUAL_INT8_ARRAY(msgBin, buf, lenMsgBin);
+}
+
+/** \brief test ciaaModbus_asciiRecvMsg
+ ** incorrect format */
+void test_ciaaModbus_asciiRecvMsg_05(void) {
+   int32_t read;
+   int8_t buf[500];
+   int8_t msgAscii[] = ":0001020304";
+   int32_t lenMsgBin;
+
+   /* set stub callback */
+   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
+
+   memset(buf, 0, sizeof(buf));
+
+   /* set input buffer */
+   ciaaPOSIX_read_add(msgAscii, 1, 1);
+
+   /* wrong data in device buffer */
+   read_stub.buf[1] = 'X';
+
+   /* wrong data in device buffer */
+   read_stub.buf[2] = 'Y';
+
+   /* open modbus ascii */
+   hModbusAscii = ciaaModbus_asciiOpen(1);
+
+   /* perform task */
+   ciaaModbus_asciiTask(hModbusAscii);
+
+   /* receive data */
+   ciaaModbus_asciiRecvMsg(hModbusAscii, &buf[0], &buf[1], &read);
+
+   /* check received data */
+   TEST_ASSERT_EQUAL_INT(0, read);
+}
+
+/** \brief test ciaaModbus_asciiRecvMsg
+ ** reception too large */
+void test_ciaaModbus_asciiRecvMsg_06(void) {
+   int32_t read[3];
+   int8_t buf[600];
+   int8_t msgAscii[600];
+   int8_t msgBin[300];
+   int32_t lenMsgBin;
+   int32_t loopi;
+
+   /* set stub callback */
+   ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
+
+   /* begin character */
+   msgAscii[0] = ':';
+
+   /* fill ascii message */
+   memset(&msgAscii[1],'0',550);
+
+   /* end of string */
+   msgAscii[551] = 0;
+
+   /* set input buffer */
+   ciaaPOSIX_read_add(msgAscii, 1, 1);
+
+   /* first read return 256 bytes */
+   read_stub.length[0] = 256;
+
+   /* second read return 256 bytes */
+   read_stub.length[1] = 256;
+
+   /* third read return 256 bytes */
+   read_stub.length[2] = 10;
+
+   /* open modbus ascii */
+   hModbusAscii = ciaaModbus_asciiOpen(1);
+
+   for (loopi = 0 ; loopi < 3 ; loopi++)
+   {
+      /* perform task */
+      ciaaModbus_asciiTask(hModbusAscii);
+
+      /* receive data */
+      ciaaModbus_asciiRecvMsg(hModbusAscii, &buf[0], &buf[1], &read[loopi]);
+   }
+
+   /* check received data */
+   for (loopi = 0 ; loopi < 3 ; loopi++)
+   {
+      TEST_ASSERT_EQUAL_INT(0, read[loopi]);
+   }
+}
+
 
 /** \brief test ciaaModbus_asciiSendMsg */
 void test_ciaaModbus_asciiSendMsg_01(void)
