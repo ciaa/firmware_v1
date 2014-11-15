@@ -54,11 +54,13 @@
  * Initials     Name
  * ---------------------------
  * MaCe			 Mariano Cerdeiro
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * v0.1.1 20141115 PR   added LPC43xx interrupt sources, spelling mistake fixed
  * v0.1.0 20141115 MaCe	initial version
  */
 
@@ -79,16 +81,69 @@
 
 /*==================[external functions definition]==========================*/
 <?php
+/* Interrupt sources for LPC43xx. 
+ * See externals/platforms/cortexM4/lpc43xx/inc/cmsis_43xx.h.
+ */
 $intList = array (
-   0 => "CAN1RX",
-   3 => "UART1RX",
-   10 => "CAN4TX"
+   0 => "DAC",
+   1 => "M0CORE",
+   2 => "DMA",
+   3 => "RESERVED1",
+   4 => "RESERVED2",
+   5 => "ETHERNET",
+   6 => "SDIO",
+   7 => "LCD",
+   8 => "USB0",
+   9 => "USB1",
+   10 => "SCT",
+   11 => "RITIMER",
+   12 => "TIMER0",
+   13 => "TIMER1",
+   14 => "TIMER2",
+   15 => "TIMER3",
+   16 => "MCPWM",
+   17 => "ADC0",
+   18 => "I2C0",
+   19 => "I2C1",
+   20 => "SPI_INT",
+   21 => "ADC1",
+   22 => "SSP0",
+   23 => "SSP1",
+   24 => "USART0",
+   25 => "UART1",
+   26 => "USART2",
+   27 => "USART3",
+   28 => "I2S0",
+   29 => "I2S1",
+   30 => "RESERVED4",
+   31 => "SGPIO_INT",
+   32 => "PIN_INT0",
+   33 => "PIN_INT1",
+   34 => "PIN_INT2",
+   35 => "PIN_INT3",
+   36 => "PIN_INT4",
+   37 => "PIN_INT5",
+   38 => "PIN_INT6",
+   39 => "PIN_INT7",
+   40 => "GINT0",
+   41 => "GINT1",
+   42 => "EVENTROUTER",
+   43 => "C_CAN1",
+   44 => "RESERVED6",
+   45 => "ADCHS",
+   46 => "ATIMER",
+   47 => "RTC",
+   48 => "RESERVED8",
+   49 => "WWDT",
+   50 => "M0SUB",
+   51 => "C_CAN0",
+   52 => "QEI"
 );
 
-$MAX_INT_COUNT = 32;
+$MAX_INT_COUNT = 53;
 ?>
 
-InterruptType InteeruptTable[<?=$MAX_INT_COUNT;?>] =
+InterruptType InterruptTable[<?=$MAX_INT_COUNT;?>] =
 {
 <?php
 $intnames = $config->getList("/OSEK","ISR");
