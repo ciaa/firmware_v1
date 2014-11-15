@@ -157,6 +157,24 @@ static uint16_t cmd0x03ReadHoldingReg(
    return quantity;
 }
 
+static uint16_t cmd0x04ReadInputReg(
+       uint16_t start,
+       uint16_t quantity,
+       uint8_t * exceptioncode,
+       uint8_t * buf
+       )
+{
+   uint16_t loopi;
+
+   for (loopi = 0 ; loopi < quantity ; loopi++)
+   {
+      ciaaModbus_writeInt(buf, (loopi+start));
+      buf += 2;
+   }
+
+   return quantity;
+}
+
 static void cmd0x10WriteMultipleReg(
       uint16_t start,
       uint16_t quantity,
@@ -309,21 +327,23 @@ void test_ciaaModbus_slaveGetId_01(void)
  **/
 void test_ciaaModbus_functionNotSupported_00(void)
 {
-   uint8_t pduSend[5][256] =
+   uint8_t pduSend[6][256] =
    {
       /* pdu: invalid function */
       {0x00, 0x00, 0x00, 0x00, 0x00},
       /* pdu: function 0x01 */
       {0x01, 0x00, 0x00, 0x00, 0x00},
-      /* pdu: function 0x03 */
+      /* pdu: function 0x02 */
       {0x02, 0x00, 0x00, 0x00, 0x00},
       /* pdu: function 0x03 */
       {0x03, 0x00, 0x00, 0x00, 0x00},
+      /* pdu: function 0x04 */
+      {0x04, 0x00, 0x00, 0x00, 0x00},
       /* pdu: function 0x10 */
       {0x10, 0x00, 0x00, 0x00, 0x00},
    };
 
-   uint8_t pduExpected[5][256] =
+   uint8_t pduExpected[6][256] =
    {
       /* response: invalid function */
       {0x80, 0x01},
@@ -334,11 +354,13 @@ void test_ciaaModbus_functionNotSupported_00(void)
       /* response: invalid function */
       {0x83, 0x01},
       /* response: invalid function */
+      {0x84, 0x01},
+      /* response: invalid function */
       {0x90, 0x01},
    };
-   uint8_t pduRecv[5][256];
-   uint8_t id[5];
-   uint32_t size[5];
+   uint8_t pduRecv[6][256];
+   uint8_t id[6];
+   uint32_t size[6];
    uint32_t loopi;
 
    const ciaaModbus_slaveCmd_type callbacksStruct =
@@ -357,7 +379,7 @@ void test_ciaaModbus_functionNotSupported_00(void)
    /* open modbus slave */
    hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
 
-   for (loopi = 0 ; loopi < 5 ; loopi++)
+   for (loopi = 0 ; loopi < 6 ; loopi++)
    {
       /* send */
       ciaaModbus_slaveSendMsg(
@@ -377,7 +399,7 @@ void test_ciaaModbus_functionNotSupported_00(void)
             &size[loopi]);
    }
 
-   for (loopi = 0 ; loopi < 5 ; loopi++)
+   for (loopi = 0 ; loopi < 6 ; loopi++)
    {
       /* verify PDU */
       TEST_ASSERT_EQUAL_UINT8_ARRAY(
@@ -606,6 +628,95 @@ void test_ciaaModbus_function0x03Msg_01(void)
       NULL,
       cmd0x03ReadHoldingReg,
       NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+   };
+
+
+   /* open modbus slave */
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+
+   for (loopi = 0 ; loopi < 3 ; loopi++)
+   {
+      /* send, task and recv */
+      ciaaModbus_slaveSendMsg(
+            hModbusSlave,
+            SLAVE_ID,
+            pduSend[loopi],
+            5);
+
+      ciaaModbus_slaveTask(hModbusSlave);
+
+      ciaaModbus_slaveRecvMsg(
+            hModbusSlave,
+            &id[loopi],
+            pduRecv[loopi],
+            &size[loopi]);
+   }
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[0],
+         pduRecv[0],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[0]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[0]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[1],
+         pduRecv[1],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[1]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[1]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[2],
+         pduRecv[2],
+         4);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[2]);
+   TEST_ASSERT_EQUAL_UINT32(4, size[2]);
+}
+
+/** \brief test read input registers
+ **
+ ** this function test read input register on slave
+ **
+ **/
+void test_ciaaModbus_function0x04Msg_01(void)
+{
+   uint8_t pduSend[3][256] =
+   {
+      /* pdu: invalid quantity of registers */
+      {0x04, 0x00, 0x00, 0x00, 0x7E},
+      /* pdu: invalid quantity of registers */
+      {0x04, 0x00, 0x00, 0x00, 0x00},
+      /* pdu: ok */
+      {0x04, 0x00, 0x00, 0x00, 0x01},
+   };
+
+   uint8_t pduExpected[3][256] =
+   {
+      /* response: invalid quantity */
+      {0x84, 0x03},
+      /* response: invalid quantity */
+      {0x84, 0x03},
+      /* response: ok */
+      {0x04, 0x02, 0x00, 0x00},
+   };
+   uint8_t pduRecv[3][256];
+   uint8_t id[3];
+   uint32_t size[3];
+   uint32_t loopi;
+
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      NULL,
+      NULL,
+      cmd0x04ReadInputReg,
       NULL,
       NULL,
       NULL,
