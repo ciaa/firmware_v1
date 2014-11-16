@@ -143,8 +143,6 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
 
 /*==================[external data definition]===============================*/
 
-extern ContextType ActualContext;
-
 /*==================[internal functions definition]==========================*/
 static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
