@@ -77,9 +77,64 @@
 
 /*==================[external data definition]===============================*/
 
+/* ResetISR is defined in cr_startup_lpc43xx.c */
+extern void ResetISR(void);
+
+/** \brief External declaration for the pointer to the stack top from the Linker Script */
+extern void _vStackTop(void);
+
+/** \brief Handlers used by OSEK */
+extern void SysTick_Handler(void);
+extern void PendSV_Handler(void);
+
 /*==================[internal functions definition]==========================*/
 
+/* Default exception handlers. */
+__attribute__ ((section(".after_vectors")))
+void NMI_Handler(void) {
+    while (1) {
+    }
+}
+__attribute__ ((section(".after_vectors")))
+void HardFault_Handler(void) {
+    while (1) {
+    }
+}
+__attribute__ ((section(".after_vectors")))
+void MemManage_Handler(void) {
+    while (1) {
+    }
+}
+__attribute__ ((section(".after_vectors")))
+void BusFault_Handler(void) {
+    while (1) {
+    }
+}
+__attribute__ ((section(".after_vectors")))
+void UsageFault_Handler(void) {
+    while (1) {
+    }
+}
+__attribute__ ((section(".after_vectors")))
+void SVC_Handler(void) {
+    while (1) {
+    }
+}
+__attribute__ ((section(".after_vectors")))
+void DebugMon_Handler(void) {
+    while (1) {
+    }
+}
+
+/** \brief ISR default handler */
+__attribute__ ((section(".after_vectors")))
+void IntDefaultHandler(void) {
+    while (1) {
+    }
+}
+
 /*==================[external functions definition]==========================*/
+
 <?php
 /* Interrupt sources for LPC43xx. 
  * See externals/platforms/cortexM4/lpc43xx/src/cr_startup_lpc43xx.c.
@@ -141,30 +196,56 @@ $intList = array (
 );
 
 $MAX_INT_COUNT = 53;
+?>
+/** \brief LPC4337 Interrupt vector */
+__attribute__ ((section(".isr_vector")))
+void (* const g_pfnVectors[])(void) = {
+   // Core Level - CM4
+   &_vStackTop,                    // The initial stack pointer
+   ResetISR,                       // The reset handler
+   NMI_Handler,                    // The NMI handler
+   HardFault_Handler,              // The hard fault handler
+   MemManage_Handler,              // The MPU fault handler
+   BusFault_Handler,               // The bus fault handler
+   UsageFault_Handler,             // The usage fault handler
+   0,                              // Reserved
+   0,                              // Reserved
+   0,                              // Reserved
+   0,                              // Reserved
+   SVC_Handler,                    // SVCall handler
+   DebugMon_Handler,               // Debug monitor handler
+   0,                              // Reserved
+   PendSV_Handler,                 // The PendSV handler
+   SysTick_Handler,                // The SysTick handler
+
+   /* Chip Level - LPC43xx (M4 core) */
+<?php
 
 /* get ISRs defined by user application */
 $intnames = $config->getList("/OSEK","ISR");
-foreach ($intnames as $int)
-{
-   $intcat = $config->getValue("/OSEK/" . $int,"CATEGORY");
-   $source = $config->getValue("/OSEK/" . $int,"SOURCE");
-   $src_found = 0;
 
-   for($i=0; ($i < $MAX_INT_COUNT) && ($src_found == 0); $i++)
+for($i=0; $i < $MAX_INT_COUNT; $i++)
+{
+   $src_found = 0;
+   foreach ($intnames as $int)
    {
+      $intcat = $config->getValue("/OSEK/" . $int,"CATEGORY");
+      $source = $config->getValue("/OSEK/" . $int,"INTERRUPT");
+
       if(($intList[$i] == $source) && ($intcat == 2))
       {
-         print "void $source" . "_IRQHandler(void)\n";
-         print "{\n";
-         print "   PreIsr2($int);\n";
-         print "   OSEK_ISR_$int();\n";
-         print "   PostIsr2($int);\n";
-         print "}\n";
+         print "   OSEK_ISR2_$int, /* ISR for " . $intList[$i] . " */ \n";
          $src_found = 1;
       }
    }
+   if($src_found == 0)
+   {
+      print "   IntDefaultHandler, /* ISR for " . $intList[$i] . " */ \n";
+   }
 }
 ?>
+};
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
