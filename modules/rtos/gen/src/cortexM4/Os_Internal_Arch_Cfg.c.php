@@ -3,9 +3,7 @@
  ********************************************************/
 
 /* Copyright 2008, 2009 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
+ * Copyright 2014, Mariano Cerdeiro, Pablo Ridolfi
  *
  * This file is part of CIAA Firmware.
  *
@@ -126,14 +124,6 @@ void DebugMon_Handler(void) {
     }
 }
 
-/* TODO: remove this part, check with PR, done by MaCe */
-/** \brief ISR default handler */
-__attribute__ ((section(".after_vectors")))
-void IntDefaultHandler(void) {
-    while (1) {
-    }
-}
-
 /*==================[external functions definition]==========================*/
 
 <?php
@@ -241,7 +231,7 @@ for($i=0; $i < $MAX_INT_COUNT; $i++)
             $src_found = 1;
          } elseif ($intcat == 1)
          {
-            print "  OSEK_ISR_$int, /* ISR for " . $intList[$i] . " (IRQ $1) Category 1 */\n";
+            print "  OSEK_ISR_$int, /* ISR for " . $intList[$i] . " (IRQ $i) Category 1 */\n";
             $src_found = 1;
          } else
          {
