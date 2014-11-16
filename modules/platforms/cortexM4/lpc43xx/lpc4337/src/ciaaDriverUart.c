@@ -81,6 +81,8 @@ typedef struct {
    uint8_t rxcnt;
 } ciaaDriverUartControl;
 
+#define ISR(name)   void OSEK_ISR_ ## name (void)
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -364,11 +366,8 @@ void ciaaDriverUart_init(void)
 }
 
 /*==================[interrupt handlers]=====================================*/
-void UART0_IRQHandler(void)
+ISR(UART0_IRQHandler)
 {
-   ContextType ctx = ActualContext;
-   ActualContext = CONTEXT_ISR2;
-
    uint8_t status = Chip_UART_ReadLineStatus(LPC_USART0);
 
    if(status & UART_LSR_RDR)
@@ -392,14 +391,10 @@ void UART0_IRQHandler(void)
          Chip_UART_IntDisable(LPC_USART0, UART_IER_THREINT);
       }
    }
-   ActualContext = ctx;
 }
 
-void UART2_IRQHandler(void)
+ISR(UART2_IRQHandler)
 {
-   ContextType ctx = ActualContext;
-   ActualContext = CONTEXT_ISR2;
-
    uint8_t status = Chip_UART_ReadLineStatus(LPC_USART2);
 
    if(status & UART_LSR_RDR)
@@ -423,14 +418,10 @@ void UART2_IRQHandler(void)
          Chip_UART_IntDisable(LPC_USART2, UART_IER_THREINT);
       }
    }
-   ActualContext = ctx;
 }
 
-void UART3_IRQHandler(void)
+ISR(UART3_IRQHandler)
 {
-   ContextType ctx = ActualContext;
-   ActualContext = CONTEXT_ISR2;
-
    uint8_t status = Chip_UART_ReadLineStatus(LPC_USART3);
 
    if(status & UART_LSR_RDR)
@@ -454,7 +445,6 @@ void UART3_IRQHandler(void)
          Chip_UART_IntDisable(LPC_USART3, UART_IER_THREINT);
       }
    }
-   ActualContext = ctx;
 }
 
 /** @} doxygen end group definition */
