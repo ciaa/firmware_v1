@@ -65,14 +65,10 @@
 
 /*==================[macros and definitions]=================================*/
 
-#define CONTEXT_ISR2 3
-
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
 } ciaaDriverConstType;
-
-typedef uint8_t ContextType;
 
 #define UART_RX_FIFO_SIZE       (16)
 

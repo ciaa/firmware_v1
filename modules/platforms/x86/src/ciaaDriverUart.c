@@ -27,7 +27,6 @@
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
 /** \brief CIAA Uart Posix Driver
@@ -67,6 +66,8 @@ typedef struct  {
    ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
 } ciaaDriverConstType;
+
+#define ISR(name)   void OSEK_ISR_ ## name (void)
 
 /*==================[internal data declaration]==============================*/
 
@@ -222,6 +223,20 @@ extern void ciaaDriverUart_uart1_txConfirmation(void)
 {
    ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
 }
+
+/* hardware stubs to avoid compilation errors due to handler definition in oil file */
+ISR(UART0_IRQHandler)
+{
+}
+
+ISR(UART2_IRQHandler)
+{
+}
+
+ISR(UART3_IRQHandler)
+{
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
