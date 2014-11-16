@@ -37,6 +37,8 @@
 use feature "switch";
 #use Switch;
 use File::Copy;
+use File::Basename;
+use File::Path;
 use Data::Dumper;
 
 $errors = 0;
@@ -503,8 +505,11 @@ system("rm -rf out/rtos/*");
 
 readparam($cfgfile);
 
+mkpath(dirname($logfile));
 open LOGFILE, "> $logfile" or die "can not open $logfile for append: $!";
+mkpath(dirname($logfilefull));
 open LOGFILEFULL, "> $logfilefull" or die "can not open $logfile for append: $!";
+mkpath(dirname($RES));
 open RESFILE, "> $RES" or die "can not open $RES for append: $!";
 
 info("Starting FreeOSEK Conformance Test Runner");
@@ -567,7 +572,8 @@ foreach $testfn (@tests)
 
    info("Testing $test");
 
-   $TestsSummaryFile = "out/rtos/TestsSummary.txt";
+   $TestsSummaryFile = "out/rtos/doc/ctest/ctestSummary.log";
+   mkpath(dirname($TestsSummaryFile));
    @configs = GetTestSequencesConfigs($TESTS, $testfn);
 
    foreach $config (@configs)
@@ -684,7 +690,9 @@ foreach $testfn (@tests)
                   $outdbgstatus = 0;
                   if ($outdbgstatus == 0)
                   {
-                     results("Test: $test - Config: $config");
+                     results("**********************************************************************************");
+                     results("\tTest: $test - Config: $config");
+                     results("**********************************************************************************");
                      $status = EvaluateResults();
                      results("Test: $test - Config: $config - Status: $status");
                      # Append to the Tests Summary File

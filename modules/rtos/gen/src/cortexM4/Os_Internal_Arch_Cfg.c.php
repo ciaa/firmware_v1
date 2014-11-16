@@ -2,10 +2,8 @@
  * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
  ********************************************************/
 
-/* Copyright 2008, 2009 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Pablo Ridolfi
  *
  * This file is part of CIAA Firmware.
  *
@@ -37,28 +35,10 @@
  *
  */
 
-/* #error this is a remember to remove the comment on the following line */
-/*****************************************************************************
- * add your copyright notice
- * Copyright <year>, <your name>
- *
- * Please do not change the license on a single file, if you want to change it
- * discuss it with the development team.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
-
-/* #error this is a remember to remove the comment on the following line */
-/*****************************************************************************
- * update the tmparch directory on the \file doxygen comment with your
- * architecture
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 /** \brief FreeOSEK Os Generated Internal Achitecture Configuration Implementation File
  **
- ** \file tmparch/Os_Internal_Arch_Cfg.c
- ** \arch tmparch
+ ** \file cortexM4/Os_Internal_Arch_Cfg.c
+ ** \arch cortexM4
  **/
 
 /** \addtogroup FreeOSEK
@@ -68,101 +48,204 @@
 /** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
 
-/* #error this is a remember to remove the comment on the following line */
-/*****************************************************************************
- * add your name to the developers and create for you a nick with
- * 3 or 4 letters. Please do not use any given nick.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * MaCe         Mariano Cerdeiro
+ * PR           Pablo Ridolfi
  */
 
-/* #error this is a remember to remove the comment on the following line */
-/*****************************************************************************
- * add a new version to this file, add the date, your initials and the main
- * changes, only main changes shall be listed here. A detailed message log
- * is saved in svn log and on the tracker system since every svn login message
- * shalle indicate the related tracker id.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * v0.1.0 20090526 MaCe	FreeOSEK architecture template file
+ * v0.1.1 20141115 PR   added LPC43xx interrupt sources, spelling mistake fixed
+ * v0.1.0 20141115 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "Os_Internal.h"
-/* #error this is a remember to remove the comment on the following line */
-/*****************************************************************************
- * add any needed include, please take into account that normaly NO INCLUDE
- * shall be included here other than Osek_Internal.h, but in case you can do
- * it, but discuss the reason with the project manager.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 
 /*==================[macros and definitions]=================================*/
-/* #error this is a remember to remove the comment on the following line */
-/*****************************************************************************
- * Please try to keep empty this part, define all needed macros
- * in Osek_Internal_Arch_Cfg.h.php
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 
 /*==================[internal data declaration]==============================*/
-/*****************************************************************************
- * Please declare here all needed variables to be configured which are only used
- * in this file.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 
 /*==================[internal functions declaration]=========================*/
-/*****************************************************************************
- * Please declare here all needed functions to be configured which are only used
- * in this file.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 
 /*==================[internal data definition]===============================*/
-/*****************************************************************************
- * Please define here all needed variables to be configured which are only used
- * in this file.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 
 /*==================[external data definition]===============================*/
-/*****************************************************************************
- * Please declare here all needed variables to be configured which are
- * exported. Please define these variables in Osek_Internal_Arch_Cfg.h.php
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
+
+/* ResetISR is defined in cr_startup_lpc43xx.c */
+extern void ResetISR(void);
+
+/** \brief External declaration for the pointer to the stack top from the Linker Script */
+extern void _vStackTop(void);
+
+/** \brief Handlers used by OSEK */
+extern void SysTick_Handler(void);
+extern void PendSV_Handler(void);
 
 /*==================[internal functions definition]==========================*/
-/*****************************************************************************
- * Please define here all needed functions to be configured which are only used
- * in this file.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
+
+/* Default exception handlers. */
+__attribute__ ((section(".after_vectors")))
+void NMI_Handler(void) {
+    while (1) {
+    }
+}
+__attribute__ ((section(".after_vectors")))
+void HardFault_Handler(void) {
+    while (1) {
+    }
+}
+__attribute__ ((section(".after_vectors")))
+void MemManage_Handler(void) {
+    while (1) {
+    }
+}
+__attribute__ ((section(".after_vectors")))
+void BusFault_Handler(void) {
+    while (1) {
+    }
+}
+__attribute__ ((section(".after_vectors")))
+void UsageFault_Handler(void) {
+    while (1) {
+    }
+}
+__attribute__ ((section(".after_vectors")))
+void SVC_Handler(void) {
+    while (1) {
+    }
+}
+__attribute__ ((section(".after_vectors")))
+void DebugMon_Handler(void) {
+    while (1) {
+    }
+}
 
 /*==================[external functions definition]==========================*/
-/*****************************************************************************
- * Please declare here all needed functions to be configured which are
- * exported. Please define these functions in Osek_Internal_Arch_Cfg.h.php
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
+
+<?php
+/* Interrupt sources for LPC43xx.
+ * See externals/platforms/cortexM4/lpc43xx/inc/cmsis_43xx.h.
+ */
+$intList = array (
+   0 => "DAC",
+   1 => "M0APP",
+   2 => "DMA",
+   3 => "RESERVED1",
+   4 => "FLASH_EEPROM",
+   5 => "ETH",
+   6 => "SDIO",
+   7 => "LCD",
+   8 => "USB0",
+   9 => "USB1",
+   10 => "SCT",
+   11 => "RIT",
+   12 => "TIMER0",
+   13 => "TIMER1",
+   14 => "TIMER2",
+   15 => "TIMER3",
+   16 => "MCPWM",
+   17 => "ADC0",
+   18 => "I2C0",
+   19 => "I2C1",
+   20 => "SPI",
+   21 => "ADC1",
+   22 => "SSP0",
+   23 => "SSP1",
+   24 => "UART0",
+   25 => "UART1",
+   26 => "UART2",
+   27 => "UART3",
+   28 => "I2S0",
+   29 => "I2S1",
+   30 => "SPIFI",
+   31 => "SGPIO",
+   32 => "GPIO0",
+   33 => "GPIO1",
+   34 => "GPIO2",
+   35 => "GPIO3",
+   36 => "GPIO4",
+   37 => "GPIO5",
+   38 => "GPIO6",
+   39 => "GPIO7",
+   40 => "GINT0",
+   41 => "GINT1",
+   42 => "EVRT",
+   43 => "CAN1",
+   44 => "RESERVED6",
+   45 => "ADCHS",
+   46 => "ATIMER",
+   47 => "RTC",
+   48 => "RESERVED8",
+   49 => "WDT",
+   50 => "M0SUB",
+   51 => "CAN0",
+   52 => "QEI"
+);
+
+$MAX_INT_COUNT = max(array_keys($intList))+1;
+?>
+/** \brief LPC4337 Interrupt vector */
+__attribute__ ((section(".isr_vector")))
+void (* const g_pfnVectors[])(void) = {
+   // Core Level - CM4
+   &_vStackTop,                    // The initial stack pointer
+   ResetISR,                       // The reset handler
+   NMI_Handler,                    // The NMI handler
+   HardFault_Handler,              // The hard fault handler
+   MemManage_Handler,              // The MPU fault handler
+   BusFault_Handler,               // The bus fault handler
+   UsageFault_Handler,             // The usage fault handler
+   0,                              // Reserved
+   0,                              // Reserved
+   0,                              // Reserved
+   0,                              // Reserved
+   SVC_Handler,                    // SVCall handler
+   DebugMon_Handler,               // Debug monitor handler
+   0,                              // Reserved
+   PendSV_Handler,                 // The PendSV handler
+   SysTick_Handler,                // The SysTick handler
+
+   /* Chip Level - LPC43xx (M4 core) */
+<?php
+
+/* get ISRs defined by user application */
+$intnames = $config->getList("/OSEK","ISR");
+
+for($i=0; $i < $MAX_INT_COUNT; $i++)
+{
+   $src_found = 0;
+   foreach ($intnames as $int)
+   {
+      $intcat = $config->getValue("/OSEK/" . $int,"CATEGORY");
+      $source = $config->getValue("/OSEK/" . $int,"INTERRUPT");
+
+      if($intList[$i] == $source)
+      {
+         if ($intcat == 2)
+         {
+            print "   OSEK_ISR2_$int, /* ISR for " . $intList[$i] . " (IRQ $i) Category 2 */\n";
+            $src_found = 1;
+         } elseif ($intcat == 1)
+         {
+            print "  OSEK_ISR_$int, /* ISR for " . $intList[$i] . " (IRQ $i) Category 1 */\n";
+            $src_found = 1;
+         } else
+         {
+            error("Interrupt $int type $inttype has an invalid category $intcat");
+         }
+      }
+   }
+   if($src_found == 0)
+   {
+      print "   OSEK_ISR_NoHandler, /* No Handler set for ISR " . $intList[$i] . " (IRQ $i) */\n";
+   }
+}
+?>
+};
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -413,7 +413,7 @@ doxygen:
 # openocd
 include modules$(DS)tools$(DS)openocd$(DS)mak$(DS)Makefile
 
-OPENOCD_CFG := $(wildcard $(OPENOCD_CFG))
+#OPENOCD_CFG := $(wildcard $(OPENOCD_CFG))
 
 openocd:
 # if windows or posix shows an error
@@ -428,8 +428,9 @@ ifeq ($(OPENOCD_CFG),)
 	@echo ERROR: Your CPU: $(CPU) may not be supported...
 else
 	@echo ===============================================================================
-	@echo Starting OpenOCD with $(OPENOCD_CFG) as background task.
-	openocd -f $(OPENOCD_CFG) &
+	@echo Starting OpenOCD...
+	@echo ' '   
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS)
 endif
 endif
 endif
@@ -619,9 +620,9 @@ rtostests:
 	@echo ARCH:$(ARCH)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo CPUTYPE:$(CPUTYPE)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo CPU:$(CPU)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo RES:$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctestresults.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo LOG:$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo LOGFULL:$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctestfull.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo RES:$(OUT_DIR)$(DS)rtos$(DS)doc$(DS)ctest$(DS)ctestresults.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo LOG:$(OUT_DIR)$(DS)rtos$(DS)doc$(DS)ctest$(DS)ctest.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo LOGFULL:$(OUT_DIR)$(DS)rtos$(DS)doc$(DS)ctest$(DS)ctestfull.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo TESTS:$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)cfg$(DS)ctestcases.cfg>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo TESTCASES:$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)cfg$(DS)testcases.cfg>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf $(RTOSTESTS_CTEST) $(RTOSTESTS_SUBTEST)

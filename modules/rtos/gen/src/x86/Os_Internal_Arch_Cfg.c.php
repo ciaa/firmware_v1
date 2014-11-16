@@ -1,4 +1,4 @@
-/********************************************************
+ /********************************************************
  * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
  ********************************************************/
 
@@ -120,7 +120,7 @@ for ($loopi = 0; $loopi < 32; $loopi++)
 			$intcat = $config->getValue("/OSEK/" . $int,"CATEGORY");
 			switch($inttype)
 			{
-				case "INT_CANRX":
+				case "GPIO0":
 					if($loopi == 8)
 					{
 						if($intcat == "1")

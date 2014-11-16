@@ -79,6 +79,8 @@ static void cmd0x10WriteMultipleReg(
 
 /*==================[internal data declaration]==============================*/
 static int32_t hModbusSlave;
+static uint8_t valueCoil[0XFFFF];
+static uint16_t valueHoldReg[0XFFFF];
 
 
 
@@ -88,6 +90,56 @@ static int32_t hModbusSlave;
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+
+static uint16_t cmd0x01ReadCoils(
+       uint16_t start,
+       uint16_t quantity,
+       uint8_t * exceptioncode,
+       uint8_t * buf
+       )
+{
+   uint16_t loopi;
+   uint16_t totalBytes;
+
+   totalBytes = quantity / 8;
+
+   if (quantity % 8)
+   {
+      totalBytes++;
+   }
+
+   for (loopi = 0 ; loopi < totalBytes ; loopi++)
+   {
+      buf[loopi] = loopi;
+   }
+
+   return quantity;
+}
+
+static uint16_t cmd0x02ReadDiscreteInputs(
+       uint16_t start,
+       uint16_t quantity,
+       uint8_t * exceptioncode,
+       uint8_t * buf
+       )
+{
+   uint16_t loopi;
+   uint16_t totalBytes;
+
+   totalBytes = quantity / 8;
+
+   if (quantity % 8)
+   {
+      totalBytes++;
+   }
+
+   for (loopi = 0 ; loopi < totalBytes ; loopi++)
+   {
+      buf[loopi] = loopi;
+   }
+
+   return quantity;
+}
 
 static uint16_t cmd0x03ReadHoldingReg(
        uint16_t start,
@@ -107,6 +159,37 @@ static uint16_t cmd0x03ReadHoldingReg(
    return quantity;
 }
 
+static uint16_t cmd0x04ReadInputReg(
+       uint16_t start,
+       uint16_t quantity,
+       uint8_t * exceptioncode,
+       uint8_t * buf
+       )
+{
+   uint16_t loopi;
+
+   for (loopi = 0 ; loopi < quantity ; loopi++)
+   {
+      ciaaModbus_writeInt(buf, (loopi+start));
+      buf += 2;
+   }
+
+   return quantity;
+}
+
+static void cmd0x05WriteSingleCoil(
+      uint16_t start,
+      uint8_t * exceptioncode,
+      uint8_t * buf)
+{
+   uint16_t value;
+
+   value = ciaaModbus_readInt(buf);
+
+   valueCoil[start] = (value == 0)? 0 : 1;
+}
+
+
 static void cmd0x10WriteMultipleReg(
       uint16_t start,
       uint16_t quantity,
@@ -115,7 +198,12 @@ static void cmd0x10WriteMultipleReg(
       uint8_t * buf
       )
 {
+   uint16_t loopi;
 
+   for (loopi = 0 ; loopi < quantity ; loopi++)
+   {
+      valueHoldReg[start+loopi] = ciaaModbus_readInt(&buf[loopi*2]);
+   }
 }
 
 /*==================[external functions definition]==========================*/
@@ -259,28 +347,44 @@ void test_ciaaModbus_slaveGetId_01(void)
  **/
 void test_ciaaModbus_functionNotSupported_00(void)
 {
-   uint8_t pduSend[3][256] =
+   uint8_t pduSend[7][256] =
    {
       /* pdu: invalid function */
       {0x00, 0x00, 0x00, 0x00, 0x00},
+      /* pdu: function 0x01 */
+      {0x01, 0x00, 0x00, 0x00, 0x00},
+      /* pdu: function 0x02 */
+      {0x02, 0x00, 0x00, 0x00, 0x00},
       /* pdu: function 0x03 */
       {0x03, 0x00, 0x00, 0x00, 0x00},
+      /* pdu: function 0x04 */
+      {0x04, 0x00, 0x00, 0x00, 0x00},
+      /* pdu: function 0x05 */
+      {0x05, 0x00, 0x00, 0x00, 0x00},
       /* pdu: function 0x10 */
       {0x10, 0x00, 0x00, 0x00, 0x00},
    };
 
-   uint8_t pduExpected[3][256] =
+   uint8_t pduExpected[7][256] =
    {
       /* response: invalid function */
       {0x80, 0x01},
       /* response: invalid function */
+      {0x81, 0x01},
+      /* response: invalid function */
+      {0x82, 0x01},
+      /* response: invalid function */
       {0x83, 0x01},
+      /* response: invalid function */
+      {0x84, 0x01},
+      /* response: invalid function */
+      {0x85, 0x01},
       /* response: invalid function */
       {0x90, 0x01},
    };
-   uint8_t pduRecv[3][256];
-   uint8_t id[3];
-   uint32_t size[3];
+   uint8_t pduRecv[7][256];
+   uint8_t id[7];
+   uint32_t size[7];
    uint32_t loopi;
 
    const ciaaModbus_slaveCmd_type callbacksStruct =
@@ -299,7 +403,7 @@ void test_ciaaModbus_functionNotSupported_00(void)
    /* open modbus slave */
    hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
 
-   for (loopi = 0 ; loopi < 3 ; loopi++)
+   for (loopi = 0 ; loopi < 7 ; loopi++)
    {
       /* send */
       ciaaModbus_slaveSendMsg(
@@ -319,7 +423,7 @@ void test_ciaaModbus_functionNotSupported_00(void)
             &size[loopi]);
    }
 
-   for (loopi = 0 ; loopi < 3 ; loopi++)
+   for (loopi = 0 ; loopi < 7 ; loopi++)
    {
       /* verify PDU */
       TEST_ASSERT_EQUAL_UINT8_ARRAY(
@@ -333,6 +437,182 @@ void test_ciaaModbus_functionNotSupported_00(void)
       /* verify id */
       TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[loopi]);
    }
+}
+
+/** \brief test read coils
+ **
+ ** this function test read coils on slave
+ **
+ **/
+void test_ciaaModbus_function0x01Msg_01(void)
+{
+   uint8_t pduSend[3][256] =
+   {
+      /* pdu: invalid quantity of registers */
+      {0x01, 0x00, 0x00, 0x07, 0xD1},
+      /* pdu: invalid quantity of registers */
+      {0x01, 0x00, 0x00, 0x00, 0x00},
+      /* pdu: ok */
+      {0x01, 0x00, 0x00, 0x00, 0x01},
+   };
+
+   uint8_t pduExpected[3][256] =
+   {
+      /* response: invalid quantity */
+      {0x81, 0x03},
+      /* response: invalid quantity */
+      {0x81, 0x03},
+      /* response: ok */
+      {0x01, 0x01, 0x00, 0x00},
+   };
+   uint8_t pduRecv[3][256];
+   uint8_t id[3];
+   uint32_t size[3];
+   uint32_t loopi;
+
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      cmd0x01ReadCoils,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+   };
+
+   /* open modbus slave */
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+
+   for (loopi = 0 ; loopi < 3 ; loopi++)
+   {
+      /* send, task and recv */
+      ciaaModbus_slaveSendMsg(
+            hModbusSlave,
+            SLAVE_ID,
+            pduSend[loopi],
+            5);
+
+      ciaaModbus_slaveTask(hModbusSlave);
+
+      ciaaModbus_slaveRecvMsg(
+            hModbusSlave,
+            &id[loopi],
+            pduRecv[loopi],
+            &size[loopi]);
+   }
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[0],
+         pduRecv[0],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[0]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[0]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[1],
+         pduRecv[1],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[1]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[1]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[2],
+         pduRecv[2],
+         3);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[2]);
+   TEST_ASSERT_EQUAL_UINT32(3, size[2]);
+}
+
+/** \brief test read discrete input
+ **
+ ** this function test read discrete input on slave
+ **
+ **/
+void test_ciaaModbus_function0x02Msg_01(void)
+{
+   uint8_t pduSend[3][256] =
+   {
+      /* pdu: invalid quantity of registers */
+      {0x02, 0x00, 0x00, 0x07, 0xD1},
+      /* pdu: invalid quantity of registers */
+      {0x02, 0x00, 0x00, 0x00, 0x00},
+      /* pdu: ok */
+      {0x02, 0x00, 0x00, 0x00, 0x01},
+   };
+
+   uint8_t pduExpected[3][256] =
+   {
+      /* response: invalid quantity */
+      {0x82, 0x03},
+      /* response: invalid quantity */
+      {0x82, 0x03},
+      /* response: ok */
+      {0x02, 0x01, 0x00, 0x00},
+   };
+   uint8_t pduRecv[3][256];
+   uint8_t id[3];
+   uint32_t size[3];
+   uint32_t loopi;
+
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      cmd0x02ReadDiscreteInputs,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+   };
+
+   /* open modbus slave */
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+
+   for (loopi = 0 ; loopi < 3 ; loopi++)
+   {
+      /* send, task and recv */
+      ciaaModbus_slaveSendMsg(
+            hModbusSlave,
+            SLAVE_ID,
+            pduSend[loopi],
+            5);
+
+      ciaaModbus_slaveTask(hModbusSlave);
+
+      ciaaModbus_slaveRecvMsg(
+            hModbusSlave,
+            &id[loopi],
+            pduRecv[loopi],
+            &size[loopi]);
+   }
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[0],
+         pduRecv[0],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[0]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[0]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[1],
+         pduRecv[1],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[1]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[1]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[2],
+         pduRecv[2],
+         3);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[2]);
+   TEST_ASSERT_EQUAL_UINT32(3, size[2]);
 }
 
 /** \brief test read holding registers
@@ -424,6 +704,264 @@ void test_ciaaModbus_function0x03Msg_01(void)
    TEST_ASSERT_EQUAL_UINT32(4, size[2]);
 }
 
+/** \brief test read input registers
+ **
+ ** this function test read input register on slave
+ **
+ **/
+void test_ciaaModbus_function0x04Msg_01(void)
+{
+   uint8_t pduSend[3][256] =
+   {
+      /* pdu: invalid quantity of registers */
+      {0x04, 0x00, 0x00, 0x00, 0x7E},
+      /* pdu: invalid quantity of registers */
+      {0x04, 0x00, 0x00, 0x00, 0x00},
+      /* pdu: ok */
+      {0x04, 0x00, 0x00, 0x00, 0x01},
+   };
+
+   uint8_t pduExpected[3][256] =
+   {
+      /* response: invalid quantity */
+      {0x84, 0x03},
+      /* response: invalid quantity */
+      {0x84, 0x03},
+      /* response: ok */
+      {0x04, 0x02, 0x00, 0x00},
+   };
+   uint8_t pduRecv[3][256];
+   uint8_t id[3];
+   uint32_t size[3];
+   uint32_t loopi;
+
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      NULL,
+      NULL,
+      cmd0x04ReadInputReg,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+   };
+
+
+   /* open modbus slave */
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+
+   for (loopi = 0 ; loopi < 3 ; loopi++)
+   {
+      /* send, task and recv */
+      ciaaModbus_slaveSendMsg(
+            hModbusSlave,
+            SLAVE_ID,
+            pduSend[loopi],
+            5);
+
+      ciaaModbus_slaveTask(hModbusSlave);
+
+      ciaaModbus_slaveRecvMsg(
+            hModbusSlave,
+            &id[loopi],
+            pduRecv[loopi],
+            &size[loopi]);
+   }
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[0],
+         pduRecv[0],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[0]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[0]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[1],
+         pduRecv[1],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[1]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[1]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[2],
+         pduRecv[2],
+         4);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[2]);
+   TEST_ASSERT_EQUAL_UINT32(4, size[2]);
+}
+
+/** \brief test write single coil
+ **
+ ** this function test write single coil with invalid value
+ **
+ **/
+void test_ciaaModbus_function0x05Msg_01(void)
+{
+   uint8_t pduSend[256] = {0x05, 0x00, 0x00, 0x11, 0x22};
+   uint8_t pduExpected[256] = {0x85, 0x03};
+   uint8_t pduRecv[256];
+   uint8_t id;
+   uint32_t size;
+
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      cmd0x05WriteSingleCoil,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+   };
+
+   /* open modbus slave */
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+
+   /* send, task and recv */
+   ciaaModbus_slaveSendMsg(
+         hModbusSlave,
+         SLAVE_ID,
+         pduSend,
+         5);
+
+   ciaaModbus_slaveTask(hModbusSlave);
+
+   ciaaModbus_slaveRecvMsg(
+         hModbusSlave,
+         &id,
+         pduRecv,
+         &size);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected,
+         pduRecv,
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id);
+   TEST_ASSERT_EQUAL_UINT32(2, size);
+}
+
+
+/** \brief test write single coil
+ **
+ ** this function test write single coil ON
+ **
+ **/
+void test_ciaaModbus_function0x05Msg_02(void)
+{
+   uint8_t pduSend[256] = {0x05, 0x12, 0x34, 0xFF, 0x00};
+   uint8_t pduExpected[256] = {0x05, 0x12, 0x34, 0xFF, 0x00};
+   uint8_t pduRecv[256];
+   uint8_t id;
+   uint32_t size;
+
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      cmd0x05WriteSingleCoil,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+   };
+
+   valueCoil[0x1234] = 0;
+
+   /* open modbus slave */
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+
+   /* send, task and recv */
+   ciaaModbus_slaveSendMsg(
+         hModbusSlave,
+         SLAVE_ID,
+         pduSend,
+         5);
+
+   ciaaModbus_slaveTask(hModbusSlave);
+
+   ciaaModbus_slaveRecvMsg(
+         hModbusSlave,
+         &id,
+         pduRecv,
+         &size);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected,
+         pduRecv,
+         5);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id);
+   TEST_ASSERT_EQUAL_UINT32(5, size);
+
+   TEST_ASSERT_EQUAL_UINT8(1, valueCoil[0x1234]);
+}
+
+/** \brief test write single coil
+ **
+ ** this function test write single coil Off
+ **
+ **/
+void test_ciaaModbus_function0x05Msg_03(void)
+{
+   uint8_t pduSend[256] = {0x05, 0x12, 0x34, 0x00, 0x00};
+   uint8_t pduExpected[256] = {0x05, 0x12, 0x34, 0x00, 0x00};
+   uint8_t pduRecv[256];
+   uint8_t id;
+   uint32_t size;
+
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      cmd0x05WriteSingleCoil,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+   };
+
+   valueCoil[0x1234] = 1;
+
+   /* open modbus slave */
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+
+   /* send, task and recv */
+   ciaaModbus_slaveSendMsg(
+         hModbusSlave,
+         SLAVE_ID,
+         pduSend,
+         5);
+
+   ciaaModbus_slaveTask(hModbusSlave);
+
+   ciaaModbus_slaveRecvMsg(
+         hModbusSlave,
+         &id,
+         pduRecv,
+         &size);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected,
+         pduRecv,
+         5);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id);
+   TEST_ASSERT_EQUAL_UINT32(5, size);
+
+   TEST_ASSERT_EQUAL_UINT8(0, valueCoil[0x1234]);
+}
+
+
 /** \brief test write multiple registers
  **
  ** this function test write multiple registers on slave
@@ -440,7 +978,14 @@ void test_ciaaModbus_function0x10Msg_01(void)
       /* pdu: invalid byte count */
       {0x10, 0x00, 0x00, 0x00, 0x01, 0x03, 0X00, 0X00},
       /* pdu: ok */
-      {0x10, 0x00, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00},
+      {0x10, 0x12, 0x34, 0x00, 0x02, 0x04, 0xAA, 0xBB, 0xCC, 0xDD},
+   };
+   uint16_t lengthSend[4] =
+   {
+      8,
+      8,
+      8,
+      10,
    };
 
    uint8_t pduExpected[4][256] =
@@ -452,7 +997,7 @@ void test_ciaaModbus_function0x10Msg_01(void)
       /* response: invalid quantity */
       {0x90, 0x03},
       /* response: ok */
-      {0x10, 0x00, 0x00, 0x00, 0x01},
+      {0x10, 0x12, 0x34, 0x00, 0x02},
    };
    uint8_t pduRecv[4][256];
    uint8_t id[4];
@@ -482,7 +1027,7 @@ void test_ciaaModbus_function0x10Msg_01(void)
             hModbusSlave,
             SLAVE_ID,
             pduSend[loopi],
-            8);
+            lengthSend[loopi]);
 
       ciaaModbus_slaveTask(hModbusSlave);
 
@@ -521,6 +1066,9 @@ void test_ciaaModbus_function0x10Msg_01(void)
          5);
    TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[3]);
    TEST_ASSERT_EQUAL_UINT32(5, size[3]);
+
+   TEST_ASSERT_EQUAL_UINT16(0XAABB, valueHoldReg[0x1234]);
+   TEST_ASSERT_EQUAL_UINT16(0XCCDD, valueHoldReg[0x1235]);
 
 }
 

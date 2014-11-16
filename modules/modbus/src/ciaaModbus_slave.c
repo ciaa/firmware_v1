@@ -165,6 +165,7 @@ extern void ciaaModbus_slaveTask(int32_t handler)
    uint16_t quantity;
    uint16_t address;
    uint16_t byteCount;
+   uint16_t value;
    uint8_t exceptioncode = 0;
    uint8_t function = ciaaModbus_slaveObj[handler].buf[0];
 
@@ -172,15 +173,99 @@ extern void ciaaModbus_slaveTask(int32_t handler)
    {
       switch(function)
       {
-         case CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS:
-            if (cmd->cmd0x03ReadHoldingReg == NULL)
+         case CIAA_MODBUS_FCN_READ_COILS:
+            /* verify if function is supported by application */
+            if (cmd->cmd0x01ReadCoils == NULL)
             {
+               /* function not supported */
                exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
             }
             else
             {
+               /* obtain quantity of coils from buffer */
                quantity = ciaaModbus_readInt(&buf[3]);
 
+               /* check correct range */
+               if ( (0x07D0 < quantity) || (1 > quantity) )
+               {
+                  /* report invalid quantity of registers */
+                  exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
+               }
+               else
+               {
+                  /* obtain address of registers from buffer */
+                  address = ciaaModbus_readInt(&buf[1]);
+
+                  /* perform application function */
+                  ret = cmd->cmd0x01ReadCoils(address, quantity, &exceptioncode, &buf[2]);
+
+                  /* report byte count */
+                  buf[1] = ret / 8;
+
+                  if (ret % 8)
+                  {
+                     buf[1]++;
+                  }
+
+                  /* set length of message */
+                  ret = 2 + buf[1];
+               }
+            }
+            break;
+
+         case CIAA_MODBUS_FCN_READ_DISCRETE_INPUTS:
+            /* verify if function is supported by application */
+            if (cmd->cmd0x02ReadDiscrteInputs == NULL)
+            {
+               /* function not supported */
+               exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
+            }
+            else
+            {
+               /* obtain quantity of discrete inputs from buffer */
+               quantity = ciaaModbus_readInt(&buf[3]);
+
+               /* check correct range */
+               if ( (0x07D0 < quantity) || (1 > quantity) )
+               {
+                  /* report invalid quantity of registers */
+                  exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
+               }
+               else
+               {
+                  /* obtain address of registers from buffer */
+                  address = ciaaModbus_readInt(&buf[1]);
+
+                  /* perform application function */
+                  ret = cmd->cmd0x02ReadDiscrteInputs(address, quantity, &exceptioncode, &buf[2]);
+
+                  /* report byte count */
+                  buf[1] = ret / 8;
+
+                  if (ret % 8)
+                  {
+                     buf[1]++;
+                  }
+
+                  /* set length of message */
+                  ret = 2 + buf[1];
+               }
+            }
+            break;
+
+         case CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS:
+            /* verify if function is supported by application */
+            if (cmd->cmd0x03ReadHoldingReg == NULL)
+            {
+               /* function not supported */
+               exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
+            }
+            else
+            {
+               /* obtain quantity of registers from buffer */
+               quantity = ciaaModbus_readInt(&buf[3]);
+
+               /* check correct range */
                if ( (0x007D < quantity) || (1 > quantity) )
                {
                   /* report invalid quantity of registers */
@@ -188,26 +273,106 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                }
                else
                {
+                  /* obtain address of registers from buffer */
                   address = ciaaModbus_readInt(&buf[1]);
+
+                  /* perform application function */
                   ret = cmd->cmd0x03ReadHoldingReg(address, quantity, &exceptioncode, &buf[2]);
+
                   /* report byte count */
                   buf[1] = ret * 2;
+
+                  /* set length of message */
                   ret = 2 + buf[1];
                }
             }
             break;
 
-         case CIAA_MODBUS_FCN_WRITE_MULTIPLE_REGISTERS:
-            if (cmd->cmd0x10WriteMultipleReg == NULL)
+         case CIAA_MODBUS_FCN_READ_INPUT_REGISTERS:
+            /* verify if function is supported by application */
+            if (cmd->cmd0x04ReadInputReg == NULL)
             {
+               /* function not supported */
                exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
             }
             else
             {
-               address = ciaaModbus_readInt(&buf[1]);
+               /* obtain quantity of registers from buffer */
                quantity = ciaaModbus_readInt(&buf[3]);
+
+               /* check correct range */
+               if ( (0x007D < quantity) || (1 > quantity) )
+               {
+                  /* report invalid quantity of registers */
+                  exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
+               }
+               else
+               {
+                  /* obtain address of registers from buffer */
+                  address = ciaaModbus_readInt(&buf[1]);
+
+                  /* perform application function */
+                  ret = cmd->cmd0x04ReadInputReg(address, quantity, &exceptioncode, &buf[2]);
+
+                  /* report byte count */
+                  buf[1] = ret * 2;
+
+                  /* set length of message */
+                  ret = 2 + buf[1];
+               }
+            }
+            break;
+
+         case CIAA_MODBUS_FCN_WRITE_SINGLE_COIL:
+            /* verify if function is supported by application */
+            if (cmd->cmd0x05WriteSingleCoil == NULL)
+            {
+               /* function not supported */
+               exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
+            }
+            else
+            {
+               /* obtain output value from buffer */
+               value = ciaaModbus_readInt(&buf[3]);
+
+               if ((0x0000 != value) && (0xFF00 != value))
+               {
+                  /* report invalid quantity of registers */
+                  exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
+               }
+               else
+               {
+                  /* obtain address of output from buffer */
+                  address = ciaaModbus_readInt(&buf[1]);
+
+                  /* perform application function */
+                  cmd->cmd0x05WriteSingleCoil(address, &exceptioncode, &buf[3]);
+
+                  /* set length of message */
+                  ret = 5;
+               }
+            }
+            break;
+
+         case CIAA_MODBUS_FCN_WRITE_MULTIPLE_REGISTERS:
+            /* verify if function is supported by application */
+            if (cmd->cmd0x10WriteMultipleReg == NULL)
+            {
+               /* function not supported */
+               exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
+            }
+            else
+            {
+               /* obtain address of registers from buffer */
+               address = ciaaModbus_readInt(&buf[1]);
+
+               /* obtain quantity of registers from buffer */
+               quantity = ciaaModbus_readInt(&buf[3]);
+
+               /* calculate byte count to compare with received */
                byteCount = quantity * 2;
 
+               /* check correct range */
                if ( (0x007B < quantity) || (1 > quantity)
                   || (byteCount != buf[5]) )
                {
@@ -216,15 +381,21 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                }
                else
                {
+                  /* perform application function */
                   cmd->cmd0x10WriteMultipleReg(address, quantity, byteCount, &exceptioncode, &buf[6]);
+
+                  /* set length of message */
                   ret = 5;
                }
             }
             break;
 
          default:
+            /* function not supported with modbus slave module */
+            /* TODO: provide callback to application callback */
             exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
             break;
+
       }
    }
 

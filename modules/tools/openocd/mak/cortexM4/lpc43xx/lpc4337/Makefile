@@ -32,14 +32,5 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# openocd path
-OPENOCD_PATH 		   = $(ROOT_DIR)$(DS)modules$(DS)tools$(DS)openocd
-
-# openocd bin file
-OPENOCD_BIN 		   = openocd
-
-# openocd Flag
-OPENOCD_FLAGS 		   = -f $(OPENOCD_CFG)
-
-# openocd dependent makefile
--include $(OPENOCD_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Makefile
+# openocd config
+OPENOCD_CFG				= $(OPENOCD_PATH)$(DS)cfg$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)ciaa-nxp.cfg

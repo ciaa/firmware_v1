@@ -62,17 +62,14 @@
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_stdio.h"
 #include "chip.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
-
-#define CONTEXT_ISR2 3
 
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
 } ciaaDriverConstType;
-
-typedef uint8_t ContextType;
 
 #define UART_RX_FIFO_SIZE       (16)
 
@@ -144,8 +141,6 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
 };
 
 /*==================[external data definition]===============================*/
-
-extern ContextType ActualContext;
 
 /*==================[internal functions definition]==========================*/
 static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
@@ -281,7 +276,7 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
                /* enable RBR irq (RX) */
                Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_RBRINT);
             }
-        	break;
+            break;
       }
    }
    return ret;
@@ -364,11 +359,8 @@ void ciaaDriverUart_init(void)
 }
 
 /*==================[interrupt handlers]=====================================*/
-void UART0_IRQHandler(void)
+ISR(UART0_IRQHandler)
 {
-   ContextType ctx = ActualContext;
-   ActualContext = CONTEXT_ISR2;
-
    uint8_t status = Chip_UART_ReadLineStatus(LPC_USART0);
 
    if(status & UART_LSR_RDR)
@@ -392,14 +384,10 @@ void UART0_IRQHandler(void)
          Chip_UART_IntDisable(LPC_USART0, UART_IER_THREINT);
       }
    }
-   ActualContext = ctx;
 }
 
-void UART2_IRQHandler(void)
+ISR(UART2_IRQHandler)
 {
-   ContextType ctx = ActualContext;
-   ActualContext = CONTEXT_ISR2;
-
    uint8_t status = Chip_UART_ReadLineStatus(LPC_USART2);
 
    if(status & UART_LSR_RDR)
@@ -423,14 +411,10 @@ void UART2_IRQHandler(void)
          Chip_UART_IntDisable(LPC_USART2, UART_IER_THREINT);
       }
    }
-   ActualContext = ctx;
 }
 
-void UART3_IRQHandler(void)
+ISR(UART3_IRQHandler)
 {
-   ContextType ctx = ActualContext;
-   ActualContext = CONTEXT_ISR2;
-
    uint8_t status = Chip_UART_ReadLineStatus(LPC_USART3);
 
    if(status & UART_LSR_RDR)
@@ -454,7 +438,6 @@ void UART3_IRQHandler(void)
          Chip_UART_IntDisable(LPC_USART3, UART_IER_THREINT);
       }
    }
-   ActualContext = ctx;
 }
 
 /** @} doxygen end group definition */

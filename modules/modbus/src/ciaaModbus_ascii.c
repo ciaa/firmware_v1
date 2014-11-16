@@ -73,6 +73,11 @@ typedef struct
    bool inUse;                                  /** <- Object in use */
 }ciaaModbus_asciiObjType;
 
+/** \brief LRC correct macro */
+#define CIAAMODBUS_ASCII_LRC_OK     1
+
+/** \brief LRC incorrect macro */
+#define CIAAMODBUS_ASCII_LRC_NOK    0
 
 /*==================[internal data declaration]==============================*/
 
@@ -109,9 +114,17 @@ static uint8_t ciaaModbus_calcLRC(uint8_t * buf, int32_t len)
    return lrc;
 }
 
+/** \brief check lrc of ASCII Modbus Message
+ **
+ ** \param[in] buf buffer
+ ** \param[in] length length of the data stored in the buffer
+ **            (include lrc)
+ ** \return CIAAMODBUS_ASCII_LRC_OK if correct
+ **         CIAAMODBUS_ASCII_LRC_NOK if wrong
+ **/
 static int32_t ciaaModbus_checkLRC(uint8_t * buf, int32_t len)
 {
-   int32_t ret = -1;
+   int32_t ret = CIAAMODBUS_ASCII_LRC_NOK;
    uint8_t lrc = 0;
 
    lrc = ciaaModbus_calcLRC(buf, len-1);
@@ -119,7 +132,7 @@ static int32_t ciaaModbus_checkLRC(uint8_t * buf, int32_t len)
    /* check lrc */
    if (buf[len-1] == lrc)
    {
-      ret = 1;
+      ret = CIAAMODBUS_ASCII_LRC_OK;
    }
 
    return ret;
@@ -141,7 +154,7 @@ static int32_t ciaaModbus_asciiCheckCompleteMsg(uint8_t * buf, int8_t length)
    int32_t end = -1;
 
    /* if the minimal bus length has been received */
-   if (CIAAMODBUS_ASCII_MINLENGHT < length)
+   if (CIAAMODBUS_ASCII_MINLENGHT <= length)
    {
       /* search for the end of a modbus message */
       for (loopi = CIAAMODBUS_ASCII_MINLENGHT-2;
@@ -151,7 +164,8 @@ static int32_t ciaaModbus_asciiCheckCompleteMsg(uint8_t * buf, int8_t length)
       {
          /* check if end has been found */
          if ( (CIAAMODBUS_ASCII_END_1 == buf[loopi]) &&
-            (CIAAMODBUS_ASCII_END_2 == buf[loopi+1]) )
+              (CIAAMODBUS_ASCII_END_2 == buf[loopi+1]) &&
+              (CIAAMODBUS_ASCII_START == buf[0]) )
          {
             /* set end position */
             end = loopi + 2;
@@ -285,6 +299,16 @@ extern void ciaaModbus_asciiTask(int32_t handler)
    read = CIAAMODBUS_ASCII_MAXLENGHT -
          ciaaModbus_asciiObj[handler].bufferSize;
 
+   /* checks if the maximum size reached */
+   if (0 == read)
+   {
+      /* if reached discards all data */
+      ciaaModbus_asciiObj[handler].bufferSize = 0;
+
+      /* max read */
+      read = CIAAMODBUS_ASCII_MAXLENGHT;
+   }
+
    /* read from device */
    read = ciaaPOSIX_read(
          ciaaModbus_asciiObj[handler].fildes,
@@ -294,38 +318,31 @@ extern void ciaaModbus_asciiTask(int32_t handler)
    /* if received data process */
    if (read > 0)
    {
+      /* increment buffer size */
+      ciaaModbus_asciiObj[handler].bufferSize += read;
+
       /* search for START character */
-      for (loopi = 0 ; (loopi < read) && (-1 == begin) ; loopi++)
+      for (loopi = ciaaModbus_asciiObj[handler].bufferSize-1 ;
+           (0 <= loopi) && (-1 == begin) ;
+           loopi--)
       {
          /* check for the begin of a ascii modbus message */
-         if (CIAAMODBUS_ASCII_START == buf[loopi+ciaaModbus_asciiObj[handler].bufferSize])
+         if (CIAAMODBUS_ASCII_START == buf[loopi])
          {
-            begin = loopi+ciaaModbus_asciiObj[handler].bufferSize;
+            begin = loopi;
          }
       }
 
       /* move the received part to the beginning of the buffer */
       if (begin > 0)
       {
-         for (loopi = begin; loopi < read; loopi++)
+         for (loopi = begin; loopi < ciaaModbus_asciiObj[handler].bufferSize; loopi++)
          {
             buf[loopi-begin] = buf[loopi];
          }
 
          /* set new buffer size */
-         ciaaModbus_asciiObj[handler].bufferSize = read;
-      }
-      else
-      {
-         /* increment buffer size */
-         ciaaModbus_asciiObj[handler].bufferSize += read;
-
-         /* checks if the maximum size reached */
-         if (ciaaModbus_asciiObj[handler].bufferSize == CIAAMODBUS_ASCII_MAXLENGHT)
-         {
-            /* if reached discards all data */
-            ciaaModbus_asciiObj[handler].bufferSize = 0;
-         }
+         ciaaModbus_asciiObj[handler].bufferSize -= begin;
       }
    }
 }
@@ -344,7 +361,7 @@ extern void ciaaModbus_asciiRecvMsg(
          ciaaModbus_asciiObj[handler].buffer,
          ciaaModbus_asciiObj[handler].bufferSize);
 
-   if (len_ascii > 0)
+   if (CIAAMODBUS_ASCII_MINLENGHT <= len_ascii)
    {
       /* empty buffer for the upcoming receptions */
       ciaaModbus_asciiObj[handler].bufferSize = 0;
@@ -354,25 +371,33 @@ extern void ciaaModbus_asciiRecvMsg(
             ciaaModbus_asciiObj[handler].buffer,
             len_ascii-2);
 
-      /* check lrc */
-      if ( ciaaModbus_checkLRC(
-           ciaaModbus_asciiObj[handler].buffer,
-           len_bin) )
+      /* if ascii to binary correct conversion */
+      if (0 < len_bin)
       {
-         /* discard LRC */
-         len_bin--;
-
-         /* copy pdu */
-         for (loopi = 0 ; loopi < len_bin ; loopi++)
+         /* check lrc */
+         if ( ciaaModbus_checkLRC(
+              ciaaModbus_asciiObj[handler].buffer,
+              len_bin) == CIAAMODBUS_ASCII_LRC_OK)
          {
-            pdu[loopi] = ciaaModbus_asciiObj[handler].buffer[loopi+1];
+            /* discard LRC */
+            len_bin--;
+
+            /* copy pdu */
+            for (loopi = 0 ; loopi < len_bin ; loopi++)
+            {
+               pdu[loopi] = ciaaModbus_asciiObj[handler].buffer[loopi+1];
+            }
+
+            /* copy id */
+            *id = ciaaModbus_asciiObj[handler].buffer[0];
+
+            /* copy size */
+            *size = len_bin - 1;
          }
-
-         /* copy id */
-         *id = ciaaModbus_asciiObj[handler].buffer[0];
-
-         /* copy size */
-         *size = len_bin - 1;
+         else
+         {
+            *size = 0;
+         }
       }
       else
       {
