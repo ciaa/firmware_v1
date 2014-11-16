@@ -137,7 +137,7 @@ void IntDefaultHandler(void) {
 
 <?php
 /* Interrupt sources for LPC43xx. 
- * See externals/platforms/cortexM4/lpc43xx/src/cr_startup_lpc43xx.c.
+ * See externals/platforms/cortexM4/lpc43xx/inc/cmsis_43xx.h.
  */
 $intList = array (
    0 => "DAC",
@@ -234,13 +234,13 @@ for($i=0; $i < $MAX_INT_COUNT; $i++)
 
       if(($intList[$i] == $source) && ($intcat == 2))
       {
-         print "   OSEK_ISR2_$int, /* ISR for " . $intList[$i] . " */ \n";
+         print "   OSEK_ISR2_$int, /* ISR for " . $intList[$i] . " (IRQ $i) */ \n";
          $src_found = 1;
       }
    }
    if($src_found == 0)
    {
-      print "   IntDefaultHandler, /* ISR for " . $intList[$i] . " */ \n";
+      print "   IntDefaultHandler, /* ISR for " . $intList[$i] . " (IRQ $i) */ \n";
    }
 }
 ?>
