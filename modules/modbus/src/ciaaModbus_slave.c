@@ -165,6 +165,7 @@ extern void ciaaModbus_slaveTask(int32_t handler)
    uint16_t quantity;
    uint16_t address;
    uint16_t byteCount;
+   uint16_t value;
    uint8_t exceptioncode = 0;
    uint8_t function = ciaaModbus_slaveObj[handler].buf[0];
 
@@ -318,6 +319,37 @@ extern void ciaaModbus_slaveTask(int32_t handler)
 
                   /* set length of message */
                   ret = 2 + buf[1];
+               }
+            }
+            break;
+
+         case CIAA_MODBUS_FCN_WRITE_SINGLE_COIL:
+            /* verify if function is supported by application */
+            if (cmd->cmd0x05WriteSingleCoil == NULL)
+            {
+               /* function not supported */
+               exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
+            }
+            else
+            {
+               /* obtain output value from buffer */
+               value = ciaaModbus_readInt(&buf[3]);
+
+               if ((0x0000 != value) && (0xFF00 != value))
+               {
+                  /* report invalid quantity of registers */
+                  exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
+               }
+               else
+               {
+                  /* obtain address of output from buffer */
+                  address = ciaaModbus_readInt(&buf[1]);
+
+                  /* perform application function */
+                  cmd->cmd0x05WriteSingleCoil(address, &exceptioncode, &buf[3]);
+
+                  /* set length of message */
+                  ret = 5;
                }
             }
             break;
