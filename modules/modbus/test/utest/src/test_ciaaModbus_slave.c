@@ -80,6 +80,7 @@ static void cmd0x10WriteMultipleReg(
 /*==================[internal data declaration]==============================*/
 static int32_t hModbusSlave;
 static uint8_t valueCoil[0XFFFF];
+static uint16_t valueHoldReg[0XFFFF];
 
 
 
@@ -197,7 +198,12 @@ static void cmd0x10WriteMultipleReg(
       uint8_t * buf
       )
 {
+   uint16_t loopi;
 
+   for (loopi = 0 ; loopi < quantity ; loopi++)
+   {
+      valueHoldReg[start+loopi] = ciaaModbus_readInt(&buf[loopi*2]);
+   }
 }
 
 /*==================[external functions definition]==========================*/
@@ -972,7 +978,14 @@ void test_ciaaModbus_function0x10Msg_01(void)
       /* pdu: invalid byte count */
       {0x10, 0x00, 0x00, 0x00, 0x01, 0x03, 0X00, 0X00},
       /* pdu: ok */
-      {0x10, 0x00, 0x00, 0x00, 0x01, 0x02, 0x00, 0x00},
+      {0x10, 0x12, 0x34, 0x00, 0x02, 0x04, 0xAA, 0xBB, 0xCC, 0xDD},
+   };
+   uint16_t lengthSend[4] =
+   {
+      8,
+      8,
+      8,
+      10,
    };
 
    uint8_t pduExpected[4][256] =
@@ -984,7 +997,7 @@ void test_ciaaModbus_function0x10Msg_01(void)
       /* response: invalid quantity */
       {0x90, 0x03},
       /* response: ok */
-      {0x10, 0x00, 0x00, 0x00, 0x01},
+      {0x10, 0x12, 0x34, 0x00, 0x02},
    };
    uint8_t pduRecv[4][256];
    uint8_t id[4];
@@ -1014,7 +1027,7 @@ void test_ciaaModbus_function0x10Msg_01(void)
             hModbusSlave,
             SLAVE_ID,
             pduSend[loopi],
-            8);
+            lengthSend[loopi]);
 
       ciaaModbus_slaveTask(hModbusSlave);
 
@@ -1053,6 +1066,9 @@ void test_ciaaModbus_function0x10Msg_01(void)
          5);
    TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[3]);
    TEST_ASSERT_EQUAL_UINT32(5, size[3]);
+
+   TEST_ASSERT_EQUAL_UINT16(0XAABB, valueHoldReg[0x1234]);
+   TEST_ASSERT_EQUAL_UINT16(0XCCDD, valueHoldReg[0x1235]);
 
 }
 
