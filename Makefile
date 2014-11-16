@@ -124,7 +124,7 @@ else
    ifeq ($(UNAME_S),Darwin)
       # MACOS
 	  # Compile in 32 bits mode
-      CFLAGS += -m32
+      CFLAGS += -m32 -Wno-typedef-redefinition
 	  # 32 bits non relocable excutable image
       LFLAGS += -m32 -Xlinker -no_pie
 	  # Libraries group linker parameters

@@ -214,7 +214,7 @@ TASK(SerialEchoTask)
          buf[ret] = 0;
          ciaaPOSIX_printf("Data Read: %s \r\n", buf);
          /* ... and write them to the same device */
-         //ciaaPOSIX_write(fd_uart1, buf, ret);
+         ciaaPOSIX_write(fd_uart1, buf, ret);
 
          /* also write them to the other device */
          //ciaaPOSIX_write(fd_uart2, buf, ret);
