@@ -126,6 +126,7 @@ void DebugMon_Handler(void) {
     }
 }
 
+/* TODO: remove this part, check with PR, done by MaCe */
 /** \brief ISR default handler */
 __attribute__ ((section(".after_vectors")))
 void IntDefaultHandler(void) {
@@ -136,7 +137,7 @@ void IntDefaultHandler(void) {
 /*==================[external functions definition]==========================*/
 
 <?php
-/* Interrupt sources for LPC43xx. 
+/* Interrupt sources for LPC43xx.
  * See externals/platforms/cortexM4/lpc43xx/inc/cmsis_43xx.h.
  */
 $intList = array (
@@ -195,7 +196,7 @@ $intList = array (
    52 => "QEI"
 );
 
-$MAX_INT_COUNT = 53;
+$MAX_INT_COUNT = max(array_keys($intList))+1;
 ?>
 /** \brief LPC4337 Interrupt vector */
 __attribute__ ((section(".isr_vector")))
@@ -232,15 +233,25 @@ for($i=0; $i < $MAX_INT_COUNT; $i++)
       $intcat = $config->getValue("/OSEK/" . $int,"CATEGORY");
       $source = $config->getValue("/OSEK/" . $int,"INTERRUPT");
 
-      if(($intList[$i] == $source) && ($intcat == 2))
+      if($intList[$i] == $source)
       {
-         print "   OSEK_ISR2_$int, /* ISR for " . $intList[$i] . " (IRQ $i) */ \n";
-         $src_found = 1;
+         if ($intcat == 2)
+         {
+            print "   OSEK_ISR2_$int, /* ISR for " . $intList[$i] . " (IRQ $i) Category 2 */\n";
+            $src_found = 1;
+         } elseif ($intcat == 1)
+         {
+            print "  OSEK_ISR_$int, /* ISR for " . $intList[$i] . " (IRQ $1) Category 1 */\n";
+            $src_found = 1;
+         } else
+         {
+            error("Interrupt $int type $inttype has an invalid category $intcat");
+         }
       }
    }
    if($src_found == 0)
    {
-      print "   IntDefaultHandler, /* ISR for " . $intList[$i] . " (IRQ $i) */ \n";
+      print "   OSEK_ISR_NoHandler, /* No Handler set for ISR " . $intList[$i] . " (IRQ $i) */\n";
    }
 }
 ?>

@@ -59,6 +59,7 @@
 #include "ciaaDriverUart_Internal.h"
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_string.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
 /** \brief Pointer to Devices */
@@ -66,8 +67,6 @@ typedef struct  {
    ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
 } ciaaDriverConstType;
-
-#define ISR(name)   void OSEK_ISR_ ## name (void)
 
 /*==================[internal data declaration]==============================*/
 

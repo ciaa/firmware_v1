@@ -62,6 +62,7 @@
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_stdio.h"
 #include "chip.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -76,8 +77,6 @@ typedef struct {
    uint8_t hwbuf[UART_RX_FIFO_SIZE];
    uint8_t rxcnt;
 } ciaaDriverUartControl;
-
-#define ISR(name)   void OSEK_ISR_ ## name (void)
 
 /*==================[internal data declaration]==============================*/
 
@@ -277,7 +276,7 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
                /* enable RBR irq (RX) */
                Chip_UART_IntEnable((LPC_USART_T *)device->loLayer, UART_IER_RBRINT);
             }
-        	break;
+            break;
       }
    }
    return ret;

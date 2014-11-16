@@ -63,7 +63,6 @@
 #include "chip.h"
 
 /*==================[macros and definitions]=================================*/
-
 #define CONTEXT_ISR2 3
 
 /** \brief Pointer to Devices */
@@ -223,10 +222,10 @@ static void ciaaDriverAio_dacIRQHandler(ciaaDevices_deviceType const * const dev
    pAioControl = (ciaaDriverAioControlType *) device->layer;
    NVIC_DisableIRQ(pAioControl->adc_dac.dac.dma_interrupt);
 
-   if (Chip_GPDMA_Interrupt(pAioControl->adc_dac.dac.dma_handler, pAioControl->adc_dac.dac.dma_channel) == SUCCESS) 
+   if (Chip_GPDMA_Interrupt(pAioControl->adc_dac.dac.dma_handler, pAioControl->adc_dac.dac.dma_channel) == SUCCESS)
    {
       ciaaDriverAio_txConfirmation(device, pAioControl->cnt);
-      Chip_GPDMA_Stop(pAioControl->adc_dac.dac.dma_handler, pAioControl->adc_dac.dac.dma_channel);  
+      Chip_GPDMA_Stop(pAioControl->adc_dac.dac.dma_handler, pAioControl->adc_dac.dac.dma_channel);
    }
    else
    {
@@ -290,7 +289,7 @@ extern int32_t ciaaDriverAio_close(ciaaDevices_deviceType const * const device)
    pAioControl = (ciaaDriverAioControlType *) device->layer;
 
    /* Inputs */
-   if ((device == ciaaDriverAioConst.devices[0]) || 
+   if ((device == ciaaDriverAioConst.devices[0]) ||
        (device == ciaaDriverAioConst.devices[1]))
    {
       NVIC_DisableIRQ(pAioControl->adc_dac.adc.interrupt);
@@ -298,7 +297,7 @@ extern int32_t ciaaDriverAio_close(ciaaDevices_deviceType const * const device)
       ret = 0;
    }
 
-   /* Outputs */   
+   /* Outputs */
    if (device == ciaaDriverAioConst.devices[2])
    {
       ret = 0;
@@ -508,7 +507,7 @@ extern int32_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, u
             }
          }
       }
-      
+
       /* Outputs */
       if (device == ciaaDriverAioConst.devices[2])
       {
@@ -537,7 +536,7 @@ extern int32_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, 
          /* Inputs can't be written. */
          ret = -1;
       }
-      
+
       /* Outputs */
       if (device == ciaaDriverAioConst.devices[2])
       {
@@ -562,8 +561,8 @@ extern int32_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, 
             pAioControl->adc_dac.dac.dma_channel = Chip_GPDMA_GetFreeChannel(pAioControl->adc_dac.dac.dma_handler, GPDMA_CONN_DAC);
 
             /* Start DMA transfer */
-            Chip_GPDMA_Transfer(pAioControl->adc_dac.dac.dma_handler, pAioControl->adc_dac.dac.dma_channel, 
-                                   (uint32_t) &dmaBuffer, GPDMA_CONN_DAC, 
+            Chip_GPDMA_Transfer(pAioControl->adc_dac.dac.dma_handler, pAioControl->adc_dac.dac.dma_channel,
+                                   (uint32_t) &dmaBuffer, GPDMA_CONN_DAC,
                                    GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, samples);
 
             /* Bytes transfered */
