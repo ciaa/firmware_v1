@@ -2,8 +2,8 @@
  * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
  ********************************************************/
 
-/* Copyright 2008, 2009 Mariano Cerdeiro
- * Copyright 2014, Mariano Cerdeiro, Pablo Ridolfi
+/* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Pablo Ridolfi
  *
  * This file is part of CIAA Firmware.
  *
@@ -51,7 +51,7 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * MaCe         Mariano Cerdeiro
  * PR           Pablo Ridolfi
  */
 
@@ -59,7 +59,7 @@
  * modification history (new versions first)
  * -----------------------------------------------------------
  * v0.1.1 20141115 PR   added LPC43xx interrupt sources, spelling mistake fixed
- * v0.1.0 20141115 MaCe	initial version
+ * v0.1.0 20141115 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
