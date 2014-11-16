@@ -82,21 +82,21 @@
 /*==================[external functions definition]==========================*/
 <?php
 /* Interrupt sources for LPC43xx. 
- * See externals/platforms/cortexM4/lpc43xx/inc/cmsis_43xx.h.
+ * See externals/platforms/cortexM4/lpc43xx/src/cr_startup_lpc43xx.c.
  */
 $intList = array (
    0 => "DAC",
-   1 => "M0CORE",
+   1 => "M0APP",
    2 => "DMA",
    3 => "RESERVED1",
-   4 => "RESERVED2",
-   5 => "ETHERNET",
+   4 => "FLASH_EEPROM",
+   5 => "ETH",
    6 => "SDIO",
    7 => "LCD",
    8 => "USB0",
    9 => "USB1",
    10 => "SCT",
-   11 => "RITIMER",
+   11 => "RIT",
    12 => "TIMER0",
    13 => "TIMER1",
    14 => "TIMER2",
@@ -105,78 +105,66 @@ $intList = array (
    17 => "ADC0",
    18 => "I2C0",
    19 => "I2C1",
-   20 => "SPI_INT",
+   20 => "SPI",
    21 => "ADC1",
    22 => "SSP0",
    23 => "SSP1",
-   24 => "USART0",
+   24 => "UART0",
    25 => "UART1",
-   26 => "USART2",
-   27 => "USART3",
+   26 => "UART2",
+   27 => "UART3",
    28 => "I2S0",
    29 => "I2S1",
-   30 => "RESERVED4",
-   31 => "SGPIO_INT",
-   32 => "PIN_INT0",
-   33 => "PIN_INT1",
-   34 => "PIN_INT2",
-   35 => "PIN_INT3",
-   36 => "PIN_INT4",
-   37 => "PIN_INT5",
-   38 => "PIN_INT6",
-   39 => "PIN_INT7",
+   30 => "SPIFI",
+   31 => "SGPIO",
+   32 => "GPIO0",
+   33 => "GPIO1",
+   34 => "GPIO2",
+   35 => "GPIO3",
+   36 => "GPIO4",
+   37 => "GPIO5",
+   38 => "GPIO6",
+   39 => "GPIO7",
    40 => "GINT0",
    41 => "GINT1",
-   42 => "EVENTROUTER",
-   43 => "C_CAN1",
+   42 => "EVRT",
+   43 => "CAN1",
    44 => "RESERVED6",
    45 => "ADCHS",
    46 => "ATIMER",
    47 => "RTC",
    48 => "RESERVED8",
-   49 => "WWDT",
+   49 => "WDT",
    50 => "M0SUB",
-   51 => "C_CAN0",
+   51 => "CAN0",
    52 => "QEI"
 );
 
 $MAX_INT_COUNT = 53;
-?>
 
-InterruptType InterruptTable[<?=$MAX_INT_COUNT;?>] =
-{
-<?php
+/* get ISRs defined by user application */
 $intnames = $config->getList("/OSEK","ISR");
-for ($loopi = 0; $loopi < $MAX_INT_COUNT; $loopi++)
+foreach ($intnames as $int)
 {
-   foreach($intnames as $int)
-   {
-      $inttype = $config->getValue("/OSEK/" . $int, "INTERRUPT");
-      $intcat = $config->getValue("/OSEK/" . $int, "CATEGORY");
+   $intcat = $config->getValue("/OSEK/" . $int,"CATEGORY");
+   $source = $config->getValue("/OSEK/" . $int,"SOURCE");
+   $src_found = 0;
 
-      if ((isset($intList[$loopi])) && ($inttype == $intList[$loopi]))
+   for($i=0; ($i < $MAX_INT_COUNT) && ($src_found == 0); $i++)
+   {
+      if(($intList[$i] == $source) && ($intcat == 2))
       {
-         print "  /* " . $inttype . " interrupt handler (category " . $intcat . ") */\n";
-         if($intcat == "1")
-         {
-            print "	OSEK_ISR_$int, /* interrupt handler $loopi */\n";
-            $flag = true;
-         }
-         elseif($intcat == "2")
-         {
-            print "	OSEK_ISR2_$int, /* interrupt handler $loopi */\n";
-            $flag = true;
-         }
-         else
-         {
-            error("Interrupt $int type $inttype has an invalid category $intcat");
-         }
+         print "void $source" . "_IRQHandler(void)\n";
+         print "{\n";
+         print "   PreIsr2($int);\n";
+         print "   OSEK_ISR_$int();\n";
+         print "   PostIsr2($int);\n";
+         print "}\n";
+         $src_found = 1;
       }
    }
 }
 ?>
-}
-
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
