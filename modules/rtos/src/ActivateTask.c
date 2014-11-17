@@ -168,7 +168,7 @@
 
       IntSecure_End();
 
-#if (NON_PREEMPTIVE == DISABLE)
+#if (NON_PREEMPTIVE == OSEK_DISABLE)
       /* check if called from a Task Context */
       if ( GetCallingContext() ==  CONTEXT_TASK )
       {
@@ -188,11 +188,11 @@
             SetActualContext(CONTEXT_TASK);
          }
       }
-#endif /* #if (NON_PREEMPTIVE == DISABLE) */
+#endif /* #if (NON_PREEMPTIVE == OSEK_DISABLE) */
    }
 
 
-#if (HOOK_ERRORHOOK == ENABLE)
+#if (HOOK_ERRORHOOK == OSEK_ENABLE)
    /* \req OSEK_ERR_1.3-1/xx The ErrorHook hook routine shall be called if a
     * system service returns a StatusType value not equal to E_OK.*/
    /* \req OSEK_ERR_1.3.1-1/xx The hook routine ErrorHook is not called if a

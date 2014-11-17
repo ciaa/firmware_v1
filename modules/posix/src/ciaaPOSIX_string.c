@@ -1,4 +1,5 @@
 /* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  *
  * This file is part of CIAA Firmware.
  *
@@ -52,6 +53,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20141116 v0.0.3 JuCe improve strcpy, fix strcat
  * 20140608 v0.0.2 MaCe implement strlen, strcat, strcmp and strncmp
  * 20140530 v0.0.1 JuCe initial version
  */
@@ -75,25 +77,16 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern char * ciaaPOSIX_strcpy(char * dest, char const * src)
+extern char * ciaaPOSIX_strcpy(char * s1, char const * s2)
 {
-   char *tmp_src = (char*) src;
-   char *tmp_dest = dest;
-   //
-   if(src == NULL || dest == NULL)
+   while(0 != *s2)
    {
-		//ASSERT(FALSE);
-		return 0;
+		*s1 = *s2;
+		s2++;
+		s1++;
    }
-   //
-   while(*tmp_src)
-   {
-		*tmp_dest = *tmp_src;
-		tmp_src++;
-		tmp_dest++;
-   }
-   *tmp_dest = '\0';
-   return dest;
+   *s1 = '\0';
+   return s1;
 }
 
 extern size_t ciaaPOSIX_strlen(char const * s) {
@@ -113,6 +106,7 @@ extern size_t ciaaPOSIX_strlen(char const * s) {
 
 extern char * ciaaPOSIX_strcat(char * dest, char const * src)
 {
+   char *ret = dest;
    size_t length = ciaaPOSIX_strlen(dest);
 
    /* increment size of initial string */
@@ -131,7 +125,7 @@ extern char * ciaaPOSIX_strcat(char * dest, char const * src)
    /* add null termination */
    *dest = 0;
 
-   return dest;
+   return ret;
 }
 
 extern int8_t ciaaPOSIX_strncmp(char const * s1, char const * s2, size_t n)

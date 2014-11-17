@@ -237,10 +237,10 @@
 
 /** \brief ISR Category 3 state macro
  **
- ** if DISABLE the ISR Category 3 test cases will not be compiled
- ** if ENABLE the ISR Category 3 test cases will be compiled
+ ** if OSEK_DISABLE the ISR Category 3 test cases will not be compiled
+ ** if OSEK_ENABLE the ISR Category 3 test cases will be compiled
  **/
-#define ISR_CATEGORY_3 DISABLE
+#define ISR_CATEGORY_3 OSEK_DISABLE
 
 /** \brief ISR2 Trigger Macro
  **
@@ -261,14 +261,14 @@
  **/
 #define IncAlarmCounter() (void)IncrementCounter(Counter1, 1);
 
-#if (ISR_CATEGORY_3 == ENABLE)
+#if (ISR_CATEGORY_3 == OSEK_ENABLE)
 /** \brief ISR3 Trigger Macro
  **
  ** This macro shall implement a mechanismus to trigger the ISR3 interruption
- ** only needed if ISR_CATEGORY_3 is ENABLE
+ ** only needed if ISR_CATEGORY_3 is OSEK_ENABLE
  **/
 #define TriggerISR3()
-#endif /* #if (ISR_CATEGORY_3 == ENABLE) */
+#endif /* #if (ISR_CATEGORY_3 == OSEK_ENABLE) */
 
 /** \brief Conformance Test Error Checking Type Extended */
 #define CT_ERROR_CHECKING_EXTENDED	1

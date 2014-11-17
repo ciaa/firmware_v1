@@ -139,10 +139,10 @@ TASK(Task1)
 	/*  trigger ISR 2 */
 	TriggerISR2();
 
-#if ( ISR_CATEGORY_3 == ENABLE )
+#if ( ISR_CATEGORY_3 == OSEK_ENABLE )
 	/* trigger ISR 3 */
 	TriggerISR3();
-#endif /* #if ( ISR_CATEGORY_3 == ENABLE ) */
+#endif /* #if ( ISR_CATEGORY_3 == OSEK_ENABLE ) */
 
 	Sequence(8);
 	/* \treq EM_15 nmf E1E2 e Call GetEvent() with invalid Task ID
@@ -231,7 +231,7 @@ ISR(ISR2)
 	ASSERT(EM_23, ret != E_OS_CALLEVEL);
 }
 
-#if ( ISR_CATEGORY_3 == ENABLE )
+#if ( ISR_CATEGORY_3 == OSEK_ENABLE )
 ISR(ISR3)
 {
 	StatusType ret;
@@ -242,7 +242,7 @@ ISR(ISR3)
 
 	LeaveISR();
 }
-#endif /* #if ( ISR_CATEGORY_3 == ENABLE ) */
+#endif /* #if ( ISR_CATEGORY_3 == OSEK_ENABLE ) */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

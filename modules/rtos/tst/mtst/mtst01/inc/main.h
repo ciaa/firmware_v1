@@ -67,7 +67,7 @@
 #include "Types.h"
 
 /*==================[macros]=================================================*/
-#define MAIN_MEMMAP DISABLE
+#define MAIN_MEMMAP OSEK_DISABLE
 
 #define INVALID_TASK 0xFE
 

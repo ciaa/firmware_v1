@@ -85,7 +85,7 @@ RTOSTESTS_SUBTEST ?=
 
 # dependencies options
 #
-# Compile and make dependencies, or compile only and skip depencencies
+# Compile and make dependencies, or compile only and skip dependencies
 MAKE_DEPENDENCIES ?= 1
 
 #

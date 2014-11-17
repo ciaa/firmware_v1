@@ -93,7 +93,7 @@ void ShutdownOS
 	/* achitecture dependent shutdown service */
 	ShutdownOs_Arch();
 
-#if (HOOK_SHUTDOWNHOOK == ENABLE)
+#if (HOOK_SHUTDOWNHOOK == OSEK_ENABLE)
 	/* \req OSEK_ERR_1.2 The ShutdownHook hook routine shall be called when a
 	 * system shutdown is requested by the application or by the operating
 	 * system in case of a severe error */

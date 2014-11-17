@@ -82,7 +82,7 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-#if (NO_EVENTS == DISABLE)
+#if (NO_EVENTS == OSEK_DISABLE)
 StatusType WaitEvent
 (
    EventMaskType Mask
@@ -172,7 +172,7 @@ StatusType WaitEvent
    }
 
 #if ( (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED) && \
-      (HOOK_ERRORHOOK == ENABLE) )
+      (HOOK_ERRORHOOK == OSEK_ENABLE) )
    /* \req OSEK_ERR_1.3-11/xx The ErrorHook hook routine shall be called if a
     * system service returns a StatusType value not equal to E_OK.*/
    /* \req OSEK_ERR_1.3.1-11/xx The hook routine ErrorHook is not called if a
@@ -189,7 +189,7 @@ StatusType WaitEvent
 
    return ret;
 }
-#endif /* #if (NO_EVENTS == DISABLE) */
+#endif /* #if (NO_EVENTS == OSEK_DISABLE) */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
