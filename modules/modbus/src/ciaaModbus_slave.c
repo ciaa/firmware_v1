@@ -354,6 +354,29 @@ extern void ciaaModbus_slaveTask(int32_t handler)
             }
             break;
 
+         case CIAA_MODBUS_FCN_WRITE_SINGLE_REGISTER:
+            /* verify if function is supported by application */
+            if (cmd->cmd0x06WriteSingleRegister == NULL)
+            {
+               /* function not supported */
+               exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
+            }
+            else
+            {
+               /* obtain address of register from buffer */
+               address = ciaaModbus_readInt(&buf[1]);
+
+               /* obtain register value from buffer */
+               value = ciaaModbus_readInt(&buf[3]);
+
+               /* perform application function */
+               cmd->cmd0x06WriteSingleRegister(address, &exceptioncode, &buf[3]);
+
+               /* set length of message */
+               ret = 5;
+            }
+            break;
+
          case CIAA_MODBUS_FCN_WRITE_MULTIPLE_REGISTERS:
             /* verify if function is supported by application */
             if (cmd->cmd0x10WriteMultipleReg == NULL)
