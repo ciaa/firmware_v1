@@ -84,7 +84,7 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-#if (NO_EVENTS == DISABLE)
+#if (NO_EVENTS == OSEK_DISABLE)
 StatusType SetEvent
 (
 	TaskType TaskID,
@@ -152,7 +152,7 @@ StatusType SetEvent
 
 				IntSecure_End();
 
-#if (NON_PREEMPTIVE == DISABLE)
+#if (NON_PREEMPTIVE == OSEK_DISABLE)
 				/* check if called from a Task Context */
 				if ( GetCallingContext() ==  CONTEXT_TASK )
 				{
@@ -164,7 +164,7 @@ StatusType SetEvent
 						(void)Schedule();
 					}
 				}
-#endif /* #if (NON_PREEMPTIVE == DISABLE) */
+#endif /* #if (NON_PREEMPTIVE == OSEK_DISABLE) */
 
 			}
 			else
@@ -180,7 +180,7 @@ StatusType SetEvent
 
 
 #if ( (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED) && \
-		(HOOK_ERRORHOOK == ENABLE) )
+		(HOOK_ERRORHOOK == OSEK_ENABLE) )
 	/* \req OSEK_ERR_1.3-8/xx The ErrorHook hook routine shall be called if a
 	 * system service returns a StatusType value not equal to E_OK.*/
 	/* \req OSEK_ERR_1.3.1-8/xx The hook routine ErrorHook is not called if a
@@ -198,7 +198,7 @@ StatusType SetEvent
 
 	return ret;
 }
-#endif /* #if (NO_EVENTS == DISABLE) */
+#endif /* #if (NO_EVENTS == OSEK_DISABLE) */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

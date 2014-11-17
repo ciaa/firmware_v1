@@ -106,25 +106,25 @@ StatusType ChainTask
 		 ** are E_OS_ID, E_OS_RESOURCE, E_OS_CALLEVEL */
 		ret = E_OS_CALLEVEL;
 	}
-#if ( (RESOURCES_COUNT != 0) || (NO_RES_SCHEDULER == DISABLE) )
+#if ( (RESOURCES_COUNT != 0) || (NO_RES_SCHEDULER == OSEK_DISABLE) )
 	/* check if any resource is still reserved for this task */
 	else if (
 #if (RESOURCES_COUNT != 0)
 				 ( TasksVar[GetRunningTask()].Resources != 0 )
 #endif /* #if (RESOURCES_COUNT != 0) */
-#if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == DISABLE) )
+#if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == OSEK_DISABLE) )
 					||
-#endif /* #if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == DISABLE) ) */
-#if (NO_RES_SCHEDULER == DISABLE)
+#endif /* #if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == OSEK_DISABLE) ) */
+#if (NO_RES_SCHEDULER == OSEK_DISABLE)
 				 ( TasksVar[GetRunningTask()].ActualPriority == TASK_MAX_PRIORITY )
-#endif /* #if (NO_RES_SCHEDULER == DISABLE) */
+#endif /* #if (NO_RES_SCHEDULER == OSEK_DISABLE) */
 			  )
 	{
 		/* \req OSEK_SYS_3.3.10-3/3 Added possible return values in Extended mode
 		 ** are E_OS_ID, E_OS_RESOURCE, E_OS_CALLEVEL */
 		ret = E_OS_RESOURCE;
 	}
-#endif /* #if ( (RESOURCES_COUNT != 0) || (NO_RES_SCHEDULER == DISABLE) ) */
+#endif /* #if ( (RESOURCES_COUNT != 0) || (NO_RES_SCHEDULER == OSEK_DISABLE) ) */
 	else
 #endif
 	if ( ( (TasksVar[taskid].Activations + 1) > TasksConst[taskid].MaxActivations) &&
@@ -138,9 +138,9 @@ StatusType ChainTask
 	else
 	{
 
-#if (HOOK_POSTTASKHOOK == ENABLE)
+#if (HOOK_POSTTASKHOOK == OSEK_ENABLE)
 		PostTaskHook();
-#endif /* #if (HOOK_POSTTASKHOOK == ENABLE) */
+#endif /* #if (HOOK_POSTTASKHOOK == OSEK_ENABLE) */
 
 		IntSecure_Start();
 
@@ -207,7 +207,7 @@ StatusType ChainTask
 
 	}
 
-#if (HOOK_ERRORHOOK == ENABLE)
+#if (HOOK_ERRORHOOK == OSEK_ENABLE)
    /* \req OSEK_ERR_1.3-3/xx The ErrorHook hook routine shall be called if a
 	 ** system service returns a StatusType value not equal to E_OK.*/
    /* \req OSEK_ERR_1.3.1-3/xx The hook routine ErrorHook is not called if a

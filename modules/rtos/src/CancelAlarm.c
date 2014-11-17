@@ -113,7 +113,7 @@ StatusType CancelAlarm
 		AlarmsVar[AlarmID].AlarmState = 0;
 	}
 
-#if (HOOK_ERRORHOOK == ENABLE)
+#if (HOOK_ERRORHOOK == OSEK_ENABLE)
 	/* \req OSEK_ERR_1.3-15/xx The ErrorHook hook routine shall be called if a
 	 ** system service returns a StatusType value not equal to E_OK.*/
 	/* \req OSEK_ERR_1.3.1-15/xx The hook routine ErrorHook is not called if a

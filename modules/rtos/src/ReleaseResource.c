@@ -59,7 +59,7 @@
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20090414 v0.1.7 MaCe fix optmization for NO_RES_SCHEDULER
- * 20090414 v0.1.6 MaCe bugfix NON_PREEMPTIVE == DISABLE and not ENABLE
+ * 20090414 v0.1.6 MaCe bugfix NON_PREEMPTIVE == OSEK_DISABLE and not OSEK_ENABLE
  * 20090331 v0.1.5 MaCe add support to NO_RES_SCHEDULER
  * 20090330 v0.1.5 MaCe correct errors done in v0.1.3
  * 20090330 v0.1.4 MaCe add support to NON_PREEMPTIVE systems and add non
@@ -89,7 +89,7 @@
 /*==================[external functions definition]==========================*/
 /* only compile this function if RESOURCE_COUNT != 0 or if RES_SCHEDULER is
  * used */
-#if ( (NO_RES_SCHEDULER == DISABLE) || (RESOURCES_COUNT != 0) )
+#if ( (NO_RES_SCHEDULER == OSEK_DISABLE) || (RESOURCES_COUNT != 0) )
 StatusType ReleaseResource
 (
 	ResourceType ResID
@@ -115,13 +115,13 @@ StatusType ReleaseResource
 #if (RESOURCES_COUNT != 0)
 		  ( ResID > RESOURCES_COUNT )
 #endif /* #if (RESOURCES_COUNT != 0) */
-#if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == DISABLE) )
+#if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == OSEK_DISABLE) )
 				&&
-#endif /* #if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == DISABLE) ) */
+#endif /* #if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == OSEK_DISABLE) ) */
 /* check RES_SCHEDULER only if used */
-#if (NO_RES_SCHEDULER == DISABLE)
+#if (NO_RES_SCHEDULER == OSEK_DISABLE)
 		  ( ResID != RES_SCHEDULER )
-#endif /* #if (NO_RES_SCHEDULER == DISABLE) */
+#endif /* #if (NO_RES_SCHEDULER == OSEK_DISABLE) */
 		)
 	{
 		/* \req OSEK_SYS_3.14.3-1/2 Extra possible return values in Extended mode are
@@ -129,9 +129,9 @@ StatusType ReleaseResource
 		ret = E_OS_ID;
 	}
 	else
-#if (NO_RES_SCHEDULER == DISABLE)
+#if (NO_RES_SCHEDULER == OSEK_DISABLE)
 		if ( ResID != RES_SCHEDULER )
-#endif /* #if (NO_RES_SCHEDULER == DISABLE) */
+#endif /* #if (NO_RES_SCHEDULER == OSEK_DISABLE) */
 	{
 		if ( ( TasksVar[GetRunningTask()].Resources & ( 1 << ResID ) ) == 0 )
 		{
@@ -140,12 +140,12 @@ StatusType ReleaseResource
 			ret = E_OS_NOFUNC;
 		}
 	}
-#if (NO_RES_SCHEDULER == DISABLE)
+#if (NO_RES_SCHEDULER == OSEK_DISABLE)
 	else
 	{
 		/* nothing to do */
 	}
-#endif /* #if (NO_RES_SCHEDULER == DISABLE) */
+#endif /* #if (NO_RES_SCHEDULER == OSEK_DISABLE) */
 
 	if ( ret == E_OK )
 #endif /* #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED) */
@@ -153,9 +153,9 @@ StatusType ReleaseResource
 		IntSecure_Start();
 
 #if (RESOURCES_COUNT != 0)
-#if (NO_RES_SCHEDULER == DISABLE)
+#if (NO_RES_SCHEDULER == OSEK_DISABLE)
 		if ( ResID != RES_SCHEDULER )
-#endif /* #if (NO_RES_SCHEDULER == DISABLE) */
+#endif /* #if (NO_RES_SCHEDULER == OSEK_DISABLE) */
 		{
 			/* clear resource */
 	   	TasksVar[GetRunningTask()].Resources &= ~( 1 << ResID );
@@ -180,7 +180,7 @@ StatusType ReleaseResource
 
 		IntSecure_End();
 
-#if (NON_PREEMPTIVE == DISABLE)
+#if (NON_PREEMPTIVE == OSEK_DISABLE)
 		/* check if called from a Task Context */
 		if ( GetCallingContext() ==  CONTEXT_TASK )
 		{
@@ -192,12 +192,12 @@ StatusType ReleaseResource
 				(void)Schedule();
 			}
 		}
-#endif /* #if (NON_PREEMPTIVE == DISABLE) */
+#endif /* #if (NON_PREEMPTIVE == OSEK_DISABLE) */
 
 	}
 
 #if ( (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED) && \
-		(HOOK_ERRORHOOK == ENABLE) )
+		(HOOK_ERRORHOOK == OSEK_ENABLE) )
 	/* \req OSEK_ERR_1.3-7/xx The ErrorHook hook routine shall be called if a
 	 * system service returns a StatusType value not equal to E_OK.*/
 	/* \req OSEK_ERR_1.3.1-7/xx The hook routine ErrorHook is not called if a
@@ -214,7 +214,7 @@ StatusType ReleaseResource
 
 	return ret;
 }
-#endif /* #if ( (NO_RES_SCHEDULER == DISABLE) || (RESOURCES_COUNT != 0) ) */
+#endif /* #if ( (NO_RES_SCHEDULER == OSEK_DISABLE) || (RESOURCES_COUNT != 0) ) */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

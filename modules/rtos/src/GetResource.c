@@ -86,7 +86,7 @@
 /*==================[external functions definition]==========================*/
 /* only compile this function if RESOURCE_COUNT != 0 or if RES_SCHEDULER is
  * used */
-#if ( (NO_RES_SCHEDULER == DISABLE) || (RESOURCES_COUNT != 0) )
+#if ( (NO_RES_SCHEDULER == OSEK_DISABLE) || (RESOURCES_COUNT != 0) )
 StatusType GetResource
 (
 	ResourceType ResID
@@ -104,13 +104,13 @@ StatusType GetResource
 #if (RESOURCES_COUNT != 0)
 			( ResID > RESOURCES_COUNT )
 #endif /* (RESOURCES_COUNT != 0) */
-#if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == DISABLE) )
+#if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == OSEK_DISABLE) )
 				&&
-#endif /* #if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == DISABLE) ) */
+#endif /* #if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == OSEK_DISABLE) ) */
 /* check RES_SCHEDULER only if used */
-#if (NO_RES_SCHEDULER == DISABLE)
+#if (NO_RES_SCHEDULER == OSEK_DISABLE)
 			( ResID != RES_SCHEDULER )
-#endif /* #if (NO_RES_SCHEDULER == DISABLE) */
+#endif /* #if (NO_RES_SCHEDULER == OSEK_DISABLE) */
 		)
 	{
 		/* \req OSEK_SYS_3.13.3-1/2 Extra possible return values in Extended mode are
@@ -118,9 +118,9 @@ StatusType GetResource
 		ret = E_OS_ID;
 	}
 	else
-#if (NO_RES_SCHEDULER == DISABLE)
+#if (NO_RES_SCHEDULER == OSEK_DISABLE)
 		if ( ResID != RES_SCHEDULER )
-#endif /* #if (NO_RES_SCHEDULER == DISABLE) */
+#endif /* #if (NO_RES_SCHEDULER == OSEK_DISABLE) */
 	{
 		if ( ( TasksVar[GetRunningTask()].Resources & ( 1 << ResID ) ) ||
 			  ( ( TasksConst[GetRunningTask()].ResourcesMask & ( 1 << ResID ) ) == 0 ) )
@@ -130,12 +130,12 @@ StatusType GetResource
 			ret = E_OS_ACCESS;
 		}
 	}
-#if (NO_RES_SCHEDULER == DISABLE)
+#if (NO_RES_SCHEDULER == OSEK_DISABLE)
 	else
 	{
 		/* nothing to do */
 	}
-#endif /* #if (NO_RES_SCHEDULER == DISABLE) */
+#endif /* #if (NO_RES_SCHEDULER == OSEK_DISABLE) */
 
 	if ( ret == E_OK )
 #endif /* #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED) */
@@ -143,15 +143,15 @@ StatusType GetResource
 		IntSecure_Start();
 
 /* check RES_SCHEDULER only if used */
-#if (NO_RES_SCHEDULER == DISABLE)
+#if (NO_RES_SCHEDULER == OSEK_DISABLE)
 		if ( ResID == RES_SCHEDULER )
 		{
 			TasksVar[GetRunningTask()].ActualPriority = TASK_MAX_PRIORITY;
 		}
-#endif /* #if (NO_RES_SCHEDULER == DISABLE) */
-#if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == DISABLE) )
+#endif /* #if (NO_RES_SCHEDULER == OSEK_DISABLE) */
+#if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == OSEK_DISABLE) )
 		else
-#endif /* #if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == DISABLE) ) */
+#endif /* #if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == OSEK_DISABLE) ) */
 
 /* only if one or more resources were defined */
 #if (RESOURCES_COUNT != 0)
@@ -172,7 +172,7 @@ StatusType GetResource
 	}
 
 #if ( (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED) && \
-		(HOOK_ERRORHOOK == ENABLE) )
+		(HOOK_ERRORHOOK == OSEK_ENABLE) )
 	/* \req OSEK_ERR_1.3-6/xx The ErrorHook hook routine shall be called if a
 	 * system service returns a StatusType value not equal to E_OK.*/
 	/* \req OSEK_ERR_1.3.1-6/xx The hook routine ErrorHook is not called if a
@@ -193,7 +193,7 @@ StatusType GetResource
 
 	return ret;
 }
-#endif /* #if ( (NO_RES_SCHEDULER == DISABLE) || (RESOURCES_COUNT != 0) ) */
+#endif /* #if ( (NO_RES_SCHEDULER == OSEK_DISABLE) || (RESOURCES_COUNT != 0) ) */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

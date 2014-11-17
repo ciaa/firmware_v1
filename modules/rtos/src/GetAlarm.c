@@ -118,7 +118,7 @@ StatusType GetAlarm
 		*Tick = AlarmsVar[AlarmID].AlarmTime;
 	}
 
-#if (HOOK_ERRORHOOK == ENABLE)
+#if (HOOK_ERRORHOOK == OSEK_ENABLE)
 	/* \req OSEK_ERR_1.3-12/xx The ErrorHook hook routine shall be called if a
 	 ** system service returns a StatusType value not equal to E_OK.*/
 	/* \req OSEK_ERR_1.3.1-12/xx The hook routine ErrorHook is not called if a
@@ -132,7 +132,7 @@ StatusType GetAlarm
       SetError_Msg("GetAlarm returns != than E_OK");
       SetError_ErrorHook();
    }
-#endif /* #if (HOOK_ERRORHOOK == ENABLE) */
+#endif /* #if (HOOK_ERRORHOOK == OSEK_ENABLE) */
 
 	return ret;
 }

@@ -171,19 +171,19 @@ if ($errorhook == "TRUE")
 }
 
 $memmap = $config->getValue("/OSEK/" . $os[0],"MEMMAP");
-print "/** \brief OSEK_MEMMAP macro (DISABLE not MemMap is used for FreeOSEK, ENABLE\n ** MemMap is used for FreeOSEK) */\n";
+print "/** \brief OSEK_MEMMAP macro (OSEK_DISABLE not MemMap is used for FreeOSEK, OSEK_ENABLE\n ** MemMap is used for FreeOSEK) */\n";
 if ($memmap == "TRUE")
 {
-	print "#define OSEK_MEMMAP ENABLE\n";
+	print "#define OSEK_MEMMAP OSEK_ENABLE\n";
 }
 elseif ($memmap == "FALSE")
 {
-	print "#define OSEK_MEMMAP DISABLE\n";
+	print "#define OSEK_MEMMAP OSEK_DISABLE\n";
 }
 else
 {
 	warning("MEMMAP configuration not found in FreeOSEK configuration, disabling as default");
-	print "#define OSEK_MEMMAP DISABLE\n";
+	print "#define OSEK_MEMMAP OSEK_DISABLE\n";
 }
 
 ?>
