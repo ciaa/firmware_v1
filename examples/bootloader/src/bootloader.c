@@ -197,7 +197,6 @@ TASK(InitTask)
 TASK(SerialEchoTask)
 {
    int8_t buf[20];   /* buffer for uart operation              */
-   uint8_t outputs;  /* to store outputs status                */
    int32_t ret;      /* return value variable for posix calls  */
 
    /* send a message to the world :) */
@@ -217,13 +216,8 @@ TASK(SerialEchoTask)
          ciaaPOSIX_write(fd_uart1, buf, ret);
 
          /* also write them to the other device */
-         //ciaaPOSIX_write(fd_uart2, buf, ret);
+         ciaaPOSIX_write(fd_uart2, buf, ret);
       }
-
-      /* blink output 5 with each loop */
-      //ciaaPOSIX_read(fd_out, &outputs, 1);
-      //outputs ^= 0x20;
-      //ciaaPOSIX_write(fd_out, &outputs, 1);
    }
 }
 
@@ -242,9 +236,9 @@ TASK(PeriodicTask)
     */
 
    /* variables to store input/output status */
-   uint8_t inputs = 0, outputs = 0;
-   int8_t buf[20];   /* buffer for uart operation              */
-   int32_t ret;      /* return value variable for posix calls  */
+   //uint8_t inputs = 0, outputs = 0;
+   //int8_t buf[20];   /* buffer for uart operation              */
+   //int32_t ret;      /* return value variable for posix calls  */
 
    /* read inputs */
    //ciaaPOSIX_read(fd_uart1, &inputs, 1);

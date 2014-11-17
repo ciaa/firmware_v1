@@ -44,37 +44,37 @@
  ** @{ */
 
 /*
- * Initials     Name
+ * Initials    Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * MC         	Mariano Cerdeiro
+ * EV			 	Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140528 v0.0.1 initials initial version
+ * 20140528 v0.0.1 MC initial version
+ * 20141116 v0.0.2 EV add uart emulation via sockets
  */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverUart.h"
 #include "ciaaDriverUart_Internal.h"
 #include "ciaaPOSIX_stdio.h"
-#include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_string.h"
 #include "OS_Internal.h"
-#include "stdio.h"
 #include "fcntl.h"
-
-#include "sys/socket.h"
-#include "sys/types.h"
-#include "netinet/in.h"
-
 
 /*==================[macros and definitions]=================================*/
 /** \brief Cygwin only support deprecated macro FASYNC */
  #ifndef O_ASYNC
 	#define O_ASYNC FASYNC
  #endif
+ 
+/** \brief Cygwin only support deprecated macro FASYNC */
+#ifndef O_NONBLOCK
+	#define O_NONBLOCK FNONBLOCK
+#endif
  
 /** \brief Pointer to Devices */
 typedef struct  {
@@ -83,27 +83,10 @@ typedef struct  {
 } ciaaDriverConstType;
 
 /*==================[internal data declaration]==============================*/
-/** \brief Struct for describe uart pipes */
-typedef struct ciaaDriverUart_serverStruct {
-   struct sigaction signalAction;
-   struct sockaddr_in serverData;
-   struct sockaddr_in clientData;
-   socklen_t clientDataSize;
-   int serverSocket;
-   int clientSocket;
-	int sendingLength;
-   bool conected;
-} ciaaDriverUart_serverType;
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-/** \brief Device for UART 0 */
-ciaaDriverUart_serverType ciaaDriverUart_server0;
-
-/** \brief Device for UART 1 */
-ciaaDriverUart_serverType ciaaDriverUart_server1;
-
 static ciaaDevices_deviceType ciaaDriverUart_device0 = {
    "uart/0",                        /** <= driver name */
    ciaaDriverUart_open,             /** <= open function */
@@ -114,7 +97,7 @@ static ciaaDevices_deviceType ciaaDriverUart_device0 = {
    NULL,                            /** <= seek function is not provided */
    NULL,                            /** <= upper layer */
    (void*)&ciaaDriverUart_uart0,    /** <= layer */
-   (void*)&ciaaDriverUart_server0   /** <= server handlers as lower layer */
+   NULL										 /** <= server handlers as lower layer */
 };
 
 /** \brief Device for UART 1 */
@@ -128,7 +111,7 @@ static ciaaDevices_deviceType ciaaDriverUart_device1 = {
    NULL,                            /** <= seek function is not provided */
    NULL,                            /** <= upper layer */
    (void*)&ciaaDriverUart_uart1,    /** <= layer */
-   (void*)&ciaaDriverUart_server1   /** <= server handlers as lower layer */
+   NULL										 /** <= server handlers as lower layer */
 };
 
 static ciaaDevices_deviceType * const ciaaUartDevices[] = {
@@ -165,6 +148,7 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
    ciaaSerialDevices_txConfirmation(device->upLayer, uart->txBuffer.length);
 }
 
+/** \brief Configure server socket to operate in asyncronous mode*/
 int ciaaDriverUart_configureScokect(int socket) {
    int result;
 
@@ -181,7 +165,7 @@ int ciaaDriverUart_configureScokect(int socket) {
       }
       else
       {
-         result = fcntl(socket, F_SETFL, result | O_ASYNC);
+         result = fcntl(socket, F_SETFL, result | O_ASYNC | O_NONBLOCK);
          if (result < 0)
          {
             perror("Error setting socket asincronous flags: ");
@@ -190,101 +174,73 @@ int ciaaDriverUart_configureScokect(int socket) {
    }
    return (result);
 }
-
-static ciaaDevices_deviceType * ciaaDriverUart_getDeviceServer(int fileDescriptor)
-{
-   ciaaDevices_deviceType * device;
-   ciaaDriverUart_serverType * server;
-   bool found = false;
-   int index;
-
-   for(index = 0; index < ciaaDriverUartConst.countOfDevices; index++)
-   {
-      device = ciaaUartDevices[index];
-      server = device->loLayer;
-      if (fileDescriptor == server->serverSocket)
-      {
-         found = true;
-         break;
-      }
-   }
-   if (!found) device = NULL;
-
-   return device;
-}
-
+ 
+/** \brief Process an SIGIO from emulator sockets */
 static void ciaaDriverUart_signalHandler(int signal, siginfo_t * info, void * context)
 {
-   ciaaDevices_deviceType * device = ciaaUartDevices[0];
-   ciaaDriverUart_uartType * uart = device->layer;
-   ciaaDriverUart_serverType * server = device->loLayer;
+   ciaaDriverUart_uartType * uart;
+	int index;
    int result;
 
-	printf("Signal received\r\n");   
-   if (server)
-   {
-		if (!server->conected)
-      {
-         server->clientDataSize = sizeof(server->clientData);
-         server->clientSocket = accept(server->serverSocket, (struct sockaddr *) &(server->clientData), &(server->clientDataSize));
-         if (server->clientSocket > 0) {
-				ciaaDriverUart_configureScokect(server->clientSocket);
-				printf("Client Conected\r\n");
-				server->conected = 1;
-			}
-		} 
-		else
+	for(index = ciaaDriverUartConst.countOfDevices - 1; index >= 0; index--) 
+	{
+		uart = (ciaaDriverUart_uartType *) ciaaUartDevices[index]->layer;
+		if (!uart->client.conected)
 		{
-			if (server->sendingLength) {
-				server->sendingLength = 0;
-				ciaaDriverUart_txConfirmation(device);
+			uart->client.addressSize = sizeof(uart->client.address);
+			uart->client.socket = accept(uart->server.socket, (struct sockaddr *) &(uart->client.address), &(uart->client.addressSize));
+         if (uart->client.socket > 0) 
+			{
+				ciaaDriverUart_configureScokect(uart->client.socket);
+				printf("Client Conected\r\n");
+				uart->client.conected = true;
+				ciaaDriverUart_txConfirmation(ciaaUartDevices[index]);
+			}
+		}
+ 
+		if (uart->client.conected)
+		{
+			if (uart->client.sending > 0) 
+			{
+				uart->client.sending = 0;
+				ciaaDriverUart_txConfirmation(ciaaUartDevices[index]);
 			}
 			
-			result = recv(server->clientSocket, uart->rxBuffer.buffer, sizeof(uart->rxBuffer), MSG_DONTWAIT);
+			result = recv(uart->client.socket, uart->rxBuffer.buffer, sizeof(uart->rxBuffer), MSG_DONTWAIT);
 			if (result == 0) {
 				printf("Client disconected\r\n");
-				server->conected = 0;
+				uart->client.conected = false;
+				uart->client.sending = 0;
 			} else if (result > 0) {
 				uart->rxBuffer.length = result;
-				ciaaDriverUart_rxIndication(device);
+				ciaaDriverUart_rxIndication(ciaaUartDevices[index]);
 			} 
 		}
    }
-}
-
-int ciaaDriverUart_createServer(ciaaDevices_deviceType * device) {
-
 }
 
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-   int deviceIndex;
+   ciaaDriverUart_uartType * uart;
+   struct sigaction signalAction;
+   int index;
    int result;
-   ciaaDriverUart_serverType * server = device->loLayer;
 
-   if (device == &ciaaDriverUart_device0)
-   {
-      deviceIndex = 0;
-   }
-   else if (device == &ciaaDriverUart_device1)
-   {
-      deviceIndex = 1;
-   }
-   else
-   {
-      deviceIndex = -1;
-   }
+	for(index = ciaaDriverUartConst.countOfDevices - 1; index >= 0; index--) {
+		if (ciaaDriverUartConst.devices[index] == device) break;
+	}
 
    PreCallService();
-   if (deviceIndex == 0) {
-      bzero(server, sizeof(*server));
+   if (index >= 0) {
+		uart = (ciaaDriverUart_uartType *) device->layer;
+      bzero(uart, sizeof(* uart));
 
-      server->signalAction.sa_sigaction = &ciaaDriverUart_signalHandler;
-      server->signalAction.sa_flags = SA_SIGINFO;
+      signalAction.sa_sigaction = &ciaaDriverUart_signalHandler;
+      signalAction.sa_flags = SA_SIGINFO;
 
-      result = sigaction(SIGIO, &server->signalAction, NULL);
+      result = sigaction(SIGIO, &signalAction, NULL);
       if (result < 0)
       {
          perror("Error setting signal handler: ");
@@ -294,7 +250,7 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
          result = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
          if (result > 0)
          {
-            server->serverSocket = result;
+            uart->server.socket = result;
          }
          else
          {
@@ -302,17 +258,17 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
          }
       }
 
-      if (server->serverSocket) {
-         result = ciaaDriverUart_configureScokect(server->serverSocket);
+      if (uart->server.socket) {
+         result = ciaaDriverUart_configureScokect(uart->server.socket);
       }
 
       if (result >= 0)
       {
-         server->serverData.sin_family = AF_INET;
-         server->serverData.sin_addr.s_addr = INADDR_ANY;
-         server->serverData.sin_port = htons(2000 + deviceIndex);
+         uart->server.address.sin_family = AF_INET;
+         uart->server.address.sin_addr.s_addr = INADDR_ANY;
+         uart->server.address.sin_port = htons(2000 + index);
 
-         result = bind(server->serverSocket,(struct sockaddr *) &(server->serverData), sizeof(server->serverData));
+         result = bind(uart->server.socket, (struct sockaddr *) &(uart->server.address), sizeof(uart->server.address));
 
          if (result < 0)
          {
@@ -320,8 +276,11 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
          }
          else
          {
-            result = listen(server->serverSocket, 1);
-            if (result < 0) perror("Error listen on socket: ");
+            result = listen(uart->server.socket, 1);
+            if (result < 0) 
+				{
+					perror("Error listen on socket: ");
+				}
          }
       }
    }
@@ -331,19 +290,22 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
 
 extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
-//   ciaaDriverUart_pipesType * pipes = device->loLayer;
+	ciaaDriverUart_uartType * uart = device->layer;
 
-   //PreCallService();
-   //fclose(pipes->read);
-   //fclose(pipes->write);
-   //PostCallService();
-   return 0;
+   PreCallService();
+	if (uart->client.conected) {
+		close(uart->client.socket);
+	}
+	close(uart->server.socket);
+   PostCallService();
+   
+	return 0;
 }
 
 extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
-   ciaaDriverUart_serverType * server = device->loLayer;
    ciaaDriverUart_uartType * uart = device->layer;
+
    int32_t ret = -1;
 
    if((device == ciaaDriverUartConst.devices[0]) ||
@@ -352,11 +314,7 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
       switch(request)
       {
          case ciaaPOSIX_IOCTL_STARTTX:
-				if ((device == ciaaDriverUartConst.devices[0]) && (server->conected)) {
-					//if (uart->txBuffer.length) {
-						//ret = send(server->clientSocket, uart->txBuffer.buffer, uart->txBuffer.length, MSG_DONTWAIT);
-						//uart->txBuffer.length = 0;
-					//}
+				if (uart->client.conected) {
 					ciaaDriverUart_txConfirmation(device);
 				}
          break;
@@ -384,7 +342,6 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
 extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
    ciaaDriverUart_uartType * uart = device->layer;
-   ciaaDriverUart_serverType * server = device->loLayer;
 
    int32_t ret = 0;
 	int32_t result;
@@ -401,9 +358,9 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
       /* set length of the buffer */
       uart->txBuffer.length = size;
 		
-		if (server->conected) {
-			result = send(server->clientSocket, uart->txBuffer.buffer, uart->txBuffer.length, MSG_DONTWAIT);
-			server->sendingLength = uart->txBuffer.length;
+		if (uart->client.conected) {
+			result = send(uart->client.socket, uart->txBuffer.buffer, uart->txBuffer.length, MSG_DONTWAIT);
+			uart->client.sending = uart->txBuffer.length;
 			uart->txBuffer.length = 0;
 		}
    }

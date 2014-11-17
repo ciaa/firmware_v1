@@ -46,17 +46,23 @@
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MC         	 Mariano Cerdeiro
+ * EV			 	 Esteban Volentini
  */
+
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140528 v0.0.1 initials initial version
+ * 20140528 v0.0.1 MC initial version
+ * 20141116 v0.0.2 EV add uart emulation via sockets
  */
-
+ 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stdbool.h"
+#include "sys/socket.h"
+#include "netinet/in.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -72,10 +78,27 @@ typedef struct {
    uint8_t buffer[2048];
 } ciaaDriverUart_bufferType;
 
+/** \brief Server side uart emulator Structure */
+typedef struct ciaaDriverUart_serverStruct {
+	struct sockaddr_in address;
+   int socket;
+} ciaaDriverUart_serverType;
+
+/** \brief Client side uart emulator Structure */
+typedef struct ciaaDriverUart_clientStruct {
+	struct sockaddr_in address;
+   socklen_t addressSize;
+   int socket;
+   bool conected;
+	int sending;
+} ciaaDriverUart_clientType;
+
 /** \brief Uart Type */
 typedef struct {
    ciaaDriverUart_bufferType rxBuffer;
    ciaaDriverUart_bufferType txBuffer;
+	ciaaDriverUart_serverType server;
+	ciaaDriverUart_clientType client;
 } ciaaDriverUart_uartType;
 
 /*==================[external data declaration]==============================*/
@@ -103,4 +126,3 @@ extern void ciaaDriverUart_uart1_txConfirmation(void);
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef _CIAADRIVERUART_INTERNAL_H_ */
-
