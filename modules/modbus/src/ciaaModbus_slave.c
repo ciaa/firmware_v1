@@ -377,6 +377,46 @@ extern void ciaaModbus_slaveTask(int32_t handler)
             }
             break;
 
+         case CIAA_MODBUS_FCN_WRITE_MULTIPLE_COILS:
+            /* verify if function is supported by application */
+            if (cmd->cmd0x0FWriteMultipleCoils == NULL)
+            {
+               /* function not supported */
+               exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
+            }
+            else
+            {
+               /* obtain address of registers from buffer */
+               address = ciaaModbus_readInt(&buf[1]);
+
+               /* obtain quantity of coils from buffer */
+               quantity = ciaaModbus_readInt(&buf[3]);
+
+               /* calculate byte count to compare with received */
+               byteCount = quantity / 8;
+               if (quantity % 8)
+               {
+                  byteCount++;
+               }
+
+               /* check correct range */
+               if ( (0x07B0 < quantity) || (1 > quantity)
+                  || (byteCount != buf[5]) )
+               {
+                  /* report invalid quantity of coils */
+                  exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
+               }
+               else
+               {
+                  /* perform application function */
+                  cmd->cmd0x0FWriteMultipleCoils(address, quantity, byteCount, &exceptioncode, &buf[6]);
+
+                  /* set length of message */
+                  ret = 5;
+               }
+            }
+            break;
+
          case CIAA_MODBUS_FCN_WRITE_MULTIPLE_REGISTERS:
             /* verify if function is supported by application */
             if (cmd->cmd0x10WriteMultipleReg == NULL)
