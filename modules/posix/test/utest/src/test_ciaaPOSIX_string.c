@@ -1,4 +1,5 @@
 /* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  *
  * This file is part of CIAA Firmware.
  *
@@ -45,11 +46,13 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20141116 v0.0.3 JuCe improve strcpy
  * 20140610 v0.0.2 MaCe implement memcpy
  * 20140608 v0.0.1 MaCe implement strlen, strcat, strcmp and strncmp
  */
@@ -91,6 +94,48 @@ void tearDown(void) {
 void doNothing(void) {
 }
 
+
+/** \brief test strcpy
+ **
+ ** test the function ciaaPOSIX_strcpy
+ **
+ **/
+void test_ciaaPOSIX_strcpy(void) {
+   char buffer[100];
+   char *ret;
+   uint32_t loopi;
+
+   for(loopi = 0; loopi < sizeof(buffer); loopi++)
+   {
+      buffer[loopi] = 0;
+   }
+   ret = ciaaPOSIX_strcpy(buffer, "/dev");
+   TEST_ASSERT_TRUE(&buffer[4] == ret);
+   TEST_ASSERT_TRUE(0 == strcmp(buffer, "/dev"));
+   ciaaPOSIX_strcpy(ciaaPOSIX_strcpy(buffer, "/first"), "/second");
+   TEST_ASSERT_TRUE(0 == strcmp(buffer, "/first/second"));   
+}
+
+/** \brief test strcat
+ **
+ ** test the function ciaaPOSIX_strcat
+ **
+ **/
+void test_ciaaPOSIX_strcat(void) {
+   char buffer[100];
+   char *ret;
+   uint32_t loopi;
+
+   for(loopi = 0; loopi < sizeof(buffer); loopi++)
+   {
+      buffer[loopi] = 0;
+   }
+   ret = ciaaPOSIX_strcat(buffer, "/dev");
+   TEST_ASSERT_TRUE(buffer == ret);
+   ret = ciaaPOSIX_strcat(buffer, "/serial");
+   TEST_ASSERT_TRUE(0 == strcmp(buffer, "/dev/serial"));   
+}
+
 /** \brief test strncmp
  **
  ** test the function ciaaPOSIX_strncmp
@@ -107,7 +152,9 @@ void test_ciaaPOSIX_strncmp(void) {
    TEST_ASSERT_TRUE(0 < ret);
    ret = ciaaPOSIX_strncmp("/dev/serial", "/dev", 6);
    TEST_ASSERT_TRUE(0 < ret);
-
+   ret = ciaaPOSIX_strncmp("/dev", "/dev/serial", 6);
+   TEST_ASSERT_TRUE(0 > ret);
+   
    ret = ciaaPOSIX_strncmp("/dev/serial", "/dev/a", 6);
    TEST_ASSERT_TRUE(0 < ret);
    ret = ciaaPOSIX_strncmp("/dev/serial", "/dev/z", 6);

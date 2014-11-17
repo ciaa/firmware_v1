@@ -76,7 +76,14 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-extern char * ciaaPOSIX_strcpy(char * dest, char const * src);
+/** \brief string copy
+ **
+ ** \param[in] s1 destination buffer
+ ** \param[in] s2 string to be copied
+ ** \return a pointer to the terminating NULL character copied into the s1 buffer
+ **
+ **/
+extern char * ciaaPOSIX_strcpy(char * s1, char const * s2);
 
 /** \brief get string length
  **
