@@ -34,17 +34,17 @@
 #
 ###############################################################################
 # Project Name: used for Project Path and OSEK configuration file
-project 			 	 = bootloader
+project              = bootloader
 # Project path
-$(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
+$(project)_PATH      = $(ROOT_DIR)$(DS)examples$(DS)$(project)
 # source path
 $(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
 # include path
-INCLUDE			   += $($(project)_PATH)$(DS)inc
+INCLUDE              += $($(project)_PATH)$(DS)inc
 # library source files
-SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
+SRC_FILES            += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
-OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
+OIL_FILES            += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
 # Modules needed for this example
 MODS ?= modules$(DS)posix           \
         modules$(DS)ciaak           \

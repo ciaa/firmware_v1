@@ -49,16 +49,13 @@
 /*
  * Initials     Name
  * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas
+ * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141006 v0.0.1  EV  first initial version
+ * 20141006 v0.0.1  EsVo  first initial version
  */
 
  /*==================[inclusions]=============================================*/
