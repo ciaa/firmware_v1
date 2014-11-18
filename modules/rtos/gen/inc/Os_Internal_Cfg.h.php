@@ -69,7 +69,7 @@
  * 20090327 v0.1.4 MaCe add declaration of the start task for the app. modes
  * 20090131 v0.1.3 MaCe add extern to CountersVar declaration
  * 20090130 v0.1.2 MaCe add OSEK_MEMMAP check
- * 20090128 v0.1.1 MaCe remove ENABLE and DISABLE macro, now defined in OpenGEN
+ * 20090128 v0.1.1 MaCe remove OSEK_ENABLE and OSEK_DISABLE macro, now defined in OpenGEN
  * 20080713 v0.1.0 MaCe	initial version
  */
 <?php
@@ -184,15 +184,15 @@ print "/** \brief pre task hook enable-disable macro */\n";
 if($pretaskhook == "")
 {
 	warning("PRETASKHOOK isn't defined on the configuration, set disable as default");
-	print "#define HOOK_PRETASKHOOK DISABLE\n";
+	print "#define HOOK_PRETASKHOOK OSEK_DISABLE\n";
 }
 elseif($pretaskhook == "TRUE")
 {
-	print "#define HOOK_PRETASKHOOK ENABLE\n";
+	print "#define HOOK_PRETASKHOOK OSEK_ENABLE\n";
 }
 elseif($pretaskhook == "FALSE")
 {
-   print "#define HOOK_PRETASKHOOK DISABLE\n";
+   print "#define HOOK_PRETASKHOOK OSEK_DISABLE\n";
 }
 else
 {
@@ -204,15 +204,15 @@ print "/** \brief post task hook enable-disable macro */\n";
 if($posttaskhook == "")
 {
    warning("POSTTASKHOOK isn't defined on the configuration, set disable as default");
-   print "#define HOOK_POSTTASKHOOK DISABLE\n";
+   print "#define HOOK_POSTTASKHOOK OSEK_DISABLE\n";
 }
 elseif($posttaskhook == "TRUE")
 {
-   print "#define HOOK_POSTTASKHOOK ENABLE\n";
+   print "#define HOOK_POSTTASKHOOK OSEK_ENABLE\n";
 }
 elseif($pretaskhook == "FALSE")
 {
-   print "#define HOOK_POSTTASKHOOK DISABLE\n";
+   print "#define HOOK_POSTTASKHOOK OSEK_DISABLE\n";
 }
 else
 {
@@ -224,15 +224,15 @@ print "/** \brief error hook enable-disable macro */\n";
 if($errorhook == "")
 {
    warning("ERRORHOOK isn't defined on the configuration, set disable as default");
-   print "#define HOOK_ERRORHOOK DISABLE\n";
+   print "#define HOOK_ERRORHOOK OSEK_DISABLE\n";
 }
 elseif($errorhook == "TRUE")
 {
-   print "#define HOOK_ERRORHOOK ENABLE\n";
+   print "#define HOOK_ERRORHOOK OSEK_ENABLE\n";
 }
 elseif($errorhook == "FALSE")
 {
-   print "#define HOOK_ERRORHOOK DISABLE\n";
+   print "#define HOOK_ERRORHOOK OSEK_DISABLE\n";
 }
 else
 {
@@ -244,15 +244,15 @@ print "/** \brief startup hook enable-disable macro */\n";
 if($startuphook == "")
 {
    warning("STARTUPHOOK isn't defined on the configuration, set disable as default");
-   print "#define HOOK_STARTUPHOOK DISABLE\n";
+   print "#define HOOK_STARTUPHOOK OSEK_DISABLE\n";
 }
 elseif($startuphook == "TRUE")
 {
-   print "#define HOOK_STARTUPHOOK ENABLE\n";
+   print "#define HOOK_STARTUPHOOK OSEK_ENABLE\n";
 }
 elseif($startuphook == "FALSE")
 {
-   print "#define HOOK_STARTUPHOOK DISABLE\n";
+   print "#define HOOK_STARTUPHOOK OSEK_DISABLE\n";
 }
 else
 {
@@ -264,15 +264,15 @@ print "/** \brief shutdown hook enable-disable macro */\n";
 if($shutdownhook == "")
 {
    warning("SHUTDOWNHOOK isn't defined on the configuration, set disable as default");
-   print "#define HOOK_SHUTDOWNHOOK DISABLE\n";
+   print "#define HOOK_SHUTDOWNHOOK OSEK_DISABLE\n";
 }
 elseif($shutdownhook == "TRUE")
 {
-   print "#define HOOK_SHUTDOWNHOOK ENABLE\n";
+   print "#define HOOK_SHUTDOWNHOOK OSEK_ENABLE\n";
 }
 elseif($shutdownhook == "FALSE")
 {
-   print "#define HOOK_SHUTDOWNHOOK DISABLE\n";
+   print "#define HOOK_SHUTDOWNHOOK OSEK_DISABLE\n";
 }
 else
 {
@@ -338,22 +338,22 @@ foreach($tasks as $task)
 print "/** \brief NON_PREEMPTIVE macro definition */\n";
 if ($preemptive == false)
 {
-	print "#define NON_PREEMPTIVE	ENABLE\n\n";
+	print "#define NON_PREEMPTIVE	OSEK_ENABLE\n\n";
 }
 else
 {
-	print "#define NON_PREEMPTIVE	DISABLE\n\n";
+	print "#define NON_PREEMPTIVE	OSEK_DISABLE\n\n";
 }
 
 $events = $config->getList("/OSEK","EVENT");
 print "/** \brief NO_EVENTS macro definition */\n";
 if(count($events) == 0)
 {
-	print "#define NO_EVENTS ENABLE\n\n";
+	print "#define NO_EVENTS OSEK_ENABLE\n\n";
 }
 else
 {
-	print "#define NO_EVENTS DISABLE\n\n";
+	print "#define NO_EVENTS OSEK_DISABLE\n\n";
 }
 
 $schedulerpolicy = $config->getValue("/OSEK/" . $os[0],"USERESSCHEDULER");
@@ -361,14 +361,14 @@ print "/** \brief NO_RES_SCHEDULER macro definition */\n";
 switch($schedulerpolicy)
 {
 	case "FALSE":
-		print "#define NO_RES_SCHEDULER ENABLE\n\n";
+		print "#define NO_RES_SCHEDULER OSEK_ENABLE\n\n";
 		break;
 	case "TRUE":
-		print "#define NO_RES_SCHEDULER DISABLE\n\n";
+		print "#define NO_RES_SCHEDULER OSEK_DISABLE\n\n";
 		break;
 	default :
 		warning("USERESSCHEDULER not defined on the configuration, using FALSE as default");
-		print "#define NO_RES_SCHEDULER ENABLE\n\n";
+		print "#define NO_RES_SCHEDULER OSEK_ENABLE\n\n";
 		break;
 }
 

@@ -176,7 +176,7 @@ const uint8 TestResultsOk[35] =
 #else
 	| ( INIT << 6 ),		/* TM_20 index 19 */
 #endif
-#if ( (defined ctest_tm_01) && (ISR_CATEGORY_3 == ENABLE) )
+#if ( (defined ctest_tm_01) && (ISR_CATEGORY_3 == OSEK_ENABLE) )
 	  ( OK << 0 )			/* TM_21 index 20 */
 #else
 	  ( INIT << 0 )		/* TM_21 index 20 */
@@ -201,7 +201,7 @@ const uint8 TestResultsOk[35] =
 #else
 	  ( INIT << 0 )		/* TM_25 index 24 */
 #endif
-#if ( (defined ctest_tm_01) && (ISR_CATEGORY_3 == ENABLE) )
+#if ( (defined ctest_tm_01) && (ISR_CATEGORY_3 == OSEK_ENABLE) )
 	| ( OK << 2 )			/* TM_26 index 25 */
 #else
 	| ( INIT << 2 )		/* TM_26 index 25 */
@@ -251,7 +251,7 @@ const uint8 TestResultsOk[35] =
 #else
 	| ( INIT << 4 )		/* TM_35 index 34 */
 #endif
-#if ( (defined ctest_tm_01) && (ISR_CATEGORY_3 == ENABLE) )
+#if ( (defined ctest_tm_01) && (ISR_CATEGORY_3 == OSEK_ENABLE) )
 	| ( OK << 6 ),			/* TM_36 index 35 */
 #else
 	| ( INIT << 6 ),		/* TM_36 index 35 */
@@ -261,7 +261,7 @@ const uint8 TestResultsOk[35] =
 #else
 	  ( INIT << 0 )		/* TM_37 index 36 */
 #endif
-#if ( (defined ctest_tm_01) && (ISR_CATEGORY_3 == ENABLE) )
+#if ( (defined ctest_tm_01) && (ISR_CATEGORY_3 == OSEK_ENABLE) )
 	| ( OK << 2 )			/* TM_38 index 37 */
 #else
 	| ( INIT << 2 )		/* TM_38 index 37 */

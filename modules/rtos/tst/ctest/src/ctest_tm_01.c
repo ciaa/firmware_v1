@@ -171,10 +171,10 @@ TASK(Task1)
 	/*  trigger ISR 2 */
 	TriggerISR2();
 
-#if ( ISR_CATEGORY_3 == ENABLE )
+#if ( ISR_CATEGORY_3 == OSEK_ENABLE )
 	/* trigger ISR 3 */
 	TriggerISR3();
-#endif /* #if ( ISR_CATEGORY_3 == ENABLE ) */
+#endif /* #if ( ISR_CATEGORY_3 == OSEK_ENABLE ) */
 
 	Sequence(18);
 	/* evaluate conformance tests */
@@ -259,7 +259,7 @@ ISR(ISR2)
 	ASSERT(TM_37, (ret != E_OK) || (TaskID != Task1) );
 }
 
-#if ( ISR_CATEGORY_3 == ENABLE )
+#if ( ISR_CATEGORY_3 == OSEK_ENABLE )
 ISR(ISR3)
 {
 	StatusType ret;
@@ -297,7 +297,7 @@ ISR(ISR3)
 	LeaveISR();
 
 }
-#endif /* #if ( ISR_CATEGORY_3 == ENABLE ) */
+#endif /* #if ( ISR_CATEGORY_3 == OSEK_ENABLE ) */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

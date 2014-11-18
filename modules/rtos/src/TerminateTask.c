@@ -104,32 +104,32 @@ StatusType TerminateTask
 		ret = E_OS_CALLEVEL;
 	}
 
-#if ( (RESOURCES_COUNT != 0) || (NO_RES_SCHEDULER == DISABLE) )
+#if ( (RESOURCES_COUNT != 0) || (NO_RES_SCHEDULER == OSEK_DISABLE) )
 	/* check if on or more resources are ocupied */
 	else if (
 #if (RESOURCES_COUNT != 0)
 				 ( TasksVar[GetRunningTask()].Resources != 0 )
 #endif /* #if (RESOURCES_COUNT != 0) */
-#if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == DISABLE) )
+#if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == OSEK_DISABLE) )
 					||
-#endif /* #if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == DISABLE) ) */
-#if (NO_RES_SCHEDULER == DISABLE)
+#endif /* #if ( (RESOURCES_COUNT != 0) && (NO_RES_SCHEDULER == OSEK_DISABLE) ) */
+#if (NO_RES_SCHEDULER == OSEK_DISABLE)
 				 ( TasksVar[GetRunningTask()].ActualPriority == TASK_MAX_PRIORITY )
-#endif /* #if (NO_RES_SCHEDULER == DISABLE) */
+#endif /* #if (NO_RES_SCHEDULER == OSEK_DISABLE) */
 			  )
 	{
 		/* \req OSEK_SYS_3.2.7-2/2 Possibly return values in Extended mode are
 		 ** E_OS_RESOURCE or E_OS_CALLEVEL */
 		ret = E_OS_RESOURCE;
 	}
-#endif /* #if ( (RESOURCES_COUNT != 0) || (NO_RES_SCHEDULER == DISABLE) ) */
+#endif /* #if ( (RESOURCES_COUNT != 0) || (NO_RES_SCHEDULER == OSEK_DISABLE) ) */
 	else
 #endif /* #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED) */
 	{
 
-#if (HOOK_POSTTASKHOOK == ENABLE)
+#if (HOOK_POSTTASKHOOK == OSEK_ENABLE)
 		PostTaskHook();
-#endif /* #if (HOOK_POSTTASKHOOK == ENABLE) */
+#endif /* #if (HOOK_POSTTASKHOOK == OSEK_ENABLE) */
 
 		IntSecure_Start();
 
@@ -177,7 +177,7 @@ StatusType TerminateTask
 		(void)Schedule();
 	}
 
-#if (HOOK_ERRORHOOK == ENABLE)
+#if (HOOK_ERRORHOOK == OSEK_ENABLE)
 	/* \req OSEK_ERR_1.3-2/xx The ErrorHook hook routine shall be called if a
 	 ** system service returns a StatusType value not equal to E_OK.*/
 	/* \req OSEK_ERR_1.3.1-2/xx The hook routine ErrorHook is not called if a

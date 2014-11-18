@@ -132,7 +132,7 @@ void StartOS
 		}
 	}
 
-#if (HOOK_STARTUPHOOK == ENABLE)
+#if (HOOK_STARTUPHOOK == OSEK_ENABLE)
 	StartupHook();
 #endif
 

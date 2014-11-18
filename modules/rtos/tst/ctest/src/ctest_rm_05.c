@@ -115,10 +115,10 @@ TASK(Task1)
    /*  trigger ISR 2 */
    TriggerISR2();
 
-#if ( ISR_CATEGORY_3 == ENABLE )
+#if ( ISR_CATEGORY_3 == OSEK_ENABLE )
    /* trigger ISR 3 */
    TriggerISR3();
-#endif /* #if ( ISR_CATEGORY_3 == ENABLE ) */
+#endif /* #if ( ISR_CATEGORY_3 == OSEK_ENABLE ) */
 
    Sequence(5);
    /* \treq RM_12 nmf B1B2E1E2 e Call ReleaseResource() from a task with a resource
@@ -183,7 +183,7 @@ ISR(ISR2)
    ASSERT(RM_10, ret == E_OK);
 }
 
-#if ( ISR_CATEGORY_3 == ENABLE )
+#if ( ISR_CATEGORY_3 == OSEK_ENABLE )
 ISR(ISR3)
 {
    StatusType ret;
@@ -194,7 +194,7 @@ ISR(ISR3)
 
    LeaveISR();
 }
-#endif /* #if ( ISR_CATEGORY_3 == ENABLE ) */
+#endif /* #if ( ISR_CATEGORY_3 == OSEK_ENABLE ) */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

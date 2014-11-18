@@ -308,12 +308,12 @@ AlarmIncrementType IncrementAlarm(AlarmType AlarmID, AlarmIncrementType Incremen
 							AlarmsConst[AlarmID].AlarmActionInfo.CallbackFunction();
 						}
 						break;
-#if (NO_EVENTS == DISABLE)
+#if (NO_EVENTS == OSEK_DISABLE)
 					case SETEVENT:
 						/* set event */
 						SetEvent(AlarmsConst[AlarmID].AlarmActionInfo.TaskID, AlarmsConst[AlarmID].AlarmActionInfo.Event);
 						break;
-#endif /* #if (NO_EVENTS == DISABLE) */
+#endif /* #if (NO_EVENTS == OSEK_DISABLE) */
 					default:
 						/* some error */
 						/* possibly TODO, report an error */

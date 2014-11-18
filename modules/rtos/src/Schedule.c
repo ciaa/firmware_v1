@@ -152,9 +152,9 @@
          /* set actual context task */
          SetActualContext(CONTEXT_TASK);
 
-#if (HOOK_PRETASKHOOK == ENABLE)
+#if (HOOK_PRETASKHOOK == OSEK_ENABLE)
          PreTaskHook();
-#endif /* #if (HOOK_PRETASKHOOK == ENABLE) */
+#endif /* #if (HOOK_PRETASKHOOK == OSEK_ENABLE) */
 
          /* jmp tp the next task */
          JmpTask(nexttask);
@@ -168,9 +168,9 @@
          if ( TasksConst[nexttask].StaticPriority > TasksVar[actualtask].ActualPriority )
          {
 
-#if (HOOK_POSTTASKHOOK == ENABLE)
+#if (HOOK_POSTTASKHOOK == OSEK_ENABLE)
             PostTaskHook();
-#endif /* #if (HOOK_POSTTASKHOOK == ENABLE) */
+#endif /* #if (HOOK_POSTTASKHOOK == OSEK_ENABLE) */
 
             /* \req OSEK_SYS_3.4.1.1 the internal resource of the task shall be
              ** released */
@@ -188,9 +188,9 @@
             /* set actual context task */
             SetActualContext(CONTEXT_TASK);
 
-#if (HOOK_PRETASKHOOK == ENABLE)
+#if (HOOK_PRETASKHOOK == OSEK_ENABLE)
             PreTaskHook();
-#endif /* #if (HOOK_PRETASKHOOK == ENABLE) */
+#endif /* #if (HOOK_PRETASKHOOK == OSEK_ENABLE) */
 
             /* \req OSEK_SYS_3.4.1.3 its context is saved */
             /* \req OSEK_SYS_3.4.1.4 and the higher-priority task is executed */
@@ -204,7 +204,7 @@
       }
    }
 
-#if (HOOK_ERRORHOOK == ENABLE)
+#if (HOOK_ERRORHOOK == OSEK_ENABLE)
    /* \req OSEK_ERR_1.3-4/xx The ErrorHook hook routine shall be called if a
     ** system service returns a StatusType value not equal to E_OK.*/
    /* \req OSEK_ERR_1.3.1-4/xx The hook routine ErrorHook is not called if a

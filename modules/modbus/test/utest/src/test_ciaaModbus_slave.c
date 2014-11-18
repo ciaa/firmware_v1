@@ -189,6 +189,47 @@ static void cmd0x05WriteSingleCoil(
    valueCoil[start] = (value == 0)? 0 : 1;
 }
 
+static void cmd0x06WriteSingleRegister(
+      uint16_t start,
+      uint8_t * exceptioncode,
+      uint8_t * buf)
+{
+   valueHoldReg[start] = ciaaModbus_readInt(buf);;
+}
+
+static void cmd0x0FWriteMultipleCoils(
+      uint16_t start,
+      uint16_t quantity,
+      uint8_t bytecount,
+      uint8_t * exceptioncode,
+      uint8_t * buf
+      )
+{
+   uint16_t indexCoils = 0;
+   uint16_t indexBuf = 0;
+   uint8_t mask = 0x01;
+
+   do
+   {
+      if (buf[indexBuf] & mask)
+      {
+         valueCoil[start+indexCoils] = 1;
+      }
+      else
+      {
+         valueCoil[start+indexCoils] = 0;
+      }
+
+      indexCoils++;
+      mask = mask << 1;
+      if (0 == mask)
+      {
+         mask = 0x01;
+         indexBuf++;
+      }
+   }while (indexCoils < quantity);
+}
+
 
 static void cmd0x10WriteMultipleReg(
       uint16_t start,
@@ -347,7 +388,7 @@ void test_ciaaModbus_slaveGetId_01(void)
  **/
 void test_ciaaModbus_functionNotSupported_00(void)
 {
-   uint8_t pduSend[7][256] =
+   uint8_t pduSend[9][256] =
    {
       /* pdu: invalid function */
       {0x00, 0x00, 0x00, 0x00, 0x00},
@@ -361,11 +402,15 @@ void test_ciaaModbus_functionNotSupported_00(void)
       {0x04, 0x00, 0x00, 0x00, 0x00},
       /* pdu: function 0x05 */
       {0x05, 0x00, 0x00, 0x00, 0x00},
+      /* pdu: function 0x06 */
+      {0x06, 0x00, 0x00, 0x00, 0x00},
+      /* pdu: function 0x0F */
+      {0x0F, 0x00, 0x00, 0x00, 0x00},
       /* pdu: function 0x10 */
       {0x10, 0x00, 0x00, 0x00, 0x00},
    };
 
-   uint8_t pduExpected[7][256] =
+   uint8_t pduExpected[9][256] =
    {
       /* response: invalid function */
       {0x80, 0x01},
@@ -380,11 +425,15 @@ void test_ciaaModbus_functionNotSupported_00(void)
       /* response: invalid function */
       {0x85, 0x01},
       /* response: invalid function */
+      {0x86, 0x01},
+      /* response: invalid function */
+      {0x8F, 0x01},
+      /* response: invalid function */
       {0x90, 0x01},
    };
-   uint8_t pduRecv[7][256];
-   uint8_t id[7];
-   uint32_t size[7];
+   uint8_t pduRecv[9][256];
+   uint8_t id[9];
+   uint32_t size[9];
    uint32_t loopi;
 
    const ciaaModbus_slaveCmd_type callbacksStruct =
@@ -403,7 +452,7 @@ void test_ciaaModbus_functionNotSupported_00(void)
    /* open modbus slave */
    hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
 
-   for (loopi = 0 ; loopi < 7 ; loopi++)
+   for (loopi = 0 ; loopi < 9 ; loopi++)
    {
       /* send */
       ciaaModbus_slaveSendMsg(
@@ -423,7 +472,7 @@ void test_ciaaModbus_functionNotSupported_00(void)
             &size[loopi]);
    }
 
-   for (loopi = 0 ; loopi < 7 ; loopi++)
+   for (loopi = 0 ; loopi < 9 ; loopi++)
    {
       /* verify PDU */
       TEST_ASSERT_EQUAL_UINT8_ARRAY(
@@ -961,6 +1010,179 @@ void test_ciaaModbus_function0x05Msg_03(void)
    TEST_ASSERT_EQUAL_UINT8(0, valueCoil[0x1234]);
 }
 
+/** \brief test write single register
+ **
+ ** this function test write single register
+ **
+ **/
+void test_ciaaModbus_function0x06Msg_01(void)
+{
+   uint8_t pduSend[256] = {0x06, 0x12, 0x34, 0xAB, 0xCD};
+   uint8_t pduExpected[256] = {0x06, 0x12, 0x34, 0xAB, 0xCD};
+   uint8_t pduRecv[256];
+   uint8_t id;
+   uint32_t size;
+
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      cmd0x06WriteSingleRegister,
+      NULL,
+      NULL,
+      NULL,
+   };
+
+   valueHoldReg[0x1234] = 0;
+
+   /* open modbus slave */
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+
+   /* send, task and recv */
+   ciaaModbus_slaveSendMsg(
+         hModbusSlave,
+         SLAVE_ID,
+         pduSend,
+         5);
+
+   ciaaModbus_slaveTask(hModbusSlave);
+
+   ciaaModbus_slaveRecvMsg(
+         hModbusSlave,
+         &id,
+         pduRecv,
+         &size);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected,
+         pduRecv,
+         5);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id);
+   TEST_ASSERT_EQUAL_UINT32(5, size);
+
+   TEST_ASSERT_EQUAL_UINT16(0xABCD, valueHoldReg[0x1234]);
+}
+
+/** \brief test write multiple coils
+ **
+ ** this function test write multiple coils on slave
+ **
+ **/
+void test_ciaaModbus_function0x0FMsg_01(void)
+{
+   uint8_t pduSend[4][256] =
+   {
+      /* pdu: invalid quantity of coils */
+      {0x0F, 0x00, 0x00, 0x07, 0xB1, 0xF7, 0X00, 0X00},
+      /* pdu: invalid quantity of registers */
+      {0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0X00, 0X00},
+      /* pdu: invalid byte count */
+      {0x0F, 0x00, 0x00, 0x00, 0x09, 0x01, 0X00, 0X00},
+      /* pdu: ok */
+      {0x0F, 0x12, 0x34, 0x00, 0x0A, 0x02, 0xCD, 0x01},
+   };
+   uint16_t lengthSend[4] =
+   {
+      8,
+      8,
+      8,
+      8,
+   };
+
+   uint8_t pduExpected[4][256] =
+   {
+      /* response: invalid quantity */
+      {0x8F, 0x03},
+      /* response: invalid quantity */
+      {0x8F, 0x03},
+      /* response: invalid quantity */
+      {0x8F, 0x03},
+      /* response: ok */
+      {0x0F, 0x12, 0x34, 0x00, 0x0A},
+   };
+   uint8_t pduRecv[4][256];
+   uint8_t id[4];
+   uint32_t size[4];
+   uint32_t loopi;
+
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      cmd0x0FWriteMultipleCoils,
+      NULL,
+      NULL,
+   };
+
+   /* open modbus slave */
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+
+   for (loopi = 0 ; loopi < 4 ; loopi++)
+   {
+      /* send, task and recv */
+      ciaaModbus_slaveSendMsg(
+            hModbusSlave,
+            SLAVE_ID,
+            pduSend[loopi],
+            lengthSend[loopi]);
+
+      ciaaModbus_slaveTask(hModbusSlave);
+
+      ciaaModbus_slaveRecvMsg(
+            hModbusSlave,
+            &id[loopi],
+            pduRecv[loopi],
+            &size[loopi]);
+   }
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[0],
+         pduRecv[0],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[0]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[0]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[1],
+         pduRecv[1],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[1]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[1]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[2],
+         pduRecv[2],
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[2]);
+   TEST_ASSERT_EQUAL_UINT32(2, size[2]);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected[3],
+         pduRecv[3],
+         5);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id[3]);
+   TEST_ASSERT_EQUAL_UINT32(5, size[3]);
+
+   TEST_ASSERT_EQUAL_UINT8(0X01, valueCoil[0x1234+0]);
+   TEST_ASSERT_EQUAL_UINT8(0X00, valueCoil[0x1234+1]);
+   TEST_ASSERT_EQUAL_UINT8(0X01, valueCoil[0x1234+2]);
+   TEST_ASSERT_EQUAL_UINT8(0X01, valueCoil[0x1234+3]);
+   TEST_ASSERT_EQUAL_UINT8(0X00, valueCoil[0x1234+4]);
+   TEST_ASSERT_EQUAL_UINT8(0X00, valueCoil[0x1234+5]);
+   TEST_ASSERT_EQUAL_UINT8(0X01, valueCoil[0x1234+6]);
+   TEST_ASSERT_EQUAL_UINT8(0X01, valueCoil[0x1234+7]);
+   TEST_ASSERT_EQUAL_UINT8(0X01, valueCoil[0x1234+8]);
+   TEST_ASSERT_EQUAL_UINT8(0X00, valueCoil[0x1234+9]);
+}
 
 /** \brief test write multiple registers
  **

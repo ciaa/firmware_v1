@@ -153,7 +153,7 @@ void SysTick_Handler(void)
 	//ClearTimerInterrupt_Cpu();
 
 #if 0 /* TODO */
-#if (NON_PREEMPTIVE == DISABLE)
+#if (NON_PREEMPTIVE == OSEK_DISABLE)
 		/* check if interrupt a Task Context */
 		if ( GetCallingContext() ==  CONTEXT_TASK )
 		{
@@ -164,7 +164,7 @@ void SysTick_Handler(void)
 				(void)Schedule();
 			}
 		}
-#endif /* #if (NON_PREEMPTIVE == ENABLE) */
+#endif /* #if (NON_PREEMPTIVE == OSEK_ENABLE) */
 #endif
 }
 

@@ -58,7 +58,7 @@
  * modification history (new versions first)
  * -----------------------------------------------------------
  * v0.1.2 20090330 MaCe improve Types.h (many changes)
- * v0.1.1 20090128 MaCe add DISABLE and ENABLE macros
+ * v0.1.1 20090128 MaCe add OSEK_DISABLE and OSEK_ENABLE macros
  * v0.1.0 20081126 MaCe initial version
  */
 
@@ -66,18 +66,18 @@
 #include "Compiler.h"
 
 /*==================[macros]=================================================*/
-#ifndef ENABLE
-/** \brief ENABLE macro with the value 1 */
-#define ENABLE 1
-#elif ENABLE != 1
-#error ENABLE defined somewhere else with a different value
+#ifndef OSEK_ENABLE
+/** \brief OSEK_ENABLE macro with the value 1 */
+#define OSEK_ENABLE 1
+#elif OSEK_ENABLE != 1
+#error OSEK_ENABLE defined somewhere else with a different value
 #endif
 
-#ifndef DISABLE
-/** \brief DISABLE macro 2 */
-#define DISABLE 2
-#elif DISABLE != 2
-#error DISABLE defined somewhere else with a different value
+#ifndef OSEK_DISABLE
+/** \brief OSEK_DISABLE macro 2 */
+#define OSEK_DISABLE 2
+#elif OSEK_DISABLE != 2
+#error OSEK_DISABLE defined somewhere else with a different value
 #endif
 
 /** \brief Check for C99-Compiler */
