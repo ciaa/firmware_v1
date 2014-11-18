@@ -62,7 +62,7 @@
 #include "ciaaDriverUart_Internal.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
-#include "OS_Internal.h"
+#include "OS.h"
 
 /*==================[macros and definitions]=================================*/
 /** \brief Cygwin only support deprecated macro FASYNC */
