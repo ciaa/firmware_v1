@@ -33,34 +33,40 @@
  *
  */
 
-#ifndef _BOOTLOADER_H_
-#define _BOOTLOADER_H_
-/** \brief Bootloader header file
- **
- ** This is an bootloader program to implement remote software update.
+#ifndef _CIAADRIVERFLASH_INTERNAL_H_
+#define _CIAADRIVERFLASH_INTERNAL_H_
+/** \brief Internal Header file of UART Driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Examples CIAA Firmware Examples
+/** \addtogroup Drivers CIAA Drivers
  ** @{ */
-/** \addtogroup Bootloader Bootloader header file
+/** \addtogroup UART UART Drivers
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * EsVo         Esteban Volentini
+ * DC           Daniel Cohen
+ * EV           Esteban Volentini
+ * MG           Matias Giori
+ * FS           Franco Salinas  
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141006 v0.0.1  EsVo  first initial version
+ * 20141006 v0.0.1  EV  first initial version
  */
 
 /*==================[inclusions]=============================================*/
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*==================[macros]=================================================*/
 
@@ -70,9 +76,12 @@
 
 /*==================[external functions declaration]=========================*/
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _BOOTLOADER_H_ */
-
+#endif /* #ifndef _CIAADRIVERFLASH_INTERNAL_H_ */

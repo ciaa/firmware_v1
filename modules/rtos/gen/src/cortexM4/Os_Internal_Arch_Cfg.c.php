@@ -231,7 +231,7 @@ for($i=0; $i < $MAX_INT_COUNT; $i++)
             $src_found = 1;
          } elseif ($intcat == 1)
          {
-            print "  OSEK_ISR_$int, /* ISR for " . $intList[$i] . " (IRQ $i) Category 1 */\n";
+            print "   OSEK_ISR_$int, /* ISR for " . $intList[$i] . " (IRQ $i) Category 1 */\n";
             $src_found = 1;
          } else
          {

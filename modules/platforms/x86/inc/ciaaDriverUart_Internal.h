@@ -46,17 +46,22 @@
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe         Mariano Cerdeiro
+ * EsVo			 Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140528 v0.0.1 initials initial version
+ * 20140528 v0.0.1 MaCe initial version
+ * 20141116 v0.0.2 EsVo add uart emulation via sockets
  */
-
+ 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stdbool.h"
+#include "sys/socket.h"
+#include "netinet/in.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -72,10 +77,31 @@ typedef struct {
    uint8_t buffer[2048];
 } ciaaDriverUart_bufferType;
 
+#ifdef ENABLE_UART_EMULATION
+/** \brief Server side uart emulator Structure */
+typedef struct ciaaDriverUart_serverStruct {
+	struct sockaddr_in address;
+   int socket;
+} ciaaDriverUart_serverType;
+
+/** \brief Client side uart emulator Structure */
+typedef struct ciaaDriverUart_clientStruct {
+	struct sockaddr_in address;
+   socklen_t addressSize;
+   int socket;
+   bool conected;
+	int sending;
+} ciaaDriverUart_clientType;
+#endif // ENABLE_UART_EMULATION
+
 /** \brief Uart Type */
 typedef struct {
    ciaaDriverUart_bufferType rxBuffer;
    ciaaDriverUart_bufferType txBuffer;
+#ifdef ENABLE_UART_EMULATION
+	ciaaDriverUart_serverType server;
+	ciaaDriverUart_clientType client;
+#endif // ENABLE_UART_EMULATION
 } ciaaDriverUart_uartType;
 
 /*==================[external data declaration]==============================*/
@@ -103,4 +129,3 @@ extern void ciaaDriverUart_uart1_txConfirmation(void);
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef _CIAADRIVERUART_INTERNAL_H_ */
-

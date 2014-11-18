@@ -101,24 +101,37 @@ kconfig              ?= $(LINUX_TOOLS_PATH)$(DS)kconfig$(DS)kconfig-qtconf
 ifeq ($(OS),Windows_NT)
 # WINDOWS
 # Command line separator
-CS             = ;
+CS                = ;
 # Command for multiline echo
-MULTILINE_ECHO = echo -e
-OS             = WIN
+MULTILINE_ECHO    = echo -e
+OS                = WIN
+# Libraries group linker parameters
+START_GROUP       = -Xlinker --start-group
+END_GROUP         = -Xlinker --end-group
 else
 # NON WINDOWS OS
 # Command line separator
-CS             = ;
+CS                = ;
 # Comand for multiline echo
-MULTILINE_ECHO = echo -n
-   UNAME_S := $(shell uname -s)
-   ifeq ($(UNAME_S),Linux)
-      # LINUX
-   endif
-   ifeq ($(UNAME_S),Darwin)
-      # MACOS
-   endif
+MULTILINE_ECHO    = echo -n
+UNAME_S           := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+# LINUX
+# Libraries group linker parameters
+START_GROUP       = -Xlinker --start-group
+END_GROUP         = -Xlinker --end-group
 endif
+ifeq ($(UNAME_S),Darwin)
+# MACOS
+# Compile in 32 bits mode
+CFLAGS            += -m32 -Wno-typedef-redefinition
+# 32 bits non relocable excutable image
+LFLAGS            += -m32 -Xlinker -no_pie
+# Libraries group linker parameters
+START_GROUP       = -all_load
+endif
+endif
+
 ###############################################################################
 # get root dir
 ROOT_DIR := .
@@ -374,7 +387,6 @@ $(project) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
 	@echo ' '
-	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) -Xlinker --start-group $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(project)
