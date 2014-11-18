@@ -46,16 +46,15 @@
 /*
  * Initials     Name
  * ---------------------------
- * MC         	 Mariano Cerdeiro
- * EV			 	 Esteban Volentini
+ * MaCe         Mariano Cerdeiro
+ * EsVo			 Esteban Volentini
  */
-
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140528 v0.0.1 MC initial version
- * 20141116 v0.0.2 EV add uart emulation via sockets
+ * 20140528 v0.0.1 MaCe initial version
+ * 20141116 v0.0.2 EsVo add uart emulation via sockets
  */
  
 /*==================[inclusions]=============================================*/
@@ -78,6 +77,7 @@ typedef struct {
    uint8_t buffer[2048];
 } ciaaDriverUart_bufferType;
 
+#ifdef ENABLE_UART_EMULATION
 /** \brief Server side uart emulator Structure */
 typedef struct ciaaDriverUart_serverStruct {
 	struct sockaddr_in address;
@@ -92,13 +92,16 @@ typedef struct ciaaDriverUart_clientStruct {
    bool conected;
 	int sending;
 } ciaaDriverUart_clientType;
+#endif // ENABLE_UART_EMULATION
 
 /** \brief Uart Type */
 typedef struct {
    ciaaDriverUart_bufferType rxBuffer;
    ciaaDriverUart_bufferType txBuffer;
+#ifdef ENABLE_UART_EMULATION
 	ciaaDriverUart_serverType server;
 	ciaaDriverUart_clientType client;
+#endif // ENABLE_UART_EMULATION
 } ciaaDriverUart_uartType;
 
 /*==================[external data declaration]==============================*/
