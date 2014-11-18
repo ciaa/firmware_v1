@@ -163,7 +163,9 @@ extern void ciaaModbus_slaveTask(int32_t handler)
    uint32_t ret = 0;
    uint8_t *buf = ciaaModbus_slaveObj[handler].buf;
    uint16_t quantity;
+   uint16_t quantityW;
    uint16_t address;
+   uint16_t addressW;
    uint16_t byteCount;
    uint16_t value;
    uint8_t exceptioncode = 0;
@@ -449,6 +451,60 @@ extern void ciaaModbus_slaveTask(int32_t handler)
 
                   /* set length of message */
                   ret = 5;
+               }
+            }
+            break;
+
+         case CIAA_MODBUS_FCN_READ_WRITE_MULTIPLE_REGISTERS:
+            /* verify if function is supported by application */
+            if ( (cmd->cmd0x03ReadHoldingReg == NULL) ||
+                 (cmd->cmd0x10WriteMultipleReg == NULL) )
+            {
+               /* function not supported */
+               exceptioncode = CIAA_MODBUS_E_FNC_NOT_SUPPORTED;
+            }
+            else
+            {
+               /* obtain read address of registers from buffer */
+               address = ciaaModbus_readInt(&buf[1]);
+
+               /* obtain read quantity of registers from buffer */
+               quantity = ciaaModbus_readInt(&buf[3]);
+
+               /* obtain write address of registers from buffer */
+               addressW = ciaaModbus_readInt(&buf[5]);
+
+               /* obtain write quantity of registers from buffer */
+               quantityW = ciaaModbus_readInt(&buf[7]);
+
+               /* calculate byte count to compare with received */
+               byteCount = quantityW * 2;
+
+               /* check correct range */
+               if ( (0x007D < quantity)  || (1 > quantity)  ||
+                    (0x0079 < quantityW) || (1 > quantityW) ||
+                    (byteCount != buf[9]) )
+               {
+                  /* report invalid quantity of registers */
+                  exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
+               }
+               else
+               {
+                  /* perform application function */
+                  cmd->cmd0x10WriteMultipleReg(addressW, quantityW, byteCount, &exceptioncode, &buf[10]);
+
+                  /* checks if not error */
+                  if (0 == exceptioncode)
+                  {
+                     /* perform application function */
+                     ret = cmd->cmd0x03ReadHoldingReg(address, quantity, &exceptioncode, &buf[2]);
+
+                     /* report byte count */
+                     buf[1] = ret * 2;
+
+                     /* set length of message */
+                     ret = 2 + buf[1];
+                  }
                }
             }
             break;

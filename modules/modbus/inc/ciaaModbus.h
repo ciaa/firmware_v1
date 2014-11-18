@@ -75,14 +75,15 @@ extern "C" {
 #define CIAA_MODBUS_E_FNC_ERROR                    0x04
 
 /****** functions ******/
-#define CIAA_MODBUS_FCN_READ_COILS                 0x01
-#define CIAA_MODBUS_FCN_READ_DISCRETE_INPUTS       0x02
-#define CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS     0x03
-#define CIAA_MODBUS_FCN_READ_INPUT_REGISTERS       0x04
-#define CIAA_MODBUS_FCN_WRITE_SINGLE_COIL          0x05
-#define CIAA_MODBUS_FCN_WRITE_SINGLE_REGISTER      0x06
-#define CIAA_MODBUS_FCN_WRITE_MULTIPLE_COILS       0x0F
-#define CIAA_MODBUS_FCN_WRITE_MULTIPLE_REGISTERS   0x10
+#define CIAA_MODBUS_FCN_READ_COILS                       0x01
+#define CIAA_MODBUS_FCN_READ_DISCRETE_INPUTS             0x02
+#define CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS           0x03
+#define CIAA_MODBUS_FCN_READ_INPUT_REGISTERS             0x04
+#define CIAA_MODBUS_FCN_WRITE_SINGLE_COIL                0x05
+#define CIAA_MODBUS_FCN_WRITE_SINGLE_REGISTER            0x06
+#define CIAA_MODBUS_FCN_WRITE_MULTIPLE_COILS             0x0F
+#define CIAA_MODBUS_FCN_WRITE_MULTIPLE_REGISTERS         0x10
+#define CIAA_MODBUS_FCN_READ_WRITE_MULTIPLE_REGISTERS    0x17
 
 #define CIAA_MODBUS_SLAVE_MIN_ID_VALUE             1
 #define CIAA_MODBUS_SLAVE_MAX_ID_VALUE             247
@@ -156,33 +157,6 @@ typedef void (*modbusSlave_processFuncMultipleWrite)(
       uint8_t * buf
       );
 
-/** \brief Modbus Command Multiple read write
- **
- ** This function is called by the modbus and provided by the application which
- ** implements a Multiple read write command:
- ** 0x17 Read/Write Multiple registers
- **
- ** \param[in] readStart read starting address
- ** \param[in] readQuantity quantity of holding registers to be read
- ** \param[in] writeStart write starting address
- ** \param[in] writeQuantity quantity of holding registers to be write
- ** \param[in] writeByteCount quantity of bytes to be write
- ** \param[out] exceptioncode may take one of the following values:
- **                  CIAAMODBUS_E_WRONG_STR_ADDR
- **                  CIAAMODBUS_E_FNC_ERROR
- ** \param[in] buf buffer containing the registers
- ** \return
- **/
-typedef void (*modbusSlave_processFuncMultipleReadWrite)(
-      uint16_t readStart,
-      uint16_t readQuantity,
-      uint16_t writeStart,
-      uint16_t writeQuantity,
-      uint8_t writeByteCount,
-      uint8_t * exceptioncode,
-      uint8_t * buf
-      );
-
 /** \brief Command callback type */
 typedef struct
 {
@@ -196,7 +170,6 @@ typedef struct
 
    modbusSlave_processFuncMultipleWrite      cmd0x0FWriteMultipleCoils;
    modbusSlave_processFuncMultipleWrite      cmd0x10WriteMultipleReg;
-   modbusSlave_processFuncMultipleReadWrite  cmd0x17ReadWriteMultipleReg;
 
 }ciaaModbus_slaveCmd_type;
 #endif   /* end Modbus slave types */
