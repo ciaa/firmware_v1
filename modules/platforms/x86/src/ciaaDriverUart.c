@@ -410,6 +410,20 @@ extern void ciaaDriverUart_uart1_txConfirmation(void)
 {
    ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
 }
+
+/* hardware stubs to avoid compilation errors due to handler definition in oil file */
+ISR(UART0_IRQHandler)
+{
+}
+
+ISR(UART2_IRQHandler)
+{
+}
+
+ISR(UART3_IRQHandler)
+{
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
