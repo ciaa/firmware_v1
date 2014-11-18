@@ -191,23 +191,23 @@ $MAX_INT_COUNT = max(array_keys($intList))+1;
 /** \brief LPC4337 Interrupt vector */
 __attribute__ ((section(".isr_vector")))
 void (* const g_pfnVectors[])(void) = {
-   // Core Level - CM4
-   &_vStackTop,                    // The initial stack pointer
-   ResetISR,                       // The reset handler
-   NMI_Handler,                    // The NMI handler
-   HardFault_Handler,              // The hard fault handler
-   MemManage_Handler,              // The MPU fault handler
-   BusFault_Handler,               // The bus fault handler
-   UsageFault_Handler,             // The usage fault handler
-   0,                              // Reserved
-   0,                              // Reserved
-   0,                              // Reserved
-   0,                              // Reserved
-   SVC_Handler,                    // SVCall handler
-   DebugMon_Handler,               // Debug monitor handler
-   0,                              // Reserved
-   PendSV_Handler,                 // The PendSV handler
-   SysTick_Handler,                // The SysTick handler
+   /* Core Level - CM4 */
+   &_vStackTop,                    /* The initial stack pointer  */
+   ResetISR,                       /* The reset handler          */
+   NMI_Handler,                    /* The NMI handler            */
+   HardFault_Handler,              /* The hard fault handler     */
+   MemManage_Handler,              /* The MPU fault handler      */
+   BusFault_Handler,               /* The bus fault handler      */
+   UsageFault_Handler,             /* The usage fault handler    */
+   0,                              /* Reserved                   */
+   0,                              /* Reserved                   */
+   0,                              /* Reserved                   */
+   0,                              /* Reserved                   */
+   SVC_Handler,                    /* SVCall handler             */
+   DebugMon_Handler,               /* Debug monitor handler      */
+   0,                              /* Reserved                   */
+   PendSV_Handler,                 /* The PendSV handler         */
+   SysTick_Handler,                /* The SysTick handler        */
 
    /* Chip Level - LPC43xx (M4 core) */
 <?php
