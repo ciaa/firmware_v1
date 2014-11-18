@@ -63,7 +63,6 @@
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
 #include "OS_Internal.h"
-#include "fcntl.h"
 
 /*==================[macros and definitions]=================================*/
 /** \brief Cygwin only support deprecated macro FASYNC */
@@ -97,7 +96,7 @@ static ciaaDevices_deviceType ciaaDriverUart_device0 = {
    NULL,                            /** <= seek function is not provided */
    NULL,                            /** <= upper layer */
    (void*)&ciaaDriverUart_uart0,    /** <= layer */
-   NULL                              /** <= server handlers as lower layer */
+   NULL                             /** <= NULL no lower layer */
 };
 
 /** \brief Device for UART 1 */
@@ -111,7 +110,7 @@ static ciaaDevices_deviceType ciaaDriverUart_device1 = {
    NULL,                            /** <= seek function is not provided */
    NULL,                            /** <= upper layer */
    (void*)&ciaaDriverUart_uart1,    /** <= layer */
-   NULL                              /** <= server handlers as lower layer */
+   NULL                             /** <= NULL no lower layer */
 };
 
 static ciaaDevices_deviceType * const ciaaUartDevices[] = {
@@ -148,7 +147,7 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
    ciaaSerialDevices_txConfirmation(device->upLayer, uart->txBuffer.length);
 }
 
-#ifdef ENABLE_UART_EMULATION
+#ifdef CIAADRVUART_ENABLE_EMULATION
 /** \brief Configure server socket to operate in asyncronous mode*/
 int ciaaDriverUart_configureScokect(int socket) {
    int result;
@@ -219,13 +218,13 @@ static void ciaaDriverUart_signalHandler(int signal, siginfo_t * info, void * co
       }
    }
 }
-#endif // ENABLE_UART_EMULATION
+#endif /* CIAADRVUART_ENABLE_EMULATION */
 
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
- #ifdef ENABLE_UART_EMULATION  
+ #ifdef CIAADRVUART_ENABLE_EMULATION  
    ciaaDriverUart_uartType * uart;
    struct sigaction signalAction;
    int index;
@@ -288,13 +287,13 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
       }
    }
    PostCallService();
-#endif // ENABLE_UART_EMULATION
+#endif /* CIAADRVUART_ENABLE_EMULATION */
    return device;
 }
 
 extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
-#ifdef ENABLE_UART_EMULATION
+#ifdef CIAADRVUART_ENABLE_EMULATION
    ciaaDriverUart_uartType * uart = device->layer;
 
    PreCallService();
@@ -303,14 +302,14 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
    }
    close(uart->server.socket);
    PostCallService();
-#endif // ENABLE_UART_EMULATION   
+#endif /* CIAADRVUART_ENABLE_EMULATION */  
    return 0;
 }
 
 extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
    int32_t ret = -1;
-#ifdef ENABLE_UART_EMULATION
+#ifdef CIAADRVUART_ENABLE_EMULATION
    ciaaDriverUart_uartType * uart = device->layer;
 
    if((device == ciaaDriverUartConst.devices[0]) ||
@@ -325,7 +324,7 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
          break;
       }
    }
-#endif // ENABLE_UART_EMULATION
+#endif /* CIAADRVUART_ENABLE_EMULATION */
    return ret;
 }
 
@@ -352,7 +351,7 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
    int32_t ret = 0;
 #ifdef ENABLE_UART_EMULATION   
    int32_t result;
-#endif // ENABLE_UART_EMULATION
+#endif /* CIAADRVUART_ENABLE_EMULATION */
    
    /* write data */
    if (0 == uart->txBuffer.length)
@@ -372,7 +371,7 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
          uart->client.sending = uart->txBuffer.length;
          uart->txBuffer.length = 0;
       }
-#endif // ENABLE_UART_EMULATION
+#endif /* CIAADRVUART_ENABLE_EMULATION */
    }
 
    return ret;

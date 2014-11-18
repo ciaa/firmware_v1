@@ -74,6 +74,7 @@
 #include "stdlib.h"     /* used to call exit to terminate the process */
 #include "time.h"       /* used to simulate the hardware timer */
 #include "string.h"     /* used to call the function strerror */
+#include "fcntl.h"      /* used to configure sockter in uart emulation */
 
 /*==================[macros]=================================================*/
 

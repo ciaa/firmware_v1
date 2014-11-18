@@ -58,10 +58,10 @@
  */
  
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaPOSIX_stdbool.h"
 #include "sys/socket.h"
 #include "netinet/in.h"
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stdbool.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -69,6 +69,8 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** Enable uart emulation via sockets */
+/* #define CIAADRVUART_ENABLE_EMULATION */
 
 /*==================[typedef]================================================*/
 /** \brief Buffer Structure */
@@ -77,7 +79,7 @@ typedef struct {
    uint8_t buffer[2048];
 } ciaaDriverUart_bufferType;
 
-#ifdef ENABLE_UART_EMULATION
+#ifdef CIAADRVUART_ENABLE_EMULATION
 /** \brief Server side uart emulator Structure */
 typedef struct ciaaDriverUart_serverStruct {
 	struct sockaddr_in address;
@@ -92,16 +94,16 @@ typedef struct ciaaDriverUart_clientStruct {
    bool conected;
 	int sending;
 } ciaaDriverUart_clientType;
-#endif // ENABLE_UART_EMULATION
+#endif /* CIAADRVUART_ENABLE_EMULATION */
 
 /** \brief Uart Type */
 typedef struct {
    ciaaDriverUart_bufferType rxBuffer;
    ciaaDriverUart_bufferType txBuffer;
-#ifdef ENABLE_UART_EMULATION
+#ifdef CIAADRVUART_ENABLE_EMULATION
 	ciaaDriverUart_serverType server;
 	ciaaDriverUart_clientType client;
-#endif // ENABLE_UART_EMULATION
+#endif /* CIAADRVUART_ENABLE_EMULATION */
 } ciaaDriverUart_uartType;
 
 /*==================[external data declaration]==============================*/
