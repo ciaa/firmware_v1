@@ -387,7 +387,7 @@ $(project) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
 	@echo ' '
-	@echo ' '
+	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) -Xlinker --start-group $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) -Xlinker --end-group -o $(LD_TARGET) $(LFLAGS)
 	@echo ===============================================================================
 	@echo Post Building $(project)
 	@echo ' '
