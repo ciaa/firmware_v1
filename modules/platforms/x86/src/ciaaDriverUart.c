@@ -62,7 +62,10 @@
 #include "ciaaDriverUart_Internal.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
-#include "OS.h"
+
+#ifdef CIAADRVUART_ENABLE_EMULATION
+   #include "fcntl.h"
+#endif #ifdef /* CIAADRVUART_ENABLE_EMULATION /*
 
 /*==================[macros and definitions]=================================*/
 /** \brief Cygwin only support deprecated macro FASYNC */
