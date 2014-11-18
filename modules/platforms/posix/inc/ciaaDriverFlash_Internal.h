@@ -1,4 +1,7 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Daniel Cohen
+ * Copyright 2014, Esteban Volentini
+ * Copyright 2014, Matias Giori
+ * Copyright 2014, Franco Salinas
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,8 +33,8 @@
  *
  */
 
-#ifndef _CIAADRIVERUART_INTERNAL_H_
-#define _CIAADRIVERUART_INTERNAL_H_
+#ifndef _CIAADRIVERFLASH_INTERNAL_H_
+#define _CIAADRIVERFLASH_INTERNAL_H_
 /** \brief Internal Header file of UART Driver
  **
  **/
@@ -46,22 +49,19 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
- * EsVo			 Esteban Volentini
+ * DC           Daniel Cohen
+ * EV           Esteban Volentini
+ * MG           Matias Giori
+ * FS           Franco Salinas  
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140528 v0.0.1 MaCe initial version
- * 20141116 v0.0.2 EsVo add uart emulation via sockets
+ * 20141006 v0.0.1  EV  first initial version
  */
- 
+
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaPOSIX_stdbool.h"
-#include "sys/socket.h"
-#include "netinet/in.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -71,54 +71,10 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Buffer Structure */
-typedef struct {
-   uint16_t length;
-   uint8_t buffer[2048];
-} ciaaDriverUart_bufferType;
-
-#ifdef ENABLE_UART_EMULATION
-/** \brief Server side uart emulator Structure */
-typedef struct ciaaDriverUart_serverStruct {
-	struct sockaddr_in address;
-   int socket;
-} ciaaDriverUart_serverType;
-
-/** \brief Client side uart emulator Structure */
-typedef struct ciaaDriverUart_clientStruct {
-	struct sockaddr_in address;
-   socklen_t addressSize;
-   int socket;
-   bool conected;
-	int sending;
-} ciaaDriverUart_clientType;
-#endif // ENABLE_UART_EMULATION
-
-/** \brief Uart Type */
-typedef struct {
-   ciaaDriverUart_bufferType rxBuffer;
-   ciaaDriverUart_bufferType txBuffer;
-#ifdef ENABLE_UART_EMULATION
-	ciaaDriverUart_serverType server;
-	ciaaDriverUart_clientType client;
-#endif // ENABLE_UART_EMULATION
-} ciaaDriverUart_uartType;
 
 /*==================[external data declaration]==============================*/
-/** \brief Uart 0 */
-extern ciaaDriverUart_uartType ciaaDriverUart_uart0;
-
-/** \brief Uart 1 */
-extern ciaaDriverUart_uartType ciaaDriverUart_uart1;
 
 /*==================[external functions declaration]=========================*/
-extern void ciaaDriverUart_uart0_rxIndication(void);
-
-extern void ciaaDriverUart_uart0_txConfirmation(void);
-
-extern void ciaaDriverUart_uart1_rxIndication(void);
-
-extern void ciaaDriverUart_uart1_txConfirmation(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -128,4 +84,4 @@ extern void ciaaDriverUart_uart1_txConfirmation(void);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAADRIVERUART_INTERNAL_H_ */
+#endif /* #ifndef _CIAADRIVERFLASH_INTERNAL_H_ */
