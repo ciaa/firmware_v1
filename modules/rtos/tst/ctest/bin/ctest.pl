@@ -44,6 +44,10 @@ use Data::Dumper;
 $errors = 0;
 $warnings = 0;
 $fatalerrors = 0;
+$SummaryTestsOk = 0;
+$SummaryTestsFailed = 0;
+$TestsSummaryFile  = "out/rtos/doc/ctest/ctestSummary.log";
+
 
 #Hide experimental warning (given/when)
 no if $] >= 5.018, warnings => "experimental::smartmatch";
@@ -305,6 +309,15 @@ sub EvaluateResults
          results("Test Result: $sctc - Test Case: " . getTestcaseName($loopi) . " - Result: " . @ts[$loopi] . " - ResultOk: " . @tsok[$loopi]);
       }
    }
+   # Any part of the test failed?
+   if($failedtotal == 0)
+   {
+      $SummaryTestsOk++;
+   }
+   else
+   {
+      $SummaryTestsFailed++;
+   }
    return $status;
 }
 
@@ -511,7 +524,11 @@ mkpath(dirname($logfilefull));
 open LOGFILEFULL, "> $logfilefull" or die "can not open $logfile for append: $!";
 mkpath(dirname($RES));
 open RESFILE, "> $RES" or die "can not open $RES for append: $!";
-
+mkpath(dirname($TestsSummaryFile));
+open SUMMARYFILE, ">>$TestsSummaryFile" or die "$$TestsSummaryFile can not be opened: $!";
+print SUMMARYFILE "***************************************************\r\n";
+print SUMMARYFILE "**************** RTOS Test Summary ****************\r\n";
+print SUMMARYFILE "***************************************************\r\n";
 info("Starting FreeOSEK Conformance Test Runner");
 
 @tests = GetTestSequences($TESTS);
@@ -563,8 +580,6 @@ if($debug != 0)
    print "Debug Mode: Enabled!\n";
 }
 
-my $TestsSummaryFile;
-
 foreach $testfn (@tests)
 {
    @test = split(/:/,$testfn);
@@ -572,8 +587,6 @@ foreach $testfn (@tests)
 
    info("Testing $test");
 
-   $TestsSummaryFile = "out/rtos/doc/ctest/ctestSummary.log";
-   mkpath(dirname($TestsSummaryFile));
    @configs = GetTestSequencesConfigs($TESTS, $testfn);
 
    foreach $config (@configs)
@@ -614,7 +627,7 @@ foreach $testfn (@tests)
          else
          {
             info("WARNING: skipping make clean of $test");
-			$outmakecleanstatus = 0;
+            $outmakecleanstatus = 0;
          }
 
          mkdir("out/gen/etc/");
@@ -690,47 +703,45 @@ foreach $testfn (@tests)
                   $outdbgstatus = 0;
                   if ($outdbgstatus == 0)
                   {
-                     results("**********************************************************************************");
+                     results("******************************************************");
                      results("\tTest: $test - Config: $config");
-                     results("**********************************************************************************");
+                     results("******************************************************");
                      $status = EvaluateResults();
                      results("Test: $test - Config: $config - Status: $status");
                      # Append to the Tests Summary File
-                     open FILE, ">>$TestsSummaryFile" or die "$$TestsSummaryFile can not be opened: $!";
-                     print FILE "Status: $status - Test: $test - Config: $config \r\n";
-                     close(FILE);
+                     print SUMMARYFILE "Status: $status - Test: $test - Config: $config \r\n";
                   }
                }
                else
                {
                   # Make Failed...Append to the Tests Summary File
-                  open FILE, ">>$TestsSummaryFile" or die "$$TestsSummaryFile can not be opened: $!";
-                  print FILE "Status: FAILED (MAKE) - Test: $test - Config: $config \r\n";
-                  close(FILE);
+                  $SummaryTestsFailed++;
+                  print SUMMARYFILE "Status: FAILED (MAKE) - Test: $test - Config: $config \r\n";
                }
             }
             else
             {
                # Make Generate Failed...Append to the Tests Summary File
-               open FILE, ">>$TestsSummaryFile" or die "$$TestsSummaryFile can not be opened: $!";
-               print FILE "Status: FAILED (MAKE GENERATE) - Test: $test - Config: $config \r\n";
-               close(FILE);
-               exit();
+               $SummaryTestsFailed++;
+               print SUMMARYFILE "Status: FAILED (MAKE GENERATE) - Test: $test - Config: $config \r\n";
             }
          }
       }
    }
 }
+# Print Tests Summary Results, and then close file
+print SUMMARYFILE "************** RTOS Test Summary Results **************\r\n";
+print SUMMARYFILE "Total Tests: ",$SummaryTestsOk + $SummaryTestsFailed,"\tTests OK: ",$SummaryTestsOk, "\tTests FAILED: ", $SummaryTestsFailed,"\n";
+close(SUMMARYFILE);
 # Print Tests Summary File
-open FILE, "<$TestsSummaryFile" or die "$TestsSummaryFile can not be opened: $!";
-print FILE "\n**************** RTOS Test Summary ****************\n";
+open SUMMARYFILE, "<$TestsSummaryFile" or die "$TestsSummaryFile can not be opened: $!";
 # iterate through each line in the file
-while ( $line = <FILE> )
+while ( $line = <SUMMARYFILE> )
 {
    # print the individual line
    print "$line";
 }
-close(FILE); 
+close(SUMMARYFILE); 
    
 close(LOGFILE);
 close(LOGFILEFULL);
