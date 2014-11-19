@@ -46,7 +46,7 @@ CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -
 LFLAGS += $(LINKSCRIPT)  -fno-builtin -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -Xlinker -Map="$(TARGET_NAME).map"
 
 # Download firmware to the target
-GDB_DOWNLOAD_TO_TARGET += -ex "target remote localhost:3333" -ex "monitor reset" -ex "monitor halt" -ex load -ex "monitor sleep 1000" -ex "monitor reset" -ex quit $(LD_TARGET)
+GDB_DOWNLOAD_TO_TARGET += -ex "target remote localhost:3333" -ex "monitor reset" -ex "monitor halt" -ex load -ex "monitor reset" -ex kill -ex quit $(LD_TARGET)
 
 # Optional POST BUILD
 # Generates a .bin image file
