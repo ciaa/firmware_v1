@@ -1,9 +1,10 @@
 target remote localhost:3333
-monitor reset halt
+monitor reset
+monitor halt
 monitor sleep 500
 load
 monitor sleep 500
-monitor reset halt
+monitor soft_reset_halt
 monitor sleep 500
 break ConfTestFinish
 c
