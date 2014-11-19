@@ -450,7 +450,7 @@ else
 	@echo ===============================================================================
 	@echo Starting GDB...be sure to run 'make openocd' in another console previously
 	@echo ' '   
-	$(GDB) -ex "target remote localhost:3333" -ex "monitor reset halt" -ex load -ex "monitor sleep 1000" -ex "monitor reset" -ex quit $(LD_TARGET)$(GDB)
+	$(GDB) $(GDB_DOWNLOAD_TO_TARGET)
 endif
 endif
 endif
@@ -484,6 +484,7 @@ help:
 	@echo "|               Debugging                                                     |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo openocd..........: starts openocd for $(ARCH)
+	@echo download.........: download the firmware to the target
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Bulding                                                       |"
 	@echo "+-----------------------------------------------------------------------------+"
