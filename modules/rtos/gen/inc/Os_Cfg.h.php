@@ -113,7 +113,7 @@ $count = 0;
 foreach ($events as $event)
 {
 	print "/** \brief Definition of the Event $event */\n";
-	print "#define " . $event . " 0x" . sprintf ("%x", (1<<$count++)) . "\n";
+	print "#define " . $event . " 0x" . sprintf ("%xU", (1<<$count++)) . "\n";
 }
 print "\n";
 
