@@ -55,10 +55,10 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141006 v0.0.1  EsVo  first initial version
+ * 20141006 v0.0.1 EsVo First initial version
  */
 
- /*==================[inclusions]=============================================*/
+/*==================[inclusions]=============================================*/
 #include "os.h"               /* <= operating system header */
 #include "ciaaPOSIX_stdio.h"  /* <= device handler header */
 #include "ciaaPOSIX_string.h" /* <= string header */
