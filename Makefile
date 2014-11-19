@@ -413,9 +413,6 @@ doxygen:
 ###############################################################################
 # openocd
 include modules$(DS)tools$(DS)openocd$(DS)mak$(DS)Makefile
-
-#OPENOCD_CFG := $(wildcard $(OPENOCD_CFG))
-
 openocd:
 # if windows or posix shows an error
 ifeq ($(subst win,yes,$(subst posix,yes,$(ARCH))),yes)
@@ -432,6 +429,28 @@ else
 	@echo Starting OpenOCD...
 	@echo ' '   
 	$(OPENOCD_BIN) $(OPENOCD_FLAGS)
+endif
+endif
+endif
+
+###############################################################################
+# Download to target
+download:
+# if windows or posix shows an error
+ifeq ($(subst win,yes,$(subst posix,yes,$(ARCH))),yes)
+	@echo ERROR: You can not download to target in Windows nor Linux
+else
+# if CPU is not entered shows an error
+ifeq ($(CPU),)
+	@echo ERROR: The CPU variable of your makefile is empty.
+else
+ifeq ($(OPENOCD_CFG),)
+	@echo ERROR: Your CPU: $(CPU) may not be supported...
+else
+	@echo ===============================================================================
+	@echo Starting GDB...be sure to run 'make openocd' in another console previously
+	@echo ' '   
+	$(GDB) $(GDB_DOWNLOAD_TO_TARGET)
 endif
 endif
 endif
@@ -465,6 +484,7 @@ help:
 	@echo "|               Debugging                                                     |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo openocd..........: starts openocd for $(ARCH)
+	@echo download.........: download the firmware to the target
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Bulding                                                       |"
 	@echo "+-----------------------------------------------------------------------------+"

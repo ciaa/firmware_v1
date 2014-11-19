@@ -44,6 +44,10 @@ NM = arm-none-eabi-nm
 AFLAGS += -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
 CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -DCORE_M4 -D__CODE_RED
 LFLAGS += $(LINKSCRIPT)  -fno-builtin -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -Xlinker -Map="$(TARGET_NAME).map"
+
+# Download firmware to the target
+GDB_DOWNLOAD_TO_TARGET += -ex "target remote localhost:3333" -ex "monitor reset" -ex "monitor halt" -ex load -ex "monitor sleep 1000" -ex "monitor reset" -ex quit $(LD_TARGET)
+
 # Optional POST BUILD
 # Generates a .bin image file
 POST_BUILD += arm-none-eabi-objcopy -v -O binary $(LD_TARGET) $(TARGET_NAME).bin 
