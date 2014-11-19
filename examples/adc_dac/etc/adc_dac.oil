@@ -91,6 +91,21 @@ ALARM AnalogicAlarm {
     }
 }
 
+ISR ADC0_IRQHandler {
+    INTERRUPT = ADC0;
+    CATEGORY = 2;
+}
+
+ISR ADC1_IRQHandler {
+    INTERRUPT = ADC1;
+    CATEGORY = 2;
+}
+
+ISR DMA_IRQHandler {
+    INTERRUPT = DMA;
+    CATEGORY = 2;
+}
+
 RESOURCE = POSIXR;
 
 EVENT = POSIXE;

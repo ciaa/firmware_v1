@@ -61,9 +61,9 @@
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_string.h"
 #include "chip.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
-#define CONTEXT_ISR2 3
 
 /** \brief Pointer to Devices */
 typedef struct  {
@@ -166,8 +166,6 @@ static ciaaDriverConstType const ciaaDriverAioConst = {
 
 /*==================[external data definition]===============================*/
 
-extern ContextType ActualContext;
-
 /*==================[internal functions definition]==========================*/
 
 /*==================[internal functions definition]==========================*/
@@ -189,8 +187,6 @@ static void ciaaDriverAio_adcIRQHandler(ciaaDevices_deviceType const * const dev
    uint16_t *ptr;
    uint16_t dataADC;
 
-   ContextType ctx = ActualContext;
-   ActualContext = CONTEXT_ISR2;
    pAioControl = (ciaaDriverAioControlType *) device->layer;
 
    /* Interrupt mode: Call the stream interrupt handler */
@@ -208,16 +204,11 @@ static void ciaaDriverAio_adcIRQHandler(ciaaDevices_deviceType const * const dev
 
    NVIC_EnableIRQ(pAioControl->adc_dac.adc.interrupt);
    Chip_ADC_Int_SetChannelCmd(pAioControl->adc_dac.adc.handler, pAioControl->channel, ENABLE);
-
-   ActualContext = ctx;
 }
 
 static void ciaaDriverAio_dacIRQHandler(ciaaDevices_deviceType const * const device)
 {
    ciaaDriverAioControlType *pAioControl;
-
-   ContextType ctx = ActualContext;
-   ActualContext = CONTEXT_ISR2;
 
    pAioControl = (ciaaDriverAioControlType *) device->layer;
    NVIC_DisableIRQ(pAioControl->adc_dac.dac.dma_interrupt);
@@ -231,8 +222,6 @@ static void ciaaDriverAio_dacIRQHandler(ciaaDevices_deviceType const * const dev
    {
        NVIC_EnableIRQ(pAioControl->adc_dac.dac.dma_interrupt);
    }
-
-   ActualContext = ctx;
 }
 
 void ciaa_lpc4337_aio_init(void)
@@ -590,17 +579,17 @@ void ciaaDriverAio_init(void)
 
 /*==================[interrupt hanlders]=====================================*/
 
-void ADC0_IRQHandler(void)
+ISR(ADC0_IRQHandler)
 {
    ciaaDriverAio_adcIRQHandler(&ciaaDriverAio_in0);
 }
 
-void ADC1_IRQHandler(void)
+ISR(ADC1_IRQHandler)
 {
    ciaaDriverAio_adcIRQHandler(&ciaaDriverAio_in1);
 }
 
-void DMA_IRQHandler(void)
+ISR(DMA_IRQHandler)
 {
    ciaaDriverAio_dacIRQHandler(&ciaaDriverAio_out0);
 }
