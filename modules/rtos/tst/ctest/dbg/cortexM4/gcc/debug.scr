@@ -1,10 +1,8 @@
 target remote localhost:3333
 monitor reset halt
-monitor sleep 500
 load
-monitor soft_reset_halt
 break ConfTestFinish
-c
+monitor reset
 dump value out/rtos/TestResults.bin TestResults
 dump value out/rtos/TestResultsOk.bin TestResultsOk
 dump value out/rtos/SequenceCounter.bin SequenceCounter
