@@ -1,8 +1,7 @@
 target remote localhost:3333
-monitor reset
-monitor halt
+monitor reset halt
 load
-monitor soft_reset_halt
+monitor reset
 break ConfTestFinish
 c
 dump value out/rtos/TestResults.bin TestResults
