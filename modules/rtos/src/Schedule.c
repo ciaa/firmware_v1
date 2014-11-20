@@ -106,7 +106,7 @@ StatusType Schedule
    actualContext = GetCallingContext();
 
    /* get actual running task */
-   actualTask = GetRunningTask();
+   actualtask = GetRunningTask();
 
    if ( ( CONTEXT_TASK != actualContext ) &&
         ( CONTEXT_SYS != actualContext ) )
@@ -115,10 +115,10 @@ StatusType Schedule
        ** are E_OS_CALLEVEL, E_OS_RESOURCE */
       ret = E_OS_CALLEVEL;
    }
-   else if ( ( INVALID_TASK != actualTask ) &&
+   else if ( ( INVALID_TASK != actualtask ) &&
              ( CONTEXT_TASK == actualContext ) )
    {
-      if ( TasksVar[actualTask].Resources != 0 )
+      if ( TasksVar[actualtask].Resources != 0 )
       {
          /* \req OSEK_SYS_3.3.5 Extra possible return values in Extended mode
           ** are E_OS_CALLEVEL, E_OS_RESOURCE */
