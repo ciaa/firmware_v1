@@ -94,6 +94,8 @@ extern "C" {
 /** \brief Total transports by gateways */
 #define CIAA_MODBUS_TOTAL_TRANSPORT_GW       1
 
+/** \brief Time between calls (milliseconds) */
+#define CIAA_MODBUS_TIME_BASE                5
 
 /*==================[typedef]================================================*/
 
