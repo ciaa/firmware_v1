@@ -82,10 +82,10 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-   StatusType Schedule
+StatusType Schedule
 (
- void
- )
+   void
+)
 {
    /* \req OSEK_SYS_3.4 The system service StatusType Schedule ( void ) shall
     ** be defined */
@@ -190,7 +190,7 @@
 
             /* set as running task */
             SetRunningTask(nexttask);
-         
+
             /* set actual context task */
             SetActualContext(CONTEXT_TASK);
 
