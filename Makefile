@@ -104,7 +104,6 @@ ifeq ($(OS),Windows_NT)
 CS                = ;
 # Command for multiline echo
 MULTILINE_ECHO    = echo -e
-OS                = WIN
 # Libraries group linker parameters
 START_GROUP       = -Xlinker --start-group
 END_GROUP         = -Xlinker --end-group
@@ -129,6 +128,7 @@ CFLAGS            += -m32 -Wno-typedef-redefinition
 LFLAGS            += -m32 -Xlinker -no_pie
 # Libraries group linker parameters
 START_GROUP       = -all_load
+END_GROUP         =
 endif
 endif
 
@@ -481,10 +481,11 @@ help:
 	@echo results..........: create results report
 	@echo ci...............: run the continuous integration
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo "|               Debugging                                                     |"
+	@echo "|               Debugging / Running / Programming                             |"
 	@echo "+-----------------------------------------------------------------------------+"
+	@echo run..............: execute the binary file (Win/Posix only)
 	@echo openocd..........: starts openocd for $(ARCH)
-	@echo download.........: download the firmware to the target
+	@echo download.........: download firmware to the target
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Bulding                                                       |"
 	@echo "+-----------------------------------------------------------------------------+"
@@ -624,11 +625,15 @@ generate_make: generate
 ###############################################################################
 # Run the bin file
 run:
+# if windows or posix shows an error
+ifeq ($(subst win,yes,$(subst posix,yes,$(ARCH))),yes)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Running the file: $(LD_TARGET)
 	$(LD_TARGET)
-
+else
+	@echo ERROR: You can not run this binary due to you are not in Windows nor Linux ARCH
+endif
 ###############################################################################
 # Run all FreeOSEK Tests
 rtostests:
