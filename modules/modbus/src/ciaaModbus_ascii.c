@@ -69,6 +69,7 @@ typedef struct
 {
    int32_t fildes;                              /** <- File descriptor */
    int32_t bufferSize;                          /** <- buffer size */
+   int32_t timeOut;                             /** <- timeout between consecutive characters */
    uint8_t buffer[CIAAMODBUS_ASCII_MAXLENGHT];  /** <- buffer */
    bool inUse;                                  /** <- Object in use */
 }ciaaModbus_asciiObjType;
@@ -78,6 +79,9 @@ typedef struct
 
 /** \brief LRC incorrect macro */
 #define CIAAMODBUS_ASCII_LRC_NOK    0
+
+/** \brief timeout between characters (milliseconds) */
+#define CIAAMODBUS_ASCII_TIMOUT_RCV 1000
 
 /*==================[internal data declaration]==============================*/
 
@@ -289,6 +293,15 @@ extern void ciaaModbus_asciiTask(int32_t handler)
 
    uint8_t *buf;
 
+   if (0 == ciaaModbus_asciiObj[handler].timeOut)
+   {
+      ciaaModbus_asciiObj[handler].bufferSize = 0;
+   }
+   else
+   {
+      ciaaModbus_asciiObj[handler].timeOut --;
+   }
+
    /* set pointer to buffer */
    buf = ciaaModbus_asciiObj[handler].buffer;
 
@@ -318,6 +331,7 @@ extern void ciaaModbus_asciiTask(int32_t handler)
    /* if received data process */
    if (read > 0)
    {
+      ciaaModbus_asciiObj[handler].timeOut = CIAAMODBUS_ASCII_TIMOUT_RCV / CIAA_MODBUS_TIME_BASE;
       /* increment buffer size */
       ciaaModbus_asciiObj[handler].bufferSize += read;
 
