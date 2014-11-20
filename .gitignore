@@ -54,3 +54,4 @@ projects
 *.gcda
 *.gcno
 *.gcov
+*.info
