@@ -94,12 +94,18 @@
    StatusType ret = E_OK;
    TaskType nexttask;
    TaskType actualtask;
+#if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
+   ContextType actualContext;
+#endif
 
    /* \req OSEK_SYS_3.3.5 Extra possible return values in Extended mode are E_OS
     ** CALLEVEL, E_OS_RESOURCE  */
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
-   if ( ( GetCallingContext() != CONTEXT_TASK ) &&
-         ( GetCallingContext() != CONTEXT_SYS ) )
+
+   actualContext = GetCallingContext();
+
+   if ( ( CONTEXT_TASK != actualContext ) &&
+        ( CONTEXT_SYS != actualContext ) )
    {
       /* \req OSEK_SYS_3.3.5 Extra possible return values in Extended mode
        ** are E_OS_CALLEVEL, E_OS_RESOURCE */
