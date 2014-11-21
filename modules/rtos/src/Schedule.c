@@ -1,4 +1,4 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -58,6 +58,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20141121 v0.2.0 MaCe rework Schedule
  * 20090418 v0.1.5 MaCe add Pre/Post TaskHook handling
  * 20090417 v0.1.4 MaCe update license
  * 20090330 v0.1.3 MaCe use new CallTask macro and add use of SetActualContext
@@ -92,11 +93,14 @@ StatusType Schedule
 
    /* \req OSEK_SYS_3.4.4 Possible return values in Standard mode is E_OK */
    StatusType ret = E_OK;
-   TaskType nexttask;
-   TaskType actualtask;
+   TaskType nextTask;
+   TaskType actualTask;
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
    ContextType actualContext;
 #endif
+
+   /* get actual running task */
+   actualTask = GetRunningTask();
 
    /* \req OSEK_SYS_3.3.5 Extra possible return values in Extended mode are E_OS
     ** CALLEVEL, E_OS_RESOURCE  */
@@ -105,8 +109,6 @@ StatusType Schedule
    /* get actual context */
    actualContext = GetCallingContext();
 
-   /* get actual running task */
-   actualtask = GetRunningTask();
 
    if ( ( CONTEXT_TASK != actualContext ) &&
         ( CONTEXT_SYS != actualContext ) )
@@ -115,10 +117,10 @@ StatusType Schedule
        ** are E_OS_CALLEVEL, E_OS_RESOURCE */
       ret = E_OS_CALLEVEL;
    }
-   else if ( ( INVALID_TASK != actualtask ) &&
+   else if ( ( INVALID_TASK != actualTask ) &&
              ( CONTEXT_TASK == actualContext ) )
    {
-      if ( TasksVar[actualtask].Resources != 0 )
+      if ( TasksVar[actualTask].Resources != 0 )
       {
          /* \req OSEK_SYS_3.3.5 Extra possible return values in Extended mode
           ** are E_OS_CALLEVEL, E_OS_RESOURCE */
@@ -134,27 +136,27 @@ StatusType Schedule
 #endif
    {
       /* get next task */
-      nexttask = GetNextTask();
+      nextTask = GetNextTask();
 
       /* while until one or boths are not more invalid tasks */
-      while (	( actualtask == INVALID_TASK ) &&
-            ( nexttask == INVALID_TASK) )
+      while (	( actualTask == INVALID_TASK ) &&
+            ( nextTask == INVALID_TASK) )
       {
          /* macro used to indicate the processor that we are in idle time */
          osekpause();
 
          /* get next task */
-         nexttask = GetNextTask();
+         nextTask = GetNextTask();
       };
 
       /* if the actual task is invalid */
-      if ( actualtask == INVALID_TASK )
+      if ( actualTask == INVALID_TASK )
       {
          /* set task state to running */
-         TasksVar[nexttask].Flags.State = TASK_ST_RUNNING;
+         TasksVar[nextTask].Flags.State = TASK_ST_RUNNING;
 
          /* set as running task */
-         SetRunningTask(nexttask);
+         SetRunningTask(nextTask);
 
          /* set actual context task */
          SetActualContext(CONTEXT_TASK);
@@ -164,7 +166,7 @@ StatusType Schedule
 #endif /* #if (HOOK_PRETASKHOOK == OSEK_ENABLE) */
 
          /* jmp tp the next task */
-         JmpTask(nexttask);
+         JmpTask(nextTask);
       }
       else
       {
@@ -172,7 +174,7 @@ StatusType Schedule
          /* \req OSEK_SYS_3.4.1 If a task with a lower or equal priority than the
           ** ceiling priority of the internal resource and higher priority than
           ** the priority of the calling task is ready */
-         if ( TasksConst[nexttask].StaticPriority > TasksVar[actualtask].ActualPriority )
+         if ( TasksConst[nextTask].StaticPriority > TasksVar[actualTask].ActualPriority )
          {
 
 #if (HOOK_POSTTASKHOOK == OSEK_ENABLE)
@@ -184,13 +186,13 @@ StatusType Schedule
             ReleaseInternalResources();
 
             /* \req OSEK_SYS_3.4.1.2 the current task is put into the ready state */
-            TasksVar[actualtask].Flags.State = TASK_ST_READY;
+            TasksVar[actualTask].Flags.State = TASK_ST_READY;
 
             /* set the new task to running */
-            TasksVar[nexttask].Flags.State = TASK_ST_RUNNING;
+            TasksVar[nextTask].Flags.State = TASK_ST_RUNNING;
 
             /* set as running task */
-            SetRunningTask(nexttask);
+            SetRunningTask(nextTask);
 
             /* set actual context task */
             SetActualContext(CONTEXT_TASK);
@@ -201,7 +203,7 @@ StatusType Schedule
 
             /* \req OSEK_SYS_3.4.1.3 its context is saved */
             /* \req OSEK_SYS_3.4.1.4 and the higher-priority task is executed */
-            CallTask(actualtask, nexttask);
+            CallTask(actualTask, nextTask);
          }
          else
          {
