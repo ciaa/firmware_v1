@@ -464,14 +464,32 @@ foreach ($intnames as $int)
 	$intcat = $config->getValue("/OSEK/" . $int,"CATEGORY");
 
 	if ($intcat == 2)
-	{
-		print "void OSEK_ISR2_$int(void)\n";
-		print "{\n";
-		print "	PreIsr2($int);\n";
-		print "	OSEK_ISR_$int();\n";
-		print "	PostIsr2($int);\n";
-		print "}\n";
-	}
+   {?>
+void OSEK_ISR2_<?=$int;?>(void)
+{
+   /* store the calling context in a variable */
+   ContextType actualContext = GetCallingContext();
+   /* set isr 2 context */
+   SetActualContext(CONTEXT_ISR2);
+
+   /* trigger isr 2 */
+   OSEK_ISR_<?=$int;?>();
+
+#if (NON_PREEMPTIVE == OSEK_DISABLE)
+   /* check if the actual task is preemptive */
+   if ( ( TasksConst[GetRunningTask()].ConstFlags.Preemtive ) &&
+        ( FALSE == OSEK_InSchedulerLoop ) )
+   {
+      /* this shall force a call to the scheduler */
+      PostIsr2_Arch(isr);
+   }
+#endif /* #if (NON_PREEMPTIVE == OSEK_ENABLE) */
+
+   /* reset context */
+   SetActualContext(actualContext);
+}
+
+<?php	}
 
 }
 ?>
