@@ -144,12 +144,18 @@ StatusType Schedule
       while (	( actualTask == INVALID_TASK ) &&
             ( nextTask == INVALID_TASK) )
       {
+         /* indicates the start of the scheduler loop */
+         OSEK_InSchedulerLoop = TRUE;
+
          IntSecure_End();
 
          /* macro used to indicate the processor that we are in idle time */
          osekpause();
 
          IntSecure_Start();
+
+         /* indicates that the scheduler loop has been completed */
+         OSEK_InSchedulerLoop = FALSE;
 
          /* get next task */
          nextTask = GetNextTask();

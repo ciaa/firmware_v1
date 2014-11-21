@@ -78,6 +78,8 @@ TaskType RunningTask;
 
 ContextType ActualContext;
 
+bool OSEK_InSchedulerLoop;
+
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/

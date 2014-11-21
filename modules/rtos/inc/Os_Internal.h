@@ -182,17 +182,33 @@
  **
  ** This macro is called every time that an ISR Cat 2 is started
  **/
-#define PreIsr2(isr)                \
-   SetActualContext(CONTEXT_ISR2); \
-PreIsr2_Arch(isr)
+#define PreIsr2(isr)                   \
+   SetActualContext(CONTEXT_ISR2);     \
+   PreIsr2_Arch(isr);
 
 /** \brief Post ISR Macro
  **
  ** This macro is called every time that an ISR Cat 2 is finished
  **/
-#define PostIsr2(isr)               \
-   PostIsr2_Arch(isr)              \
-SetActualContext(CONTEXT_TASK); \
+#if (NON_PREEMPTIVE == OSEK_ENABLE)
+/* if all tasks are non preemptive is not needed to call the scheduler */
+#define PostIsr2(isr)                                             \
+   /* set context task at the end of the isr */                   \
+   SetActualContext(CONTEXT_TASK);
+#else
+/* if at least one taks is preemptive calling the scheduler after the isr2 may
+ * be needed */
+#define PostIsr2(isr)                                             \
+   /* check if the actual task is preemptive */                   \
+   if ( ( TasksConst[GetRunningTask()].ConstFlags.Preemtive ) &&  \
+        ( FALSE == OSEK_InSchedulerLoop ) )                       \
+   {                                                              \
+      /* this shall force a call to the scheduler */              \
+      PostIsr2_Arch(isr);                                         \
+   }                                                              \
+   /* set context task at the end of the isr */                   \
+   SetActualContext(CONTEXT_TASK);
+#endif
 
 /*==================[typedef]================================================*/
 /** \brief ContextType
@@ -210,6 +226,9 @@ extern ContextType ActualContext;
 
 /** \brief RunningTask variable */
 extern TaskType RunningTask;
+
+/** \brief Variable to indicate that the Scheduler is looping */
+extern bool OSEK_InSchedulerLoop;
 
 /*==================[external functions declaration]=========================*/
 /** \brief Architecture Dependnece Start Os function
