@@ -475,18 +475,18 @@ void OSEK_ISR2_<?=$int;?>(void)
    /* trigger isr 2 */
    OSEK_ISR_<?=$int;?>();
 
+   /* reset context */
+   SetActualContext(actualContext);
+
 #if (NON_PREEMPTIVE == OSEK_DISABLE)
    /* check if the actual task is preemptive */
-   if ( ( TasksConst[GetRunningTask()].ConstFlags.Preemtive ) &&
-        ( FALSE == OSEK_InSchedulerLoop ) )
+   if ( ( CONTEXT_TASK == actualContext ) &&
+        ( TasksConst[GetRunningTask()].ConstFlags.Preemtive ) )
    {
       /* this shall force a call to the scheduler */
       PostIsr2_Arch(isr);
    }
 #endif /* #if (NON_PREEMPTIVE == OSEK_ENABLE) */
-
-   /* reset context */
-   SetActualContext(actualContext);
 }
 
 <?php	}
