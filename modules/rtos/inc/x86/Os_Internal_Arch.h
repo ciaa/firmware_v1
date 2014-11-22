@@ -220,7 +220,7 @@
 #define ISR_CANRX    2
 #define ISR_CANTX    3
 
-#define EnableOSInterrupts()                                            \
+#define EnableOSInterrupts()                                         \
 {                                                                    \
    InterruptMask &= (InterruptFlagsType)~(OSEK_OS_INTERRUPT_MASK);   \
 }
@@ -228,6 +228,16 @@
 #define EnableInterrupts() \
 {                       \
    InterruptState = 1;  \
+}
+
+#define DisableOSInterrupts()                                        \
+{                                                                    \
+   InterruptMask |= (InterruptFlagsType)(OSEK_OS_INTERRUPT_MASK);    \
+}
+
+#define DisableInterrupts() \
+{                       \
+   InterruptState = 0;  \
 }
 
 /** \brief Get Counter Actual Value

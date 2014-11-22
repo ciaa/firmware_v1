@@ -138,18 +138,22 @@ void StartOs_Arch(void)
       printf("Error creating OS Thread timer!\n");
       exit(-1);
    }
- #if 0
+#if 0
    printf("Process ID: %d\n", getpid());
 #endif	     
+
+   /* All these is done in a similar way in StartOS.c, Is it code to be deleted? */
+#if 0
    /* enable interrupts */
    InterruptState = 1;
 
    /* enable HWTimer0,  interrupt 4 */
-   InterruptMask = (1 << 4);
+   InterruptMask = ~(1 << 4);
    
 #if (defined HWCOUNTER1)
    /* enable HWTimer0,  interrupt 5 */
-   InterruptMask |= (1 << 5);
+   InterruptMask &= ~(1 << 5);
+#endif
 #endif
    
    SaveOsStack();

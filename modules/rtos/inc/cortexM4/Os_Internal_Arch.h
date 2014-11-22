@@ -218,6 +218,23 @@ extern TaskType TerminatingTask;
  **/
 #define EnableInterrupts()	EnableOSInterrupts()
 
+
+/** \brief Disable OS Interruptions
+ **
+ ** Disable OS configured interrupts (ISR1 and ISR2).
+ **/
+#define DisableOSInterrupts() __asm volatile("cpsid i")
+
+/** \brief Disable Interruptions
+ **
+ ** Disable not OS configured interrupts (ISR1 and ISR2). This macro
+ ** is called only ones in StartUp.c function.
+ **
+ ** This macro may be empty. Maybe will be removed on the future,
+ ** please use it only if necessary, in other case use DisableOSInterrupts.
+ **/
+#define DisableInterrupts()	DisableOSInterrupts()
+
 /** \brief Get Counter Actual Value
  **
  ** This macro returns the actual value of the a counter
