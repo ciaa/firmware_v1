@@ -1,7 +1,4 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2014 Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,11 +30,11 @@
  *
  */
 
-#ifndef _CTEST_ARCH_H_
-#define _CTEST_ARCH_H_
+#ifndef _CTEST_IP_04_H_
+#define _CTEST_IP_04_H_
 /** \brief FreeOSEK Os Conformance Test
  **
- ** \file FreeOSEK/Os/tst/ctest/inc/posix/ctest_arch.h
+ ** \file FreeOSEK/Os/tst/ctest/inc/ctest_ip_01.h
  **/
 
 /** \addtogroup FreeOSEK
@@ -46,48 +43,33 @@
  ** @{ */
 /** \addtogroup FreeOSEK_Os_CT Conformance Test
  ** @{ */
+/** \addtogroup FreeOSEK_Os_CT_IP  Interrupt processing
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_CT_IP_04 Test Sequence 4
+ ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140503 v0.1.0 MaCe	initial version
+ * 20141122 v0.1.0 MaCe initial version based on module tests
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaLibs_CircBuf.h"
-#include <signal.h>
-#include <unistd.h>
+#include "Types.h"
+#include "ctest.h"
 
 /*==================[macros]=================================================*/
-#define TriggerISR1_Arch()                                                 \
-      do {                                                                 \
-         /* force interrupt 9 */                                           \
-         uint8 interrupt = 9;                                              \
-                                                                           \
-         /* add simulated interrupt to the interrupt queue */              \
-         ciaaLibs_circBufPut(OSEK_IntCircBuf, &interrupt, 1);              \
-                                                                           \
-         /* indicate interrupt using a signal */                           \
-         kill(getpid(), SIGALRM);                                          \
-      } while(0)
-
-#define TriggerISR2_Arch()                                                 \
-      do {                                                                 \
-         /* force interrupt 8 */                                           \
-         uint8 interrupt = 8;                                              \
-                                                                           \
-         /* add simulated interrupt to the interrupt queue */              \
-         ciaaLibs_circBufPut(OSEK_IntCircBuf, &interrupt, 1);              \
-                                                                           \
-         /* indicate interrupt using a signal */                           \
-         kill(getpid(), SIGALRM);                                          \
-      } while(0)
+/** \brief Maximal Sequence
+ **
+ ** Defines the total amount of sequence points in this test sequence
+ **/
+#define MAX_SEQUENCE 6
 
 /*==================[typedef]================================================*/
 
@@ -98,6 +80,8 @@
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CTEST_ARCH_H_ */
+#endif /* #ifndef _CTEST_IP_04_H_ */
 

@@ -242,6 +242,13 @@
  **/
 #define ISR_CATEGORY_3 OSEK_DISABLE
 
+/** \brief ISR1 Trigger Macro
+ **
+ ** This macro shall implement a mechanismus to trigger the ISR1 interruption
+ **/
+#define TriggerISR1()   \
+   TriggerISR1_Arch()
+
 /** \brief ISR2 Trigger Macro
  **
  ** This macro shall implement a mechanismus to trigger the ISR2 interruption
