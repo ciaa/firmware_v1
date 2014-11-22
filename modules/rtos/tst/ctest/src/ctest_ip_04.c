@@ -118,7 +118,7 @@ TASK(Task1)
 
 ISR(ISR2)
 {
-   ReturnType ret;
+   StatusType ret;
 
    Sequence(3);
 
