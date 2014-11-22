@@ -281,12 +281,24 @@ const uint8 TestResultsOk[35] =
 #else
 	  ( INIT << 0 )		/* TM_41 index 40 */
 #endif
+#if (defined ctest_ip_01)
+	| ( OK << 2 )	   	/* IP_01 index 41 */
+#else
 	| ( INIT << 2 )		/* IP_01 index 41 */
+#endif
 	| ( INIT << 4 )		/* IP_02 index 42 */
+#if (defined ctest_ip_01)
+	| ( OK << 6 ),		   /* IP_03 index 43 */
+#else
 	| ( INIT << 6 ),		/* IP_03 index 43 */
+#endif
 	  ( INIT << 0 )		/* IP_04 index 44 */
 	| ( INIT << 2 )		/* IP_05 index 45 */
+#if (defined ctest_ip_01)
+	| ( OK << 4 )  		/* IP_06 index 46 */
+#else
 	| ( INIT << 4 )		/* IP_06 index 46 */
+#endif
 	| ( INIT << 6 ),		/* IP_07 index 47 */
 	  ( INIT << 0 )		/* IP_08 index 48 */
 	| ( INIT << 2 )		/* IP_09 index 49 */
