@@ -415,7 +415,7 @@ doxygen:
 include modules$(DS)tools$(DS)openocd$(DS)mak$(DS)Makefile
 openocd:
 # if windows or posix shows an error
-ifeq ($(subst win,yes,$(subst posix,yes,$(ARCH))),yes)
+ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
 else
 # if CPU is not entered shows an error
@@ -437,7 +437,7 @@ endif
 # Download to target, syntax download [file]
 download:
 # if windows or posix shows an error
-ifeq ($(subst win,yes,$(subst posix,yes,$(ARCH))),yes)
+ifeq ($(ARCH),x86)
 	@echo ERROR: You can not download to target in Windows nor Linux
 else
 # if CPU is not entered shows an error
@@ -633,7 +633,7 @@ generate_make: generate
 # Run the bin file
 run:
 # if windows or posix shows an error
-ifeq ($(subst win,yes,$(subst posix,yes,$(ARCH))),yes)
+ifeq ($(ARCH),x86)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Running the file: $(LD_TARGET)
