@@ -303,7 +303,11 @@ const uint8 TestResultsOk[35] =
    ( INIT << 0 )      /* IP_08 index 48 */
    | ( INIT << 2 )      /* IP_09 index 49 */
    | ( INIT << 4 )      /* IP_10 index 50 */
+#if (defined ctest_ip_04)
+   | ( OK << 6 ),      /* IP_11 index 51 */
+#else
    | ( INIT << 6 ),      /* IP_11 index 51 */
+#endif
    ( INIT << 0 )      /* IP_12 index 52 */
 #if (defined ctest_em_01)
    | ( OK << 2 )         /* EM_01 index 53 */
@@ -547,116 +551,116 @@ const uint8 TestResultsOk[35] =
 #if (defined ctest_al_01)
    ( OK <<  0 )         /* AL_10 index 104 */
 #else
-      ( INIT << 0 )      /* AL_10 index 104 */
+   ( INIT << 0 )      /* AL_10 index 104 */
 #endif
 #if (defined ctest_al_01)
-      | ( OK << 2 )         /* AL_11 index 105 */
+   | ( OK << 2 )         /* AL_11 index 105 */
 #else
-      | ( INIT << 2 )      /* AL_11 index 105 */
+   | ( INIT << 2 )      /* AL_11 index 105 */
 #endif
 #if (defined ctest_al_01)
-      | ( OK << 4 )         /* AL_12 index 106 */
+   | ( OK << 4 )         /* AL_12 index 106 */
 #else
-      | ( INIT << 4 )      /* AL_12 index 106 */
+   | ( INIT << 4 )      /* AL_12 index 106 */
 #endif
 #if (defined ctest_al_01)
-      | ( OK << 6 ),         /* AL_13 index 107 */
+   | ( OK << 6 ),         /* AL_13 index 107 */
 #else
    | ( INIT << 6 ),      /* AL_13 index 107 */
 #endif
 #if (defined ctest_al_02)
    ( OK << 0 )         /* AL_14 index 108 */
 #else
-      ( INIT << 0 )      /* AL_14 index 108 */
+   ( INIT << 0 )      /* AL_14 index 108 */
 #endif
 #if (defined ctest_al_03)
-      | ( OK << 2 )         /* AL_15 index 109 */
+   | ( OK << 2 )         /* AL_15 index 109 */
 #else
-      | ( INIT << 2 )      /* AL_15 index 109 */
+   | ( INIT << 2 )      /* AL_15 index 109 */
 #endif
 #if (defined ctest_al_01)
-      | ( OK << 4 )         /* AL_16 index 110 */
+   | ( OK << 4 )         /* AL_16 index 110 */
 #else
-      | ( INIT << 4 )      /* AL_16 index 110 */
+   | ( INIT << 4 )      /* AL_16 index 110 */
 #endif
 #if (defined ctest_al_02)
-      | ( OK << 6 ),         /* AL_17 index 111 */
+   | ( OK << 6 ),         /* AL_17 index 111 */
 #else
    | ( INIT << 6 ),      /* AL_17 index 111 */
 #endif
 #if (defined ctest_al_03)
    ( OK <<  0 )         /* AL_18 index 112 */
 #else
-      ( INIT << 0 )      /* AL_18 index 112 */
+   ( INIT << 0 )      /* AL_18 index 112 */
 #endif
 #if (defined ctest_al_01)
-      | ( OK << 2 )         /* AL_19 index 113 */
+   | ( OK << 2 )         /* AL_19 index 113 */
 #else
-      | ( INIT << 2 )      /* AL_19 index 113 */
+   | ( INIT << 2 )      /* AL_19 index 113 */
 #endif
 #if (defined ctest_al_01)
-      | ( OK << 4 )         /* AL_20 index 114 */
+   | ( OK << 4 )         /* AL_20 index 114 */
 #else
-      | ( INIT << 4 )      /* AL_20 index 114 */
+   | ( INIT << 4 )      /* AL_20 index 114 */
 #endif
 #if (defined ctest_al_01)
-      | ( OK << 6 ),         /* AL_21 index 115 */
+   | ( OK << 6 ),         /* AL_21 index 115 */
 #else
    | ( INIT << 6 ),      /* AL_21 index 115 */
 #endif
 #if (defined ctest_al_01)
    ( OK <<  0 )         /* AL_22 index 116 */
 #else
-      ( INIT << 0 )      /* AL_22 index 116 */
+   ( INIT << 0 )      /* AL_22 index 116 */
 #endif
 #if (defined ctest_al_02)
-      | ( OK << 2 )         /* AL_23 index 117 */
+   | ( OK << 2 )         /* AL_23 index 117 */
 #else
-      | ( INIT << 2 )      /* AL_23 index 117 */
+   | ( INIT << 2 )      /* AL_23 index 117 */
 #endif
 #if (defined ctest_al_03)
-      | ( OK <<  4 )         /* AL_24 index 118 */
+   | ( OK <<  4 )         /* AL_24 index 118 */
 #else
-      | ( INIT << 4 )      /* AL_24 index 118 */
+   | ( INIT << 4 )      /* AL_24 index 118 */
 #endif
 #if (defined ctest_al_01)
-      | ( OK << 6 ),         /* AL_25 index 119 */
+   | ( OK << 6 ),         /* AL_25 index 119 */
 #else
    | ( INIT << 6 ),      /* AL_25 index 119 */
 #endif
 #if (defined ctest_al_02)
    ( OK << 0 )         /* AL_26 index 120 */
 #else
-      ( INIT << 0 )      /* AL_26 index 120 */
+   ( INIT << 0 )      /* AL_26 index 120 */
 #endif
 #if (defined ctest_al_02)
-      | ( OK << 2 )         /* AL_27 index 121 */
+   | ( OK << 2 )         /* AL_27 index 121 */
 #else
-      | ( INIT << 2 )      /* AL_27 index 121 */
+   | ( INIT << 2 )      /* AL_27 index 121 */
 #endif
 #if (defined ctest_al_03)
-      | ( OK <<  4 )         /* AL_28 index 122 */
+   | ( OK <<  4 )         /* AL_28 index 122 */
 #else
-      | ( INIT << 4 )      /* AL_28 index 122 */
+   | ( INIT << 4 )      /* AL_28 index 122 */
 #endif
-      | ( INIT << 6 ),      /* AL_29 index 123 */
+   | ( INIT << 6 ),      /* AL_29 index 123 */
 #if (defined ctest_al_04)
    ( OK <<  0 )         /* AL_30 index 124 */
 #else
-      ( INIT << 0 )      /* AL_30 index 124 */
+   ( INIT << 0 )      /* AL_30 index 124 */
 #endif
 #if (defined ctest_al_05)
-      | ( OK <<  2 )         /* AL_31 index 125 */
+   | ( OK <<  2 )         /* AL_31 index 125 */
 #else
-      | ( INIT << 2 )      /* AL_31 index 125 */
+   | ( INIT << 2 )      /* AL_31 index 125 */
 #endif
 #if (defined ctest_al_05)
-      | ( OK <<  4 )         /* AL_32 index 126 */
+   | ( OK <<  4 )         /* AL_32 index 126 */
 #else
-      | ( INIT << 4 )      /* AL_32 index 126 */
+   | ( INIT << 4 )      /* AL_32 index 126 */
 #endif
 #if (defined ctest_al_06)
-      | ( OK <<  6 ),      /* AL_33 index 127 */
+   | ( OK <<  6 ),      /* AL_33 index 127 */
 #else
    | ( INIT << 6 ),      /* AL_33 index 127 */
 #endif
@@ -664,51 +668,55 @@ const uint8 TestResultsOk[35] =
       (defined ctest_al_06) )
    ( OK <<  0 )         /* AL_34 index 128 */
 #else
-      ( INIT << 0 )      /* AL_34 index 128 */
+   ( INIT << 0 )      /* AL_34 index 128 */
 #endif
 #if (defined ctest_al_07)
-      | ( OK <<  2 )         /* AL_35 index 129 */
+   | ( OK <<  2 )         /* AL_35 index 129 */
 #else
-      | ( INIT << 2 )      /* AL_35 index 129 */
+   | ( INIT << 2 )      /* AL_35 index 129 */
 #endif
 #if (defined ctest_al_07)
-      | ( OK <<  4 )         /* AL_36 index 130 */
+   | ( OK <<  4 )         /* AL_36 index 130 */
 #else
-      | ( INIT << 4 )      /* AL_36 index 130 */
+   | ( INIT << 4 )      /* AL_36 index 130 */
 #endif
 #if (defined ctest_eh_02)
-      | ( OK << 6 ),         /* EH_01 index 131 */
+   | ( OK << 6 ),         /* EH_01 index 131 */
 #else
    | ( INIT << 6 ),      /* EH_01 index 131 */
 #endif
    ( INIT << 0 )      /* EH_02 index 132 */
 #if (defined ctest_eh_02)
-      | ( OK << 2 )         /* EH_03 index 133 */
+   | ( OK << 2 )         /* EH_03 index 133 */
 #else
-      | ( INIT << 2 )      /* EH_03 index 133 */
+   | ( INIT << 2 )      /* EH_03 index 133 */
 #endif
 #if (defined ctest_eh_01)
-      | ( OK << 4 )         /* EH_04 index 134 */
+   | ( OK << 4 )         /* EH_04 index 134 */
 #else
-      | ( INIT << 4 )      /* EH_04 index 134 */
+   | ( INIT << 4 )      /* EH_04 index 134 */
 #endif
 #if (defined ctest_eh_01)
-      | ( OK << 6 ),         /* EH_05 index 135 */
+   | ( OK << 6 ),         /* EH_05 index 135 */
 #else
    | ( INIT << 6 ),      /* EH_05 index 135 */
 #endif
 #if (defined ctest_eh_01)
    ( OK << 0 )         /* EH_06 index 136 */
 #else
-      ( INIT << 0 )      /* EH_06 index 136 */
+   ( INIT << 0 )      /* EH_06 index 136 */
 #endif
 #if (defined ctest_eh_02)
-      | ( OK << 2 )         /* EH_07 index 137 */
+   | ( OK << 2 )         /* EH_07 index 137 */
 #else
-      | ( INIT << 2 )      /* EH_07 index 137 */
+   | ( INIT << 2 )      /* EH_07 index 137 */
 #endif
-      | ( INIT << 4 )      /* EH_08 index 138 */
-      | ( OK << 6 )         /* OTHER index 139 */
+   | ( INIT << 4 )      /* EH_08 index 138 */
+#if ( (!defined ctest_ip_01) && (!defined ctest_ip_04) )
+   | ( OK << 6 )         /* OTHER index 139 */
+#else
+   | ( INIT << 6 )         /* OTHER index 139 */
+#endif
 };
 
 uint8 ConfTestResult;
