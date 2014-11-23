@@ -63,9 +63,9 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "os.h"				/* include os header file */
-#include "ctest_ip_01.h"	/* include test header file */
-#include "ctest.h"			/* include ctest header file */
+#include "os.h"            /* include os header file */
+#include "ctest_ip_01.h"   /* include test header file */
+#include "ctest.h"         /* include ctest header file */
 
 /*==================[macros and definitions]=================================*/
 
@@ -83,70 +83,88 @@ const uint32f SequenceCounterOk = MAX_SEQUENCE;
 /*==================[external functions definition]==========================*/
 int main
 (
-	void
+   void
 )
 {
-	/* start OS in AppMode 1 */
-	StartOS(AppMode1);
+   /* start OS in AppMode 1 */
+   StartOS(AppMode1);
 
-	/* shall never return */
-	while(1);
+   /* shall never return */
+   while(1);
 
-	return 0;
+   return 0;
 }
 
 TASK(Task1)
 {
-	Sequence(0);
-	/* enable interrupts ISR2 and ISR3 */
-	/* nothing to do */
+   Sequence(0);
+   /* enable interrupts ISR1 */
+   ResumeAllInterrupts();
 
-	Sequence(1);
-	/* 
-	 */
-	DisableOSInterrupts();
+   Sequence(1);
+   /* disable interrupts ISR1 */
+   SuspendAllInterrupts();
    ASSERT(IP_03, 0);
    
-	Sequence(2);
-	/* 
-	 */
-	/*  trigger ISR 2 */
-	TriggerISR2();
-   ASSERT(OTHER, 0);
-   
-   Sequence(3);
-	/* 
-	 */
-	EnableOSInterrupts(); 
-   ASSERT(IP_01, 0);
-   
-   Sequence(4);
-	/* 
-	 */
-	/*  trigger ISR 2 */
-	TriggerISR2();
-   ASSERT(IP_06, 0);
-   
-   Sequence(6);
-    
-	/* evaluate conformance tests */
-	ConfTestEvaluation();
+   Sequence(2);
+   /* trigger ISR 1 */
+   TriggerISR1();
 
-	/* finish the conformance test */
-	ConfTestFinish();
+   Sequence(3);
+   /* enable interrupts ISR1 */
+   ResumeAllInterrupts();
+   ASSERT(IP_01, 0);
+
+   Sequence(4);
+   /* trigger ISR 1 */
+   TriggerISR1();
+   ASSERT(IP_06, 0);
+
+   Sequence(6);
+   /* enable interrupts ISR2 */
+   ResumeOSInterrupts();
+
+   Sequence(7);
+   /* disable interrupts ISR2 */
+   SuspendOSInterrupts();
+   ASSERT(IP_03, 0);
+   
+   Sequence(8);
+   /* trigger ISR 2 */
+   TriggerISR2();
+
+   Sequence(9);
+   /* enable interrupts ISR2 */
+   ResumeOSInterrupts();
+   ASSERT(IP_01, 0);
+
+   Sequence(10);
+   /* trigger ISR 2 */
+   TriggerISR2();
+   ASSERT(IP_06, 0);
+
+   Sequence(12);
+   /* evaluate conformance tests */
+   ConfTestEvaluation();
+
+   /* finish the conformance test */
+   ConfTestFinish();
+}
+
+ISR(ISR1)
+{
+   Sequence(5);
 }
 
 ISR(ISR2)
 {
-	Sequence(5);
-	/*
-   */
+   Sequence(11);
 }
 
 /* This task is not used, only to change the scheduling police */
 TASK(Task2)
 {
-	TerminateTask();
+   TerminateTask();
 }
 
 /** @} doxygen end group definition */

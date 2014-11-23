@@ -55,13 +55,13 @@
 /*
  * Initials     Name
  * ---------------------------
- * JuCe			 Juan Cecconi
+ * JuCe         Juan Cecconi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141122 v0.1.0 JuCe	initial version based on module tests
+ * 20141122 v0.1.0 JuCe initial version based on module tests
  */
 
 /*==================[inclusions]=============================================*/
@@ -73,7 +73,7 @@
  **
  ** Defines the total amount of sequence points in this test sequence
  **/
-#define MAX_SEQUENCE 6
+#define MAX_SEQUENCE 12
 
 /*==================[typedef]================================================*/
 
