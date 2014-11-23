@@ -62,7 +62,7 @@
 #include "ciaaModbus_config.h"
 #include "os.h"
 
-#if CIAA_MODBUS_TOTAL_MASTERS > 0
+#if CIAA_MODBUS_TOTAL_MASTERS >= 0
 
 /*==================[macros and definitions]=================================*/
 
@@ -104,6 +104,39 @@ extern void ciaaModbus_masterInit(void)
       ciaaModbus_masterObj[loopi].slaveId = 0;
       ciaaModbus_masterObj[loopi].inUse = false;
    }
+}
+
+extern int32_t ciaaModbus_masterOpen(void)
+{
+   int32_t hModbusMaster = 0;
+
+   /* enter critical section */
+   GetResource(MODBUSR);
+
+   /* search a Master Object not in use */
+   while ( (hModbusMaster < CIAA_MODBUS_TOTAL_MASTERS) &&
+           (ciaaModbus_masterObj[hModbusMaster].inUse == true) )
+   {
+      hModbusMaster++;
+   }
+
+   /* if object available, use it */
+   if (hModbusMaster < CIAA_MODBUS_TOTAL_MASTERS)
+   {
+      /* set object in use */
+      ciaaModbus_masterObj[hModbusMaster].inUse = true;
+      ciaaModbus_masterObj[hModbusMaster].cmd = 0x00;
+   }
+   else
+   {
+      /* if no object available, return invalid handler */
+      hModbusMaster = -1;
+   }
+
+   /* exit critical section */
+   ReleaseResource(MODBUSR);
+
+   return hModbusMaster;
 }
 
 extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
