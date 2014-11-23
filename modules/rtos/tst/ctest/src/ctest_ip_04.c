@@ -1,4 +1,4 @@
-/* Copyright 2014 Mariano Cerdeiro
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -32,7 +32,7 @@
 
 /** \brief FreeOSEK Os Conformance Test for the Interrupt processing, Test Sequence 1
  **
- ** \file FreeOSEK/Os/tst/ctest/src/ctest_ip_01.c
+ ** \file FreeOSEK/Os/tst/ctest/src/ctest_ip_04.c
  **/
 
 /** \addtogroup FreeOSEK
@@ -43,7 +43,7 @@
  ** @{ */
 /** \addtogroup FreeOSEK_Os_CT_IP  Interrupt processing
  ** @{ */
-/** \addtogroup FreeOSEK_Os_CT_IP_01 Test Sequence 1
+/** \addtogroup FreeOSEK_Os_CT_IP_04 Test Sequence 4
  ** @{ */
 
 /*
@@ -98,14 +98,10 @@ TASK(Task1)
    /* nothing to do */
 
    Sequence(1);
-   /* trigger ISR 1 */
-   TriggerISR1();
-
-   Sequence(2);
    /* trigger ISR 2 */
    TriggerISR2();
 
-   Sequence(6);
+   Sequence(5);
 
    /* evaluate conformance tests */
    ConfTestEvaluation();
@@ -120,17 +116,17 @@ ISR(ISR2)
 {
    StatusType ret;
 
-   Sequence(3);
+   Sequence(2);
 
    ret = ActivateTask(Task2);
    ASSERT(IP_11, E_OK != ret);
 
-   Sequence(4);
+   Sequence(3);
 }
 
 TASK(Task2)
 {
-   Sequence(5);
+   Sequence(4);
    TerminateTask();
 }
 
