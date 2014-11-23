@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -43,7 +43,6 @@
 
 /*
  * Initials     Name
- * MaCe         Mariano Cerdeiro
  * GMuro        Gustavo Muro
  *
  */
@@ -51,7 +50,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140623 v0.0.1 initials initial
+ * 20141118 v0.0.1 initials initial
  */
 
 /*==================[inclusions]=============================================*/
@@ -59,10 +58,30 @@
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaModbus_master.h"
 #include "ciaaModbus_transport.h"
+#include "ciaaPOSIX_stdbool.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
 
+typedef struct
+{
+   modbusMaster_cbEndOfComm cbEndComm;
+   TaskType taskID;
+   int16_t *pData;
+   uint16_t startAddressR;
+   uint16_t startAddressW;
+   uint16_t quantityR;
+   uint16_t quantityW;
+   uint8_t cmd;
+   uint8_t slaveId;
+   uint8_t exceptioncode;
+   bool inUse;
+}ciaaModbus_masterObj_type;
+
+
 /*==================[internal data declaration]==============================*/
+
+static ciaaModbus_masterObj_type ciaaModbus_masterObj[CIAA_MODBUS_TOTAL_MASTERS];
 
 /*==================[internal functions declaration]=========================*/
 
@@ -73,7 +92,56 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+extern void ciaaModbus_masterInit(void)
+{
+   int32_t loopi;
 
+   for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_MASTERS ; loopi++)
+   {
+      ciaaModbus_masterObj[loopi].cmd = 0;
+      ciaaModbus_masterObj[loopi].slaveId = 0;
+      ciaaModbus_masterObj[loopi].inUse = false;
+   }
+}
+
+extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      uint16_t quantity,
+      int16_t *hrValue,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfComm cbEndComm)
+{
+   int8_t ret;
+
+   if (ciaaModbus_masterObj[hModbusMaster].cmd == 0)
+   {
+      ciaaModbus_masterObj[hModbusMaster].startAddressR = startAddress;
+      ciaaModbus_masterObj[hModbusMaster].quantityR = quantity;
+      ciaaModbus_masterObj[hModbusMaster].pData = hrValue;
+      ciaaModbus_masterObj[hModbusMaster].slaveId = slaveId;
+      ciaaModbus_masterObj[hModbusMaster].cmd = CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS;
+
+      if (NULL == cbEndComm)
+      {
+         ciaaModbus_masterObj[hModbusMaster].cbEndComm = cbEndComm;
+         GetTaskID(&ciaaModbus_masterObj[hModbusMaster].taskID);
+         //WaitEvent(MODBUSME);
+         //ClearEvent(MODBUSME);
+         ret = ciaaModbus_masterObj[hModbusMaster].exceptioncode;
+      }
+      else
+      {
+         ret = 0;
+      }
+   }
+   else
+   {
+      ret = -1;
+   }
+
+   return ret;
+}
 
 
 /** @} doxygen end group definition */

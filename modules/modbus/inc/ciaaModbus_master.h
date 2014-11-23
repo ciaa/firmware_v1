@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,8 +30,8 @@
  *
  */
 
-#ifndef _CIAAMODBUS_H_
-#define _CIAAMODBUS_H_
+#ifndef _CIAAMODBUS_MASTER_H_
+#define _CIAAMODBUS_MASTER_H_
 /** \brief Modbus Slave Header File
  **
  ** This files shall be included by moodules using the interfaces provided by
@@ -47,7 +47,6 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
  * GMuro        Gustavo Muro
  *
  */
@@ -55,7 +54,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140623 v0.0.1 initials initial
+ * 20141118 v0.0.1 initials initial
  */
 
 /*==================[inclusions]=============================================*/
@@ -103,12 +102,19 @@ extern int32_t ciaaModbus_masterOpen(void);
 extern int32_t ciaaModbus_masterClose(
       int32_t hModbusMaster);
 
-/** \brief Close Modbus Master
+/** \brief Perform function 0x03 on slave
+ ** Read Holding Registers
  **
- ** \param[in] handler of Modbus Master
- ** \return -1 if failed, 0 in other if success.
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddress
+ ** \return -1 if failed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wring quantity
+ **         4 function error
  **/
-extern int32_t ciaaModbus_masterCmd0x03ReadHoldingReg(
+extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
       int32_t hModbusMaster,
       uint16_t startAddress,
       uint16_t quantity,
@@ -125,5 +131,5 @@ extern int32_t ciaaModbus_masterCmd0x03ReadHoldingReg(
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUS_H_ */
+#endif /* #ifndef _CIAAMODBUS_MASTER_H_ */
 
