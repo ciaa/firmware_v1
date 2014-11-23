@@ -59,7 +59,10 @@
 #include "ciaaModbus_master.h"
 #include "ciaaModbus_transport.h"
 #include "ciaaPOSIX_stdbool.h"
+#include "ciaaModbus_config.h"
 #include "os.h"
+
+#if CIAA_MODBUS_TOTAL_MASTERS > 0
 
 /*==================[macros and definitions]=================================*/
 
@@ -80,7 +83,6 @@ typedef struct
 
 
 /*==================[internal data declaration]==============================*/
-
 static ciaaModbus_masterObj_type ciaaModbus_masterObj[CIAA_MODBUS_TOTAL_MASTERS];
 
 /*==================[internal functions declaration]=========================*/
@@ -126,8 +128,8 @@ extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
       {
          ciaaModbus_masterObj[hModbusMaster].cbEndComm = cbEndComm;
          GetTaskID(&ciaaModbus_masterObj[hModbusMaster].taskID);
-         //WaitEvent(MODBUSME);
-         //ClearEvent(MODBUSME);
+         WaitEvent(MODBUSME);
+         ClearEvent(MODBUSME);
          ret = ciaaModbus_masterObj[hModbusMaster].exceptioncode;
       }
       else
@@ -143,6 +145,7 @@ extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
    return ret;
 }
 
+#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
