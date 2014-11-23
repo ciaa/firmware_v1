@@ -71,58 +71,15 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 
-/** \brief Modbus Master callback end of communication
- **
- ** This function is called by the modbus master when communication ends
- **
- ** \param[in] slaveId Identification of Slave Modbus
- ** \param[in] function excecuted
- ** \param[in] exception code
- ** \return
- **/
-typedef void (*modbusMaster_cbEndOfComm)(
-      uint8_t slaveId,
-      uint8_t numFunc,
-      uint8_t exceptioncode);
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-
-/** \brief Open Modbus Master
+/** \brief ciaaModbus_master initialization
  **
- ** \return handler of Modbus Slave
- **/
-extern int32_t ciaaModbus_masterOpen(void);
-
-/** \brief Close Modbus Master
+ ** Performs the initialization of the MODBUS Master
  **
- ** \param[in] handler of Modbus Master
- ** \return -1 if failed, 0 in other if success.
  **/
-extern int32_t ciaaModbus_masterClose(
-      int32_t hModbusMaster);
-
-/** \brief Perform function 0x03 on slave
- ** Read Holding Registers
- **
- ** \param[in] hModbusMaster handler of Modbus Master
- ** \param[in] startAddress
- ** \return -1 if failed
- **         0 successful
- **         1 function not supported
- **         2 wrong starting address
- **         3 wring quantity
- **         4 function error
- **/
-extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
-      int32_t hModbusMaster,
-      uint16_t startAddress,
-      uint16_t quantity,
-      int16_t *hrValue,
-      uint8_t slaveId,
-      modbusMaster_cbEndOfComm cbEndComm);
-
-
+extern void ciaaModbus_masterInit(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
