@@ -223,10 +223,12 @@ StatusType Schedule
          }
       }
    }
+#if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
    else
    {
       IntSecure_End();
    }
+#endif /* #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED) */
 
 #if (HOOK_ERRORHOOK == OSEK_ENABLE)
    /* \req OSEK_ERR_1.3-4/xx The ErrorHook hook routine shall be called if a
