@@ -161,8 +161,8 @@ extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
       {
          ciaaModbus_masterObj[hModbusMaster].cbEndComm = cbEndComm;
          GetTaskID(&ciaaModbus_masterObj[hModbusMaster].taskID);
-         WaitEvent(MODBUSME);
-         ClearEvent(MODBUSME);
+         WaitEvent(MODBUSE);
+         ClearEvent(MODBUSE);
          ret = ciaaModbus_masterObj[hModbusMaster].exceptioncode;
       }
       else
