@@ -301,7 +301,11 @@ const uint8 TestResultsOk[35] =
 #endif
    | ( INIT << 6 ),      /* IP_07 index 47 */
    ( INIT << 0 )      /* IP_08 index 48 */
+#if (defined ctest_ip_03)
+   | ( OK << 2 )      /* IP_09 index 49 */
+#else
    | ( INIT << 2 )      /* IP_09 index 49 */
+#endif
    | ( INIT << 4 )      /* IP_10 index 50 */
 #if (defined ctest_ip_04)
    | ( OK << 6 ),      /* IP_11 index 51 */
@@ -712,7 +716,7 @@ const uint8 TestResultsOk[35] =
    | ( INIT << 2 )      /* EH_07 index 137 */
 #endif
    | ( INIT << 4 )      /* EH_08 index 138 */
-#if ( (!defined ctest_ip_01) && (!defined ctest_ip_04) )
+#if ( (!defined ctest_ip_01) && (!defined ctest_ip_03) && (!defined ctest_ip_04) )
    | ( OK << 6 )         /* OTHER index 139 */
 #else
    | ( INIT << 6 )         /* OTHER index 139 */
