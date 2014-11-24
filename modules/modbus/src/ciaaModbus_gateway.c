@@ -58,6 +58,7 @@
 #include "ciaaModbus_gateway.h"
 #include "ciaaModbus_transport.h"
 #include "ciaaModbus_slave.h"
+#include "ciaaModbus_master.h"
 #include "ciaaModbus_config.h"
 #include "ciaaPOSIX_stdbool.h"
 #include "os.h"
@@ -393,6 +394,7 @@ extern int32_t ciaaModbus_gatewayOpen(void)
    return hModbusGW;
 }
 
+#if CIAA_MODBUS_TOTAL_SLAVES > 0
 extern int8_t ciaaModbus_gatewayAddSlave(
       int32_t hModbusGW,
       int32_t hModbusSlave)
@@ -423,13 +425,38 @@ extern int8_t ciaaModbus_gatewayAddSlave(
 
    return ret;
 }
+#endif /* #if CIAA_MODBUS_TOTAL_SLAVES > 0 */
 
+#if CIAA_MODBUS_TOTAL_MASTERS > 0
 extern int8_t ciaaModbus_gatewayAddMaster(
       int32_t hModbusGW,
       int32_t hModbusMaster)
 {
-   return 0;
+   uint32_t loopi;
+   int8_t ret = -1;
+
+   /* enter critical section */
+   GetResource(MODBUSR);
+
+   for (loopi = 0 ; (loopi < CIAA_MODBUS_GATEWAY_TOTAL_CLIENTS) && (ret != 0) ; loopi++)
+   {
+      if (ciaaModbus_gatewayObj[hModbusGW].client[loopi].inUse == false)
+      {
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].inUse = true;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].handler = hModbusMaster;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].recvMsg = ciaaModbus_masterRecvMsg;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].sendMsg = ciaaModbus_masterSendMsg;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].task = ciaaModbus_masterTask;
+         ret = 0;
+      }
+   }
+
+   /* exit critical section */
+   ReleaseResource(MODBUSR);
+
+   return ret;
 }
+#endif /* #if CIAA_MODBUS_TOTAL_MASTERS > 0 */
 
 extern int8_t ciaaModbus_gatewayAddTransport(
       int32_t hModbusGW,
