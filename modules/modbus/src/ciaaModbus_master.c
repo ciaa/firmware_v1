@@ -178,6 +178,13 @@ extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
    return ret;
 }
 
+extern void ciaaModbus_masterTask(int32_t handler)
+{
+
+}
+
+
+
 #endif
 
 /** @} doxygen end group definition */

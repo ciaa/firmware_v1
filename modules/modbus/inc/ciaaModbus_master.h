@@ -81,6 +81,12 @@ extern "C" {
  **/
 extern void ciaaModbus_masterInit(void);
 
+/** \brief Process task of Master Modbus
+ **
+ ** \param[in] handler Handler Modbus Master
+ **/
+extern void ciaaModbus_masterTask(int32_t handler);
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
