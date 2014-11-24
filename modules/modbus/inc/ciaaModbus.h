@@ -69,10 +69,15 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 /****** error codes ******/
+#define CIAA_MODBUS_E_NO_ERROR                     0X00
 #define CIAA_MODBUS_E_FNC_NOT_SUPPORTED            0x01
 #define CIAA_MODBUS_E_WRONG_STR_ADDR               0x02
 #define CIAA_MODBUS_E_WRONG_REG_QTY                0x03
 #define CIAA_MODBUS_E_FNC_ERROR                    0x04
+
+#define CIAA_MODBUS_E_SLAVE_NOT_RESPOND            0X10
+#define CIAA_MODBUS_E_PDU_RECEIVED_WRONG           0X11
+
 
 /****** functions ******/
 #define CIAA_MODBUS_FCN_READ_COILS                       0x01
@@ -339,12 +344,13 @@ extern int32_t ciaaModbus_masterClose(
  **
  ** \param[in] hModbusMaster handler of Modbus Master
  ** \param[in] startAddress
- ** \return -1 if failed
- **         0 successful
+ ** \return 0 successful
  **         1 function not supported
  **         2 wrong starting address
  **         3 wring quantity
  **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
  **/
 extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
       int32_t hModbusMaster,
