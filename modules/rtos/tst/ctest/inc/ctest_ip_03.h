@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014 Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,9 +30,11 @@
  *
  */
 
-/** \brief FreeOSEK Os Conformance Test for the Interrupt processing, Test Sequence 4
+#ifndef _CTEST_IP_03_H_
+#define _CTEST_IP_03_H_
+/** \brief FreeOSEK Os Conformance Test
  **
- ** \file FreeOSEK/Os/tst/ctest/src/ctest_ip_04.c
+ ** \file FreeOSEK/Os/tst/ctest/inc/ctest_ip_03.h
  **/
 
 /** \addtogroup FreeOSEK
@@ -43,7 +45,7 @@
  ** @{ */
 /** \addtogroup FreeOSEK_Os_CT_IP  Interrupt processing
  ** @{ */
-/** \addtogroup FreeOSEK_Os_CT_IP_04 Test Sequence 4
+/** \addtogroup FreeOSEK_Os_CT_IP_03 Test Sequence 3
  ** @{ */
 
 /*
@@ -55,86 +57,25 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141122 v0.1.0 MaCe initial version
+ * 20141124 v0.1.0 MaCe initial version based on module tests
  */
 
 /*==================[inclusions]=============================================*/
-#include "os.h"            /* include os header file */
-#include "ctest_ip_04.h"   /* include test header file */
-#include "ctest.h"         /* include ctest header file */
+#include "Types.h"
+#include "ctest.h"
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
+/** \brief Maximal Sequence
+ **
+ ** Defines the total amount of sequence points in this test sequence
+ **/
+#define MAX_SEQUENCE 6
 
-/*==================[internal data declaration]==============================*/
+/*==================[typedef]================================================*/
 
-/*==================[internal functions declaration]=========================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[internal data definition]===============================*/
-
-/*==================[external data definition]===============================*/
-const uint32f SequenceCounterOk = MAX_SEQUENCE;
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-int main
-(
-   void
-)
-{
-   /* start OS in AppMode 1 */
-   StartOS(AppMode1);
-
-   /* shall never return */
-   while(1);
-
-   return 0;
-}
-
-TASK(Task1)
-{
-   Sequence(0);
-   /* enable interrupts ISR2 and ISR3 */
-   /* nothing to do */
-
-   Sequence(1);
-   /* trigger ISR 2 */
-   TriggerISR2();
-
-   Sequence(5);
-
-   /* evaluate conformance tests */
-   ConfTestEvaluation();
-
-   /* finish the conformance test */
-   ConfTestFinish();
-
-   TerminateTask();
-}
-
-ISR(ISR2)
-{
-   StatusType ret;
-
-   Sequence(2);
-
-   ret = ActivateTask(Task2);
-   ASSERT(IP_11, E_OK != ret);
-
-   Sequence(3);
-}
-
-TASK(Task2)
-{
-   Sequence(4);
-   TerminateTask();
-}
-
-/* This task is not used, only to change the scheduling police */
-TASK(Task3)
-{
-   TerminateTask();
-}
+/*==================[external functions declaration]=========================*/
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
@@ -142,4 +83,5 @@ TASK(Task3)
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CTEST_IP_03_H_ */
 
