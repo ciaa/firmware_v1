@@ -66,11 +66,20 @@
 
 /*==================[macros and definitions]=================================*/
 
+/** \brief Default timeout response (millisecond) */
+#define CIAA_MODBUS_MASTER_DEFAULT_TIMEOUT      300
+
+/** \brief Default retry communication */
+#define CIAA_MODBUS_MASTER_DEFAULT_RETRY_COMM   3
+
+/** \brief Object modbus master */
 typedef struct
 {
    modbusMaster_cbEndOfComm cbEndComm;
    TaskType taskID;
    int16_t *pData;
+   uint16_t timeout;
+   uint16_t retryComm;
    uint16_t startAddressR;
    uint16_t startAddressW;
    uint16_t quantityR;
