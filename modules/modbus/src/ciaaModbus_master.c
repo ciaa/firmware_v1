@@ -62,7 +62,7 @@
 #include "ciaaModbus_config.h"
 #include "os.h"
 
-#if CIAA_MODBUS_TOTAL_MASTERS >= 0
+#if CIAA_MODBUS_TOTAL_MASTERS > 0
 
 /*==================[macros and definitions]=================================*/
 
