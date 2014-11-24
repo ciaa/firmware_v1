@@ -169,24 +169,26 @@ extern TaskType TerminatingTask;
 }
 
 /** \brief Save context */
-#define SaveContext(task) 													            \
+#define SaveContext(task)                                                  \
 {                                                                          \
    extern TaskType WaitingTask;                                            \
    if(TasksVar[GetRunningTask()].Flags.State == TASK_ST_WAITING)           \
    {                                                                       \
       WaitingTask = GetRunningTask();                                      \
    }                                                                       \
-	flag = 0;																               \
-	/* remove of the Ready List */											         \
-	RemoveTask(GetRunningTask());											            \
+   flag = 0;                                                               \
+   /* remove of the Ready List */                                          \
+   RemoveTask(GetRunningTask());                                           \
+   /* set system context */                                                \
+   SetActualContext(CONTEXT_SYS);                                          \
    /* set running task to invalid */                                       \
    SetRunningTask(INVALID_TASK);                                           \
-	/* finish cirtical code */												            \
-	IntSecure_End();														               \
-	/* call scheduler */													               \
-	Schedule();																               \
-	/* add this call in order to maintain counter balance when returning */ \
-	IntSecure_Start();                                                      \
+   /* finish cirtical code */                                              \
+   IntSecure_End();                                                        \
+   /* call scheduler */                                                    \
+   Schedule();                                                             \
+   /* add this call in order to maintain counter balance when returning */ \
+   IntSecure_Start();                                                      \
 }
 
 /** \brief */
