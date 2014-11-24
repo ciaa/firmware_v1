@@ -99,6 +99,8 @@ StatusType Schedule
    ContextType actualContext;
 #endif
 
+   IntSecure_Start();
+
    /* get actual running task */
    actualTask = GetRunningTask();
 
@@ -142,8 +144,12 @@ StatusType Schedule
       while (	( actualTask == INVALID_TASK ) &&
             ( nextTask == INVALID_TASK) )
       {
+         IntSecure_End();
+
          /* macro used to indicate the processor that we are in idle time */
          osekpause();
+
+         IntSecure_Start();
 
          /* get next task */
          nextTask = GetNextTask();
@@ -160,6 +166,8 @@ StatusType Schedule
 
          /* set actual context task */
          SetActualContext(CONTEXT_TASK);
+
+         IntSecure_End();
 
 #if (HOOK_PRETASKHOOK == OSEK_ENABLE)
          PreTaskHook();
@@ -197,6 +205,8 @@ StatusType Schedule
             /* set actual context task */
             SetActualContext(CONTEXT_TASK);
 
+            IntSecure_End();
+
 #if (HOOK_PRETASKHOOK == OSEK_ENABLE)
             PreTaskHook();
 #endif /* #if (HOOK_PRETASKHOOK == OSEK_ENABLE) */
@@ -207,11 +217,18 @@ StatusType Schedule
          }
          else
          {
+            IntSecure_End();
+
             /* \req OSEK_SYS_3.4.2 Otherwise the calling task is continued */
          }
-
       }
    }
+#if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
+   else
+   {
+      IntSecure_End();
+   }
+#endif /* #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED) */
 
 #if (HOOK_ERRORHOOK == OSEK_ENABLE)
    /* \req OSEK_ERR_1.3-4/xx The ErrorHook hook routine shall be called if a

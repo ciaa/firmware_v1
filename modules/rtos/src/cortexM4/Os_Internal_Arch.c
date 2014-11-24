@@ -116,9 +116,12 @@ void InitStack_Arch(uint8 TaskID)
 /* Periodic Interrupt Timer, included in all Cortex-M4 processors */
 void SysTick_Handler(void)
 {
+	/* store the calling context in a variable */
+	ContextType actualContext = GetCallingContext();
+	/* set isr 2 context */
+	SetActualContext(CONTEXT_ISR2);
+
 #if (ALARMS_COUNT != 0)
-	/* to save the context during the interrupt */
-	ContextType context;
 	/* counter increment */
 	static CounterIncrementType CounterIncrement = 1;
    (void)CounterIncrement; /* TODO remove me */
@@ -126,46 +129,26 @@ void SysTick_Handler(void)
 	/* increment the disable interrupt conter to avoid enable the interrupts */
 	IntSecure_Start();
 
-	/* save actual context */
-	context = GetCallingContext();
-
-	/* Set context to CONTEXT_ISR2 instead of CONTEXT_DBG.
-	 * Still need to check this.
-	*/
-	SetActualContext(CONTEXT_ISR2);
-
 	/* call counter interrupt handler */
 	CounterIncrement = IncrementCounter(0, 1 /* CounterIncrement */); /* TODO FIXME */
-
-	/* interrupt has to be called first after so many CounterIncrement */
-	/* SetCounterTime(CounterIncrement); */ /* TODO FIXME */
-
-	/* set context back */
-	SetActualContext(context);
 
 	/* set the disable interrupt counter back */
 	IntSecure_End();
 
 #endif /* #if (ALARMS_COUNT != 0) */
 
-	/* clear timer interrupt flag */
-	//not necessary for Cortex-M3
-	//ClearTimerInterrupt_Cpu();
+	/* reset context */
+	SetActualContext(actualContext);
 
-#if 0 /* TODO */
 #if (NON_PREEMPTIVE == OSEK_DISABLE)
-		/* check if interrupt a Task Context */
-		if ( GetCallingContext() ==  CONTEXT_TASK )
-		{
-			if ( TasksConst[GetRunningTask()].ConstFlags.Preemtive )
-			{
-				/* \req TODO Rescheduling shall take place only if interrupt a
-				 * preemptable task. */
-				(void)Schedule();
-			}
-		}
+   /* check if the actual task is preemptive */
+   if ( ( CONTEXT_TASK == actualContext ) &&
+        ( TasksConst[GetRunningTask()].ConstFlags.Preemtive ) )
+   {
+      /* this shall force a call to the scheduler */
+      PostIsr2_Arch(isr);
+   }
 #endif /* #if (NON_PREEMPTIVE == OSEK_ENABLE) */
-#endif
 }
 
 
