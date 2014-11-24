@@ -34,7 +34,7 @@
 #define _CTEST_IP_04_H_
 /** \brief FreeOSEK Os Conformance Test
  **
- ** \file FreeOSEK/Os/tst/ctest/inc/ctest_ip_01.h
+ ** \file FreeOSEK/Os/tst/ctest/inc/ctest_ip_04.h
  **/
 
 /** \addtogroup FreeOSEK

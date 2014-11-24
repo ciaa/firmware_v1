@@ -30,9 +30,9 @@
  *
  */
 
-/** \brief FreeOSEK Os Conformance Test for the Interrupt processing, Test Sequence 4
+/** \brief FreeOSEK Os Conformance Test for the Interrupt processing, Test Sequence 3
  **
- ** \file FreeOSEK/Os/tst/ctest/src/ctest_ip_04.c
+ ** \file FreeOSEK/Os/tst/ctest/src/ctest_ip_03.c
  **/
 
 /** \addtogroup FreeOSEK
@@ -43,7 +43,7 @@
  ** @{ */
 /** \addtogroup FreeOSEK_Os_CT_IP  Interrupt processing
  ** @{ */
-/** \addtogroup FreeOSEK_Os_CT_IP_04 Test Sequence 4
+/** \addtogroup FreeOSEK_Os_CT_IP_03 Test Sequence 3
  ** @{ */
 
 /*
@@ -55,12 +55,12 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141122 v0.1.0 MaCe initial version
+ * 20141124.1.0 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "os.h"            /* include os header file */
-#include "ctest_ip_04.h"   /* include test header file */
+#include "ctest_ip_03.h"   /* include test header file */
 #include "ctest.h"         /* include ctest header file */
 
 /*==================[macros and definitions]=================================*/
@@ -101,14 +101,29 @@ TASK(Task1)
    /* trigger ISR 2 */
    TriggerISR2();
 
-   Sequence(5);
+   Sequence(4);
+   TerminateTask();
+}
 
+TASK(Task2)
+{
+   Sequence(5);
+   /* trigger ISR3 */
+   /* nothing to do */
+
+   Sequence(6);
    /* evaluate conformance tests */
    ConfTestEvaluation();
 
    /* finish the conformance test */
    ConfTestFinish();
 
+   TerminateTask();
+}
+
+TASK(Task3)
+{
+   /* this task will never run */
    TerminateTask();
 }
 
@@ -119,19 +134,13 @@ ISR(ISR2)
    Sequence(2);
 
    ret = ActivateTask(Task2);
-   ASSERT(IP_11, E_OK != ret);
+   ASSERT(IP_09, E_OK != ret);
 
    Sequence(3);
 }
 
-TASK(Task2)
-{
-   Sequence(4);
-   TerminateTask();
-}
-
 /* This task is not used, only to change the scheduling police */
-TASK(Task3)
+TASK(Task4)
 {
    TerminateTask();
 }
