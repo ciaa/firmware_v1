@@ -56,8 +56,12 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaDriverUart.h"
 
+#include "ciaaDriverUart.h"
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stdio.h"
+//#include "chip.h"
+#include "os.h"
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
@@ -107,6 +111,20 @@ void ciaaDriverUart_init(void)
 
 }
 
+ISR(UART0_IRQHandler)
+{
+
+}
+
+ISR(UART2_IRQHandler)
+{
+
+}
+
+ISR(UART3_IRQHandler)
+{
+
+}
 /*==================[interrupt handlers]=====================================*/
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
