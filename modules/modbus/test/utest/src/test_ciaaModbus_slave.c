@@ -1118,6 +1118,58 @@ void test_ciaaModbus_function0x06Msg_01(void)
    TEST_ASSERT_EQUAL_UINT16(0xABCD, valueHoldReg[0x1234]);
 }
 
+/** \brief test write single register
+ **
+ ** this function test write single register with wrong pdu length
+ **
+ **/
+void test_ciaaModbus_function0x06Msg_02(void)
+{
+   uint8_t pduSend[256] = {0x06, 0x12, 0x34, 0xAB, 0xCD, 0x00};
+   uint8_t pduExpected[256] = {0x86, 0x03};
+   uint8_t pduRecv[256];
+   uint8_t id;
+   uint32_t size;
+
+   const ciaaModbus_slaveCmd_type callbacksStruct =
+   {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+      cmd0x06WriteSingleRegister,
+      NULL,
+      NULL,
+   };
+
+   /* open modbus slave */
+   hModbusSlave = ciaaModbus_slaveOpen(&callbacksStruct, SLAVE_ID);
+
+   /* send, task and recv */
+   ciaaModbus_slaveSendMsg(
+         hModbusSlave,
+         SLAVE_ID,
+         pduSend,
+         6);
+
+   ciaaModbus_slaveTask(hModbusSlave);
+
+   ciaaModbus_slaveRecvMsg(
+         hModbusSlave,
+         &id,
+         pduRecv,
+         &size);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(
+         pduExpected,
+         pduRecv,
+         2);
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, id);
+   TEST_ASSERT_EQUAL_UINT32(2, size);
+}
+
 /** \brief test write multiple coils
  **
  ** this function test write multiple coils on slave
