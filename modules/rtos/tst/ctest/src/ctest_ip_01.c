@@ -107,7 +107,7 @@ TASK(Task1)
    ASSERT(IP_03, 0);
    
    Sequence(2);
-   /* trigger ISR 1 */
+   /* trigger ISR 1...pending IRQ */
    TriggerISR1();
 
    Sequence(3);
@@ -134,7 +134,7 @@ TASK(Task1)
    ASSERT(IP_03, 0);
    
    Sequence(9);
-   /* trigger ISR 2 */
+   /* trigger ISR 2...pending IRQ */
    TriggerISR2();
 
    Sequence(10);
@@ -175,7 +175,7 @@ ISR(ISR1)
          break;
       default:
          /* throw an ASSERT */
-         ASSERT(0, 1);
+         ASSERT(OTHER, 1);
          break;
    }
 }
@@ -196,7 +196,7 @@ ISR(ISR2)
          break;
       default:
          /* throw an ASSERT */
-         ASSERT(0, 1);
+         ASSERT(OTHER, 1);
          break;
    }
 }
