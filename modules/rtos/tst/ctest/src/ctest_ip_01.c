@@ -114,36 +114,44 @@ TASK(Task1)
    /* enable interrupts ISR1 */
    ResumeAllInterrupts();
    ASSERT(IP_01, 0);
+   /*
+      This is a deviation from standard, when Resume the interrupts 
+      there is a pending IRQ which will trigger the ISR
+   */
 
-   Sequence(4);
+   Sequence(5);
    /* trigger ISR 1 */
    TriggerISR1();
    ASSERT(IP_06, 0);
 
-   Sequence(6);
+   Sequence(7);
    /* enable interrupts ISR2 */
    ResumeOSInterrupts();
 
-   Sequence(7);
+   Sequence(8);
    /* disable interrupts ISR2 */
    SuspendOSInterrupts();
    ASSERT(IP_03, 0);
    
-   Sequence(8);
+   Sequence(9);
    /* trigger ISR 2 */
    TriggerISR2();
 
-   Sequence(9);
+   Sequence(10);
    /* enable interrupts ISR2 */
    ResumeOSInterrupts();
    ASSERT(IP_01, 0);
+   /*
+      This is a deviation from standard, when Resume the interrupts 
+      there is a pending IRQ which will trigger the ISR
+   */
 
-   Sequence(10);
+   Sequence(12);
    /* trigger ISR 2 */
    TriggerISR2();
    ASSERT(IP_06, 0);
 
-   Sequence(12);
+   Sequence(14);
    /* evaluate conformance tests */
    ConfTestEvaluation();
 
@@ -153,12 +161,44 @@ TASK(Task1)
 
 ISR(ISR1)
 {
-   Sequence(5);
+   static uint8_t ISR1_Trigger_Number = 0;
+   
+   switch(ISR1_Trigger_Number)
+   {
+      case 0:
+         Sequence(4);
+         ISR1_Trigger_Number++;
+         break;
+      case 1:
+         Sequence(6);
+         ISR1_Trigger_Number++;
+         break;
+      default:
+         /* throw an ASSERT */
+         ASSERT(0, 1);
+         break;
+   }
 }
 
 ISR(ISR2)
 {
-   Sequence(11);
+   static uint8_t ISR2_Trigger_Number = 0;
+   
+   switch(ISR2_Trigger_Number)
+   {
+      case 0:
+         Sequence(11);
+         ISR2_Trigger_Number++;
+         break;
+      case 1:
+         Sequence(13);
+         ISR2_Trigger_Number++;
+         break;
+      default:
+         /* throw an ASSERT */
+         ASSERT(0, 1);
+         break;
+   }
 }
 
 /* This task is not used, only to change the scheduling police */
