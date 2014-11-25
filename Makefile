@@ -157,6 +157,10 @@ include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 
 # add include files
 INCLUDE += $(foreach LIB, $(LIBS), $($(LIB)_INC_PATH))
+#Adds include project file if We wanto to do a project build
+ifneq ($(findstring tst_, $(MAKECMDGOALS)),tst_)
+CFLAGS  += $(foreach inc, $(INC_FILES), -I$(inc))
+endif
 CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU)
 TARGET_NAME ?= $(BIN_DIR)$(DS)$(project)

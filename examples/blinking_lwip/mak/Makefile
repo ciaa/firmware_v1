@@ -40,7 +40,7 @@ $(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
 # source path
 $(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
 # include path
-INCLUDE			   += $($(project)_PATH)$(DS)inc
+INC_FILES			   += $($(project)_PATH)$(DS)inc
 # library source files
 SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
