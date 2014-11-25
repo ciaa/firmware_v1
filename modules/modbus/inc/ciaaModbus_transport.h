@@ -153,6 +153,15 @@ void ciaaModbus_transportSendMsg(
  **/
 extern int8_t ciaaModbus_transportGetType(int32_t handler);
 
+/** \brief Get response timeout
+ **
+ ** This function return response timeout in milliseconds
+ **
+ ** \param[in] handler handler in to module
+ ** \return response timeout (milliseconds)
+ **/
+extern uint32_t ciaaModbus_transportGetRespTimeout(int32_t handler);
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }

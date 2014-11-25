@@ -67,10 +67,14 @@
                                           CIAA_MODBUS_TOTAL_TRANSPORT_RTU   + \
                                           CIAA_MODBUS_TOTAL_TRANSPORT_TCP )
 
+/** \brief Default response timeout (milliseconds) */
+#define CIAA_MODBUS_TRASNPORT_DEFAULT_TIMEOUT   300
+
 /** \brief Transport Object type */
 typedef struct
 {
    int32_t hModbusLowLayer;            /** <- Handler of low layer transport */
+   uint32_t respTimeout;               /** <- response timeout */
    ciaaModbus_transportModeEnum mode;  /** <- Transport Mode */
    bool inUse;                         /** <- Object in use */
 }ciaaModbus_transportObjType;
@@ -170,6 +174,9 @@ extern int32_t ciaaModbus_transportOpen(
 
             /* set low layer mode */
             ciaaModbus_transportObj[hModbusTransport].mode = mode;
+
+            /* Set default response timeout */
+            ciaaModbus_transportObj[hModbusTransport].respTimeout = CIAA_MODBUS_TRASNPORT_DEFAULT_TIMEOUT;
          }
          else
          {
@@ -307,6 +314,12 @@ extern int8_t ciaaModbus_transportGetType(int32_t handler)
 
    return ret;
 }
+
+extern uint32_t ciaaModbus_transportGetRespTimeout(int32_t handler)
+{
+   return ciaaModbus_transportObj[handler].respTimeout;
+}
+
 
 /*==================[external functions definition]==========================*/
 
