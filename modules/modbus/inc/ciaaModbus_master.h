@@ -120,6 +120,15 @@ extern void ciaaModbus_masterSendMsg(
       uint8_t *pdu,
       uint32_t size);
 
+/** \brief Get response timeout
+ **
+ ** This function return response timeout in milliseconds
+ **
+ ** \param[in] handler handler in to module
+ ** \return response timeout (milliseconds)
+ **/
+extern uint32_t ciaaModbus_masterGetRespTimeout(int32_t handler);
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }

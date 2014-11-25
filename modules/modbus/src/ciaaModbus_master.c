@@ -78,7 +78,7 @@ typedef struct
    modbusMaster_cbEndOfComm cbEndComm; /** <- pointer to call back function */
    TaskType taskID;                    /** <- Task ID if blocking mode */
    int16_t *pData;                     /** <- pointer to read/write data */
-   uint16_t timeout;                   /** <- timeout configured */
+   uint16_t respTimeout;               /** <- timeout configured */
    uint16_t retryComm;                 /** <- total retry if no correct respond */
    uint16_t retryCount;                /** <- retry count */
    uint16_t startAddressR;             /** <- start address to read */
@@ -185,7 +185,7 @@ extern int32_t ciaaModbus_masterOpen(void)
       ciaaModbus_masterObj[hModbusMaster].cmd = 0x00;
 
       /* set default timeout */
-      ciaaModbus_masterObj[hModbusMaster].timeout = CIAA_MODBUS_MASTER_DEFAULT_TIMEOUT;
+      ciaaModbus_masterObj[hModbusMaster].respTimeout = CIAA_MODBUS_MASTER_DEFAULT_TIMEOUT;
 
       /* set default retry comm */
       ciaaModbus_masterObj[hModbusMaster].retryComm = CIAA_MODBUS_MASTER_DEFAULT_RETRY_COMM;
@@ -322,7 +322,7 @@ extern void ciaaModbus_masterRecvMsg(
       /* set function code */
       pdu[0] = ciaaModbus_masterObj[handler].cmd;
 
-      /* according to function, arm pdu */
+      /* according to function, make pdu */
       switch (pdu[0])
       {
          /* read holding registers */
@@ -405,6 +405,11 @@ extern void ciaaModbus_masterSendMsg(
          ciaaModbus_masterObj[handler].cmd = 0x00;
       }
    }
+}
+
+extern uint32_t ciaaModbus_masterGetRespTimeout(int32_t handler)
+{
+   return ciaaModbus_masterObj[handler].respTimeout;
 }
 
 #endif /* #if CIAA_MODBUS_TOTAL_MASTERS > 0 */
