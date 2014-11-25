@@ -188,8 +188,9 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                /* obtain quantity of coils from buffer */
                quantity = ciaaModbus_readInt(&buf[3]);
 
-               /* check correct range */
-               if ( (0x07D0 < quantity) || (1 > quantity) )
+               /* check correct range and pdu length */
+               if ( (0x07D0 < quantity) || (1 > quantity) ||
+                    (5 != ciaaModbus_slaveObj[handler].size) )
                {
                   /* report invalid quantity of registers */
                   exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
@@ -228,8 +229,9 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                /* obtain quantity of discrete inputs from buffer */
                quantity = ciaaModbus_readInt(&buf[3]);
 
-               /* check correct range */
-               if ( (0x07D0 < quantity) || (1 > quantity) )
+               /* check correct range and pdu length */
+               if ( (0x07D0 < quantity) || (1 > quantity) ||
+                    (5 != ciaaModbus_slaveObj[handler].size) )
                {
                   /* report invalid quantity of registers */
                   exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
@@ -268,8 +270,9 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                /* obtain quantity of registers from buffer */
                quantity = ciaaModbus_readInt(&buf[3]);
 
-               /* check correct range */
-               if ( (0x007D < quantity) || (1 > quantity) )
+               /* check correct range and pdu length */
+               if ( (0x007D < quantity) || (1 > quantity) ||
+                    (5 != ciaaModbus_slaveObj[handler].size) )
                {
                   /* report invalid quantity of registers */
                   exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
@@ -303,8 +306,9 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                /* obtain quantity of registers from buffer */
                quantity = ciaaModbus_readInt(&buf[3]);
 
-               /* check correct range */
-               if ( (0x007D < quantity) || (1 > quantity) )
+               /* check correct range and pdu length */
+               if ( (0x007D < quantity) || (1 > quantity) ||
+                    (5 != ciaaModbus_slaveObj[handler].size) )
                {
                   /* report invalid quantity of registers */
                   exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
@@ -338,7 +342,9 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                /* obtain output value from buffer */
                value = ciaaModbus_readInt(&buf[3]);
 
-               if ((0x0000 != value) && (0xFF00 != value))
+               /* check correct value and pdu length */
+               if ( ((0x0000 != value) && (0xFF00 != value)) ||
+                     (5 != ciaaModbus_slaveObj[handler].size) )
                {
                   /* report invalid quantity of registers */
                   exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
@@ -366,17 +372,26 @@ extern void ciaaModbus_slaveTask(int32_t handler)
             }
             else
             {
-               /* obtain address of register from buffer */
-               address = ciaaModbus_readInt(&buf[1]);
+               /* check correct pdu length */
+               if (5 != ciaaModbus_slaveObj[handler].size)
+               {
+                  /* report invalid quantity of registers */
+                  exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
+               }
+               else
+               {
+                  /* obtain address of register from buffer */
+                  address = ciaaModbus_readInt(&buf[1]);
 
-               /* obtain register value from buffer */
-               value = ciaaModbus_readInt(&buf[3]);
+                  /* obtain register value from buffer */
+                  value = ciaaModbus_readInt(&buf[3]);
 
-               /* perform application function */
-               cmd->cmd0x06WriteSingleRegister(address, &exceptioncode, &buf[3]);
+                  /* perform application function */
+                  cmd->cmd0x06WriteSingleRegister(address, &exceptioncode, &buf[3]);
 
-               /* set length of message */
-               ret = 5;
+                  /* set length of message */
+                  ret = 5;
+               }
             }
             break;
 
@@ -402,9 +417,10 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                   byteCount++;
                }
 
-               /* check correct range */
-               if ( (0x07B0 < quantity) || (1 > quantity)
-                  || (byteCount != buf[5]) )
+               /* check correct range and pdu length */
+               if ( (0x07B0 < quantity) || (1 > quantity) ||
+                    (byteCount != buf[5]) ||
+                    ((6+byteCount) != ciaaModbus_slaveObj[handler].size) )
                {
                   /* report invalid quantity of coils */
                   exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
@@ -438,9 +454,10 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                /* calculate byte count to compare with received */
                byteCount = quantity * 2;
 
-               /* check correct range */
-               if ( (0x007B < quantity) || (1 > quantity)
-                  || (byteCount != buf[5]) )
+               /* check correct range and pdu length */
+               if ( (0x007B < quantity) || (1 > quantity) ||
+                    (byteCount != buf[5]) ||
+                    ((6+byteCount) != ciaaModbus_slaveObj[handler].size) )
                {
                   /* report invalid quantity of registers */
                   exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
@@ -481,10 +498,11 @@ extern void ciaaModbus_slaveTask(int32_t handler)
                /* calculate byte count to compare with received */
                byteCount = quantityW * 2;
 
-               /* check correct range */
+               /* check correct range and pdu length */
                if ( (0x007D < quantity)  || (1 > quantity)  ||
                     (0x0079 < quantityW) || (1 > quantityW) ||
-                    (byteCount != buf[9]) )
+                    (byteCount != buf[9]) ||
+                    ((10+byteCount) != ciaaModbus_slaveObj[handler].size) )
                {
                   /* report invalid quantity of registers */
                   exceptioncode = CIAA_MODBUS_E_WRONG_REG_QTY;
