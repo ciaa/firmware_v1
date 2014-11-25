@@ -1,4 +1,5 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -56,11 +57,13 @@
  * Initials     Name
  * ---------------------------
  * MaCe          Mariano Cerdeiro
+ * JuCe         Juan Cecconi 
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20141125 v0.1.2 JuCe   throw pending IRQ on ResumeOSInterrupts
  * 20090719 v0.1.1 MaCe   rename file to Os_
  * 20080725 v0.1.0 MaCe   initial version
  */

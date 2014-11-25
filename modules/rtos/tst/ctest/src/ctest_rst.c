@@ -716,7 +716,7 @@ const uint8 TestResultsOk[35] =
    | ( INIT << 2 )      /* EH_07 index 137 */
 #endif
    | ( INIT << 4 )      /* EH_08 index 138 */
-#if ( (!defined ctest_ip_01) && (!defined ctest_ip_03) && (!defined ctest_ip_04) )
+#if ( (!defined ctest_ip_03) && (!defined ctest_ip_04) )
    | ( OK << 6 )         /* OTHER index 139 */
 #else
    | ( INIT << 6 )         /* OTHER index 139 */

@@ -168,10 +168,12 @@ ISR(ISR1)
       case 0:
          Sequence(4);
          ISR1_Trigger_Number++;
+         ASSERT(OTHER, 0);         
          break;
       case 1:
          Sequence(6);
          ISR1_Trigger_Number++;
+         ASSERT(OTHER, 0);
          break;
       default:
          /* throw an ASSERT */
@@ -189,10 +191,12 @@ ISR(ISR2)
       case 0:
          Sequence(11);
          ISR2_Trigger_Number++;
+         ASSERT(OTHER, 0);
          break;
       case 1:
          Sequence(13);
          ISR2_Trigger_Number++;
+         ASSERT(OTHER, 0);
          break;
       default:
          /* throw an ASSERT */
