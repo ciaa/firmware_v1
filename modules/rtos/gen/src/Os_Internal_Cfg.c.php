@@ -471,7 +471,7 @@ foreach ($intnames as $int)
 
    if ($intcat == 2)
    {?>
-void OSEK_ISR2_<?=$int;?>(void)
+void OSEK_ISR2_<?php print $int;?>(void)
 {
    /* store the calling context in a variable */
    ContextType actualContext = GetCallingContext();
@@ -479,7 +479,7 @@ void OSEK_ISR2_<?=$int;?>(void)
    SetActualContext(CONTEXT_ISR2);
 
    /* trigger isr 2 */
-   OSEK_ISR_<?=$int;?>();
+   OSEK_ISR_<?php print $int;?>();
 
    /* reset context */
    SetActualContext(actualContext);
