@@ -117,12 +117,8 @@ typedef TaskContextType* TaskContextRefType;
  *****************************************************************************/
 
 /*==================[external functions declaration]=========================*/
-/*****************************************************************************
- * Please declare here all exported functions defined
- * Osek_Internal_Arch_Cfg.c.php
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
+
+void Enable_User_ISRs(void);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

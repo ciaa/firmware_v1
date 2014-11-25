@@ -172,9 +172,6 @@ static void ciaaDriverUart_hwInit(void)
 
    Chip_SCU_PinMux(6, 2, MD_PDN, FUNC2);              /* P6_2: UART0_DIR */
 
-   NVIC_SetPriority(USART0_IRQn, 0);
-   NVIC_EnableIRQ(USART0_IRQn);
-
    /* UART2 (USB-UART) */
    Chip_UART_Init(LPC_USART2);
    Chip_UART_SetBaud(LPC_USART2, 115200);
@@ -186,9 +183,6 @@ static void ciaaDriverUart_hwInit(void)
    Chip_SCU_PinMux(7, 1, MD_PDN, FUNC6);              /* P7_1: UART2_TXD */
    Chip_SCU_PinMux(7, 2, MD_PLN|MD_EZI|MD_ZI, FUNC6); /* P7_2: UART2_RXD */
 
-   NVIC_SetPriority(USART2_IRQn, 0);
-   NVIC_EnableIRQ(USART2_IRQn);
-
    /* UART3 (RS232) */
    Chip_UART_Init(LPC_USART3);
    Chip_UART_SetBaud(LPC_USART3, 115200);
@@ -199,9 +193,6 @@ static void ciaaDriverUart_hwInit(void)
 
    Chip_SCU_PinMux(2, 3, MD_PDN, FUNC2);              /* P2_3: UART3_TXD */
    Chip_SCU_PinMux(2, 4, MD_PLN|MD_EZI|MD_ZI, FUNC2); /* P2_4: UART3_RXD */
-
-   NVIC_SetPriority(USART3_IRQn, 0);
-   NVIC_EnableIRQ(USART3_IRQn);
 }
 
 /*==================[external functions definition]==========================*/

@@ -73,7 +73,7 @@
 }
 
 /* Use GPIO1, IRQ33 as interrupt for tests */
-#define TriggerISR3_Arch()                                                 \
+#define TriggerISR1_Arch()                                                 \
 {                                                                          \
    NVIC_EnableIRQ(33);                                                     \
    NVIC_SetPendingIRQ(33);                                                 \

@@ -76,6 +76,7 @@
 #include "string.h"     /* used to call the function strerror */
 
 /*==================[macros]=================================================*/
+#define TASK_STACK_ADDITIONAL_SIZE      10000
 
 /*==================[cputype macros]=========================================*/
 /** \brief ia32 cputype definition */
