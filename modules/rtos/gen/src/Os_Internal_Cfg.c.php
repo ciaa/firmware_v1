@@ -83,7 +83,7 @@ $tasks = $config->getList("/OSEK","TASK");
 foreach ($tasks as $task)
 {
    print "/** \brief $task stack */\n";
-   print "#if ( x86  == ARCH )\n";
+   print "#if ( x86 == ARCH )\n";
    print "uint8 StackTask" . $task . "[" . $config->getValue("/OSEK/" . $task, "STACK") ." + TASK_STACK_ADDITIONAL_SIZE];\n";
    print "#else\n";
    print "uint8 StackTask" . $task . "[" . $config->getValue("/OSEK/" . $task, "STACK") ."];\n";
