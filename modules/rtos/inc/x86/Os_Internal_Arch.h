@@ -76,7 +76,7 @@
 #include "string.h"     /* used to call the function strerror */
 
 /*==================[macros]=================================================*/
-
+#define TASK_STACK_ADDITIONAL_SIZE      10000
 /*==================[cputype macros]=========================================*/
 /** \brief ia32 cputype definition */
 #define ia32        1
@@ -259,8 +259,7 @@
  **
  ** This macro is called every time that an ISR Cat 2 is finished
  **/
-#define PostIsr2_Arch(isr) \
-   Schedule();
+#define PostIsr2_Arch(isr)
 
 #if ( CPUTYPE == ia64 )
 #define SaveOsStack()                                                                      \
