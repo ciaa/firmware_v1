@@ -89,7 +89,8 @@ void setUp(void)
    /* ignore calls ReleaseResource */
    ReleaseResource_CMockIgnoreAndReturn(E_OK);
 
-   ciaaModbus_asciiOpen_ExpectAndReturn(CIAA_MODBUS_TRASNPORT_FIL_DES, 0);
+   /*TODO use ciaaModbus_asciiOpen_ExpectAndReturn */
+   ciaaModbus_asciiOpen_IgnoreAndReturn(0);
 
    ciaaModbus_transportInit();
 }
