@@ -89,9 +89,6 @@ void setUp(void)
    /* ignore calls ReleaseResource */
    ReleaseResource_CMockIgnoreAndReturn(E_OK);
 
-   /*TODO use ciaaModbus_asciiOpen_ExpectAndReturn */
-   ciaaModbus_asciiOpen_IgnoreAndReturn(0);
-
    ciaaModbus_transportInit();
 }
 
@@ -108,12 +105,33 @@ void doNothing(void)
 {
 }
 
+
+int32_t ciaaModbus_asciiOpen_CALLBACK(int32_t fildes, int cmock_num_calls)
+{
+   int32_t ret;
+   static int32_t handler = 0;
+
+   if (CIAA_MODBUS_TRASNPORT_FIL_DES == fildes)
+   {
+      ret = cmock_num_calls;
+   }
+   else
+   {
+      ret = handler;
+      handler++;
+   }
+
+   return cmock_num_calls;
+}
+
 /** \brief Test ciaaModbus_transportOpen
  **
  **/
 void test_ciaaModbus_transportOpen_01(void)
 {
    int32_t hModbusTransp[10];
+
+   ciaaModbus_asciiOpen_StubWithCallback(ciaaModbus_asciiOpen_CALLBACK);
 
    hModbusTransp[0] = ciaaModbus_transportOpen(
          CIAA_MODBUS_TRASNPORT_FIL_DES,
@@ -143,15 +161,16 @@ void test_ciaaModbus_transportOpen_01(void)
          CIAA_MODBUS_TRASNPORT_FIL_DES,
          0xFF);
 
-   TEST_ASSERT_NOT_EQUAL(-1, hModbusTransp[0]);
-   TEST_ASSERT_NOT_EQUAL(-1, hModbusTransp[1]);
+   TEST_ASSERT_EQUAL(0, hModbusTransp[0]);
+   TEST_ASSERT_EQUAL(1, hModbusTransp[1]);
    TEST_ASSERT_EQUAL(-1, hModbusTransp[2]);
    TEST_ASSERT_EQUAL(-1, hModbusTransp[3]);
    TEST_ASSERT_EQUAL(-1, hModbusTransp[4]);
    TEST_ASSERT_EQUAL(-1, hModbusTransp[5]);
    TEST_ASSERT_EQUAL(-1, hModbusTransp[6]);
-
 }
+
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
