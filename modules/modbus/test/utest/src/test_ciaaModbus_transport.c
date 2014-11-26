@@ -54,10 +54,16 @@
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaModbus_transport.h"
+#include "ciaaModbus_config.h"
 #include "mock_ciaaPOSIX_stdio.h"
+#include "mock_ciaaModbus_ascii.h"
+#include "os.h"
 #include "string.h"
 
 /*==================[macros and definitions]=================================*/
+
+#define CIAA_MODBUS_TRASNPORT_FIL_DES     0
+
 
 /*==================[internal data declaration]==============================*/
 
@@ -77,6 +83,15 @@
  **/
 void setUp(void)
 {
+   /* ignore calls GetResource */
+   GetResource_CMockIgnoreAndReturn(E_OK);
+
+   /* ignore calls ReleaseResource */
+   ReleaseResource_CMockIgnoreAndReturn(E_OK);
+
+   ciaaModbus_asciiOpen_ExpectAndReturn(CIAA_MODBUS_TRASNPORT_FIL_DES, 0);
+
+   ciaaModbus_transportInit();
 }
 
 /** \brief tear Down function
@@ -92,11 +107,48 @@ void doNothing(void)
 {
 }
 
-/** \brief Test ciaaModbus_transportInit
+/** \brief Test ciaaModbus_transportOpen
  **
  **/
-void test_ciaaModbus_transportInit_01(void)
+void test_ciaaModbus_transportOpen_01(void)
 {
+   int32_t hModbusTransp[10];
+
+   hModbusTransp[0] = ciaaModbus_transportOpen(
+         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER);
+
+   hModbusTransp[1] = ciaaModbus_transportOpen(
+         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE);
+
+   hModbusTransp[2] = ciaaModbus_transportOpen(
+         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER);
+
+   hModbusTransp[3] = ciaaModbus_transportOpen(
+         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE);
+
+   hModbusTransp[4] = ciaaModbus_transportOpen(
+         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER);
+
+   hModbusTransp[5] = ciaaModbus_transportOpen(
+         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE);
+
+   hModbusTransp[6] = ciaaModbus_transportOpen(
+         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         0xFF);
+
+   TEST_ASSERT_NOT_EQUAL(-1, hModbusTransp[0]);
+   TEST_ASSERT_NOT_EQUAL(-1, hModbusTransp[1]);
+   TEST_ASSERT_EQUAL(-1, hModbusTransp[2]);
+   TEST_ASSERT_EQUAL(-1, hModbusTransp[3]);
+   TEST_ASSERT_EQUAL(-1, hModbusTransp[4]);
+   TEST_ASSERT_EQUAL(-1, hModbusTransp[5]);
+   TEST_ASSERT_EQUAL(-1, hModbusTransp[6]);
 
 }
 /** @} doxygen end group definition */
