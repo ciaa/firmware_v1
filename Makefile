@@ -474,8 +474,8 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo menuconfig..........: starts the CIAA Firmware configurator
 	@echo info................: general information about the make environment
-	@echo info_\<mod\>........: same as info but reporting information of a library
-	@echo info_ext_\<mod\>....: same as info_\<mod\> but for an external library
+	@echo info_\<mod\>..........: same as info but reporting information of a library
+	@echo info_ext_\<mod\>......: same as info_\<mod\> but for an external library
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               FreeOSEK (CIAA RTOS based on OSEK Standard)                   |"
 	@echo "+-----------------------------------------------------------------------------+"
@@ -486,15 +486,15 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo mocks...............: generate the mocks for all header files
 	@echo tst.................: displays possible tests
-	@echo tst_\<mod\>.........: shows all unit test of a specific module
-	@echo tst_\<mod\>_\<unit\>: runs the specific unit test
-	@echo tst_\<mod\>_all.....: runs all unit tests of a specific module
+	@echo tst_\<mod\>...........: shows all unit test of a specific module
+	@echo tst_\<mod\>_\<unit\>....: runs the specific unit test
+	@echo tst_\<mod\>_all.......: runs all unit tests of a specific module
 	@echo results.............: create results report
 	@echo ci..................: run the continuous integration
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Debugging / Running / Programming                             |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo run.................: execute the binary file (Win/Posix only)
+	@echo "run.................: execute the binary file (Win/Posix only)"
 	@echo openocd.............: starts openocd for $(ARCH)
 	@echo download [file].....: download firmware file to the target
 	@echo "+-----------------------------------------------------------------------------+"
