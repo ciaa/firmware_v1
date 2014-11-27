@@ -47,12 +47,13 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
- * EsVo			 Esteban Volentini
+ * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20141121 v0.0.3 EsVo add host uart support
  * 20141116 v0.0.2 EsVo add uart emulation via sockets
  * 20140528 v0.0.1 MaCe initial version
  */
@@ -69,8 +70,29 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/* Define host port to use a serial port 0 */
+#define CIAADRVUART_PORT_SERIAL_0 "/dev/cu.usbserial"
+
+/* Define host port to use a serial port 1 */
+//#define CIAADRVUART_PORT_SERIAL_1 "/dev/cu.usbserial"
+
+/** Enable uart transmition via host interfaces */
+#if defined(CIAADRVUART_PORT_SERIAL_0) || defined(CIAADRVUART_PORT_SERIAL_1)
+   #include "termios.h"
+
+   #define CIAADRVUART_ENABLE_TRANSMITION 
+#endif
+
+/* Define TCP PORT for lisening socket emulation serial port 0 */
+//#define CIAADRVUART_TCP_PORT_0 2000
+
+/* Define TCP PORT for lisening socket emulation serial port 1 */
+#define CIAADRVUART_TCP_PORT_1 2001
+
 /** Enable uart emulation via sockets */
-/* #define CIAADRVUART_ENABLE_EMULATION */
+#if defined(CIAADRVUART_TCP_PORT_0) || defined(CIAADRVUART_TCP_PORT_1)
+   #define CIAADRVUART_ENABLE_EMULATION
+#endif
 
 /*==================[typedef]================================================*/
 /** \brief Buffer Structure */
@@ -100,6 +122,11 @@ typedef struct ciaaDriverUart_clientStruct {
 typedef struct {
    ciaaDriverUart_bufferType rxBuffer;
    ciaaDriverUart_bufferType txBuffer;
+#ifdef CIAADRVUART_ENABLE_TRANSMITION
+   int fileDescriptor;
+   char deviceName[64];
+   struct termios deviceOptions;
+#endif /* CIAADRVUART_ENABLE_TRANSMITION */
 #ifdef CIAADRVUART_ENABLE_EMULATION
 	ciaaDriverUart_serverType server;
 	ciaaDriverUart_clientType client;
