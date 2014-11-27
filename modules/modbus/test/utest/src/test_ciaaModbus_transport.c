@@ -66,8 +66,14 @@
 #define CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_RTU         1
 #define CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_TCP         2
 
+#define CIAA_MODBUS_TOTAL_TRANSPORTS   (  CIAA_MODBUS_TOTAL_TRANSPORT_ASCII + \
+                                          CIAA_MODBUS_TOTAL_TRANSPORT_RTU   + \
+                                          CIAA_MODBUS_TOTAL_TRANSPORT_TCP )
 
 /*==================[internal data declaration]==============================*/
+static int32_t ciaaModbus_asciiTaskCount[CIAA_MODBUS_TOTAL_TRANSPORT_ASCII];
+
+static int32_t hModbusAscii;
 
 /*==================[internal functions declaration]=========================*/
 
@@ -76,6 +82,30 @@
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+
+static int32_t ciaaModbus_asciiOpen_CALLBACK(int32_t fildes, int cmock_num_calls)
+{
+   int32_t ret;
+
+   /* check correct fd */
+   if (CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII != fildes)
+   {
+      ret = -1;
+   }
+   else
+   {
+      ret = hModbusAscii;
+      hModbusAscii++;
+   }
+
+   return ret;
+}
+
+static void ciaaModbus_asciiTask_CALLBACK(int32_t handler, int cmock_num_calls)
+{
+   ciaaModbus_asciiTaskCount[handler]++;
+   printf("ciaaModbus_asciiTaskCount[0]:%d\r\n",ciaaModbus_asciiTaskCount[handler]);
+}
 
 /*==================[external functions definition]==========================*/
 /** \brief set Up function
@@ -91,7 +121,13 @@ void setUp(void)
    /* ignore calls ReleaseResource */
    ReleaseResource_CMockIgnoreAndReturn(E_OK);
 
+   ciaaModbus_asciiTask_StubWithCallback(ciaaModbus_asciiTask_CALLBACK);
+
+   ciaaModbus_asciiOpen_StubWithCallback(ciaaModbus_asciiOpen_CALLBACK);
+
    ciaaModbus_transportInit();
+
+   hModbusAscii = 0;
 }
 
 /** \brief tear Down function
@@ -108,24 +144,6 @@ void doNothing(void)
 }
 
 
-int32_t ciaaModbus_asciiOpen_CALLBACK(int32_t fildes, int cmock_num_calls)
-{
-   int32_t ret;
-   static int32_t handler = 0;
-
-   /* check correct fd */
-   if (CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII != fildes)
-   {
-      ret = -1;
-   }
-   else
-   {
-      ret = handler;
-      handler++;
-   }
-
-   return ret;
-}
 
 /** \brief Test ciaaModbus_transportOpen
  **
@@ -133,8 +151,6 @@ int32_t ciaaModbus_asciiOpen_CALLBACK(int32_t fildes, int cmock_num_calls)
 void test_ciaaModbus_transportOpen_01(void)
 {
    int32_t hModbusTransp[10];
-
-   ciaaModbus_asciiOpen_StubWithCallback(ciaaModbus_asciiOpen_CALLBACK);
 
    hModbusTransp[0] = ciaaModbus_transportOpen(
          CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII,
@@ -173,6 +189,50 @@ void test_ciaaModbus_transportOpen_01(void)
    TEST_ASSERT_EQUAL(-1, hModbusTransp[6]);
 }
 
+/** \brief test function Open
+ **
+ ** this function call open more times than allowed
+ **
+ **/
+void test_ciaaModbus_transportOpen_02(void)
+{
+   /* TODO: implement this test when transport rtu and tcp is implemented */
+}
+
+/** \brief test function Open
+ **
+ ** this function call open more times than allowed
+ **
+ **/
+void test_ciaaModbus_transportTask_02(void)
+{
+   int32_t hModbusTransp[10];
+   uint32_t loopi;
+
+   for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_TRANSPORT_ASCII; loopi++)
+   {
+      ciaaModbus_asciiTaskCount[loopi] = 0;
+   }
+
+   hModbusTransp[0] = ciaaModbus_transportOpen(
+            CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII,
+            CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER);
+
+   hModbusTransp[1] = ciaaModbus_transportOpen(
+               CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_RTU,
+               CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER);
+
+   hModbusTransp[2] = ciaaModbus_transportOpen(
+               CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_TCP,
+               CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER);
+
+   ciaaModbus_transportTask(hModbusTransp[0]);
+
+   TEST_ASSERT_NOT_EQUAL(-1, hModbusTransp[0]);
+   TEST_ASSERT_EQUAL(-1, hModbusTransp[1]);
+   TEST_ASSERT_EQUAL(-1, hModbusTransp[2]);
+   TEST_ASSERT_EQUAL(1, ciaaModbus_asciiTaskCount[0]);
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
