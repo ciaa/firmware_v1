@@ -6,6 +6,10 @@
   
   These tests have been written for OSEK-OS 2.0.0 but the last OSEK-OS version is the 2.2.3. This OSEK-OS is implemented conform to 2.2.3 and therefore some test cases can not executed.
 
+  ** Resource Management **
+  
+  The sequence 2 of resource management tests requests to force a schedule while a resource is occupied. This is not allowed in 2.2.3, Schedule returns E_OS_RESOURCE if called while a resurce is still occupied.
+
   ** Interrupt Processing **
   
   The sequence 2 of the Interrupt Processing test can not be implemented, the interface EnableInterrupt and DisableInterrupt are not more part of the standard. The following interfaces are aviable for the handling of interrupts:
