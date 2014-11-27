@@ -62,7 +62,9 @@
 
 /*==================[macros and definitions]=================================*/
 
-#define CIAA_MODBUS_TRASNPORT_FIL_DES     0
+#define CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII       0
+#define CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_RTU         1
+#define CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_TCP         2
 
 
 /*==================[internal data declaration]==============================*/
@@ -111,9 +113,10 @@ int32_t ciaaModbus_asciiOpen_CALLBACK(int32_t fildes, int cmock_num_calls)
    int32_t ret;
    static int32_t handler = 0;
 
-   if (CIAA_MODBUS_TRASNPORT_FIL_DES == fildes)
+   /* check correct fd */
+   if (CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII != fildes)
    {
-      ret = cmock_num_calls;
+      ret = -1;
    }
    else
    {
@@ -121,7 +124,7 @@ int32_t ciaaModbus_asciiOpen_CALLBACK(int32_t fildes, int cmock_num_calls)
       handler++;
    }
 
-   return cmock_num_calls;
+   return ret;
 }
 
 /** \brief Test ciaaModbus_transportOpen
@@ -134,31 +137,31 @@ void test_ciaaModbus_transportOpen_01(void)
    ciaaModbus_asciiOpen_StubWithCallback(ciaaModbus_asciiOpen_CALLBACK);
 
    hModbusTransp[0] = ciaaModbus_transportOpen(
-         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII,
          CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER);
 
    hModbusTransp[1] = ciaaModbus_transportOpen(
-         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII,
          CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE);
 
    hModbusTransp[2] = ciaaModbus_transportOpen(
-         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_RTU,
          CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER);
 
    hModbusTransp[3] = ciaaModbus_transportOpen(
-         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_RTU,
          CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE);
 
    hModbusTransp[4] = ciaaModbus_transportOpen(
-         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_TCP,
          CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER);
 
    hModbusTransp[5] = ciaaModbus_transportOpen(
-         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_TCP,
          CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE);
 
    hModbusTransp[6] = ciaaModbus_transportOpen(
-         CIAA_MODBUS_TRASNPORT_FIL_DES,
+         0,
          0xFF);
 
    TEST_ASSERT_EQUAL(0, hModbusTransp[0]);
