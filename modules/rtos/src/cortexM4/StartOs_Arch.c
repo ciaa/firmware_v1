@@ -77,6 +77,7 @@
 void StartOs_Arch_Cpu(void)
 {
    StartOs_Arch_SysTick();
+   Enable_User_ISRs();
 }
 
 void StartOs_Arch(void)

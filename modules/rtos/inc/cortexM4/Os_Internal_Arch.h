@@ -169,24 +169,26 @@ extern TaskType TerminatingTask;
 }
 
 /** \brief Save context */
-#define SaveContext(task) 													            \
+#define SaveContext(task)                                                  \
 {                                                                          \
    extern TaskType WaitingTask;                                            \
    if(TasksVar[GetRunningTask()].Flags.State == TASK_ST_WAITING)           \
    {                                                                       \
       WaitingTask = GetRunningTask();                                      \
    }                                                                       \
-	flag = 0;																               \
-	/* remove of the Ready List */											         \
-	RemoveTask(GetRunningTask());											            \
+   flag = 0;                                                               \
+   /* remove of the Ready List */                                          \
+   RemoveTask(GetRunningTask());                                           \
+   /* set system context */                                                \
+   SetActualContext(CONTEXT_SYS);                                          \
    /* set running task to invalid */                                       \
    SetRunningTask(INVALID_TASK);                                           \
-	/* finish cirtical code */												            \
-	IntSecure_End();														               \
-	/* call scheduler */													               \
-	Schedule();																               \
-	/* add this call in order to maintain counter balance when returning */ \
-	IntSecure_Start();                                                      \
+   /* finish cirtical code */                                              \
+   IntSecure_End();                                                        \
+   /* call scheduler */                                                    \
+   Schedule();                                                             \
+   /* add this call in order to maintain counter balance when returning */ \
+   IntSecure_Start();                                                      \
 }
 
 /** \brief */
@@ -218,6 +220,23 @@ extern TaskType TerminatingTask;
  **/
 #define EnableInterrupts()	EnableOSInterrupts()
 
+
+/** \brief Disable OS Interruptions
+ **
+ ** Disable OS configured interrupts (ISR1 and ISR2).
+ **/
+#define DisableOSInterrupts() __asm volatile("cpsid i")
+
+/** \brief Disable Interruptions
+ **
+ ** Disable not OS configured interrupts (ISR1 and ISR2). This macro
+ ** is called only ones in StartUp.c function.
+ **
+ ** This macro may be empty. Maybe will be removed on the future,
+ ** please use it only if necessary, in other case use DisableOSInterrupts.
+ **/
+#define DisableInterrupts()	DisableOSInterrupts()
+
 /** \brief Get Counter Actual Value
  **
  ** This macro returns the actual value of the a counter
@@ -237,7 +256,7 @@ extern TaskType TerminatingTask;
  **
  ** This macro is called every time that an ISR Cat 2 is finished
  **/
-#define PostIsr2_Arch(isr)
+#define PostIsr2_Arch(isr) Schedule()
 
 /** \brief ShutdownOs Arch service
  **

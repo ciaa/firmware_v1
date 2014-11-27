@@ -1,7 +1,4 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2014, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,35 +30,38 @@
  *
  */
 
-/** \brief This file implements the test of the Updater library
+/** \brief FreeOSEK Os Conformance Test for the Interrupt processing, Test Sequence 3
  **
- ** This file implements the funcionality of the Flash Update Encription 
- **
+ ** \file FreeOSEK/Os/tst/ctest/src/ctest_ip_03.c
  **/
 
-/** \addtogroup CIAA_Firmware CIAA Firmware
+/** \addtogroup FreeOSEK
  ** @{ */
-/** \addtogroup Updater CIAA Updater Service
+/** \addtogroup FreeOSEK_Os
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_CT Conformance Test
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_CT_IP  Interrupt processing
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_CT_IP_03 Test Sequence 3
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas  
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141010 v0.0.1  EV  first initial version
+ * 20141124.1.0 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "unity.h"
-#include "ciaaUpdate_Encription.h"
+#include "os.h"            /* include os header file */
+#include "ctest_ip_03.h"   /* include test header file */
+#include "ctest.h"         /* include ctest header file */
 
 /*==================[macros and definitions]=================================*/
 
@@ -72,11 +72,82 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+const uint32f SequenceCounterOk = MAX_SEQUENCE;
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+int main
+(
+   void
+)
+{
+   /* start OS in AppMode 1 */
+   StartOS(AppMode1);
 
+   /* shall never return */
+   while(1);
+
+   return 0;
+}
+
+TASK(Task1)
+{
+   Sequence(0);
+   /* enable interrupts ISR2 and ISR3 */
+   /* nothing to do */
+
+   Sequence(1);
+   /* trigger ISR 2 */
+   TriggerISR2();
+
+   Sequence(4);
+   TerminateTask();
+}
+
+TASK(Task2)
+{
+   Sequence(5);
+   /* trigger ISR3 */
+   /* nothing to do */
+
+   Sequence(6);
+   /* evaluate conformance tests */
+   ConfTestEvaluation();
+
+   /* finish the conformance test */
+   ConfTestFinish();
+
+   TerminateTask();
+}
+
+TASK(Task3)
+{
+   /* this task will never run */
+   TerminateTask();
+}
+
+ISR(ISR2)
+{
+   StatusType ret;
+
+   Sequence(2);
+
+   ret = ActivateTask(Task2);
+   ASSERT(IP_09, E_OK != ret);
+
+   Sequence(3);
+}
+
+/* This task is not used, only to change the scheduling police */
+TASK(Task4)
+{
+   TerminateTask();
+}
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

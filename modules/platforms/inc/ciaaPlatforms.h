@@ -141,6 +141,9 @@ extern "C" {
 #elif ( ( ARCH == cortexM4 ) && \
         ( CPUTYPE == lpc43xx ) && \
         ( CPU == lpc4337 ) )
+#elif ( ( ARCH == cortexM4 ) && \
+        ( CPUTYPE == k60_120 ) && \
+        ( CPU == mk60fx512vlq15 ) )
 #else
 #error the entered architecture is not supported... :(
 #endif

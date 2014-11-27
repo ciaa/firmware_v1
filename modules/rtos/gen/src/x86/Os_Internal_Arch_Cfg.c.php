@@ -139,7 +139,7 @@ for ($loopi = 0; $loopi < 32; $loopi++)
 						}
 					}
 					break;
-				case "INT_CANTX":
+				case "GPIO1":
 					if($loopi == 9)
 					{
 						if($intcat == "1")

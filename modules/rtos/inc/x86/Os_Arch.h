@@ -1,4 +1,5 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -55,50 +56,53 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * MaCe          Mariano Cerdeiro
+ * JuCe         Juan Cecconi 
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20090719 v0.1.1 MaCe rename file to Os_
- * 20080725 v0.1.0 MaCe	initial version
+ * 20141125 v0.1.2 JuCe   throw pending IRQ on ResumeOSInterrupts
+ * 20090719 v0.1.1 MaCe   rename file to Os_
+ * 20080725 v0.1.0 MaCe   initial version
  */
 
 /*==================[inclusions]=============================================*/
 
 /*==================[macros]=================================================*/
 /** \brief Enable All Interrupts Arch */
-#define EnableAllInterrupts_Arch()	ResumeAllInterrupts_Arch()
+#define EnableAllInterrupts_Arch()   ResumeAllInterrupts_Arch()
 
 /** \brief Disable All Interrupts Arch */
 #define DisableAllInterrupts_Arch() SuspendAllInterrupts_Arch()
 
 /** \brief Resume All Interrupts Arch */
-#define ResumeAllInterrupts_Arch()						\
-	{																\
-		InterruptState = ((InterruptStateType)1U);	\
-		ScheduleInterrupts();								\
-	}
+#define ResumeAllInterrupts_Arch()                  \
+   {                                                \
+      InterruptState = ((InterruptStateType)1U);    \
+      ScheduleInterrupts();                         \
+   }
 
 /** \brief Suspend All Interrupts Arch */
-#define SuspendAllInterrupts_Arch()						\
-	{																\
-		InterruptState = ((InterruptStateType)0U);	\
-	}
+#define SuspendAllInterrupts_Arch()                 \
+   {                                                \
+      InterruptState = ((InterruptStateType)0U);    \
+   }
 
 /** \brief Resume OS Interrupts Arch */
-#define ResumeOSInterrupts_Arch()													\
-	{																							\
-		InterruptMask &= (InterruptFlagsType)~(OSEK_OS_INTERRUPT_MASK);	\
-	}
+#define ResumeOSInterrupts_Arch()                                       \
+   {                                                                    \
+      InterruptMask &= (InterruptFlagsType)~(OSEK_OS_INTERRUPT_MASK);   \
+      ScheduleInterrupts();                                             \
+   }
 
 
 /** \brief Suspend OS Interrupts Arch */
-#define SuspendOSInterrupts_Arch()					\
-	{															\
-		InterruptMask |= OSEK_OS_INTERRUPT_MASK;	\
-	}
+#define SuspendOSInterrupts_Arch()               \
+   {                                             \
+      InterruptMask |= OSEK_OS_INTERRUPT_MASK;   \
+   }
 
 /*==================[typedef]================================================*/
 /** \brief Interrupt type definition */

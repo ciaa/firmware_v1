@@ -1,5 +1,7 @@
 ###############################################################################
 #
+# Copyright 2014, Mariano Cerdeiro
+# Copyright 2014, Juan Cecconi (UTN-FRBA)
 # Copyright 2014, ACSE & CADIEEL
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
@@ -45,8 +47,8 @@ AFLAGS += -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
 CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -DCORE_M4 -D__CODE_RED
 LFLAGS += $(LINKSCRIPT)  -fno-builtin -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -Xlinker -Map="$(TARGET_NAME).map"
 
-# Download firmware to the target
-GDB_DOWNLOAD_TO_TARGET += -ex "target remote localhost:3333" -ex "monitor reset halt" -ex load -ex "monitor reset" -ex kill -ex quit $(LD_TARGET)
+# Download firmware to the target, next command should be FW file
+GDB_DOWNLOAD_TO_TARGET += -ex "target remote localhost:3333" -ex "monitor reset halt" -ex load -ex "monitor reset" -ex kill -ex quit
 
 # Optional POST BUILD
 # Generates a .bin image file

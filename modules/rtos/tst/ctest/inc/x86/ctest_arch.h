@@ -65,6 +65,18 @@
 #include <unistd.h>
 
 /*==================[macros]=================================================*/
+#define TriggerISR1_Arch()                                                 \
+      do {                                                                 \
+         /* force interrupt 9 */                                           \
+         uint8 interrupt = 9;                                              \
+                                                                           \
+         /* add simulated interrupt to the interrupt queue */              \
+         ciaaLibs_circBufPut(OSEK_IntCircBuf, &interrupt, 1);              \
+                                                                           \
+         /* indicate interrupt using a signal */                           \
+         kill(getpid(), SIGALRM);                                          \
+      } while(0)
+
 #define TriggerISR2_Arch()                                                 \
       do {                                                                 \
          /* force interrupt 8 */                                           \

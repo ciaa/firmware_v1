@@ -1,7 +1,4 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2014 Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,49 +30,58 @@
  *
  */
 
-/** \brief This file implements the test of the Updater library
+#ifndef _CTEST_IP_04_H_
+#define _CTEST_IP_04_H_
+/** \brief FreeOSEK Os Conformance Test
  **
+ ** \file FreeOSEK/Os/tst/ctest/inc/ctest_ip_04.h
  **/
 
-/** \addtogroup CIAA_Firmware CIAA Firmware
+/** \addtogroup FreeOSEK
  ** @{ */
-/** \addtogroup Updater CIAA Updater Service
+/** \addtogroup FreeOSEK_Os
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_CT Conformance Test
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_CT_IP  Interrupt processing
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_CT_IP_04 Test Sequence 4
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas  
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141010 v0.0.1  EV  first initial version
+ * 20141122 v0.1.0 MaCe initial version based on module tests
  */
 
 /*==================[inclusions]=============================================*/
-#include "unity.h"
-#include "ciaaUpdate_Services.h"
+#include "Types.h"
+#include "ctest.h"
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
+/** \brief Maximal Sequence
+ **
+ ** Defines the total amount of sequence points in this test sequence
+ **/
+#define MAX_SEQUENCE 5
 
-/*==================[internal data declaration]==============================*/
+/*==================[typedef]================================================*/
 
-/*==================[internal functions declaration]=========================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[internal data definition]===============================*/
+/*==================[external functions declaration]=========================*/
 
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CTEST_IP_04_H_ */
 

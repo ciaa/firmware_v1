@@ -157,6 +157,10 @@ include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 
 # add include files
 INCLUDE += $(foreach LIB, $(LIBS), $($(LIB)_INC_PATH))
+#Adds include project file if We wanto to do a project build
+ifneq ($(findstring tst_, $(MAKECMDGOALS)),tst_)
+CFLAGS  += $(foreach inc, $(INC_FILES), -I$(inc))
+endif
 CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU)
 TARGET_NAME ?= $(BIN_DIR)$(DS)$(project)
@@ -415,7 +419,7 @@ doxygen:
 include modules$(DS)tools$(DS)openocd$(DS)mak$(DS)Makefile
 openocd:
 # if windows or posix shows an error
-ifeq ($(subst win,yes,$(subst posix,yes,$(ARCH))),yes)
+ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
 else
 # if CPU is not entered shows an error
@@ -434,10 +438,10 @@ endif
 endif
 
 ###############################################################################
-# Download to target
+# Download to target, syntax download [file]
 download:
 # if windows or posix shows an error
-ifeq ($(subst win,yes,$(subst posix,yes,$(ARCH))),yes)
+ifeq ($(ARCH),x86)
 	@echo ERROR: You can not download to target in Windows nor Linux
 else
 # if CPU is not entered shows an error
@@ -449,8 +453,15 @@ ifeq ($(OPENOCD_CFG),)
 else
 	@echo ===============================================================================
 	@echo Starting GDB...be sure to run 'make openocd' in another console previously
-	@echo ' '   
-	$(GDB) $(GDB_DOWNLOAD_TO_TARGET)
+	@echo ' '
+#if there is an argument, it should be the FW file, if not We have to use the target file
+ifeq ($(words $(MAKECMDGOALS)),1)
+#	@echo 1$(filter-out $@,$(MAKECMDGOALS))2
+	$(GDB) $(GDB_DOWNLOAD_TO_TARGET) $(LD_TARGET)
+else
+#	@echo 3$(filter-out $@,$(MAKECMDGOALS))4
+	$(GDB) $(GDB_DOWNLOAD_TO_TARGET) $(filter-out $@,$(MAKECMDGOALS))
+endif
 endif
 endif
 endif
@@ -461,38 +472,38 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               General Help                                                  |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo menuconfig.......: starts the CIAA Firmware configurator
-	@echo info.............: general information about the make environment
-	@echo info_\<mod\>.......: same as info but reporting information of a library
-	@echo info_ext_\<mod\>...: same as info_\<mod\> but for an external library
+	@echo menuconfig..........: starts the CIAA Firmware configurator
+	@echo info................: general information about the make environment
+	@echo info_\<mod\>..........: same as info but reporting information of a library
+	@echo info_ext_\<mod\>......: same as info_\<mod\> but for an external library
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               FreeOSEK (CIAA RTOS based on OSEK Standard)                   |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo generate.........: generates the ciaaRTOS
-	@echo rtostests........: run FreeOSEK conformace tests
+	@echo generate............: generates the ciaaRTOS
+	@echo rtostests...........: run FreeOSEK conformace tests
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo mocks............: generate the mocks for all header files
-	@echo tst..............: displays possible tests
-	@echo tst_\<mod\>........: shows all unit test of a specific module
-	@echo tst_\<mod\>_\<unit\>.: runs the specific unit test
-	@echo tst_\<mod\>_all....: runs all unit tests of a specific module
-	@echo results..........: create results report
-	@echo ci...............: run the continuous integration
+	@echo mocks...............: generate the mocks for all header files
+	@echo tst.................: displays possible tests
+	@echo tst_\<mod\>...........: shows all unit test of a specific module
+	@echo tst_\<mod\>_\<unit\>....: runs the specific unit test
+	@echo tst_\<mod\>_all.......: runs all unit tests of a specific module
+	@echo results.............: create results report
+	@echo ci..................: run the continuous integration
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Debugging / Running / Programming                             |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo run..............: execute the binary file (Win/Posix only)
-	@echo openocd..........: starts openocd for $(ARCH)
-	@echo download.........: download firmware to the target
+	@echo "run.................: execute the binary file (Win/Posix only)"
+	@echo openocd.............: starts openocd for $(ARCH)
+	@echo download [file].....: download firmware file to the target
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Bulding                                                       |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo clean............: cleans generated, object, binary, etc. files
-	@echo clean_generate...: performs make clean and make generate
-	@echo all..............: performs make clean, make generate and make
-	@echo generate_make....: performs make generate and make
+	@echo clean...............: cleans generated, object, binary, etc. files
+	@echo clean_generate......: performs make clean and make generate
+	@echo all.................: performs make clean, make generate and make
+	@echo generate_make.......: performs make generate and make
 
 ###############################################################################
 # menuconfig
@@ -626,7 +637,7 @@ generate_make: generate
 # Run the bin file
 run:
 # if windows or posix shows an error
-ifeq ($(subst win,yes,$(subst posix,yes,$(ARCH))),yes)
+ifeq ($(ARCH),x86)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Running the file: $(LD_TARGET)

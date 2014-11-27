@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014 Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,17 +30,22 @@
  *
  */
 
-/** \brief CIAA UART Driver for K60_120
+#ifndef _CTEST_IP_03_H_
+#define _CTEST_IP_03_H_
+/** \brief FreeOSEK Os Conformance Test
  **
- ** Implements the UART Driver for K60_120
- **
+ ** \file FreeOSEK/Os/tst/ctest/inc/ctest_ip_03.h
  **/
 
-/** \addtogroup CIAA_Firmware CIAA Firmware
+/** \addtogroup FreeOSEK
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup FreeOSEK_Os
  ** @{ */
-/** \addtogroup UART UART Drivers
+/** \addtogroup FreeOSEK_Os_CT Conformance Test
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_CT_IP  Interrupt processing
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_CT_IP_03 Test Sequence 3
  ** @{ */
 
 /*
@@ -52,83 +57,31 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140913 v0.0.1 MaCe first stub version
+ * 20141124 v0.1.0 MaCe initial version based on module tests
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaDriverUart.h"
-#include "ciaaPOSIX_stdlib.h"
-#include "ciaaPOSIX_stdio.h"
-//#include "chip.h"
-#include "os.h"
-/*==================[macros and definitions]=================================*/
+#include "Types.h"
+#include "ctest.h"
 
-/*==================[internal data declaration]==============================*/
+/*==================[macros]=================================================*/
+/** \brief Maximal Sequence
+ **
+ ** Defines the total amount of sequence points in this test sequence
+ **/
+#define MAX_SEQUENCE 6
 
-/*==================[internal functions declaration]=========================*/
+/*==================[typedef]================================================*/
 
-/*==================[internal data definition]===============================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[external data definition]===============================*/
+/*==================[external functions declaration]=========================*/
 
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
-{
-   return device;
-}
-
-extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
-{
-   return -1;
-}
-
-extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
-{
-   int32_t ret = -1;
-
-   return ret;
-}
-
-extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
-{
-   int32_t ret = -1;
-
-   return ret;
-}
-
-extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
-{
-   int32_t ret = -1;
-
-   return ret;
-}
-
-void ciaaDriverUart_init(void)
-{
-
-}
-
-
-ISR(UART0_IRQHandler)
-{
-
-}
-
-ISR(UART2_IRQHandler)
-{
-
-}
-
-ISR(UART3_IRQHandler)
-{
-
-}
-
-/*==================[interrupt handlers]=====================================*/
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CTEST_IP_03_H_ */
 

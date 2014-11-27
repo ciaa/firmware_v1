@@ -1,4 +1,5 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
+ * Copyright 2014, Juan Cecconi
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -50,13 +51,15 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi 
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140503 v0.1.0 MaCe	initial version
+ * 20141123 v0.1.0 JuCe   implements ISR1/ISR2 triggers
+ * 20140503 v0.1.0 MaCe   initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -67,6 +70,13 @@
 {                                                                          \
    NVIC_EnableIRQ(32);                                                     \
    NVIC_SetPendingIRQ(32);                                                 \
+}
+
+/* Use GPIO1, IRQ33 as interrupt for tests */
+#define TriggerISR1_Arch()                                                 \
+{                                                                          \
+   NVIC_EnableIRQ(33);                                                     \
+   NVIC_SetPendingIRQ(33);                                                 \
 }
 
 /*==================[typedef]================================================*/

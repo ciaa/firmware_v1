@@ -76,6 +76,7 @@
 #include "string.h"     /* used to call the function strerror */
 
 /*==================[macros]=================================================*/
+#define TASK_STACK_ADDITIONAL_SIZE      10000
 
 /*==================[cputype macros]=========================================*/
 /** \brief ia32 cputype definition */
@@ -220,7 +221,7 @@
 #define ISR_CANRX    2
 #define ISR_CANTX    3
 
-#define EnableOSInterrupts()                                            \
+#define EnableOSInterrupts()                                         \
 {                                                                    \
    InterruptMask &= (InterruptFlagsType)~(OSEK_OS_INTERRUPT_MASK);   \
 }
@@ -228,6 +229,16 @@
 #define EnableInterrupts() \
 {                       \
    InterruptState = 1;  \
+}
+
+#define DisableOSInterrupts()                                        \
+{                                                                    \
+   InterruptMask |= (InterruptFlagsType)(OSEK_OS_INTERRUPT_MASK);    \
+}
+
+#define DisableInterrupts() \
+{                       \
+   InterruptState = 0;  \
 }
 
 /** \brief Get Counter Actual Value
@@ -249,7 +260,8 @@
  **
  ** This macro is called every time that an ISR Cat 2 is finished
  **/
-#define PostIsr2_Arch(isr)
+#define PostIsr2_Arch(isr) \
+   Schedule();
 
 #if ( CPUTYPE == ia64 )
 #define SaveOsStack()                                                                      \
