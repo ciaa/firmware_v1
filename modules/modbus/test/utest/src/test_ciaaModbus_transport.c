@@ -75,11 +75,20 @@ typedef struct
    uint8_t* pdu;
    uint32_t* size;
    int cmock_num_calls;
-}ciaaModbus_asciiMockDataType;
+}ciaaModbus_asciiRecvMsgMockDataType;
+
+typedef struct
+{
+   uint8_t id;
+   uint8_t* pdu;
+   uint32_t size;
+   int cmock_num_calls;
+}ciaaModbus_asciiSendMsgMockDataType;
 
 /*==================[internal data declaration]==============================*/
 static int32_t ciaaModbus_asciiTaskCount[CIAA_MODBUS_TOTAL_TRANSPORT_ASCII];
-static ciaaModbus_asciiMockDataType ciaaModbus_asciiMockData[CIAA_MODBUS_TOTAL_TRANSPORT_ASCII];
+static ciaaModbus_asciiRecvMsgMockDataType ciaaModbus_asciiRecvMsgMockData[CIAA_MODBUS_TOTAL_TRANSPORT_ASCII];
+static ciaaModbus_asciiSendMsgMockDataType ciaaModbus_asciiSendMsgMockData[CIAA_MODBUS_TOTAL_TRANSPORT_ASCII];
 
 static int32_t hModbusAscii;
 
@@ -117,14 +126,21 @@ static void ciaaModbus_asciiTask_CALLBACK(int32_t handler, int cmock_num_calls)
    printf("ciaaModbus_asciiTaskCount[0]:%d\r\n",ciaaModbus_asciiTaskCount[handler]);
 }
 
-void ciaaModbus_asciiRecvMsg_CALLBACK(int32_t handler, uint8_t* id, uint8_t* pdu, uint32_t* size, int cmock_num_calls)
+static void ciaaModbus_asciiSendMsg_CALLBACK(int32_t handler, uint8_t id, uint8_t* pdu, uint32_t size, int cmock_num_calls)
 {
-   ciaaModbus_asciiMockData[handler].id = id;
-   ciaaModbus_asciiMockData[handler].pdu = pdu;
-   ciaaModbus_asciiMockData[handler].size = size;
-   ciaaModbus_asciiMockData[handler].cmock_num_calls = cmock_num_calls;
+   ciaaModbus_asciiSendMsgMockData[handler].id = id;
+   ciaaModbus_asciiSendMsgMockData[handler].pdu = pdu;
+   ciaaModbus_asciiSendMsgMockData[handler].size = size;
+   ciaaModbus_asciiSendMsgMockData[handler].cmock_num_calls = cmock_num_calls;
 }
 
+static void ciaaModbus_asciiRecvMsg_CALLBACK(int32_t handler, uint8_t* id, uint8_t* pdu, uint32_t* size, int cmock_num_calls)
+{
+   ciaaModbus_asciiRecvMsgMockData[handler].id = id;
+   ciaaModbus_asciiRecvMsgMockData[handler].pdu = pdu;
+   ciaaModbus_asciiRecvMsgMockData[handler].size = size;
+   ciaaModbus_asciiRecvMsgMockData[handler].cmock_num_calls = cmock_num_calls;
+}
 /*==================[external functions definition]==========================*/
 /** \brief set Up function
  **
@@ -147,6 +163,9 @@ void setUp(void)
 
    /* set callback AsciiRecvMsg */
    ciaaModbus_asciiRecvMsg_StubWithCallback(ciaaModbus_asciiRecvMsg_CALLBACK);
+
+   /* set callback AsciiSendMsg */
+   ciaaModbus_asciiSendMsg_StubWithCallback(ciaaModbus_asciiSendMsg_CALLBACK);
 
    /* init transport module */
    ciaaModbus_transportInit();
@@ -281,10 +300,10 @@ void test_ciaaModbus_transportRecvMsg_01(void)
 
    for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_TRANSPORT_ASCII; loopi++)
    {
-      ciaaModbus_asciiMockData[loopi].id = 0;
-      ciaaModbus_asciiMockData[loopi].pdu = NULL;
-      ciaaModbus_asciiMockData[loopi].size = 0;
-      ciaaModbus_asciiMockData[loopi].cmock_num_calls = 0;
+      ciaaModbus_asciiRecvMsgMockData[loopi].id = NULL;
+      ciaaModbus_asciiRecvMsgMockData[loopi].pdu = NULL;
+      ciaaModbus_asciiRecvMsgMockData[loopi].size = NULL;
+      ciaaModbus_asciiRecvMsgMockData[loopi].cmock_num_calls = 0;
    }
 
    hModbusTransp[0] = ciaaModbus_transportOpen(
@@ -302,10 +321,52 @@ void test_ciaaModbus_transportRecvMsg_01(void)
    ciaaModbus_transportRecvMsg(hModbusTransp[0], id, pPdu, size);
 
    TEST_ASSERT_NOT_EQUAL(-1, hModbusTransp[0]);
-   TEST_ASSERT_EQUAL(id, ciaaModbus_asciiMockData[0].id);
-   TEST_ASSERT_EQUAL(pPdu, ciaaModbus_asciiMockData[0].pdu);
-   TEST_ASSERT_EQUAL(size, ciaaModbus_asciiMockData[0].size);
-   TEST_ASSERT_EQUAL(0, ciaaModbus_asciiMockData[0].cmock_num_calls);
+   TEST_ASSERT_EQUAL(id, ciaaModbus_asciiRecvMsgMockData[0].id);
+   TEST_ASSERT_EQUAL(pPdu, ciaaModbus_asciiRecvMsgMockData[0].pdu);
+   TEST_ASSERT_EQUAL(size, ciaaModbus_asciiRecvMsgMockData[0].size);
+   TEST_ASSERT_EQUAL(0, ciaaModbus_asciiRecvMsgMockData[0].cmock_num_calls);
+ }
+
+/** \brief test function SendMsg
+ **
+ ** this function test send message
+ **
+ **/
+void test_ciaaModbus_transportSendMsg_01(void)
+{
+   int32_t hModbusTransp[10];
+   uint32_t loopi;
+   uint8_t id = 0x11;
+   uint8_t *pPdu = 0x22;
+   uint32_t size = 0x33;
+
+   for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_TRANSPORT_ASCII; loopi++)
+   {
+      ciaaModbus_asciiSendMsgMockData[loopi].id = 0;
+      ciaaModbus_asciiSendMsgMockData[loopi].pdu = NULL;
+      ciaaModbus_asciiSendMsgMockData[loopi].size = 0;
+      ciaaModbus_asciiSendMsgMockData[loopi].cmock_num_calls = 0;
+   }
+
+   hModbusTransp[0] = ciaaModbus_transportOpen(
+            CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII,
+            CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER);
+
+   hModbusTransp[1] = ciaaModbus_transportOpen(
+               CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_RTU,
+               CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER);
+
+   hModbusTransp[2] = ciaaModbus_transportOpen(
+               CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_TCP,
+               CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER);
+
+   ciaaModbus_transportSendMsg(hModbusTransp[0], id, pPdu, size);
+
+   TEST_ASSERT_NOT_EQUAL(-1, hModbusTransp[0]);
+   TEST_ASSERT_EQUAL(id, ciaaModbus_asciiSendMsgMockData[0].id);
+   TEST_ASSERT_EQUAL(pPdu, ciaaModbus_asciiSendMsgMockData[0].pdu);
+   TEST_ASSERT_EQUAL(size, ciaaModbus_asciiSendMsgMockData[0].size);
+   TEST_ASSERT_EQUAL(0, ciaaModbus_asciiSendMsgMockData[0].cmock_num_calls);
  }
 
 /** @} doxygen end group definition */
