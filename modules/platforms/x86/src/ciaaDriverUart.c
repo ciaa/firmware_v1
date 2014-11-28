@@ -136,6 +136,31 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
    2
 };
 
+#ifdef CIAADRVUART_ENABLE_TRANSMITION
+/* Constant with filename of serial port maped to Uart 0 */   
+static const char ciaaDriverUart_name0[] = CIAADRVUART_PORT_SERIAL_0;
+
+/* Constant with filename of serial port maped to Uart 1 */   
+static const char ciaaDriverUart_name1[] = CIAADRVUART_PORT_SERIAL_1;
+
+/* Constant with filenames of host serial ports */   
+static const char * ciaaDriverUart_serialPorts[] = {
+   ciaaDriverUart_name0,
+   ciaaDriverUart_name1
+};
+
+#endif /* CIAADRVUART_ENABLE_TRANSMITION */
+
+#ifdef CIAADRVUART_ENABLE_EMULATION
+
+/* Constant with TCP port to server serial emulation */ 
+static const int ciaaDriverUart_serverPorts[] = {
+   CIAADRVUART_TCP_PORT_0,
+   CIAADRVUART_TCP_PORT_1
+};
+
+#endif /* CIAADRVUART_ENABLE_EMULATION */
+
 /*==================[external data definition]===============================*/
 /** \brief Uart 0 */
 ciaaDriverUart_uartType ciaaDriverUart_uart0;
@@ -160,7 +185,6 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
    ciaaSerialDevices_txConfirmation(device->upLayer, uart->txBuffer.length);
 }
 #if defined(CIAADRVUART_ENABLE_TRANSMITION) || defined(CIAADRVUART_ENABLE_EMULATION)
-
 /** \brief Process an SIGIO from serial transmition or emulation sockets */
 static void ciaaDriverUart_signalHandler(int signal, siginfo_t * info, void * context)
 {
@@ -179,6 +203,32 @@ static void ciaaDriverUart_signalHandler(int signal, siginfo_t * info, void * co
       #endif /* CIAADRVUART_ENABLE_EMULATION */      
    }   
 }
+/** \brief Configure file descriptor to operate in asyncronous mode*/
+int ciaaDriverUart_configureFile(int fileDescriptor) {
+   int result;
+
+   result = fcntl(fileDescriptor, F_SETOWN, getpid());
+   if (result < 0)
+   {
+      perror("Error setting signal process owner: ");
+   }
+   if (result >= 0) {
+      result = fcntl(fileDescriptor, F_GETFL, 0);
+      if (result < 0)
+      {
+         perror("Error getting file descriptor flags: ");
+      }
+      else
+      {
+         result = fcntl(fileDescriptor, F_SETFL, result | O_ASYNC | O_NONBLOCK);
+         if (result < 0)
+         {
+            perror("Error setting file descriptor asincronous flags: ");
+         }
+      }
+   }
+   return (result);
+}
 #endif /* CIAADRVUART_ENABLE_TRANSMITION || CIAADRVUART_ENABLE_EMULATION */
 
 #ifdef CIAADRVUART_ENABLE_TRANSMITION
@@ -191,55 +241,61 @@ static void ciaaDriverUart_serialHandler(ciaaDevices_deviceType const * const de
       
    }   
 }
-int ciaaDriverUart_serialInit(ciaaDevices_deviceType * device, uint8_t index)
+void ciaaDriverUart_serialInit(ciaaDevices_deviceType * device, uint8_t index)
 {
    ciaaDriverUart_uartType * uart = device->layer;
-   int ret = 0; 
 
-   bzero(uart, sizeof(ciaaDriverUart_uartType));
+   uart->deviceName = ciaaDriverUart_serialPorts[index];
    
    /* Set baudreate 115200 */
-   cfsetspeed(&uart->deviceOptions, B115200);
+   //cfsetspeed(&uart->deviceOptions, B115200);
 
    /* Set to 8 Data bits, Parity None, 1 Stop bit */
-   uart->deviceOptions.c_cflag |= CS8; 
-   uart->deviceOptions.c_cflag &= ~PARENB;
-   uart->deviceOptions.c_cflag &= ~CSTOPB;
+   //uart->deviceOptions.c_cflag |= CS8; 
+   //uart->deviceOptions.c_cflag &= ~PARENB;
+   //uart->deviceOptions.c_cflag &= ~CSTOPB;
    
    
    /* Set without hardware flow control */
-   uart->deviceOptions.c_cflag |= CLOCAL;
-   uart->deviceOptions.c_cflag &= ~CRTSCTS;
+   //uart->deviceOptions.c_cflag |= CLOCAL;
+   //uart->deviceOptions.c_cflag &= ~CRTSCTS;
    
    /* Set RAW mode */
-   uart->deviceOptions.c_lflag &= ~(ICANON | ECHO | ISIG);   
-   uart->deviceOptions.c_oflag &= ~OPOST;   
-   
-   return ret;
+   //uart->deviceOptions.c_lflag &= ~(ICANON | ECHO | ISIG);   
+   //uart->deviceOptions.c_oflag &= ~OPOST; 
 }
 
-int ciaaDriverUart_serialOpen(ciaaDevices_deviceType * device)
+ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * device)
 {
    ciaaDriverUart_uartType * uart = device->layer;
-   int ret; 
+   int result; 
    
-   PreCallService();
-   ret = open(uart->deviceName, O_RDWR | O_NOCTTY | O_NDELAY);
-   if (ret > 0)
+   if (0 != uart->deviceName[0])
    {
-      uart->fileDescriptor = ret;
+      PreCallService();
+      result = open(uart->deviceName, O_RDWR | O_NOCTTY | O_NDELAY);
+      if (result > 0)
+      {
+         uart->fileDescriptor = result;
+      }
+      else
+      {   
+         perror("Error open serial port: ");      
+         device = 0;
+      }
+      if (0 != device) 
+      {
+         result =  tcgetattr(uart->fileDescriptor, &uart->deviceOptions);
+         result =  tcsetattr(uart->fileDescriptor, TCSANOW, &uart->deviceOptions);
+         if (result < 0) 
+         {
+            perror("Error setting serial port parameters: ");      
+            //device = 0;
+         }
+      }
+      PostCallService();   
    }
-   else
-   {   
-      uart->fileDescriptor = 0;
-      perror("Error open serial port: ");      
-   }
-   if (uart->fileDescriptor) 
-   {
-      ret =  tcsetattr(uart->fileDescriptor, TCSANOW, &uart->deviceOptions);
-   }
-   PostCallService();   
-   return ret;   
+   return device;   
 }
 
 int ciaaDriverUart_serialClose(ciaaDevices_deviceType const * const device)
@@ -258,33 +314,6 @@ int ciaaDriverUart_serialClose(ciaaDevices_deviceType const * const device)
 #endif /* CIAADRVUART_ENABLE_TRANSMITION */
 
 #ifdef CIAADRVUART_ENABLE_EMULATION
-/** \brief Configure server socket to operate in asyncronous mode*/
-int ciaaDriverUart_configureSocket(int socket) {
-   int result;
-
-   result = fcntl(socket, F_SETOWN, getpid());
-   if (result < 0)
-   {
-      perror("Error setting signal process owner: ");
-   }
-   if (result >= 0) {
-      result = fcntl(socket, F_GETFL, 0);
-      if (result < 0)
-      {
-         perror("Error getting socket flags: ");
-      }
-      else
-      {
-         result = fcntl(socket, F_SETFL, result | O_ASYNC | O_NONBLOCK);
-         if (result < 0)
-         {
-            perror("Error setting socket asincronous flags: ");
-         }
-      }
-   }
-   return (result);
-}
-
 static void ciaaDriverUart_serverHandler(ciaaDevices_deviceType const * const device)
 {
    ciaaDriverUart_uartType * uart = device->layer;
@@ -298,7 +327,7 @@ static void ciaaDriverUart_serverHandler(ciaaDevices_deviceType const * const de
          uart->client.socket = accept(uart->server.socket, (struct sockaddr *) &(uart->client.address), &(uart->client.addressSize));
          if (uart->client.socket > 0) 
          {
-            ciaaDriverUart_configureSocket(uart->client.socket);
+            ciaaDriverUart_configureFile(uart->client.socket);
             printf("Client Conected\r\n");
             uart->client.conected = true;
             ciaaDriverUart_txConfirmation(device);
@@ -327,95 +356,62 @@ static void ciaaDriverUart_serverHandler(ciaaDevices_deviceType const * const de
 }
 
 /** \brief Start server emulation for serial ports */
-int ciaaDriverUart_serverInit(ciaaDevices_deviceType * device, uint8_t index) 
+void ciaaDriverUart_serverInit(ciaaDevices_deviceType * device, uint8_t index) 
 {
    ciaaDriverUart_uartType * uart = device->layer;
-   struct sigaction signalAction;
-   int port = -1;
-   int ret;
-
-#ifdef CIAADRVUART_TCP_PORT_0
-      if (0 == index) port = CIAADRVUART_TCP_PORT_0;
-#endif
-#ifdef CIAADRVUART_TCP_PORT_1
-      if (1 == index) port = CIAADRVUART_TCP_PORT_1;
-#endif
-
-   bzero(&signalAction, sizeof(signalAction));
-   signalAction.sa_sigaction = &ciaaDriverUart_signalHandler;
-   signalAction.sa_flags = SA_SIGINFO;
-   ret = sigaction(SIGIO, &signalAction, NULL);
-   if (ret < 0)
-   {
-      perror("Error setting signal handler: ");
-   }
-   else 
-   {
-      bzero(uart, sizeof(ciaaDriverUart_uartType));
-      if ((index >= 0) && (port > 0)) 
-      {
-         uart->server.address.sin_family = AF_INET;
-         uart->server.address.sin_addr.s_addr = INADDR_ANY;
-         uart->server.address.sin_port = htons(port);
-         ret = 0;
-      } 
-      else
-      {
-         ret = -1;
-      }
-   }
    
-   return ret;
+   uart->server.address.sin_family = AF_INET;
+   uart->server.address.sin_addr.s_addr = INADDR_ANY;
+   uart->server.address.sin_port = htons(ciaaDriverUart_serverPorts[index]);
 }
    
-int ciaaDriverUart_serverOpen(ciaaDevices_deviceType * device) 
+ciaaDevices_deviceType * ciaaDriverUart_serverOpen(ciaaDevices_deviceType * device) 
 {
    ciaaDriverUart_uartType * uart = device->layer;
-   int ret;
-
-   PreCallService();
+   int result;
    
-   ret = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-   if (ret > 0)
+   if (0 != uart->server.address.sin_port)
    {
-      uart->server.socket = ret;
-   }
-   else
-   {
-      uart->server.socket = 0;
-      perror("Error creating server socket: ");
-   }
-
-   if (uart->server.socket) 
-   {
-      ret = ciaaDriverUart_configureSocket(uart->server.socket);
-   }
-
-   if (ret >= 0)
-   {
-      ret = bind(uart->server.socket, (struct sockaddr *) &(uart->server.address), sizeof(uart->server.address));
-
-      if (ret < 0)
+      PreCallService();
+      result = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+      if (result > 0)
       {
-         perror("Error binding socket address: ");         
+         uart->server.socket = result;
+         if (ciaaDriverUart_configureFile(uart->server.socket) < 0) 
+         {
+            device = 0;
+         }
       }
       else
       {
-         ret = listen(uart->server.socket, 1);
-         if (ret < 0) 
-         {
-            perror("Error listen on socket: ");
-         }
+         perror("Error creating server socket: ");
+         device = 0;
       }
-      if (ret < 0) 
+
+      if (0 != device)
       {
-         close(uart->server.socket);
-         uart->server.socket = 0;
-      }
+         result = bind(uart->server.socket, (struct sockaddr *) &(uart->server.address), sizeof(uart->server.address));
+         if (result < 0)
+         {
+            perror("Error binding socket address: ");
+         }
+         else
+         {
+            result = listen(uart->server.socket, 1);
+            if (result < 0) 
+            {
+               perror("Error listen on socket: ");
+            }
+         }
+         if (result < 0) 
+         {
+            close(uart->server.socket);
+            device = 0;
+         }
+      }   
+      PostCallService();
    }   
-   PostCallService();
-   
-   return ret;
+   return device;
 }
 
 int ciaaDriverUart_serverClose(ciaaDevices_deviceType const * const device) 
@@ -442,11 +438,16 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
 #ifdef CIAADRVUART_ENABLE_TRANSMITION  
-   ciaaDriverUart_serialOpen(device);
+   if (0 != device) 
+   {
+      device = ciaaDriverUart_serialOpen(device);
+   }
 #endif /* CIAADRVUART_ENABLE_TRANSMITION */
    
 #ifdef CIAADRVUART_ENABLE_EMULATION  
-   ciaaDriverUart_serverOpen(device); 
+   if (0 != device) {
+      device = ciaaDriverUart_serverOpen(device); 
+   }
 #endif /* CIAADRVUART_ENABLE_EMULATION */
 
    return device;
@@ -555,11 +556,28 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
 void ciaaDriverUart_init(void)
 {
    uint8_t loopi;
-      
+
+#if defined(CIAADRVUART_ENABLE_TRANSMITION) || defined(CIAADRVUART_ENABLE_EMULATION)
+   struct sigaction signalAction;
+   int ret;
+   
+   /* set handler of async I/O signal */
+   bzero(&signalAction, sizeof(signalAction));
+   signalAction.sa_sigaction = &ciaaDriverUart_signalHandler;
+   signalAction.sa_flags = SA_SIGINFO;
+   ret = sigaction(SIGIO, &signalAction, NULL);
+   if (ret < 0)
+   {
+      perror("Error setting signal handler: ");
+   }
+#endif /* CIAADRVUART_ENABLE_TRANSMITION || CIAADRVUART_ENABLE_EMULATION */ 
+
    /* add uart driver to the list of devices */
    for(loopi = 0; loopi < ciaaDriverUartConst.countOfDevices; loopi++) {
       /* add each device */
       ciaaSerialDevices_addDriver(ciaaDriverUartConst.devices[loopi]);
+
+      //bzero(uart, sizeof(ciaaDriverUart_uartType));
       
 #ifdef CIAADRVUART_ENABLE_TRANSMITION
       ciaaDriverUart_serialInit(ciaaDriverUartConst.devices[loopi], loopi);
@@ -570,7 +588,6 @@ void ciaaDriverUart_init(void)
 #endif /* CIAADRVUART_ENABLE_EMULATION */
    }
 }
-
 
 /*==================[interrupt hanlders]=====================================*/
 extern void ciaaDriverUart_uart0_rxIndication(void)

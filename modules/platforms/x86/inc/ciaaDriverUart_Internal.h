@@ -71,27 +71,43 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 /* Define host port to use a serial port 0 */
-#define CIAADRVUART_PORT_SERIAL_0 "/dev/cu.usbserial"
+//#define CIAADRVUART_PORT_SERIAL_0          "/dev/cu.usbserial"
 
 /* Define host port to use a serial port 1 */
-//#define CIAADRVUART_PORT_SERIAL_1 "/dev/cu.usbserial"
+#define CIAADRVUART_PORT_SERIAL_1            "/dev/cu.usbserial"
 
 /** Enable uart transmition via host interfaces */
 #if defined(CIAADRVUART_PORT_SERIAL_0) || defined(CIAADRVUART_PORT_SERIAL_1)
    #include "termios.h"
 
-   #define CIAADRVUART_ENABLE_TRANSMITION 
+   #define CIAADRVUART_ENABLE_TRANSMITION
+   
+   #ifndef CIAADRVUART_PORT_SERIAL_0
+      #define CIAADRVUART_PORT_SERIAL_0      ""
+   #endif
+
+   #ifndef CIAADRVUART_PORT_SERIAL_1
+      #define CIAADRVUART_PORT_SERIAL_1      ""
+   #endif
 #endif
 
 /* Define TCP PORT for lisening socket emulation serial port 0 */
-//#define CIAADRVUART_TCP_PORT_0 2000
+#define CIAADRVUART_TCP_PORT_0               2000
 
 /* Define TCP PORT for lisening socket emulation serial port 1 */
-#define CIAADRVUART_TCP_PORT_1 2001
+//#define CIAADRVUART_TCP_PORT_1             2001
 
 /** Enable uart emulation via sockets */
 #if defined(CIAADRVUART_TCP_PORT_0) || defined(CIAADRVUART_TCP_PORT_1)
    #define CIAADRVUART_ENABLE_EMULATION
+   
+   #ifndef CIAADRVUART_TCP_PORT_0
+      #define CIAADRVUART_TCP_PORT_0         0
+   #endif
+
+   #ifndef CIAADRVUART_TCP_PORT_1
+      #define CIAADRVUART_TCP_PORT_1         0
+   #endif   
 #endif
 
 /*==================[typedef]================================================*/
@@ -124,7 +140,7 @@ typedef struct {
    ciaaDriverUart_bufferType txBuffer;
 #ifdef CIAADRVUART_ENABLE_TRANSMITION
    int fileDescriptor;
-   char deviceName[64];
+   char const * deviceName;
    struct termios deviceOptions;
 #endif /* CIAADRVUART_ENABLE_TRANSMITION */
 #ifdef CIAADRVUART_ENABLE_EMULATION
