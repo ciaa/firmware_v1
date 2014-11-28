@@ -326,7 +326,7 @@ void test_ciaaModbus_transportRecvMsg_01(void)
    TEST_ASSERT_EQUAL_PTR(pPdu, ciaaModbus_asciiRecvMsgMockData[0].pdu);
    TEST_ASSERT_EQUAL_PTR(size, ciaaModbus_asciiRecvMsgMockData[0].size);
    TEST_ASSERT_EQUAL(0, ciaaModbus_asciiRecvMsgMockData[0].cmock_num_calls);
- }
+}
 
 /** \brief test function SendMsg
  **
@@ -368,7 +368,33 @@ void test_ciaaModbus_transportSendMsg_01(void)
    TEST_ASSERT_EQUAL_PTR(pPdu, ciaaModbus_asciiSendMsgMockData[0].pdu);
    TEST_ASSERT_EQUAL(size, ciaaModbus_asciiSendMsgMockData[0].size);
    TEST_ASSERT_EQUAL(0, ciaaModbus_asciiSendMsgMockData[0].cmock_num_calls);
- }
+}
+
+/** \brief test function transportGetType
+ **
+ ** this function test transport get type
+ **
+ **/
+void test_ciaaModbus_transportGetType_01(void)
+{
+   int32_t hModbusTransp[2];
+   int8_t type[2];
+
+   hModbusTransp[0] = ciaaModbus_transportOpen(
+            CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII,
+            CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER);
+
+   hModbusTransp[1] = ciaaModbus_transportOpen(
+               CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII,
+               CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE);
+
+   type[0] = ciaaModbus_transportGetType(hModbusTransp[0]);
+
+   type[1] = ciaaModbus_transportGetType(hModbusTransp[1]);
+
+   TEST_ASSERT_EQUAL(CIAAMODBUS_TRANSPORT_TYPE_MASTER, type[0]);
+   TEST_ASSERT_EQUAL(CIAAMODBUS_TRANSPORT_TYPE_SLAVE, type[1]);
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
