@@ -61,7 +61,6 @@
 #include "string.h"
 
 /*==================[macros and definitions]=================================*/
-
 #define CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII       0
 #define CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_RTU         1
 #define CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_TCP         2
@@ -70,10 +69,21 @@
                                           CIAA_MODBUS_TOTAL_TRANSPORT_RTU   + \
                                           CIAA_MODBUS_TOTAL_TRANSPORT_TCP )
 
+typedef struct
+{
+   uint8_t* id;
+   uint8_t* pdu;
+   uint32_t* size;
+   int cmock_num_calls;
+}ciaaModbus_asciiMockDataType;
+
 /*==================[internal data declaration]==============================*/
 static int32_t ciaaModbus_asciiTaskCount[CIAA_MODBUS_TOTAL_TRANSPORT_ASCII];
+static ciaaModbus_asciiMockDataType ciaaModbus_asciiMockData[CIAA_MODBUS_TOTAL_TRANSPORT_ASCII];
 
 static int32_t hModbusAscii;
+
+
 
 /*==================[internal functions declaration]=========================*/
 
@@ -107,6 +117,14 @@ static void ciaaModbus_asciiTask_CALLBACK(int32_t handler, int cmock_num_calls)
    printf("ciaaModbus_asciiTaskCount[0]:%d\r\n",ciaaModbus_asciiTaskCount[handler]);
 }
 
+void ciaaModbus_asciiRecvMsg_CALLBACK(int32_t handler, uint8_t* id, uint8_t* pdu, uint32_t* size, int cmock_num_calls)
+{
+   ciaaModbus_asciiMockData[handler].id = id;
+   ciaaModbus_asciiMockData[handler].pdu = pdu;
+   ciaaModbus_asciiMockData[handler].size = size;
+   ciaaModbus_asciiMockData[handler].cmock_num_calls = cmock_num_calls;
+}
+
 /*==================[external functions definition]==========================*/
 /** \brief set Up function
  **
@@ -126,6 +144,9 @@ void setUp(void)
 
    /* set callback AsciiOpen */
    ciaaModbus_asciiOpen_StubWithCallback(ciaaModbus_asciiOpen_CALLBACK);
+
+   /* set callback AsciiRecvMsg */
+   ciaaModbus_asciiRecvMsg_StubWithCallback(ciaaModbus_asciiRecvMsg_CALLBACK);
 
    /* init transport module */
    ciaaModbus_transportInit();
@@ -244,6 +265,48 @@ void test_ciaaModbus_transportTask_01(void)
    TEST_ASSERT_EQUAL(-1, hModbusTransp[2]);
    TEST_ASSERT_EQUAL(1, ciaaModbus_asciiTaskCount[0]);
 }
+
+/** \brief test function RecvMsg
+ **
+ ** this function test receive message
+ **
+ **/
+void test_ciaaModbus_transportRecvMsg_01(void)
+{
+   int32_t hModbusTransp[10];
+   uint32_t loopi;
+   uint8_t *id = 0x11;
+   uint8_t *pPdu = 0x22;
+   uint32_t *size = 0x33;
+
+   for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_TRANSPORT_ASCII; loopi++)
+   {
+      ciaaModbus_asciiMockData[loopi].id = 0;
+      ciaaModbus_asciiMockData[loopi].pdu = NULL;
+      ciaaModbus_asciiMockData[loopi].size = 0;
+      ciaaModbus_asciiMockData[loopi].cmock_num_calls = 0;
+   }
+
+   hModbusTransp[0] = ciaaModbus_transportOpen(
+            CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII,
+            CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER);
+
+   hModbusTransp[1] = ciaaModbus_transportOpen(
+               CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_RTU,
+               CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER);
+
+   hModbusTransp[2] = ciaaModbus_transportOpen(
+               CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_TCP,
+               CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER);
+
+   ciaaModbus_transportRecvMsg(hModbusTransp[0], id, pPdu, size);
+
+   TEST_ASSERT_NOT_EQUAL(-1, hModbusTransp[0]);
+   TEST_ASSERT_EQUAL(id, ciaaModbus_asciiMockData[0].id);
+   TEST_ASSERT_EQUAL(pPdu, ciaaModbus_asciiMockData[0].pdu);
+   TEST_ASSERT_EQUAL(size, ciaaModbus_asciiMockData[0].size);
+   TEST_ASSERT_EQUAL(0, ciaaModbus_asciiMockData[0].cmock_num_calls);
+ }
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
