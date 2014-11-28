@@ -121,12 +121,16 @@ void setUp(void)
    /* ignore calls ReleaseResource */
    ReleaseResource_CMockIgnoreAndReturn(E_OK);
 
+   /* set callback asciiTask */
    ciaaModbus_asciiTask_StubWithCallback(ciaaModbus_asciiTask_CALLBACK);
 
+   /* set callback AsciiOpen */
    ciaaModbus_asciiOpen_StubWithCallback(ciaaModbus_asciiOpen_CALLBACK);
 
+   /* init transport module */
    ciaaModbus_transportInit();
 
+   /* initi modbus ascii handler count */
    hModbusAscii = 0;
 }
 
@@ -152,30 +156,37 @@ void test_ciaaModbus_transportOpen_01(void)
 {
    int32_t hModbusTransp[10];
 
+   /* open transport in ASCII MASTER mode */
    hModbusTransp[0] = ciaaModbus_transportOpen(
          CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII,
          CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER);
 
+   /* open transport in ASCII SLAVE mode */
    hModbusTransp[1] = ciaaModbus_transportOpen(
          CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII,
          CIAAMODBUS_TRANSPORT_MODE_ASCII_SLAVE);
 
+   /* open transport in RTU MASTER mode */
    hModbusTransp[2] = ciaaModbus_transportOpen(
          CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_RTU,
          CIAAMODBUS_TRANSPORT_MODE_RTU_MASTER);
 
+   /* open transport in RTU SLAVE mode */
    hModbusTransp[3] = ciaaModbus_transportOpen(
          CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_RTU,
          CIAAMODBUS_TRANSPORT_MODE_RTU_SLAVE);
 
+   /* open transport in TCP MASTER mode */
    hModbusTransp[4] = ciaaModbus_transportOpen(
          CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_TCP,
          CIAAMODBUS_TRANSPORT_MODE_TCP_MASTER);
 
+   /* open transport in TCP SLAVE mode */
    hModbusTransp[5] = ciaaModbus_transportOpen(
          CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_TCP,
          CIAAMODBUS_TRANSPORT_MODE_TCP_SLAVE);
 
+   /* open transport in invalid mode */
    hModbusTransp[6] = ciaaModbus_transportOpen(
          0,
          0xFF);
@@ -199,12 +210,12 @@ void test_ciaaModbus_transportOpen_02(void)
    /* TODO: implement this test when transport rtu and tcp is implemented */
 }
 
-/** \brief test function Open
+/** \brief test function Task
  **
- ** this function call open more times than allowed
+ ** this function test transport Task
  **
  **/
-void test_ciaaModbus_transportTask_02(void)
+void test_ciaaModbus_transportTask_01(void)
 {
    int32_t hModbusTransp[10];
    uint32_t loopi;
