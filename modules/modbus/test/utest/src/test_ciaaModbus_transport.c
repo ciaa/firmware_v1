@@ -55,6 +55,7 @@
 #include "unity.h"
 #include "ciaaModbus_transport.h"
 #include "ciaaModbus_config.h"
+#include "mock_os.h"
 #include "mock_ciaaPOSIX_stdio.h"
 #include "mock_ciaaModbus_ascii.h"
 #include "os.h"
@@ -150,10 +151,10 @@ static void ciaaModbus_asciiRecvMsg_CALLBACK(int32_t handler, uint8_t* id, uint8
 void setUp(void)
 {
    /* ignore calls GetResource */
-   GetResource_CMockIgnoreAndReturn(E_OK);
+   GetResource_IgnoreAndReturn(E_OK);
 
    /* ignore calls ReleaseResource */
-   ReleaseResource_CMockIgnoreAndReturn(E_OK);
+   ReleaseResource_IgnoreAndReturn(E_OK);
 
    /* set callback asciiTask */
    ciaaModbus_asciiTask_StubWithCallback(ciaaModbus_asciiTask_CALLBACK);
@@ -294,9 +295,9 @@ void test_ciaaModbus_transportRecvMsg_01(void)
 {
    int32_t hModbusTransp[10];
    uint32_t loopi;
-   uint8_t *id = 0x11;
-   uint8_t *pPdu = 0x22;
-   uint32_t *size = 0x33;
+   uint8_t *id = (uint8_t*)0x11;
+   uint8_t *pPdu = (uint8_t*)0x22;
+   uint32_t *size = (uint32_t*)0x33;
 
    for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_TRANSPORT_ASCII; loopi++)
    {
@@ -321,9 +322,9 @@ void test_ciaaModbus_transportRecvMsg_01(void)
    ciaaModbus_transportRecvMsg(hModbusTransp[0], id, pPdu, size);
 
    TEST_ASSERT_NOT_EQUAL(-1, hModbusTransp[0]);
-   TEST_ASSERT_EQUAL(id, ciaaModbus_asciiRecvMsgMockData[0].id);
-   TEST_ASSERT_EQUAL(pPdu, ciaaModbus_asciiRecvMsgMockData[0].pdu);
-   TEST_ASSERT_EQUAL(size, ciaaModbus_asciiRecvMsgMockData[0].size);
+   TEST_ASSERT_EQUAL_PTR(id, ciaaModbus_asciiRecvMsgMockData[0].id);
+   TEST_ASSERT_EQUAL_PTR(pPdu, ciaaModbus_asciiRecvMsgMockData[0].pdu);
+   TEST_ASSERT_EQUAL_PTR(size, ciaaModbus_asciiRecvMsgMockData[0].size);
    TEST_ASSERT_EQUAL(0, ciaaModbus_asciiRecvMsgMockData[0].cmock_num_calls);
  }
 
@@ -337,7 +338,7 @@ void test_ciaaModbus_transportSendMsg_01(void)
    int32_t hModbusTransp[10];
    uint32_t loopi;
    uint8_t id = 0x11;
-   uint8_t *pPdu = 0x22;
+   uint8_t *pPdu = (uint8_t*)0x22;
    uint32_t size = 0x33;
 
    for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_TRANSPORT_ASCII; loopi++)
@@ -364,7 +365,7 @@ void test_ciaaModbus_transportSendMsg_01(void)
 
    TEST_ASSERT_NOT_EQUAL(-1, hModbusTransp[0]);
    TEST_ASSERT_EQUAL(id, ciaaModbus_asciiSendMsgMockData[0].id);
-   TEST_ASSERT_EQUAL(pPdu, ciaaModbus_asciiSendMsgMockData[0].pdu);
+   TEST_ASSERT_EQUAL_PTR(pPdu, ciaaModbus_asciiSendMsgMockData[0].pdu);
    TEST_ASSERT_EQUAL(size, ciaaModbus_asciiSendMsgMockData[0].size);
    TEST_ASSERT_EQUAL(0, ciaaModbus_asciiSendMsgMockData[0].cmock_num_calls);
  }
