@@ -70,6 +70,9 @@
                                           CIAA_MODBUS_TOTAL_TRANSPORT_RTU   + \
                                           CIAA_MODBUS_TOTAL_TRANSPORT_TCP )
 
+/** \brief Default response timeout (milliseconds) */
+#define CIAA_MODBUS_TRASNPORT_DEFAULT_TIMEOUT   1500
+
 typedef struct
 {
    uint8_t* id;
@@ -394,6 +397,29 @@ void test_ciaaModbus_transportGetType_01(void)
 
    TEST_ASSERT_EQUAL(CIAAMODBUS_TRANSPORT_TYPE_MASTER, type[0]);
    TEST_ASSERT_EQUAL(CIAAMODBUS_TRANSPORT_TYPE_SLAVE, type[1]);
+}
+
+/** \brief test function GetRespTimeout
+ **
+ ** this function test transport get response timeout
+ ** and set response timeout
+ **
+ **/
+void test_ciaaModbus_transportGetRespTimeout_01(void)
+{
+   int32_t hModbusTransp;
+   uint32_t timeout;
+
+   hModbusTransp = ciaaModbus_transportOpen(
+            CIAA_MODBUS_TRASNPORT_FIL_DES_MODBUS_ASCII,
+            CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER);
+
+   ciaaModbus_transportSetRespTimeout(hModbusTransp, CIAA_MODBUS_TRASNPORT_DEFAULT_TIMEOUT);
+
+   timeout = ciaaModbus_transportGetRespTimeout(hModbusTransp);
+
+   TEST_ASSERT_NOT_EQUAL(-1, hModbusTransp);
+   TEST_ASSERT_EQUAL(CIAA_MODBUS_TRASNPORT_DEFAULT_TIMEOUT, timeout);
 }
 
 /** @} doxygen end group definition */
