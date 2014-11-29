@@ -16,9 +16,17 @@
 
   ** Resource Management **
 
+   *** Test Sequence 2 ***
+
   The sequence 2 of resource management tests requests to force a schedule
   while a resource is occupied. This is not allowed in 2.2.3, Schedule returns
   E_OS_RESOURCE if called while a resurce is still occupied.
+
+   *** Test Sequence 5 ***
+
+  GetResource and ReleaseResource can be called from ISR2 context. But the test
+  sequence 5 test case 3 and 10 requires these interfaces to return
+  E_OS_CALLEVEL when called from ISR2 context.
 
   ** Interrupt Processing **
 
@@ -33,5 +41,4 @@
 
   All this interfaces have void a return type. The test checks the return of
   this interfaces which is not possible since it is void.
-
 
