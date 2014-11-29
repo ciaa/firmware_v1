@@ -53,6 +53,8 @@
 
 /*==================[inclusions]=============================================*/
 #include "unity.h"
+#include "ciaaModbus_master.h"
+#include "mock_os.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -75,7 +77,14 @@
  **/
 void setUp(void)
 {
+   /* ignore calls GetResource */
+   GetResource_IgnoreAndReturn(E_OK);
 
+   /* ignore calls ReleaseResource */
+   ReleaseResource_IgnoreAndReturn(E_OK);
+
+   /* init module modbus master */
+   ciaaModbus_masterInit();
 }
 
 /** \brief tear Down function
@@ -91,6 +100,30 @@ void doNothing(void)
 {
 }
 
+/** \brief test function Open
+ **
+ ** this function test modbus master open
+ **
+ **/
+void test_ciaaModbus_masterOpen_01(void)
+{
+   uint32_t loopi;
+   int32_t hModbusMaster[CIAA_MODBUS_TOTAL_MASTERS+1];
+
+   for (loopi = 0 ; loopi < (CIAA_MODBUS_TOTAL_MASTERS+1) ; loopi++)
+   {
+      /* open modbus master */
+      hModbusMaster[loopi] = ciaaModbus_masterOpen();
+   }
+
+   for (loopi = 0 ; loopi < CIAA_MODBUS_TOTAL_MASTERS ; loopi++)
+   {
+      /* verify */
+      TEST_ASSERT_NOT_EQUAL(hModbusMaster[loopi],-1);
+   }
+
+   TEST_ASSERT_EQUAL(hModbusMaster[loopi],-1);
+}
 
 
 

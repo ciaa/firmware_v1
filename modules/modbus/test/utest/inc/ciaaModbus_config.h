@@ -71,7 +71,7 @@ extern "C" {
 #define CIAA_MODBUS_TOTAL_GATEWAY            1
 
 /** \brief Total masters available */
-#define CIAA_MODBUS_TOTAL_MASTERS            0
+#define CIAA_MODBUS_TOTAL_MASTERS            1
 
 /** \brief Total slaves available */
 #define CIAA_MODBUS_TOTAL_SLAVES             1
