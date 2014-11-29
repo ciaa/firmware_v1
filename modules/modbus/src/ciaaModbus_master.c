@@ -75,7 +75,7 @@
 /** \brief Object modbus master */
 typedef struct
 {
-   modbusMaster_cbEndOfComm cbEndComm; /** <- pointer to call back function */
+   modbusMaster_cbEndOfCommType cbEndComm; /** <- pointer to call back function */
    TaskType taskID;                    /** <- Task ID if blocking mode */
    int16_t *pData;                     /** <- pointer to read/write data */
    uint16_t respTimeout;               /** <- timeout configured */
@@ -208,7 +208,7 @@ extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
       uint16_t quantity,
       int16_t *hrValue,
       uint8_t slaveId,
-      modbusMaster_cbEndOfComm cbEndComm)
+      modbusMaster_cbEndOfCommType cbEndComm)
 {
    int8_t ret;
 

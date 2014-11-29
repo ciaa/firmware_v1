@@ -190,7 +190,7 @@ typedef struct
  ** \param[in] exception code
  ** \return
  **/
-typedef void (*modbusMaster_cbEndOfComm)(
+typedef void (*modbusMaster_cbEndOfCommType)(
       uint8_t slaveId,
       uint8_t numFunc,
       uint8_t exceptioncode);
@@ -358,7 +358,7 @@ extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
       uint16_t quantity,
       int16_t *hrValue,
       uint8_t slaveId,
-      modbusMaster_cbEndOfComm cbEndComm);
+      modbusMaster_cbEndOfCommType cbEndComm);
 
 #endif   /* end Modbus Master interfaces */
 
