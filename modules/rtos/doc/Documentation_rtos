@@ -1,0 +1,44 @@
+* Issues in OSEK Conformance Tests *
+
+  OSEK-OS specifies the conformance tests over the MODISTAR specification which
+  can be found under:
+
+  http://portal.osek-vdx.org/index.php?option=com_content&task=view&id=15&Itemid=18
+
+  These tests have been written for OSEK-OS 2.0.0 but the last OSEK-OS version
+  is the 2.2.3. This OSEK-OS is implemented conform to 2.2.3 and therefore some
+  test cases can not executed.
+
+  ** Task Management **
+
+  The interface GetTaskID never returns E_OS_CALLEVEL which is required in the
+  test sequence 1 test case 37.
+
+  ** Resource Management **
+
+   *** Test Sequence 2 ***
+
+  The sequence 2 of resource management tests requests to force a schedule
+  while a resource is occupied. This is not allowed in 2.2.3, Schedule returns
+  E_OS_RESOURCE if called while a resurce is still occupied.
+
+   *** Test Sequence 5 ***
+
+  GetResource and ReleaseResource can be called from ISR2 context. But the test
+  sequence 5 test case 3 and 10 requires these interfaces to return
+  E_OS_CALLEVEL when called from ISR2 context.
+
+  ** Interrupt Processing **
+
+  The sequence 2 of the Interrupt Processing test can not be implemented, the
+  interface EnableInterrupt and DisableInterrupt are not more part of the
+  standard. The following interfaces are aviable for the handling of
+  interrupts:
+
+  * DisableAllInterrupt/EnableAllInterrupt
+  * SuspendAllInterrupt/ResumeAllInterrupt
+  * SuspendOsInterrupt/ResumeOsInterrupt
+
+  All this interfaces have void a return type. The test checks the return of
+  this interfaces which is not possible since it is void.
+
