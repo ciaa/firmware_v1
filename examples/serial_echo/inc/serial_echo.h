@@ -45,7 +45,7 @@
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Serial_Echo Bootloader header file
+/** \addtogroup Serial_Echo Serial echo header file
  ** @{ */
 
 /*

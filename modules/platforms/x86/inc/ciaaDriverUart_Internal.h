@@ -71,11 +71,13 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 /* Define host port to use a serial port 0 */
-#define CIAADRVUART_PORT_SERIAL_0          "/dev/cu.usbserial"
-//#define CIAADRVUART_PORT_SERIAL_0          "/dev/ttyUSB0"
-
+//#define CIAADRVUART_PORT_SERIAL_0 "/dev/ttyUSB0"
 /* Define host port to use a serial port 1 */
-//#define CIAADRVUART_PORT_SERIAL_1            "/dev/cu.usbserial"
+//#define CIAADRVUART_PORT_SERIAL_1 "/dev/cu.usbserial"
+/* Define TCP PORT for lisening socket emulation serial port 0 */
+//#define CIAADRVUART_TCP_PORT_0  2000
+/* Define TCP PORT for lisening socket emulation serial port 1 */
+//#define CIAADRVUART_TCP_PORT_1 2001
 
 /** Enable uart transmition via host interfaces */
 #if defined(CIAADRVUART_PORT_SERIAL_0) || defined(CIAADRVUART_PORT_SERIAL_1)
@@ -91,12 +93,6 @@ extern "C" {
       #define CIAADRVUART_PORT_SERIAL_1      ""
    #endif
 #endif
-
-/* Define TCP PORT for lisening socket emulation serial port 0 */
-//#define CIAADRVUART_TCP_PORT_0               2000
-
-/* Define TCP PORT for lisening socket emulation serial port 1 */
-#define CIAADRVUART_TCP_PORT_1             2001
 
 /** Enable uart emulation via sockets */
 #if defined(CIAADRVUART_TCP_PORT_0) || defined(CIAADRVUART_TCP_PORT_1)
@@ -119,42 +115,25 @@ extern "C" {
 /*==================[typedef]================================================*/
 /** \brief Buffer Structure */
 typedef struct {
-   uint16_t length;
-   uint8_t buffer[2048];
+   uint16_t length;              /** <= Length used */
+   uint8_t buffer[2048];         /** <= Data storage */
 } ciaaDriverUart_bufferType;
-
-#ifdef CIAADRVUART_ENABLE_EMULATION
-/** \brief Server side uart emulator Structure */
-typedef struct ciaaDriverUart_serverStruct {
-	struct sockaddr_in address;
-   int socket;
-} ciaaDriverUart_serverType;
-
-/** \brief Client side uart emulator Structure */
-typedef struct ciaaDriverUart_clientStruct {
-	struct sockaddr_in address;
-   socklen_t addressSize;
-   int socket;
-   bool conected;
-	int sending;
-} ciaaDriverUart_clientType;
-#endif /* CIAADRVUART_ENABLE_EMULATION */
 
 /** \brief Uart Type */
 typedef struct {
    ciaaDriverUart_bufferType rxBuffer;
    ciaaDriverUart_bufferType txBuffer;
-#ifdef CIAADRVUART_ENABLE_TRANSMITION
+#ifdef CIAADRVUART_ENABLE_FUNCIONALITY
+   pthread_t handlerThread;
    int fileDescriptor;
+#endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
+#ifdef CIAADRVUART_ENABLE_TRANSMITION
    char const * deviceName;
    struct termios deviceOptions;
 #endif /* CIAADRVUART_ENABLE_TRANSMITION */
 #ifdef CIAADRVUART_ENABLE_EMULATION
-	ciaaDriverUart_serverType server;
-	ciaaDriverUart_clientType client;
+	struct sockaddr_in serverAddress;
 #endif /* CIAADRVUART_ENABLE_EMULATION */
-#ifdef CIAADRVUART_ENABLE_FUNCIONALITY
-#endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
 } ciaaDriverUart_uartType;
 
 /*==================[external data declaration]==============================*/

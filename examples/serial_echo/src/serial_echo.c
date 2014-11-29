@@ -33,17 +33,31 @@
  *
  */
 
-/** \brief Bootloader source file
+/** \brief Serial echo source file
  **
  ** This is an bootloader program to implement remote software update.
+ ** To run this sample in x86 plataform you mut enable the funcionality
+ ** of uart device setting a value of une or more of folowing macros 
+ ** defined in header file /plataforms/x86/inc/ciaaDriverUart_Internal.h
  **
+ ** CIAADRVUART_PORT_SERIAL_0: Enable uart0 transmition and define 
+ ** to the host serial port that it's mapped.
+ ** CIAADRVUART_PORT_SERIAL_1: Enable uart1 transmition and define 
+ ** to the host serial port that it's mapped.
+ ** CIAADRVUART_TCP_PORT_0: Enable uart0 emulation by an TCP server
+ ** and define to the TCP port used to listed conections requests
+ ** CIAADRVUART_TCP_PORT_0: Enable uart0 emulation by an TCP server
+ ** and define to the TCP port used to listed conections requests
+ ** 
+ ** It's not posible enable transmission and emulation of a port at the same time, 
+ ** but yes it's posible enable the transmission to a port emulation for the other.
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Bootloader Bootloader source file
+/** \addtogroup Serial_Echo Serial echo source file
  ** @{ */
 
 /*
