@@ -71,10 +71,11 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 /* Define host port to use a serial port 0 */
-//#define CIAADRVUART_PORT_SERIAL_0          "/dev/cu.usbserial"
+#define CIAADRVUART_PORT_SERIAL_0          "/dev/cu.usbserial"
+//#define CIAADRVUART_PORT_SERIAL_0          "/dev/ttyUSB0"
 
 /* Define host port to use a serial port 1 */
-#define CIAADRVUART_PORT_SERIAL_1            "/dev/cu.usbserial"
+//#define CIAADRVUART_PORT_SERIAL_1            "/dev/cu.usbserial"
 
 /** Enable uart transmition via host interfaces */
 #if defined(CIAADRVUART_PORT_SERIAL_0) || defined(CIAADRVUART_PORT_SERIAL_1)
@@ -92,10 +93,10 @@ extern "C" {
 #endif
 
 /* Define TCP PORT for lisening socket emulation serial port 0 */
-#define CIAADRVUART_TCP_PORT_0               2000
+//#define CIAADRVUART_TCP_PORT_0               2000
 
 /* Define TCP PORT for lisening socket emulation serial port 1 */
-//#define CIAADRVUART_TCP_PORT_1             2001
+#define CIAADRVUART_TCP_PORT_1             2001
 
 /** Enable uart emulation via sockets */
 #if defined(CIAADRVUART_TCP_PORT_0) || defined(CIAADRVUART_TCP_PORT_1)
@@ -108,6 +109,11 @@ extern "C" {
    #ifndef CIAADRVUART_TCP_PORT_1
       #define CIAADRVUART_TCP_PORT_1         0
    #endif   
+#endif
+
+/** Enable funcionality of uart driver via transmition and/or emulation */
+#if defined(CIAADRVUART_ENABLE_TRANSMITION) || defined(CIAADRVUART_ENABLE_EMULATION)
+   #define CIAADRVUART_ENABLE_FUNCIONALITY
 #endif
 
 /*==================[typedef]================================================*/
@@ -147,6 +153,8 @@ typedef struct {
 	ciaaDriverUart_serverType server;
 	ciaaDriverUart_clientType client;
 #endif /* CIAADRVUART_ENABLE_EMULATION */
+#ifdef CIAADRVUART_ENABLE_FUNCIONALITY
+#endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
 } ciaaDriverUart_uartType;
 
 /*==================[external data declaration]==============================*/

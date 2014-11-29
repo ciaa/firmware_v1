@@ -65,12 +65,15 @@
 #include "ciaaPOSIX_string.h"
 #include "os.h"
  
-#ifdef CIAADRVUART_ENABLE_TRANSMITION
+#ifdef CIAADRVUART_ENABLE_FUNCIONALITY
    #include "os_internal.h" 
+   #include "pthread.h"
+#endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
+
+#ifdef CIAADRVUART_ENABLE_TRANSMITION
 #endif /* CIAADRVUART_ENABLE_TRANSMITION */
 
 #ifdef CIAADRVUART_ENABLE_EMULATION
-   #include "os_internal.h" 
    #include "fcntl.h"
 #endif /* CIAADRVUART_ENABLE_EMULATION */
 
@@ -92,6 +95,9 @@ typedef struct  {
 } ciaaDriverConstType;
 
 /*==================[internal data declaration]==============================*/
+#ifdef CIAADRVUART_ENABLE_FUNCIONALITY
+   pthread_t ciaaDriverUart_handlerThread;
+#endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
 
 /*==================[internal functions declaration]=========================*/
 static void ciaaDriverUart_serialHandler(ciaaDevices_deviceType const * const device);
@@ -191,7 +197,7 @@ static void ciaaDriverUart_signalHandler(int signal, siginfo_t * info, void * co
    ciaaDevices_deviceType * device;
    int index;
 
-   for(index = ciaaDriverUartConst.countOfDevices - 1; index >= 0; index--) 
+   for(index = 0; index < ciaaDriverUartConst.countOfDevices; index++) 
    {
       device = (ciaaDevices_deviceType *) ciaaUartDevices[index];
       #ifdef CIAADRVUART_ENABLE_TRANSMITION
@@ -235,10 +241,21 @@ int ciaaDriverUart_configureFile(int fileDescriptor) {
 static void ciaaDriverUart_serialHandler(ciaaDevices_deviceType const * const device) 
 {
    ciaaDriverUart_uartType * uart = device->layer;
+   int ret;
    
    if (uart->fileDescriptor > 0) 
    {
+      //if (uart->client.sending > 0) 
+      {
+         //uart->client.sending = 0;
+         ciaaDriverUart_txConfirmation(device);
+      }
       
+      ret = read(uart->fileDescriptor, uart->rxBuffer.buffer, sizeof(uart->rxBuffer));
+      if (ret > 0) {
+         uart->rxBuffer.length = ret;
+         ciaaDriverUart_rxIndication(device);
+      }      
    }   
 }
 void ciaaDriverUart_serialInit(ciaaDevices_deviceType * device, uint8_t index)
@@ -248,21 +265,21 @@ void ciaaDriverUart_serialInit(ciaaDevices_deviceType * device, uint8_t index)
    uart->deviceName = ciaaDriverUart_serialPorts[index];
    
    /* Set baudreate 115200 */
-   //cfsetspeed(&uart->deviceOptions, B115200);
+   cfsetspeed(&uart->deviceOptions, B115200);
 
    /* Set to 8 Data bits, Parity None, 1 Stop bit */
-   //uart->deviceOptions.c_cflag |= CS8; 
-   //uart->deviceOptions.c_cflag &= ~PARENB;
-   //uart->deviceOptions.c_cflag &= ~CSTOPB;
+   uart->deviceOptions.c_cflag |= CS8; 
+   uart->deviceOptions.c_cflag &= ~PARENB;
+   uart->deviceOptions.c_cflag &= ~CSTOPB;
    
    
    /* Set without hardware flow control */
-   //uart->deviceOptions.c_cflag |= CLOCAL;
-   //uart->deviceOptions.c_cflag &= ~CRTSCTS;
+   uart->deviceOptions.c_cflag |= CLOCAL;
+   uart->deviceOptions.c_cflag &= ~CRTSCTS;
    
    /* Set RAW mode */
-   //uart->deviceOptions.c_lflag &= ~(ICANON | ECHO | ISIG);   
-   //uart->deviceOptions.c_oflag &= ~OPOST; 
+   uart->deviceOptions.c_lflag &= ~(ICANON | ECHO | ISIG);   
+   uart->deviceOptions.c_oflag &= ~OPOST; 
 }
 
 ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * device)
@@ -277,6 +294,13 @@ ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * devi
       if (result > 0)
       {
          uart->fileDescriptor = result;
+         
+         result = fcntl(uart->fileDescriptor, F_SETFL, O_NDELAY, O_ASYNC | O_NONBLOCK);
+         if (result < 0) perror("Error setting asyn serial port: ");
+
+         result = fcntl(uart->fileDescriptor, F_SETOWN, getpid());
+         if (result < 0) perror("Error setting faile descriptor owner: ");
+         
       }
       else
       {   
@@ -286,7 +310,7 @@ ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * devi
       if (0 != device) 
       {
          result =  tcgetattr(uart->fileDescriptor, &uart->deviceOptions);
-         result =  tcsetattr(uart->fileDescriptor, TCSANOW, &uart->deviceOptions);
+         //result =  tcsetattr(uart->fileDescriptor, TCSANOW, &uart->deviceOptions);
          if (result < 0) 
          {
             perror("Error setting serial port parameters: ");      
@@ -488,13 +512,20 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
          break;
 #endif /* CIAADRVUART_ENABLE_TRANSMITION */  
 
-#ifdef CIAADRVUART_ENABLE_EMULATION
          case ciaaPOSIX_IOCTL_STARTTX:
-            if (uart->client.conected) {
+#ifdef CIAADRVUART_ENABLE_TRANSMITION
+            if (uart->fileDescriptor)
+            {
+               ciaaDriverUart_txConfirmation(device);                  
+            }
+#endif /* CIAADRVUART_ENABLE_TRANSMITION */              
+#ifdef CIAADRVUART_ENABLE_EMULATION
+            if (uart->client.conected) 
+            {
                ciaaDriverUart_txConfirmation(device);
             }
+#endif /* CIAADRVUART_ENABLE_EMULATION */              
          break;
-#endif /* CIAADRVUART_ENABLE_EMULATION */
       }
    }
 #endif /* CIAADRVUART_ENABLE_TRANSMITION || CIAADRVUART_ENABLE_EMULATION */
@@ -522,7 +553,7 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
    ciaaDriverUart_uartType * uart = device->layer;
 
    int32_t ret = 0;
-#ifdef ENABLE_UART_EMULATION   
+#ifdef CIAADRVUART_ENABLE_EMULATION   
    int32_t result;
 #endif /* CIAADRVUART_ENABLE_EMULATION */
    
@@ -539,11 +570,19 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
       uart->txBuffer.length = size;
 
 #ifdef CIAADRVUART_ENABLE_TRANSMITION
+      if (uart->fileDescriptor) 
+      {
+         result = write(uart->fileDescriptor, uart->txBuffer.buffer, uart->txBuffer.length);
+         if (result < 0) perror("Error sending data to serial port: ");
+         uart->txBuffer.length = 0;
+      }
 #endif /* CIAADRVUART_ENABLE_TRANSMITION */
 
-#ifdef ENABLE_UART_EMULATION
-      if (uart->client.conected) {
+#ifdef CIAADRVUART_ENABLE_EMULATION
+      if (uart->client.conected)    
+      {
          result = send(uart->client.socket, uart->txBuffer.buffer, uart->txBuffer.length, MSG_DONTWAIT);
+         if (result < 0) perror("Error sending data to TCP port: ");
          uart->client.sending = uart->txBuffer.length;
          uart->txBuffer.length = 0;
       }
