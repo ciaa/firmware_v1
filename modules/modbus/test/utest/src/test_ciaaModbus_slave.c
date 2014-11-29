@@ -55,7 +55,7 @@
 #include "unity.h"
 #include "ciaaModbus_config.h"
 #include "ciaaModbus_slave.h"
-#include "os.h"
+#include "mock_os.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -256,10 +256,10 @@ static void cmd0x10WriteMultipleReg(
 void setUp(void)
 {
    /* ignore calls GetResource */
-   GetResource_CMockIgnoreAndReturn(E_OK);
+   GetResource_IgnoreAndReturn(E_OK);
 
    /* ignore calls ReleaseResource */
-   ReleaseResource_CMockIgnoreAndReturn(E_OK);
+   ReleaseResource_IgnoreAndReturn(E_OK);
 
    /* perform the initialization of modbus slave */
    ciaaModbus_slaveInit();
