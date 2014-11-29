@@ -315,6 +315,11 @@ extern int8_t ciaaModbus_transportGetType(int32_t handler)
    return ret;
 }
 
+extern void ciaaModbus_transportSetRespTimeout(int32_t handler, uint32_t timeout)
+{
+   ciaaModbus_transportObj[handler].respTimeout = timeout;
+}
+
 extern uint32_t ciaaModbus_transportGetRespTimeout(int32_t handler)
 {
    return ciaaModbus_transportObj[handler].respTimeout;
