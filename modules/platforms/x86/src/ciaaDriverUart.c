@@ -74,11 +74,6 @@
 #endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
 
 /*==================[macros and definitions]=================================*/
-/** \brief Cygwin only support deprecated macro FNONBLOCK */
-#ifndef O_NONBLOCK
-   #define O_NONBLOCK FNONBLOCK
-#endif
- 
 /** \brief Pointer to Devices */
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;

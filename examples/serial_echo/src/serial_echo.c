@@ -35,9 +35,9 @@
 
 /** \brief Serial echo source file
  **
- ** This is an bootloader program to implement remote software update.
+ ** This is an example program to test the serial port funcionality.
  ** To run this sample in x86 plataform you mut enable the funcionality
- ** of uart device setting a value of une or more of folowing macros 
+ ** of uart device setting a value of one or more of folowing macros 
  ** defined in header file /plataforms/x86/inc/ciaaDriverUart_Internal.h
  **
  ** CIAADRVUART_PORT_SERIAL_0: Enable uart0 transmition and define 
@@ -46,7 +46,7 @@
  ** to the host serial port that it's mapped.
  ** CIAADRVUART_TCP_PORT_0: Enable uart0 emulation by an TCP server
  ** and define to the TCP port used to listed conections requests
- ** CIAADRVUART_TCP_PORT_0: Enable uart0 emulation by an TCP server
+ ** CIAADRVUART_TCP_PORT_1: Enable uart1 emulation by an TCP server
  ** and define to the TCP port used to listed conections requests
  ** 
  ** It's not posible enable transmission and emulation of a port at the same time, 
