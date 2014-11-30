@@ -50,7 +50,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140623 v0.0.1 initials initial
+ * 20141108 v0.0.1 GMuro   initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -58,6 +58,7 @@
 #include "ciaaModbus_gateway.h"
 #include "ciaaModbus_transport.h"
 #include "ciaaModbus_slave.h"
+#include "ciaaModbus_master.h"
 #include "ciaaModbus_config.h"
 #include "ciaaPOSIX_stdbool.h"
 #include "os.h"
@@ -117,6 +118,15 @@ typedef void (*ciaaModbus_recvMsgType)(int32_t handler, uint8_t *id, uint8_t *pd
  **/
 typedef void (*ciaaModbus_sendMsgType)(int32_t handler, uint8_t id, uint8_t *pdu, uint32_t size);
 
+/** \brief Get response timeout
+ **
+ ** This function return response timeout in milliseconds
+ **
+ ** \param[in] handler handler in to module
+ ** \return response timeout (milliseconds)
+ **/
+typedef uint32_t (*ciaaModbus_getRespTimeoutType)(int32_t handler);
+
 /** \brief Client Modbus type */
 typedef struct
 {
@@ -125,6 +135,7 @@ typedef struct
    uint8_t buffer[256];                /** <- buffer to store modbus message
                                               received TODO: use macro       */
    uint32_t size;                      /** <- size of message received       */
+   uint32_t timeout;                   /** <- response timeout               */
    int32_t indexServer;                /** <- index server to send message   */
    ciaaModbus_taskType task;           /** <- function task of module (master,
                                               transport)                     */
@@ -132,6 +143,9 @@ typedef struct
                                               (master, transport)            */
    ciaaModbus_sendMsgType sendMsg;     /** <- function sendMsg of module
                                               (master, transport)            */
+   ciaaModbus_getRespTimeoutType
+   getRespTimeout;                     /** <- function getRespTimeout of
+                                              module (master, transport)     */
    ciaaModbus_clientStateEnum state;   /** <- State of client */
    uint8_t id;                         /** <- id of message received         */
    bool inUse;                         /** <- Object in use                  */
@@ -277,6 +291,9 @@ static int8_t ciaaModbus_gatewayClientProcess(
                      client->buffer,
                      client->size);
 
+               /* load timeout */
+               client->timeout = client->getRespTimeout(client->handler) / CIAA_MODBUS_TIME_BASE;
+
                /* step next state */
                client->state = CIAA_MODBUS_CLIENT_STATE_WAITING_SERVER_RESPONSE;
 
@@ -320,7 +337,19 @@ static int8_t ciaaModbus_gatewayClientProcess(
             }
             else
             {
-               /* TODO: check timeout response */
+               /* check if timeout reached */
+               if (0 != client->timeout)
+               {
+                  /* decrement timeout */
+                  client->timeout--;
+               }
+               else
+               {
+                  /* timeout, step next state: idle */
+                  client->state = CIAA_MODBUS_CLIENT_STATE_IDLE;
+               }
+
+               /* no task pending */
                ret = 0;
             }
             break;
@@ -393,6 +422,7 @@ extern int32_t ciaaModbus_gatewayOpen(void)
    return hModbusGW;
 }
 
+#if CIAA_MODBUS_TOTAL_SLAVES > 0
 extern int8_t ciaaModbus_gatewayAddSlave(
       int32_t hModbusGW,
       int32_t hModbusSlave)
@@ -423,13 +453,39 @@ extern int8_t ciaaModbus_gatewayAddSlave(
 
    return ret;
 }
+#endif /* #if CIAA_MODBUS_TOTAL_SLAVES > 0 */
 
+#if CIAA_MODBUS_TOTAL_MASTERS > 0
 extern int8_t ciaaModbus_gatewayAddMaster(
       int32_t hModbusGW,
       int32_t hModbusMaster)
 {
-   return 0;
+   uint32_t loopi;
+   int8_t ret = -1;
+
+   /* enter critical section */
+   GetResource(MODBUSR);
+
+   for (loopi = 0 ; (loopi < CIAA_MODBUS_GATEWAY_TOTAL_CLIENTS) && (ret != 0) ; loopi++)
+   {
+      if (ciaaModbus_gatewayObj[hModbusGW].client[loopi].inUse == false)
+      {
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].inUse = true;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].handler = hModbusMaster;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].recvMsg = ciaaModbus_masterRecvMsg;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].sendMsg = ciaaModbus_masterSendMsg;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].task = ciaaModbus_masterTask;
+         ciaaModbus_gatewayObj[hModbusGW].client[loopi].getRespTimeout = ciaaModbus_masterGetRespTimeout;
+         ret = 0;
+      }
+   }
+
+   /* exit critical section */
+   ReleaseResource(MODBUSR);
+
+   return ret;
 }
+#endif /* #if CIAA_MODBUS_TOTAL_MASTERS > 0 */
 
 extern int8_t ciaaModbus_gatewayAddTransport(
       int32_t hModbusGW,
@@ -456,6 +512,7 @@ extern int8_t ciaaModbus_gatewayAddTransport(
             ciaaModbus_gatewayObj[hModbusGW].client[loopi].recvMsg = ciaaModbus_transportRecvMsg;
             ciaaModbus_gatewayObj[hModbusGW].client[loopi].sendMsg = ciaaModbus_transportSendMsg;
             ciaaModbus_gatewayObj[hModbusGW].client[loopi].task = ciaaModbus_transportTask;
+            ciaaModbus_gatewayObj[hModbusGW].client[loopi].getRespTimeout = ciaaModbus_transportGetRespTimeout;
             ret = 0;
          }
       }

@@ -88,6 +88,8 @@
 
 /** \brief Definition of the Event POSIXE */
 #define POSIXE 1
+/** \brief Definition of the Event MODBUSE */
+#define MODBUSE 2
 
 /** \brief Definition of the resource POSIXR */
 #define POSIXR 0

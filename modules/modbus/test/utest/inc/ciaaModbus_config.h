@@ -71,19 +71,19 @@ extern "C" {
 #define CIAA_MODBUS_TOTAL_GATEWAY            1
 
 /** \brief Total masters available */
-#define CIAA_MODBUS_TOTAL_MASTERS            0
+#define CIAA_MODBUS_TOTAL_MASTERS            1
 
 /** \brief Total slaves available */
 #define CIAA_MODBUS_TOTAL_SLAVES             1
 
 /** \brief Total transport available */
-#define CIAA_MODBUS_TOTAL_TRANSPORT_ASCII    1
+#define CIAA_MODBUS_TOTAL_TRANSPORT_ASCII    2
 
 /** \brief Total transport available */
-#define CIAA_MODBUS_TOTAL_TRANSPORT_RTU      0
+#define CIAA_MODBUS_TOTAL_TRANSPORT_RTU      2
 
 /** \brief Total transport available */
-#define CIAA_MODBUS_TOTAL_TRANSPORT_TCP      0
+#define CIAA_MODBUS_TOTAL_TRANSPORT_TCP      2
 
 /** \brief Total masters by gateways */
 #define CIAA_MODBUS_TOTAL_MASTERS_GW         0

@@ -1,4 +1,7 @@
-/* Copyright 2014, Gustavo Muro
+/* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Gustavo Muro
+ * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,24 +33,28 @@
  *
  */
 
-#ifndef _CIAAMODBUSGATEWAY_H_
-#define _CIAAMODBUSGATEWAY_H_
-/** \brief Modbus Slave Header File
+#ifndef _BLINKING_MODBUS_H_
+#define _BLINKING_MODBUS_H_
+/** \brief Blinking Modbus example header file
  **
- ** This files shall be included by moodules using the interfaces provided by
- ** the Modbus Slave
+ ** This is a mini example of the CIAA Firmware
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Modbus CIAA Modbus
+/** \addtogroup Examples CIAA Firmware Examples
+ ** @{ */
+/** \addtogroup Blinking_Modbus_Master Blinking Modbus Master example header file
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
+ * MaCe         Mariano Cerdeiro
  * GMuro        Gustavo Muro
+ * PR           Pablo Ridolfi
+ * JuCe         Juan Cecconi 
  *
  */
 
@@ -58,13 +65,6 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaModbus.h"
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*==================[macros]=================================================*/
 
@@ -74,19 +74,10 @@ extern "C" {
 
 /*==================[external functions declaration]=========================*/
 
-/** \brief ciaaModbus_gateway initialization
- **
- ** Performs the initialization of the MODBUS Gateway
- **
- **/
-extern void ciaaModbus_gatewayInit(void);
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUSGATEWAY_H_ */
+#endif /* #ifndef _BLINKING_MODBUS_H_ */
 

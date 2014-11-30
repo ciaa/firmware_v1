@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,8 +30,8 @@
  *
  */
 
-#ifndef _CIAAMODBUS_H_
-#define _CIAAMODBUS_H_
+#ifndef _CIAAMODBUS_MASTER_H_
+#define _CIAAMODBUS_MASTER_H_
 /** \brief Modbus Slave Header File
  **
  ** This files shall be included by moodules using the interfaces provided by
@@ -47,7 +47,6 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
  * GMuro        Gustavo Muro
  *
  */
@@ -55,7 +54,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140623 v0.0.1 initials initial
+ * 20141108 v0.0.1 GMuro   initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -72,51 +71,63 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 
-/** \brief Modbus Master callback end of communication
- **
- ** This function is called by the modbus master when communication ends
- **
- ** \param[in] slaveId Identification of Slave Modbus
- ** \param[in] function excecuted
- ** \param[in] exception code
- ** \return
- **/
-typedef void (*modbusMaster_cbEndOfComm)(
-      uint8_t slaveId,
-      uint8_t numFunc,
-      uint8_t exceptioncode);
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-
-/** \brief Open Modbus Master
+/** \brief ciaaModbus_master initialization
  **
- ** \return handler of Modbus Slave
- **/
-extern int32_t ciaaModbus_masterOpen(void);
-
-/** \brief Close Modbus Master
+ ** Performs the initialization of the MODBUS Master
  **
- ** \param[in] handler of Modbus Master
- ** \return -1 if failed, 0 in other if success.
  **/
-extern int32_t ciaaModbus_masterClose(
-      int32_t hModbusMaster);
+extern void ciaaModbus_masterInit(void);
 
-/** \brief Close Modbus Master
+/** \brief Process task of Master Modbus
  **
- ** \param[in] handler of Modbus Master
- ** \return -1 if failed, 0 in other if success.
+ ** \param[in] handler Handler Modbus Master
  **/
-extern int32_t ciaaModbus_masterCmd0x03ReadHoldingReg(
-      int32_t hModbusMaster,
-      uint16_t startAddress,
-      uint16_t quantity,
-      int16_t *hrValue,
-      uint8_t slaveId,
-      modbusMaster_cbEndOfComm cbEndComm);
+extern void ciaaModbus_masterTask(int32_t handler);
 
+/** \brief Receive modbus message
+ **
+ ** This function receive a message
+ **
+ ** \param[in] handler handler in to recv msg
+ ** \param[out] id identification number of modbus message
+ ** \param[out] pdu buffer with stored pdu
+ ** \param[out] size size of pdu. If no valid message received
+ **             size must be less than 5
+ ** \return
+ **/
+extern void ciaaModbus_masterRecvMsg(
+      int32_t handler,
+      uint8_t *id,
+      uint8_t *pdu,
+      uint32_t *size);
 
+/** \brief Send modbus message
+ **
+ ** This function send a message
+ **
+ ** \param[in] handler handler to send msg
+ ** \param[in] id identification number of modbus message
+ ** \param[in] pdu buffer with stored pdu
+ ** \param[in] size size of pdu
+ ** \return
+ **/
+extern void ciaaModbus_masterSendMsg(
+      int32_t handler,
+      uint8_t id,
+      uint8_t *pdu,
+      uint32_t size);
+
+/** \brief Get response timeout
+ **
+ ** This function return response timeout in milliseconds
+ **
+ ** \param[in] handler handler in to module
+ ** \return response timeout (milliseconds)
+ **/
+extern uint32_t ciaaModbus_masterGetRespTimeout(int32_t handler);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -125,5 +136,5 @@ extern int32_t ciaaModbus_masterCmd0x03ReadHoldingReg(
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUS_H_ */
+#endif /* #ifndef _CIAAMODBUS_MASTER_H_ */
 

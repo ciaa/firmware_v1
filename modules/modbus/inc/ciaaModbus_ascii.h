@@ -48,12 +48,15 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * GMuro        Gustavo Muro
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140623 v0.0.1 initials initial
+ * 20141108 v0.0.2 GMuro   New Modbus implementation
+ * 20140623 v0.0.1 MaCe    first functional version
  */
 
 /*==================[inclusions]=============================================*/

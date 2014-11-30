@@ -30,12 +30,12 @@
  *
  */
 
-#ifndef _CIAAMODBUSGATEWAY_H_
-#define _CIAAMODBUSGATEWAY_H_
-/** \brief Modbus Slave Header File
+#ifndef _CIAAMODBUS_CONFIG_H_
+#define _CIAAMODBUS_CONFIG_H_
+/** \brief Modbus Config Header File
  **
- ** This files shall be included by moodules using the interfaces provided by
- ** the Modbus Slave
+ ** This files shall be included by modules using the interfaces provided by
+ ** the Modbus
  **
  **/
 
@@ -59,7 +59,6 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
-#include "ciaaModbus.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -68,18 +67,41 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 
+/** \brief Total gateway available */
+#define CIAA_MODBUS_TOTAL_GATEWAY            1
+
+/** \brief Total masters available */
+#define CIAA_MODBUS_TOTAL_MASTERS            1
+
+/** \brief Total slaves available */
+#define CIAA_MODBUS_TOTAL_SLAVES             1
+
+/** \brief Total transport available */
+#define CIAA_MODBUS_TOTAL_TRANSPORT_ASCII    1
+
+/** \brief Total transport available */
+#define CIAA_MODBUS_TOTAL_TRANSPORT_RTU      0
+
+/** \brief Total transport available */
+#define CIAA_MODBUS_TOTAL_TRANSPORT_TCP      0
+
+/** \brief Total masters by gateways */
+#define CIAA_MODBUS_TOTAL_MASTERS_GW         1
+
+/** \brief Total slaves by gateways */
+#define CIAA_MODBUS_TOTAL_SLAVES_GW          0
+
+/** \brief Total transports by gateways */
+#define CIAA_MODBUS_TOTAL_TRANSPORT_GW       1
+
+/** \brief Time between calls (milliseconds) */
+#define CIAA_MODBUS_TIME_BASE                5
+
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-
-/** \brief ciaaModbus_gateway initialization
- **
- ** Performs the initialization of the MODBUS Gateway
- **
- **/
-extern void ciaaModbus_gatewayInit(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -88,5 +110,5 @@ extern void ciaaModbus_gatewayInit(void);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUSGATEWAY_H_ */
+#endif /* #ifndef _CIAAMODBUS_CONFIG_H_ */
 

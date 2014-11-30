@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -47,14 +47,13 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
  * GMuro        Gustavo Muro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140623 v0.0.1 initials initial
+ * 20141108 v0.0.1 GMuro   initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -153,6 +152,24 @@ void ciaaModbus_transportSendMsg(
  **            not initialized
  **/
 extern int8_t ciaaModbus_transportGetType(int32_t handler);
+
+/** \brief Set response timeout
+ **
+ ** This function set response timeout in milliseconds
+ **
+ ** \param[in] handler handler in to module
+ ** \return
+ **/
+extern void ciaaModbus_transportSetRespTimeout(int32_t handler, uint32_t timeout);
+
+/** \brief Get response timeout
+ **
+ ** This function return response timeout in milliseconds
+ **
+ ** \param[in] handler handler in to module
+ ** \return response timeout (milliseconds)
+ **/
+extern uint32_t ciaaModbus_transportGetRespTimeout(int32_t handler);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
