@@ -83,6 +83,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * v0.1.1 20141130 PR   Added interrupt processing functions.
  * v0.1.0 20140608 PR	First version for Cortex-M processors.
  */
 
@@ -95,12 +96,6 @@
  *****************************************************************************/
 
 /*==================[typedef]================================================*/
-/*****************************************************************************
- * Please define here all needed types to be configured or used in
- * Osek_Internal_Arch_Cfg.c.php
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 
 /** \brief Task Context Type */
 typedef uint32 * TaskContextType;
@@ -119,6 +114,8 @@ typedef TaskContextType* TaskContextRefType;
 /*==================[external functions declaration]=========================*/
 
 void Enable_User_ISRs(void);
+void Enable_ISR2_Arch(void);
+void Disable_ISR2_Arch(void);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

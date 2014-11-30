@@ -68,14 +68,12 @@
 /* Use GPIO0, IRQ32 as interrupt for tests */
 #define TriggerISR2_Arch()                                                 \
 {                                                                          \
-   NVIC_EnableIRQ(32);                                                     \
    NVIC_SetPendingIRQ(32);                                                 \
 }
 
 /* Use GPIO1, IRQ33 as interrupt for tests */
 #define TriggerISR1_Arch()                                                 \
 {                                                                          \
-   NVIC_EnableIRQ(33);                                                     \
    NVIC_SetPendingIRQ(33);                                                 \
 }
 

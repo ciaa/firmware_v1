@@ -58,6 +58,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * v0.1.2 20141130 PR   Added ISR cat. 2 enabling and disabling functions.
  * v0.1.1 20141115 PR   added LPC43xx interrupt sources, spelling mistake fixed
  * v0.1.0 20141115 MaCe initial version
  */
@@ -261,6 +262,46 @@ foreach ($intnames as $int)
    print "   /* Enabling IRQ $source with priority $prio */\n";
    print "   NVIC_EnableIRQ(" . array_search($source, $intList) . ");\n";
    print "   NVIC_SetPriority(" . array_search($source, $intList) . ", $prio);\n\n";
+}
+?>
+}
+
+/** \brief Enable user defined category 2 ISRs */
+void Enable_ISR2_Arch(void)
+{
+<?php
+/* get ISRs defined by user application */
+$intnames = $config->getList("/OSEK","ISR");
+foreach ($intnames as $int)
+{
+   $source = $config->getValue("/OSEK/" . $int,"INTERRUPT");
+   $cat = $config->getValue("/OSEK/" . $int,"CATEGORY");
+
+   if($cat == 2)
+   {
+      print "   /* Enabling IRQ $source */\n";
+      print "   NVIC_EnableIRQ(" . array_search($source, $intList) . ");\n";
+   }
+}
+?>
+}
+
+/** \brief Disable user defined category 2 ISRs */
+void Disable_ISR2_Arch(void)
+{
+<?php
+/* get ISRs defined by user application */
+$intnames = $config->getList("/OSEK","ISR");
+foreach ($intnames as $int)
+{
+   $source = $config->getValue("/OSEK/" . $int,"INTERRUPT");
+   $cat = $config->getValue("/OSEK/" . $int,"CATEGORY");
+
+   if($cat == 2)
+   {
+      print "   /* Disabling IRQ $source */\n";
+      print "   NVIC_DisableIRQ(" . array_search($source, $intList) . ");\n";
+   }
 }
 ?>
 }

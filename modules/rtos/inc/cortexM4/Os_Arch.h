@@ -78,6 +78,8 @@
 
 /*==================[inclusions]=============================================*/
 
+#include "Os_Internal_Arch_Cfg.h"
+
 /*==================[macros]=================================================*/
 /*****************************************************************************
  * Please define here all needed macros that will be visible to the OS user
@@ -88,7 +90,7 @@
  *****************************************************************************/
 
 /** \brief Enable All Interrupts Arch */
-#define EnableAllInterrupts_Arch()	ResumeAllInterrupts_Arch()
+#define EnableAllInterrupts_Arch() ResumeAllInterrupts_Arch()
 
 /** \brief Disable All Interrupts Arch */
 #define DisableAllInterrupts_Arch() SuspendAllInterrupts_Arch()
@@ -97,27 +99,27 @@
  **
  ** This macro shall resume (enable) all interrupts.
  **/
-#define ResumeAllInterrupts_Arch() ResumeOSInterrupts_Arch()
+#define ResumeAllInterrupts_Arch() __asm volatile("cpsie i")
 
 /** \brief Suspend All Interrupts Arch
  **
  ** This macro shall suspend (disable) all interrupts.
  **/
-#define SuspendAllInterrupts_Arch()	SuspendOSInterrupts_Arch()
+#define SuspendAllInterrupts_Arch() __asm volatile("cpsid i")
 
 /** \brief Resume OS Interrupts Arch
  **
  ** This macro shall resume (enable) all interrupts configured on the
- ** FreeOSEK OIL configuration file as ISR1 or ISR2.
+ ** FreeOSEK OIL configuration file as ISR2.
  **/
-#define ResumeOSInterrupts_Arch() __asm volatile("cpsie i")
+#define ResumeOSInterrupts_Arch() Enable_ISR2_Arch()
 
 /** \brief Suspend OS Interrupts Arch
  **
  ** This macro shall suspend (disable) all interrupts configured on the
- ** FreeOSEK OIL configuration file as ISR1 or ISR2.
+ ** FreeOSEK OIL configuration file as ISR2.
  **/
-#define SuspendOSInterrupts_Arch() __asm volatile("cpsid i")
+#define SuspendOSInterrupts_Arch() Disable_ISR2_Arch()
 
 /*==================[typedef]================================================*/
 /*****************************************************************************
