@@ -81,7 +81,7 @@ extern "C" {
 
 /** Enable uart transmition via host interfaces */
 #if defined(CIAADRVUART_PORT_SERIAL_0) || defined(CIAADRVUART_PORT_SERIAL_1)
-   #include "termios.h"
+   #include <termios.h>
 
    #define CIAADRVUART_ENABLE_TRANSMITION
    

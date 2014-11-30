@@ -71,11 +71,6 @@
 #endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
 
 /*==================[macros and definitions]=================================*/
-/** \brief Cygwin only support deprecated macro FNONBLOCK */
-#ifndef O_NONBLOCK
-   #define O_NONBLOCK FNONBLOCK
-#endif
- 
 /** \brief Pointer to Devices */
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
@@ -276,7 +271,6 @@ ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * devi
          close(uart->fileDescriptor);
          device = NULL;
       }
-
    }
    return device;
 }
@@ -420,9 +414,8 @@ ciaaDevices_deviceType * ciaaDriverUart_serverOpen(ciaaDevices_deviceType * devi
       {
          close(uart->fileDescriptor);
          device = NULL;
-      }
-
-   }
+      }   
+   }   
    return device;
 }
 #endif /* CIAADRVUART_ENABLE_EMULATION */
@@ -454,16 +447,12 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 
    if (uart->fileDescriptor > 0)
    {
-      PreCallService();
-
       /* Signal thread to exit and wait it */
       pthread_kill(uart->handlerThread, SIGALRM);
       pthread_join(uart->handlerThread, NULL);
 
       /* Close serial port descriptor */
       close(uart->fileDescriptor);
-
-      PostCallService();
    }
 #endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
    return 0;
