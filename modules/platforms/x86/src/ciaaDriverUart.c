@@ -66,9 +66,11 @@
 #include "os.h"
  
 #ifdef CIAADRVUART_ENABLE_FUNCIONALITY
-   #include "os_internal.h" 
-   #include "pthread.h"
-   #include "fcntl.h"
+   #include <pthread.h>
+   #include <fcntl.h>
+   #include <unistd.h>
+   #include <stdio.h>
+   #include <signal.h>
 #endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
 
 /*==================[macros and definitions]=================================*/
@@ -240,8 +242,6 @@ ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * devi
    /* if host serial port name is defined */
    if (0 != uart->deviceName[0])
    {
-      PreCallService();
-      
       /* open host serial port */
       result = open(uart->deviceName, O_RDWR | O_NOCTTY | O_NDELAY);
       if (result > 0) 
@@ -268,9 +268,7 @@ ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * devi
       if (result) {
          close(uart->fileDescriptor);
          device = NULL;
-      }  
-    
-      PostCallService();   
+      }
    }
    return device;   
 }
@@ -356,8 +354,6 @@ ciaaDevices_deviceType * ciaaDriverUart_serverOpen(ciaaDevices_deviceType * devi
    /* if server port is defined */
    if (0 != uart->serverAddress.sin_port)
    {
-      PreCallService();
-      
       /* create a server socket */
       result = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
       if (result > 0)
@@ -394,8 +390,6 @@ ciaaDevices_deviceType * ciaaDriverUart_serverOpen(ciaaDevices_deviceType * devi
          close(uart->fileDescriptor);
          device = NULL;
       }   
-      
-      PostCallService();
    }   
    return device;
 }
@@ -428,16 +422,12 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 
    if (uart->fileDescriptor > 0) 
    {
-      PreCallService();
-
       /* Signal thread to exit and wait it */
       pthread_kill(uart->handlerThread, SIGALRM);
       pthread_join(uart->handlerThread, NULL);
 
       /* Close serial port descriptor */
       close(uart->fileDescriptor);
-
-      PostCallService();
    }
 #endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
    return 0;
