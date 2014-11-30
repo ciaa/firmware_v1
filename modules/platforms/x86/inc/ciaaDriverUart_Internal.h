@@ -47,12 +47,13 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
- * EsVo			 Esteban Volentini
+ * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20141121 v0.0.3 EsVo add host uart support
  * 20141116 v0.0.2 EsVo add uart emulation via sockets
  * 20140528 v0.0.1 MaCe initial version
  */
@@ -69,40 +70,69 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/* Define host port to use a serial port 0 */
+//#define CIAADRVUART_PORT_SERIAL_0 "/dev/ttyUSB0"
+/* Define host port to use a serial port 1 */
+//#define CIAADRVUART_PORT_SERIAL_1 "/dev/cu.usbserial"
+/* Define TCP PORT for lisening socket emulation serial port 0 */
+//#define CIAADRVUART_TCP_PORT_0  2000
+/* Define TCP PORT for lisening socket emulation serial port 1 */
+//#define CIAADRVUART_TCP_PORT_1 2001
+
+/** Enable uart transmition via host interfaces */
+#if defined(CIAADRVUART_PORT_SERIAL_0) || defined(CIAADRVUART_PORT_SERIAL_1)
+   #include <termios.h>
+
+   #define CIAADRVUART_ENABLE_TRANSMITION
+   
+   #ifndef CIAADRVUART_PORT_SERIAL_0
+      #define CIAADRVUART_PORT_SERIAL_0      ""
+   #endif
+
+   #ifndef CIAADRVUART_PORT_SERIAL_1
+      #define CIAADRVUART_PORT_SERIAL_1      ""
+   #endif
+#endif
+
 /** Enable uart emulation via sockets */
-/* #define CIAADRVUART_ENABLE_EMULATION */
+#if defined(CIAADRVUART_TCP_PORT_0) || defined(CIAADRVUART_TCP_PORT_1)
+   #define CIAADRVUART_ENABLE_EMULATION
+   
+   #ifndef CIAADRVUART_TCP_PORT_0
+      #define CIAADRVUART_TCP_PORT_0         0
+   #endif
+
+   #ifndef CIAADRVUART_TCP_PORT_1
+      #define CIAADRVUART_TCP_PORT_1         0
+   #endif   
+#endif
+
+/** Enable funcionality of uart driver via transmition and/or emulation */
+#if defined(CIAADRVUART_ENABLE_TRANSMITION) || defined(CIAADRVUART_ENABLE_EMULATION)
+   #define CIAADRVUART_ENABLE_FUNCIONALITY
+#endif
 
 /*==================[typedef]================================================*/
 /** \brief Buffer Structure */
 typedef struct {
-   uint16_t length;
-   uint8_t buffer[2048];
+   uint16_t length;              /** <= Length used */
+   uint8_t buffer[2048];         /** <= Data storage */
 } ciaaDriverUart_bufferType;
-
-#ifdef CIAADRVUART_ENABLE_EMULATION
-/** \brief Server side uart emulator Structure */
-typedef struct ciaaDriverUart_serverStruct {
-	struct sockaddr_in address;
-   int socket;
-} ciaaDriverUart_serverType;
-
-/** \brief Client side uart emulator Structure */
-typedef struct ciaaDriverUart_clientStruct {
-	struct sockaddr_in address;
-   socklen_t addressSize;
-   int socket;
-   bool conected;
-	int sending;
-} ciaaDriverUart_clientType;
-#endif /* CIAADRVUART_ENABLE_EMULATION */
 
 /** \brief Uart Type */
 typedef struct {
    ciaaDriverUart_bufferType rxBuffer;
    ciaaDriverUart_bufferType txBuffer;
+#ifdef CIAADRVUART_ENABLE_FUNCIONALITY
+   pthread_t handlerThread;
+   int fileDescriptor;
+#endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
+#ifdef CIAADRVUART_ENABLE_TRANSMITION
+   char const * deviceName;
+   struct termios deviceOptions;
+#endif /* CIAADRVUART_ENABLE_TRANSMITION */
 #ifdef CIAADRVUART_ENABLE_EMULATION
-	ciaaDriverUart_serverType server;
-	ciaaDriverUart_clientType client;
+	struct sockaddr_in serverAddress;
 #endif /* CIAADRVUART_ENABLE_EMULATION */
 } ciaaDriverUart_uartType;
 

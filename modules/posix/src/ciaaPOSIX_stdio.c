@@ -67,7 +67,6 @@
 #if (ARCH == x86)
 #include "stdio.h"
 #include "stdarg.h"
-#include "Os_Internal.h"
 #endif
 
 /*==================[macros and definitions]=================================*/
@@ -301,10 +300,6 @@ extern int32_t ciaaPOSIX_printf(const char * format, ...)
    int32_t ret;
 
 #if (ARCH == x86)
-   /* OS pre call service, changes stack to system stack */
-   /* #36 TODO */
-   PreCallService();
-
    /* call vprintf passing all received parameters */
    va_list args;
    va_start(args, format);
@@ -313,10 +308,6 @@ extern int32_t ciaaPOSIX_printf(const char * format, ...)
    /* Fixes a Bug in Eclipse (173732) print to the console */
    /* See issue CIAA Firmware issue #35: https://github.com/ciaa/Firmware/issues/35 */
    fflush(stdout);
-
-   /* OS post call service, changes stack to RTOS stack */
-   /* #36 TODO */
-   PostCallService();
 #else
    /* parameter format is not used in no win nor posix arch, casted to void to
     * avoid compiler warning */
