@@ -60,7 +60,7 @@ TASK InitTask {
     AUTOSTART = TRUE {
         APPMODE = AppMode1;
     }
-    STACK = 256;
+    STACK = 512;
     TYPE = EXTENDED;
     SCHEDULE = NON;
     RESOURCE = POSIXR;
@@ -70,7 +70,7 @@ TASK InitTask {
 TASK PeriodicTask {
     PRIORITY = 1;
     ACTIVATION = 1;
-    STACK = 2048;
+    STACK = 512;
     TYPE = BASIC;
     SCHEDULE = NON;
 }
