@@ -182,6 +182,9 @@ void ciaaDriverUart_serialInit(ciaaDevices_deviceType * device, uint8_t index)
 
    uart->deviceName = ciaaDriverUart_serialPorts[index];
 
+   /* Set RAW mode */
+   cfmakeraw(&uart->deviceOptions);
+
    /* Set baudreate 115200 */
    cfsetspeed(&uart->deviceOptions, B115200);
 
@@ -190,14 +193,9 @@ void ciaaDriverUart_serialInit(ciaaDevices_deviceType * device, uint8_t index)
    uart->deviceOptions.c_cflag &= ~PARENB;
    uart->deviceOptions.c_cflag &= ~CSTOPB;
 
-
    /* Set without hardware flow control */
    uart->deviceOptions.c_cflag |= CLOCAL;
    uart->deviceOptions.c_cflag &= ~CRTSCTS;
-
-   /* Set RAW mode */
-   uart->deviceOptions.c_lflag &= ~(ICANON | ECHO | ISIG);
-   uart->deviceOptions.c_oflag &= ~OPOST; 
 }
 
 /** \brief Handle the serial port transmission and reception in a separated thread */
@@ -241,7 +239,7 @@ ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * devi
    if (0 != uart->deviceName[0])
    {
       /* open host serial port */
-      result = open(uart->deviceName, O_RDWR | O_NOCTTY | O_NDELAY);
+      result = open(uart->deviceName, O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
       if (result > 0)
       {
          uart->fileDescriptor = result;         
@@ -250,15 +248,11 @@ ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * devi
       {
          perror("Error open serial port: ");         
       }
-      
       if (uart->fileDescriptor) {
-         /* configure serial port with no delay operations */
-         result = fcntl(uart->fileDescriptor, F_SETFL, O_NDELAY);
-         if (result) perror("Error setting asyn serial port: ");
-         
          /* configure serial port opstions */
-         result += tcgetattr(uart->fileDescriptor, &uart->deviceOptions);
-
+         //result = tcsetattr(uart->fileDescriptor, TCSANOW, &uart->deviceOptions);
+         /* Issue #173, Under MAC OS X the function returns error even when the port is properly configured */
+         tcsetattr(uart->fileDescriptor, TCSANOW, &uart->deviceOptions);
          if (result)
          {
             perror("Error setting serial port parameters: ");
