@@ -210,7 +210,7 @@ static void * ciaaDriverUart_serialHandler(ciaaDevices_deviceType const * const 
       {
          result = write(uart->fileDescriptor, uart->txBuffer.buffer, uart->txBuffer.length);
          uart->txBuffer.length -= result;
-         if (uart->txBuffer.length)
+         if (0 == uart->txBuffer.length)
          {
             ciaaDriverUart_txConfirmation(device);
          }
@@ -301,7 +301,7 @@ static void * ciaaDriverUart_serverHandler(ciaaDevices_deviceType const * const 
    int result = 0;
 
    /* while not KILL signal is received */
-   while (!result)   while(!result)
+   while (!result)
    {
       /* if not client conected try to accept a new client */
       if (clientSocket <= 0)

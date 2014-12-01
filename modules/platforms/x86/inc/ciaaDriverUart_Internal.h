@@ -84,7 +84,7 @@ extern "C" {
    #include <termios.h>
 
    #define CIAADRVUART_ENABLE_TRANSMITION
-   
+
    #ifndef CIAADRVUART_PORT_SERIAL_0
       #define CIAADRVUART_PORT_SERIAL_0      ""
    #endif
@@ -97,14 +97,14 @@ extern "C" {
 /** Enable uart emulation via sockets */
 #if defined(CIAADRVUART_TCP_PORT_0) || defined(CIAADRVUART_TCP_PORT_1)
    #define CIAADRVUART_ENABLE_EMULATION
-   
+
    #ifndef CIAADRVUART_TCP_PORT_0
       #define CIAADRVUART_TCP_PORT_0         0
    #endif
 
    #ifndef CIAADRVUART_TCP_PORT_1
       #define CIAADRVUART_TCP_PORT_1         0
-   #endif   
+   #endif
 #endif
 
 /** Enable funcionality of uart driver via transmition and/or emulation */
