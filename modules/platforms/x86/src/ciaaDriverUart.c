@@ -66,10 +66,14 @@
 #include "os.h"
 
 #ifdef CIAADRVUART_ENABLE_FUNCIONALITY
-   #include "pthread.h"
-   #include "fcntl.h"
-   #include "signal.h"
-   #include "stdio.h"
+   #include <pthread.h>
+   #include <fcntl.h>
+   #include <signal.h>
+   #include <stdio.h>
+   #include <string.h>
+   #include <unistd.h>
+   #include <stdlib.h>
+   #include <errno.h>      // Error number definitions   
 #endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
 
 /*==================[macros and definitions]=================================*/

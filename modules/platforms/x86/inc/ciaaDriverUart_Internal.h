@@ -57,10 +57,10 @@
  * 20141116 v0.0.2 EsVo add uart emulation via sockets
  * 20140528 v0.0.1 MaCe initial version
  */
- 
+
 /*==================[inclusions]=============================================*/
-#include "sys/socket.h"
-#include "netinet/in.h"
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_stdbool.h"
 
