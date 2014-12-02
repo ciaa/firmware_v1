@@ -809,7 +809,7 @@ s32_t lpc_tx_ready(struct netif *netif)
  * @note	This function handles the transmit, receive, and error interrupt of
  * the LPC118xx/43xx. This is meant to be used when NO_SYS=0.
  */
-void ETH_IRQHandler(void)
+void OSEK_ISR_ETH_IRQHandler(void)
 {
 #if NO_SYS == 1
 	/* Interrupts are not used without an RTOS */

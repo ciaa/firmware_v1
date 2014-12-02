@@ -33,7 +33,7 @@
  *
  */
 
-/** \brief Blinking example source file
+/** \brief Blinking_echo example source file
  **
  ** This is a mini example of the CIAA Firmware.
  **
@@ -43,7 +43,7 @@
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Blinking Blinking example source file
+/** \addtogroup Blinking Blinking_echo example source file
  ** @{ */
 
 /*
@@ -77,34 +77,12 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-/** \brief File descriptor for digital input ports
- *
- * Device path /dev/dio/in/0
- */
-static int32_t fd_in;
 
 /** \brief File descriptor for digital output ports
  *
  * Device path /dev/dio/out/0
  */
 static int32_t fd_out;
-
-/** \brief File descriptor of the USB uart
- *
- * Device path /dev/serial/uart/1
- */
-static int32_t fd_uart1;
-
-/** \brief File descriptor of the RS232 uart
- *
- * Device path /dev/serial/uart/2
- */
-static int32_t fd_uart2;
-
-/** \brief Periodic Task Counter
- *
- */
-static uint32_t Periodic_Task_Counter;
 
 /*==================[external data definition]===============================*/
 
@@ -162,115 +140,34 @@ void ErrorHook(void)
  */
 TASK(InitTask)
 {
+   uint8 outputs;
+
    /* init CIAA kernel and devices */
    ciaak_start();
 
    ciaaPOSIX_printf("Init Task...\n");
-   /* open CIAA digital inputs */
-   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
 
    /* open CIAA digital outputs */
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
-   /* open UART connected to USB bridge (FT2232) */
-   fd_uart1 = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
-
-   /* open UART connected to RS232 connector */
-   fd_uart2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
-
-   /* change baud rate for uart usb */
-   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);
-
-   /* change FIFO TRIGGER LEVEL for uart usb */
-   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL, (void *)ciaaFIFO_TRIGGER_LEVEL3);
-
-   /* activate example tasks */
-   Periodic_Task_Counter = 0;
-   SetRelAlarm(ActivatePeriodicTask, 200, 200);
-
-   /* Activates the SerialEchoTask task */
-   ActivateTask(SerialEchoTask);
-
-   /* end InitTask */
-   TerminateTask();
-}
-
-/** \brief Serial Echo Task
- *
- * This tasks waits for input data from fd_uart1 and writes the received data
- * to fd_uart1 and fd_uart2. This taks alos blinkgs the output 5.
- *
- */
-TASK(SerialEchoTask)
-{
-   int8_t buf[20];   /* buffer for uart operation              */
-   uint8_t outputs;  /* to store outputs status                */
-   int32_t ret;      /* return value variable for posix calls  */
-
-   ciaaPOSIX_printf("SerialEchoTask...\n");
-   /* send a message to the world :) */
-   char message[] = "Hi! :)\nSerialEchoTask: Waiting for characters...\n";
-   ciaaPOSIX_write(fd_uart1, message, ciaaPOSIX_strlen(message));
+   SetRelAlarm(SetEventBlink, 250, 250);
 
    while(1)
    {
-      /* wait for any character ... */
-      ret = ciaaPOSIX_read(fd_uart1, buf, 20);
+      /* wait for event evBlink, to be set by the alarm SetEventBlink */
+      WaitEvent(evBlink);
 
-      if(ret > 0)
-      {
-         /* ... and write them to the same device */
-         ciaaPOSIX_write(fd_uart1, buf, ret);
-
-         /* also write them to the other device */
-         ciaaPOSIX_write(fd_uart2, buf, ret);
-      }
+      /* once the event is received, clear it */
+      ClearEvent(evBlink);
 
       /* blink output 5 with each loop */
       ciaaPOSIX_read(fd_out, &outputs, 1);
       outputs ^= 0x20;
       ciaaPOSIX_write(fd_out, &outputs, 1);
+
    }
-}
 
-/** \brief Periodic Task
- *
- * This task is activated by the Alarm ActivatePeriodicTask.
- * This task copies the status of the inputs bits 0..3 to the output bits 0..3.
- * This task also blinks the output 4
- */
-TASK(PeriodicTask)
-{
-   /*
-    * Example:
-    *    Read inputs 0..3, update outputs 0..3.
-    *    Blink output 4
-    */
-
-   /* variables to store input/output status */
-   uint8_t inputs = 0, outputs = 0;
-
-   /* read inputs */
-   ciaaPOSIX_read(fd_in, &inputs, 1);
-
-   /* read outputs */
-   ciaaPOSIX_read(fd_out, &outputs, 1);
-
-   /* update outputs with inputs */
-   outputs &= 0xF0;
-   outputs |= inputs & 0x0F;
-
-   /* blink */
-   outputs ^= 0x10;
-
-   /* write */
-   ciaaPOSIX_write(fd_out, &outputs, 1);
-
-   /* Print Task info */
-   Periodic_Task_Counter++;
-   ciaaPOSIX_printf("Periodic Task: %d\n", Periodic_Task_Counter);
-   
-   /* end PeriodicTask */
+   /* end InitTask (we shouldn't get here) */
    TerminateTask();
 }
 

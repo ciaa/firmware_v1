@@ -1,5 +1,7 @@
 /* Copyright 2014, Mariano Cerdeiro
  * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
+ * Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -31,7 +33,7 @@
  *
  */
 
-/** \brief Blinking example source file
+/** \brief Blinking_echo example source file
  **
  ** This is a mini example of the CIAA Firmware.
  **
@@ -41,7 +43,7 @@
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Blinking Blinking example source file
+/** \addtogroup Blinking Blinking_echo example source file
  ** @{ */
 
 /*
@@ -49,12 +51,16 @@
  * ---------------------------
  * MaCe         Mariano Cerdeiro
  * PR           Pablo Ridolfi
+ * JuCe         Juan Cecconi
+ * GMuro        Gustavo Muro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140731 v0.0.1   PR first functional version
+ * 20141019 v0.0.2   JuCe add printf in each task,
+ *                        remove trailing spaces
+ * 20140731 v0.0.1   PR   first functional version
  */
 
 /*==================[inclusions]=============================================*/
@@ -62,7 +68,7 @@
 #include "ciaaPOSIX_stdio.h"  /* <= device handler header */
 #include "ciaaPOSIX_string.h" /* <= string header */
 #include "ciaak.h"            /* <= ciaa kernel header */
-#include "blinking_plc.h"     /* <= own header */
+#include "blinking_echo.h"         /* <= own header */
 
 /*==================[macros and definitions]=================================*/
 
@@ -71,13 +77,13 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-/** \brief File descriptor of input ports
+/** \brief File descriptor for digital input ports
  *
  * Device path /dev/dio/in/0
  */
 static int32_t fd_in;
 
-/** \brief File descriptor for output ports
+/** \brief File descriptor for digital output ports
  *
  * Device path /dev/dio/out/0
  */
@@ -94,6 +100,11 @@ static int32_t fd_uart1;
  * Device path /dev/serial/uart/2
  */
 static int32_t fd_uart2;
+
+/** \brief Periodic Task Counter
+ *
+ */
+static uint32_t Periodic_Task_Counter;
 
 /*==================[external data definition]===============================*/
 
@@ -154,6 +165,7 @@ TASK(InitTask)
    /* init CIAA kernel and devices */
    ciaak_start();
 
+   ciaaPOSIX_printf("Init Task...\n");
    /* open CIAA digital inputs */
    fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
 
@@ -173,6 +185,7 @@ TASK(InitTask)
    ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL, (void *)ciaaFIFO_TRIGGER_LEVEL3);
 
    /* activate example tasks */
+   Periodic_Task_Counter = 0;
    SetRelAlarm(ActivatePeriodicTask, 200, 200);
 
    /* Activates the SerialEchoTask task */
@@ -190,10 +203,11 @@ TASK(InitTask)
  */
 TASK(SerialEchoTask)
 {
-   int8_t buf[20];
-   uint8_t outputs;
-   int32_t ret;
+   int8_t buf[20];   /* buffer for uart operation              */
+   uint8_t outputs;  /* to store outputs status                */
+   int32_t ret;      /* return value variable for posix calls  */
 
+   ciaaPOSIX_printf("SerialEchoTask...\n");
    /* send a message to the world :) */
    char message[] = "Hi! :)\nSerialEchoTask: Waiting for characters...\n";
    ciaaPOSIX_write(fd_uart1, message, ciaaPOSIX_strlen(message));
@@ -222,8 +236,8 @@ TASK(SerialEchoTask)
 /** \brief Periodic Task
  *
  * This task is activated by the Alarm ActivatePeriodicTask.
- * This task copy the status of the inputs bits 0..3 to the output bits 0..3.
- * This task also blink the output 4
+ * This task copies the status of the inputs bits 0..3 to the output bits 0..3.
+ * This task also blinks the output 4
  */
 TASK(PeriodicTask)
 {
@@ -233,6 +247,7 @@ TASK(PeriodicTask)
     *    Blink output 4
     */
 
+   /* variables to store input/output status */
    uint8_t inputs = 0, outputs = 0;
 
    /* read inputs */
@@ -251,6 +266,10 @@ TASK(PeriodicTask)
    /* write */
    ciaaPOSIX_write(fd_out, &outputs, 1);
 
+   /* Print Task info */
+   Periodic_Task_Counter++;
+   ciaaPOSIX_printf("Periodic Task: %d\n", Periodic_Task_Counter);
+   
    /* end PeriodicTask */
    TerminateTask();
 }
