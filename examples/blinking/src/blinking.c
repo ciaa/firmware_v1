@@ -140,34 +140,44 @@ void ErrorHook(void)
  */
 TASK(InitTask)
 {
-   uint8 outputs;
-
    /* init CIAA kernel and devices */
    ciaak_start();
 
+   /* print message (only on x86) */
    ciaaPOSIX_printf("Init Task...\n");
 
    /* open CIAA digital outputs */
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
-   SetRelAlarm(SetEventBlink, 250, 250);
+   /* activate periodic task:
+    *  - for the first time after 350 ticks (350 ms)
+    *  - and then every 250 ticks (250 ms)
+    */
+   SetRelAlarm(ActivatePeriodicTask, 350, 250);
 
-   while(1)
-   {
-      /* wait for event evBlink, to be set by the alarm SetEventBlink */
-      WaitEvent(evBlink);
+   /* terminate task */
+   TerminateTask();
+}
 
-      /* once the event is received, clear it */
-      ClearEvent(evBlink);
+/** \brief Periodic Task
+ *
+ * This task is started automatically every time that the alarm
+ * ActivatePeriodicTask expires.
+ *
+ */
+TASK(PeriodicTask)
+{
+   uint8 outputs;
 
-      /* blink output 5 with each loop */
-      ciaaPOSIX_read(fd_out, &outputs, 1);
-      outputs ^= 0x20;
-      ciaaPOSIX_write(fd_out, &outputs, 1);
+   /* write blinking message */
+   ciaaPOSIX_printf("Blinking\n");
 
-   }
+   /* blink output */
+   ciaaPOSIX_read(fd_out, &outputs, 1);
+   outputs ^= 0x20;
+   ciaaPOSIX_write(fd_out, &outputs, 1);
 
-   /* end InitTask (we shouldn't get here) */
+   /* terminate task */
    TerminateTask();
 }
 
