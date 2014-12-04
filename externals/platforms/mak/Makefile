@@ -43,7 +43,8 @@ ext_platforms_SRC_PATH   = $(ext_platforms_PATH)$(DS)src
 ext_platforms_INC_PATH   = $(ext_platforms_PATH)$(DS)inc		    	\
 	$(ext_platforms_PATH)$(DS)$(ARCH)$(DS)inc							\
 	$(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc			\
-	$(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
+	$(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc$(DS)device	\
+	$(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc \
 
 # library source files
 ext_platforms_SRC_FILES += $(wildcard $(ext_platforms_SRC_PATH)$(DS)*.c)							\
