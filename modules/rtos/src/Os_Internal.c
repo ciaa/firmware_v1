@@ -1,4 +1,4 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -77,6 +77,8 @@
 TaskType RunningTask;
 
 ContextType ActualContext;
+
+uint8 OSEK_ISR2_SchedulerCall;
 
 /*==================[internal functions definition]==========================*/
 

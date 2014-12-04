@@ -1,4 +1,4 @@
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -194,6 +194,13 @@ extern ContextType ActualContext;
 
 /** \brief RunningTask variable */
 extern TaskType RunningTask;
+
+/** \brief Schedule called from ISR2
+ **
+ ** Variable to indicate that the sheduler is beeing called from ISR2
+ **
+ **/
+extern uint8 OSEK_ISR2_SchedulerCall;
 
 /*==================[external functions declaration]=========================*/
 /** \brief Architecture Dependnece Start Os function

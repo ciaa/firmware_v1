@@ -111,8 +111,12 @@ StatusType Schedule
    /* get actual context */
    actualContext = GetCallingContext();
 
-
-   if ( ( CONTEXT_TASK != actualContext ) &&
+   /* if called from scheduler no checks shall be performed */
+   if (1 == OSEK_ISR2_SchedulerCall)
+   {
+      OSEK_ISR2_SchedulerCall = 0;
+   }
+   else if ( ( CONTEXT_TASK != actualContext ) &&
         ( CONTEXT_SYS != actualContext ) )
    {
       /* \req OSEK_SYS_3.3.5 Extra possible return values in Extended mode

@@ -2,7 +2,7 @@
  * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
  ********************************************************/
 
-/* Copyright 2008, 2009 Mariano Cerdeiro
+/* Copyright 2008, 2009, 2014 Mariano Cerdeiro
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
@@ -489,6 +489,9 @@ void OSEK_ISR2_<?php print $int;?>(void)
    if ( ( CONTEXT_TASK == actualContext ) &&
         ( TasksConst[GetRunningTask()].ConstFlags.Preemtive ) )
    {
+      /* indicate that the scheduler will be called from isr2 */
+      OSEK_ISR2_SchedulerCall = 1;
+
       /* this shall force a call to the scheduler */
       PostIsr2_Arch(isr);
    }
