@@ -145,10 +145,13 @@ void SysTick_Handler(void)
    if ( ( CONTEXT_TASK == actualContext ) &&
         ( TasksConst[GetRunningTask()].ConstFlags.Preemtive ) )
    {
+      /* indicate that the scheduler will be called from isr2 */
+      OSEK_ISR2_SchedulerCall = 1;
+
       /* this shall force a call to the scheduler */
       PostIsr2_Arch(isr);
    }
-#endif /* #if (NON_PREEMPTIVE == OSEK_ENABLE) */
+#endif /* #if (NON_PREEMPTIVE == OSEK_DISABLE) */
 }
 
 
