@@ -60,6 +60,7 @@
 #include "ciaaDriverAio_Internal.h"
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_string.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
 /** \brief Pointer to Devices */
@@ -203,25 +204,21 @@ void ciaaDriverAio_init(void)
 
 
 /*==================[interrupt hanlders]=====================================*/
-extern void ciaaDriverAio_uart0_rxIndication(void)
+ISR(ADC0_IRQHandler)
 {
    ciaaDriverAio_rxIndication(&ciaaDriverAio_device0);
 }
 
-extern void ciaaDriverAio_uart0_txConfirmation(void)
+ISR(ADC1_IRQHandler)
 {
    ciaaDriverAio_txConfirmation(&ciaaDriverAio_device0);
 }
 
-extern void ciaaDriverAio_uart1_rxIndication(void)
-{
-   ciaaDriverAio_rxIndication(&ciaaDriverAio_device1);
-}
-
-extern void ciaaDriverAio_uart1_txConfirmation(void)
+ISR(DMA_IRQHandler)
 {
    ciaaDriverAio_txConfirmation(&ciaaDriverAio_device1);
 }
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
