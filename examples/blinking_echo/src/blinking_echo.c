@@ -35,8 +35,12 @@
 
 /** \brief Blinking_echo example source file
  **
- ** This is a mini example of the CIAA Firmware.
- **
+ ** This is a mini example of the CIAA Firmware to test the periodical
+ ** task excecution and serial port funcionality.
+ ** To run this sample in x86 plataform you mut enable the funcionality
+ ** of uart device setting a value of une or more of folowing macros
+ ** of uart device setting a value of one or more of folowing macros
+ ** defined in header file /plataforms/x86/inc/ciaaDriverUart_Internal.h
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
