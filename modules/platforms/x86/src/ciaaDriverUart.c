@@ -73,7 +73,7 @@
    #include <string.h>
    #include <unistd.h>
    #include <stdlib.h>
-   #include <errno.h>      // Error number definitions   
+   #include <errno.h>      // Error number definitions
 #endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
 
 /*==================[macros and definitions]=================================*/
@@ -203,7 +203,7 @@ static void * ciaaDriverUart_serialHandler(ciaaDevices_deviceType const * const 
 {
    ciaaDriverUart_uartType * uart = device->layer;
    int result = 0;
- 
+
    /* while not KILL signal is received */
    while (!result)
    {
@@ -242,11 +242,11 @@ ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * devi
       result = open(uart->deviceName, O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
       if (result > 0)
       {
-         uart->fileDescriptor = result;         
+         uart->fileDescriptor = result;
       }
-      else 
+      else
       {
-         perror("Error open serial port: ");         
+         perror("Error open serial port: ");
       }
       if (uart->fileDescriptor) {
          /* configure serial port opstions */
@@ -258,7 +258,7 @@ ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * devi
          {
             perror("Error setting serial port parameters: ");
          }
-         
+
          /* create thread to handle serial port trasmission and reception */
          result += pthread_create(&uart->handlerThread, NULL, (void *) &ciaaDriverUart_serialHandler, device);
          if (result)
@@ -372,7 +372,7 @@ ciaaDevices_deviceType * ciaaDriverUart_serverOpen(ciaaDevices_deviceType * devi
       }
       else
       {
-         perror("Error creating server socket: ");         
+         perror("Error creating server socket: ");
       }
 
       if (uart->fileDescriptor)
@@ -406,7 +406,7 @@ ciaaDevices_deviceType * ciaaDriverUart_serverOpen(ciaaDevices_deviceType * devi
          result += pthread_create(&uart->handlerThread, NULL, (void *) &ciaaDriverUart_serverHandler, device);
          if (result)
          {
-            perror("Error creating handler thread: ");         
+            perror("Error creating handler thread: ");
          }
       }
 
@@ -415,8 +415,8 @@ ciaaDevices_deviceType * ciaaDriverUart_serverOpen(ciaaDevices_deviceType * devi
       {
          close(uart->fileDescriptor);
          device = NULL;
-      }   
-   }   
+      }
+   }
    return device;
 }
 #endif /* CIAADRVUART_ENABLE_EMULATION */
@@ -424,7 +424,7 @@ ciaaDevices_deviceType * ciaaDriverUart_serverOpen(ciaaDevices_deviceType * devi
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
-{ 
+{
 #ifdef CIAADRVUART_ENABLE_TRANSMITION
    if (0 != device)
    {
@@ -517,7 +517,7 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
    ciaaDriverUart_uartType * uart = device->layer;
 
    int32_t ret = 0;
-   
+
    /* write data */
    if (0 == uart->txBuffer.length)
    {
@@ -537,12 +537,12 @@ extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
 void ciaaDriverUart_init(void)
 {
    uint8_t loopi;
-   
+
    /* add uart driver to the list of devices */
    for(loopi = 0; loopi < ciaaDriverUartConst.countOfDevices; loopi++) {
       /* add each device */
       ciaaSerialDevices_addDriver(ciaaDriverUartConst.devices[loopi]);
-      
+
 #ifdef CIAADRVUART_ENABLE_TRANSMITION
       /* initialize host name and options port */
       ciaaDriverUart_serialInit(ciaaDriverUartConst.devices[loopi], loopi);

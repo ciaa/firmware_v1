@@ -269,7 +269,7 @@ TASK(PeriodicTask)
    /* Print Task info */
    Periodic_Task_Counter++;
    ciaaPOSIX_printf("Periodic Task: %d\n", Periodic_Task_Counter);
-   
+
    /* end PeriodicTask */
    TerminateTask();
 }
