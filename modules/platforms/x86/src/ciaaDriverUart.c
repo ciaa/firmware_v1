@@ -252,6 +252,7 @@ ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * devi
          /* configure serial port opstions */
          //result = tcsetattr(uart->fileDescriptor, TCSANOW, &uart->deviceOptions);
          /* Issue #173, Under MAC OS X the function returns error even when the port is properly configured */
+         result = 0;
          tcsetattr(uart->fileDescriptor, TCSANOW, &uart->deviceOptions);
          if (result)
          {
