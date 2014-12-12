@@ -130,7 +130,6 @@ static const ciaaModbus_slaveCmd_type callbacksStruct =
    NULL,
    NULL,
    cmd0x10WriteMultipleReg,
-   NULL,
 };
 
 /*==================[external data definition]===============================*/
