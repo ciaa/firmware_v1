@@ -35,8 +35,8 @@ TASK Task2 {
 
 ISR ISR2 {
 	CATEGORY = 2;
-	STACK = 2560;
 	INTERRUPT = GPIO0;
+	PRIORITY = 0;
 }
 
 RESOURCE Resource1;
