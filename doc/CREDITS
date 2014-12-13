@@ -2,6 +2,46 @@
  **
  ** Authors and their contributions to CIAA Firmware:
  **
+ ** CIAA Firmware 0.2.0 (13.12.2014)
+ **
+ **   Following persons have invest a lot of effort and time to make
+ **   CIAA Firmware come true. We hope you enjoy it. :)
+ **
+ **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
+ **      - Implement Modbus
+ **      - Testing of Modbus with a HMI interface
+ **
+ **   - Juan Cecconi (jcecconi@numetron.com.ar):
+ **      - Rework of the makefile to support dependencies of header files, also
+ **         obj files are now stored in out/obj
+ **      - Merge of OSEK port for Win/Linux/Mac to be the same one
+ **      - Implementation of the test automation of the OSEK conformance tests
+ **         for CIAA-NXP
+ **
+ **   - Esteban Volentini
+ **      - Simulation of serial driver for Windows/Linux/Mac over TCPIP ports
+ **
+ **   - Fernando Bazerque
+ **      - Implementation of ADC and DAC Drivers for CIAA-NXP
+ **
+ **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):
+ **      -
+ **
+ **   - Alejandro Permingea
+ **
+ **   - Gustavo Ramoscelli
+ **
+ **   - Dario Baliña
+ **
+ **   - Sebastian Rossi
+ **
+ **   - Mariano Cerdeiro (mcerdeiro@gmail.com)
+ **      - Implementation of the test automation of the OSEK conformance tests
+ **         for Linux
+ **      - Fix for multiple issues on the OSEK
+ **      - Implementation of OSEK conformance tests
+ **
+ **
  ** CIAA Firmware 0.2.0 (8.8.2014)
  **
  **   Following persons have invest a lot of effort and time to make

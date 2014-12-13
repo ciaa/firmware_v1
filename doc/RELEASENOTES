@@ -1,5 +1,23 @@
 /** \page RELEASENOTES Release Notes
  **
+ ** CIAA Firmware 0.3.0 (13.12.2014)
+ **   3 new examples and rework of the original ones:
+ **      - adc_dac: example to show how to use the ADC and DAC drivers
+ **      - blinking_echo: this examples was called blinking in the first release
+ **      - blinking: is a minimalist examples using only the rtos
+ **      - blinking_lwip: example using lwip
+ **      - blinking_modbus: has been adapted to the new modbus interface
+ **   Modbus module has been complete reworked, and is not more backwards
+ **      compatible. :(
+ **   RTOS has been improved and is running in mac/win/linux with the same port
+ **   RTOS tests have been improved and can be executed automatically running
+ **      "make rtostests"
+ **   RTOS tests are passed in win/linux/CIAA-NXP
+ **   Multiple RTOS issues/errors have been fixed
+ **   makefile has been reworked: now supports dependencies to header files and
+ **      object files are stored in out/obj.
+ **   first scripts for continuous integration has been written (make ci)
+ **
  ** CIAA Firmware 0.2.0 (8.8.2014)
  **   First official release of CIAA Firmware.
  **   This release contains 2 examples:
