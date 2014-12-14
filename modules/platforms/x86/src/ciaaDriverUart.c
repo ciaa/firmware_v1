@@ -73,7 +73,7 @@
    #include <string.h>
    #include <unistd.h>
    #include <stdlib.h>
-   #include <errno.h>      // Error number definitions
+   #include <errno.h>
 #endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
 
 /*==================[macros and definitions]=================================*/
@@ -250,10 +250,15 @@ ciaaDevices_deviceType * ciaaDriverUart_serialOpen(ciaaDevices_deviceType * devi
       }
       if (uart->fileDescriptor) {
          /* configure serial port opstions */
-         //result = tcsetattr(uart->fileDescriptor, TCSANOW, &uart->deviceOptions);
          /* Issue #173, Under MAC OS X the function returns error even when the port is properly configured */
-         result = 0;
-         tcsetattr(uart->fileDescriptor, TCSANOW, &uart->deviceOptions);
+         #if 0
+            /* This is the correct code, but in MAC OS X returns error if an thread was created previously to this call */
+            result = tcsetattr(uart->fileDescriptor, TCSANOW, &uart->deviceOptions);
+         #else
+            /* This is a turn around to avoid the error on MAC OS X, in Linux it's unnecessary */
+            result = 0;
+            tcsetattr(uart->fileDescriptor, TCSANOW, &uart->deviceOptions);
+         #endif
          if (result)
          {
             perror("Error setting serial port parameters: ");
