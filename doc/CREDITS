@@ -18,8 +18,9 @@
  **      - Implementation of the test automation of the OSEK conformance tests
  **         for CIAA-NXP
  **
- **   - Esteban Volentini
+ **   - Esteban Volentini (evolentini@gmail.com)
  **      - Simulation of serial driver for Windows/Linux/Mac over TCPIP ports
+ **      - Implementation of serial driver comunication with host ports in x86
  **
  **   - Fernando Bazerque
  **      - Implementation of ADC and DAC Drivers for CIAA-NXP
