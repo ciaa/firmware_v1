@@ -2,10 +2,10 @@
  **
  ** Authors and their contributions to CIAA Firmware:
  **
- ** CIAA Firmware 0.2.0 (13.12.2014)
+ ** CIAA Firmware 0.3.0 (14.12.2014)
  **
  **   Following persons have invest a lot of effort and time to make
- **   CIAA Firmware come true. We hope you enjoy it. :)
+ **   CIAA Firmware become true. We hope you enjoy it. :)
  **
  **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
  **      - Implement Modbus
@@ -25,27 +25,23 @@
  **      - Implementation of ADC and DAC Drivers for CIAA-NXP
  **
  **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):
- **      -
- **
- **   - Alejandro Permingea
+ **      - Implement ISR2 for OSEK for the CIAA-NXP
+ **      - Port of OSEK to CIAA-NXP
  **
  **   - Gustavo Ramoscelli
- **
- **   - Dario Baliña
- **
- **   - Sebastian Rossi
+ **      - improve of lcov tooling (coverage for unit tests)
  **
  **   - Mariano Cerdeiro (mcerdeiro@gmail.com)
  **      - Implementation of the test automation of the OSEK conformance tests
  **         for Linux
+ **      - Implement ISR2 for OSEK
  **      - Fix for multiple issues on the OSEK
  **      - Implementation of OSEK conformance tests
- **
  **
  ** CIAA Firmware 0.2.0 (8.8.2014)
  **
  **   Following persons have invest a lot of effort and time to make
- **   CIAA Firmware come true. We hope you enjoy it. :)
+ **   CIAA Firmware become true. We hope you enjoy it. :)
  **
  **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):
  **      - Port of OSEK RTOS to lpc4337

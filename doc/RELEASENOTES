@@ -1,6 +1,6 @@
 /** \page RELEASENOTES Release Notes
  **
- ** CIAA Firmware 0.3.0 (13.12.2014)
+ ** CIAA Firmware 0.3.0 (14.12.2014)
  **   3 new examples and rework of the original ones:
  **      - adc_dac: example to show how to use the ADC and DAC drivers
  **      - blinking_echo: this examples was called blinking in the first release
