@@ -345,6 +345,9 @@ static int8_t ciaaModbus_gatewayClientProcess(
                }
                else
                {
+                  /* reset busy flag */
+                  servers[client->indexServer].busy = false;
+
                   /* timeout, step next state: idle */
                   client->state = CIAA_MODBUS_CLIENT_STATE_IDLE;
                }
