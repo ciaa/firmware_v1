@@ -251,7 +251,7 @@ static int8_t ciaaModbus_gatewayClientProcess(
             {
                /* message id == server id? */
                if ( (servers[loopi].inUse) &&
-                    (servers[loopi].id == client->id) )
+                    ((servers[loopi].id == client->id) || (0 == servers[loopi].id )) )
                {
                   /* if equal, step next state */
                   client->state = CIAA_MODBUS_CLIENT_STATE_SEND_MSG_TO_SERVER;
