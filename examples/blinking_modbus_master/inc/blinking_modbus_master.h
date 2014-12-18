@@ -1,7 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Gustavo Muro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
+/* Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
