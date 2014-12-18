@@ -212,7 +212,7 @@ TASK(ModbusMaster)
  */
 TASK(PollingSlave)
 {
-   static ciaaBlinkingModMast_stateEnum state;
+   static ciaaBlinkingModMast_stateEnum state = CIAA_BLINKING_MOD_MAST_STATE_READING;
    uint16_t hrValue;
 
    switch (state)

@@ -30,8 +30,8 @@
  *
  */
 
-#ifndef _BLINKING_MODBUS_H_
-#define _BLINKING_MODBUS_H_
+#ifndef _BLINKING_MODBUS_MASTER_H_
+#define _BLINKING_MODBUS_MASTER_H_
 /** \brief Blinking Modbus example header file
  **
  ** This is a mini example of the CIAA Firmware
@@ -48,10 +48,7 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
  * GMuro        Gustavo Muro
- * PR           Pablo Ridolfi
- * JuCe         Juan Cecconi 
  *
  */
 
@@ -76,5 +73,5 @@
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _BLINKING_MODBUS_H_ */
+#endif /* #ifndef _BLINKING_MODBUS_MASTER_H_ */
 
