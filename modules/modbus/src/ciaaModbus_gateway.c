@@ -190,6 +190,15 @@ static ciaaModbus_gatewayObjType ciaaModbus_gatewayObj[CIAA_MODBUS_TOTAL_GATEWAY
 
 /*==================[internal functions definition]==========================*/
 
+/** \brief perform client task in idle mode and
+ ** receive message. If receive a correct message, set state
+ ** CIAA_MODBUS_CLIENT_STATE_ROUTING
+ **
+ **
+ ** \param[inout] client pointer to client to process
+ ** \return 1  if task pending
+ **         0  if done
+ **/
 static int8_t ciaaModbus_gatewayClientStateIdle(ciaaModbus_gatewayClientType *client)
 {
    int8_t ret = 0;
@@ -217,6 +226,18 @@ static int8_t ciaaModbus_gatewayClientStateIdle(ciaaModbus_gatewayClientType *cl
    return ret;
 }
 
+/** \brief Routing message to server
+ ** search server with id received. If not found
+ ** search server with id 0.
+ ** If server found, set state CIAA_MODBUS_CLIENT_STATE_SEND_MSG_TO_SERVER
+ ** else set state CIAA_MODBUS_CLIENT_STATE_IDLE
+ **
+ **
+ ** \param[inout] client pointer to client
+ ** \param[in] server array of servers to search
+ ** \return 1  if task pending
+ **         0  if done
+ **/
 static int8_t ciaaModbus_gatewayClientStateRouting(
       ciaaModbus_gatewayClientType *client,
       ciaaModbus_gatewayServerType *servers)
@@ -224,18 +245,14 @@ static int8_t ciaaModbus_gatewayClientStateRouting(
    int32_t loopi;
    int8_t ret = 0;
 
-   /* search server */
+   /* search server with same id */
    for ( loopi = 0 ;
          (loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS) && (ret == 0) ;
          loopi++ )
    {
       /* message id == server id? */
-      if ( (servers[loopi].inUse) &&
-           ((servers[loopi].id == client->id) || (0 == servers[loopi].id )) )
+      if ( (servers[loopi].inUse) && (servers[loopi].id == client->id) )
       {
-         /* if equal, step next state */
-         client->state = CIAA_MODBUS_CLIENT_STATE_SEND_MSG_TO_SERVER;
-
          /* save index server */
          client->indexServer = loopi;
 
@@ -243,15 +260,48 @@ static int8_t ciaaModbus_gatewayClientStateRouting(
          ret = 1;
       }
    }
+
+   /* search server with id == 0 */
+   for ( loopi = 0 ;
+         (loopi < CIAA_MODBUS_GATEWAY_TOTAL_SERVERS) && (ret == 0) ;
+         loopi++ )
+   {
+      /* message id == server id? */
+      if ( (servers[loopi].inUse) && (0 == servers[loopi].id ) )
+      {
+         /* save index server */
+         client->indexServer = loopi;
+
+         /* indicate task pending */
+         ret = 1;
+      }
+   }
+
    /* if no server found, goto idle state */
    if (ret == 0)
    {
       client->state = CIAA_MODBUS_CLIENT_STATE_IDLE;
    }
+   else
+   {
+      /* else set next step */
+      client->state = CIAA_MODBUS_CLIENT_STATE_SEND_MSG_TO_SERVER;
+   }
 
    return ret;
 }
 
+/** \brief Send message to server
+ ** check if server is busy. If not busy send message,
+ ** set state CIAA_MODBUS_CLIENT_STATE_WAITING_SERVER_RESPONSE
+ ** load timeout in client, and set server busy flag
+ **
+ **
+ ** \param[inout] client pointer to client
+ ** \param[inout] server array of servers to send modbus messages
+ ** \return 1  if task pending
+ **         0  if done
+ **/
 static int8_t ciaaModbus_gatewayClientStateSendMsgToServer(
       ciaaModbus_gatewayClientType *client,
       ciaaModbus_gatewayServerType *servers)
@@ -284,6 +334,19 @@ static int8_t ciaaModbus_gatewayClientStateSendMsgToServer(
    return ret;
 }
 
+/** \brief Waiting server response
+ ** Wait response from server. If received correct message,
+ ** send to client, reset busy flag of server and set
+ ** state CIAA_MODBUS_CLIENT_STATE_IDLE.
+ ** Else, decrement timeout, if reach zero reset busy flag
+ ** of server and set state  CIAA_MODBUS_CLIENT_STATE_IDLE
+ **
+ **
+ ** \param[inout] client pointer to client
+ ** \param[inout] server array of servers to send modbus messages
+ ** \return 1  if task pending
+ **         0  if done
+ **/
 static int8_t ciaaModbus_gatewayClientStateWaitingServerResponse(
       ciaaModbus_gatewayClientType *client,
       ciaaModbus_gatewayServerType *servers)
@@ -351,7 +414,6 @@ static int8_t ciaaModbus_gatewayClientStateWaitingServerResponse(
  ** \param[inout] server array of servers to send modbus messages
  ** \return 1  if task pending
  **         0  if done
- **         -1 if error occurs
  **/
 static int8_t ciaaModbus_gatewayClientProcess(
       ciaaModbus_gatewayClientType *client,
