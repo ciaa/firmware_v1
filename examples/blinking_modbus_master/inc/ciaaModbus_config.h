@@ -95,7 +95,7 @@ extern "C" {
 #define CIAA_MODBUS_TOTAL_TRANSPORT_GW       1
 
 /** \brief Time between calls (milliseconds) */
-#define CIAA_MODBUS_TIME_BASE                5
+#define CIAA_MODBUS_TIME_BASE                10
 
 /*==================[typedef]================================================*/
 

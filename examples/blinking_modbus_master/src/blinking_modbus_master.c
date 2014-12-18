@@ -95,6 +95,13 @@ static uint8_t callBackData_exceptioncode;
 
 /*==================[internal functions definition]==========================*/
 
+/** \brief Call back end of communication
+ **
+ ** \param[in] slaveId id modbus
+ ** \param[in] numFunc number of function performed
+ ** \param[in] exceptioncode exception code (0 no error)
+ ** \return
+ **/
 static void cbEndOfComm(uint8_t slaveId, uint8_t numFunc, uint8_t exceptioncode)
 {
    callBackData_slaveId = slaveId;
@@ -186,9 +193,9 @@ TASK(InitTask)
          hModbusGateway,
          hModbusAscii);
 
-   SetRelAlarm(ActivateModbusTask, 100, 5);
+   SetRelAlarm(ActivateModbusTask, 5, CIAA_MODBUS_TIME_BASE);
 
-   SetRelAlarm(ActivatePollingSlaveTask, 500, 500);
+   SetRelAlarm(ActivatePollingSlaveTask, 10, 500);
 
    /* end InitTask */
    TerminateTask();
@@ -213,7 +220,7 @@ TASK(ModbusMaster)
 TASK(PollingSlave)
 {
    static ciaaBlinkingModMast_stateEnum state = CIAA_BLINKING_MOD_MAST_STATE_READING;
-   uint16_t hrValue;
+   int16_t hrValue;
 
    switch (state)
    {
