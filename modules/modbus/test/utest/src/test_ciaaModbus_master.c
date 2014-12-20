@@ -154,8 +154,6 @@ void test_ciaaModbus_masterOpen_01(void)
 void test_ciaaModbus_masterCmd0x03ReadHoldingReg_01(void)
 {
    int32_t hModbusMaster;
-   uint16_t startAddress;
-   uint16_t quantity;
    int16_t hrValue[CIAA_MODBUS_QUANTITY_OF_HOLD_REG];
    uint8_t slaveIdRecv;
    uint8_t pduRecv[256];
@@ -236,8 +234,6 @@ void test_ciaaModbus_masterCmd0x03ReadHoldingReg_01(void)
 void test_ciaaModbus_masterCmd0x10WriteMultipleRegisters_01(void)
 {
    int32_t hModbusMaster;
-   uint16_t startAddress;
-   uint16_t quantity;
    int16_t hrValue[CIAA_MODBUS_QUANTITY_OF_HOLD_REG] =
    {
       0x1234,
