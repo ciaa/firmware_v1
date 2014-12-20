@@ -227,6 +227,95 @@ void test_ciaaModbus_masterCmd0x03ReadHoldingReg_01(void)
    TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
 }
 
+/** \brief test function write multiple register
+ **
+ ** this function test modbus master write multiple registers
+ ** with callback
+ **
+ **/
+void test_ciaaModbus_masterCmd0x10WriteMultipleRegisters_01(void)
+{
+   int32_t hModbusMaster;
+   uint16_t startAddress;
+   uint16_t quantity;
+   int16_t hrValue[CIAA_MODBUS_QUANTITY_OF_HOLD_REG] =
+   {
+      0x1234,
+      0x5678,
+   };
+   uint8_t slaveIdRecv;
+   uint8_t pduRecv[256];
+   uint8_t pduRecvExp[256] =
+   {
+      0X10,
+      (CIAA_MODBUS_STARTING_ADDRESS >> 8) & 0XFF,
+      (CIAA_MODBUS_STARTING_ADDRESS >> 0) & 0XFF,
+      (CIAA_MODBUS_QUANTITY_OF_HOLD_REG >> 8) & 0XFF,
+      (CIAA_MODBUS_QUANTITY_OF_HOLD_REG >> 0) & 0XFF,
+      CIAA_MODBUS_QUANTITY_OF_HOLD_REG * 2,
+      0x12,
+      0x34,
+      0x56,
+      0x78,
+   };
+   uint8_t pduSend[256] =
+   {
+      0X10,
+      (CIAA_MODBUS_STARTING_ADDRESS >> 8) & 0XFF,
+      (CIAA_MODBUS_STARTING_ADDRESS >> 0) & 0XFF,
+      (CIAA_MODBUS_QUANTITY_OF_HOLD_REG >> 8) & 0XFF,
+      (CIAA_MODBUS_QUANTITY_OF_HOLD_REG >> 0) & 0XFF,
+   };
+
+   uint32_t sizeRecv;
+   uint32_t sizeRecvExp = 10;
+
+   /* open modbus master */
+   hModbusMaster = ciaaModbus_masterOpen();
+
+   /* request read holding register */
+   ciaaModbus_masterCmd0x10WriteMultipleRegisters(
+         hModbusMaster,
+         CIAA_MODBUS_STARTING_ADDRESS,
+         CIAA_MODBUS_QUANTITY_OF_HOLD_REG,
+         hrValue,
+         SLAVE_ID,
+         modbusMaster_cbEndOfComm);
+
+   /* perform task modbus master */
+   ciaaModbus_masterTask(hModbusMaster);
+
+   /* receive pdu from master */
+   ciaaModbus_masterRecvMsg(
+         hModbusMaster,
+         &slaveIdRecv,
+         pduRecv,
+         &sizeRecv);
+
+   /* send message to master */
+   ciaaModbus_masterSendMsg(
+         hModbusMaster,
+         SLAVE_ID,
+         pduSend,
+         5);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, slaveIdRecv);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(pduRecvExp, pduRecv, sizeRecvExp);
+
+   TEST_ASSERT_EQUAL_UINT32(sizeRecvExp, sizeRecv);
+
+   TEST_ASSERT_EQUAL_UINT16(0X1234, hrValue[0]);
+
+   TEST_ASSERT_EQUAL_UINT16(0X5678, hrValue[1]);
+
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, callBackData_slaveId);
+
+   TEST_ASSERT_EQUAL_UINT8(0x10, callBackData_numFunc);
+
+   TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
