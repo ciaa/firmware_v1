@@ -59,7 +59,7 @@
 /*==================[macros and definitions]=================================*/
 
 #define CIAA_MODBUS_STARTING_ADDRESS      0X1234
-#define CIAA_MODBUS_QUANTITY_OF_HOLD_REG  0x0001
+#define CIAA_MODBUS_QUANTITY_OF_HOLD_REG  0x0002
 #define SLAVE_ID                          2
 
 /*==================[internal functions declaration]=========================*/
@@ -173,6 +173,8 @@ void test_ciaaModbus_masterCmd0x03ReadHoldingReg_01(void)
       CIAA_MODBUS_QUANTITY_OF_HOLD_REG * 2,
       0XAA,
       0X55,
+      0X11,
+      0X22,
    };
 
    uint32_t sizeRecv;
@@ -205,7 +207,7 @@ void test_ciaaModbus_masterCmd0x03ReadHoldingReg_01(void)
          hModbusMaster,
          SLAVE_ID,
          pduSend,
-         4);
+         6);
 
    /* verify */
    TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, slaveIdRecv);
@@ -215,6 +217,8 @@ void test_ciaaModbus_masterCmd0x03ReadHoldingReg_01(void)
    TEST_ASSERT_EQUAL_UINT32(sizeRecvExp, sizeRecv);
 
    TEST_ASSERT_EQUAL_UINT16(0XAA55, hrValue[0]);
+
+   TEST_ASSERT_EQUAL_UINT16(0X1122, hrValue[1]);
 
    TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, callBackData_slaveId);
 
