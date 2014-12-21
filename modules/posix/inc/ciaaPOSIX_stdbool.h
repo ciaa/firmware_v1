@@ -1,6 +1,8 @@
-/* Copyright 2014, ACSE & CADIEEL
+/* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -58,7 +60,6 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -70,12 +71,16 @@ extern "C" {
 #define true		1
 /** \brief false */
 #define false		0
+/** \brief bool
+ **
+ ** bool is not a type but a macro exapnded to _Bool
+ **/
+#define bool   _Bool
+/** \brief Bool, true and false are defined */
+#define __bool_true_false_are_defined  1
 
 /*==================[typedef]================================================*/
-/** \brief bool type definition */
-#ifndef bool
-typedef uint8_t bool;
-#endif
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/

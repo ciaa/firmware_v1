@@ -150,6 +150,8 @@ RTOS_TEST_GEN_DIR = $(OUT_DIR)$(DS)rtos
 
 # include needed project
 include $(PROJECT)$(DS)mak$(DS)Makefile
+# base module is always needed and included
+MODS += modules$(DS)base
 # include needed modules
 include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 

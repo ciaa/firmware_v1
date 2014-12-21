@@ -34,28 +34,25 @@
 #
 ###############################################################################
 # library
-LIBS               += platforms
+LIBS               += base
 # library path
-platforms_PATH      = $(ROOT_DIR)$(DS)modules$(DS)platforms
+base_PATH      = $(ROOT_DIR)$(DS)modules$(DS)base
 # library source path
-platforms_SRC_PATH  = $(platforms_PATH)$(DS)src
+base_SRC_PATH  = $(base_PATH)$(DS)src
 # library include path
-platforms_INC_PATH  = $(platforms_PATH)$(DS)inc                      \
-   $(platforms_PATH)$(DS)$(ARCH)$(DS)inc                             \
-   $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc              \
-   $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
+base_INC_PATH  = $(base_PATH)$(DS)inc                      \
+   $(base_PATH)$(DS)$(ARCH)$(DS)inc                             \
+   $(base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc              \
+   $(base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
 
 # library source files
-platforms_SRC_FILES = $(wildcard $(platforms_SRC_PATH)$(DS)*.c)
-platforms_SRC_FILES += $(wildcard $(platforms_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c)
-platforms_SRC_FILES += $(wildcard $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)
-platforms_SRC_FILES += $(wildcard $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
+base_SRC_FILES = $(wildcard $(base_SRC_PATH)$(DS)*.c)
+base_SRC_FILES += $(wildcard $(base_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c)
+base_SRC_FILES += $(wildcard $(base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)
+base_SRC_FILES += $(wildcard $(base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
 
-include $(platforms_PATH)$(DS)$(ARCH)$(DS)mak$(DS)Makefile
-include $(platforms_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)Makefile
-
-# include external platforms makefile
-include externals$(DS)platforms$(DS)mak$(DS)Makefile
+include $(base_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)Makefile
 
 # define default binary extension
 BIN_EXT             ?= bin
+
