@@ -47,9 +47,9 @@ base_INC_PATH  = $(base_PATH)$(DS)inc                      \
 
 # library source files
 base_SRC_FILES = $(wildcard $(base_SRC_PATH)$(DS)*.c)
-base_SRC_FILES += $(wildcard $(base_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c)
-base_SRC_FILES += $(wildcard $(base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)
-base_SRC_FILES += $(wildcard $(base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
+base_SRC_FILES += $(wildcard $(base_SRC_PATH)$(DS)$(ARCH)$(DS)*.c)
+base_SRC_FILES += $(wildcard $(base_SRC_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)*.c)
+base_SRC_FILES += $(wildcard $(base_SRC_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.c)
 
 include $(base_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)Makefile
 
