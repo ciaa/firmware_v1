@@ -102,7 +102,7 @@ ISR ADC1_IRQHandler {
 ISR DMA_IRQHandler {
     INTERRUPT = DMA;
     CATEGORY = 2;
-    PRIORITY = 0;    
+    PRIORITY = 0;
 }
 
 RESOURCE = POSIXR;

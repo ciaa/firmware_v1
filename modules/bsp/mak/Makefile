@@ -33,7 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# library 
+# library
 LIBS 				  += bsp
 # library path
 bsp_PATH 	      = $(ROOT_DIR)$(DS)modules$(DS)bsp

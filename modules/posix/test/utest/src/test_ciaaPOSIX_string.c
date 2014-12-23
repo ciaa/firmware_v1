@@ -113,7 +113,7 @@ void test_ciaaPOSIX_strcpy(void) {
    TEST_ASSERT_TRUE(&buffer[4] == ret);
    TEST_ASSERT_TRUE(0 == strcmp(buffer, "/dev"));
    ciaaPOSIX_strcpy(ciaaPOSIX_strcpy(buffer, "/first"), "/second");
-   TEST_ASSERT_TRUE(0 == strcmp(buffer, "/first/second"));   
+   TEST_ASSERT_TRUE(0 == strcmp(buffer, "/first/second"));
 }
 
 /** \brief test strcat
@@ -133,7 +133,7 @@ void test_ciaaPOSIX_strcat(void) {
    ret = ciaaPOSIX_strcat(buffer, "/dev");
    TEST_ASSERT_TRUE(buffer == ret);
    ret = ciaaPOSIX_strcat(buffer, "/serial");
-   TEST_ASSERT_TRUE(0 == strcmp(buffer, "/dev/serial"));   
+   TEST_ASSERT_TRUE(0 == strcmp(buffer, "/dev/serial"));
 }
 
 /** \brief test strncmp
@@ -154,7 +154,7 @@ void test_ciaaPOSIX_strncmp(void) {
    TEST_ASSERT_TRUE(0 < ret);
    ret = ciaaPOSIX_strncmp("/dev", "/dev/serial", 6);
    TEST_ASSERT_TRUE(0 > ret);
-   
+
    ret = ciaaPOSIX_strncmp("/dev/serial", "/dev/a", 6);
    TEST_ASSERT_TRUE(0 < ret);
    ret = ciaaPOSIX_strncmp("/dev/serial", "/dev/z", 6);

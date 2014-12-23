@@ -35,7 +35,7 @@
 
 /** \brief This file implements the Flash Update Encription funcionality
  **
- ** This file implements the funcionality of the Flash Update Encription 
+ ** This file implements the funcionality of the Flash Update Encription
  **
  **/
 
@@ -50,7 +50,7 @@
  * DC           Daniel Cohen
  * EV           Esteban Volentini
  * MG           Matias Giori
- * FS           Franco Salinas  
+ * FS           Franco Salinas
  */
 
 /*

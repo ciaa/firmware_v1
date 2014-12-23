@@ -47,9 +47,9 @@
 /*
  * Initials     Name
  * MaCe         Mariano Cerdeiro
- * GMuro        Gustavo Muro  
+ * GMuro        Gustavo Muro
  * PR           Pablo Ridolfi
- * JuCe         Juan Cecconi 
+ * JuCe         Juan Cecconi
  *
  */
 

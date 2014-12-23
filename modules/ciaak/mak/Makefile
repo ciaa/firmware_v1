@@ -33,7 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# library 
+# library
 LIBS 				  += ciaak
 # library path
 ciaak_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)ciaak

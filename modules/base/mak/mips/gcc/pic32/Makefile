@@ -31,9 +31,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-LFLAGS += 
+LFLAGS +=
 
 # this file needs to be compiled separated and not added to a library
 # TODO this is not nice
-SRC_FILES                  += 
+SRC_FILES                  +=
 

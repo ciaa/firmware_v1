@@ -33,7 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# library 
+# library
 LIBS 				  += config
 # library path
 config_PATH 	   = $(ROOT_DIR)$(DS)modules$(DS)config

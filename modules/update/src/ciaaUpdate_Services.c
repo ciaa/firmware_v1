@@ -35,7 +35,7 @@
 
 /** \brief This file implements the Flash Update Services funcionality
  **
- ** This file implements the funcionality of the Flash Update Services 
+ ** This file implements the funcionality of the Flash Update Services
  **
  **/
 
@@ -50,7 +50,7 @@
  * DC           Daniel Cohen
  * EV           Esteban Volentini
  * MG           Matias Giori
- * FS           Franco Salinas  
+ * FS           Franco Salinas
  */
 
 /*

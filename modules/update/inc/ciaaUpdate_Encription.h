@@ -38,7 +38,7 @@
 /** \brief Flash Update Encription Header File
  **
  ** This files shall be included by moodules using the interfaces provided by
- ** the Flash Update Encription 
+ ** the Flash Update Encription
  **
  **/
 
@@ -53,7 +53,7 @@
  * DC           Daniel Cohen
  * EV           Esteban Volentini
  * MG           Matias Giori
- * FS           Franco Salinas  
+ * FS           Franco Salinas
  */
 
 /*
