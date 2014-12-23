@@ -88,6 +88,8 @@ extern "C" {
 #define x86                   1
 /** \brief ARCH cortexM4 */
 #define cortexM4              2
+/** \brief ARCH mips */
+#define mips                  3
 
 /****** CPUTYPE macro definitions ******/
 /*** CPUTYPES for ARCH=x86 ***/
@@ -100,8 +102,11 @@ extern "C" {
 /*** CPUTYPES for ARCH=cortexM4 ***/
 #define lpc43xx               1
 
-/*** CPUTYPES for ARCH=k60_120 ***/
+/*** CPUTYPES for ARCH=cortexM4 ***/
 #define k60_120               2
+
+/*** CPUTYPES for ARCH=mips ***/
+#define pic32                 1
 
 /****** CPU macro definitions ******/
 /*** CPU for ARCH=x86 CPUTYPE=ia32 ***/
@@ -113,6 +118,9 @@ extern "C" {
 
 /*** CPU for ARCH=cortexM4 CPUTYPE=k60_120 ***/
 #define mk60fx512vlq15        2
+
+/*** CPU for ARCH=mips CPUTYPE=pic32 ***/
+#define pic32mz
 
 /****** CIAAPLATFORM_REGLENGTH ******/
 /** \brief definition of the lenght of the register */
@@ -144,6 +152,9 @@ extern "C" {
 #elif ( ( ARCH == cortexM4 ) && \
         ( CPUTYPE == k60_120 ) && \
         ( CPU == mk60fx512vlq15 ) )
+#elif ( ( ARCH == mips ) && \
+        ( CPUTYPE == pic32 ) && \
+        ( CPU == pic32mz ) )
 #else
 #error the entered architecture is not supported... :(
 #endif
