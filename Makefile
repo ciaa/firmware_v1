@@ -150,6 +150,8 @@ RTOS_TEST_GEN_DIR = $(OUT_DIR)$(DS)rtos
 
 # include needed project
 include $(PROJECT)$(DS)mak$(DS)Makefile
+# base module is always needed and included
+MODS += modules$(DS)base
 # include needed modules
 include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 
@@ -391,7 +393,7 @@ $(project) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
 	@echo ' '
-	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) $(START_GROUP) $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) $(END_GROUP) -o $(LD_TARGET) $(LFLAGS)	
+	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) $(START_GROUP) $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) $(END_GROUP) -o $(LD_TARGET) $(LFLAGS)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(project)
@@ -431,7 +433,7 @@ ifeq ($(OPENOCD_CFG),)
 else
 	@echo ===============================================================================
 	@echo Starting OpenOCD...
-	@echo ' '   
+	@echo ' '
 	$(OPENOCD_BIN) $(OPENOCD_FLAGS)
 endif
 endif
@@ -467,6 +469,11 @@ endif
 endif
 
 ###############################################################################
+# version
+version:
+	@$(MULTILINE_ECHO) " $(foreach mod, $(ALL_MODS), $(mod): $($(mod)_VERSION)\n)"
+
+###############################################################################
 # help
 help:
 	@echo "+-----------------------------------------------------------------------------+"
@@ -476,6 +483,7 @@ help:
 	@echo info................: general information about the make environment
 	@echo info_\<mod\>..........: same as info but reporting information of a library
 	@echo info_ext_\<mod\>......: same as info_\<mod\> but for an external library
+	@echo version.............: dislpays the version of each module
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               FreeOSEK (CIAA RTOS based on OSEK Standard)                   |"
 	@echo "+-----------------------------------------------------------------------------+"

@@ -1,0 +1,3 @@
+[submodule "modules/rtos"]
+	path = modules/rtos
+	url = https://github.com/mcerdeiro/firmware.modules.rtos.git

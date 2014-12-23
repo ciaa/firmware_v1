@@ -51,11 +51,6 @@ platforms_SRC_FILES += $(wildcard $(platforms_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c)
 platforms_SRC_FILES += $(wildcard $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)
 platforms_SRC_FILES += $(wildcard $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
 
-include $(platforms_PATH)$(DS)$(ARCH)$(DS)mak$(DS)Makefile
-include $(platforms_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)Makefile
-
 # include external platforms makefile
 include externals$(DS)platforms$(DS)mak$(DS)Makefile
 
-# define default binary extension
-BIN_EXT             ?= bin

@@ -1,5 +1,7 @@
 ###############################################################################
 #
+# Copyright 2014, Mariano Cerdeiro
+# Copyright 2014, Juan Cecconi (UTN-FRBA)
 # Copyright 2014, ACSE & CADIEEL
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
@@ -33,24 +35,27 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# Project Name: used for Project Path and OSEK configuration file
-project 			 	 = blinking
-# Project path
-$(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
-# source path
-$(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
-# include path
-INC_FILES			   += $($(project)_PATH)$(DS)inc
-# library source files
-SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
-# configuration for OSEK-OS
-OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
-# Modules needed for this example
-MODS ?= modules$(DS)posix           \
-	     modules$(DS)ciaak           \
-	     modules$(DS)config          \
-	     modules$(DS)bsp             \
-	     modules$(DS)platforms       \
-    	  modules$(DS)rtos            \
-	     modules$(DS)libs
+# TOOLCHAIN
+CC = arm-none-eabi-gcc
+LD = arm-none-eabi-gcc
+AR = arm-none-eabi-ar
+AS = arm-none-eabi-as
+GDB = arm-none-eabi-gdb
+NM = arm-none-eabi-nm
+# COMPILER AND LINKER OPTIONS
+AFLAGS += -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
+CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -DCORE_M4 -D__CODE_RED
+LFLAGS += $(LINKSCRIPT)  -fno-builtin -nostdlib -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -Xlinker -Map="$(TARGET_NAME).map"
+
+# Download firmware to the target, next command should be FW file
+GDB_DOWNLOAD_TO_TARGET += -ex "target remote localhost:3333" -ex "monitor reset halt" -ex load -ex "monitor reset" -ex kill -ex quit
+
+# Optional POST BUILD
+# Generates a .bin image file
+POST_BUILD += arm-none-eabi-objcopy -v -O binary $(LD_TARGET) $(TARGET_NAME).bin 
+
+# define linker extension
+LD_EXTENSION                = axf
+ 
+include $(base_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)$(CPUTYPE)$(DS)Makefile
 

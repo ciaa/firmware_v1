@@ -33,24 +33,26 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# Project Name: used for Project Path and OSEK configuration file
-project 			 	 = blinking
-# Project path
-$(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
-# source path
-$(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
-# include path
-INC_FILES			   += $($(project)_PATH)$(DS)inc
+# library
+LIBS               += base
+# library path
+base_PATH      = $(ROOT_DIR)$(DS)modules$(DS)base
+# library source path
+base_SRC_PATH  = $(base_PATH)$(DS)src
+# library include path
+base_INC_PATH  = $(base_PATH)$(DS)inc                      \
+   $(base_PATH)$(DS)$(ARCH)$(DS)inc                             \
+   $(base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc              \
+   $(base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
+
 # library source files
-SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
-# configuration for OSEK-OS
-OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
-# Modules needed for this example
-MODS ?= modules$(DS)posix           \
-	     modules$(DS)ciaak           \
-	     modules$(DS)config          \
-	     modules$(DS)bsp             \
-	     modules$(DS)platforms       \
-    	  modules$(DS)rtos            \
-	     modules$(DS)libs
+base_SRC_FILES = $(wildcard $(base_SRC_PATH)$(DS)*.c)
+base_SRC_FILES += $(wildcard $(base_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c)
+base_SRC_FILES += $(wildcard $(base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)
+base_SRC_FILES += $(wildcard $(base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
+
+include $(base_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)Makefile
+
+# define default binary extension
+BIN_EXT             ?= bin
 

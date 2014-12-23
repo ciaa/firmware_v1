@@ -1,8 +1,7 @@
 /* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
+ * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
+ * Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -34,50 +33,36 @@
  *
  */
 
-#ifndef _CIAAPOSIX_STDBOOL_H_
-#define _CIAAPOSIX_STDBOOL_H_
-/** \brief ciaa POSIX stdbool header file
+#ifndef _RTOS_EXAMPLE_H_
+#define _RTOS_EXAMPLE_H_
+/** \brief rtos example header file
  **
- ** ciaa POSIX stdbool header file
+ ** This is a mini example of the CIAA Firmware which only uses the rtos.
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Examples CIAA Firmware Examples
+ ** @{ */
+/** \addtogroup RTOS rtos example source file
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20141221 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*==================[macros]=================================================*/
-/** \brief true */
-#define true		1
-/** \brief false */
-#define false		0
-/** \brief bool
- **
- ** bool is not a type but a macro exapnded to _Bool
- **/
-#define bool   _Bool
-/** \brief Bool, true and false are defined */
-#define __bool_true_false_are_defined  1
 
 /*==================[typedef]================================================*/
 
@@ -85,12 +70,9 @@ extern "C" {
 
 /*==================[external functions declaration]=========================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_STDBOOL_H_ */
+#endif /* #ifndef _RTOS_EXAMPLE_H_ */
 
