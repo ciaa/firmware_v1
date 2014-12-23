@@ -120,7 +120,7 @@ extern "C" {
 #define mk60fx512vlq15        2
 
 /*** CPU for ARCH=mips CPUTYPE=pic32 ***/
-#define pic32mz
+#define pic32mz               3
 
 /****** CIAAPLATFORM_REGLENGTH ******/
 /** \brief definition of the lenght of the register */
