@@ -105,6 +105,46 @@ static ciaaModbus_masterObjType ciaaModbus_masterObj[CIAA_MODBUS_TOTAL_MASTERS];
 
 /*==================[internal functions definition]==========================*/
 
+/** \brief Process data to function 0x01
+ **
+ ** This function process PDU response as request function 0x01
+ **
+ ** \param[in] handler handler modbus master
+ ** \param[in] pdu pdu received
+ ** \param[out] size size of pdu.
+ ** \return CIAA_MODBUS_E_NO_ERROR correct response
+ **         CIAA_MODBUS_E_PDU_RECEIVED_WRONG incorrect response
+ **/
+static uint8_t ciaaModbus_masterProcess0x01(uint32_t hModbusMaster, uint8_t *pdu, uint16_t size)
+{
+   uint16_t loopi;
+   uint8_t ret;
+   uint8_t *pDataCoils;
+
+   pDataCoils = (uint8_t*)ciaaModbus_masterObj[hModbusMaster].pDataR;
+
+   /* check if valid byte count and PDU size */
+   if ( (pdu[1] + 2) == size )
+   {
+      /* if valid, copy data received */
+      for (loopi = 0 ; loopi < pdu[1] ; loopi++)
+      {
+         /* copy data to holding registers address */
+         pDataCoils[loopi] = pdu[2+loopi];
+      }
+
+      /* return no error */
+      ret = CIAA_MODBUS_E_NO_ERROR;
+   }
+   else
+   {
+      /* return wrong pdu */
+      ret = CIAA_MODBUS_E_PDU_RECEIVED_WRONG;
+   }
+
+   return ret;
+}
+
 /** \brief Process data to function 0x03
  **
  ** This function process PDU response as request function 0x03
@@ -171,6 +211,99 @@ static uint8_t ciaaModbus_masterProcess0x10(uint32_t hModbusMaster, uint8_t *pdu
    return ret;
 }
 
+/** \brief Perform read operation in modbus master
+ **
+ ** This function start read operation and wait for
+ ** end or return if callback not NULL
+ **
+ ** \param[in] handler handler modbus master
+ ** \param[in] startAddress starting address to read
+ ** \param[in] quantity of coils/register to read
+ ** \param[out] pData pointer to store data reads
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
+static int8_t ciaaModbus_masterRead(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      uint16_t quantity,
+      void *pData,
+      uint8_t slaveId,
+      uint8_t cmd,
+      modbusMaster_cbEndOfCommType cbEndComm)
+{
+   int8_t ret;
+
+   /* check if no command pending and valid slave id */
+   if ( (ciaaModbus_masterObj[hModbusMaster].cmd == 0) &&
+      (0 != slaveId) )
+   {
+      /* no exception code */
+      ciaaModbus_masterObj[hModbusMaster].exceptioncode = 0;
+
+      /* set start address */
+      ciaaModbus_masterObj[hModbusMaster].startAddressR = startAddress;
+
+      /* set quantity of registers */
+      ciaaModbus_masterObj[hModbusMaster].quantityR = quantity;
+
+      /* set pointer to store data read */
+      ciaaModbus_masterObj[hModbusMaster].pDataR = pData;
+
+      /* set slave id */
+      ciaaModbus_masterObj[hModbusMaster].slaveId = slaveId;
+
+      /* set retry count */
+      ciaaModbus_masterObj[hModbusMaster].retryCount = ciaaModbus_masterObj[hModbusMaster].retryComm;
+
+      /* set task id to set event if blocking operation */
+      GetTaskID(&ciaaModbus_masterObj[hModbusMaster].taskID);
+
+      /* set call back if non-blocking operation */
+      ciaaModbus_masterObj[hModbusMaster].cbEndComm = cbEndComm;
+
+      /* set command to execute */
+      ciaaModbus_masterObj[hModbusMaster].cmd = cmd;
+
+      /* if no callback wait event... */
+      if (NULL == cbEndComm)
+      {
+         /* wait for event */
+         WaitEvent(MODBUSE);
+
+         ClearEvent(MODBUSE);
+
+         /* return exception code */
+         ret = ciaaModbus_masterObj[hModbusMaster].exceptioncode;
+      }
+      else
+      {
+         /* if non-blocking, return 0 */
+         ret = 0;
+      }
+   }
+   else
+   {
+      /* return -1 if it was not possible execute the function */
+      ret = -1;
+   }
+
+   return ret;
+}
+
+
 /*==================[external functions definition]==========================*/
 extern void ciaaModbus_masterInit(void)
 {
@@ -231,6 +364,28 @@ extern int32_t ciaaModbus_masterOpen(void)
    return hModbusMaster;
 }
 
+extern int8_t ciaaModbus_masterCmd0x01ReadCoils(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      uint16_t quantity,
+      uint8_t *coilValue,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm)
+{
+   int8_t ret;
+
+   ret = ciaaModbus_masterRead(
+         hModbusMaster,
+         startAddress,
+         quantity,
+         coilValue,
+         slaveId,
+         CIAA_MODBUS_FCN_READ_COILS,
+         cbEndComm);
+
+   return ret;
+}
+
 extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
       int32_t hModbusMaster,
       uint16_t startAddress,
@@ -241,59 +396,14 @@ extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
 {
    int8_t ret;
 
-   /* check if no command pending and valid slave id */
-   if ( (ciaaModbus_masterObj[hModbusMaster].cmd == 0) &&
-      (0 != slaveId) )
-   {
-      /* no exception code */
-      ciaaModbus_masterObj[hModbusMaster].exceptioncode = 0;
-
-      /* set start address */
-      ciaaModbus_masterObj[hModbusMaster].startAddressR = startAddress;
-
-      /* set quantity of registers */
-      ciaaModbus_masterObj[hModbusMaster].quantityR = quantity;
-
-      /* set pointer to store data read */
-      ciaaModbus_masterObj[hModbusMaster].pDataR = hrValue;
-
-      /* set slave id */
-      ciaaModbus_masterObj[hModbusMaster].slaveId = slaveId;
-
-      /* set retry count */
-      ciaaModbus_masterObj[hModbusMaster].retryCount = ciaaModbus_masterObj[hModbusMaster].retryComm;
-
-      /* set task id to set event if blocking operation */
-      GetTaskID(&ciaaModbus_masterObj[hModbusMaster].taskID);
-
-      /* set call back if non-blocking operation */
-      ciaaModbus_masterObj[hModbusMaster].cbEndComm = cbEndComm;
-
-      /* set command to execute */
-      ciaaModbus_masterObj[hModbusMaster].cmd = CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS;
-
-      /* if no callback wait event... */
-      if (NULL == cbEndComm)
-      {
-         /* wait for event */
-         WaitEvent(MODBUSE);
-
-         ClearEvent(MODBUSE);
-
-         /* return exception code */
-         ret = ciaaModbus_masterObj[hModbusMaster].exceptioncode;
-      }
-      else
-      {
-         /* if non-blocking, return 0 */
-         ret = 0;
-      }
-   }
-   else
-   {
-      /* return -1 if it was not possible execute the function */
-      ret = -1;
-   }
+   ret = ciaaModbus_masterRead(
+         hModbusMaster,
+         startAddress,
+         quantity,
+         hrValue,
+         slaveId,
+         CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS,
+         cbEndComm);
 
    return ret;
 }
@@ -425,6 +535,8 @@ extern void ciaaModbus_masterRecvMsg(
       {
          /* read holding registers */
          case CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS:
+         /* read coils */
+         case CIAA_MODBUS_FCN_READ_COILS:
 
             /* write in buffer: start address */
             ciaaModbus_writeInt(&pdu[1], ciaaModbus_masterObj[handler].startAddressR);
@@ -483,6 +595,12 @@ extern void ciaaModbus_masterSendMsg(
       {
          switch (pdu[0])
          {
+         /* read coils */
+            case CIAA_MODBUS_FCN_READ_COILS:
+               ciaaModbus_masterObj[handler].exceptioncode = \
+                  ciaaModbus_masterProcess0x01(handler, pdu, size);
+               break;
+
             /* read holding register */
             case CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS:
                ciaaModbus_masterObj[handler].exceptioncode = \
