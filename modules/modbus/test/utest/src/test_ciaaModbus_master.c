@@ -60,6 +60,7 @@
 
 #define CIAA_MODBUS_STARTING_ADDRESS      0X1234
 #define CIAA_MODBUS_QUANTITY_OF_HOLD_REG  0x0002
+#define CIAA_MODBUS_QUANTITY_OF_INPUT_REG 0x0002
 #define SLAVE_ID                          2
 
 /*==================[internal functions declaration]=========================*/
@@ -307,7 +308,7 @@ void test_ciaaModbus_masterCmd0x02ReadDiscreteInputs_01(void)
    TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
 }
 
-/** \brief test function read holding register
+/** \brief test function read holding registers
  **
  ** this function test modbus master read holding registers
  ** with callback
@@ -383,6 +384,86 @@ void test_ciaaModbus_masterCmd0x03ReadHoldingReg_01(void)
    TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, callBackData_slaveId);
 
    TEST_ASSERT_EQUAL_UINT8(0x03, callBackData_numFunc);
+
+   TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
+}
+
+/** \brief test function read input registers
+ **
+ ** this function test modbus master read input registers
+ ** with callback
+ **
+ **/
+void test_ciaaModbus_masterCmd0x04ReadInputRegisters_01(void)
+{
+   int32_t hModbusMaster;
+   int16_t irValue[CIAA_MODBUS_QUANTITY_OF_INPUT_REG];
+   uint8_t slaveIdRecv;
+   uint8_t pduRecv[256];
+   uint8_t pduRecvExp[256] =
+   {
+      0X04,
+      (CIAA_MODBUS_STARTING_ADDRESS >> 8) & 0XFF,
+      (CIAA_MODBUS_STARTING_ADDRESS >> 0) & 0XFF,
+      (CIAA_MODBUS_QUANTITY_OF_INPUT_REG >> 8) & 0XFF,
+      (CIAA_MODBUS_QUANTITY_OF_INPUT_REG >> 0) & 0XFF,
+   };
+   uint8_t pduSend[256] =
+   {
+      0X04,
+      CIAA_MODBUS_QUANTITY_OF_INPUT_REG * 2,
+      0XAA,
+      0X55,
+      0X11,
+      0X22,
+   };
+
+   uint32_t sizeRecv;
+   uint32_t sizeRecvExp = 5;
+
+   /* open modbus master */
+   hModbusMaster = ciaaModbus_masterOpen();
+
+   /* request read holding register */
+   ciaaModbus_masterCmd0x04ReadInputRegisters(
+         hModbusMaster,
+         CIAA_MODBUS_STARTING_ADDRESS,
+         CIAA_MODBUS_QUANTITY_OF_INPUT_REG,
+         irValue,
+         SLAVE_ID,
+         modbusMaster_cbEndOfComm);
+
+   /* perform task modbus master */
+   ciaaModbus_masterTask(hModbusMaster);
+
+   /* receive pdu from master */
+   ciaaModbus_masterRecvMsg(
+         hModbusMaster,
+         &slaveIdRecv,
+         pduRecv,
+         &sizeRecv);
+
+   /* send message to master */
+   ciaaModbus_masterSendMsg(
+         hModbusMaster,
+         SLAVE_ID,
+         pduSend,
+         6);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, slaveIdRecv);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(pduRecvExp, pduRecv, 5);
+
+   TEST_ASSERT_EQUAL_UINT32(sizeRecvExp, sizeRecv);
+
+   TEST_ASSERT_EQUAL_UINT16(0XAA55, irValue[0]);
+
+   TEST_ASSERT_EQUAL_UINT16(0X1122, irValue[1]);
+
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, callBackData_slaveId);
+
+   TEST_ASSERT_EQUAL_UINT8(0x04, callBackData_numFunc);
 
    TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
 }
