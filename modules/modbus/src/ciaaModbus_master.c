@@ -145,9 +145,9 @@ static uint8_t ciaaModbus_masterProcess0x01_0x02(uint32_t hModbusMaster, uint8_t
    return ret;
 }
 
-/** \brief Process data to function 0x03
+/** \brief Process data to function 0x03 or 0x04
  **
- ** This function process PDU response as request function 0x03
+ ** This function process PDU response as request function 0x03 or 0x04
  **
  ** \param[in] handler handler modbus master
  ** \param[in] pdu pdu received
@@ -155,7 +155,7 @@ static uint8_t ciaaModbus_masterProcess0x01_0x02(uint32_t hModbusMaster, uint8_t
  ** \return CIAA_MODBUS_E_NO_ERROR correct response
  **         CIAA_MODBUS_E_PDU_RECEIVED_WRONG incorrect response
  **/
-static uint8_t ciaaModbus_masterProcess0x03(uint32_t hModbusMaster, uint8_t *pdu, uint16_t size)
+static uint8_t ciaaModbus_masterProcess0x03_0x04(uint32_t hModbusMaster, uint8_t *pdu, uint16_t size)
 {
    uint16_t loopi;
    uint8_t ret;
@@ -430,6 +430,28 @@ extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
    return ret;
 }
 
+extern int8_t ciaaModbus_masterCmd0x04ReadInputRegisters(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      uint16_t quantity,
+      int16_t *irValue,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm)
+{
+   int8_t ret;
+
+   ret = ciaaModbus_masterRead(
+         hModbusMaster,
+         startAddress,
+         quantity,
+         irValue,
+         slaveId,
+         CIAA_MODBUS_FCN_READ_INPUT_REGISTERS,
+         cbEndComm);
+
+   return ret;
+}
+
 extern int8_t ciaaModbus_masterCmd0x10WriteMultipleRegisters(
       int32_t hModbusMaster,
       uint16_t startAddress,
@@ -555,12 +577,14 @@ extern void ciaaModbus_masterRecvMsg(
       /* according to function, make pdu */
       switch (pdu[0])
       {
-         /* read holding registers */
-         case CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS:
          /* read coils */
          case CIAA_MODBUS_FCN_READ_COILS:
          /* read discrete inputs */
          case CIAA_MODBUS_FCN_READ_DISCRETE_INPUTS:
+         /* read holding registers */
+         case CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS:
+         /* read input registers */
+         case CIAA_MODBUS_FCN_READ_INPUT_REGISTERS:
 
             /* write in buffer: start address */
             ciaaModbus_writeInt(&pdu[1], ciaaModbus_masterObj[handler].startAddressR);
@@ -627,10 +651,12 @@ extern void ciaaModbus_masterSendMsg(
                ciaaModbus_masterProcess0x01_0x02(handler, pdu, size);
                break;
 
-            /* read holding register */
+            /* read holding registers */
             case CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS:
+            /* read input registers */
+            case CIAA_MODBUS_FCN_READ_INPUT_REGISTERS:
                ciaaModbus_masterObj[handler].exceptioncode = \
-                  ciaaModbus_masterProcess0x03(handler, pdu, size);
+               ciaaModbus_masterProcess0x03_0x04(handler, pdu, size);
                break;
 
             /* write multiple registers */

@@ -429,6 +429,36 @@ extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
       uint8_t slaveId,
       modbusMaster_cbEndOfCommType cbEndComm);
 
+/** \brief Perform function 0x04 on slave
+ ** Read Input Registers
+ **
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddress starting address to read
+ ** \param[in] quantity of input registers to read
+ ** \param[out] irValue pointer to store input registers reads
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
+extern int8_t ciaaModbus_masterCmd0x04ReadInputRegisters(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      uint16_t quantity,
+      int16_t *irValue,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm);
+
 /** \brief Perform function 0x10 on slave
  ** write multiple registers
  **
