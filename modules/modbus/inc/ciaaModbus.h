@@ -421,7 +421,7 @@ extern int8_t ciaaModbus_masterCmd0x02ReadDiscreteInputs(
  **         5 the slave not respond
  **         6 pdu received wrong
  **/
-extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
+extern int8_t ciaaModbus_masterCmd0x03ReadHoldingRegisters(
       int32_t hModbusMaster,
       uint16_t startAddress,
       uint16_t quantity,

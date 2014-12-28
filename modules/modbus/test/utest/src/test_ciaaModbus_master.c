@@ -314,7 +314,7 @@ void test_ciaaModbus_masterCmd0x02ReadDiscreteInputs_01(void)
  ** with callback
  **
  **/
-void test_ciaaModbus_masterCmd0x03ReadHoldingReg_01(void)
+void test_ciaaModbus_masterCmd0x03ReadHoldingRegisters_01(void)
 {
    int32_t hModbusMaster;
    int16_t hrValue[CIAA_MODBUS_QUANTITY_OF_HOLD_REG];
@@ -345,7 +345,7 @@ void test_ciaaModbus_masterCmd0x03ReadHoldingReg_01(void)
    hModbusMaster = ciaaModbus_masterOpen();
 
    /* request read holding register */
-   ciaaModbus_masterCmd0x03ReadHoldingReg(
+   ciaaModbus_masterCmd0x03ReadHoldingRegisters(
          hModbusMaster,
          CIAA_MODBUS_STARTING_ADDRESS,
          CIAA_MODBUS_QUANTITY_OF_HOLD_REG,

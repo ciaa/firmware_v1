@@ -231,7 +231,7 @@ TASK(PollingSlave)
          callBackData_numFunc = 0x00;
 
          /* read inputs from ciaa modbus slave */
-         ciaaModbus_masterCmd0x03ReadHoldingReg(
+         ciaaModbus_masterCmd0x03ReadHoldingRegisters(
                hModbusMaster,
                CIAA_MODBUS_ADDRESS_INPUTS,
                1,
