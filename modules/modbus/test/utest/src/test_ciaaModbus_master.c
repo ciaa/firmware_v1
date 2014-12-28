@@ -226,6 +226,87 @@ void test_ciaaModbus_masterCmd0x01ReadCoils_01(void)
    TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
 }
 
+/** \brief test function read discrete inputs
+ **
+ ** this function test modbus master read discrete inputs
+ ** with callback
+ **
+ **/
+void test_ciaaModbus_masterCmd0x02ReadDiscreteInputs_01(void)
+{
+   int32_t hModbusMaster;
+   uint8_t discreteInputsValue[256];
+   uint8_t slaveIdRecv;
+   uint8_t pduRecv[256];
+   uint8_t pduRecvExp[256] =
+   {
+      0X02,
+      0x12,
+      0x34,
+      0x00,
+      0x13,
+   };
+   uint8_t pduSend[256] =
+   {
+      0X02,
+      0x03,
+      0XCD,
+      0X6B,
+      0X05,
+   };
+
+   uint32_t sizeRecv;
+   uint32_t sizeRecvExp = 5;
+
+   /* open modbus master */
+   hModbusMaster = ciaaModbus_masterOpen();
+
+   /* request read holding register */
+   ciaaModbus_masterCmd0x02ReadDiscreteInputs(
+         hModbusMaster,
+         0X1234,
+         0X0013,
+         discreteInputsValue,
+         SLAVE_ID,
+         modbusMaster_cbEndOfComm);
+
+   /* perform task modbus master */
+   ciaaModbus_masterTask(hModbusMaster);
+
+   /* receive pdu from master */
+   ciaaModbus_masterRecvMsg(
+         hModbusMaster,
+         &slaveIdRecv,
+         pduRecv,
+         &sizeRecv);
+
+   /* send message to master */
+   ciaaModbus_masterSendMsg(
+         hModbusMaster,
+         SLAVE_ID,
+         pduSend,
+         5);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, slaveIdRecv);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(pduRecvExp, pduRecv, 5);
+
+   TEST_ASSERT_EQUAL_UINT32(sizeRecvExp, sizeRecv);
+
+   TEST_ASSERT_EQUAL_UINT8(0XCD, discreteInputsValue[0]);
+
+   TEST_ASSERT_EQUAL_UINT16(0X6B, discreteInputsValue[1]);
+
+   TEST_ASSERT_EQUAL_UINT16(0X05, discreteInputsValue[2]);
+
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, callBackData_slaveId);
+
+   TEST_ASSERT_EQUAL_UINT8(0x02, callBackData_numFunc);
+
+   TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
+}
+
 /** \brief test function read holding register
  **
  ** this function test modbus master read holding registers
