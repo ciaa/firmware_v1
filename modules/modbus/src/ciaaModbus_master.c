@@ -105,9 +105,9 @@ static ciaaModbus_masterObjType ciaaModbus_masterObj[CIAA_MODBUS_TOTAL_MASTERS];
 
 /*==================[internal functions definition]==========================*/
 
-/** \brief Process data to function 0x01
+/** \brief Process data to function 0x01 or 0x02
  **
- ** This function process PDU response as request function 0x01
+ ** This function process PDU response as request function 0x01 or 0x02
  **
  ** \param[in] handler handler modbus master
  ** \param[in] pdu pdu received
@@ -115,13 +115,13 @@ static ciaaModbus_masterObjType ciaaModbus_masterObj[CIAA_MODBUS_TOTAL_MASTERS];
  ** \return CIAA_MODBUS_E_NO_ERROR correct response
  **         CIAA_MODBUS_E_PDU_RECEIVED_WRONG incorrect response
  **/
-static uint8_t ciaaModbus_masterProcess0x01(uint32_t hModbusMaster, uint8_t *pdu, uint16_t size)
+static uint8_t ciaaModbus_masterProcess0x01_0x02(uint32_t hModbusMaster, uint8_t *pdu, uint16_t size)
 {
    uint16_t loopi;
    uint8_t ret;
-   uint8_t *pDataCoils;
+   uint8_t *pData;
 
-   pDataCoils = (uint8_t*)ciaaModbus_masterObj[hModbusMaster].pDataR;
+   pData = (uint8_t*)ciaaModbus_masterObj[hModbusMaster].pDataR;
 
    /* check if valid byte count and PDU size */
    if ( (pdu[1] + 2) == size )
@@ -130,7 +130,7 @@ static uint8_t ciaaModbus_masterProcess0x01(uint32_t hModbusMaster, uint8_t *pdu
       for (loopi = 0 ; loopi < pdu[1] ; loopi++)
       {
          /* copy data to holding registers address */
-         pDataCoils[loopi] = pdu[2+loopi];
+         pData[loopi] = pdu[2+loopi];
       }
 
       /* return no error */
@@ -386,6 +386,28 @@ extern int8_t ciaaModbus_masterCmd0x01ReadCoils(
    return ret;
 }
 
+extern int8_t ciaaModbus_masterCmd0x02ReadDiscreteInputs(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      uint16_t quantity,
+      uint8_t *discreteInputsValue,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm)
+{
+   int8_t ret;
+
+   ret = ciaaModbus_masterRead(
+         hModbusMaster,
+         startAddress,
+         quantity,
+         discreteInputsValue,
+         slaveId,
+         CIAA_MODBUS_FCN_READ_DISCRETE_INPUTS,
+         cbEndComm);
+
+   return ret;
+}
+
 extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
       int32_t hModbusMaster,
       uint16_t startAddress,
@@ -537,6 +559,8 @@ extern void ciaaModbus_masterRecvMsg(
          case CIAA_MODBUS_FCN_READ_HOLDING_REGISTERS:
          /* read coils */
          case CIAA_MODBUS_FCN_READ_COILS:
+         /* read discrete inputs */
+         case CIAA_MODBUS_FCN_READ_DISCRETE_INPUTS:
 
             /* write in buffer: start address */
             ciaaModbus_writeInt(&pdu[1], ciaaModbus_masterObj[handler].startAddressR);
@@ -595,10 +619,12 @@ extern void ciaaModbus_masterSendMsg(
       {
          switch (pdu[0])
          {
-         /* read coils */
+            /* read coils */
             case CIAA_MODBUS_FCN_READ_COILS:
+            /* read discrete inputs */
+            case CIAA_MODBUS_FCN_READ_DISCRETE_INPUTS:
                ciaaModbus_masterObj[handler].exceptioncode = \
-                  ciaaModbus_masterProcess0x01(handler, pdu, size);
+               ciaaModbus_masterProcess0x01_0x02(handler, pdu, size);
                break;
 
             /* read holding register */
