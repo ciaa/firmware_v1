@@ -55,6 +55,7 @@
 #include "unity.h"
 #include "ciaaModbus_master.h"
 #include "mock_os.h"
+#include "ciaaPOSIX_stdbool.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -464,6 +465,134 @@ void test_ciaaModbus_masterCmd0x04ReadInputRegisters_01(void)
    TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, callBackData_slaveId);
 
    TEST_ASSERT_EQUAL_UINT8(0x04, callBackData_numFunc);
+
+   TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
+}
+
+/** \brief test function write single coil
+ **
+ ** this function test modbus master write single coil
+ ** with callback
+ **
+ **/
+void test_ciaaModbus_masterCmd0x05WriteSingleCoil_01(void)
+{
+   int32_t hModbusMaster;
+   uint8_t slaveIdRecv;
+   uint8_t pduRecv[256];
+   uint8_t pdu[256] =
+   {
+      0X05,
+      0x00,
+      0xAC,
+      0XFF,
+      0x00,
+   };
+
+   uint32_t sizeRecv;
+
+   /* open modbus master */
+   hModbusMaster = ciaaModbus_masterOpen();
+
+   /* request read holding register */
+   ciaaModbus_masterCmd0x05WriteSingleCoil(
+         hModbusMaster,
+         0x00AC,
+         true,
+         SLAVE_ID,
+         modbusMaster_cbEndOfComm);
+
+   /* perform task modbus master */
+   ciaaModbus_masterTask(hModbusMaster);
+
+   /* receive pdu from master */
+   ciaaModbus_masterRecvMsg(
+         hModbusMaster,
+         &slaveIdRecv,
+         pduRecv,
+         &sizeRecv);
+
+   /* send message to master */
+   ciaaModbus_masterSendMsg(
+         hModbusMaster,
+         SLAVE_ID,
+         pdu,
+         5);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, slaveIdRecv);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(pdu, pduRecv, 5);
+
+   TEST_ASSERT_EQUAL_UINT32(5, sizeRecv);
+
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, callBackData_slaveId);
+
+   TEST_ASSERT_EQUAL_UINT8(0x05, callBackData_numFunc);
+
+   TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
+}
+
+/** \brief test function write single coil
+ **
+ ** this function test modbus master write single coil
+ ** with callback
+ **
+ **/
+void test_ciaaModbus_masterCmd0x05WriteSingleCoil_02(void)
+{
+   int32_t hModbusMaster;
+   uint8_t slaveIdRecv;
+   uint8_t pduRecv[256];
+   uint8_t pdu[256] =
+   {
+      0X05,
+      0x00,
+      0xAC,
+      0X00,
+      0x00,
+   };
+
+   uint32_t sizeRecv;
+
+   /* open modbus master */
+   hModbusMaster = ciaaModbus_masterOpen();
+
+   /* request read holding register */
+   ciaaModbus_masterCmd0x05WriteSingleCoil(
+         hModbusMaster,
+         0x00AC,
+         false,
+         SLAVE_ID,
+         modbusMaster_cbEndOfComm);
+
+   /* perform task modbus master */
+   ciaaModbus_masterTask(hModbusMaster);
+
+   /* receive pdu from master */
+   ciaaModbus_masterRecvMsg(
+         hModbusMaster,
+         &slaveIdRecv,
+         pduRecv,
+         &sizeRecv);
+
+   /* send message to master */
+   ciaaModbus_masterSendMsg(
+         hModbusMaster,
+         SLAVE_ID,
+         pdu,
+         5);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, slaveIdRecv);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(pdu, pduRecv, 5);
+
+   TEST_ASSERT_EQUAL_UINT32(5, sizeRecv);
+
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, callBackData_slaveId);
+
+   TEST_ASSERT_EQUAL_UINT8(0x05, callBackData_numFunc);
 
    TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
 }
