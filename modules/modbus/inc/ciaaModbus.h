@@ -59,6 +59,7 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaModbus_config.h"
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stdbool.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -456,6 +457,13 @@ extern int8_t ciaaModbus_masterCmd0x04ReadInputRegisters(
       uint16_t startAddress,
       uint16_t quantity,
       int16_t *irValue,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm);
+
+extern int8_t ciaaModbus_masterCmd0x05WriteSingleCoil(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      bool value,
       uint8_t slaveId,
       modbusMaster_cbEndOfCommType cbEndComm);
 
