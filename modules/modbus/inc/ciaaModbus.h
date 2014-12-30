@@ -460,10 +460,60 @@ extern int8_t ciaaModbus_masterCmd0x04ReadInputRegisters(
       uint8_t slaveId,
       modbusMaster_cbEndOfCommType cbEndComm);
 
+/** \brief Perform function 0x05 on slave
+ ** Write Single Coil
+ **
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddress starting address to write
+ ** \param[in] value a true value, the coil ON
+ **            a false value, the coil OFF
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
 extern int8_t ciaaModbus_masterCmd0x05WriteSingleCoil(
       int32_t hModbusMaster,
       uint16_t startAddress,
       bool value,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm);
+
+/** \brief Perform function 0x06 on slave
+ ** Write Single Register
+ **
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddress starting address to write
+ ** \param[in] value value to be write
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
+extern int8_t ciaaModbus_masterCmd0x06WriteSingleRegister(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      int16_t value,
       uint8_t slaveId,
       modbusMaster_cbEndOfCommType cbEndComm);
 
