@@ -69,6 +69,7 @@ extern "C" {
 #define ciaaDevices_MAXDEVICES      20
 
 /** \brief the file offset shall be set to offset bytes */
+/*@-namechecks@*/
 #define SEEK_SET                    1
 
 /** \brief the file offset shall be set to its current location plus offset */
@@ -76,6 +77,7 @@ extern "C" {
 
 /** \brief the file offset shall be set to the size of the file plus offset */
 #define SEEK_END                    3
+/*@=namechecks@*/
 
 /*==================[typedef]================================================*/
 typedef struct ciaaDevices_deviceStruct ciaaDevices_deviceType;
@@ -113,7 +115,7 @@ typedef int32_t (*ciaaDevices_write)(ciaaDevices_deviceType const * const device
 typedef int32_t (*ciaaDevices_seek)(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence);
 
 /** \brief Device Type */
-typedef struct ciaaDevices_deviceStruct {
+struct ciaaDevices_deviceStruct {
    char const * path;            /** <- device path, eg. /dev/serlia/UART1 */
    ciaaDevices_open open;        /** <- pointer to open function */
    ciaaDevices_close close;      /** <- pointer to close function */
@@ -126,7 +128,7 @@ typedef struct ciaaDevices_deviceStruct {
    void * layer;                 /** <- pointer ot be used by the layer */
    void * loLayer;               /** <- pointer to be provided to the lower
                                         layer */
-} ciaaDevices_deviceType;
+};
 
 /** \brief Devices Status
  **

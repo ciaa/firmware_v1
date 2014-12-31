@@ -32,8 +32,8 @@
  *
  */
 
-#ifndef _CIAAPOSIX_STDLIB_H_
-#define _CIAAPOSIX_STDLIB_H_
+#ifndef CIAAPOSIX_STDLIB_H
+#define CIAAPOSIX_STDLIB_H
 /** \brief ciaa POSIX stdlib header file
  **
  ** ciaa POSIX stdlib header file
@@ -71,7 +71,9 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 #ifndef NULL
+/*@-namechecks@*/
 #define NULL 	((void*)0)
+/*@=namechecks@*/
 #endif
 
 /*==================[typedef]================================================*/
@@ -108,5 +110,5 @@ void ciaaPOSIX_free(void *);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_STDLIB_H_ */
+#endif /* #ifndef CIAAPOSIX_STDLIB_H */
 

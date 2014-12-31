@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef _CIAAPOSIX_STDDEF_H_
-#define _CIAAPOSIX_STDDEF_H_
+#ifndef CIAAPOSIX_STDDEF_H
+#define CIAAPOSIX_STDDEF_H
 /** \brief Short description of this file
  **
  ** Long description of this file
@@ -78,12 +78,14 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+/*@ -warnposixheaders @*/
 #if ( (x86 == ARCH) || (cortexM4 == ARCH) )
 #include "sys/types.h"
 #if 0
 #include "stddef.h"
 #endif
 #endif
+/*@ =warnposixheaders @*/
 
 /*==================[external data declaration]==============================*/
 
@@ -96,5 +98,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_STDDEF_H_ */
+#endif /* #ifndef CIAAPOSIX_STDDEF_H */
 

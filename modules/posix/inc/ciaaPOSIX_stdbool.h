@@ -75,9 +75,11 @@ extern "C" {
  **
  ** bool is not a type but a macro exapnded to _Bool
  **/
+/*@-namechecks@*/
 #define bool   _Bool
 /** \brief Bool, true and false are defined */
 #define __bool_true_false_are_defined  1
+/*@=namechecks@*/
 
 /*==================[typedef]================================================*/
 
