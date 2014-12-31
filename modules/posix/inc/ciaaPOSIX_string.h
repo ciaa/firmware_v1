@@ -30,8 +30,8 @@
  *
  */
 
-#ifndef _CIAAPOSIX_STRING_H_
-#define _CIAAPOSIX_STRING_H_
+#ifndef CIAAPOSIX_STRING_H
+#define CIAAPOSIX_STRING_H
 /** \brief ciaa POSIX string header file
  **
  ** ciaa POSIX string header file
@@ -140,5 +140,5 @@ extern void * ciaaPOSIX_memcpy(void * s1, void const * s2, size_t n);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_STRING_H_ */
+#endif /* #ifndef CIAAPOSIX_STRING_H */
 

@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef _CIAAPOSIX_STDINT_H_
-#define _CIAAPOSIX_STDINT_H_
+#ifndef CIAAPOSIX_STDINT_H
+#define CIAAPOSIX_STDINT_H
 /** \brief POSIX stdin
  **
  ** POSIX stdin header file
@@ -89,5 +89,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_STDINT_H_*/
+#endif /* #ifndef CIAAPOSIX_STDINT_H */
 

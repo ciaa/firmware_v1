@@ -34,8 +34,8 @@
  *
  */
 
-#ifndef _CIAAPOSIX_STDBOOL_H_
-#define _CIAAPOSIX_STDBOOL_H_
+#ifndef CIAAPOSIX_STDBOOL_H
+#define CIAAPOSIX_STDBOOL_H
 /** \brief ciaa POSIX stdbool header file
  **
  ** ciaa POSIX stdbool header file
@@ -92,5 +92,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_STDBOOL_H_ */
+#endif /* #ifndef CIAAPOSIX_STDBOOL_H */
 

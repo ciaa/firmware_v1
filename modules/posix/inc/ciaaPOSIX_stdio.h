@@ -32,8 +32,8 @@
  *
  */
 
-#ifndef _CIAAPOSIX_STDIO_H_
-#define _CIAAPOSIX_STDIO_H_
+#ifndef CIAAPOSIX_STDIO_H
+#define CIAAPOSIX_STDIO_H
 /** \brief ciaa POSIX stdio header file
  **
  ** ciaa POSIX stdio header file
@@ -377,5 +377,5 @@ extern int32_t ciaaPOSIX_printf(const char * format, ...);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_STDIO_H_ */
+#endif /* #ifndef CIAAPOSIX_STDIO_H */
 

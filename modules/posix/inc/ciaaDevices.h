@@ -32,8 +32,8 @@
  *
  */
 
-#ifndef _CIAADEVICES_H_
-#define _CIAADEVICES_H_
+#ifndef CIAADEVICES_H
+#define CIAADEVICES_H
 /** \brief CIAA Devices header file
  **
  ** This header file describes the Devices.
@@ -177,5 +177,5 @@ extern ciaaDevices_deviceType * ciaaDevices_getDevice(char const * const path);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAADEVICES_H_ */
+#endif /* #ifndef CIAADEVICES_H */
 

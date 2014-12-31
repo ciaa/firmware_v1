@@ -32,8 +32,8 @@
  *
  */
 
-#ifndef _CIAAMEMORY_H_
-#define _CIAAMEMORY_H_
+#ifndef CIAAMEMORY_H
+#define CIAAMEMORY_H
 /** \brief CIAA Memory header file
  **
  ** This header file describes the Devices.
@@ -102,5 +102,5 @@ extern void ciaaMemory_SetFree (void (*pf) (void*));
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMEMORY_H_ */
+#endif /* #ifndef CIAAMEMORY_H */
 

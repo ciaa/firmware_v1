@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef _CIAAPLATFORMS_H_
-#define _CIAAPLATFORMS_H_
+#ifndef CIAAPLATFORMS_H
+#define CIAAPLATFORMS_H
 /** \brief Platform file
  **
  ** Platform header file
@@ -172,5 +172,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPLATFORMS_H_ */
+#endif /* #ifndef CIAAPLATFORMS_H */
 

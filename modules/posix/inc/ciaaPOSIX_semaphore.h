@@ -32,8 +32,8 @@
  *
  */
 
-#ifndef _CIAAPOSIX_SEMAPHORE_H_
-#define _CIAAPOSIX_SEMAPHORE_H_
+#ifndef CIAAPOSIX_SEMAPHORE_H
+#define CIAAPOSIX_SEMAPHORE_H
 /** \brief POSIX semaphore
  **
  ** POSIX semaphore header file
@@ -109,5 +109,5 @@ extern int8_t ciaaPOSIX_sem_post(sem_t * const sem);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_SEMAPHORE_H_*/
+#endif /* #ifndef CIAAPOSIX_SEMAPHORE_H */
 
