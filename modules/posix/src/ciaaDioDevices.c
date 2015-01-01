@@ -156,12 +156,13 @@ extern void ciaaDioDevices_addDriver(ciaaDevices_deviceType * driver)
       newDeviceName = (char*) ciaak_malloc(length);
 
       /* start a new string */
-      *newDeviceName = 0;
+      *newDeviceName = (char)0;
 
       /* add prefix, / and the device name */
-      ciaaPOSIX_strcat(newDeviceName, ciaaDioDevices_prefix);
-      ciaaPOSIX_strcat(newDeviceName, "/");
-      ciaaPOSIX_strcat(newDeviceName, driver->path);
+      /* return value of strcat is always the first parameter and can be ignored */
+      (void)ciaaPOSIX_strcat(newDeviceName, ciaaDioDevices_prefix);
+      (void)ciaaPOSIX_strcat(newDeviceName, "/");
+      (void)ciaaPOSIX_strcat(newDeviceName, driver->path);
       /* add path to device structure */
       newDevice->path = newDeviceName;
 

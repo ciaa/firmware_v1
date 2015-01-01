@@ -67,9 +67,9 @@ extern "C" {
 #define ciaaPOSIX__assert(file, line, expr)                                \
    if ((expr)==0)                                                          \
    {                                                                       \
-      ciaaPOSIX_printf(ciaaPOSIX_assert_msg,                               \
+      (void)ciaaPOSIX_printf(ciaaPOSIX_assert_msg,                         \
             (file), (line), #expr);                                        \
-      while(1);                                                            \
+      while(1==1);                                                         \
    }
 
 #if 1

@@ -336,7 +336,7 @@ extern int32_t ciaaPOSIX_ioctl(int32_t fildes, int32_t request, void* param);
  **          descriptor the caller has to wait until return before calling other
  **          of this function using the same file handler.
  **/
-extern ssize_t ciaaPOSIX_read(int32_t fildes, void * buf, ssize_t nbyte);
+extern ssize_t ciaaPOSIX_read(int32_t fildes, void * buf, size_t nbyte);
 
 /** \brief Writes to a file descriptor
  **

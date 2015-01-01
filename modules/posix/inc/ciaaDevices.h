@@ -106,10 +106,10 @@ typedef int32_t (*ciaaDevices_close)(ciaaDevices_deviceType const * const device
 typedef int32_t (*ciaaDevices_ioctl)(ciaaDevices_deviceType const * const device, int32_t const request, void * param);
 
 /** \brief read function type */
-typedef int32_t (*ciaaDevices_read)(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t const nbyte);
+typedef ssize_t (*ciaaDevices_read)(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t const nbyte);
 
 /** \brief write function type */
-typedef int32_t (*ciaaDevices_write)(ciaaDevices_deviceType const * const device, uint8_t const * const buf, uint32_t const nbyte);
+typedef ssize_t (*ciaaDevices_write)(ciaaDevices_deviceType const * const device, uint8_t const * const buf, uint32_t const nbyte);
 
 /** \brief seek function type */
 typedef int32_t (*ciaaDevices_seek)(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence);

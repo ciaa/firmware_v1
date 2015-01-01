@@ -124,7 +124,8 @@ extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag)
          {
             /* enter critical section */
 #ifdef POSIXR
-            GetResource(POSIXR);
+            /* in production mode only returns E_OK */
+            (void)GetResource(POSIXR);
 #else /* #ifdef POSIXR */
             SuspendOSInterrupts();
 #endif /* #ifdef POSIXR */
@@ -141,7 +142,8 @@ extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag)
 
             /* exit critical section */
 #ifdef POSIXR
-            ReleaseResource(POSIXR);
+            /* in production mode only returns E_OK */
+            (void)ReleaseResource(POSIXR);
 #else /* #ifdef POSIXR */
             ResumeOSInterrupts();
 #endif /* #ifdef POSIXR */
@@ -165,7 +167,8 @@ extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag)
 
                /* enter critical section */
 #ifdef POSIXR
-               GetResource(POSIXR);
+               /* in production mode only returns E_OK */
+               (void)GetResource(POSIXR);
 #else /* #ifdef POSIXR */
                SuspendOSInterrupts();
 #endif /* #ifdef POSIXR */
@@ -175,7 +178,8 @@ extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag)
 
                /* exit critical section */
 #ifdef POSIXR
-               ReleaseResource(POSIXR);
+               /* in production mode only returns E_OK */
+               (void)ReleaseResource(POSIXR);
 #else /* #ifdef POSIXR */
                ResumeOSInterrupts();
 #endif /* #ifdef POSIXR */
@@ -253,9 +257,9 @@ int32_t ciaaPOSIX_ioctl (int32_t fildes, int32_t request, void * param)
    return ret;
 }
 
-ssize_t ciaaPOSIX_read(int32_t fildes, void * buf, ssize_t nbyte)
+ssize_t ciaaPOSIX_read(int32_t fildes, void * buf, size_t nbyte)
 {
-   int32_t ret = -1;
+   ssize_t ret = -1;
 
    /* check that file descriptor is on range */
    if ( (fildes >= 0) && (fildes < ciaaPOSIX_stdio_MAXFILDES) )
@@ -276,7 +280,7 @@ ssize_t ciaaPOSIX_read(int32_t fildes, void * buf, ssize_t nbyte)
 
 extern ssize_t ciaaPOSIX_write (int32_t fildes, void const * buf, size_t nbyte)
 {
-   int32_t ret = -1;
+   ssize_t ret = -1;
 
    /* check that file descriptor is on range */
    if ( (fildes >= 0) && (fildes < ciaaPOSIX_stdio_MAXFILDES) )

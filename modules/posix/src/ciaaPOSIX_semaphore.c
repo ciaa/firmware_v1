@@ -72,17 +72,20 @@
 /*==================[external functions definition]==========================*/
 extern int8_t ciaaPOSIX_sem_init(sem_t * const sem)
 {
-	return 0;
+   (void)sem;
+   return 0;
 }
 
 extern int8_t ciaaPOSIX_sem_wait(sem_t * const sem)
 {
-	return 0;
+   (void)sem;
+   return 0;
 }
 
 extern int8_t ciaaPOSIX_sem_post(sem_t * const sem)
 {
-	return 0;
+   (void)sem;
+   return 0;
 }
 
 /** @} doxygen end group definition */
