@@ -137,12 +137,12 @@ extern int32_t ciaaDriverDio_ioctl(ciaaDevices_deviceType const * const device, 
    return -1;
 }
 
-extern int32_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
+extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t size)
 {
    return 0;
 }
 
-extern int32_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
+extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
    return 0;
 }

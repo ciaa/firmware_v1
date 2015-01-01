@@ -270,9 +270,9 @@ extern int32_t ciaaDriverDio_ioctl(ciaaDevices_deviceType const * const device, 
    return -1;
 }
 
-extern int32_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
+extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, uint8_t * buffer, size_t size)
 {
-   int32_t ret = -1;
+   ssize_t ret = -1;
 
    /* Can't store read result in buffer. At least 1 byte required. */
    if(size != 0)
@@ -302,9 +302,9 @@ extern int32_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
    return ret;
 }
 
-extern int32_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
+extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
-   int32_t ret = -1;
+   ssize_t ret = -1;
 
    if(size != 0)
    {

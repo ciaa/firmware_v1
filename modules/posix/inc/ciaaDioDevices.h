@@ -128,8 +128,8 @@ extern int32_t ciaaDioDevices_ioctl(
  ** \return     the count of read bytes is returned
  **
  **/
-extern int32_t ciaaDioDevices_read(ciaaDevices_deviceType const * const device,
-      uint8_t * const buf, uint32_t nbyte);
+extern ssize_t ciaaDioDevices_read(ciaaDevices_deviceType const * const device,
+      uint8_t * const buf, size_t const nbyte);
 
 /** \brief Writes to a DIO device
  **
@@ -140,8 +140,8 @@ extern int32_t ciaaDioDevices_read(ciaaDevices_deviceType const * const device,
  ** \param[in]  nbyte   count of bytes to be written
  ** \return     the count of bytes written
  **/
-extern int32_t ciaaDioDevices_write(ciaaDevices_deviceType const * device,
-      uint8_t const * const buf, uint32_t nbyte);
+extern ssize_t ciaaDioDevices_write(ciaaDevices_deviceType const * device,
+      uint8_t const * const buf, size_t nbyte);
 
 /** \brief add driver
  **

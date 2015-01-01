@@ -204,9 +204,9 @@ extern int32_t ciaaDioDevices_ioctl(ciaaDevices_deviceType const * const device,
    return ret;
 }
 
-extern int32_t ciaaDioDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte)
+extern ssize_t ciaaDioDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, size_t const nbyte)
 {
-   int32_t ret;
+   ssize_t ret;
    ciaaDevices_deviceType * drv = (ciaaDevices_deviceType*) device->loLayer;
 
    ret = drv->read(drv, buf, nbyte);
@@ -214,9 +214,9 @@ extern int32_t ciaaDioDevices_read(ciaaDevices_deviceType const * const device, 
    return ret;
 }
 
-extern int32_t ciaaDioDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, uint32_t nbyte)
+extern ssize_t ciaaDioDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, size_t nbyte)
 {
-   int32_t ret;
+   ssize_t ret;
    ciaaDevices_deviceType * drv = (ciaaDevices_deviceType*) device->loLayer;
 
    ret = drv->write(drv, buf, nbyte);
