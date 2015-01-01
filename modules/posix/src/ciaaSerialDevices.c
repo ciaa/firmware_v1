@@ -494,8 +494,8 @@ extern void ciaaSerialDevices_rxIndication(ciaaDevices_deviceType const * const 
       /* reset blocked function */
       serialDevice->blocked.fct = NULL;
 
-      /* set task event */
 #ifdef POSIXE
+      /* set task event */
       SetEvent(taskID, POSIXE);
 #endif
    }

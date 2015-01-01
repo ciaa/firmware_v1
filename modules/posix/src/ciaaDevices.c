@@ -78,7 +78,7 @@ typedef struct {
 
 /*==================[internal data definition]===============================*/
 /** \brief List of devices */
-ciaaDevices_devicesType ciaaDevices;
+static ciaaDevices_devicesType ciaaDevices;
 
 /*==================[external data definition]===============================*/
 
@@ -97,7 +97,7 @@ extern void ciaaDevices_addDevice(ciaaDevices_deviceType * device)
    /* not needed, only 1 task running */
 
    /* check if positions are empty for more devices */
-   if (ciaaDevices.position < ciaaDevices_MAXDEVICES)
+   if (ciaaDevices.position < (uint8_t)ciaaDevices_MAXDEVICES)
    {
       /* store the device in the list */
       ciaaDevices.device[ciaaDevices.position] = device;
