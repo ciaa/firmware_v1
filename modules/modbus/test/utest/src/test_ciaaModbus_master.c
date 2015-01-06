@@ -661,6 +661,88 @@ void test_ciaaModbus_masterCmd0x06WriteSingleRegister_01(void)
    TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
 }
 
+/** \brief test function write multiple coils
+ **
+ ** this function test modbus master write multiple coils
+ ** with callback
+ **
+ **/
+void test_ciaaModbus_masterCmd0x0FWriteMultipleCoilss_01(void)
+{
+   int32_t hModbusMaster;
+   uint8_t coilsValue[] =
+   {
+      0xCD,
+      0x01,
+   };
+   uint8_t slaveIdRecv;
+   uint8_t pduRecv[256];
+   uint8_t pduRecvExp[256] =
+   {
+      0x0F,
+      0x00,
+      0x13,
+      0x00,
+      0x0A,
+      0x02,
+      0xCD,
+      0x01,
+   };
+   uint8_t pduSend[256] =
+   {
+      0x0F,
+      0x00,
+      0x13,
+      0x00,
+      0x0A,
+   };
+
+   uint32_t sizeRecv;
+   uint32_t sizeRecvExp = 8;
+
+   /* open modbus master */
+   hModbusMaster = ciaaModbus_masterOpen();
+
+   /* request read holding register */
+   ciaaModbus_masterCmd0x0FWriteMultipleCoils(
+         hModbusMaster,
+         0X0013,
+         0X000A,
+         coilsValue,
+         SLAVE_ID,
+         modbusMaster_cbEndOfComm);
+
+   /* perform task modbus master */
+   ciaaModbus_masterTask(hModbusMaster);
+
+   /* receive pdu from master */
+   ciaaModbus_masterRecvMsg(
+         hModbusMaster,
+         &slaveIdRecv,
+         pduRecv,
+         &sizeRecv);
+
+   /* send message to master */
+   ciaaModbus_masterSendMsg(
+         hModbusMaster,
+         SLAVE_ID,
+         pduSend,
+         5);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, slaveIdRecv);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(pduRecvExp, pduRecv, sizeRecvExp);
+
+   TEST_ASSERT_EQUAL_UINT32(sizeRecvExp, sizeRecv);
+
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, callBackData_slaveId);
+
+   TEST_ASSERT_EQUAL_UINT8(0x0F, callBackData_numFunc);
+
+   TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
+}
+
 /** \brief test function write multiple register
  **
  ** this function test modbus master write multiple registers
