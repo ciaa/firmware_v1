@@ -618,7 +618,7 @@ extern int8_t ciaaModbus_masterCmd0x0FWriteMultipleCoils(
       int32_t hModbusMaster,
       uint16_t startAddress,
       uint16_t quantity,
-      int8_t *coilsValue,
+      uint8_t *coilsValue,
       uint8_t slaveId,
       modbusMaster_cbEndOfCommType cbEndComm)
 {
