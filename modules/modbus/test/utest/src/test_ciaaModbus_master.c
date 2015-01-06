@@ -831,6 +831,25 @@ void test_ciaaModbus_masterCmd0x10WriteMultipleRegisters_01(void)
    TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
 }
 
+/** \brief test get Response timeout
+ **
+ ** this function test get Response timeout
+ **
+ **/
+void test_ciaaModbus_masterGetRespTimeout_01(void)
+{
+   int32_t hModbusMaster;
+   uint32_t timeout;
+
+   /* open modbus master */
+   hModbusMaster = ciaaModbus_masterOpen();
+
+   timeout = ciaaModbus_masterGetRespTimeout(hModbusMaster);
+
+   /* default response timeout 300 ms */
+   TEST_ASSERT_EQUAL_UINT32(300,timeout);
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
