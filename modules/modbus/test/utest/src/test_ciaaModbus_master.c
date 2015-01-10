@@ -831,6 +831,122 @@ void test_ciaaModbus_masterCmd0x10WriteMultipleRegisters_01(void)
    TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
 }
 
+/** \brief test function read write multiple register
+ **
+ ** this function test modbus master read write multiple registers
+ ** with callback
+ **
+ **/
+void test_ciaaModbus_masterCmd0x17ReadWriteMultipleRegisters_01(void)
+{
+   int32_t hModbusMaster;
+   int16_t hrValueR[128];
+   int16_t hrValueW[] =
+   {
+      0x1122,
+      0x3344,
+      0x5566,
+   };
+   uint8_t slaveIdRecv;
+   uint8_t pduRecv[256];
+   uint8_t pduRecvExp[256] =
+   {
+      0X17,
+      0X00,
+      0X03,
+      0X00,
+      0X06,
+      0X00,
+      0X0E,
+      0X00,
+      0X03,
+      0X06,
+      0X11,
+      0X22,
+      0X33,
+      0X44,
+      0X55,
+      0X66,
+   };
+   uint8_t pduSend[256] =
+   {
+      0X17,
+      0X0C,
+      0XFF,
+      0XEE,
+      0XDD,
+      0XCC,
+      0XBB,
+      0XAA,
+      0X99,
+      0X88,
+      0X77,
+      0X66,
+      0X55,
+      0X44,
+   };
+
+   uint32_t sizeRecv;
+   uint32_t sizeRecvExp = 16;
+
+   /* open modbus master */
+   hModbusMaster = ciaaModbus_masterOpen();
+
+   /* request read holding register */
+   ciaaModbus_masterCmd0x17ReadWriteMultipleRegisters(
+         hModbusMaster,
+         0X0003,
+         0X0006,
+         hrValueR,
+         0X000E,
+         0X0003,
+         hrValueW,
+         SLAVE_ID,
+         modbusMaster_cbEndOfComm);
+
+   /* perform task modbus master */
+   ciaaModbus_masterTask(hModbusMaster);
+
+   /* receive pdu from master */
+   ciaaModbus_masterRecvMsg(
+         hModbusMaster,
+         &slaveIdRecv,
+         pduRecv,
+         &sizeRecv);
+
+   /* send message to master */
+   ciaaModbus_masterSendMsg(
+         hModbusMaster,
+         SLAVE_ID,
+         pduSend,
+         14);
+
+   /* verify */
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, slaveIdRecv);
+
+   TEST_ASSERT_EQUAL_UINT8_ARRAY(pduRecvExp, pduRecv, sizeRecvExp);
+
+   TEST_ASSERT_EQUAL_UINT32(sizeRecvExp, sizeRecv);
+
+   TEST_ASSERT_EQUAL_UINT16(0XFFEE, hrValueR[0]);
+
+   TEST_ASSERT_EQUAL_UINT16(0XDDCC, hrValueR[1]);
+
+   TEST_ASSERT_EQUAL_UINT16(0XBBAA, hrValueR[2]);
+
+   TEST_ASSERT_EQUAL_UINT16(0X9988, hrValueR[3]);
+
+   TEST_ASSERT_EQUAL_UINT16(0X7766, hrValueR[4]);
+
+   TEST_ASSERT_EQUAL_UINT16(0X5544, hrValueR[5]);
+
+   TEST_ASSERT_EQUAL_UINT8(SLAVE_ID, callBackData_slaveId);
+
+   TEST_ASSERT_EQUAL_UINT8(0x17, callBackData_numFunc);
+
+   TEST_ASSERT_EQUAL_UINT8(0x00, callBackData_exceptioncode);
+}
+
 /** \brief test get Response timeout
  **
  ** this function test get Response timeout
