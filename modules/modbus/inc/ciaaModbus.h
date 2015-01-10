@@ -577,6 +577,41 @@ extern int8_t ciaaModbus_masterCmd0x10WriteMultipleRegisters(
       uint8_t slaveId,
       modbusMaster_cbEndOfCommType cbEndComm);
 
+/** \brief Perform function 0x17 on slave
+ ** read write multiple registers
+ **
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddressR starting address to read
+ ** \param[in] quantityR quantity of holding registers to read
+ ** \param[out] hrValueR pointer to store holding registers reads
+ ** \param[in] startAddressW starting address to write
+ ** \param[in] quantityW quantity of holding registers to write
+ ** \param[in] hrValueW pointer to data value to write
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
+extern int8_t ciaaModbus_masterCmd0x17ReadWriteMultipleRegisters(
+      int32_t hModbusMaster,
+      uint16_t startAddressR,
+      uint16_t quantityR,
+      int16_t *hrValueR,
+      uint16_t startAddressW,
+      uint16_t quantityW,
+      int16_t *hrValueW,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm);
 
 #endif   /* end Modbus Master interfaces */
 
