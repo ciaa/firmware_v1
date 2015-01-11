@@ -88,8 +88,6 @@ static int32_t hModbusMaster;
 static int32_t hModbusAscii;
 static int32_t hModbusGateway;
 
-static ciaaBlinkingModMast_stateEnum stateModMast = CIAA_BLINKING_MOD_MAST_STATE_IDLE;
-
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -195,12 +193,15 @@ TASK(ModbusMaster)
 
 /** \brief CallBack Activate Polling Slave Task
  *
- * This function activate task PollingSlave if state is
- * idle.
+ * This function activate task PollingSlave.
  */
 ALARMCALLBACK(CallBackActivatePollingSlave)
 {
-   if (CIAA_BLINKING_MOD_MAST_STATE_IDLE == stateModMast)
+   TaskStateType state;
+
+   GetTaskState(PollingSlave, &state);
+
+   if (SUSPENDED == state)
    {
       ActivateTask(PollingSlave);
    }
@@ -213,57 +214,66 @@ ALARMCALLBACK(CallBackActivatePollingSlave)
  */
 TASK(PollingSlave)
 {
+   static ciaaBlinkingModMast_stateEnum stateModMast = CIAA_BLINKING_MOD_MAST_STATE_IDLE;
    int16_t hrValue;
    int8_t ret;
 
-   switch (stateModMast)
+   do
    {
-      case CIAA_BLINKING_MOD_MAST_STATE_IDLE:
-         stateModMast = CIAA_BLINKING_MOD_MAST_STATE_READING;
-         break;
+      switch (stateModMast)
+      {
+         /* idle state */
+         case CIAA_BLINKING_MOD_MAST_STATE_IDLE:
+            stateModMast = CIAA_BLINKING_MOD_MAST_STATE_READING;
+            break;
 
-      /* reading inputs of CIAA slave modbus */
-      case CIAA_BLINKING_MOD_MAST_STATE_READING:
+         /* reading inputs of CIAA slave modbus */
+         case CIAA_BLINKING_MOD_MAST_STATE_READING:
 
-         /* read inputs from ciaa modbus slave */
-         ret = ciaaModbus_masterCmd0x03ReadHoldingRegisters(
-               hModbusMaster,
-               CIAA_MODBUS_ADDRESS_INPUTS,
-               1,
-               &hrValue,
-               CIAA_BLINKING_MODBUS_ID,
-               NULL);
+            /* read inputs from ciaa modbus slave */
+            ret = ciaaModbus_masterCmd0x03ReadHoldingRegisters(
+                  hModbusMaster,
+                  CIAA_MODBUS_ADDRESS_INPUTS,
+                  1,
+                  &hrValue,
+                  CIAA_BLINKING_MODBUS_ID,
+                  NULL);
 
-         if (CIAA_MODBUS_E_NO_ERROR == ret)
-         {
+            if (CIAA_MODBUS_E_NO_ERROR == ret)
+            {
+               /* set next state */
+               stateModMast = CIAA_BLINKING_MOD_MAST_STATE_WRITING;
+            }
+            break;
+
+         /* writing inputs in to outputs of CIAA slave modbus */
+         case CIAA_BLINKING_MOD_MAST_STATE_WRITING:
+            ret = ciaaModbus_masterCmd0x10WriteMultipleRegisters(
+                  hModbusMaster,
+                  CIAA_MODBUS_ADDRESS_OUTPUS,
+                  1,
+                  &hrValue,
+                  CIAA_BLINKING_MODBUS_ID,
+                  NULL);
+
+            if (CIAA_MODBUS_E_NO_ERROR != ret)
+            {
+               /* do nothing, next state idle */
+            }
+
             /* set next state */
-            stateModMast = CIAA_BLINKING_MOD_MAST_STATE_WRITING;
-         }
-         break;
+            stateModMast = CIAA_BLINKING_MOD_MAST_STATE_IDLE;
+            break;
 
-      /* writing inputs of CIAA slave modbus */
-      case CIAA_BLINKING_MOD_MAST_STATE_WRITING:
-         ciaaModbus_masterCmd0x10WriteMultipleRegisters(
-               hModbusMaster,
-               CIAA_MODBUS_ADDRESS_INPUTS,
-               1,
-               &hrValue,
-               CIAA_BLINKING_MODBUS_ID,
-               NULL);
 
-         /* set next state */
-         stateModMast = CIAA_BLINKING_MOD_MAST_STATE_IDLE;
-         break;
-   }
+         default:
+            stateModMast = CIAA_BLINKING_MOD_MAST_STATE_IDLE;
+            break;
+      }
 
-   if (CIAA_BLINKING_MOD_MAST_STATE_IDLE == stateModMast)
-   {
-      TerminateTask();
-   }
-   else
-   {
-      ChainTask(PollingSlave);
-   }
+   }while (CIAA_BLINKING_MOD_MAST_STATE_IDLE != stateModMast);
+
+   TerminateTask();
 }
 
 
