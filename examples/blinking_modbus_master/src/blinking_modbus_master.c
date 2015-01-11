@@ -76,6 +76,7 @@ typedef enum
 {
    CIAA_BLINKING_MOD_MAST_STATE_READING = 0,
    CIAA_BLINKING_MOD_MAST_STATE_WRITING,
+   CIAA_BLINKING_MOD_MAST_STATE_COMPLETE,
 }ciaaBlinkingModMast_stateEnum;
 
 /*==================[internal data declaration]==============================*/
@@ -222,6 +223,7 @@ TASK(PollingSlave)
       switch (stateModMast)
       {
          /* reading inputs of CIAA slave modbus */
+         default:
          case CIAA_BLINKING_MOD_MAST_STATE_READING:
 
             /* read inputs from ciaa modbus slave */
@@ -256,16 +258,11 @@ TASK(PollingSlave)
             }
 
             /* set next state */
-            stateModMast++;
-            break;
-
-
-         default:
-            stateModMast = CIAA_BLINKING_MOD_MAST_STATE_READING;
+            stateModMast = CIAA_BLINKING_MOD_MAST_STATE_COMPLETE;
             break;
       }
 
-   }while (CIAA_BLINKING_MOD_MAST_STATE_WRITING >= stateModMast);
+   }while (CIAA_BLINKING_MOD_MAST_STATE_COMPLETE > stateModMast);
 
    TerminateTask();
 }
