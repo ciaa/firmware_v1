@@ -79,6 +79,7 @@ TASK PollingSlave {
     ACTIVATION = 1;
     STACK = 512;
     TYPE = EXTENDED;
+    AUTOSTART = FALSE;
     SCHEDULE = FULL;
     RESOURCE = MODBUSR;
 }
@@ -90,10 +91,10 @@ ALARM ActivateModbusTask {
     }
 }
 
-ALARM ActivatePollingSlaveTask {
+ALARM AlarmCallBackPollingSlave {
     COUNTER = SoftwareCounter;
-    ACTION = ACTIVATETASK {
-        TASK = PollingSlave;
+    ACTION = ALARMCALLBACK {
+        ALARMCALLBACKNAME = CallBackActivatePollingSlave;
     }
 }
 

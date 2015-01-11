@@ -74,8 +74,9 @@
 
 typedef enum
 {
-   CIAA_BLINKING_MOD_MAST_STATE_READING = 0,
-   CIAA_BLINKING_MOD_MAST_STATE_WAITING_RESPONSE,
+   CIAA_BLINKING_MOD_MAST_STATE_IDLE = 0,
+   CIAA_BLINKING_MOD_MAST_STATE_READING,
+   CIAA_BLINKING_MOD_MAST_STATE_WRITING,
 }ciaaBlinkingModMast_stateEnum;
 
 /*==================[internal data declaration]==============================*/
@@ -87,31 +88,11 @@ static int32_t hModbusMaster;
 static int32_t hModbusAscii;
 static int32_t hModbusGateway;
 
-static uint8_t callBackData_slaveId;
-static uint8_t callBackData_numFunc;
-static uint8_t callBackData_exceptioncode;
+static ciaaBlinkingModMast_stateEnum stateModMast = CIAA_BLINKING_MOD_MAST_STATE_IDLE;
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-
-/** \brief Call back end of communication
- **
- ** \param[in] slaveId id modbus
- ** \param[in] numFunc number of function performed
- ** \param[in] exceptioncode exception code (0 no error)
- ** \return
- **/
-static void cbEndOfComm(uint8_t slaveId, uint8_t numFunc, uint8_t exceptioncode)
-{
-   callBackData_slaveId = slaveId;
-
-   callBackData_numFunc = numFunc;
-
-   callBackData_exceptioncode = exceptioncode;
-
-   ActivateTask(PollingSlave);
-}
 
 /*==================[external functions definition]==========================*/
 /** \brief Main function
@@ -195,7 +176,7 @@ TASK(InitTask)
 
    SetRelAlarm(ActivateModbusTask, 5, CIAA_MODBUS_TIME_BASE);
 
-   SetRelAlarm(ActivatePollingSlaveTask, 10, 500);
+   SetRelAlarm(AlarmCallBackPollingSlave, 10, 500);
 
    /* end InitTask */
    TerminateTask();
@@ -212,49 +193,77 @@ TASK(ModbusMaster)
    TerminateTask();
 }
 
+/** \brief CallBack Activate Polling Slave Task
+ *
+ * This function activate task PollingSlave if state is
+ * idle.
+ */
+ALARMCALLBACK(CallBackActivatePollingSlave)
+{
+   if (CIAA_BLINKING_MOD_MAST_STATE_IDLE == stateModMast)
+   {
+      ActivateTask(PollingSlave);
+   }
+}
+
 /** \brief Polling Slave Task
  *
- * This task is activated by the Alarm ActivatePollingSlaveTask
- * and call back end of communication modbus master.
+ * This task is activated by the CallBackActivatePollingSlave
+ * and it self if communication pending.
  */
 TASK(PollingSlave)
 {
-   static ciaaBlinkingModMast_stateEnum state = CIAA_BLINKING_MOD_MAST_STATE_READING;
    int16_t hrValue;
+   int8_t ret;
 
-   switch (state)
+   switch (stateModMast)
    {
+      case CIAA_BLINKING_MOD_MAST_STATE_IDLE:
+         stateModMast = CIAA_BLINKING_MOD_MAST_STATE_READING;
+         break;
+
       /* reading inputs of CIAA slave modbus */
       case CIAA_BLINKING_MOD_MAST_STATE_READING:
 
-         /* init numFunc in invalid value */
-         callBackData_numFunc = 0x00;
-
          /* read inputs from ciaa modbus slave */
-         ciaaModbus_masterCmd0x03ReadHoldingRegisters(
+         ret = ciaaModbus_masterCmd0x03ReadHoldingRegisters(
                hModbusMaster,
                CIAA_MODBUS_ADDRESS_INPUTS,
                1,
                &hrValue,
                CIAA_BLINKING_MODBUS_ID,
-               cbEndOfComm);
+               NULL);
 
-         /* set next state */
-         state = CIAA_BLINKING_MOD_MAST_STATE_WAITING_RESPONSE;
-         break;
-
-      /* waiting for response */
-      case CIAA_BLINKING_MOD_MAST_STATE_WAITING_RESPONSE:
-         if (0x00 != callBackData_numFunc)
+         if (CIAA_MODBUS_E_NO_ERROR == ret)
          {
-            state = CIAA_BLINKING_MOD_MAST_STATE_READING;
+            /* set next state */
+            stateModMast = CIAA_BLINKING_MOD_MAST_STATE_WRITING;
          }
          break;
 
-      /* TODO: write input register in to output registers  */
+      /* writing inputs of CIAA slave modbus */
+      case CIAA_BLINKING_MOD_MAST_STATE_WRITING:
+         ciaaModbus_masterCmd0x10WriteMultipleRegisters(
+               hModbusMaster,
+               CIAA_MODBUS_ADDRESS_INPUTS,
+               1,
+               &hrValue,
+               CIAA_BLINKING_MODBUS_ID,
+               NULL);
+
+         /* set next state */
+         stateModMast = CIAA_BLINKING_MOD_MAST_STATE_IDLE;
+         break;
    }
 
-   TerminateTask();
+   if (CIAA_BLINKING_MOD_MAST_STATE_IDLE == stateModMast)
+   {
+      TerminateTask();
+   }
+   else
+   {
+      ChainTask(PollingSlave);
+   }
 }
 
 
