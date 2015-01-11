@@ -74,8 +74,7 @@
 
 typedef enum
 {
-   CIAA_BLINKING_MOD_MAST_STATE_IDLE = 0,
-   CIAA_BLINKING_MOD_MAST_STATE_READING,
+   CIAA_BLINKING_MOD_MAST_STATE_READING = 0,
    CIAA_BLINKING_MOD_MAST_STATE_WRITING,
 }ciaaBlinkingModMast_stateEnum;
 
@@ -214,7 +213,7 @@ ALARMCALLBACK(CallBackActivatePollingSlave)
  */
 TASK(PollingSlave)
 {
-   static ciaaBlinkingModMast_stateEnum stateModMast = CIAA_BLINKING_MOD_MAST_STATE_IDLE;
+   ciaaBlinkingModMast_stateEnum stateModMast = CIAA_BLINKING_MOD_MAST_STATE_READING;
    int16_t hrValue;
    int8_t ret;
 
@@ -222,11 +221,6 @@ TASK(PollingSlave)
    {
       switch (stateModMast)
       {
-         /* idle state */
-         case CIAA_BLINKING_MOD_MAST_STATE_IDLE:
-            stateModMast = CIAA_BLINKING_MOD_MAST_STATE_READING;
-            break;
-
          /* reading inputs of CIAA slave modbus */
          case CIAA_BLINKING_MOD_MAST_STATE_READING:
 
@@ -262,16 +256,16 @@ TASK(PollingSlave)
             }
 
             /* set next state */
-            stateModMast = CIAA_BLINKING_MOD_MAST_STATE_IDLE;
+            stateModMast++;
             break;
 
 
          default:
-            stateModMast = CIAA_BLINKING_MOD_MAST_STATE_IDLE;
+            stateModMast = CIAA_BLINKING_MOD_MAST_STATE_READING;
             break;
       }
 
-   }while (CIAA_BLINKING_MOD_MAST_STATE_IDLE != stateModMast);
+   }while (CIAA_BLINKING_MOD_MAST_STATE_WRITING >= stateModMast);
 
    TerminateTask();
 }
