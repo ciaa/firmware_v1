@@ -82,6 +82,7 @@ TASK PollingSlave {
     AUTOSTART = FALSE;
     SCHEDULE = FULL;
     RESOURCE = MODBUSR;
+    EVENT = MODBUSE;
 }
 
 ALARM ActivateModbusTask {
