@@ -2,8 +2,9 @@
  **
  ** This is the root directory of the CIAA Firmware Project
  **
- ** In this project we are using git submodules, if you use "download zip" link from github it will
- ** NOT download the git submodules :(. Please download the releases or clone using:
+ ** In this project we are using git submodules, if you use "download zip" link from
+ ** github it will NOT download the git submodules :(. Please download the releases
+ ** or clone using:
  ** git clone --recursive https://github.com/ciaa/Firmware.git
  **
  ** This includes following directories:
