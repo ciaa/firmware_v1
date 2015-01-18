@@ -208,10 +208,6 @@ extern ciaaDevices_deviceType * ciaaBlockDevices_open(char const * path,
    /* the returned device shall be the same as passed */
    ciaaPOSIX_assert(blockDevice->device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag) == device->loLayer);
 
-   if(oflag & O_NONBLOCK)
-   {
-      blockDevice->flags |= ciaaBlockDevices_NONBLOCK_MODE;
-   }
    return device;
 }
 
@@ -228,20 +224,6 @@ extern int32_t ciaaBlockDevices_ioctl(ciaaDevices_deviceType const * const devic
 
    switch(request)
    {
-      case ciaaPOSIX_IOCTL_SET_NONBLOCK_MODE:
-         if((bool)(intptr_t)param == false)
-         {
-            /* Blocking mode */
-            blockDevice->flags &= ~ciaaBlockDevices_NONBLOCK_MODE;
-         }
-         else
-         {
-            /* NonBlocking Mode */
-            blockDevice->flags |= ciaaBlockDevices_NONBLOCK_MODE;
-         }
-         ret = 0;
-         break;
-
       default:
          ret = blockDevice->device->ioctl(device->loLayer, request, param);
          break;
@@ -274,170 +256,15 @@ extern int32_t ciaaBlockDevices_read(ciaaDevices_deviceType const * const device
 
 extern int32_t ciaaBlockDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, uint32_t nbyte)
 {
-   /* get block device */
-   ciaaBlockDevices_deviceType * blockDevice =
-      (ciaaBlockDevices_deviceType*) device->layer;
-   int32_t ret = 0;
-   int32_t total = 0;
-   ciaaLibs_CircBufType * cbuf = &blockDevice->txBuf;
-   int32_t head;
-   uint32_t space;
-
-   do
-   {
-      /* read head and space */
-      head = cbuf->head;
-      space = ciaaLibs_circBufSpace(cbuf, head);
-
-      /* put bytes in the queue */
-      ret = ciaaLibs_circBufPut(cbuf, buf, ciaaLibs_min(nbyte-total, space));
-      /* update total of written bytes */
-      total += ret;
-
-      /* starts the transmission if not already ongoing */
-      blockDevice->device->ioctl(
-            device->loLayer,
-            ciaaPOSIX_IOCTL_STARTTX,
-            NULL);
-
-      /* if not all bytes could be stored in the buffer */
-      if (total < nbyte)
-      {
-         /* increment buffer */
-         buf += ret;
-
-         /* set the task to sleep until some data have been send */
-
-         /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
-         blockDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)false);
-         /* get task id and function for waking up the task later */
-         GetTaskID(&blockDevice->blocked.taskID);
-         blockDevice->blocked.fct = (void*) ciaaBlockDevices_write;
-
-         /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
-         blockDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)true);
-         /* wait to write all data or for the txConfirmation */
-#ifdef POSIXE
-         WaitEvent(POSIXE);
-         ClearEvent(POSIXE);
-#endif
-      }
-   }
-   while (total < nbyte);
-
-   return total;
+   return nbyte;
 }
 
-extern void ciaaBlockDevices_txConfirmation(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
+extern void ciaaBlockDevices_writeConfirmation(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
-   /* get block device */
-   ciaaBlockDevices_deviceType * blockDevice =
-      (ciaaBlockDevices_deviceType*) device->layer;
-   uint32_t write = 0;
-   ciaaLibs_CircBufType * cbuf = &blockDevice->txBuf;
-   uint32_t tail = cbuf->tail;
-   uint32_t rawCount = ciaaLibs_circBufRawCount(cbuf, tail);
-   uint32_t count = ciaaLibs_circBufCount(cbuf, tail);
-   TaskType taskID = blockDevice->blocked.taskID;
-
-   /* if some data have to be transmitted */
-   if (count > 0)
-   {
-      /* write data to the driver */
-      write = blockDevice->device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
-
-      /* update buffer */
-      ciaaLibs_circBufUpdateHead(cbuf, write);
-
-      /* if all bytes were written and more data is available */
-      if ( (write == rawCount) && (count > rawCount ) )
-      {
-         /* re calculate rawCount */
-         rawCount = ciaaLibs_circBufRawCount(cbuf, tail);
-
-         /* write more bytes */
-         write = blockDevice->device->write(device->loLayer,
-               ciaaLibs_circBufReadPos(cbuf), rawCount);
-
-         if (write > 0)
-         {
-            /* update buffer */
-            ciaaLibs_circBufUpdateHead(cbuf, write);
-         }
-      }
-      /* if task is blocked and waiting for reception of this device */
-      if ( (255 != taskID) &&
-            (blockDevice->blocked.fct ==
-             (void*) ciaaBlockDevices_write) )
-      {
-         /* invalidate task id */
-         blockDevice->blocked.taskID = 255; /* TODO add a macro */
-
-         /* reset function */
-         blockDevice->blocked.fct = NULL;
-
-         /* set task event */
-#ifdef POSIXE
-         SetEvent(taskID, POSIXE);
-#endif
-      }
-   }
 }
 
-extern void ciaaBlockDevices_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
+extern void ciaaBlockDevices_readIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
-   /* get block device */
-   ciaaBlockDevices_deviceType * blockDevice =
-      (ciaaBlockDevices_deviceType*) device->layer;
-   ciaaLibs_CircBufType * cbuf = &blockDevice->rxBuf;
-   uint32_t head = cbuf->head;
-   uint32_t rawSpace = ciaaLibs_circBufRawSpace(cbuf, head);
-   uint32_t space = ciaaLibs_circBufSpace(cbuf, head);
-   uint32_t read = 0;
-   TaskType taskID = blockDevice->blocked.taskID;
-
-   read = blockDevice->device->read(device->loLayer, ciaaLibs_circBufWritePos(cbuf), rawSpace);
-
-   /* if rawSpace is full but more space is avaialble */
-   if ((read == rawSpace) && (space > rawSpace))
-   {
-      read += blockDevice->device->read(
-            device->loLayer,
-            &cbuf->buf[0],
-            space - rawSpace);
-   }
-   else
-   {
-      if ((read == rawSpace) && (space <= rawSpace))
-      {
-         /* data may be lost because not place on the receive buffer */
-         /* TODO */
-      }
-      else
-      {
-         /* read less bytes than provided */
-         /* nothing to do */
-      }
-   }
-
-   /* update tail */
-   ciaaLibs_circBufUpdateTail(cbuf, read);
-
-   /* if data has been read */
-   if ( (0 < read) && (255 != taskID) &&
-         (blockDevice->blocked.fct == (void*) ciaaBlockDevices_read ) )
-   {
-      /* invalidate task id */
-      blockDevice->blocked.taskID = 255; /* TODO add macro */
-
-      /* reset blocked function */
-      blockDevice->blocked.fct = NULL;
-
-#ifdef POSIXE
-      /* set task event */
-      SetEvent(taskID, POSIXE);
-#endif
-   }
 }
 
 /** @} doxygen end group definition */
