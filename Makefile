@@ -63,7 +63,7 @@ ARCH           ?= x86
 CPUTYPE        ?= ia64
 CPU            ?= none
 COMPILER       ?= gcc
-
+CPROYECT       ?= $(CC)
 DS             ?= /
 # Project
 #
@@ -190,7 +190,7 @@ $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ' '
 endef
 
-OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(SRC_FILES))))
+OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.cpp,%.o,$(SRC_FILES)))))
 
 # create rule for library
 # lib.a : lib_OBJ_FILES.o
@@ -391,7 +391,7 @@ $(project) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
 	@echo ' '
-	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) $(START_GROUP) $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) $(END_GROUP) -o $(LD_TARGET) $(LFLAGS)	
+	$(CPROYECT) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) $(START_GROUP) $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) $(END_GROUP) -o $(LD_TARGET) $(LFLAGS)	
 	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(project)
