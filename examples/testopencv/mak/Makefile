@@ -46,7 +46,10 @@ SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.cpp)
 # configuration for OSEK-OS
 OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
 
+vpath %.cpp $($(project)_SRC_PATH)
 LFLAGS += -L./examples/testopencv/src -lopencv_core -lzlib 
+CFLAGS += -std=c++11
+CPROYECT = $(CPP)
 
 # Modules needed for this example
 MODS ?= modules$(DS)posix           \
