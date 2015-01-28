@@ -231,15 +231,15 @@ extern int32_t ciaaBlockDevices_ioctl(ciaaDevices_deviceType const * const devic
    return ret;
 }
 
-extern int32_t ciaaBlockDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte)
+extern ssize_t ciaaBlockDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, size_t const nbyte)
 {
    /* get block device */
    ciaaBlockDevices_deviceType * blockDevice =
       (ciaaBlockDevices_deviceType*) device->layer;
    int32_t ret = 0;
 
-   /* read data from lower layer */
-   /* TODO */
+   /* trigger read data from lower layer */
+   blockDevice->device->read(device->loLayer, buf, nbyte);
 
    /* get task id and function for waking up the task later */
    GetTaskID(&blockDevice->blocked.taskID);
@@ -249,12 +249,14 @@ extern int32_t ciaaBlockDevices_read(ciaaDevices_deviceType const * const device
 #ifdef POSIXE
    WaitEvent(POSIXE);
    ClearEvent(POSIXE);
+#else
+#error Block device does not support working without POSIXE
 #endif
 
    return ret;
 }
 
-extern int32_t ciaaBlockDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, uint32_t nbyte)
+extern ssize_t ciaaBlockDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, size_t const nbyte)
 {
    return nbyte;
 }
@@ -265,6 +267,26 @@ extern void ciaaBlockDevices_writeConfirmation(ciaaDevices_deviceType const * co
 
 extern void ciaaBlockDevices_readIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
+   /* get block device */
+   ciaaBlockDevices_deviceType * blockDevice =
+      (ciaaBlockDevices_deviceType*) device->layer;
+
+   TaskType taskID = blockDevice->blocked.taskID;
+
+   if ( (255 != taskID) &&
+        ( (void*)ciaaBlockDevices_read == blockDevice->blocked.fct) )
+   {
+      /* invalidate task id */
+      blockDevice->blocked.taskID = 255; /* TODO add macro */
+      /* reset blocked function */
+      blockDevice->blocked.fct = NULL;
+
+      /* set task event */
+      SetEvent(taskID, POSIXE);
+   } else {
+      /* this shall not happens */
+      ciaaPOSIX_assert(0);
+   }
 }
 
 /** @} doxygen end group definition */
