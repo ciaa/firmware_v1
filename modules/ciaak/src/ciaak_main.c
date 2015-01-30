@@ -58,7 +58,9 @@
 /* TODO configuration dependent includes */
 #include "ciaaDevices.h"
 #include "ciaaSerialDevices.h"
+#include "ciaaBlockDevices.h"
 #include "ciaaDriverUart.h"
+#include "ciaaDriverFlash.h"
 #include "ciaaDriverAio.h"
 #include "ciaaDriverDio.h"
 
@@ -84,10 +86,16 @@ void ciaak_start(void)
     * ciaaPOSIX_malloc or ciaak_malloc */
    ciaaPOSIX_stdlib_init();
 
+   /* init device manager */
    ciaaDevices_init();
 
+   /* init devices types */
    ciaaSerialDevices_init();
+   ciaaBlockDevices_init();
+
+   /* init drivers */
    ciaaDriverUart_init();
+   ciaaDriverFlash_init();
 
    /* ciaaDioDevices_init(); */
    ciaaDriverDio_init();
