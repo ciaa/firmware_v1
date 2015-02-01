@@ -58,7 +58,6 @@
  */
 
 /*==================[inclusions]=============================================*/
-
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_stddef.h"
 #include "ciaaPOSIX_stdbool.h"
@@ -71,9 +70,7 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 #ifndef NULL
-/*@-namechecks@*/
 #define NULL 	((void*)0)
-/*@=namechecks@*/
 #endif
 
 /*==================[typedef]================================================*/

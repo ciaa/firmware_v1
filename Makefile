@@ -356,6 +356,7 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo Compiling 'c' file: $<
 	@echo ' '
 	$(CC) $(CFLAGS) $< -o $(OBJ_DIR)$(DS)$@
+	splint $< $(foreach inc, $(INCLUDE), -I$(inc)) -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -systemdirs /usr/local/lpcxpresso_7.1.1_125/lpcxpresso/tools/arm-none-eabi/include +posixstrictlib -strict
 ifeq ($(MAKE_DEPENDENCIES),1)
 	@echo ' '
 	@echo Generating dependencies...

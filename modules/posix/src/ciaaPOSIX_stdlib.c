@@ -105,7 +105,7 @@ static void ciaaPOSIX_chunk_partition(ciaaPOSIX_chunk_header *chunk_header, uint
        next_chunk_header->next = chunk_header->next;
        chunk_header->next = next_chunk_header;
        next_chunk_header->size = chunk_header->size - size - sizeof(ciaaPOSIX_chunk_header);
-       next_chunk_header->is_available = CIAA_POSIX_STDLIB_AVAILABLE;
+       next_chunk_header->is_available = (bool)CIAA_POSIX_STDLIB_AVAILABLE;
        chunk_header->size = size;
   }
   chunk_header->is_available = CIAA_POSIX_STDLIB_USED;
@@ -115,11 +115,11 @@ static void ciaaPOSIX_chunk_partition(ciaaPOSIX_chunk_header *chunk_header, uint
 
 void ciaaPOSIX_stdlib_init(void)
 {
-   int ciaaPOSIX_heap_available_size = CIAA_HEAP_MEM_SIZE - sizeof(ciaaPOSIX_chunk_header);
+   uint32_t ciaaPOSIX_heap_available_size = CIAA_HEAP_MEM_SIZE - sizeof(ciaaPOSIX_chunk_header);
    first_chunk_header = (ciaaPOSIX_chunk_header*)&ciaaPOSIX_buffer;
    first_chunk_header->next = NULL;
    first_chunk_header->size = ciaaPOSIX_heap_available_size;
-   first_chunk_header->is_available = CIAA_POSIX_STDLIB_AVAILABLE;
+   first_chunk_header->is_available = (bool)CIAA_POSIX_STDLIB_AVAILABLE;
    /* init sempahore */
    ciaaPOSIX_sem_init(&ciaaPOSIX_stdlib_sem);
 }
