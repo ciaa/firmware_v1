@@ -42,8 +42,8 @@
  *
  */
 
-#ifndef _TEMPLATE_FILE_H_
-#define _TEMPLATE_FILE_H_
+#ifndef TEMPLATE_FILE_H
+#define TEMPLATE_FILE_H
 /** \brief Short description of this file
  **
  ** Long description of this file
@@ -110,5 +110,5 @@ extern int16_t Template_Sum16bits(int16_t const a, int16_t const b);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _TEMPLATE_FILE_H_ */
+#endif /* #ifndef TEMPLATE_FILE_H */
 
