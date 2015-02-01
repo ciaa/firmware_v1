@@ -2,6 +2,8 @@
  * Copyright 2014, Esteban Volentini
  * Copyright 2014, Matias Giori
  * Copyright 2014, Franco Salinas
+ * Copyright 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -53,24 +55,70 @@
  * EV           Esteban Volentini
  * MG           Matias Giori
  * FS           Franco Salinas
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141006 v0.0.1  EV  first initial version
+ * 20150201 v0.0.2 MaCe first implementation of flash simulation
+ * 20141006 v0.0.1 EV   first initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverFlash.h"
+#include "ciaaBlockDevices.h"
 
 /*==================[macros and definitions]=================================*/
+/** \brief Pointer to Devices */
+typedef struct  {
+   ciaaDevices_deviceType * const * const devices;
+   uint8_t countOfDevices;
+} ciaaDriverConstType;
+
+typedef struct {
+   int32_t minRead;
+   int32_t maxRead;
+   int32_t minWrite;
+   int32_t maxWrite;
+   int32_t blockSize;
+} ciaaDriverFlash_flashType;
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+/** \brief Uart 0 */
+static const ciaaDriverFlash_flashType ciaaDriverFlash_flash0 = {
+   512,     /** <= minRead 512 bytes */
+   0,       /** <= maxRead 0 -> no limit */
+   512,     /** <= minWrite 512 bytes */
+   0,       /** <= maxWrite 0 -> no limit */
+   512      /** <= blockSize 512 bytes */
+};
+
+static ciaaDevices_deviceType ciaaDriverFlash_device0 = {
+   "hd/0",                          /** <= driver name */
+   ciaaDriverFlash_open,            /** <= open function */
+   ciaaDriverFlash_close,           /** <= close function */
+   ciaaDriverFlash_read,            /** <= read function */
+   ciaaDriverFlash_write,           /** <= write function */
+   ciaaDriverFlash_ioctl,           /** <= ioctl function */
+   ciaaDriverFlash_seek,            /** <= seek function is not provided */
+   NULL,                            /** <= upper layer */
+   (void*)&ciaaDriverFlash_flash0,  /** <= layer */
+   NULL                             /** <= NULL no lower layer */
+};
+
+static ciaaDevices_deviceType * const ciaaFlashDevices[] = {
+   &ciaaDriverFlash_device0,
+};
+
+static ciaaDriverConstType const ciaaDriverFlashConst = {
+   ciaaFlashDevices,
+   2
+};
 
 /*==================[external data definition]===============================*/
 
@@ -94,18 +142,23 @@ extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device
    return ret;
 }
 
-extern int32_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
+extern ssize_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t size)
 {
    int32_t ret = -1;
 
    return ret;
 }
 
-extern int32_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
+extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
    int32_t ret = -1;
 
    return ret;
+}
+
+extern int32_t ciaaDriverFlash_seek(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence)
+{
+   return -1;
 }
 
 void ciaaDriverFlash_init(void)
