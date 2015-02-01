@@ -59,6 +59,7 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaModbus_config.h"
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stdbool.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -339,24 +340,276 @@ extern int32_t ciaaModbus_masterOpen(void);
 extern int32_t ciaaModbus_masterClose(
       int32_t hModbusMaster);
 
-/** \brief Perform function 0x03 on slave
- ** Read Holding Registers
+/** \brief Perform function 0x01 on slave
+ ** Read Coils
  **
  ** \param[in] hModbusMaster handler of Modbus Master
- ** \param[in] startAddress
- ** \return 0 successful
+ ** \param[in] startAddress starting address to read
+ ** \param[in] quantity of coils to read
+ ** \param[out] coilValue pointer to store coils reads
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
  **         1 function not supported
  **         2 wrong starting address
- **         3 wring quantity
+ **         3 wrong quantity
  **         4 function error
  **         5 the slave not respond
  **         6 pdu received wrong
  **/
-extern int8_t ciaaModbus_masterCmd0x03ReadHoldingReg(
+extern int8_t ciaaModbus_masterCmd0x01ReadCoils(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      uint16_t quantity,
+      uint8_t *coilValue,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm);
+
+/** \brief Perform function 0x02 on slave
+ ** Read Discrete Inputs
+ **
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddress starting address to read
+ ** \param[in] quantity of discrete inputs to read
+ ** \param[out] discreteInputsValue pointer to store discrete inputs reads
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
+extern int8_t ciaaModbus_masterCmd0x02ReadDiscreteInputs(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      uint16_t quantity,
+      uint8_t *discreteInputsValue,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm);
+
+/** \brief Perform function 0x03 on slave
+ ** Read Holding Registers
+ **
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddress starting address to read
+ ** \param[in] quantity of holding registers to read
+ ** \param[out] hrValue pointer to store holding registers reads
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
+extern int8_t ciaaModbus_masterCmd0x03ReadHoldingRegisters(
       int32_t hModbusMaster,
       uint16_t startAddress,
       uint16_t quantity,
       int16_t *hrValue,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm);
+
+/** \brief Perform function 0x04 on slave
+ ** Read Input Registers
+ **
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddress starting address to read
+ ** \param[in] quantity of input registers to read
+ ** \param[out] irValue pointer to store input registers reads
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
+extern int8_t ciaaModbus_masterCmd0x04ReadInputRegisters(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      uint16_t quantity,
+      int16_t *irValue,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm);
+
+/** \brief Perform function 0x05 on slave
+ ** Write Single Coil
+ **
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddress starting address to write
+ ** \param[in] value a true value, the coil ON
+ **            a false value, the coil OFF
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
+extern int8_t ciaaModbus_masterCmd0x05WriteSingleCoil(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      bool value,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm);
+
+/** \brief Perform function 0x06 on slave
+ ** Write Single Register
+ **
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddress starting address to write
+ ** \param[in] value value to be write
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
+extern int8_t ciaaModbus_masterCmd0x06WriteSingleRegister(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      int16_t value,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm);
+
+/** \brief Perform function 0x0F on slave
+ ** write multiple coils
+ **
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddress starting address to write
+ ** \param[in] quantity of coils to write
+ ** \param[in] coilsValue pointer to data value to write
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
+extern int8_t ciaaModbus_masterCmd0x0FWriteMultipleCoils(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      uint16_t quantity,
+      uint8_t *coilsValue,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm);
+
+/** \brief Perform function 0x10 on slave
+ ** write multiple registers
+ **
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddress starting address to write
+ ** \param[in] quantity of holding registers to write
+ ** \param[in] hrValue pointer to data value to write
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
+extern int8_t ciaaModbus_masterCmd0x10WriteMultipleRegisters(
+      int32_t hModbusMaster,
+      uint16_t startAddress,
+      uint16_t quantity,
+      int16_t *hrValue,
+      uint8_t slaveId,
+      modbusMaster_cbEndOfCommType cbEndComm);
+
+/** \brief Perform function 0x17 on slave
+ ** read write multiple registers
+ **
+ ** \param[in] hModbusMaster handler of Modbus Master
+ ** \param[in] startAddressR starting address to read
+ ** \param[in] quantityR quantity of holding registers to read
+ ** \param[out] hrValueR pointer to store holding registers reads
+ ** \param[in] startAddressW starting address to write
+ ** \param[in] quantityW quantity of holding registers to write
+ ** \param[in] hrValueW pointer to data value to write
+ ** \param[in] slaveId slave identification number
+ ** \param[in] cbEndComm call back function
+ **            if NULL pointer is passed, this function block until
+ **            end of communication (using MODBUSE).
+ **            if call back is passed, this function return and
+ **            call back will be executed at end of communication
+ ** \return -1 if master is busy or invalid id passed
+ **         0 successful
+ **         1 function not supported
+ **         2 wrong starting address
+ **         3 wrong quantity
+ **         4 function error
+ **         5 the slave not respond
+ **         6 pdu received wrong
+ **/
+extern int8_t ciaaModbus_masterCmd0x17ReadWriteMultipleRegisters(
+      int32_t hModbusMaster,
+      uint16_t startAddressR,
+      uint16_t quantityR,
+      int16_t *hrValueR,
+      uint16_t startAddressW,
+      uint16_t quantityW,
+      int16_t *hrValueW,
       uint8_t slaveId,
       modbusMaster_cbEndOfCommType cbEndComm);
 
