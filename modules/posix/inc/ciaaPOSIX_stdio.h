@@ -1,6 +1,7 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2015, Mariano Cerdeiro
  * Copyright 2014, Pablo Ridolfi (UTN-FRBA)
  * Copyright 2014, Juan Cecconi
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -57,6 +58,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150221 v0.0.3 MaCe separeate ioctl macros in multiple files
  * 20140528 v0.0.2 MaCe implement printf
  * 20140420 v0.0.1 EzEs initial version
  */
@@ -67,6 +69,8 @@
 #include "ciaaErrorsCodeSystem.h"
 #include "ciaaMessagesCodeSystem.h"
 #include "ciaaPOSIX_stddef.h"
+#include "ciaaPOSIX_ioctl_serial.h"
+#include "ciaaPOSIX_ioctl_block.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -89,133 +93,6 @@ extern "C" {
 
 /** \brief Non blocking interface */
 #define O_NONBLOCK          8
-
-/** \brief request to configure ioctl with rxindication
- **
- ** if ioctl is called with this request and param is != NULL the device
- ** will be configured non blocking wiht rx indication.
- **
- **/
-#define ciaaPOSIX_IOCTL_RXINDICATION            1
-
-/** \brief start transmission if not already on going
- **
- ** This ioctl command can be used to force the transmission of data. If the
- ** transmission is already on going the call hay no effects.
- **
- **/
-#define ciaaPOSIX_IOCTL_STARTTX                 2
-
-/** \brief get current number of bytes stored in rx buffer
- **
- ** This ioctl command is used to see how many bytes are currently in the
- ** receive queue, in order to avoid task blocking when calling read.
- **
- **/
-#define ciaaPOSIX_IOCTL_GET_RX_COUNT            3
-
-/** \brief get current space left in tx buffer (in bytes)
- **
- ** This ioctl command is used to see how many bytes can be written in the
- ** transmit queue without being blocked by calling write
- **
- **/
-#define ciaaPOSIX_IOCTL_GET_TX_SPACE            4
-
-/** \brief set baudrate for serial devices
- **
- ** This ioctl command is used to set the baudrate for any serial device.
- ** Possible values for arg are:
- **   ciaaBAUDRATE_300
- **   ciaaBAUDRATE_600
- **   ciaaBAUDRATE_1200
- **   ciaaBAUDRATE_1800
- **   ciaaBAUDRATE_2400
- **   ciaaBAUDRATE_4800
- **   ciaaBAUDRATE_9600
- **   ciaaBAUDRATE_14400
- **   ciaaBAUDRATE_19200
- **   ciaaBAUDRATE_38400
- **   ciaaBAUDRATE_57600
- **   ciaaBAUDRATE_115200
- **   ciaaBAUDRATE_230400
- **   ciaaBAUDRATE_460800
- **   ciaaBAUDRATE_921600
- **
- ** Returned value for ioctl is the actual baud rate, or 0 if no rate can be found.
- **/
-#define ciaaPOSIX_IOCTL_SET_BAUDRATE            5
-
-/** \brief baudrate macros for serial devices
- **/
-#define ciaaBAUDRATE_300     ( 300     )
-#define ciaaBAUDRATE_600     ( 600     )
-#define ciaaBAUDRATE_1200    ( 1200    )
-#define ciaaBAUDRATE_1800    ( 1800    )
-#define ciaaBAUDRATE_2400    ( 2400    )
-#define ciaaBAUDRATE_4800    ( 4800    )
-#define ciaaBAUDRATE_9600    ( 9600    )
-#define ciaaBAUDRATE_14400   ( 14400   )
-#define ciaaBAUDRATE_19200   ( 19200   )
-#define ciaaBAUDRATE_38400   ( 38400   )
-#define ciaaBAUDRATE_57600   ( 57600U  )
-#define ciaaBAUDRATE_115200  ( 115200U )
-#define ciaaBAUDRATE_230400  ( 230400U )
-#define ciaaBAUDRATE_460800  ( 460800U )
-#define ciaaBAUDRATE_921600  ( 921600U )
-
-/** \brief set FIFO RX Trigger Level for serial devices
- **
- ** This ioctl command is used to set the FIFO RX Trigger Level for any serial device.
- ** Possible values for arg are:
- **   ciaaFIFO_TRIGGER_LEVEL0
- **   ciaaFIFO_TRIGGER_LEVEL1
- **   ciaaFIFO_TRIGGER_LEVEL2
- **   ciaaFIFO_TRIGGER_LEVEL3
- **
- ** Returned value for ioctl is 0
- **/
-#define ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL         6
-
-/** \brief FIFO RX Trigger Level macros for serial devices
- **/
-#define ciaaFIFO_TRIGGER_LEVEL0     (0)            /*!< UART FIFO trigger level 0: 1 character */
-#define ciaaFIFO_TRIGGER_LEVEL1     (1 << 6)       /*!< UART FIFO trigger level 1: 4 character */
-#define ciaaFIFO_TRIGGER_LEVEL2     (2 << 6)       /*!< UART FIFO trigger level 2: 8 character */
-#define ciaaFIFO_TRIGGER_LEVEL3     (3 << 6)       /*!< UART FIFO trigger level 3: 14 character */
-
-/** \brief set Enabled/Disabled TX Interrupt for serial devices
- **
- ** This ioctl command is used to set Enabled/Disabled TX Interrupt for any serial device.
- ** Possible values for arg are:
- **   true (Enabled)
- **   false (Enabled)
- **
- ** Returned none
- **/
-#define ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT        7
-
-/** \brief set Enabled/Disabled RX Interrupt for serial devices
- **
- ** This ioctl command is used to set Enabled/Disabled RX Interrupt for any serial device.
- ** Possible values for arg are:
- **   true (Enabled)
- **   false (Enabled)
- **
- ** Returned none
- **/
-#define ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT        8
-
-/** \brief set Enabled/Disabled NonBlock Mode
- **
- ** This ioctl command is used to set Enabled/Disabled NonBlock Mode for any serial device.
- ** Possible values for arg are:
- **   true (Enabled)
- **   false (Enabled)
- **
- ** Returned none
- **/
-#define ciaaPOSIX_IOCTL_SET_NONBLOCK_MODE              9
 
 /** \brief set channel for analogic input/output
  **

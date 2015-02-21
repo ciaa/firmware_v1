@@ -236,33 +236,89 @@ extern ssize_t ciaaBlockDevices_read(ciaaDevices_deviceType const * const device
    /* get block device */
    ciaaBlockDevices_deviceType * blockDevice =
       (ciaaBlockDevices_deviceType*) device->layer;
-   int32_t ret = 0;
+   ssize_t ret = 0;
 
    /* trigger read data from lower layer */
-   blockDevice->device->read(device->loLayer, buf, nbyte);
+   ret = blockDevice->device->read(device->loLayer, buf, nbyte);
 
-   /* get task id and function for waking up the task later */
-   GetTaskID(&blockDevice->blocked.taskID);
-   blockDevice->blocked.fct = (void*) ciaaBlockDevices_read;
+   /* if no bytes have been read, wait for them */
+   if (0 == ret)
+   {
+      /* get task id and function for waking up the task later */
+      GetTaskID(&blockDevice->blocked.taskID);
+      blockDevice->blocked.fct = (void*) ciaaBlockDevices_read;
 
-   /* if no data wait for it */
+      /* if no data wait for it */
 #ifdef POSIXE
-   WaitEvent(POSIXE);
-   ClearEvent(POSIXE);
+      WaitEvent(POSIXE);
+      ClearEvent(POSIXE);
 #else
 #error Block device does not support working without POSIXE
 #endif
+
+      /* TODO improve this */
+      /* for the first impl. the driver shall return as much bytes as requested */
+      ret = nbyte;
+   }
 
    return ret;
 }
 
 extern ssize_t ciaaBlockDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, size_t const nbyte)
 {
-   return nbyte;
+   /* get block device */
+   ciaaBlockDevices_deviceType * blockDevice =
+      (ciaaBlockDevices_deviceType*) device->layer;
+   ssize_t ret = 0;
+
+   /* trigger write data from lower layer */
+   ret = blockDevice->device->write(device->loLayer, buf, nbyte);
+
+   /* if no bytes couldnt be written, wait to complete the write */
+   if (0 == ret)
+   {
+      /* get task id and function for waking up the task later */
+      GetTaskID(&blockDevice->blocked.taskID);
+      blockDevice->blocked.fct = (void*) ciaaBlockDevices_read;
+
+      /* if no data wait for it */
+#ifdef POSIXE
+      WaitEvent(POSIXE);
+      ClearEvent(POSIXE);
+#else
+#error Block device does not support working without POSIXE
+#endif
+
+      /* TODO improve this */
+      /* for the first impl. the driver shall return as much bytes as requested */
+      ret = nbyte;
+   }
+
+   return ret;
 }
 
 extern void ciaaBlockDevices_writeConfirmation(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
+   /* get block device */
+   ciaaBlockDevices_deviceType * blockDevice =
+      (ciaaBlockDevices_deviceType*) device->layer;
+
+   TaskType taskID = blockDevice->blocked.taskID;
+
+   if ( (255 != taskID) &&
+        ( (void*)ciaaBlockDevices_write == blockDevice->blocked.fct) )
+   {
+      /* invalidate task id */
+      blockDevice->blocked.taskID = 255; /* TODO add macro */
+      /* reset blocked function */
+      blockDevice->blocked.fct = NULL;
+
+      /* set task event */
+      SetEvent(taskID, POSIXE);
+   } else {
+      /* this shall not happens */
+      ciaaPOSIX_assert(0);
+   }
 }
 
 extern void ciaaBlockDevices_readIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)

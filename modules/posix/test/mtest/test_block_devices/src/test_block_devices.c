@@ -64,16 +64,61 @@
 #include "test_block_devices.h"  /* <= own header */
 
 /*==================[macros and definitions]=================================*/
+#define ASSERT(cond) assert((cond), __FILE__, __LINE__)
+#define ASSERT_MSG(cond, msg) assert_msg((cond), (msg), __FILE__, __LINE__)
+#define ASSERT_SEQ(seq) assert_seq((seq), __FILE__, __LINE__)
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+/* buffer to store 10 blocks of the block device */
+uint8_t buffer[10][512];
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+static void assert(int cond, char * file, int line)
+{
+   if (cond)
+   {
+      /* assertion is ok */
+      ciaaPOSIX_printf("OK: Assert in %s:%d\n", file, line);
+   }
+   else
+   {
+      ciaaPOSIX_printf("Assert Failed in %s:%d\n", file, line);
+   }
+}
+
+static void assert_msg(int cond, char* msg, char * file, int line)
+{
+   if (cond)
+   {
+      /* assertion is ok */
+      ciaaPOSIX_printf("OK: Assert in %s:%d\n", file, line);
+   }
+   else
+   {
+      ciaaPOSIX_printf("ERROR: Assert Failed in %s:%d %s\n", file, line, msg);
+   }
+}
+
+static void assert_seq(int seq, char * file, int line)
+{
+   static unsigned int sequence = 0;
+
+   if (sequence == seq)
+   {
+      ciaaPOSIX_printf("OK: Sequence %d\n", seq);
+      sequence++;
+   }
+   else
+   {
+      ciaaPOSIX_printf("ERROR: Wrong sequence: %d on %s:%d\n", seq, file, line);
+   }
+}
 
 /*==================[external functions definition]==========================*/
 /** \brief Main function
@@ -127,14 +172,34 @@ void ErrorHook(void)
  */
 TASK(InitTask)
 {
+   int32_t filedes1;
+   int32_t blockSize;
+   int32_t ret;
+
    /* init CIAA kernel and devices */
    ciaak_start();
 
    /* print message (only on x86) */
    ciaaPOSIX_printf("Init Task...\n");
 
-   /* TODO add module tests */
 
+   ASSERT_SEQ(0);
+
+   /* open a block device */
+   filedes1 = ciaaPOSIX_open("/dev/block/hd/0", O_RDWR);
+   ASSERT_MSG(0 < filedes1, "ciaaPOSIX_open returns an invalid handler");
+
+   ASSERT_SEQ(1);
+
+   ret = ciaaPOSIX_ioctl(filedes1, ciaaPOSIX_IOCTL_BLOCKSIZE, &blockSize);
+   ASSERT(1 == ret);
+   ASSERT(512 == blockSize);
+
+   ret = ciaaPOSIX_read(filedes1, buffer[0], blockSize);
+   ASSERT_MSG(blockSize == ret, "Trying to read a block failed");
+
+   ret = ciaaPOSIX_write(filedes1, buffer[0], blockSize);
+   ASSERT_MSG(blockSize == ret, "Trying to write a block failed");
 
    /* terminate task */
    TerminateTask();
@@ -148,8 +213,6 @@ TASK(InitTask)
  */
 TASK(PeriodicTask)
 {
-   uint8 outputs;
-
    /* write blinking message */
    ciaaPOSIX_printf("Blinking\n");
 
