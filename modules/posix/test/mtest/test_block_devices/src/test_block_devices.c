@@ -88,7 +88,7 @@ static void assert(int cond, char * file, int line)
    }
    else
    {
-      ciaaPOSIX_printf("Assert Failed in %s:%d\n", file, line);
+      ciaaPOSIX_printf("ERROR: Assert Failed in %s:%d\n", file, line);
    }
 }
 

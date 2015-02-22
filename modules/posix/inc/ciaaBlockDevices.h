@@ -31,8 +31,8 @@
  *
  */
 
-#ifndef _CIAABLOCKDEVICES_H_
-#define _CIAABLOCKDEVICES_H_
+#ifndef CIAABLOCKDEVICES_H
+#define CIAABLOCKDEVICES_H
 /** \brief CIAA Block Devices
  **
  ** Provides support for block devices
@@ -68,6 +68,14 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+typedef struct {
+   int32_t minRead;        /** <- minimal read size shall be 0 or 2^n, if 0 no minimal read size */
+   int32_t maxRead;        /** <- maximal read size shall be 0 or 2^n, if 0 no maximal read size */
+   int32_t minWrite;       /** <- minimal write size shall be 0 or 2^n, if 0 no minimal write size */
+   int32_t maxWrite;       /** <- maximal write size shall be 0 or 2^n, if 0 no maximal write size */
+   int32_t blockSize;      /** <- block size, shall be 2^n with n > 0 */
+   uint32_t lastPosition;  /** <- position of end of file (device) */
+} ciaaDevices_devicesBlockExtType;
 
 /*==================[external data declaration]==============================*/
 
@@ -188,5 +196,5 @@ extern void ciaaBlockDevices_releaseDriver(ciaaDevices_deviceType const * driver
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAABLOCKDEVICES_H_ */
+#endif /* #ifndef CIAABLOCKDEVICES_H */
 
