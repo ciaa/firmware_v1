@@ -2,6 +2,8 @@
  * Copyright 2014, Esteban Volentini
  * Copyright 2014, Matias Giori
  * Copyright 2014, Franco Salinas
+ * Copyright 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,9 +35,9 @@
  *
  */
 
-/** \brief CIAA Flash Driver for K60_120
- **
- ** Implements the Flash Driver for K60_120
+#ifndef _CIAADRIVERFLASH_INTERNAL_H_
+#define _CIAADRIVERFLASH_INTERNAL_H_
+/** \brief Internal Header file of Flash Driver
  **
  **/
 
@@ -49,73 +51,78 @@
 /*
  * Initials     Name
  * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas
+ * MaCe         Mariano Cerdeiro
+ * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141006 v0.0.1  EV  first initial version
+ * 20140528 v0.0.1 EsVo initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaDriverFlash.h"
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stdbool.h"
 
-/*==================[macros and definitions]=================================*/
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[internal data declaration]==============================*/
+/*==================[macros]=================================================*/
+/* Define host port to use a serial port 0 */
+#define CIAADRVFLASH_FILENAME_0 "FLASH.BIN"
 
-/*==================[internal functions declaration]=========================*/
+/** Enable flash emulation in file of host */
+#if defined(CIAADRVFLASH_FILENAME_0)
+   #include <termios.h>
 
-/*==================[internal data definition]===============================*/
+   #ifndef CIAADRVFLASH_BLOCK_SIZE_0
+      #define CIAADRVFLASH_BLOCK_SIZE_0   512
+   #endif
 
-/*==================[external data definition]===============================*/
+   #define CIAADRVFLASH_ENABLE_FUNCIONALITY
+#endif
 
-/*==================[internal functions definition]==========================*/
+/*==================[typedef]================================================*/
+/** \brief Buffer Structure */
+typedef struct {
+   uint16_t length;                                /** <= Length used */
+   uint8_t buffer[CIAADRVFLASH_BLOCK_SIZE_0];      /** <= Data storage */
+} ciaaDriverFlash_bufferType;
 
-/*==================[external functions definition]==========================*/
-extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
-{
-   return device;
+/** \brief Uart Type */
+typedef struct {
+   ciaaDriverFlash_bufferType buffer;
+#ifdef CIAADRVFLASH_ENABLE_FUNCIONALITY
+   int fileDescriptor;
+   char const * deviceName;
+#endif /* CIAADRVFLASH_ENABLE_FUNCIONALITY */
+} ciaaDriverFlash_flashType;
+
+/*==================[external data declaration]==============================*/
+/** \brief Uart 0 */
+extern ciaaDriverFlash_flashType ciaaDriverFlash_flash0;
+
+/** \brief Uart 1 */
+//extern ciaaDriverFlash_flashType ciaaDriverFlash_flash1;
+
+/*==================[external functions declaration]=========================*/
+//extern void ciaaDriverFlash_flash0_rxIndication(void);
+
+//extern void ciaaDriverFlash_flash0_txConfirmation(void);
+
+//extern void ciaaDriverFlash_flash1_rxIndication(void);
+
+//extern void ciaaDriverFlash_flash1_txConfirmation(void);
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-extern int32_t ciaaDriverFlash_close(ciaaDevices_deviceType const * const device)
-{
-   return -1;
-}
-
-extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
-{
-   int32_t ret = -1;
-
-   return ret;
-}
-
-extern int32_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
-{
-   int32_t ret = -1;
-
-   return ret;
-}
-
-extern int32_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
-{
-   int32_t ret = -1;
-
-   return ret;
-}
-
-void ciaaDriverFlash_init(void)
-{
-
-}
-
-/*==================[interrupt handlers]=====================================*/
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
+#endif /* #ifndef _CIAADRIVERFLASH_INTERNAL_H_ */
