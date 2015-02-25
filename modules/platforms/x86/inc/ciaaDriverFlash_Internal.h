@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef _CIAADRIVERFLASH_INTERNAL_H_
-#define _CIAADRIVERFLASH_INTERNAL_H_
+#ifndef CIAADRIVERFLASH_INTERNAL_H
+#define CIAADRIVERFLASH_INTERNAL_H
 /** \brief Internal Header file of Flash Driver
  **
  **/
@@ -64,6 +64,7 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_stdbool.h"
+#include <stdio.h>
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -71,51 +72,38 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/* Define host port to use a serial port 0 */
-#define CIAADRVFLASH_FILENAME_0 "FLASH.BIN"
-
-/** Enable flash emulation in file of host */
-#if defined(CIAADRVFLASH_FILENAME_0)
-   #include <termios.h>
-
-   #ifndef CIAADRVFLASH_BLOCK_SIZE_0
-      #define CIAADRVFLASH_BLOCK_SIZE_0   512
-   #endif
-
-   #define CIAADRVFLASH_ENABLE_FUNCIONALITY
+/** Define host filename to use a serial port 0 */
+#ifndef CIAADRVFLASH_FILENAME
+   #define CIAADRVFLASH_FILENAME    "FLASH.BIN"
 #endif
 
+/** Define flash block size */
+#ifndef CIAADRVFLASH_BLOCK_SIZE
+   #define CIAADRVFLASH_BLOCK_SIZE  512
+#endif
 /*==================[typedef]================================================*/
 /** \brief Buffer Structure */
 typedef struct {
    uint16_t length;                                /** <= Length used */
-   uint8_t buffer[CIAADRVFLASH_BLOCK_SIZE_0];      /** <= Data storage */
+   uint8_t buffer[CIAADRVFLASH_BLOCK_SIZE];      /** <= Data storage */
 } ciaaDriverFlash_bufferType;
 
 /** \brief Uart Type */
 typedef struct {
-   ciaaDriverFlash_bufferType buffer;
-#ifdef CIAADRVFLASH_ENABLE_FUNCIONALITY
+   //ciaaDriverFlash_bufferType buffer;
    int fileDescriptor;
-   char const * deviceName;
-#endif /* CIAADRVFLASH_ENABLE_FUNCIONALITY */
+   char const * filename;
+   FILE * storage;
 } ciaaDriverFlash_flashType;
 
 /*==================[external data declaration]==============================*/
 /** \brief Uart 0 */
-extern ciaaDriverFlash_flashType ciaaDriverFlash_flash0;
-
-/** \brief Uart 1 */
-//extern ciaaDriverFlash_flashType ciaaDriverFlash_flash1;
+extern ciaaDriverFlash_flashType ciaaDriverFlash_flash;
 
 /*==================[external functions declaration]=========================*/
 //extern void ciaaDriverFlash_flash0_rxIndication(void);
 
 //extern void ciaaDriverFlash_flash0_txConfirmation(void);
-
-//extern void ciaaDriverFlash_flash1_rxIndication(void);
-
-//extern void ciaaDriverFlash_flash1_txConfirmation(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -125,4 +113,4 @@ extern ciaaDriverFlash_flashType ciaaDriverFlash_flash0;
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAADRIVERFLASH_INTERNAL_H_ */
+#endif /* #ifndef CIAADRIVERFLASH_INTERNAL_H */

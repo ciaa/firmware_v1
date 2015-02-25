@@ -69,56 +69,19 @@
 #include "ciaaDriverFlash.h"
 #include "ciaaDriverFlash_Internal.h"
 #include "ciaaBlockDevices.h"
+#include <stdio.h>
 
 /*==================[macros and definitions]=================================*/
-/** \brief Pointer to Devices */
-typedef struct  {
-   ciaaDevices_deviceType * const * const devices;
-   uint8_t countOfDevices;
-} ciaaDriverConstType;
 
-#if (0)
-typedef struct {
-   int32_t minRead;
-   int32_t maxRead;
-   int32_t minWrite;
-   int32_t maxWrite;
-   int32_t blockSize;
-} ciaaDriverFlash_flashType;
-#endif
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
-void ciaaDriverFlash_fileInit(ciaaDevices_deviceType * device, uint8_t index);
 
 /*==================[internal data definition]===============================*/
-#ifdef CIAADRVFLASH_ENABLE_FUNCIONALITY
+/* Constant with filename of storage file maped to Flash */
+static const char ciaaDriverFlash_filename[] = CIAADRVFLASH_FILENAME;
 
-/* Constant with filename of storage file maped to Flash 0 */
-static const char ciaaDriverFlash_name0[] = CIAADRVFLASH_FILENAME_0;
-
-/* Constant with filename of storage file maped to Flash 1 */
-//static const char ciaaDriverFlash_name1[] = CIAADRVFLASH_FILENAME_1;
-
-/* Constant with filenames of flash storage files */
-static const char * ciaaDriverFlash_fileNames[] = {
-   ciaaDriverFlash_name0
-};
-
-#endif /* CIAADRVFLASH_ENABLE_FUNCIONALITY */
-
-#if (0)
-/** \brief Flash 0 */
-static const ciaaDriverFlash_flashType ciaaDriverFlash_flash0 = {
-   CIAADRVFLASH_BLOCK_SIZE_0,       /** <= minRead 512 bytes */
-   0,                               /** <= maxRead 0 -> no limit */
-   CIAADRVFLASH_BLOCK_SIZE_0,       /** <= minWrite 512 bytes */
-   0,                               /** <= maxWrite 0 -> no limit */
-   CIAADRVFLASH_BLOCK_SIZE_0        /** <= blockSize 512 bytes */
-};
-#endif
-
-static ciaaDevices_deviceType ciaaDriverFlash_device0 = {
+static ciaaDevices_deviceType ciaaDriverFlash_device = {
    "hd/0",                          /** <= driver name */
    ciaaDriverFlash_open,            /** <= open function */
    ciaaDriverFlash_close,           /** <= close function */
@@ -127,42 +90,38 @@ static ciaaDevices_deviceType ciaaDriverFlash_device0 = {
    ciaaDriverFlash_ioctl,           /** <= ioctl function */
    ciaaDriverFlash_seek,            /** <= seek function is not provided */
    NULL,                            /** <= upper layer */
-   (void*)&ciaaDriverFlash_flash0,  /** <= layer */
+   (void*)&ciaaDriverFlash_flash,  /** <= layer */
    NULL                             /** <= NULL no lower layer */
-};
-
-static ciaaDevices_deviceType * const ciaaFlashDevices[] = {
-   &ciaaDriverFlash_device0
-};
-
-static ciaaDriverConstType const ciaaDriverFlashConst = {
-   ciaaFlashDevices,
-   1
 };
 
 /*==================[external data definition]===============================*/
 /** \brief Flash 0 */
-ciaaDriverFlash_flashType ciaaDriverFlash_flash0;
+ciaaDriverFlash_flashType ciaaDriverFlash_flash;
 
 /*==================[internal functions definition]==========================*/
-#ifdef CIAADRVFLASH_ENABLE_FUNCIONALITY
-/** \brief Initialize file name */
-void ciaaDriverFlash_fileInit(ciaaDevices_deviceType * device, uint8_t index)
-{
-   ciaaDriverFlash_flashType * flash = device->layer;
-
-   flash->deviceName = ciaaDriverFlash_fileNames[index];
-}
-#endif /* CIAADRVFLASH_ENABLE_FUNCIONALITY */
 
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
+   ciaaDriverFlash_flashType * flash = device->layer;
+
+   flash->storage = fopen(flash->filename,"r+b");
+   if (flash->storage == NULL) {
+      perror("Flash emulation file not exists: ");
+      flash->storage = fopen(flash->filename,"w+b");
+   }
+   if (flash->storage == NULL) {
+      perror("Error creating flash emulation file: ");
+      device = NULL;
+   }
    return device;
 }
 
 extern int32_t ciaaDriverFlash_close(ciaaDevices_deviceType const * const device)
 {
+   ciaaDriverFlash_flashType * flash = device->layer;
+
+   close(flash->storage);
    return -1;
 }
 
@@ -194,18 +153,9 @@ extern int32_t ciaaDriverFlash_seek(ciaaDevices_deviceType const * const device,
 
 void ciaaDriverFlash_init(void)
 {
-   uint8_t loopi;
-
-   /* add uart driver to the list of devices */
-   for(loopi = 0; loopi < ciaaDriverFlashConst.countOfDevices; loopi++) {
-      /* add each device */
-      ciaaBlockDevices_addDriver(ciaaDriverFlashConst.devices[loopi]);
-
-#ifdef CIAADRVFLASH_ENABLE_FUNCIONALITY
-      /* initialize file name */
-      ciaaDriverFlash_fileInit(ciaaDriverFlashConst.devices[loopi], loopi);
-#endif /* CIAADRVFLASH_ENABLE_FUNCIONALITY */
-   }
+   ciaaDriverFlash_flashType * flash = ciaaDriverFlash_device.layer;
+   flash->filename = ciaaDriverFlash_filename;
+   ciaaBlockDevices_addDriver(&ciaaDriverFlash_device);
 }
 
 /*==================[interrupt handlers]=====================================*/
