@@ -187,7 +187,7 @@ TASK(InitTask)
 
    /* open a block device */
    filedes1 = ciaaPOSIX_open("/dev/block/hd/0", O_RDWR);
-   ASSERT_MSG(0 < filedes1, "ciaaPOSIX_open returns an invalid handler");
+   ASSERT_MSG(-1 < filedes1, "ciaaPOSIX_open returns an invalid handler");
 
    ASSERT_SEQ(1);
 

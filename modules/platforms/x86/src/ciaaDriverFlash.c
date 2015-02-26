@@ -90,7 +90,7 @@ static ciaaDevices_deviceType ciaaDriverFlash_device = {
    ciaaDriverFlash_ioctl,           /** <= ioctl function */
    ciaaDriverFlash_seek,            /** <= seek function is not provided */
    NULL,                            /** <= upper layer */
-   (void*)&ciaaDriverFlash_flash,  /** <= layer */
+   (void*)&ciaaDriverFlash_flash,   /** <= layer */
    NULL                             /** <= NULL no lower layer */
 };
 
@@ -121,8 +121,8 @@ extern int32_t ciaaDriverFlash_close(ciaaDevices_deviceType const * const device
 {
    ciaaDriverFlash_flashType * flash = device->layer;
 
-   close(flash->storage);
-   return -1;
+   fclose(flash->storage);
+   return 0;
 }
 
 extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
@@ -134,21 +134,28 @@ extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device
 
 extern ssize_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t size)
 {
+   ciaaDriverFlash_flashType * flash = device->layer;
    int32_t ret = -1;
+
+   ret = fread(buffer, 1, size, flash->storage);
 
    return ret;
 }
 
 extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
+   ciaaDriverFlash_flashType * flash = device->layer;
    int32_t ret = -1;
+
+   ret = fwrite(buffer, 1, size, flash->storage);
 
    return ret;
 }
 
 extern int32_t ciaaDriverFlash_seek(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence)
 {
-   return -1;
+   ciaaDriverFlash_flashType * flash = device->layer;
+   return fseek(flash->storage, offset, whence);
 }
 
 void ciaaDriverFlash_init(void)
