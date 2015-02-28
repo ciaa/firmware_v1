@@ -66,9 +66,17 @@ extern "C" {
 /*==================[macros]=================================================*/
 /** \brief Request the block size
  **/
-#define ciaaPOSIX_IOCTL_BLOCKSIZE 0
+#define ciaaPOSIX_IOCTL_GETBLOCKINFO 0x8000U
 
 /*==================[typedef]================================================*/
+typedef struct {
+   int32_t minRead;        /** <- minimal read size shall be 0 or 2^n, if 0 no minimal read size */
+   int32_t maxRead;        /** <- maximal read size shall be 0 or 2^n, if 0 no maximal read size */
+   int32_t minWrite;       /** <- minimal write size shall be 0 or 2^n, if 0 no minimal write size */
+   int32_t maxWrite;       /** <- maximal write size shall be 0 or 2^n, if 0 no maximal write size */
+   int32_t blockSize;      /** <- block size, shall be 2^n with n > 0 */
+   uint32_t lastPosition;  /** <- position of end of file (device) */
+} ciaaDevices_blockType;
 
 /*==================[external data declaration]==============================*/
 

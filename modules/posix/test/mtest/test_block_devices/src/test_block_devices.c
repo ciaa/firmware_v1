@@ -173,7 +173,8 @@ void ErrorHook(void)
 TASK(InitTask)
 {
    int32_t filedes1;
-   int32_t blockSize;
+   ciaaDevices_blockType blockInfo;
+
    int32_t ret;
 
    /* init CIAA kernel and devices */
@@ -191,15 +192,24 @@ TASK(InitTask)
 
    ASSERT_SEQ(1);
 
-   ret = ciaaPOSIX_ioctl(filedes1, ciaaPOSIX_IOCTL_BLOCKSIZE, &blockSize);
+   /* read block device information */
+   ret = ciaaPOSIX_ioctl(filedes1, ciaaPOSIX_IOCTL_GETBLOCKINFO, (void*)&blockInfo);
    ASSERT(1 == ret);
-   ASSERT(512 == blockSize);
+   ASSERT(512 == blockInfo.blockSize);
 
-   ret = ciaaPOSIX_read(filedes1, buffer[0], blockSize);
-   ASSERT_MSG(blockSize == ret, "Trying to read a block failed");
+   ASSERT_SEQ(2);
 
-   ret = ciaaPOSIX_write(filedes1, buffer[0], blockSize);
-   ASSERT_MSG(blockSize == ret, "Trying to write a block failed");
+   /* read a block */
+   ret = ciaaPOSIX_read(filedes1, buffer[0], blockInfo.blockSize);
+   ASSERT_MSG(blockInfo.blockSize == ret, "Trying to read a block failed");
+
+   ASSERT_SEQ(3);
+
+   /* write a block */
+   ret = ciaaPOSIX_write(filedes1, buffer[0], blockInfo.blockSize);
+   ASSERT_MSG(blockInfo.blockSize == ret, "Trying to write a block failed");
+
+   ASSERT_SEQ(4);
 
    /* terminate task */
    TerminateTask();
