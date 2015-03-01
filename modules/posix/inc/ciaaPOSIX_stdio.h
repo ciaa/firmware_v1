@@ -161,7 +161,8 @@ extern void ciaaPOSIX_init(void);
  **
  ** \remarks Opening twice the same path will provide two different file
  **          descriptors. Accessing them with ciaaPOISX_close, ciaaPOSIX_ioctl,
- **          ciaaPOSIX_read and ciaaPOSIX_write may produce unexpected behaviors.
+ **          ciaaPOSIX_read, ciaaPOSIX_write, ciaaPOSIX_seek may produce
+ **          unexpected behaviors.
  **/
 extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag);
 
@@ -172,11 +173,11 @@ extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag);
  ** \param[in] fildes file descriptor to be closed
  ** \return    -1 if failed, 0 in other if success.
  **
- ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
- **          ciaaPOSIX_write may be called reentrant but with different file
- **          descriptor. If one of this function is called with a specific file
- **          descriptor the caller has to wait until return before calling other
- **          of this function using the same file handler.
+ ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read,
+ **          ciaaPOSIX_write and ciaaPOSIX_seek may be called reentrant but with
+ **          different file descriptor. If one of this function is called with a
+ **          specific file descriptor the caller has to wait until return before
+ **          calling other of this function using the same file handler.
  **/
 extern int32_t ciaaPOSIX_close(int32_t fildes);
 
@@ -189,11 +190,11 @@ extern int32_t ciaaPOSIX_close(int32_t fildes);
  ** \param[in] param   parameter for io control
  ** \return     -1 if failed, != -1 if success
  **
- ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
- **          ciaaPOSIX_write may be called reentrant but with different file
- **          descriptor. If one of this function is called with a specific file
- **          descriptor the caller has to wait until return before calling other
- **          of this function using the same file handler.
+ ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read,
+ **          ciaaPOSIX_write and ciaaPOSIX_seek may be called reentrant but with
+ **          different file descriptor. If one of this function is called with a
+ **          specific file descriptor the caller has to wait until return before
+ **          calling other of this function using the same file handler.
  **/
 extern int32_t ciaaPOSIX_ioctl(int32_t fildes, int32_t request, void* param);
 
@@ -207,11 +208,11 @@ extern int32_t ciaaPOSIX_ioctl(int32_t fildes, int32_t request, void* param);
  ** \return -1 if failed, a non negative integer representing the count of
  **         read bytes if success
  **
- ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
- **          ciaaPOSIX_write may be called reentrant but with different file
- **          descriptor. If one of this function is called with a specific file
- **          descriptor the caller has to wait until return before calling other
- **          of this function using the same file handler.
+ ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read,
+ **          ciaaPOSIX_write and ciaaPOSIX_seek may be called reentrant but with
+ **          different file descriptor. If one of this function is called with a
+ **          specific file descriptor the caller has to wait until return before
+ **          calling other of this function using the same file handler.
  **/
 extern ssize_t ciaaPOSIX_read(int32_t fildes, void * buf, size_t nbyte);
 
@@ -227,13 +228,40 @@ extern ssize_t ciaaPOSIX_read(int32_t fildes, void * buf, size_t nbyte);
  ** \return -1 if failed, a non negative integer representing the count of
  **         written bytes if success
  **
- ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read and
- **          ciaaPOSIX_write may be called reentrant but with different file
- **          descriptor. If one of this function is called with a specific file
- **          descriptor the caller has to wait until return before calling other
- **          of this function using the same file handler.
+ ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read,
+ **          ciaaPOSIX_write and ciaaPOSIX_seek may be called reentrant but with
+ **          different file descriptor. If one of this function is called with a
+ **          specific file descriptor the caller has to wait until return before
+ **          calling other of this function using the same file handler.
  **/
 extern ssize_t ciaaPOSIX_write(int32_t fildes, void const * buf, size_t nbyte);
+
+/** \brief Seek into a file descriptor
+ **
+ ** Set the read/write position to a given offset.
+ **
+ ** \param[in] fildes   file descriptor to set the position
+ ** \param[in] offset   depending on the value of whence offset represents:
+ **                     offset from the beggining if whence is set to SEEK_SET.
+ **                     offset from the end if whence is set to SEEK_END.
+ **                     offset from the current position if whence is set to
+ **                     SEEK_CUR.
+ ** \param[in] whence   SEEK_CUR, SEEK_SET or SEEK_END
+ ** \return -1 if failed, a non negative integer representing the count of
+ **         written bytes if success
+ **
+ ** \remarks Setting offset to a positive value and whence to SEEK_END will
+ **          return -1.
+ **          Setting offset to a negative value and whence to SEEK_SET will
+ **          return -1.
+ **
+ ** \remarks The functions ciaaPOSIX_close, ciaaPOSIX_ioctl, ciaaPOSIX_read,
+ **          ciaaPOSIX_write and ciaaPOSIX_seek may be called reentrant but with
+ **          different file descriptor. If one of this function is called with a
+ **          specific file descriptor the caller has to wait until return before
+ **          calling other of this function using the same file handler.
+ **/
+extern off_t ciaaPOSIX_seek(int32_t fildes, off_t offset, uint8_t whence);
 
 /** \brief print formated output
  **

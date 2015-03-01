@@ -299,6 +299,27 @@ extern ssize_t ciaaPOSIX_write (int32_t fildes, void const * buf, size_t nbyte)
    return ret;
 }
 
+extern off_t ciaaPOSIX_seek(int32_t fildes, off_t offset, uint8_t whence)
+{
+   ssize_t ret = -1;
+
+   /* check that file descriptor is on range */
+   if ( (fildes >= 0) && (fildes < ciaaPOSIX_stdio_MAXFILDES) )
+   {
+      /* check that file descriptor is beeing used */
+      if (NULL != ciaaPOSIX_stdio_fildes[fildes].device)
+      {
+         /* call seek function */
+         ret = ciaaPOSIX_stdio_fildes[fildes].device->seek(
+               ciaaPOSIX_stdio_fildes[fildes].device,
+               offset,
+               whence);
+      }
+   }
+
+   return ret;
+}
+
 extern int32_t ciaaPOSIX_printf(const char * format, ...)
 {
    int32_t ret;

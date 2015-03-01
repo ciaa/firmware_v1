@@ -211,6 +211,30 @@ TASK(InitTask)
 
    ASSERT_SEQ(4);
 
+   /* set position to 0 */
+   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
+   ASSERT(0 == ret);
+
+   ASSERT_SEQ(5);
+
+   /* write a block with 0xA5 and the next with 0x5A */
+   ciaaPOSIX_memset(buffer[0], 0xA5, sizeof(buffer[0]));
+   ciaaPOSIX_memset(buffer[1], 0x5A, sizeof(buffer[1]));
+   ret = ciaaPOSIX_write(filedes1, buffer[0], blockInfo.blockSize * 2);
+   ASSERT_MSG(ret == blockInfo.blockSize * 2, "Wrong count of bytes have been written");
+
+   ASSERT_SEQ(6);
+
+   /* set position to 0 */
+   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
+   ASSERT(0 == ret);
+
+   /* read 2 blocks and compare */
+   ciaaPOSIX_memset(buffer[2], 0x00, sizeof(buffer[2]) * 2);
+   ret = ciaaPOSIX_read(filedes1, buffer[2], blockInfo.blockSize * 2);
+   ASSERT_MSG(ret == blockInfo.blockSize * 2, "Wrong count of bytes have been read");
+   ASSERT_MSG(0 == ciaaPOSIX_memcmp(buffer[0], buffer[2], blockInfo.blockSize * 2), "Blocks written and read are not equal");
+
    /* terminate task */
    TerminateTask();
 }
