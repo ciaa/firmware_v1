@@ -35,6 +35,7 @@
 #include <stdbool.h>
 #include "fsl_gpio_features.h"
 #include "fsl_device_registers.h"
+
  
 /*!
  * @addtogroup gpio_hal
