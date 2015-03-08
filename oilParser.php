@@ -113,7 +113,7 @@ class oilParserClass {
 			/* to do */
 			#if ( strpos($this->lines[$l], "/*") !== false )
 			#{
-		   #	$tmp = array ( substr ($this->lines[$l],0, strpos($this->lines[$l], "/*")-1),
+		   #  $tmp = array ( substr ($this->lines[$l],0, strpos($this->lines[$l], "/*")-1),
 			#						substr ($this->lines[$l],strpos($this->lines[$l], "/*")+2), strlen($this->lines[$l]));
 			#	print "t1:" . $tmp[0] . "t2:" . $tmp[1] . "\n";
 			#	$this->lines[$l] = $tmp[0];
@@ -170,9 +170,12 @@ class oilParserClass {
    		}
 	   	else
 		   {
-   			$tmp = split(" ", $tmp);
+            $tmp = split(" ", $tmp);
             $ret[0] = $tmp[0];
-            $ret[1] = $tmp[1];
+            if (!empty($tmp[1]))
+               $ret[1] = $tmp[1];
+            else
+               $ret[1] = "";
    		}
    	}
 		return $ret;
