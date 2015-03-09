@@ -77,23 +77,37 @@ extern "C" {
    #define CIAADRVFLASH_FILENAME    "FLASH.BIN"
 #endif
 
-/** Define flash block size */
+/** Define flash block size in bytes */
 #ifndef CIAADRVFLASH_BLOCK_SIZE
    #define CIAADRVFLASH_BLOCK_SIZE  512
 #endif
-/*==================[typedef]================================================*/
-/** \brief Buffer Structure */
-typedef struct {
-   uint16_t length;                                /** <= Length used */
-   uint8_t buffer[CIAADRVFLASH_BLOCK_SIZE];      /** <= Data storage */
-} ciaaDriverFlash_bufferType;
 
-/** \brief Uart Type */
+/** Define flash memory size in blocks */
+#ifndef CIAADRVFLASH_BLOCK_CANT
+   #define CIAADRVFLASH_BLOCK_CANT  1024
+#endif
+
+/** Define flahs memory size in bytes */
+#define CIAADRVFLASH_SIZE           (CIAADRVFLASH_BLOCK_SIZE * CIAADRVFLASH_BLOCK_CANT)
+
+
+#if (CIAADRVFLASH_BLOCK_SIZE == 256)
+   #define CIAADRVFLASH_BLOCK_BITS     8
+#elif (CIAADRVFLASH_BLOCK_SIZE == 512)
+   #define CIAADRVFLASH_BLOCK_BITS     9
+#elif (CIAADRVFLASH_BLOCK_SIZE == 1024)
+   #define CIAADRVFLASH_BLOCK_BITS     10
+#elif (CIAADRVFLASH_BLOCK_SIZE == 2048)
+   #define CIAADRVFLASH_BLOCK_BITS     11
+#else
+   #error "Flash block size not supported"
+#endif
+/*==================[typedef]================================================*/
+/** \brief Flash Type */
 typedef struct {
-   //ciaaDriverFlash_bufferType buffer;
-   int fileDescriptor;
-   char const * filename;
-   FILE * storage;
+   char const * filename;                 /** <= Pointer to file name */
+   uint32_t position;                     /** <= Courrent position */
+   FILE * storage;                        /** <= Pointer to file storage */
 } ciaaDriverFlash_flashType;
 
 /*==================[external data declaration]==============================*/
