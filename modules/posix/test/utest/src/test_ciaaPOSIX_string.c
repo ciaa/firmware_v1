@@ -52,6 +52,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150309 v0.0.4 JuCe implement memset
  * 20141116 v0.0.3 JuCe improve strcpy
  * 20140610 v0.0.2 MaCe implement memcpy
  * 20140608 v0.0.1 MaCe implement strlen, strcat, strcmp and strncmp
@@ -241,6 +242,28 @@ void test_ciaaPOSIX_memcpy(void) {
    TEST_ASSERT_TRUE(to == ret);
 }
 
+/** \brief test memset
+ **
+ ** test the function ciaaPOSIX_memset
+ **
+ **/
+void test_ciaaPOSIX_memset(void) {
+   char buffer[16];
+   void * ret;
+   uint32_t loopi;
+
+   for(loopi = 0; loopi < sizeof(buffer)-1; loopi++)
+   {
+      buffer[loopi] = 'A';
+   }
+   buffer[sizeof(buffer)-1] = 0;
+
+   ret = ciaaPOSIX_memset((void*)&buffer[5], (int)'B', 5);
+   TEST_ASSERT_TRUE(0 == strncmp(buffer, "AAAAA", 5));
+   TEST_ASSERT_TRUE(0 == strncmp(&buffer[5], "BBBBB", 5));
+   TEST_ASSERT_TRUE(0 == strncmp(&buffer[10], "AAAAA", 5));
+   TEST_ASSERT_TRUE(&buffer[5] == ret);
+}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
