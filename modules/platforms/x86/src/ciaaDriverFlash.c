@@ -95,7 +95,7 @@ int32_t ciaaDriverFlash_blockErase(uint32_t start, uint32_t end);
  * @param size Size of data buffer
  * @return Result of write operation
  */
- int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * const data, uint32_t size);
+int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * const data, uint32_t size);
 
 /*==================[internal data definition]===============================*/
 /* Constant with filename of storage file maped to Flash */
@@ -140,7 +140,6 @@ int32_t ciaaDriverFlash_blockErase(uint32_t start, uint32_t end) {
 
 int32_t ciaaDriverFlash_blockWrite(uint32_t block, uint8_t const * const data, uint32_t size) {
    int32_t ret = -1;
-   uint32_t index;
    uint8_t buffer[CIAADRVFLASH_BLOCK_SIZE];
    ciaaDriverFlash_flashType * flash = &ciaaDriverFlash_flash;
 
@@ -197,7 +196,7 @@ extern int32_t ciaaDriverFlash_close(ciaaDevices_deviceType const * const device
 extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
    int32_t ret = -1;
-   
+
    ciaaDevices_blockType * block = param;
    ciaaDriverFlash_flashType * flash = device->layer;
 
@@ -205,29 +204,21 @@ extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device
    {
       switch(request)
       {
-         case ciaaPOSIX_IOCTL_GETBLOCKINFO:
-               block->minRead = 0;
-               block->maxRead = 0;
-               block->minWrite = 0;
-               block->maxWrite = 0;
-               block->blockSize = CIAADRVFLASH_BLOCK_SIZE;
-               block->lastPosition = CIAADRVFLASH_BLOCK_SIZE * CIAADRVFLASH_BLOCK_CANT;
-               ret = 1;
+         case ciaaPOSIX_IOCTL_BLOCK_GETINFO:
+            block->minRead = 0;
+            block->maxRead = 0;
+            block->minWrite = 0;
+            block->maxWrite = 0;
+            block->blockSize = CIAADRVFLASH_BLOCK_SIZE;
+            block->lastPosition = CIAADRVFLASH_BLOCK_SIZE * CIAADRVFLASH_BLOCK_CANT;
+            block->flags.eraseBeforeWrite = 1;
+            ret = 1;
             break;
-         /*
+
          case ciaaPOSIX_IOCTL_BLOCK_ERASE:
-            if (uart->fileDescriptor)
-            {
-               ciaaDriverFlash_blockErase((uint32_t) * param, (uint32_t) * param)
-            }
+            ciaaDriverFlash_blockErase((uint32_t) 0, (uint32_t) 0);
+            ret = 1;
             break;
-         case ciaaPOSIX_IOCTL_FLASH_ERASE:
-            if (uart->fileDescriptor)
-            {
-               ciaaDriverFlash_blockErase(0, CIAADRVFLASH_BLOCK_CANT - 1);
-            }
-            break;
-         */
       }
    }
    return ret;
@@ -246,7 +237,7 @@ extern ssize_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device,
          ret = fread(buffer, 1, size, flash->storage);
       }
    }
-   
+
    return ret;
 }
 
@@ -294,7 +285,7 @@ extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device
          flash->position += CIAADRVFLASH_BLOCK_SIZE;
       }
       if (!remaining) ret = size;
-   }   
+   }
    return ret;
 }
 

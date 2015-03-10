@@ -64,11 +64,23 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief Request the block size
+/** \brief Request the device information
  **/
-#define ciaaPOSIX_IOCTL_GETBLOCKINFO 0x8000U
+#define ciaaPOSIX_IOCTL_BLOCK_GETINFO     0x8000U
 
+/** \brief Request a block to be erased
+ **
+ ** This ioctl command is only available in flash or block devices
+ ** which needs to be cleared/erased before written
+ **/
+#define ciaaPOSIX_IOCTL_BLOCK_ERASE       0x8001U
 /*==================[typedef]================================================*/
+/** TODO document */
+typedef struct {
+   int eraseBeforeWrite : 1;
+} ciaaDevices_blockFlagsType;
+
+/** TODO document */
 typedef struct {
    int32_t minRead;        /** <- minimal read size shall be 0 or 2^n, if 0 no minimal read size */
    int32_t maxRead;        /** <- maximal read size shall be 0 or 2^n, if 0 no maximal read size */
@@ -76,6 +88,7 @@ typedef struct {
    int32_t maxWrite;       /** <- maximal write size shall be 0 or 2^n, if 0 no maximal write size */
    int32_t blockSize;      /** <- block size, shall be 2^n with n > 0 */
    uint32_t lastPosition;  /** <- position of end of file (device) */
+   ciaaDevices_blockFlagsType flags;   /** <- information flags of the device */
 } ciaaDevices_blockType;
 
 /*==================[external data declaration]==============================*/
