@@ -162,6 +162,7 @@ extern void ciaaBlockDevices_addDriver(ciaaDevices_deviceType * driver)
       newDevice->ioctl = ciaaBlockDevices_ioctl;
       newDevice->read = ciaaBlockDevices_read;
       newDevice->write = ciaaBlockDevices_write;
+      newDevice->seek = ciaaBlockDevices_seek;
 
       /* store layers information information */
       newDevice->layer = (void *) &ciaaBlockDevices.devstr[position];
@@ -213,14 +214,25 @@ extern ciaaDevices_deviceType * ciaaBlockDevices_open(char const * path,
 
 extern int32_t ciaaBlockDevices_close(ciaaDevices_deviceType const * const device)
 {
-   return device->close((ciaaDevices_deviceType *)device->loLayer);
+   ciaaBlockDevices_deviceType * blockDevice = 
+      (ciaaBlockDevices_deviceType *) device->layer;
+
+   return blockDevice->device->close((ciaaDevices_deviceType *)device->loLayer);
+}
+
+extern int32_t ciaaBlockDevices_seek(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence)
+{
+   ciaaBlockDevices_deviceType * blockDevice = 
+      (ciaaBlockDevices_deviceType *) device->layer;
+
+   return blockDevice->device->seek((ciaaDevices_deviceType *)device->loLayer, offset, whence);
 }
 
 extern int32_t ciaaBlockDevices_ioctl(ciaaDevices_deviceType const * const device, int32_t request, void* param)
 {
+   ciaaBlockDevices_deviceType * blockDevice = 
+      (ciaaBlockDevices_deviceType *) device->layer;
    int32_t ret = 0;
-
-   ciaaBlockDevices_deviceType * blockDevice = (ciaaBlockDevices_deviceType *) device->layer;
 
    switch(request)
    {

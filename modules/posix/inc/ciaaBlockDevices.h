@@ -144,6 +144,22 @@ extern ssize_t ciaaBlockDevices_read(ciaaDevices_deviceType const * const device
  **/
 extern ssize_t ciaaBlockDevices_write(ciaaDevices_deviceType const * device, uint8_t const * const buf, size_t const nbyte);
 
+/** \brief Seek into a block device
+ **
+ ** Set the read/write position to a given offset.
+ **
+ ** \param[in] fildes   device to seek into
+ ** \param[in] offset   depending on the value of whence offset represents:
+ **                     offset from the beggining if whence is set to SEEK_SET.
+ **                     offset from the end if whence is set to SEEK_END.
+ **                     offset from the current position if whence is set to
+ **                     SEEK_CUR.
+ ** \param[in] whence   SEEK_CUR, SEEK_SET or SEEK_END
+ ** \return -1 if failed, a non negative integer representing the count of
+ **         written bytes if success
+ **/
+extern int32_t ciaaBlockDevices_seek(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence);
+
 /** \brief Write confirmation of a block device
  **
  ** This interface informs the block device that a write operation has been completed

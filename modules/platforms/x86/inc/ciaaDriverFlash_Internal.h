@@ -84,7 +84,7 @@ extern "C" {
 
 /** Define flash memory size in blocks */
 #ifndef CIAADRVFLASH_BLOCK_CANT
-   #define CIAADRVFLASH_BLOCK_CANT  1024
+   #define CIAADRVFLASH_BLOCK_CANT  32
 #endif
 
 /** Define flahs memory size in bytes */

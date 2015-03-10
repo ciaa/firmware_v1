@@ -71,6 +71,8 @@
 #include "ciaaBlockDevices.h"
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_stddef.h"
+#include "ciaaPOSIX_ioctl_block.h"
+#include "ciaaBlockDevices.h"
 #include <stdio.h>
 
 /*==================[macros and definitions]=================================*/
@@ -145,11 +147,11 @@ int32_t ciaaDriverFlash_blockWrite(uint32_t block, uint8_t const * const data, u
    if (block <= CIAADRVFLASH_BLOCK_CANT)
    {
       fseek(flash->storage, block * CIAADRVFLASH_BLOCK_SIZE, SEEK_SET);
-      fread(buffer, CIAADRVFLASH_BLOCK_SIZE, 1, flash->storage);
-      for(index = 0; index < CIAADRVFLASH_BLOCK_CANT; index++)
-      {
-         buffer[index] &= data[index];
-      }
+      //fread(buffer, CIAADRVFLASH_BLOCK_SIZE, 1, flash->storage);
+      //for(index = 0; index < CIAADRVFLASH_BLOCK_SIZE; index++)
+      //{
+         //buffer[index] &= data[index];
+      //}
       fwrite(buffer, CIAADRVFLASH_BLOCK_SIZE, 1, flash->storage);
       ret = 0;
    }
@@ -195,13 +197,23 @@ extern int32_t ciaaDriverFlash_close(ciaaDevices_deviceType const * const device
 extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
    int32_t ret = -1;
-
+   
+   ciaaDevices_blockType * block = param;
    ciaaDriverFlash_flashType * flash = device->layer;
 
    if(flash == &ciaaDriverFlash_flash)
    {
       switch(request)
       {
+         case ciaaPOSIX_IOCTL_GETBLOCKINFO:
+               block->minRead = 0;
+               block->maxRead = 0;
+               block->minWrite = 0;
+               block->maxWrite = 0;
+               block->blockSize = CIAADRVFLASH_BLOCK_SIZE;
+               block->lastPosition = CIAADRVFLASH_BLOCK_SIZE * CIAADRVFLASH_BLOCK_CANT;
+               ret = 1;
+            break;
          /*
          case ciaaPOSIX_IOCTL_BLOCK_ERASE:
             if (uart->fileDescriptor)
@@ -234,6 +246,7 @@ extern ssize_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device,
          ret = fread(buffer, 1, size, flash->storage);
       }
    }
+   
    return ret;
 }
 
@@ -266,21 +279,22 @@ extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device
       }
 
       /* Write complete blocks */
-      while(size >= CIAADRVFLASH_BLOCK_SIZE)
+      while(remaining >= CIAADRVFLASH_BLOCK_SIZE)
       {
-         remaining -= ciaaDriverFlash_blockWrite(flash->position >> CIAADRVFLASH_BLOCK_BITS, buffer, CIAADRVFLASH_BLOCK_SIZE);
+         ciaaDriverFlash_blockWrite(flash->position >> CIAADRVFLASH_BLOCK_BITS, buffer, CIAADRVFLASH_BLOCK_SIZE);
+         remaining -= CIAADRVFLASH_BLOCK_SIZE;
          flash->position += CIAADRVFLASH_BLOCK_SIZE;
       }
 
       /* Write las block fragment */
       if (remaining)
       {
-         remaining -= ciaaDriverFlash_blockWrite(flash->position >> CIAADRVFLASH_BLOCK_BITS, buffer, size);
+         ciaaDriverFlash_blockWrite(flash->position >> CIAADRVFLASH_BLOCK_BITS, buffer, size);
+         remaining -= CIAADRVFLASH_BLOCK_SIZE;
          flash->position += CIAADRVFLASH_BLOCK_SIZE;
       }
       if (!remaining) ret = size;
-   }
-
+   }   
    return ret;
 }
 
