@@ -37,6 +37,9 @@
 LIBS 				    += ext_platforms
 # library path
 ext_platforms_PATH 	     = $(ROOT_DIR)$(DS)externals$(DS)platforms
+
+include $(ext_platforms_PATH)$(DS)mak$(DS)$(ARCH)$(DS)gcc$(DS)Makefile
+
 # library source path
 ext_platforms_SRC_PATH   = $(ext_platforms_PATH)$(DS)src
 # library include path
@@ -50,4 +53,7 @@ ext_platforms_INC_PATH   = $(ext_platforms_PATH)$(DS)inc		    	\
 ext_platforms_SRC_FILES += $(wildcard $(ext_platforms_SRC_PATH)$(DS)*.c)							\
 	$(wildcard $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c) 										\
 	$(wildcard $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c) 					\
+	$(wildcard $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.S_CPP) 					\
 	$(wildcard $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
+
+
