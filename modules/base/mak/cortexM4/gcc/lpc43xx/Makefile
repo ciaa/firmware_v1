@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-LFLAGS += -T "externals/platforms/cortexM4/lpc43xx/linker/ciaa_lpc4337.ld"
+LFLAGS += -nostdlib -T "externals/platforms/cortexM4/lpc43xx/linker/ciaa_lpc4337.ld"
 
 # this file needs to be compiled separated and not added to a library
 # TODO this is not nice
