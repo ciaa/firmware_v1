@@ -37,10 +37,7 @@
 CC = arm-none-eabi-gcc
 LD = arm-none-eabi-gcc
 AR = arm-none-eabi-ar
-AS_CPP = arm-none-eabi-gcc
 GDB = arm-none-eabi-gdb
 NM = arm-none-eabi-nm
 # COMPILER AND LINKER OPTIONS
 #CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
-AFLAGS_CPP = $(CFLAGS) 
-AFLAGS_CPP +=  -c -x assembler-with-cpp -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb 

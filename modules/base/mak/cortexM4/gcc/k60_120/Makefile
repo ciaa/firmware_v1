@@ -35,7 +35,3 @@ LFLAGS += --specs=nosys.specs -T "externals/platforms/cortexM4/k60_120/linker/ci
 
 CFLAGS += -DCPU_MK60FX512VLQ15
 
-# this file needs to be compiled separated and not added to a library
-# TODO this is not nice
-#SRC_FILES                  += $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)crp.c
-
