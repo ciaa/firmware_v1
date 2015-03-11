@@ -263,7 +263,7 @@ extern int32_t ciaaPOSIX_memcmp(const void * s1, const void * s2, size_t n)
 
    while((0 < n) && (0 == ret))
    {
-      /* decement counter */
+      /* decrement counter */
       n--;
 
       if (*(uint8_t*)s1 > *(uint8_t*)s2)
@@ -281,6 +281,7 @@ extern int32_t ciaaPOSIX_memcmp(const void * s1, const void * s2, size_t n)
       s1++;
       s2++;
    }
+   return ret;
 }
 
 /** @} doxygen end group definition */
