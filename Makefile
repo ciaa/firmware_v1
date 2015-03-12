@@ -63,11 +63,11 @@
 # | mips         | pic32         | pic32mz        | gcc          |              |
 # +--------------+---------------+----------------+--------------+--------------+
 #
-ARCH           = x86
-CPUTYPE        = ia32
-CPU            = none
-COMPILER       = gcc
-BOARD          = none
+ARCH           ?= x86
+CPUTYPE        ?= ia32
+CPU            ?= none
+COMPILER       ?= gcc
+BOARD          ?= none
 
 DS             ?= /
 # Project
