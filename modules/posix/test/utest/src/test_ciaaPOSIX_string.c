@@ -276,11 +276,11 @@ void test_ciaaPOSIX_memcmp(void) {
    char str2[] = "1234567891";
    int32_t ret;
 
-   ret = memcmp(str1, str2, 9);
+   ret = ciaaPOSIX_memcmp(str1, str2, 9);
    TEST_ASSERT_TRUE(0 == ret);
-   ret = memcmp(str1, str2, 10);   
+   ret = ciaaPOSIX_memcmp(str1, str2, 10);   
    TEST_ASSERT_TRUE(0 > ret);
-   ret = memcmp(str2, str1, 10);   
+   ret = ciaaPOSIX_memcmp(str2, str1, 10);   
    TEST_ASSERT_TRUE(0 < ret);
 }
 /** @} doxygen end group definition */
