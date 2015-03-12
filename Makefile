@@ -1,7 +1,8 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro
+# Copyright 2014, 2015, Mariano Cerdeiro
 # Copyright 2014, Juan Cecconi (UTN-FRBA)
+# All rights reserved
 #
 # This file is part of CIAA Firmware.
 #
@@ -49,22 +50,24 @@
 -include Makefile.mine
 ###############################################################################
 # ARCH, CPUTYPE and CPU following are supported
-# +--------------+---------------+----------------+--------------+
-# |      ARCH    |    CPUTYPE    |      CPU       | COMPILER     |
-# +--------------+---------------+----------------+--------------+
-# | x86          | ia32          |                | gcc          |
-# |              | ia64          |                |              |
-# +--------------+---------------+----------------+--------------+
-# | cortexM4     | lpc43xx       | lpc4337        | gcc          |
-# |              | k60_120       | mk60fx512vlq15 | gcc          |
-# +--------------+---------------+----------------+--------------+
-# | mips         | pic32		   | pic32mz		  | gcc          |
-# +--------------+---------------+----------------+--------------+
+# +--------------+---------------+----------------+--------------+--------------+
+# |      ARCH    |    CPUTYPE    |      CPU       | COMPILER     | BOARD        |
+# +--------------+---------------+----------------+--------------+--------------+
+# | x86          | ia32          |                | gcc          |              |
+# |              | ia64          |                |              |              |
+# +--------------+---------------+----------------+--------------+--------------+
+# | cortexM4     | lpc43xx       | lpc4337        | gcc          | ciaa-edu     |
+# |              |               |                |              | ciaa         |
+# |              | k60_120       | mk60fx512vlq15 | gcc          |              |
+# +--------------+---------------+----------------+--------------+--------------+
+# | mips         | pic32         | pic32mz        | gcc          |              |
+# +--------------+---------------+----------------+--------------+--------------+
 #
-ARCH           ?= x86
-CPUTYPE        ?= ia32
-CPU            ?= none
-COMPILER       ?= gcc
+ARCH           = x86
+CPUTYPE        = ia32
+CPU            = none
+COMPILER       = gcc
+BOARD          = none
 
 DS             ?= /
 # Project
@@ -166,7 +169,7 @@ ifneq ($(findstring tst_, $(MAKECMDGOALS)),tst_)
 CFLAGS  += $(foreach inc, $(INC_FILES), -I$(inc))
 endif
 CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
-CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU)
+CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DBOARD=$(BOARD)
 TARGET_NAME ?= $(BIN_DIR)$(DS)$(project)
 LD_TARGET = $(TARGET_NAME).$(LD_EXTENSION)
 # create list of object files for a Lib (without DIR), based on source file %.c and %.s
