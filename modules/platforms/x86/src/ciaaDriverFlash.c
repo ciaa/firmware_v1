@@ -221,7 +221,7 @@ extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device
             break;
 
          case ciaaPOSIX_IOCTL_BLOCK_ERASE:
-            ciaaDriverFlash_blockErase((uint32_t) 0, (uint32_t) 0);
+            ciaaDriverFlash_blockErase((uint32_t) (flash->position/CIAADRVFLASH_BLOCK_SIZE), (uint32_t) (flash->position/CIAADRVFLASH_BLOCK_SIZE));
             ret = 1;
             break;
       }

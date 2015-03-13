@@ -172,6 +172,7 @@ void ErrorHook(void)
  */
 TASK(InitTask)
 {
+   int32_t i;
    int32_t filedes1;
    ciaaDevices_blockType blockInfo;
 
@@ -199,35 +200,45 @@ TASK(InitTask)
 
    ASSERT_SEQ(2);
 
-   /* read a block */
-   ret = ciaaPOSIX_read(filedes1, buffer[0], blockInfo.blockSize);
-   ASSERT_MSG(blockInfo.blockSize == ret, "Trying to read a block failed");
-
-   ASSERT_SEQ(3);
-
    /* erase block */
    ret = ciaaPOSIX_ioctl(filedes1, ciaaPOSIX_IOCTL_BLOCK_ERASE, NULL);
    ASSERT_MSG(-1 != ret, "ioctl failed");
 
-   ASSERT_SEQ(4);
+   ASSERT_SEQ(3);
 
    /* write a block */
+   for(i = 0; i < blockInfo.blockSize; i++)
+   {
+      buffer[0][i] = (uint8_t)i;
+   }
    ret = ciaaPOSIX_write(filedes1, buffer[0], blockInfo.blockSize);
    ASSERT_MSG(blockInfo.blockSize == ret, "Trying to write a block failed");
 
-   ASSERT_SEQ(5);
+   ASSERT_SEQ(4);
 
    /* set position to 0 */
    ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
    ASSERT(0 == ret);
 
+   ASSERT_SEQ(5);
+
+   /* read a block */
+   ret = ciaaPOSIX_read(filedes1, buffer[1], blockInfo.blockSize);
+   ASSERT_MSG(blockInfo.blockSize == ret, "Trying to read a block failed");
+
    ASSERT_SEQ(6);
+
+   /* compare write and read block */
+   ret = ciaaPOSIX_memcmp(buffer[0], buffer[1], blockInfo.blockSize);
+   ASSERT_MSG(0 == ret, "Written data can not be read");
+
+   ASSERT_SEQ(7);
 
    /* erase block */
    ret = ciaaPOSIX_ioctl(filedes1, ciaaPOSIX_IOCTL_BLOCK_ERASE, NULL);
    ASSERT_MSG(-1 != ret, "ioctl failed");
 
-   ASSERT_SEQ(7);
+   ASSERT_SEQ(8);
 
    /* write a block with 0xA5 and the next with 0x5A */
    ciaaPOSIX_memset(buffer[0], 0xA5, sizeof(buffer[0]));
@@ -235,13 +246,13 @@ TASK(InitTask)
    ret = ciaaPOSIX_write(filedes1, buffer[0], blockInfo.blockSize * 2);
    ASSERT_MSG(ret == blockInfo.blockSize * 2, "Wrong count of bytes have been written");
 
-   ASSERT_SEQ(8);
+   ASSERT_SEQ(9);
 
    /* set position to 0 */
    ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
    ASSERT(0 == ret);
 
-   ASSERT_SEQ(9);
+   ASSERT_SEQ(10);
 
    /* read 2 blocks and compare */
    ciaaPOSIX_memset(buffer[2], 0x00, sizeof(buffer[2]) * 2);
@@ -249,7 +260,7 @@ TASK(InitTask)
    ASSERT_MSG(ret == blockInfo.blockSize * 2, "Wrong count of bytes have been read");
    ASSERT_MSG(0 == ciaaPOSIX_memcmp(buffer[0], buffer[2], blockInfo.blockSize * 2), "Blocks written and read are not equal");
 
-   ASSERT_SEQ(10);
+   ASSERT_SEQ(11);
 
    /* terminate task */
    TerminateTask();
