@@ -184,11 +184,16 @@ TASK(InitTask)
    /* print message (only on x86) */
    ciaaPOSIX_printf("Init Task...\n");
 
-
+   /* Basic test
+    * This secuence test the basic operation of flash device.
+    * Open the device, get info block, erase a block and verify or cleared,
+    * write a block, read this block and verify the data read is same as writed
+    * finally close the device
+    */
    ASSERT_SEQ(0);
 
    /* open a block device */
-   filedes1 = ciaaPOSIX_open("/dev/block/hd/0", O_RDWR);
+   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
    ASSERT_MSG(-1 < filedes1, "ciaaPOSIX_open returns an invalid handler");
 
    ASSERT_SEQ(1);
@@ -202,9 +207,21 @@ TASK(InitTask)
 
    /* erase block */
    ret = ciaaPOSIX_ioctl(filedes1, ciaaPOSIX_IOCTL_BLOCK_ERASE, NULL);
-   ASSERT_MSG(-1 != ret, "ioctl failed");
+   ASSERT_MSG(-1 != ret, "Trying to erase a block failed");
 
    ASSERT_SEQ(3);
+
+   /* read a block */
+   ciaaPOSIX_memset(buffer[0], 0x00, sizeof(buffer[0]));
+   ret = ciaaPOSIX_read(filedes1, buffer[0], blockInfo.blockSize);
+   ASSERT_MSG(blockInfo.blockSize == ret, "Trying to read a block failed");
+
+   /* verify clear of block */
+   ciaaPOSIX_memset(buffer[1], 0xFF, sizeof(buffer[1]));
+   ret = ciaaPOSIX_memcmp(buffer[0], buffer[1], blockInfo.blockSize);
+   ASSERT_MSG(0 == ret, "Block erased was not cleared");
+
+   ASSERT_SEQ(4);
 
    /* write a block */
    for(i = 0; i < blockInfo.blockSize; i++)
@@ -214,31 +231,82 @@ TASK(InitTask)
    ret = ciaaPOSIX_write(filedes1, buffer[0], blockInfo.blockSize);
    ASSERT_MSG(blockInfo.blockSize == ret, "Trying to write a block failed");
 
-   ASSERT_SEQ(4);
+   ASSERT_SEQ(5);
 
    /* set position to 0 */
    ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
    ASSERT(0 == ret);
 
-   ASSERT_SEQ(5);
+   ASSERT_SEQ(6);
 
    /* read a block */
    ret = ciaaPOSIX_read(filedes1, buffer[1], blockInfo.blockSize);
    ASSERT_MSG(blockInfo.blockSize == ret, "Trying to read a block failed");
 
-   ASSERT_SEQ(6);
+   ASSERT_SEQ(7);
 
    /* compare write and read block */
    ret = ciaaPOSIX_memcmp(buffer[0], buffer[1], blockInfo.blockSize);
    ASSERT_MSG(0 == ret, "Written data can not be read");
 
-   ASSERT_SEQ(7);
+   ASSERT_SEQ(8);
+
+   /* verify close of device */
+   ret = ciaaPOSIX_close(filedes1);
+   ASSERT_MSG(0 == ret, "ciaaPOSIX_close devices returns error");
+
+   /* Persistence test
+    * This secuence test that data writed in basic test persists  after close
+    * and the reopen the device
+    */
+
+   ASSERT_SEQ(9);
+
+   /* open a block device */
+   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
+   ASSERT_MSG(-1 < filedes1, "ciaaPOSIX_open returns an invalid handler");
+
+   /* compare write and read block */
+   ret = ciaaPOSIX_memcmp(buffer[0], buffer[1], blockInfo.blockSize);
+   ASSERT_MSG(0 == ret, "Previously written data can not be read");
+
+   ASSERT_SEQ(10);
+
+   /* set position to 0 */
+   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
+   ASSERT(0 == ret);
 
    /* erase block */
    ret = ciaaPOSIX_ioctl(filedes1, ciaaPOSIX_IOCTL_BLOCK_ERASE, NULL);
-   ASSERT_MSG(-1 != ret, "ioctl failed");
+   ASSERT_MSG(-1 != ret, "Trying to erase a block failed");
 
-   ASSERT_SEQ(8);
+   ASSERT_SEQ(11);
+
+   /* verify close of device */
+   ret = ciaaPOSIX_close(filedes1);
+   ASSERT_MSG(0 == ret, "ciaaPOSIX_close devices returns error");
+
+   /* open a block device */
+   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
+   ASSERT_MSG(-1 < filedes1, "ciaaPOSIX_open returns an invalid handler");
+
+   /* read a block */
+   ciaaPOSIX_memset(buffer[0], 0x00, sizeof(buffer[0]));
+   ret = ciaaPOSIX_read(filedes1, buffer[0], blockInfo.blockSize);
+   ASSERT_MSG(blockInfo.blockSize == ret, "Trying to read a block failed");
+
+   /* verify clear of block */
+   ciaaPOSIX_memset(buffer[1], 0xFF, sizeof(buffer[1]));
+   ret = ciaaPOSIX_memcmp(buffer[0], buffer[1], blockInfo.blockSize);
+   ASSERT_MSG(0 == ret, "Previously block erased was not cleared");
+
+
+   /* Seek test
+    * This secuence verifie that the internal pointer moves after read, write
+    * and seek operations
+    */
+
+   ASSERT_SEQ(12);
 
    /* write a block with 0xA5 and the next with 0x5A */
    ciaaPOSIX_memset(buffer[0], 0xA5, sizeof(buffer[0]));
@@ -246,13 +314,10 @@ TASK(InitTask)
    ret = ciaaPOSIX_write(filedes1, buffer[0], blockInfo.blockSize * 2);
    ASSERT_MSG(ret == blockInfo.blockSize * 2, "Wrong count of bytes have been written");
 
-   ASSERT_SEQ(9);
-
+   ASSERT_SEQ(13);
    /* set position to 0 */
    ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
    ASSERT(0 == ret);
-
-   ASSERT_SEQ(10);
 
    /* read 2 blocks and compare */
    ciaaPOSIX_memset(buffer[2], 0x00, sizeof(buffer[2]) * 2);
@@ -260,7 +325,42 @@ TASK(InitTask)
    ASSERT_MSG(ret == blockInfo.blockSize * 2, "Wrong count of bytes have been read");
    ASSERT_MSG(0 == ciaaPOSIX_memcmp(buffer[0], buffer[2], blockInfo.blockSize * 2), "Blocks written and read are not equal");
 
-   ASSERT_SEQ(11);
+   ASSERT_SEQ(14);
+
+   /* set position to 0 */
+   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
+   ASSERT(0 == ret);
+
+   ASSERT_SEQ(15);
+
+   /* read 1 block and compare */
+   ciaaPOSIX_memset(buffer[2], 0x00, sizeof(buffer[2]));
+   ret = ciaaPOSIX_read(filedes1, buffer[2], blockInfo.blockSize);
+   ASSERT_MSG(ret == blockInfo.blockSize, "Wrong count of bytes have been read");
+   ASSERT_MSG(0 == ciaaPOSIX_memcmp(buffer[0], buffer[2], blockInfo.blockSize), "First block read error after seek");
+
+   ciaaPOSIX_memset(buffer[2], 0x00, sizeof(buffer[2]));
+   ret = ciaaPOSIX_read(filedes1, buffer[2], blockInfo.blockSize);
+   ASSERT_MSG(ret == blockInfo.blockSize, "Wrong count of bytes have been read");
+   ASSERT_MSG(0 == ciaaPOSIX_memcmp(buffer[1], buffer[2], blockInfo.blockSize), "Second block read error after seek");
+
+
+   ASSERT_SEQ(16);
+
+   /* set position to blockSize */
+   ret = ciaaPOSIX_seek(filedes1, blockInfo.blockSize, SEEK_SET);
+   ASSERT(0 == ret);
+
+   ret = ciaaPOSIX_read(filedes1, buffer[2], blockInfo.blockSize);
+   ASSERT_MSG(ret == blockInfo.blockSize, "Wrong count of bytes have been read");
+   ASSERT_MSG(0 == ciaaPOSIX_memcmp(buffer[1], buffer[2], blockInfo.blockSize), "Second block read error after seek");
+
+   /* set position to 0 */
+   ret = ciaaPOSIX_seek(filedes1, blockInfo.blockSize, SEEK_SET);
+   ASSERT(0 == ret);
+
+
+   ret = ciaaPOSIX_close(filedes1);
 
    /* terminate task */
    TerminateTask();

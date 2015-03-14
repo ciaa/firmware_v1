@@ -102,7 +102,7 @@ int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * const data,
 static const char ciaaDriverFlash_filename[] = CIAADRVFLASH_FILENAME;
 
 static ciaaDevices_deviceType ciaaDriverFlash_device = {
-   "hd/0",                          /** <= driver name */
+   "fd/0",                          /** <= driver name */
    ciaaDriverFlash_open,            /** <= open function */
    ciaaDriverFlash_close,           /** <= close function */
    ciaaDriverFlash_read,            /** <= read function */
@@ -148,15 +148,16 @@ int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * const data,
    {
       rewind(flash->storage);
       fseek(flash->storage, address, SEEK_SET);
-      fread(buffer, size, 1, flash->storage);
-      for(index = 0; index < size; index++)
-      {
-         buffer[index] &= data[index];
+      ret = fread(buffer, 1, size, flash->storage);
+      if (ret == size) {
+         for(index = 0; index < size; index++)
+         {
+            buffer[index] &= data[index];
+         }
+         rewind(flash->storage);
+         ret = fwrite(buffer, 1, size, flash->storage);
+         fflush(flash->storage);
       }
-      rewind(flash->storage);
-      fwrite(buffer, size, 1, flash->storage);
-      //fflush(flash->storage);
-      ret = 0;
    }
    return ret;
 }
@@ -241,6 +242,7 @@ extern ssize_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device,
          rewind(flash->storage);
          fseek(flash->storage, flash->position, SEEK_SET);
          ret = fread(buffer, 1, size, flash->storage);
+         flash->position += ret;
       }
    }
 
@@ -254,9 +256,8 @@ extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device
 
    if(flash == &ciaaDriverFlash_flash)
    {
-      ciaaDriverFlash_blockWrite(flash->position, buffer, size);
+      ret = ciaaDriverFlash_blockWrite(flash->position, buffer, size);
       flash->position += size;
-      ret = size;
    }
    return ret;
 }
