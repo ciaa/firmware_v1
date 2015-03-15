@@ -257,7 +257,7 @@ extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device
    if(flash == &ciaaDriverFlash_flash)
    {
       ret = ciaaDriverFlash_blockWrite(flash->position, buffer, size);
-      flash->position += size;
+      flash->position += ret;
    }
    return ret;
 }

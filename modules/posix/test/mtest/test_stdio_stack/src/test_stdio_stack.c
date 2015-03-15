@@ -117,6 +117,18 @@ static void assert_seq(int seq, char * file, int line)
    }
 }
 
+void dumpBuffer(uint8_t buffer[]) {
+   uint16_t i;
+
+   ciaaPOSIX_printf("===============================================================================\r\n");
+   for(i = 0; i < 512; i++)
+   {
+      ciaaPOSIX_printf("0x%02X ", buffer[i]);
+      if (((i + 1) & 0x0F) == 0) ciaaPOSIX_printf("\r\n");
+   }
+
+}
+
 /*==================[external functions definition]==========================*/
 int main(void)
 {
