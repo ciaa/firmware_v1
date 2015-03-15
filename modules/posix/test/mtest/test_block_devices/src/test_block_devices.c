@@ -1,5 +1,6 @@
 /* Copyright 2015, Mariano Cerdeiro
- * All rights reserved
+ * Copyright 2015, Esteban Volentini
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -359,8 +360,13 @@ TASK(InitTask)
    ret = ciaaPOSIX_seek(filedes1, blockInfo.blockSize, SEEK_SET);
    ASSERT(0 == ret);
 
-
+   /* close the device */
    ret = ciaaPOSIX_close(filedes1);
+   ASSERT(0 == ret);
+
+   ASSERT_SEQ(17);
+
+   ShutdownOS(E_OK);
 
    /* terminate task */
    TerminateTask();
