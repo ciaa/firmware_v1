@@ -57,6 +57,8 @@
 #include "ciaaModbus_ascii.h"
 #include "ciaaModbus_config.h"
 #include "string.h"
+#include "mock_ciaaPOSIX_stdio.h"
+#include "mock_ciaaPOSIX_string.h"
 
 /*==================[macros and definitions]=================================*/
 /** \brief Type for the stub read functions */
@@ -79,6 +81,8 @@ typedef struct {
 
 /*==================[internal functions declaration]=========================*/
 static int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc);
+static void ciaaPOSIX_read_init(void);
+static void ciaaPOSIX_write_init(void);
 
 /*==================[internal data definition]===============================*/
 static stubType read_stub;
@@ -121,7 +125,7 @@ void doNothing(void)
 /**** Helper Functions ****/
 
 /** \brief Init posix write stub */
-void ciaaPOSIX_write_init(void)
+static void ciaaPOSIX_write_init(void)
 {
    int32_t loopi, loopj;
 
@@ -139,7 +143,7 @@ void ciaaPOSIX_write_init(void)
 }
 
 /** \brief Init posix read stub */
-void ciaaPOSIX_read_init(void)
+static void ciaaPOSIX_read_init(void)
 {
    int32_t loopi;
 
@@ -182,20 +186,17 @@ void ciaaPOSIX_read_init(void)
 int32_t ciaaPOSIX_read_add(char * data, int8_t addEnd, int8_t addLrc)
 {
    int32_t ret = 0;
-   int32_t loopi;
-   uint8_t lrc = 0;
-   uint8_t aux;
    int32_t startpos = read_stub.totalLength;
 
    memcpy(&read_stub.buf[startpos], data, strlen(data)+1);
-   ret = tst_asciipdu(&read_stub.buf[startpos], addEnd, addLrc);
+   ret = tst_asciipdu((uint8_t *)&read_stub.buf[startpos], addEnd, addLrc);
 
    read_stub.totalLength += ret;
 
    return ret;
 } /* end ciaaPOSIX_read_add */
 
-ssize_t ciaaPOSIX_read_stub(int32_t fildes, void * buf, ssize_t nbyte)
+ssize_t ciaaPOSIX_read_stub(int32_t fildes, void * buf, size_t nbyte, int cmock_num_calls)
 {
    ssize_t ret;
    ssize_t trans = 0;
@@ -230,13 +231,19 @@ ssize_t ciaaPOSIX_read_stub(int32_t fildes, void * buf, ssize_t nbyte)
 
    return ret;
 }
-
-ssize_t ciaaPOSIX_write_stub(int32_t fildes, void * buf, ssize_t nbyte)
+ssize_t ciaaPOSIX_write_stub(int32_t fildes, void const * buf, size_t nbyte, int cmock_num_calls)
 {
    memcpy(write_stub.buf[write_stub.count], buf, nbyte);
    write_stub.len[write_stub.count] = nbyte;
    write_stub.count++;
+   return nbyte;
 }
+
+void * memcpy_stub(void* s1, void const* s2, size_t n, int cmock_num_calls)
+{
+	return memcpy(s1, s2, n);
+}
+
 
 /** \brief convert ascii to bin for the tests
  **
@@ -311,9 +318,9 @@ int32_t tst_convert2bin(uint8_t * dst, uint8_t * src, int32_t len)
  **/
 static int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc)
 {
-   int32_t len = strlen(buf);
+   int32_t len = strlen((char*)buf);
    int32_t loopi;
-   int32_t ret = strlen(buf);
+   int32_t ret = strlen((char*)buf);
    uint8_t aux;
    uint8_t lrc = 0;
 
@@ -410,19 +417,18 @@ static int32_t tst_asciipdu(uint8_t * buf, int8_t addEnd, int8_t addLrc)
  */
 void test_ciaaModbus_ascii_ascii2bin_01(void)
 {
-   int32_t lenin[10];
+   uint32_t lenin[10];
    int32_t lenout[10];
    uint8_t buf[10][2][500];
-   int32_t buflen[10];
 
-   strcpy(buf[0][0],
-         ":000102030405060708090A0B0C0D0E0F");
+   strcpy((char*)buf[0][0],
+		   (const char*)":000102030405060708090A0B0C0D0E0F");
         /*012345678901234567890123456789012345678901234567890123456789*/
         /*          1         2         3         4         5         */
    /* set input buffer (only add LRC) */
    lenin[0] = tst_asciipdu(buf[0][0], 0, 1);
    /* copy the buffer */
-   strcpy(buf[0][1], buf[0][0]);
+   strcpy((char*)buf[0][1], (const char*)buf[0][0]);
 
    /* call tested function */
    lenout[0] = ciaaModbus_ascii_ascii2bin(buf[0][0], lenin[0]);
@@ -439,14 +445,13 @@ void test_ciaaModbus_ascii_ascii2bin_02(void)
    int32_t lenin[10];
    int32_t lenout[10];
    uint8_t buf[10][2][500];
-   int32_t buflen[10];
 
-   strcpy(buf[0][0],
-         ":000G");
+   strcpy((char*)buf[0][0],
+		   (const char*)":000G");
    /* set input buffer (only add LRC) */
    lenin[0] = tst_asciipdu(buf[0][0], 0, 1);
    /* copy the buffer */
-   strcpy(buf[0][1], buf[0][0]);
+   strcpy((char*)buf[0][1], (const char*)buf[0][0]);
 
    /* call tested function */
    lenout[0] = ciaaModbus_ascii_ascii2bin(buf[0][0], lenin[0]);
@@ -462,14 +467,13 @@ void test_ciaaModbus_ascii_ascii2bin_03(void)
    int32_t lenin[10];
    int32_t lenout[10];
    uint8_t buf[10][2][500];
-   int32_t buflen[10];
 
-   strcpy(buf[0][0],
-         ":00G0");
+   strcpy((char*)buf[0][0],
+         (const char*)":00G0");
    /* set input buffer (only add LRC) */
    lenin[0] = tst_asciipdu(buf[0][0], 0, 1);
    /* copy the buffer */
-   strcpy(buf[0][1], buf[0][0]);
+   strcpy((char*)buf[0][1], (const char*)buf[0][0]);
 
    /* call tested function */
    lenout[0] = ciaaModbus_ascii_ascii2bin(buf[0][0], lenin[0]);
@@ -480,10 +484,10 @@ void test_ciaaModbus_ascii_ascii2bin_03(void)
 
 /** \brief test ciaaModbus_asciiRecvMsg*/
 void test_ciaaModbus_asciiRecvMsg_01(void) {
-   int32_t read;
-   int8_t buf[500];
-   int8_t msgAscii[] = ":00010203040506070809";
-   int8_t msgBin[100];
+   uint32_t read;
+   uint8_t buf[500];
+   char msgAscii[] = ":00010203040506070809";
+   uint8_t msgBin[100];
    int32_t lenMsgBin;
 
    /* set stub callback */
@@ -491,7 +495,7 @@ void test_ciaaModbus_asciiRecvMsg_01(void) {
    memset(buf, 0, sizeof(buf));
 
    /* obtain msg in binary */
-   lenMsgBin = tst_convert2bin(msgBin, msgAscii, strlen(msgAscii));
+   lenMsgBin = tst_convert2bin(msgBin, (uint8_t *)msgAscii, strlen(msgAscii));
 
    /* set input buffer */
    ciaaPOSIX_read_add(msgAscii, 1, 1);
@@ -512,11 +516,9 @@ void test_ciaaModbus_asciiRecvMsg_01(void) {
 /** \brief test ciaaModbus_asciiRecvMsg
  ** incomplete msg */
 void test_ciaaModbus_asciiRecvMsg_02(void) {
-   int32_t read;
-   int8_t buf[500];
-   int8_t msgAscii[] = ":00010203040506070809";
-   int8_t msgBin[100];
-   int32_t lenMsgBin;
+   uint32_t read;
+   uint8_t buf[500];
+   char msgAscii[] = ":00010203040506070809";
 
    /* set stub callback */
    ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
@@ -539,11 +541,9 @@ void test_ciaaModbus_asciiRecvMsg_02(void) {
 /** \brief test ciaaModbus_asciiRecvMsg
  ** invalid LRC */
 void test_ciaaModbus_asciiRecvMsg_03(void) {
-   int32_t read;
-   int8_t buf[500];
-   int8_t msgAscii[] = ":00010203040506070809";
-   int8_t msgBin[100];
-   int32_t lenMsgBin;
+   uint32_t read;
+   uint8_t buf[500];
+   char msgAscii[] = ":00010203040506070809";
 
    /* set stub callback */
    ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
@@ -566,11 +566,11 @@ void test_ciaaModbus_asciiRecvMsg_03(void) {
 /** \brief test ciaaModbus_asciiRecvMsg
  ** receive twice */
 void test_ciaaModbus_asciiRecvMsg_04(void) {
-   int32_t read;
-   int8_t buf[500];
-   int8_t msgAscii1[] = ":0001020304";
-   int8_t msgAscii2[] = ":0506070809";
-   int8_t msgBin[100];
+   uint32_t read;
+   uint8_t buf[500];
+   char msgAscii1[] = ":0001020304";
+   char msgAscii2[] = ":0506070809";
+   uint8_t msgBin[100];
    int32_t lenMsgBin;
 
    /* set stub callback */
@@ -579,7 +579,7 @@ void test_ciaaModbus_asciiRecvMsg_04(void) {
    memset(buf, 0, sizeof(buf));
 
    /* obtain msg in binary */
-   lenMsgBin = tst_convert2bin(msgBin, msgAscii2, strlen(msgAscii2));
+   lenMsgBin = tst_convert2bin(msgBin, (uint8_t *)msgAscii2, strlen(msgAscii2));
 
    /* set input buffer */
    ciaaPOSIX_read_add(msgAscii1, 1, 1);
@@ -602,10 +602,9 @@ void test_ciaaModbus_asciiRecvMsg_04(void) {
 /** \brief test ciaaModbus_asciiRecvMsg
  ** incorrect format */
 void test_ciaaModbus_asciiRecvMsg_05(void) {
-   int32_t read;
-   int8_t buf[500];
-   int8_t msgAscii[] = ":0001020304";
-   int32_t lenMsgBin;
+   uint32_t read;
+   uint8_t buf[500];
+   char msgAscii[] = ":0001020304";
 
    /* set stub callback */
    ciaaPOSIX_read_StubWithCallback(ciaaPOSIX_read_stub);
@@ -637,11 +636,9 @@ void test_ciaaModbus_asciiRecvMsg_05(void) {
 /** \brief test ciaaModbus_asciiRecvMsg
  ** reception too large */
 void test_ciaaModbus_asciiRecvMsg_06(void) {
-   int32_t read[3];
-   int8_t buf[600];
-   int8_t msgAscii[600];
-   int8_t msgBin[300];
-   int32_t lenMsgBin;
+   uint32_t read[3];
+   uint8_t buf[600];
+   char msgAscii[600];
    int32_t loopi;
 
    /* set stub callback */
@@ -691,21 +688,20 @@ void test_ciaaModbus_asciiRecvMsg_06(void) {
 /** \brief test ciaaModbus_asciiSendMsg */
 void test_ciaaModbus_asciiSendMsg_01(void)
 {
-   int32_t fildes = 1;
    uint8_t buf[10][2][500];
    int32_t lenin[10];
    int32_t lenout[10];
 
    /* set stub callback */
    ciaaPOSIX_write_StubWithCallback(ciaaPOSIX_write_stub);
-   ciaaPOSIX_memcpy_StubWithCallback(memcpy);
+   ciaaPOSIX_memcpy_StubWithCallback(memcpy_stub);
 
-   strcpy(buf[0][0],
-         ":0001020304050607");
+   strcpy((char*)buf[0][0],
+		   (const char*)":0001020304050607");
         /*012345678901234567890123456789012345678901234567890123456789*/
         /*          1         2         3         4         5         */
-   strcpy(buf[1][0],
-         ":000102030405060712AF3DA1");
+   strcpy((char*)buf[1][0],
+		   (const char*)":000102030405060712AF3DA1");
         /*012345678901234567890123456789012345678901234567890123456789*/
         /*          1         2         3         4         5         */
 
@@ -714,8 +710,8 @@ void test_ciaaModbus_asciiSendMsg_01(void)
    lenin[1] = tst_asciipdu(buf[1][0], 1, 1);
 
    /* copy the buffer */
-   strcpy(buf[0][1], buf[0][0]);
-   strcpy(buf[1][1], buf[1][0]);
+   strcpy((char*)buf[0][1], (const char*)buf[0][0]);
+   strcpy((char*)buf[1][1], (const char*)buf[1][0]);
 
    /* convert to binary. LRC and CRLF no converted to binary*/
    lenout[0] = tst_convert2bin(buf[0][1], buf[0][1], lenin[0] - 4);
