@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -153,25 +154,27 @@ extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, 
    return -1;
 }
 
-extern int32_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
+extern ssize_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, uint8_t * const buffer, size_t const size)
 {
+   size_t ret = size;
+
    /* receive the data and forward to upper layer */
    ciaaDriverAio_uartType * uart = device->layer;
 
    if (size > uart->rxBuffer.length)
    {
-      size = uart->rxBuffer.length;
+      ret = uart->rxBuffer.length;
    }
 
    /* copy received bytes to upper layer */
-   ciaaPOSIX_memcpy(buffer, &uart->rxBuffer.buffer[0], size);
+   ciaaPOSIX_memcpy(buffer, &uart->rxBuffer.buffer[0], ret);
 
-   return size;
+   return ret;
 }
 
-extern int32_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
+extern ssize_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
-   int32_t ret = 0;
+   size_t ret = 0;
 
    /* write data */
    ciaaDriverAio_uartType * uart = device->layer;

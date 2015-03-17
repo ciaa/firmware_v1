@@ -139,7 +139,7 @@ extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const devi
  ** \return     the count of read bytes is returned
  **
  **/
-extern ssize_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte);
+extern ssize_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, size_t const nbyte);
 
 /** \brief Writes to a serial device
  **
@@ -150,7 +150,7 @@ extern ssize_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
  ** \param[in]  nbyte   count of bytes to be written
  ** \return     the count of bytes written
  **/
-extern ssize_t ciaaSerialDevices_write(ciaaDevices_deviceType const * device, uint8_t const * const buf, uint32_t nbyte);
+extern ssize_t ciaaSerialDevices_write(ciaaDevices_deviceType const * device, uint8_t const * const buf, size_t const nbyte);
 
 /** \brief Transmit confirmation of a serial device
  **

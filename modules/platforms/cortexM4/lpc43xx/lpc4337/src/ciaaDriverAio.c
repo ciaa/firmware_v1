@@ -1,4 +1,5 @@
 /* Copyright 2014, Fernando Beunza
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -457,10 +458,10 @@ extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, 
    return ret;
 }
 
-extern int32_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
+extern ssize_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t const size)
 {
    ciaaDriverAioControlType *pAioControl;
-   int32_t ret = -1;
+   ssize_t ret = -1;
    uint8_t i;
 
    if (size != 0)
@@ -507,11 +508,11 @@ extern int32_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, u
    return ret;
 }
 
-extern int32_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
+extern ssize_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
    ciaaDriverAioControlType *pAioControl;
    uint16_t *ptr;
-   int32_t ret = -1;
+   ssize_t ret = -1;
    int32_t count;
    uint32_t dmaBuffer[AIO_FIFO_SIZE];
    uint8_t samples;

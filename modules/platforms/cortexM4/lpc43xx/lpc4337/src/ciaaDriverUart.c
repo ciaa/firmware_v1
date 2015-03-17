@@ -1,5 +1,6 @@
 /* Copyright 2014, Pablo Ridolfi (UTN-FRBA)
  * Copyright 2014, Juan Cecconi
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -273,11 +274,11 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
    return ret;
 }
 
-extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
+extern ssize_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t const size)
 {
-   int32_t ret = -1;
-   uint8_t i;
+   ssize_t ret = -1;
    ciaaDriverUartControl * pUartControl;
+   uint8_t i;
 
    if(size != 0)
    {
@@ -316,9 +317,9 @@ extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
    return ret;
 }
 
-extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
+extern ssize_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
-   int32_t ret = 0;
+   ssize_t ret = 0;
 
    if((device == ciaaDriverUartConst.devices[0]) ||
       (device == ciaaDriverUartConst.devices[1]) ||

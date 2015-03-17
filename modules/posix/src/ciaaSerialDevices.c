@@ -278,7 +278,7 @@ extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const devi
    return ret;
 }
 
-extern ssize_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte)
+extern ssize_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, size_t const nbyte)
 {
    /* get serial device */
    ciaaSerialDevices_deviceType * serialDevice =
@@ -334,7 +334,7 @@ extern ssize_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
    return ret;
 }
 
-extern ssize_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, uint32_t nbyte)
+extern ssize_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, size_t const nbyte)
 {
    /* get serial device */
    ciaaSerialDevices_deviceType * serialDevice =

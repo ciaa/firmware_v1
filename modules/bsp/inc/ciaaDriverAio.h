@@ -1,4 +1,5 @@
 /* Copyright 2014, Fernando Beunza
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,8 +31,8 @@
  *
  */
 
-#ifndef _CIAADRIVERAIO_H_
-#define _CIAADRIVERAIO_H_
+#ifndef CIAADRIVERAIO_H
+#define CIAADRIVERAIO_H
 /** \brief CIAA Analogic Input/Output driver header file
  **
  ** This files contains the header file of the CIAA AIO driver
@@ -116,7 +117,7 @@ extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, 
  ** \param[in]  nbyte   count of bytes to be read
  ** \return     the count of read bytes is returned
  **/
-extern ssize_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, uint8_t * const buffer, uint32_t const size);
+extern ssize_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, uint8_t * const buffer, size_t const size);
 
 /** \brief writes to a aio device
  **
@@ -127,7 +128,7 @@ extern ssize_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, u
  ** \param[in]  nbyte   count of bytes to be written
  ** \return     the count of bytes written
  **/
-extern ssize_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size);
+extern ssize_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size);
 
 /** \brief initialize the aio driver
  **
@@ -144,5 +145,5 @@ extern void ciaaDriverAio_init(void);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAADRIVERAIO_H_ */
+#endif /* #ifndef CIAADRIVERAIO_H */
 
