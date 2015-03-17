@@ -173,7 +173,7 @@ CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DBOARD=$(BOARD)
 TARGET_NAME ?= $(BIN_DIR)$(DS)$(project)
 LD_TARGET = $(TARGET_NAME).$(LD_EXTENSION)
 # create list of object files for a Lib (without DIR), based on source file %.c and %.s
-$(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES =  $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.cpp,%.o,$($(LIB)_SRC_FILES)))))))
+$(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES =  $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(patsubst %.cpp,%.o,$($(LIB)_SRC_FILES))))))))
 # Complete list of object files (without DIR), based on source file %.c and %.s
 $(foreach LIB, $(LIBS), $(eval LIBS_OBJ_FILES += $($(LIB)_OBJ_FILES)))
 # Complete Libs Source Files for debug Info
@@ -184,6 +184,7 @@ $(foreach LIB, $(LIBS), $(eval LIBS_SRC_DIRS += $(sort $(dir $($(LIB)_SRC_FILES)
 vpath %.c $($(project)_SRC_PATH)
 vpath %.c $(LIBS_SRC_DIRS)
 vpath %.s $(LIBS_SRC_DIRS)
+vpath %.S $(LIBS_SRC_DIRS)
 vpath %.cpp $(LIBS_SRC_DIRS)
 vpath %.o $(OBJ_DIR)
 
@@ -197,7 +198,7 @@ $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ' '
 endef
 
-OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(SRC_FILES))))
+OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(SRC_FILES)))))
 
 # create rule for library
 # lib.a : lib_OBJ_FILES.o
@@ -381,6 +382,14 @@ endif
 	@echo Compiling 'asm' file: $<
 	@echo ' '
 	$(AS) $(AFLAGS) $< -o $(OBJ_DIR)$(DS)$@
+
+%.o : %.S
+	@echo ' '
+	@echo ===============================================================================
+	@echo Compiling 'asm' with C preprocessing file: $<
+	@echo ' '
+	$(CC) $(CFLAGS) -x assembler-with-cpp $< -o $(OBJ_DIR)$(DS)$@
+
 
 ###############################################################################
 # Incremental Build (IDE: Build)
