@@ -1,4 +1,5 @@
 /* Copyright 2014, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -53,6 +54,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150301 v0.0.4 MaCe implement memset and memcmp
  * 20140610 v0.0.3 MaCe implement memcpy
  * 20140608 v0.0.2 MaCe implement strlen, strcat, strcmp and strncmp
  * 20140530 v0.0.1 initials initial version
@@ -132,6 +134,31 @@ extern int8_t ciaaPOSIX_strcmp(char const * s1, char const * s2);
  **
  **/
 extern void * ciaaPOSIX_memcpy(void * s1, void const * s2, size_t n);
+
+/** \brief set n bytes to memory to (uint8_t)c
+ **
+ ** set n bytes of memory to the value of c casted to uint8_t.
+ **
+ ** \param[in] s pointer to memory to be set
+ ** \param[in] c value to set the memory to
+ ** \param[in] n count of bytes to be set
+ ** \return returns the input parameter s
+ **
+ **/
+extern void * ciaaPOSIX_memset(void * s, int c, size_t n);
+
+/** \brief compare n bytes between the pointer s1 and s2
+ **
+ ** Compare n bytes in the memory locations given in s1 and s2.
+ **
+ ** \param[in] s1 pointer to the first memory location to compare
+ ** \param[in] s1 pointer to the second memory location to compare
+ ** \param[in] n count of bytes to be compared
+ ** \returns -1,0,1 if the pointed objects are s1<s2, s1=s2, s1>s2
+ **          respectivelly
+ **
+ **/
+extern int32_t ciaaPOSIX_memcmp(const void * s1, const void * s2, size_t n);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

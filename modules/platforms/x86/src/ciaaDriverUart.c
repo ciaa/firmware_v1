@@ -501,23 +501,24 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
    return ret;
 }
 
-extern int32_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
+extern ssize_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t const size)
 {
    ciaaDriverUart_uartType * uart = device->layer;
+   ssize_t ret = size;
 
    /* receive the data and forward to upper layer */
    if (size > uart->rxBuffer.length)
    {
-      size = uart->rxBuffer.length;
+      ret = uart->rxBuffer.length;
    }
 
    /* copy received bytes to upper layer */
    ciaaPOSIX_memcpy(buffer, &uart->rxBuffer.buffer[0], size);
 
-   return size;
+   return ret;
 }
 
-extern int32_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
+extern ssize_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
    ciaaDriverUart_uartType * uart = device->layer;
 

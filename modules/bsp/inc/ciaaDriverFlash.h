@@ -2,6 +2,8 @@
  * Copyright 2014, Esteban Volentini
  * Copyright 2014, Matias Giori
  * Copyright 2014, Franco Salinas
+ * Copyright 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,8 +35,8 @@
  *
  */
 
-#ifndef _CIAADRIVERFLASH_H_
-#define _CIAADRIVERFLASH_H_
+#ifndef CIAADRIVERFLASH_H
+#define CIAADRIVERFLASH_H
 /** \brief CIAA Flash driver header file
  **
  ** This files contains the header file of the CIAA Flash driver
@@ -55,12 +57,14 @@
  * EV           Esteban Volentini
  * MG           Matias Giori
  * FS           Franco Salinas
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141006 v0.0.1  EV  first initial version
+ * 20150201 v0.0.2 MaCe add seek function
+ * 20141006 v0.0.1 EV   first initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -120,7 +124,7 @@ extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device
  ** \param[in]  nbyte   count of bytes to be read
  ** \return     the count of read bytes is returned
  **/
-extern int32_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t * const buffer, uint32_t const size);
+extern ssize_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t * const buffer, size_t const size);
 
 /** \brief writes to a flash device
  **
@@ -131,7 +135,23 @@ extern int32_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device,
  ** \param[in]  nbyte   count of bytes to be written
  ** \return     the count of bytes written
  **/
-extern int32_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size);
+extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size);
+
+/** \brief seek a flash device
+ **
+ ** Set the position in the stream
+ **
+ ** \param[in]  device  device to set the position
+ ** \param[in]  offset  offset to the new position
+ ** \param[in]  whence  if set to SEEK_SET offset indicates the position from the beginning of the device
+                           (offset shall be positive)
+                        if set to SEEK_CUR offset indicates the position from the actual position
+                           (offset may be positive or negative)
+                        if set to SEEK_END offset indicates the position from the end of the device
+                           (offset shall be negative)
+ ** \return     0 if success and -1 in other case
+ **/
+extern int32_t ciaaDriverFlash_seek(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence);
 
 /** \brief initialize the flash deriver
  **
@@ -148,4 +168,4 @@ extern void ciaaDriverFlash_init(void);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAADRIVERFLASH_H_ */
+#endif /* #ifndef CIAADRIVERFLASH_H */

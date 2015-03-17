@@ -1,7 +1,5 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,89 +31,53 @@
  *
  */
 
-/** \brief CIAA Flash Driver for K60_120
- **
- ** Implements the Flash Driver for K60_120
+#ifndef _TEST_CIAABLOCKDEVICES_
+#define _TEST_CIAAiBLOCKDEVICES_
+/** \brief This file implements the test of the block devices
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup POSIX POSIX Implementation
  ** @{ */
-/** \addtogroup Flash Flash Drivers
+/** \addtogroup ModuleTests Module Tests
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141006 v0.0.1  EV  first initial version
+ * 20150119 v0.0.1 MaCe initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaDriverFlash.h"
 
-/*==================[macros and definitions]=================================*/
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[internal data declaration]==============================*/
+/*==================[macros]=================================================*/
 
-/*==================[internal functions declaration]=========================*/
+/*==================[typedef]================================================*/
 
-/*==================[internal data definition]===============================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[external data definition]===============================*/
+/*==================[external functions declaration]=========================*/
 
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
-{
-   return device;
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-extern int32_t ciaaDriverFlash_close(ciaaDevices_deviceType const * const device)
-{
-   return -1;
-}
-
-extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
-{
-   int32_t ret = -1;
-
-   return ret;
-}
-
-extern int32_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
-{
-   int32_t ret = -1;
-
-   return ret;
-}
-
-extern int32_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
-{
-   int32_t ret = -1;
-
-   return ret;
-}
-
-void ciaaDriverFlash_init(void)
-{
-
-}
-
-/*==================[interrupt handlers]=====================================*/
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _TEST_CIAABLOCKDEVICES_ */
 

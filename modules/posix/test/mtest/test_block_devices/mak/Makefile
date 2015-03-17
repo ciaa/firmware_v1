@@ -1,20 +1,6 @@
 ###############################################################################
 #
-# Copyright 2014, ACSE & CADIEEL
-#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
-#    CADIEEL: http://www.cadieel.org.ar
-# All rights reserved.
-#
-#    or
-#
-# Copyright 2014, Your Name <youremail@domain.com>
-# All rights reserved.
-#
-#    or
-#
-# Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
-#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
-#    CADIEEL: http://www.cadieel.org.ar
+# Copyright 2015, Mariano Cerdeiro
 # All rights reserved.
 #
 # This file is part of CIAA Firmware.
@@ -46,13 +32,24 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# library
-LIBS 				     += template
-# library path
-template_PATH 		   = $(ROOT_DIR)$(DS)modules$(DS)template
-# library source path
-template_SRC_PATH 	= $(template_PATH)$(DS)src
-# library include path
-template_INC_PATH 	= $(template_PATH)$(DS)inc
+# Project Name: used for Project Path and OSEK configuration file
+project 			 	 = test_block_devices
+# Project path
+$(project)_PATH   	 = $(ROOT_DIR)$(DS)modules$(DS)posix$(DS)test$(DS)mtest$(DS)$(project)
+# source path
+$(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
+# include path
+INC_FILES			   += $($(project)_PATH)$(DS)inc
 # library source files
-template_SRC_FILES 	= $(wildcard $(template_SRC_PATH)$(DS)*.c)
+SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
+# configuration for OSEK-OS
+OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
+# Modules needed for this example
+MODS ?= modules$(DS)posix           \
+        modules$(DS)ciaak           \
+        modules$(DS)config          \
+        modules$(DS)bsp             \
+        modules$(DS)platforms       \
+        modules$(DS)rtos            \
+        modules$(DS)libs
+

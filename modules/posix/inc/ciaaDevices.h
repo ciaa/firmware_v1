@@ -71,13 +71,13 @@ extern "C" {
 
 /** \brief the file offset shall be set to offset bytes */
 /*@-namechecks@*/
-#define SEEK_SET                    1
+#define SEEK_SET                    0
 
 /** \brief the file offset shall be set to its current location plus offset */
-#define SEEK_CUR                    2
+#define SEEK_CUR                    1
 
 /** \brief the file offset shall be set to the size of the file plus offset */
-#define SEEK_END                    3
+#define SEEK_END                    2
 /*@=namechecks@*/
 
 /*==================[typedef]================================================*/

@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,41 +31,34 @@
  *
  */
 
-/** \brief Short description of this file
- **
- ** Long description of this file
+/** \brief This file implements the test of the Block Devices
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup POSIX POSIX Implementation
+ ** @{ */
+/** \addtogroup ModuleTests Module Tests
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20150119 v0.0.1 MaCe initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaak.h"
-/* TODO configuration dependent includes */
-#include "ciaaDevices.h"
+#include "unity.h"
+#include "string.h"
 #include "ciaaSerialDevices.h"
-#include "ciaaBlockDevices.h"
-#include "ciaaDriverUart.h"
-#include "ciaaDriverFlash.h"
-#include "ciaaDriverAio.h"
-#include "ciaaDriverDio.h"
-
-#include "ciaaPOSIX_stdlib.h"
+#include "test_ciaaBlockDevices.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -75,52 +69,38 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+uint16_t ciaaPOSIX_errno;
 
+char const * const ciaaPOSIX_assert_msg = \
+      "ASSERT Failed in %s:%d in expression %s\n";
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-void ciaak_start(void)
-{
-   /* init stdlib */
-   /* ATTENTION: ciaaPOSIX_stdlib_init has to be done before to any call to
-    * ciaaPOSIX_malloc or ciaak_malloc */
-   ciaaPOSIX_stdlib_init();
-
-   /* init device manager */
-   ciaaDevices_init();
-
-   /* init devices types */
-   ciaaSerialDevices_init();
+/** \brief set Up function
+ **
+ ** This function is called before each test case is executed
+ **
+ **/
+void setUp(void) {
+   /* perform the initialization of ciaa Devices */
    ciaaBlockDevices_init();
-
-   /* init drivers */
-   ciaaDriverUart_init();
-   ciaaDriverFlash_init();
-
-   /* ciaaDioDevices_init(); */
-   ciaaDriverDio_init();
-
-   ciaaDriverAio_init();
 }
 
-void *ciaak_malloc(size_t size)
-{
-   /* try to alloc memory */
-   void* ret = ciaaPOSIX_malloc(size);
-
-   /* kernel memory shall not failed :( */
-   if (NULL == ret)
-   {
-      ciaaPOSIX_printf("Kernel out of memory :( ...\n");
-      while(1)
-      {
-         /* TODO perform an kernel panic or like */
-      }
-   }
-
-   return ret;
+/** \brief tear Down function
+ **
+ ** This function is called after each test case is executed
+ **
+ **/
+void tearDown(void) {
 }
 
+/** \brief test POSIX get device before adding one
+ **
+ **/
+void testTODO(void) {
+}
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

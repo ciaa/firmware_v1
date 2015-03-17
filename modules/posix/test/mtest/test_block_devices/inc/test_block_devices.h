@@ -1,7 +1,5 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,40 +31,34 @@
  *
  */
 
-#ifndef _CIAADRIVERFLASH_INTERNAL_H_
-#define _CIAADRIVERFLASH_INTERNAL_H_
-/** \brief Internal Header file of UART Driver
+#ifndef TEST_BLOCK_DEVICES_H
+#define TEST_BLOCK_DEVICES_H
+/** \brief Test Block Devices header file
+ **
+ ** This is the module test of Block Devices CIAA Firmware
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup MTests CIAA Firmware Module Tests
  ** @{ */
-/** \addtogroup UART UART Drivers
+/** \addtogroup Block Block Devices Tests
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141006 v0.0.1  EV  first initial version
+ * 20150130 v0.0.1 MaCe Initial version
  */
 
 /*==================[inclusions]=============================================*/
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*==================[macros]=================================================*/
 
@@ -76,12 +68,9 @@ extern "C" {
 
 /*==================[external functions declaration]=========================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAADRIVERFLASH_INTERNAL_H_ */
+#endif /* #ifndef TEST_BLOCK_DEVICES_H */
+

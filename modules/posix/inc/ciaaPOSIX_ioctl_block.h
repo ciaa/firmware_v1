@@ -1,7 +1,5 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,89 +31,76 @@
  *
  */
 
-/** \brief CIAA Flash Driver for K60_120
+#ifndef CIAAPOSIX_IOCTL_BLOCK
+#define CIAAPOSIX_IOCTL_BLOCK
+/** \brief IO Control macros for block devices
  **
- ** Implements the Flash Driver for K60_120
+ ** This files contains the macros for IO control for block devices
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
- ** @{ */
-/** \addtogroup Flash Flash Drivers
+/** \addtogroup POSIX
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141006 v0.0.1  EV  first initial version
+ * 20150221 v0.0.1 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaDriverFlash.h"
 
-/*==================[macros and definitions]=================================*/
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[internal data declaration]==============================*/
+/*==================[macros]=================================================*/
+/** \brief Request the device information
+ **/
+#define ciaaPOSIX_IOCTL_BLOCK_GETINFO     0x8000U
 
-/*==================[internal functions declaration]=========================*/
+/** \brief Request a block to be erased
+ **
+ ** This ioctl command is only available in flash or block devices
+ ** which needs to be cleared/erased before written
+ **/
+#define ciaaPOSIX_IOCTL_BLOCK_ERASE       0x8001U
+/*==================[typedef]================================================*/
+/** TODO document */
+typedef struct {
+   int eraseBeforeWrite : 1;
+} ciaaDevices_blockFlagsType;
 
-/*==================[internal data definition]===============================*/
+/** TODO document */
+typedef struct {
+   int32_t minRead;        /** <- minimal read size shall be 0 or 2^n, if 0 no minimal read size */
+   int32_t maxRead;        /** <- maximal read size shall be 0 or 2^n, if 0 no maximal read size */
+   int32_t minWrite;       /** <- minimal write size shall be 0 or 2^n, if 0 no minimal write size */
+   int32_t maxWrite;       /** <- maximal write size shall be 0 or 2^n, if 0 no maximal write size */
+   int32_t blockSize;      /** <- block size, shall be 2^n with n > 0 */
+   uint32_t lastPosition;  /** <- position of end of file (device) */
+   ciaaDevices_blockFlagsType flags;   /** <- information flags of the device */
+} ciaaDevices_blockType;
 
-/*==================[external data definition]===============================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[internal functions definition]==========================*/
+/*==================[external functions declaration]=========================*/
 
-/*==================[external functions definition]==========================*/
-extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
-{
-   return device;
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-extern int32_t ciaaDriverFlash_close(ciaaDevices_deviceType const * const device)
-{
-   return -1;
-}
-
-extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
-{
-   int32_t ret = -1;
-
-   return ret;
-}
-
-extern int32_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
-{
-   int32_t ret = -1;
-
-   return ret;
-}
-
-extern int32_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
-{
-   int32_t ret = -1;
-
-   return ret;
-}
-
-void ciaaDriverFlash_init(void)
-{
-
-}
-
-/*==================[interrupt handlers]=====================================*/
-/** @} doxygen end group definition */
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef CIAAPOSIX_IOCTL_BLOCK */
 
