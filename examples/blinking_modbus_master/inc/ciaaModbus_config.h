@@ -1,19 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
- *
- *    or
- *
- * Copyright 2014, Your Name <youremail@domain.com>
- * All rights reserved.
- *
- *    or
- *
- * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
+/* Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -45,32 +30,35 @@
  *
  */
 
-#ifndef TEMPLATE_FILE_H
-#define TEMPLATE_FILE_H
-/** \brief Short description of this file
+#ifndef _CIAAMODBUS_CONFIG_H_
+#define _CIAAMODBUS_CONFIG_H_
+/** \brief Modbus Config Header File
  **
- ** Long description of this file
+ ** This files shall be included by modules using the interfaces provided by
+ ** the Modbus
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup Modbus CIAA Modbus
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
+ * GMuro        Gustavo Muro
  *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20141108 v0.0.1 GMuro   initial version
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -78,33 +66,42 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief maximum value for a int16_t type */
-#define INT16_MAX   32767
 
-/** \brief minimum value for a int16_t type */
-#define INT16_MIN   -32768
+/** \brief Total gateway available */
+#define CIAA_MODBUS_TOTAL_GATEWAY            1
+
+/** \brief Total masters available */
+#define CIAA_MODBUS_TOTAL_MASTERS            1
+
+/** \brief Total slaves available */
+#define CIAA_MODBUS_TOTAL_SLAVES             1
+
+/** \brief Total transport available */
+#define CIAA_MODBUS_TOTAL_TRANSPORT_ASCII    1
+
+/** \brief Total transport available */
+#define CIAA_MODBUS_TOTAL_TRANSPORT_RTU      0
+
+/** \brief Total transport available */
+#define CIAA_MODBUS_TOTAL_TRANSPORT_TCP      0
+
+/** \brief Total masters by gateways */
+#define CIAA_MODBUS_TOTAL_MASTERS_GW         1
+
+/** \brief Total slaves by gateways */
+#define CIAA_MODBUS_TOTAL_SLAVES_GW          0
+
+/** \brief Total transports by gateways */
+#define CIAA_MODBUS_TOTAL_TRANSPORT_GW       1
+
+/** \brief Time between calls (milliseconds) */
+#define CIAA_MODBUS_TIME_BASE                10
 
 /*==================[typedef]================================================*/
-/** \brief Signed integer 16 bits */
-typedef signed short int16_t;
-
-/** \brief Signed integer 32 bits type */
-typedef signed int int32_t;
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Adds 2 16 bits signed and return a 16 bits signed value
- **
- ** If the result is bigger than the limit in 15 bits returns
- ** INT16_MAX is lower than the limit in 15 bits returns
- ** INT16_MIN
- **
- ** \param[in] 	  a first parameter to be added
- ** \param[in]    b second parameter ot be added
- ** \return E_OK  returns addition of a+b
- **/
-extern int16_t Template_Sum16bits(int16_t const a, int16_t const b);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -113,5 +110,5 @@ extern int16_t Template_Sum16bits(int16_t const a, int16_t const b);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef TEMPLATE_FILE_H */
+#endif /* #ifndef _CIAAMODBUS_CONFIG_H_ */
 

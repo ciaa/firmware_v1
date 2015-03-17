@@ -33,11 +33,25 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# TOOLCHAIN
-CC = arm-none-eabi-gcc
-LD = arm-none-eabi-gcc
-AR = arm-none-eabi-ar
-GDB = arm-none-eabi-gdb
-NM = arm-none-eabi-nm
-# COMPILER AND LINKER OPTIONS
-#CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
+# Project Name: used for Project Path and OSEK configuration file
+project 			 	 = blinking_modbus_master
+# Project path
+$(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
+# source path
+$(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
+# include path
+INC_FILES			   += $($(project)_PATH)$(DS)inc
+# library source files
+SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
+# configuration for OSEK-OS
+OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
+# Modules needed for this example
+MODS ?= modules$(DS)posix           \
+        modules$(DS)ciaak           \
+        modules$(DS)config          \
+        modules$(DS)bsp             \
+        modules$(DS)platforms       \
+        modules$(DS)rtos            \
+        modules$(DS)libs				\
+		  modules$(DS)modbus
+

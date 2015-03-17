@@ -1,7 +1,8 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro
+# Copyright 2014, 2015, Mariano Cerdeiro
 # Copyright 2014, Juan Cecconi (UTN-FRBA)
+# All rights reserved
 #
 # This file is part of CIAA Firmware.
 #
@@ -49,22 +50,24 @@
 -include Makefile.mine
 ###############################################################################
 # ARCH, CPUTYPE and CPU following are supported
-# +--------------+---------------+----------------+--------------+
-# |      ARCH    |    CPUTYPE    |      CPU       | COMPILER     |
-# +--------------+---------------+----------------+--------------+
-# | x86          | ia32          |                | gcc          |
-# |              | ia64          |                |              |
-# +--------------+---------------+----------------+--------------+
-# | cortexM4     | lpc43xx       | lpc4337        | gcc          |
-# |              | k60_120       | mk60fx512vlq15 | gcc          |
-# +--------------+---------------+----------------+--------------+
-# | mips         | pic32		   | pic32mz		  | gcc          |
-# +--------------+---------------+----------------+--------------+
+# +--------------+---------------+----------------+--------------+--------------+
+# |      ARCH    |    CPUTYPE    |      CPU       | COMPILER     | BOARD        |
+# +--------------+---------------+----------------+--------------+--------------+
+# | x86          | ia32          |                | gcc          |              |
+# |              | ia64          |                |              |              |
+# +--------------+---------------+----------------+--------------+--------------+
+# | cortexM4     | lpc43xx       | lpc4337        | gcc          | ciaa-edu     |
+# |              |               |                |              | ciaa         |
+# |              | k60_120       | mk60fx512vlq15 | gcc          |              |
+# +--------------+---------------+----------------+--------------+--------------+
+# | mips         | pic32         | pic32mz        | gcc          |              |
+# +--------------+---------------+----------------+--------------+--------------+
 #
 ARCH           ?= x86
-CPUTYPE        ?= ia64
+CPUTYPE        ?= ia32
 CPU            ?= none
 COMPILER       ?= gcc
+BOARD          ?= none
 
 DS             ?= /
 # Project
@@ -166,11 +169,11 @@ ifneq ($(findstring tst_, $(MAKECMDGOALS)),tst_)
 CFLAGS  += $(foreach inc, $(INC_FILES), -I$(inc))
 endif
 CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
-CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU)
+CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DBOARD=$(BOARD)
 TARGET_NAME ?= $(BIN_DIR)$(DS)$(project)
 LD_TARGET = $(TARGET_NAME).$(LD_EXTENSION)
 # create list of object files for a Lib (without DIR), based on source file %.c and %.s
-$(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES =  $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.cpp,%.o,$($(LIB)_SRC_FILES)))))))
+$(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES =  $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(patsubst %.cpp,%.o,$($(LIB)_SRC_FILES))))))))
 # Complete list of object files (without DIR), based on source file %.c and %.s
 $(foreach LIB, $(LIBS), $(eval LIBS_OBJ_FILES += $($(LIB)_OBJ_FILES)))
 # Complete Libs Source Files for debug Info
@@ -181,6 +184,7 @@ $(foreach LIB, $(LIBS), $(eval LIBS_SRC_DIRS += $(sort $(dir $($(LIB)_SRC_FILES)
 vpath %.c $($(project)_SRC_PATH)
 vpath %.c $(LIBS_SRC_DIRS)
 vpath %.s $(LIBS_SRC_DIRS)
+vpath %.S $(LIBS_SRC_DIRS)
 vpath %.cpp $(LIBS_SRC_DIRS)
 vpath %.o $(OBJ_DIR)
 
@@ -194,7 +198,7 @@ $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ' '
 endef
 
-OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(SRC_FILES))))
+OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(SRC_FILES)))))
 
 # create rule for library
 # lib.a : lib_OBJ_FILES.o
@@ -379,6 +383,14 @@ endif
 	@echo ' '
 	$(AS) $(AFLAGS) $< -o $(OBJ_DIR)$(DS)$@
 
+%.o : %.S
+	@echo ' '
+	@echo ===============================================================================
+	@echo Compiling 'asm' with C preprocessing file: $<
+	@echo ' '
+	$(CC) $(CFLAGS) -x assembler-with-cpp $< -o $(OBJ_DIR)$(DS)$@
+
+
 ###############################################################################
 # Incremental Build (IDE: Build)
 # link rule
@@ -409,8 +421,9 @@ debug : $(BIN_DIR)$(DS)$(project).bin
 ###############################################################################
 # rtos OSEK generation
 generate : $(OIL_FILES)
-	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v -c \
-		$(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
+		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
+		-c $(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 
 ###############################################################################
 # doxygen

@@ -175,6 +175,18 @@ void ciaaModbus_asciiSendMsg(
       uint32_t size);
 
 
+/** \brief Convert received ascii data to bin
+**
+** \param[inout] buf input ascii buffer starting with : and without CRLF
+** and output bin buffer
+** \para[in] len length of the ascii buffer
+** \return -1 if error, lenght of the binary data
+**
+** \remarks This function shall not be called from outside this file.
+** Is not static due to the tests.
+**/
+extern int32_t ciaaModbus_ascii_ascii2bin(uint8_t * buf, int32_t len);
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }

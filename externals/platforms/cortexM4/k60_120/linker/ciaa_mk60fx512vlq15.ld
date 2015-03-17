@@ -1,264 +1,191 @@
-/*
- * GENERATED FILE - DO NOT EDIT
- * (c) Code Red Technologies Ltd, 2008-${year}
- * (c) NXP Semiconductors 2013-${year}
- * Generated linker script file for 2014
- * Created from LPC4337 (Sun May 11 09:57:34 ART 2014)
- * By generic_c.ld on LPCXpresso v7.1.1 [Build 125] [2014-04-01] 
- */
+/* Linker file for GNU C Compiler */
 
+/* Entry Point */
+ENTRY(Reset_Handler)
 
-INCLUDE "externals/platforms/cortexM4/k60_120/linker/ciaa_mk60fx512vlq15_lib.ld"
-INCLUDE "externals/platforms/cortexM4/k60_120/linker/ciaa_mk60fx512vlq15_mem.ld"
+HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x00000400;
+STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x00000400;
 
-ENTRY(ResetISR)
+/* Specify the memory areas */
+MEMORY
+{
+  m_interrupts          (RX)  : ORIGIN = 0x00000000, LENGTH = 0x00000400
+  m_flash_config        (RX)  : ORIGIN = 0x00000400, LENGTH = 0x00000010
+  m_text                (RX)  : ORIGIN = 0x00000410, LENGTH = 0x0007FBF0
+  m_data                (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00010000
+  m_data_1FFF0000       (RW)  : ORIGIN = 0x1FFF0000, LENGTH = 0x00010000
+}
 
+/* Define output sections */
 SECTIONS
 {
-    
-    .text_Flash2 : ALIGN(4)
-    {
-       FILL(0xff)
-    	*(.text_Flash2*) /* for compatibility with previous releases */
-    	*(.text_MFlashB512*) /* for compatibility with previous releases */
-    	*(.text.$Flash2*)
-    	*(.text.$MFlashB512*)
-    	*(.rodata.$Flash2*)
-    	*(.rodata.$MFlashB512*)
-    } > MFlashB512
+  /* The startup code goes first into internal flash */
+  .interrupts :
+  {
+    __VECTOR_TABLE = .;
+    . = ALIGN(4);
+    KEEP(*(.isr_vector))     /* Startup code */
+    . = ALIGN(4);
+  } > m_interrupts
 
-    /* MAIN TEXT SECTION */    
-    .text : ALIGN(4)
-    {
-        FILL(0xff)
-        __vectors_start__ = ABSOLUTE(.) ;
-        KEEP(*(.isr_vector))
-        
-        /* Global Section Table */
-        . = ALIGN(4) ;
-        __section_table_start = .;
-        __data_section_table = .;
-        LONG(LOADADDR(.data));
-        LONG(    ADDR(.data));
-        LONG(  SIZEOF(.data));
-        LONG(LOADADDR(.data_RAM2));
-        LONG(    ADDR(.data_RAM2));
-        LONG(  SIZEOF(.data_RAM2));
-        LONG(LOADADDR(.data_RAM3));
-        LONG(    ADDR(.data_RAM3));
-        LONG(  SIZEOF(.data_RAM3));
-        LONG(LOADADDR(.data_RAM4));
-        LONG(    ADDR(.data_RAM4));
-        LONG(  SIZEOF(.data_RAM4));
-        LONG(LOADADDR(.data_RAM5));
-        LONG(    ADDR(.data_RAM5));
-        LONG(  SIZEOF(.data_RAM5));
-        __data_section_table_end = .;
-        __bss_section_table = .;
-        LONG(    ADDR(.bss));
-        LONG(  SIZEOF(.bss));
-        LONG(    ADDR(.bss_RAM2));
-        LONG(  SIZEOF(.bss_RAM2));
-        LONG(    ADDR(.bss_RAM3));
-        LONG(  SIZEOF(.bss_RAM3));
-        LONG(    ADDR(.bss_RAM4));
-        LONG(  SIZEOF(.bss_RAM4));
-        LONG(    ADDR(.bss_RAM5));
-        LONG(  SIZEOF(.bss_RAM5));
-        __bss_section_table_end = .;
-        __section_table_end = . ;
-        /* End of Global Section Table */
-        
 
-        *(.after_vectors*)
-        
-        /* Code Read Protect data */
-        . = 0x000002FC ;
-        PROVIDE(__CRP_WORD_START__ = .) ;
-        KEEP(*(.crp))
-        PROVIDE(__CRP_WORD_END__ = .) ;
-        ASSERT(!(__CRP_WORD_START__ == __CRP_WORD_END__), "Linker CRP Enabled, but no CRP_WORD provided within application");
-        /* End of Code Read Protect */
-        
-    } >MFlashA512
-    
-    .text : ALIGN(4)    
-    {
-         *(.text*)
-        *(.rodata .rodata.* .constdata .constdata.*)
-        . = ALIGN(4);
-        
-    } > MFlashA512
+  .flash_config :
+  {
+    . = ALIGN(4);
+    KEEP(*(.FlashConfig))    /* Flash Configuration Field (FCF) */
+    . = ALIGN(4);
+  } > m_flash_config
 
-    /*
-     * for exception handling/unwind - some Newlib functions (in common
-     * with C++ and STDC++) use this. 
-     */
-    .ARM.extab : ALIGN(4)
-    {
-    	*(.ARM.extab* .gnu.linkonce.armextab.*)
-    } > MFlashA512
+  /* The program code and other data goes into internal flash */
+  .text :
+  {
+    . = ALIGN(4);
+    *(.text)                 /* .text sections (code) */
+    *(.text*)                /* .text* sections (code) */
+    *(.rodata)               /* .rodata sections (constants, strings, etc.) */
+    *(.rodata*)              /* .rodata* sections (constants, strings, etc.) */
+    *(.glue_7)               /* glue arm to thumb code */
+    *(.glue_7t)              /* glue thumb to arm code */
+    *(.eh_frame)
+    KEEP (*(.init))
+    KEEP (*(.fini))
+    . = ALIGN(4);
+  } > m_text
+
+  .ARM.extab :
+  {
+    *(.ARM.extab* .gnu.linkonce.armextab.*)
+  } > m_text
+
+  .ARM :
+  {
     __exidx_start = .;
-    
-    .ARM.exidx : ALIGN(4)
-    {
-    	*(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > MFlashA512
+    *(.ARM.exidx*)
     __exidx_end = .;
-    
-    _etext = .;
-        
-    
-    /* DATA section for RamLoc40 */
-   .data_RAM2 : ALIGN(4)
-    {
-       FILL(0xff)
-      /*  __core_m0app_START__ = .; start of slave image 
-         KEEP(*(.core_m0app))
-       __core_m0app_END__ = .;  end of slave image 
-       ASSERT(!(__core_m0app_START__ == __core_m0app_END__), "No slave code for _core_m0app");
-       ASSERT( (ABSOLUTE(__core_m0app_START__) == __vectors_start___core_m0app), "M0APP execute address differs from address provided in source image");*/
-       *(.ramfunc.$RAM2)
-       *(.ramfunc.$RamLoc40)
-    	*(.data.$RAM2*)
-    	*(.data.$RamLoc40*)
-       . = ALIGN(4) ;
-    } > RamLoc40 AT>MFlashA512
-    
-    /* DATA section for RamAHB32 */
-    .data_RAM3 : ALIGN(4)
-    {
-       FILL(0xff)
-       *(.ramfunc.$RAM3)
-       *(.ramfunc.$RamAHB32)
-    	*(.data.$RAM3*)
-    	*(.data.$RamAHB32*)
-       . = ALIGN(4) ;
-    } > RamAHB32 AT>MFlashA512
-    
-    /* DATA section for RamAHB16 */
-    .data_RAM4 : ALIGN(4)
-    {
-       FILL(0xff)
-       *(.ramfunc.$RAM4)
-       *(.ramfunc.$RamAHB16)
-    	*(.data.$RAM4*)
-    	*(.data.$RamAHB16*)
-       . = ALIGN(4) ;
-    } > RamAHB16 AT>MFlashA512
-    
-    /* DATA section for RamAHB_ETB16 */
-    .data_RAM5 : ALIGN(4)
-    {
-       FILL(0xff)
-       *(.ramfunc.$RAM5)
-       *(.ramfunc.$RamAHB_ETB16)
-    	*(.data.$RAM5*)
-    	*(.data.$RamAHB_ETB16*)
-       . = ALIGN(4) ;
-    } > RamAHB_ETB16 AT>MFlashA512
-    
-    /* MAIN DATA SECTION */
-    
+  } > m_text
 
-    .uninit_RESERVED : ALIGN(4)
-    {
-        KEEP(*(.bss.$RESERVED*))
-        . = ALIGN(4) ;
-        _end_uninit_RESERVED = .;
-    } > RamLoc32
+ .ctors :
+  {
+    __CTOR_LIST__ = .;
+    /* gcc uses crtbegin.o to find the start of
+       the constructors, so we make sure it is
+       first.  Because this is a wildcard, it
+       doesn't matter if the user does not
+       actually link against crtbegin.o; the
+       linker won't look for a file to match a
+       wildcard.  The wildcard also means that it
+       doesn't matter which directory crtbegin.o
+       is in.  */
+    KEEP (*crtbegin.o(.ctors))
+    KEEP (*crtbegin?.o(.ctors))
+    /* We don't want to include the .ctor section from
+       from the crtend.o file until after the sorted ctors.
+       The .ctor section from the crtend file contains the
+       end of ctors marker and it must be last */
+    KEEP (*(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors))
+    KEEP (*(SORT(.ctors.*)))
+    KEEP (*(.ctors))
+    __CTOR_END__ = .;
+  } > m_text
 
-	
-	/* Main DATA section (RamLoc32) */
-	.data : ALIGN(4)
-	{
-	   FILL(0xff)
-	   _data = . ;
-	   *(vtable)
-	   *(.ramfunc*)
-	   *(.data*)
-	   . = ALIGN(4) ;
-	   _edata = . ;
-	} > RamLoc32 AT>MFlashA512
+  .dtors :
+  {
+    __DTOR_LIST__ = .;
+    KEEP (*crtbegin.o(.dtors))
+    KEEP (*crtbegin?.o(.dtors))
+    KEEP (*(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors))
+    KEEP (*(SORT(.dtors.*)))
+    KEEP (*(.dtors))
+    __DTOR_END__ = .;
+  } > m_text
 
-    /* BSS section for RamLoc40 */
-    .bss_RAM2 : ALIGN(4)
-    {
-    	*(.bss.$RAM2*)
-    	*(.bss.$RamLoc40*)
-       . = ALIGN(4) ;
-    } > RamLoc40
-    /* BSS section for RamAHB32 */
-    .bss_RAM3 : ALIGN(4)
-    {
-    	*(.bss.$RAM3*)
-    	*(.bss.$RamAHB32*)
-       . = ALIGN(4) ;
-    } > RamAHB32
-    /* BSS section for RamAHB16 */
-    .bss_RAM4 : ALIGN(4)
-    {
-    	*(.bss.$RAM4*)
-    	*(.bss.$RamAHB16*)
-       . = ALIGN(4) ;
-    } > RamAHB16
-    /* BSS section for RamAHB_ETB16 */
-    .bss_RAM5 : ALIGN(4)
-    {
-    	*(.bss.$RAM5*)
-    	*(.bss.$RamAHB_ETB16*)
-       . = ALIGN(4) ;
-    } > RamAHB_ETB16
+  .preinit_array :
+  {
+    PROVIDE_HIDDEN (__preinit_array_start = .);
+    KEEP (*(.preinit_array*))
+    PROVIDE_HIDDEN (__preinit_array_end = .);
+  } > m_text
 
-    /* MAIN BSS SECTION */
-    .bss : ALIGN(4)
-    {
-        _bss = .;
-        *(.bss*)
-        *(COMMON)
-        . = ALIGN(4) ;
-        _ebss = .;
-        PROVIDE(end = .);
-    } > RamLoc32
-        
-    /* NOINIT section for RamLoc40 */
-    .noinit_RAM2 (NOLOAD) : ALIGN(4)
-    {
-    	*(.noinit.$RAM2*)
-    	*(.noinit.$RamLoc40*)
-       . = ALIGN(4) ;
-    } > RamLoc40 
-    /* NOINIT section for RamAHB32 */
-    .noinit_RAM3 (NOLOAD) : ALIGN(4)
-    {
-    	*(.noinit.$RAM3*)
-    	*(.noinit.$RamAHB32*)
-       . = ALIGN(4) ;
-    } > RamAHB32 
-    /* NOINIT section for RamAHB16 */
-    .noinit_RAM4 (NOLOAD) : ALIGN(4)
-    {
-    	*(.noinit.$RAM4*)
-    	*(.noinit.$RamAHB16*)
-       . = ALIGN(4) ;
-    } > RamAHB16 
-    /* NOINIT section for RamAHB_ETB16 */
-    .noinit_RAM5 (NOLOAD) : ALIGN(4)
-    {
-    	*(.noinit.$RAM5*)
-    	*(.noinit.$RamAHB_ETB16*)
-       . = ALIGN(4) ;
-    } > RamAHB_ETB16 
-    
-    /* DEFAULT NOINIT SECTION */
-    .noinit (NOLOAD): ALIGN(4)
-    {
-        _noinit = .;
-        *(.noinit*) 
-         . = ALIGN(4) ;
-        _end_noinit = .;
-    } > RamLoc32
-    
-    PROVIDE(_pvHeapStart = .);
-    PROVIDE(_vStackTop = __top_RamLoc32 - 0);
+  .init_array :
+  {
+    PROVIDE_HIDDEN (__init_array_start = .);
+    KEEP (*(SORT(.init_array.*)))
+    KEEP (*(.init_array*))
+    PROVIDE_HIDDEN (__init_array_end = .);
+  } > m_text
+
+  .fini_array :
+  {
+    PROVIDE_HIDDEN (__fini_array_start = .);
+    KEEP (*(SORT(.fini_array.*)))
+    KEEP (*(.fini_array*))
+    PROVIDE_HIDDEN (__fini_array_end = .);
+  } > m_text
+
+  __etext = .;    /* define a global symbol at end of code */
+  __DATA_ROM = .; /* Symbol is used by startup for data initialization */
+
+  .data : AT(__DATA_ROM)
+  {
+    . = ALIGN(4);
+    __DATA_RAM = .;
+    __data_start__ = .;      /* create a global symbol at data start */
+    *(.data)                 /* .data sections */
+    *(.data*)                /* .data* sections */
+    KEEP(*(.jcr*))
+    . = ALIGN(4);
+    __data_end__ = .;        /* define a global symbol at data end */
+  } > m_data
+
+  /* Symbol is used by startup for data initialization */
+  __DATA_END = __DATA_ROM + (__data_end__ - __data_start__);
+
+  __m_data_1FFF0000_ROMStart = __DATA_ROM + SIZEOF(.data);
+  .m_data_1FFF0000 : AT(__m_data_1FFF0000_ROMStart)
+  {
+     . = ALIGN(4);
+     __m_data_1FFF0000_RAMStart = .;
+     *(.m_data_1FFF0000)     /* This is an user defined section */
+     __m_data_1FFF0000_RAMEnd = .;
+     . = ALIGN(4);
+  } > m_data_1FFF0000
+  __m_data_1FFF0000_ROMSize = __m_data_1FFF0000_RAMEnd - __m_data_1FFF0000_RAMStart;
+
+  /* Uninitialized data section */
+  .bss :
+  {
+    /* This is used by the startup in order to initialize the .bss section */
+    . = ALIGN(4);
+    __START_BSS = .;
+    __bss_start__ = .;
+    *(.bss)
+    *(.bss*)
+    *(COMMON)
+    . = ALIGN(4);
+    __bss_end__ = .;
+    __END_BSS = .;
+  } > m_data
+
+  .heap :
+  {
+    . = ALIGN(8);
+    __end__ = .;
+    PROVIDE(end = .);
+    __HeapBase = .;
+    . += HEAP_SIZE;
+    __HeapLimit = .;
+  } > m_data
+
+  .stack :
+  {
+    . = ALIGN(8);
+    . += STACK_SIZE;
+  } > m_data
+
+  __StackTop   = .;
+  __StackLimit = __StackTop - STACK_SIZE;
+  PROVIDE(__stack = __StackTop);
+
+  .ARM.attributes 0 : { *(.ARM.attributes) }
 }
+
