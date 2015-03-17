@@ -116,7 +116,7 @@ extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, 
  ** \param[in]  nbyte   count of bytes to be read
  ** \return     the count of read bytes is returned
  **/
-extern int32_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, uint8_t * const buffer, uint32_t const size);
+extern ssize_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, uint8_t * const buffer, uint32_t const size);
 
 /** \brief writes to a aio device
  **
@@ -127,7 +127,7 @@ extern int32_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, u
  ** \param[in]  nbyte   count of bytes to be written
  ** \return     the count of bytes written
  **/
-extern int32_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size);
+extern ssize_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size);
 
 /** \brief initialize the aio driver
  **

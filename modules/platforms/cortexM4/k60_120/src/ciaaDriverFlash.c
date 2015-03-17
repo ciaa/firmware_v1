@@ -94,14 +94,14 @@ extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device
    return ret;
 }
 
-extern int32_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
+extern ssize_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, uint32_t size)
 {
    int32_t ret = -1;
 
    return ret;
 }
 
-extern int32_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
+extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, uint32_t const size)
 {
    int32_t ret = -1;
 

@@ -1,5 +1,6 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2015 Mariano Cerdeiro
  * Copyright 2014, Juan Cecconi
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -277,7 +278,7 @@ extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const devi
    return ret;
 }
 
-extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte)
+extern ssize_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte)
 {
    /* get serial device */
    ciaaSerialDevices_deviceType * serialDevice =
@@ -333,7 +334,7 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
    return ret;
 }
 
-extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, uint32_t nbyte)
+extern ssize_t ciaaSerialDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, uint32_t nbyte)
 {
    /* get serial device */
    ciaaSerialDevices_deviceType * serialDevice =

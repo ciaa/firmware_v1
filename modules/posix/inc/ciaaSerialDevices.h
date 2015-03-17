@@ -1,6 +1,8 @@
 /* Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * Copyright 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -32,8 +34,8 @@
  *
  */
 
-#ifndef _CIAASERIALDEVICES_H_
-#define _CIAASERIALDEVICES_H_
+#ifndef CIAASERIALDEVICES_H
+#define CIAASERIALDEVICES_H
 /** \brief CIAA Serial Devices
  **
  ** Provides support for serial devices
@@ -137,7 +139,7 @@ extern int32_t ciaaSerialDevices_ioctl(ciaaDevices_deviceType const * const devi
  ** \return     the count of read bytes is returned
  **
  **/
-extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte);
+extern ssize_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, uint32_t nbyte);
 
 /** \brief Writes to a serial device
  **
@@ -148,7 +150,7 @@ extern int32_t ciaaSerialDevices_read(ciaaDevices_deviceType const * const devic
  ** \param[in]  nbyte   count of bytes to be written
  ** \return     the count of bytes written
  **/
-extern int32_t ciaaSerialDevices_write(ciaaDevices_deviceType const * device, uint8_t const * const buf, uint32_t nbyte);
+extern ssize_t ciaaSerialDevices_write(ciaaDevices_deviceType const * device, uint8_t const * const buf, uint32_t nbyte);
 
 /** \brief Transmit confirmation of a serial device
  **
@@ -194,5 +196,5 @@ extern void ciaaSerialDevices_releaseDriver(ciaaDevices_deviceType const * drive
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAASERIALDEVICES_H_ */
+#endif /* #ifndef CIAASERIALDEVICES_H */
 
