@@ -218,9 +218,9 @@ static void * ciaaDriverUart_serialHandler(ciaaDevices_deviceType const * const 
          }
       }
       /* try receive data from the host port */
-      result = read(uart->fileDescriptor, uart->rxBuffer.buffer, sizeof(uart->rxBuffer));
+      result = read(uart->fileDescriptor, uart->rxBuffer.buffer + uart->rxBuffer.length, sizeof(uart->rxBuffer) - uart->rxBuffer.length);
       if (result > 0) {
-         uart->rxBuffer.length = result;
+         uart->rxBuffer.length += result;
          ciaaDriverUart_rxIndication(device);
       }
       result = usleep(100);
@@ -290,6 +290,8 @@ void ciaaDriverUart_serverInit(ciaaDevices_deviceType * device, uint8_t index)
 {
    ciaaDriverUart_uartType * uart = device->layer;
 
+   uart->rxBuffer.length = 0;
+
    uart->serverAddress.sin_family = AF_INET;
    uart->serverAddress.sin_addr.s_addr = INADDR_ANY;
    uart->serverAddress.sin_port = htons(ciaaDriverUart_serverPorts[index]);
@@ -332,22 +334,25 @@ static void * ciaaDriverUart_serverHandler(ciaaDevices_deviceType const * const 
          }
 
          /* try to receive data from client */
-         result = recv(clientSocket, uart->rxBuffer.buffer, sizeof(uart->rxBuffer), MSG_DONTWAIT);
-         if (0 == result)
+         if(uart->rxBuffer.length < sizeof(uart->rxBuffer.buffer))
          {
-            /* the cliente was disconected */
-            printf("Client disconected\r\n");
-            close(clientSocket);
-            clientSocket = 0;
-         }
-         else if (result > 0)
-         {
-            /* the cliente was send data */
-            uart->rxBuffer.length = result;
-            ciaaDriverUart_rxIndication(device);
-         } else
-         {
-            /* nothing to do */
+            result = recv(clientSocket, uart->rxBuffer.buffer + uart->rxBuffer.length, sizeof(uart->rxBuffer) - uart->rxBuffer.length, MSG_DONTWAIT);
+            if (0 == result)
+            {
+               /* the cliente was disconected */
+               printf("Client disconected\r\n");
+               close(clientSocket);
+               clientSocket = 0;
+            }
+            else if (result > 0)
+            {
+               /* the cliente was send data */
+               uart->rxBuffer.length += result;
+               ciaaDriverUart_rxIndication(device);
+            } else
+            {
+               /* nothing to do */
+            }
          }
       }
       result = usleep(100);
@@ -503,6 +508,7 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
 
 extern ssize_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t const size)
 {
+   int i;
    ciaaDriverUart_uartType * uart = device->layer;
    ssize_t ret = size;
 
@@ -511,9 +517,18 @@ extern ssize_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
    {
       ret = uart->rxBuffer.length;
    }
-
    /* copy received bytes to upper layer */
-   ciaaPOSIX_memcpy(buffer, &uart->rxBuffer.buffer[0], size);
+   ciaaPOSIX_memcpy(buffer, &uart->rxBuffer.buffer[0], ret);
+
+
+   uart->rxBuffer.length -= ret;
+   /* TODO: here is a synchronization problem: if a new packet arrives then
+    * buffer length changes and data may be overwritten */
+
+   for(i = 0; i < uart->rxBuffer.length; ++i)
+   {
+      uart->rxBuffer.buffer[i] = uart->rxBuffer.buffer[i+ret];
+   }
 
    return ret;
 }
@@ -528,7 +543,7 @@ extern ssize_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
    if (0 == uart->txBuffer.length)
    {
       /* copy data */
-      ciaaPOSIX_memcpy(&uart->txBuffer.buffer, buffer, size);
+      ciaaPOSIX_memcpy(&uart->txBuffer.buffer[0], buffer, size);
 
       /* return lenght and set 0 for the next */
       ret = size;
