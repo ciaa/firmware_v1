@@ -1,6 +1,7 @@
 ###############################################################################
 #
 # Copyright 2014, Mariano Cerdeiro
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -31,7 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-LFLAGS += --specs=nosys.specs -T "externals/platforms/cortexM4/k60_120/linker/ciaa_mk60fx512vlq15.ld"
+LFLAGS += --specs=nosys.specs -T "externals/base/cortexM4/k60_120/linker/ciaa_mk60fx512vlq15.ld"
 
 CFLAGS += -DCPU_MK60FX512VLQ15
 
