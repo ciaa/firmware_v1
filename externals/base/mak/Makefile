@@ -52,5 +52,5 @@ ext_base_SRC_FILES   += $(wildcard $(ext_base_SRC_PATH)$(DS)*.c)                
    $(wildcard $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.S)                \
    $(wildcard $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
 
-include $(ext_base_PATH)$(DS)mak$(DS)$(ARCH)$(DS)gcc$(DS)$(CPUTYPE)$(DS)Makefile
+-include $(ext_base_PATH)$(DS)mak$(DS)$(ARCH)$(DS)gcc$(DS)$(CPUTYPE)$(DS)Makefile
 
