@@ -53,53 +53,53 @@
 # +--------------+---------------+----------------+--------------+---------------+
 # |      ARCH    |    CPUTYPE    |      CPU       | COMPILER     | BOARD         |
 # +--------------+---------------+----------------+--------------+---------------+
-# | x86          | ia32          |                | gcc          | ciaa-sim-ia32 |
-# |              | ia64          |                |              | ciaa-sim-ia64 |
+# | x86          | ia32          |                | gcc          | ciaa_sim_ia32 |
+# |              | ia64          |                |              | ciaa_sim_ia64 |
 # +--------------+---------------+----------------+--------------+---------------+
-# | cortexM4     | lpc43xx       | lpc4337        | gcc          | edu-ciaa-nxp  |
-# |              |               |                |              | ciaa-nxp      |
-# |              | k60_120       | mk60fx512vlq15 | gcc          | ciaa-fsl      |
+# | cortexM4     | lpc43xx       | lpc4337        | gcc          | edu_ciaa_nxp  |
+# |              |               |                |              | ciaa_nxp      |
+# |              | k60_120       | mk60fx512vlq15 | gcc          | ciaa_fsl      |
 # +--------------+---------------+----------------+--------------+---------------+
-# | mips         | pic32         | pic32mz        | gcc          | ciaa-pic      |
+# | mips         | pic32         | pic32mz        | gcc          | ciaa_pic      |
 # +--------------+---------------+----------------+--------------+---------------+
 #
-# Default values for ciaa-sim-ia64
-ifeq ($(BOARD),ciaa-sim-ia64)
+# Default values for ciaa_sim_ia64
+ifeq ($(BOARD),ciaa_sim_ia64)
 ARCH           ?= x86
 CPUTYPE        ?= ia64
 CPU            ?= none
 COMPILER       ?= gcc
 endif
-# Default values for ciaa-sim-ia32
-ifeq ($(BOARD),ciaa-sim-ia32)
+# Default values for ciaa_sim_ia32
+ifeq ($(BOARD),ciaa_sim_ia32)
 ARCH           ?= x86
 CPUTYPE        ?= ia32
 CPU            ?= none
 COMPILER       ?= gcc
 endif
-# Default values for ciaa-pic
-ifeq ($(BOARD),ciaa-pic)
+# Default values for ciaa_pic
+ifeq ($(BOARD),ciaa_pic)
 ARCH           ?= mips
 CPUTYPE        ?= pic32
 CPU            ?= pic32mz
 COMPILER       ?= gcc
 endif
-# Default values for edu-ciaa-nxp
-ifeq ($(BOARD),edu-ciaa-nxp)
+# Default values for edu_ciaa_nxp
+ifeq ($(BOARD),edu_ciaa_nxp)
 ARCH           ?= cortexM4
 CPUTYPE        ?= lpc43xx
 CPU            ?= lpc4337
 COMPILER       ?= gcc
 endif
-# Default values for ciaa-nxp
-ifeq ($(BOARD),ciaa-nxp)
+# Default values for ciaa_nxp
+ifeq ($(BOARD),ciaa_nxp)
 ARCH           ?= cortexM4
 CPUTYPE        ?= lpc43xx
 CPU            ?= lpc4337
 COMPILER       ?= gcc
 endif
-# Default values for ciaa-fsl
-ifeq ($(BOARD),ciaa-fls)
+# Default values for ciaa_fsl
+ifeq ($(BOARD),ciaa_fls)
 ARCH           ?= cortexM4
 CPUTYPE        ?= k60_120
 CPU            ?= mk60fx512vlq15

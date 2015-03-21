@@ -125,22 +125,22 @@ extern "C" {
 
 /****** BOARDS macro definitions ******/
 /*** BOARD for ARCH=x86 CPUTYPE=ia32 ***/
-#define ciaa-sim-ia32         1
+#define ciaa_sim_ia32         1
 
 /*** BOARD for ARCH=x86 CPUTYPE=ia64 ***/
-#define ciaa-sim-ia64         2
+#define ciaa_sim_ia64         2
 
 /*** BOARD for ARCH=cortexM4 CPUTYPE=lpc43xx ***/
-#define ciaa-nxp              3
+#define ciaa_nxp              3
 
 /*** BOARD for ARCH=cortexM4 CPUTYPE=lpc43xx ***/
-#define edu-ciaa-nxp          4
+#define edu_ciaa_nxp          4
 
 /*** CPU for ARCH=cortexM4 CPUTYPE=k60_120 ***/
-#define ciaa-fls              5
+#define ciaa_fls              5
 
 /*** BOARD for ARCH=mips CPUTYPE=pic32 ***/
-#define ciaa-pic              6
+#define ciaa_pic              6
 
 /****** CIAAPLATFORM_REGLENGTH ******/
 /** \brief definition of the lenght of the register */
