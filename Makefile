@@ -50,19 +50,62 @@
 -include Makefile.mine
 ###############################################################################
 # ARCH, CPUTYPE and CPU following are supported
-# +--------------+---------------+----------------+--------------+--------------+
-# |      ARCH    |    CPUTYPE    |      CPU       | COMPILER     | BOARD        |
-# +--------------+---------------+----------------+--------------+--------------+
-# | x86          | ia32          |                | gcc          |              |
-# |              | ia64          |                |              |              |
-# +--------------+---------------+----------------+--------------+--------------+
-# | cortexM4     | lpc43xx       | lpc4337        | gcc          | ciaa-edu     |
-# |              |               |                |              | ciaa         |
-# |              | k60_120       | mk60fx512vlq15 | gcc          |              |
-# +--------------+---------------+----------------+--------------+--------------+
-# | mips         | pic32         | pic32mz        | gcc          |              |
-# +--------------+---------------+----------------+--------------+--------------+
+# +--------------+---------------+----------------+--------------+---------------+
+# |      ARCH    |    CPUTYPE    |      CPU       | COMPILER     | BOARD         |
+# +--------------+---------------+----------------+--------------+---------------+
+# | x86          | ia32          |                | gcc          | ciaa-sim-ia32 |
+# |              | ia64          |                |              | ciaa-sim-ia64 |
+# +--------------+---------------+----------------+--------------+---------------+
+# | cortexM4     | lpc43xx       | lpc4337        | gcc          | edu-ciaa-nxp  |
+# |              |               |                |              | ciaa-nxp      |
+# |              | k60_120       | mk60fx512vlq15 | gcc          | ciaa-fsl      |
+# +--------------+---------------+----------------+--------------+---------------+
+# | mips         | pic32         | pic32mz        | gcc          | ciaa-pic      |
+# +--------------+---------------+----------------+--------------+---------------+
 #
+# Default values for ciaa-sim-ia64
+ifeq ($(BOARD),ciaa-sim-ia64)
+ARCH           ?= x86
+CPUTYPE        ?= ia64
+CPU            ?= none
+COMPILER       ?= gcc
+endif
+# Default values for ciaa-sim-ia32
+ifeq ($(BOARD),ciaa-sim-ia32)
+ARCH           ?= x86
+CPUTYPE        ?= ia32
+CPU            ?= none
+COMPILER       ?= gcc
+endif
+# Default values for ciaa-pic
+ifeq ($(BOARD),ciaa-pic)
+ARCH           ?= mips
+CPUTYPE        ?= pic32
+CPU            ?= pic32mz
+COMPILER       ?= gcc
+endif
+# Default values for edu-ciaa-nxp
+ifeq ($(BOARD),edu-ciaa-nxp)
+ARCH           ?= cortexM4
+CPUTYPE        ?= lpc43xx
+CPU            ?= lpc4337
+COMPILER       ?= gcc
+endif
+# Default values for ciaa-nxp
+ifeq ($(BOARD),ciaa-nxp)
+ARCH           ?= cortexM4
+CPUTYPE        ?= lpc43xx
+CPU            ?= lpc4337
+COMPILER       ?= gcc
+endif
+# Default values for ciaa-fsl
+ifeq ($(BOARD),ciaa-fls)
+ARCH           ?= cortexM4
+CPUTYPE        ?= k60_120
+CPU            ?= mk60fx512vlq15
+COMPILER       ?= gcc
+endif
+# Default values in other case
 ARCH           ?= x86
 CPUTYPE        ?= ia32
 CPU            ?= none
