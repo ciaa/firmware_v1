@@ -83,16 +83,16 @@ extern "C" {
 #define ciaaPOSIX_stdio_MAXFILDES      20
 
 /** \brief Open for read only */
-#define O_RDONLY            1
+#define O_RDONLY            0x0000
 
 /** \brief Open to write only */
-#define O_WRONLY            2
+#define O_WRONLY            0x0001
 
 /** \brief Open to read write */
-#define O_RDWR              4
+#define O_RDWR              0x0002
 
 /** \brief Non blocking interface */
-#define O_NONBLOCK          8
+#define O_NONBLOCK          0x0004
 
 /** \brief set channel for analogic input/output
  **
