@@ -72,6 +72,7 @@
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_stddef.h"
 #include "ciaaPOSIX_ioctl_block.h"
+#include "ciaaPOSIX_assert.h"
 #include "ciaaBlockDevices.h"
 #include <stdio.h>
 
@@ -140,23 +141,42 @@ int32_t ciaaDriverFlash_blockErase(uint32_t start, uint32_t end) {
 
 int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * const data, uint32_t size) {
    int32_t ret = -1;
-   uint8_t buffer[CIAADRVFLASH_BLOCK_SIZE * CIAADRVFLASH_BLOCK_CANT];
+   uint8_t buffer[CIAADRVFLASH_BLOCK_SIZE];
    ciaaDriverFlash_flashType * flash = &ciaaDriverFlash_flash;
-   uint32_t index;
+   uint32_t data_index, buffer_index;
+   uint32_t write_size;
 
    if (address <= CIAADRVFLASH_BLOCK_SIZE * CIAADRVFLASH_BLOCK_CANT)
    {
-      rewind(flash->storage);
-      fseek(flash->storage, address, SEEK_SET);
-      ret = fread(buffer, 1, size, flash->storage);
-      if (ret == size) {
-         for(index = 0; index < size; index++)
-         {
-            buffer[index] &= data[index];
-         }
+      data_index = 0;
+      while(data_index < size)
+      {
+         /* calculate how much is to be written in this iteration */
+         write_size = (data_index + CIAADRVFLASH_BLOCK_SIZE <= size) ? CIAADRVFLASH_BLOCK_SIZE : size - data_index;
+
+         /* rewind to change i/o mode */
          rewind(flash->storage);
-         ret = fwrite(buffer, 1, size, flash->storage);
-         fflush(flash->storage);
+
+         /* seek the position to write in and bring its contents*/
+         ret = fseek(flash->storage, address + data_index, SEEK_SET);
+         ciaaPOSIX_assert(0 == ret);
+         ret = fread(buffer, 1, write_size, flash->storage);
+         ciaaPOSIX_assert(ret == write_size);
+
+         /* rewind to change i/o mode */
+         rewind(flash->storage);
+
+         /* seek the position to write in */
+         ret = fseek(flash->storage, address + data_index, SEEK_SET);
+         ciaaPOSIX_assert(0 == ret);
+
+         /* perform the and operation between the block brought and the new data */
+         for(buffer_index = 0; buffer_index < write_size; buffer_index++, data_index++)
+            buffer[buffer_index] &= data[data_index];
+
+         /* write in to the previously sought position */
+         ret = fwrite(buffer, 1, write_size, flash->storage);
+         ciaaPOSIX_assert(ret == write_size);
       }
    }
    return ret;
