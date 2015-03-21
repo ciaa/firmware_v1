@@ -34,12 +34,26 @@
 #
 ###############################################################################
 # library
-LIBS 				  += bsp
+LIBS 				    += ext_drivers
 # library path
-bsp_PATH 	      = $(ROOT_DIR)$(DS)modules$(DS)bsp
+ext_drivers_PATH 	     = $(ROOT_DIR)$(DS)externals$(DS)drivers
+
+include $(ext_drivers_PATH)$(DS)mak$(DS)$(ARCH)$(DS)gcc$(DS)Makefile
+
 # library source path
-bsp_SRC_PATH      = $(bsp_PATH)$(DS)src
+ext_drivers_SRC_PATH   = $(ext_drivers_PATH)$(DS)src
 # library include path
-bsp_INC_PATH 	   = $(bsp_PATH)$(DS)inc
+ext_drivers_INC_PATH   = $(ext_drivers_PATH)$(DS)inc		    	      \
+	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)inc							      \
+	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc			   \
+	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc$(DS)device	\
+	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc \
+
 # library source files
-bsp_SRC_FILES     = $(wildcard $(bsp_SRC_PATH)$(DS)*.c)
+ext_drivers_SRC_FILES += $(wildcard $(ext_drivers_SRC_PATH)$(DS)*.c)							      \
+	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c) 										\
+	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c) 					\
+	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.S) 					\
+	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
+
+

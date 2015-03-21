@@ -3,6 +3,8 @@
 # Copyright 2014, ACSE & CADIEEL
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
+# Copyright 2015, Mariano Cerdeiro
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -34,26 +36,21 @@
 #
 ###############################################################################
 # library
-LIBS 				    += ext_platforms
+LIBS 				      += drivers
 # library path
-ext_platforms_PATH 	     = $(ROOT_DIR)$(DS)externals$(DS)platforms
-
-include $(ext_platforms_PATH)$(DS)mak$(DS)$(ARCH)$(DS)gcc$(DS)Makefile
-
+drivers_PATH 	       = $(ROOT_DIR)$(DS)modules$(DS)drivers
 # library source path
-ext_platforms_SRC_PATH   = $(ext_platforms_PATH)$(DS)src
+drivers_SRC_PATH      = $(drivers_PATH)$(DS)src
 # library include path
-ext_platforms_INC_PATH   = $(ext_platforms_PATH)$(DS)inc		    	\
-	$(ext_platforms_PATH)$(DS)$(ARCH)$(DS)inc							\
-	$(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc			\
-	$(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc$(DS)device	\
-	$(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc \
+drivers_INC_PATH 	    = $(drivers_PATH)$(DS)inc                      \
+   $(drivers_PATH)$(DS)$(ARCH)$(DS)inc                               \
+   $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc                \
+   $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
 
 # library source files
-ext_platforms_SRC_FILES += $(wildcard $(ext_platforms_SRC_PATH)$(DS)*.c)							\
-	$(wildcard $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c) 										\
-	$(wildcard $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c) 					\
-	$(wildcard $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.S) 					\
-	$(wildcard $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
+drivers_SRC_FILES     = $(wildcard $(drivers_SRC_PATH)$(DS)*.c)
+drivers_SRC_FILES    += $(wildcard $(drivers_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c)
+drivers_SRC_FILES    += $(wildcard $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)
+drivers_SRC_FILES    += $(wildcard $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
 
-
+include externals$(DS)drivers$(DS)mak$(DS)Makefile

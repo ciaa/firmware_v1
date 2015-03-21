@@ -1,6 +1,7 @@
 ###############################################################################
 #
 # Copyright 2014, Mariano Cerdeiro
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -31,9 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-LFLAGS += -nostdlib -T "externals/platforms/cortexM4/lpc43xx/linker/ciaa_lpc4337.ld"
+LFLAGS += --specs=nosys.specs -T "externals/base/cortexM4/k60_120/linker/ciaa_mk60fx512vlq15.ld"
 
-# this file needs to be compiled separated and not added to a library
-# TODO this is not nice
-SRC_FILES                  += $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)crp.c
+CFLAGS += -DCPU_MK60FX512VLQ15
 

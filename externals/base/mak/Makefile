@@ -1,8 +1,7 @@
 ###############################################################################
 #
-# Copyright 2014, ACSE & CADIEEL
-#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
-#    CADIEEL: http://www.cadieel.org.ar
+# Copyright 2015, Mariano Cerdeiro
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -34,12 +33,24 @@
 #
 ###############################################################################
 # library
-LIBS 				  += config
+LIBS                 += ext_base
 # library path
-config_PATH 	   = $(ROOT_DIR)$(DS)modules$(DS)config
+ext_base_PATH         = $(ROOT_DIR)$(DS)externals$(DS)base
+
 # library source path
-config_SRC_PATH   = $(config_PATH)$(DS)src
+ext_base_SRC_PATH     = $(ext_base_PATH)$(DS)src
 # library include path
-config_INC_PATH 	= $(config_PATH)$(DS)inc
+ext_base_INC_PATH     = $(ext_base_PATH)$(DS)inc                    \
+   $(ext_base_PATH)$(DS)$(ARCH)$(DS)inc                             \
+   $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc              \
+   $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
+
 # library source files
-config_SRC_FILES 	= $(wildcard $(config_SRC_PATH)$(DS)*.c)
+ext_base_SRC_FILES   += $(wildcard $(ext_base_SRC_PATH)$(DS)*.c)                          \
+   $(wildcard $(ext_base_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c)                               \
+   $(wildcard $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)                \
+   $(wildcard $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.S)                \
+   $(wildcard $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
+
+include $(ext_base_PATH)$(DS)mak$(DS)$(ARCH)$(DS)gcc$(DS)$(CPUTYPE)$(DS)Makefile
+
