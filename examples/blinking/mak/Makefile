@@ -34,23 +34,21 @@
 #
 ###############################################################################
 # Project Name: used for Project Path and OSEK configuration file
-project 			 	 = blinking
+project               = blinking
 # Project path
-$(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
+$(project)_PATH       = $(ROOT_DIR)$(DS)examples$(DS)$(project)
 # source path
 $(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
 # include path
-INC_FILES			   += $($(project)_PATH)$(DS)inc
+INC_FILES            += $($(project)_PATH)$(DS)inc
 # library source files
-SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
+SRC_FILES            += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
-OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
+OIL_FILES            += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
 # Modules needed for this example
 MODS ?= modules$(DS)posix           \
-	     modules$(DS)ciaak           \
-	     modules$(DS)config          \
-	     modules$(DS)bsp             \
-	     modules$(DS)platforms       \
-    	  modules$(DS)rtos            \
-	     modules$(DS)libs
+        modules$(DS)ciaak           \
+        modules$(DS)drivers         \
+        modules$(DS)rtos            \
+        modules$(DS)libs
 

@@ -3,6 +3,8 @@
 # Copyright 2014, ACSE & CADIEEL
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
+# Copyright 2015, Mariano Cerdeiro
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -34,12 +36,20 @@
 #
 ###############################################################################
 # library
-LIBS 				  += bsp
+LIBS 				      += drivers
 # library path
-bsp_PATH 	      = $(ROOT_DIR)$(DS)modules$(DS)bsp
+drivers_PATH 	       = $(ROOT_DIR)$(DS)modules$(DS)drivers
 # library source path
-bsp_SRC_PATH      = $(bsp_PATH)$(DS)src
+drivers_SRC_PATH      = $(drivers_PATH)$(DS)src
 # library include path
-bsp_INC_PATH 	   = $(bsp_PATH)$(DS)inc
+drivers_INC_PATH 	    = $(drivers_PATH)$(DS)inc                       \
+   $(drivers_PATH)$(DS)$(ARCH)$(DS)inc                               \
+   $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc                \
+   $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
+
 # library source files
-bsp_SRC_FILES     = $(wildcard $(bsp_SRC_PATH)$(DS)*.c)
+drivers_SRC_FILES     = $(wildcard $(drivers_SRC_PATH)$(DS)*.c)
+drivers_SRC_FILES    += $(wildcard $(drivers_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c)
+drivers_SRC_FILES    += $(wildcard $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)
+drivers_SRC_FILES    += $(wildcard $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
+

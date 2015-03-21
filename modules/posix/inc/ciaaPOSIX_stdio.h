@@ -66,8 +66,6 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaDevices.h"
 #include "ciaaMemory.h"
-#include "ciaaErrorsCodeSystem.h"
-#include "ciaaMessagesCodeSystem.h"
 #include "ciaaPOSIX_stddef.h"
 #include "ciaaPOSIX_ioctl_serial.h"
 #include "ciaaPOSIX_ioctl_block.h"

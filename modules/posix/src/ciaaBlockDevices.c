@@ -265,7 +265,6 @@ extern ssize_t ciaaBlockDevices_read(ciaaDevices_deviceType const * const device
       WaitEvent(POSIXE);
       ClearEvent(POSIXE);
 #else
-#error Block device does not support working without POSIXE
 #endif
 
       /* TODO improve this */
@@ -298,7 +297,6 @@ extern ssize_t ciaaBlockDevices_write(ciaaDevices_deviceType const * const devic
       WaitEvent(POSIXE);
       ClearEvent(POSIXE);
 #else
-#error Block device does not support working without POSIXE
 #endif
 
       /* TODO improve this */
@@ -325,8 +323,11 @@ extern void ciaaBlockDevices_writeConfirmation(ciaaDevices_deviceType const * co
       /* reset blocked function */
       blockDevice->blocked.fct = NULL;
 
+#ifdef POSIXE
       /* set task event */
       SetEvent(taskID, POSIXE);
+#else
+#endif
    } else {
       /* this shall not happens */
       ciaaPOSIX_assert(0);
@@ -349,8 +350,11 @@ extern void ciaaBlockDevices_readIndication(ciaaDevices_deviceType const * const
       /* reset blocked function */
       blockDevice->blocked.fct = NULL;
 
+#ifdef POSIXE
       /* set task event */
       SetEvent(taskID, POSIXE);
+#else
+#endif
    } else {
       /* this shall not happens */
       ciaaPOSIX_assert(0);
