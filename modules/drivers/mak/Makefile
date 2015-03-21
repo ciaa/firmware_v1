@@ -42,7 +42,7 @@ drivers_PATH 	       = $(ROOT_DIR)$(DS)modules$(DS)drivers
 # library source path
 drivers_SRC_PATH      = $(drivers_PATH)$(DS)src
 # library include path
-drivers_INC_PATH 	    = $(drivers_PATH)$(DS)inc                       \
+drivers_INC_PATH 	    = $(drivers_PATH)$(DS)inc                      \
    $(drivers_PATH)$(DS)$(ARCH)$(DS)inc                               \
    $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc                \
    $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
@@ -53,3 +53,4 @@ drivers_SRC_FILES    += $(wildcard $(drivers_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c)
 drivers_SRC_FILES    += $(wildcard $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)
 drivers_SRC_FILES    += $(wildcard $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
 
+include externals$(DS)drivers$(DS)mak$(DS)Makefile

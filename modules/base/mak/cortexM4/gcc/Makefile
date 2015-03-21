@@ -57,5 +57,3 @@ POST_BUILD += arm-none-eabi-objcopy -v -O binary $(LD_TARGET) $(TARGET_NAME).bin
 # define linker extension
 LD_EXTENSION                = axf
 
-include $(base_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)$(CPUTYPE)$(DS)Makefile
-
