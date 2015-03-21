@@ -1,7 +1,8 @@
 /* Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, 2015 Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -121,6 +122,25 @@ extern "C" {
 
 /*** CPU for ARCH=mips CPUTYPE=pic32 ***/
 #define pic32mz               3
+
+/****** BOARDS macro definitions ******/
+/*** BOARD for ARCH=x86 CPUTYPE=ia32 ***/
+#define ciaa-sim-ia32         1
+
+/*** BOARD for ARCH=x86 CPUTYPE=ia64 ***/
+#define ciaa-sim-ia64         2
+
+/*** BOARD for ARCH=cortexM4 CPUTYPE=lpc43xx ***/
+#define ciaa-nxp              3
+
+/*** BOARD for ARCH=cortexM4 CPUTYPE=lpc43xx ***/
+#define edu-ciaa-nxp          4
+
+/*** CPU for ARCH=cortexM4 CPUTYPE=k60_120 ***/
+#define ciaa-fls              5
+
+/*** BOARD for ARCH=mips CPUTYPE=pic32 ***/
+#define ciaa-pic              6
 
 /****** CIAAPLATFORM_REGLENGTH ******/
 /** \brief definition of the lenght of the register */
