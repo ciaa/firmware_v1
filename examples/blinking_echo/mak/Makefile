@@ -48,9 +48,7 @@ OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
 # Modules needed for this example
 MODS ?= modules$(DS)posix           \
         modules$(DS)ciaak           \
-        modules$(DS)config          \
-        modules$(DS)bsp             \
-        modules$(DS)platforms       \
+        modules$(DS)drivers         \
         modules$(DS)rtos            \
         modules$(DS)libs
 

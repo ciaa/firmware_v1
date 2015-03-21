@@ -125,6 +125,7 @@ void ciaa_lpc4337_gpio_init(void)
 {
    Chip_GPIO_Init(LPC_GPIO_PORT);
 
+#if (BOARD == ciaa_nxp)
    /* Inputs */
    Chip_SCU_PinMux(4,0,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[0]  */
    Chip_SCU_PinMux(4,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[1]  */
@@ -162,10 +163,40 @@ void ciaa_lpc4337_gpio_init(void)
    /* LV-TTL GPIOs (not used yet) */
    Chip_SCU_PinMux(6,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO0/P6_1/GPIO3[0] */
    Chip_SCU_PinMux(2,5,MD_PUP|MD_EZI|MD_ZI,FUNC4);	/* GPIO1/P2_5/GPIO5[5] */
+#elif (BOARD == edu_ciaa_nxp)
+   /* Switches */
+   Chip_SCU_PinMux(1,0,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO0[4], SW1 */
+   Chip_SCU_PinMux(1,1,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO0[8], SW2 */
+   Chip_SCU_PinMux(1,2,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO0[9], SW3 */
+   Chip_SCU_PinMux(1,6,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO1[9], SW4 */
+
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 0,(1<<4)|(1<<8)|(1<<9),0);
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 1,(1<<9),0);
+
+   /* LEDs */
+   Chip_SCU_PinMux(2,0,MD_PUP,FUNC4);  /* GPIO5[0], LED0R */
+   Chip_SCU_PinMux(2,1,MD_PUP,FUNC4);  /* GPIO5[1], LED0G */
+   Chip_SCU_PinMux(2,2,MD_PUP,FUNC4);  /* GPIO5[2], LED0B */
+   Chip_SCU_PinMux(2,10,MD_PUP,FUNC0); /* GPIO0[14], LED1 */
+   Chip_SCU_PinMux(2,11,MD_PUP,FUNC0); /* GPIO1[11], LED2 */
+   Chip_SCU_PinMux(2,12,MD_PUP,FUNC0); /* GPIO1[12], LED3 */
+
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<0)|(1<<1)|(1<<2),1);
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 0,(1<<14),1);
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 1,(1<<11)|(1<<12),1);
+
+   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5,(1<<0)|(1<<1)|(1<<2));
+   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 0,(1<<14));
+   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1,(1<<11)|(1<<12));
+
+#else
+   #error please define BOARD variable!
+#endif
 }
 
 void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
 {
+#if (BOARD == ciaa_nxp)
    switch(outputNumber)
    {
       case 0:
@@ -251,6 +282,71 @@ void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
       default:
          break;
    }
+#elif(BOARD == edu_ciaa_nxp)
+   switch(outputNumber)
+   {
+      case 0:
+         if(value)
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<0);
+         }
+         else
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<0);
+         }
+         break;
+      case 1:
+         if(value)
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<1);
+         }
+         else
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<1);
+         }
+         break;
+      case 2:
+         if(value)
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<2);
+         }
+         else
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<2);
+         }
+         break;
+      case 3:
+         if(value)
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 0, 1<<14);
+         }
+         else
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 0, 1<<14);
+         }
+         break;
+      case 4:
+         if(value)
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 1, 1<<11);
+         }
+         else
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1, 1<<11);
+         }
+         break;
+      case 5:
+         if(value)
+         {
+            Chip_GPIO_SetValue(LPC_GPIO_PORT, 1, 1<<12);
+         }
+         else
+         {
+            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1, 1<<12);
+         }
+         break;
+   }
+#endif
 }
 
 /*==================[external functions definition]==========================*/
@@ -279,9 +375,15 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
    {
       if(device == ciaaDioDevices[0])
       {
-
+#if(BOARD == ciaa_nxp)
          buffer[0] = ~((uint8_t) ((Chip_GPIO_ReadValue(LPC_GPIO_PORT,3) & (0x0F<<11))>>7)
                               | (Chip_GPIO_ReadValue(LPC_GPIO_PORT,2) & 0x0F));
+#elif(BOARD == edu_ciaa_nxp)
+         buffer[0]  = Chip_GPIO_GetPinState(LPC_GPIO_PORT, 0, 4) ? 0 : 1;
+         buffer[0] |= Chip_GPIO_GetPinState(LPC_GPIO_PORT, 0, 8) ? 0 : 2;
+         buffer[0] |= Chip_GPIO_GetPinState(LPC_GPIO_PORT, 0, 9) ? 0 : 4;
+         buffer[0] |= Chip_GPIO_GetPinState(LPC_GPIO_PORT, 1, 9) ? 0 : 8;
+#endif
 
          /* 1 byte read */
          ret = 1;
