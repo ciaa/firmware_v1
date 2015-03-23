@@ -9,6 +9,8 @@
  **
  **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
  **      - Implement Modbus Master
+ **      - Implement utest for Modbus Master
+ **      - Implement utest for Modbus Transport
  **
  **   - Juan Cecconi (jcecconi@numetron.com.ar):
  **      - Initial test implementation of memcmp and memset
