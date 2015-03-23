@@ -2,6 +2,39 @@
  **
  ** Authors and their contributions to CIAA Firmware:
  **
+ ** CIAA Firmware 0.4.0 (10.04.2015)
+ **
+ **   Following persons have invest a lot of effort and time to make
+ **   CIAA Firmware become true. We hope you enjoy it. :)
+ **
+ **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
+ **      - Implement Modbus Master
+ **      - Implement utest for Modbus Master
+ **      - Implement utest for Modbus Transport
+ **
+ **   - Juan Cecconi (jcecconi@numetron.com.ar):
+ **      - Initial test implementation of memcmp and memset
+ **
+ **   - Esteban Volentini (evolentini@gmail.com):
+ **      - Implement Block Driver simulation for windows/linux
+ **
+ **   - Alejandro Permingeat:
+ **      - Port of the firmware to CIAA-FLS
+ **
+ **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):
+ **      - Port drivers to EDU-CIAA-NXP
+ **
+ **   - Natalia Requejo:
+ **      - Improve OSEK indentation (tabs to spaces)
+ **
+ **   - Mariano Cerdeiro (mcerdeiro@gmail.com):
+ **      - Rework Firmware directory structure
+ **      - Initial implementation of memcmp and memset
+ **      - Add BOARD to makefile
+ **      - Improve templates files
+ **      - Fix some FreeOSEK bugs
+ **      - Improve FreeOSEK generator adding a -D parameter
+ **
  ** CIAA Firmware 0.3.0 (14.12.2014)
  **
  **   Following persons have invest a lot of effort and time to make

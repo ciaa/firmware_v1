@@ -1,8 +1,7 @@
 ###############################################################################
 #
-# Copyright 2014, ACSE & CADIEEL
-#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
-#    CADIEEL: http://www.cadieel.org.ar
+# Copyright 2014, 2015, Mariano Cerdeiro
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -33,24 +32,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# library
-LIBS               += platforms
-# library path
-platforms_PATH      = $(ROOT_DIR)$(DS)modules$(DS)platforms
-# library source path
-platforms_SRC_PATH  = $(platforms_PATH)$(DS)src
-# library include path
-platforms_INC_PATH  = $(platforms_PATH)$(DS)inc                      \
-   $(platforms_PATH)$(DS)$(ARCH)$(DS)inc                             \
-   $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc              \
-   $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
+LFLAGS += -nostdlib -T "externals/base/cortexM4/lpc43xx/linker/ciaa_lpc4337.ld"
 
-# library source files
-platforms_SRC_FILES = $(wildcard $(platforms_SRC_PATH)$(DS)*.c)
-platforms_SRC_FILES += $(wildcard $(platforms_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c)
-platforms_SRC_FILES += $(wildcard $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)
-platforms_SRC_FILES += $(wildcard $(platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
-
-# include external platforms makefile
-include externals$(DS)platforms$(DS)mak$(DS)Makefile
+# this file needs to be compiled separated and not added to a library
+SRC_FILES                  += $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)crp.c
 

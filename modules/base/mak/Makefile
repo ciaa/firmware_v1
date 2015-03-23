@@ -56,3 +56,6 @@ include $(base_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)Makefile
 # define default binary extension
 BIN_EXT             ?= bin
 
+# include external base makefile
+include externals$(DS)base$(DS)mak$(DS)Makefile
+

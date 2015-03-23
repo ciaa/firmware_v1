@@ -1,8 +1,7 @@
 ###############################################################################
 #
-# Copyright 2014, ACSE & CADIEEL
-#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
-#    CADIEEL: http://www.cadieel.org.ar
+# Copyright 2014, Mariano Cerdeiro
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -33,13 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# library
-LIBS 				  += config
-# library path
-config_PATH 	   = $(ROOT_DIR)$(DS)modules$(DS)config
-# library source path
-config_SRC_PATH   = $(config_PATH)$(DS)src
-# library include path
-config_INC_PATH 	= $(config_PATH)$(DS)inc
-# library source files
-config_SRC_FILES 	= $(wildcard $(config_SRC_PATH)$(DS)*.c)
+LFLAGS += --specs=nosys.specs -T "externals/base/cortexM4/k60_120/linker/ciaa_mk60fx512vlq15.ld"
+
+CFLAGS += -DCPU_MK60FX512VLQ15
+

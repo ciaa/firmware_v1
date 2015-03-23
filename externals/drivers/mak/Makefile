@@ -1,6 +1,8 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro
+# Copyright 2014, ACSE & CADIEEL
+#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+#    CADIEEL: http://www.cadieel.org.ar
 #
 # This file is part of CIAA Firmware.
 #
@@ -31,9 +33,27 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-LFLAGS += -nostdlib -T "externals/platforms/cortexM4/lpc43xx/linker/ciaa_lpc4337.ld"
+# library
+LIBS 				    += ext_drivers
+# library path
+ext_drivers_PATH 	     = $(ROOT_DIR)$(DS)externals$(DS)drivers
 
-# this file needs to be compiled separated and not added to a library
-# TODO this is not nice
-SRC_FILES                  += $(ext_platforms_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)crp.c
+include $(ext_drivers_PATH)$(DS)mak$(DS)$(ARCH)$(DS)gcc$(DS)Makefile
+
+# library source path
+ext_drivers_SRC_PATH   = $(ext_drivers_PATH)$(DS)src
+# library include path
+ext_drivers_INC_PATH   = $(ext_drivers_PATH)$(DS)inc		    	      \
+	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)inc							      \
+	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc			   \
+	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc$(DS)device	\
+	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc \
+
+# library source files
+ext_drivers_SRC_FILES += $(wildcard $(ext_drivers_SRC_PATH)$(DS)*.c)							      \
+	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c) 										\
+	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c) 					\
+	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.S) 					\
+	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
+
 

@@ -39,7 +39,7 @@ modbus_TST_INC_PATH = $(modbus_PATH)$(DS)test$(DS)utest$(DS)inc 	 \
                       modules$(DS)rtos$(DS)inc                     \
                       modules$(DS)rtos$(DS)inc$(DS)$(ARCH)
 # unit tests dependencies
-modbus_TST_MOD	    = config bsp ciaak posix platforms
+modbus_TST_MOD	    = base posix
 # extra mocks
 modbus_TST_MOCKS   = os.c
 
