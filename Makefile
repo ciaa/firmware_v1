@@ -99,7 +99,7 @@ CPU            ?= lpc4337
 COMPILER       ?= gcc
 endif
 # Default values for ciaa_fsl
-ifeq ($(BOARD),ciaa_fls)
+ifeq ($(BOARD),ciaa_fsl)
 ARCH           ?= cortexM4
 CPUTYPE        ?= k60_120
 CPU            ?= mk60fx512vlq15
