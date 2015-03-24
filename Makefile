@@ -171,12 +171,17 @@ endif
 ifeq ($(UNAME_S),Darwin)
 # MACOS
 # Compile in 32 bits mode
+ifeq ($(ARCH),x86)
 CFLAGS            += -m32 -Wno-typedef-redefinition
 # 32 bits non relocable excutable image
 LFLAGS            += -m32 -Xlinker -no_pie
 # Libraries group linker parameters
 START_GROUP       = -all_load
 END_GROUP         =
+else
+START_GROUP       = -Xlinker --start-group
+END_GROUP         = -Xlinker --end-group
+endif
 endif
 endif
 
