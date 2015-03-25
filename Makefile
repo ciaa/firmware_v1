@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # Copyright 2014, 2015, Mariano Cerdeiro
-# Copyright 2014, Juan Cecconi (UTN-FRBA)
+# Copyright 2014, 2015, Juan Cecconi (Numetron, UTN-FRBA)
 # All rights reserved
 #
 # This file is part of CIAA Firmware.
@@ -122,7 +122,7 @@ DS             ?= /
 # examples/blinking_wo_posix  (example with rtos without rtos)
 # examples/blinking_modbus    (example with rtos, posix and using modbus)
 #
-PROJECT ?= examples$(DS)blinking
+PROJECT_PATH ?= examples$(DS)blinking
 
 # rtostests options
 #
@@ -197,13 +197,13 @@ GEN_DIR = $(OUT_DIR)$(DS)gen
 RTOS_TEST_GEN_DIR = $(OUT_DIR)$(DS)rtos
 
 # include needed project
-include $(PROJECT)$(DS)mak$(DS)Makefile
+include $(PROJECT_PATH)$(DS)mak$(DS)Makefile
 # base module is always needed and included
 MODS += modules$(DS)base
 # include needed modules
 include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 
-.DEFAULT_GOAL := $(project)
+.DEFAULT_GOAL := $(PROJECT_NAME)
 
 # add include files
 INCLUDE += $(foreach LIB, $(LIBS), $($(LIB)_INC_PATH))
@@ -213,7 +213,7 @@ CFLAGS  += $(foreach inc, $(INC_FILES), -I$(inc))
 endif
 CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DBOARD=$(BOARD)
-TARGET_NAME ?= $(BIN_DIR)$(DS)$(project)
+TARGET_NAME ?= $(BIN_DIR)$(DS)$(PROJECT_NAME)
 LD_TARGET = $(TARGET_NAME).$(LD_EXTENSION)
 # create list of object files for a Lib (without DIR), based on source file %.c and %.s
 $(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES =  $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(patsubst %.cpp,%.o,$($(LIB)_SRC_FILES))))))))
@@ -224,7 +224,7 @@ $(foreach LIB, $(LIBS), $(eval LIBS_SRC_FILES += $($(LIB)_SRC_FILES)))
 # Complete Libs Source Dirs for vpath search (duplicates removed by sort)
 $(foreach LIB, $(LIBS), $(eval LIBS_SRC_DIRS += $(sort $(dir $($(LIB)_SRC_FILES)))))
 # Add the search patterns
-vpath %.c $($(project)_SRC_PATH)
+vpath %.c $($(PROJECT_NAME)_SRC_PATH)
 vpath %.c $(LIBS_SRC_DIRS)
 vpath %.s $(LIBS_SRC_DIRS)
 vpath %.S $(LIBS_SRC_DIRS)
@@ -445,7 +445,7 @@ $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:
 # libs with contains sources
 LIBS_WITH_SRC	= $(foreach LIB, $(LIBS), $(if $(filter %.c,$($(LIB)_SRC_FILES)),$(LIB)))
 
-$(project) : $(LIBS_WITH_SRC) $(OBJ_FILES)
+$(PROJECT_NAME) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
@@ -453,14 +453,16 @@ $(project) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) $(START_GROUP) $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) $(END_GROUP) -o $(LD_TARGET) $(LFLAGS)
 	@echo ' '
 	@echo ===============================================================================
-	@echo Post Building $(project)
+	@echo Post Building $(PROJECT_NAME)
 	@echo ' '
 	$(POST_BUILD)
 
 # debug rule
-debug : $(BIN_DIR)$(DS)$(project).bin
-	$(GDB) $(BIN_DIR)$(DS)$(project).bin
+debug : $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
+	$(GDB) $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
 
+prueba:
+	@echo $(MiPrueba)
 ###############################################################################
 # rtos OSEK generation
 generate : $(OIL_FILES)
@@ -621,7 +623,8 @@ info:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Enable Config Info                                            |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo PROJECT............: $(PROJECT)
+	@echo Project Path.......: $(PROJECT_PATH)
+	@echo Project Name.......: $(PROJECT_NAME)
 	@echo ARCH/CPUTYPE/CPU...: $(ARCH)/$(CPUTYPE)/$(CPU)
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
@@ -629,7 +632,7 @@ info:
 #	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
 #	@echo Lib Src Files......: $(LIBS_SRC_FILES)
 #	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)
-#	@echo Project Src Path...: $($(project)_SRC_PATH)
+#	@echo Project Src Path...: $($(PROJECT_NAME)_SRC_PATH)
 	@echo Includes...........: $(INCLUDE)
 	@echo use make info_\<mod\>: to get information of a specific module. eg: make info_posix
 	@echo "+-----------------------------------------------------------------------------+"
