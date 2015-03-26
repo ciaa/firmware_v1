@@ -99,7 +99,7 @@ CPU            ?= lpc4337
 COMPILER       ?= gcc
 endif
 # Default values for ciaa_fsl
-ifeq ($(BOARD),ciaa_fls)
+ifeq ($(BOARD),ciaa_fsl)
 ARCH           ?= cortexM4
 CPUTYPE        ?= k60_120
 CPU            ?= mk60fx512vlq15
@@ -171,12 +171,17 @@ endif
 ifeq ($(UNAME_S),Darwin)
 # MACOS
 # Compile in 32 bits mode
+ifeq ($(ARCH),x86)
 CFLAGS            += -m32 -Wno-typedef-redefinition
 # 32 bits non relocable excutable image
 LFLAGS            += -m32 -Xlinker -no_pie
 # Libraries group linker parameters
 START_GROUP       = -all_load
 END_GROUP         =
+else
+START_GROUP       = -Xlinker --start-group
+END_GROUP         = -Xlinker --end-group
+endif
 endif
 endif
 
