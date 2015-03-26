@@ -109,19 +109,12 @@ class oilParserClass {
 				$this->lines[$l] = $tmp[0];
 			}
 
-			/* remove c comments */
-			/* to do */
-			#if ( strpos($this->lines[$l], "/*") !== false )
-			#{
-		   #  $tmp = array ( substr ($this->lines[$l],0, strpos($this->lines[$l], "/*")-1),
-			#						substr ($this->lines[$l],strpos($this->lines[$l], "/*")+2), strlen($this->lines[$l]));
-			#	print "t1:" . $tmp[0] . "t2:" . $tmp[1] . "\n";
-			#	$this->lines[$l] = $tmp[0];
-			#	if ( strpos($tmp[1], "*/") !== false )
-			#	{
-			#		$this->lines[$l] .= " " . substr($tmp[1], strpos("*/", $tmp[1])+2, strlen($tmp[1]));
-			#	}
-			#}
+			/* remove c comments in a complete line*/
+			/* to do...remove complex comments */
+			if ( strpos($this->lines[$l], "/*") == 0 && strpos($this->lines[$l], "*/") == strlen($this->lines[$l])-2)
+			{
+            $this->lines[$l] = "";
+			}
 		}
 	}
 
@@ -152,16 +145,14 @@ class oilParserClass {
 		$ret = array ( "", "", false);
 
 		$tmp = $this->lines[$this->line];
-
 		if  ( strpos($tmp, "{") !== false )
 		{
 			$ret[2] = true;
 			$tmp = split("{",$tmp);
 			$tmp = $tmp[0];
 		}
-
       if ($tmp != "")
-		{
+		{     
 		   if ( strpos($tmp, "=") !== false )
    		{
 	   		$tmp = split("=", $tmp);
