@@ -38,7 +38,7 @@ LIBS 				    += ext_drivers
 # library path
 ext_drivers_PATH 	     = $(ROOT_DIR)$(DS)externals$(DS)drivers
 
-include $(ext_drivers_PATH)$(DS)mak$(DS)$(ARCH)$(DS)gcc$(DS)Makefile
+-include $(ext_drivers_PATH)$(DS)mak$(DS)$(ARCH)$(DS)gcc$(DS)Makefile
 
 # library source path
 ext_drivers_SRC_PATH   = $(ext_drivers_PATH)$(DS)src
