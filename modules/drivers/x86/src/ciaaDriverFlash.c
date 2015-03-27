@@ -143,12 +143,12 @@ int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * const data,
    int32_t ret = -1;
    uint8_t buffer[CIAADRVFLASH_BLOCK_SIZE];
    ciaaDriverFlash_flashType * flash = &ciaaDriverFlash_flash;
-   uint32_t data_index, buffer_index;
+   uint32_t data_index = 0;
+   uint32_t buffer_index;
    uint32_t write_size;
 
    if (address <= CIAADRVFLASH_BLOCK_SIZE * CIAADRVFLASH_BLOCK_CANT)
    {
-      data_index = 0;
       while(data_index < size)
       {
          /* calculate how much is to be written in this iteration */
@@ -187,6 +187,7 @@ extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevi
    ciaaDriverFlash_flashType * flash = device->layer;
 
    flash->storage = fopen(flash->filename,"r+b");
+   flash->position = 0;
    if (flash->storage == NULL)
    {
       perror("Flash emulation file not exists: ");
@@ -200,7 +201,6 @@ extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevi
       {
          ciaaDriverFlash_blockErase(0, CIAADRVFLASH_BLOCK_CANT - 1);
          rewind( flash->storage );
-         flash->position = 0;
       }
    }
    return device;
