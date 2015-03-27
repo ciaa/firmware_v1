@@ -229,6 +229,9 @@ TASK(InitTask)
    {
       buffer[0][i] = (uint8_t)i;
    }
+   /* ciaaPOSIX_seek must by called to change operation mode */
+   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
+   ASSERT_MSG(0 == ret, "Couldn't change operation mode");
    ret = ciaaPOSIX_write(filedes1, buffer[0], blockInfo.blockSize);
    ASSERT_MSG(blockInfo.blockSize == ret, "Trying to write a block failed");
 
@@ -312,6 +315,9 @@ TASK(InitTask)
    /* write a block with 0xA5 and the next with 0x5A */
    ciaaPOSIX_memset(buffer[0], 0xA5, sizeof(buffer[0]));
    ciaaPOSIX_memset(buffer[1], 0x5A, sizeof(buffer[1]));
+   /* ciaaPOSIX_seek must be called to change operation mode */
+   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
+   ASSERT_MSG(0 == ret, "Couldn't change operation mode");
    ret = ciaaPOSIX_write(filedes1, buffer[0], blockInfo.blockSize * 2);
    ASSERT_MSG(ret == blockInfo.blockSize * 2, "Wrong count of bytes have been written");
 

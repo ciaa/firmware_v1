@@ -179,7 +179,7 @@ int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * const data,
          ciaaPOSIX_assert(ret == write_size);
       }
    }
-   return ret;
+   return data_index;
 }
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
