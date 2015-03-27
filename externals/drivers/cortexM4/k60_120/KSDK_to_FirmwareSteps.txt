@@ -1,0 +1,40 @@
+#at ksdk directory
+cp -r platform/CMSIS/Include/* /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/
+
+find platform/drivers/ -name "system_MK60F12.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/drivers/ -name "system_MK60F12.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+rm /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/system_MK60F15.c
+
+rm /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/system_MK60F15.h 
+
+
+
+
+
+
+
+
+
+
+
+
+
+find platform/hal/ -maxdepth 2 -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/drivers/ -maxdepth 2 -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/hal/ -maxdepth 2 -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/drivers/ -maxdepth 2 -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+
+
+
+Removed:
+
+fsl_dspi_hal.c
+fsl_dspi_irq.c
+fsl_edma_hal.c
+fsl_edma_irq.c
