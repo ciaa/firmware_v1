@@ -229,9 +229,9 @@ TASK(InitTask)
    {
       buffer[0][i] = (uint8_t)i;
    }
-   /* ciaaPOSIX_seek must by called to change operation mode */
+   /* rewind to write in to the previously erased block */
    ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
-   ASSERT_MSG(0 == ret, "Couldn't change operation mode");
+   ASSERT_MSG(0 == ret, "Couldn't rewind");
    ret = ciaaPOSIX_write(filedes1, buffer[0], blockInfo.blockSize);
    ASSERT_MSG(blockInfo.blockSize == ret, "Trying to write a block failed");
 
@@ -260,7 +260,7 @@ TASK(InitTask)
    ASSERT_MSG(0 == ret, "ciaaPOSIX_close devices returns error");
 
    /* Persistence test
-    * This secuence test that data writed in basic test persists  after close
+    * This sequence test that data written in basic test persists after close
     * and the reopen the device
     */
 
@@ -269,6 +269,10 @@ TASK(InitTask)
    /* open a block device */
    filedes1 = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
    ASSERT_MSG(-1 < filedes1, "ciaaPOSIX_open returns an invalid handler");
+
+   /* read a block */
+   ret = ciaaPOSIX_read(filedes1, buffer[0], blockInfo.blockSize);
+   ASSERT_MSG(blockInfo.blockSize == ret, "Trying to read a block failed");
 
    /* compare write and read block */
    ret = ciaaPOSIX_memcmp(buffer[0], buffer[1], blockInfo.blockSize);
@@ -306,18 +310,28 @@ TASK(InitTask)
 
 
    /* Seek test
-    * This secuence verifie that the internal pointer moves after read, write
+    * This sequence verifies that the internal pointer moves after read, write
     * and seek operations
     */
 
    ASSERT_SEQ(12);
 
+   /* seek to erase the second block */
+   ret = ciaaPOSIX_seek(filedes1, blockInfo.blockSize, SEEK_SET);
+   ASSERT_MSG(0 == ret, "Seek failed");
+
+   /* erase the second block */
+   ret = ciaaPOSIX_ioctl(filedes1, ciaaPOSIX_IOCTL_BLOCK_ERASE, NULL);
+   ASSERT_MSG(-1 != ret, "Trying to erase a block failed");
+
+   /* rewind */
+   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
+   ASSERT_MSG(0 == ret, "Seek failed");
+
    /* write a block with 0xA5 and the next with 0x5A */
    ciaaPOSIX_memset(buffer[0], 0xA5, sizeof(buffer[0]));
    ciaaPOSIX_memset(buffer[1], 0x5A, sizeof(buffer[1]));
-   /* ciaaPOSIX_seek must be called to change operation mode */
-   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
-   ASSERT_MSG(0 == ret, "Couldn't change operation mode");
+
    ret = ciaaPOSIX_write(filedes1, buffer[0], blockInfo.blockSize * 2);
    ASSERT_MSG(ret == blockInfo.blockSize * 2, "Wrong count of bytes have been written");
 
