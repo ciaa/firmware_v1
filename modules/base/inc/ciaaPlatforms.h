@@ -137,7 +137,7 @@ extern "C" {
 #define edu_ciaa_nxp          4
 
 /*** CPU for ARCH=cortexM4 CPUTYPE=k60_120 ***/
-#define ciaa_fls              5
+#define ciaa_fsl              5
 
 /*** BOARD for ARCH=mips CPUTYPE=pic32 ***/
 #define ciaa_pic              6
