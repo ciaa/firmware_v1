@@ -1,5 +1,6 @@
 /* Copyright 2015, Mariano Cerdeiro
  * Copyright 2015, Esteban Volentini
+ * Copyright 2015, Franco J. Salinas Mendoza
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -49,11 +50,15 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * EV           Esteban Volentini
+ * FS           Franco J. Salinas Mendoza
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150327 v0.0.3 FS   bugs fixed
+ * 20150314 v0.0.2 EV   improved tests
  * 20150130 v0.0.1 MaCe Initial version
  */
 

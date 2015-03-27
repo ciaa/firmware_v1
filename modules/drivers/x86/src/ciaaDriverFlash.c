@@ -61,7 +61,8 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150201 v0.0.2 MaCe first implementation of flash simulation
+ * 20150327 v0.0.3 FS   bugs fixed
+ * 20150201 v0.0.2 EV   first operating version
  * 20141006 v0.0.1 EV   first initial version
  */
 
