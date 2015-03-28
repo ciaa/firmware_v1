@@ -1,7 +1,8 @@
 /* Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -65,6 +66,8 @@
 #include "stdint.h"
 #elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
         ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) )
+#include "stdint.h"
+#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
 #include "stdint.h"
 #else
 #error Missing stdio type definition for this ARCH/CPUTYPE/CPU
