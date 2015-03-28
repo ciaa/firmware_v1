@@ -323,7 +323,7 @@ TASK(InitTask)
 
    /* seek to erase the second block */
    ret = ciaaPOSIX_seek(filedes1, blockInfo.blockSize, SEEK_SET);
-   ASSERT_MSG(0 == ret, "Seek failed");
+   ASSERT_MSG(blockInfo.blockSize == ret, "Seek failed");
 
    /* erase the second block */
    ret = ciaaPOSIX_ioctl(filedes1, ciaaPOSIX_IOCTL_BLOCK_ERASE, NULL);
@@ -375,15 +375,11 @@ TASK(InitTask)
 
    /* set position to blockSize */
    ret = ciaaPOSIX_seek(filedes1, blockInfo.blockSize, SEEK_SET);
-   ASSERT(0 == ret);
+   ASSERT_MSG(blockInfo.blockSize == ret, "Seek failed");
 
    ret = ciaaPOSIX_read(filedes1, buffer[2], blockInfo.blockSize);
    ASSERT_MSG(ret == blockInfo.blockSize, "Wrong count of bytes have been read");
    ASSERT_MSG(0 == ciaaPOSIX_memcmp(buffer[1], buffer[2], blockInfo.blockSize), "Second block read error after seek");
-
-   /* set position to 0 */
-   ret = ciaaPOSIX_seek(filedes1, blockInfo.blockSize, SEEK_SET);
-   ASSERT(0 == ret);
 
    /* close the device */
    ret = ciaaPOSIX_close(filedes1);
