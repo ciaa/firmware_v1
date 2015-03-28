@@ -112,8 +112,8 @@ typedef ssize_t (*ciaaDevices_read)(ciaaDevices_deviceType const * const device,
 /** \brief write function type */
 typedef ssize_t (*ciaaDevices_write)(ciaaDevices_deviceType const * const device, uint8_t const * const buf, size_t const nbyte);
 
-/** \brief seek function type */
-typedef int32_t (*ciaaDevices_seek)(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence);
+/** \brief lseek function type */
+typedef off_t (*ciaaDevices_lseek)(ciaaDevices_deviceType const * const device, off_t const offset, uint8_t const whence);
 
 /** \brief Device Type */
 struct ciaaDevices_deviceStruct {
@@ -123,7 +123,7 @@ struct ciaaDevices_deviceStruct {
    ciaaDevices_read read;        /** <- pointer to read function */
    ciaaDevices_write write;      /** <- pointer to write function */
    ciaaDevices_ioctl ioctl;      /** <- pointer to ioctl function */
-   ciaaDevices_seek seek;        /** <- pointer to seek function */
+   ciaaDevices_lseek lseek;      /** <- pointer to lseek function */
    void * upLayer;               /** <- pointer to be provided to the upper
                                         layer */
    void * layer;                 /** <- pointer ot be used by the layer */

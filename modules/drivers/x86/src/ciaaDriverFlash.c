@@ -61,6 +61,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150327 v0.0.4 FS   renamed seek to lseek
  * 20150327 v0.0.3 FS   bugs fixed
  * 20150201 v0.0.2 EV   first operating version
  * 20141006 v0.0.1 EV   first initial version
@@ -110,9 +111,9 @@ static ciaaDevices_deviceType ciaaDriverFlash_device = {
    ciaaDriverFlash_read,            /** <= read function */
    ciaaDriverFlash_write,           /** <= write function */
    ciaaDriverFlash_ioctl,           /** <= ioctl function */
-   ciaaDriverFlash_seek,            /** <= seek function is not provided */
+   ciaaDriverFlash_lseek,           /** <= lseek function */
    NULL,                            /** <= upper layer */
-   (void*)&ciaaDriverFlash_flash,  /** <= layer */
+   (void*)&ciaaDriverFlash_flash,   /** <= layer */
    NULL                             /** <= NULL no lower layer */
 };
 
@@ -287,9 +288,9 @@ extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device
    return ret;
 }
 
-extern int32_t ciaaDriverFlash_seek(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence)
+extern off_t ciaaDriverFlash_lseek(ciaaDevices_deviceType const * const device, off_t const offset, uint8_t const whence)
 {
-   int32_t destination = -1;
+   off_t destination = -1;
    ciaaDriverFlash_flashType * flash = device->layer;
 
    if(flash == &ciaaDriverFlash_flash)
