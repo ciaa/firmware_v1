@@ -152,6 +152,13 @@ ifeq ($(OS),Windows_NT)
 CS                = ;
 # Command for multiline echo
 MULTILINE_ECHO    = echo -e
+# convert paths from cygwin to win (used to convert path for compiler)
+define cyg2win
+`cygpath -w $(1)`
+endef
+define cp4c
+$(call cyg2win,$(1))
+endef
 # Libraries group linker parameters
 START_GROUP       = -Xlinker --start-group
 END_GROUP         = -Xlinker --end-group
@@ -161,6 +168,12 @@ else
 CS                = ;
 # Comand for multiline echo
 MULTILINE_ECHO    = echo -n
+define cyg2win
+$(1)
+endef
+define cp4c
+$(1)
+endef
 UNAME_S           := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 # LINUX
@@ -214,7 +227,7 @@ include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 INCLUDE += $(foreach LIB, $(LIBS), $($(LIB)_INC_PATH))
 #Adds include project file if We wanto to do a project build
 ifneq ($(findstring tst_, $(MAKECMDGOALS)),tst_)
-CFLAGS  += $(foreach inc, $(INC_FILES), -I$(inc))
+CFLAGS  += $(foreach inc, $(INC_FILES), -I$(call cp4c,$(inc)))
 endif
 CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DBOARD=$(BOARD)
@@ -407,11 +420,11 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo ===============================================================================
 	@echo Compiling 'c' file: $<
 	@echo ' '
-	$(CC) $(CFLAGS) $< -o $(OBJ_DIR)$(DS)$@
+	$(CC) $(CFLAGS) $(call cp4c,$<) -o $(OBJ_DIR)$(DS)$@
 ifeq ($(MAKE_DEPENDENCIES),1)
 	@echo ' '
 	@echo Generating dependencies...
-	$(CC) -MM $(CFLAGS) $< > $(OBJ_DIR)$(DS)$(@:.o=.d)
+	$(CC) -MM $(CFLAGS) $(call cp4c,$<) > $(OBJ_DIR)$(DS)$(@:.o=.d)
 else
 	@echo ' '
 	@echo Skipping make dependencies...
@@ -422,21 +435,21 @@ endif
 	@echo ===============================================================================
 	@echo Compiling 'c++' file: $<
 	@echo ' '
-	$(CPP) $(CFLAGS) $< -o $(OBJ_DIR)$(DS)$@
+	$(CPP) $(CFLAGS) $(call cp4c,$<) -o $(OBJ_DIR)$(DS)$@
 
 %.o : %.s
 	@echo ' '
 	@echo ===============================================================================
 	@echo Compiling 'asm' file: $<
 	@echo ' '
-	$(AS) $(AFLAGS) $< -o $(OBJ_DIR)$(DS)$@
+	$(AS) $(AFLAGS) $(call cp4c,$<) -o $(OBJ_DIR)$(DS)$@
 
 %.o : %.S
 	@echo ' '
 	@echo ===============================================================================
 	@echo Compiling 'asm' with C preprocessing file: $<
 	@echo ' '
-	$(CC) $(CFLAGS) -x assembler-with-cpp $< -o $(OBJ_DIR)$(DS)$@
+	$(CC) $(CFLAGS) -x assembler-with-cpp $(call cp4c,$<) -o $(OBJ_DIR)$(DS)$@
 
 
 ###############################################################################
@@ -466,8 +479,6 @@ $(PROJECT_NAME) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 debug : $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
 	$(GDB) $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
 
-prueba:
-	@echo $(MiPrueba)
 ###############################################################################
 # rtos OSEK generation
 generate : $(OIL_FILES)
