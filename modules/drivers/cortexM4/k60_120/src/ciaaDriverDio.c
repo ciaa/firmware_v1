@@ -71,10 +71,12 @@ typedef struct  {
    uint8_t countOfDevices;
 } ciaaDriverConstType;
 
-/*==================[internal data declaration]==============================*/
-gpio_input_pin_user_config_t ciaaGPIOinputCofig[8];
-gpio_output_pin_user_config_t ciaaGPIOoutputCofig[8];
+#define CIAA_GPIO_INPUTS_NUMBER		8
+#define CIAA_GPIO_OUTPUTS_NUMBER	8
 
+/*==================[internal data declaration]==============================*/
+gpio_input_pin_user_config_t ciaaGPIOinputCofig[CIAA_GPIO_INPUTS_NUMBER+1];
+gpio_output_pin_user_config_t ciaaGPIOoutputCofig[CIAA_GPIO_OUTPUTS_NUMBER+1];
 
 /*==================[internal functions declaration]=========================*/
 
@@ -180,6 +182,8 @@ void ciaa_k60_120_gpio_init(void)
    ciaaGPIOinputCofig[7].config.isPassiveFilterEnabled = false;  /*!< Enable or disable passive filter.*/
    ciaaGPIOinputCofig[7].config.interrupt = kPortIntDisabled;    /*!< Select interrupt/DMA request.*/
 
+   //Note: This pinName must be defined here to indicate the end of array.
+   ciaaGPIOinputCofig[8].pinName = GPIO_PINS_OUT_OF_RANGE,
 
 
    /* Outputs */
@@ -190,96 +194,58 @@ void ciaa_k60_120_gpio_init(void)
    ciaaGPIOoutputCofig[0].config.outputLogic = 0;                       /*!< Set default output logic.*/
    ciaaGPIOoutputCofig[0].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
    ciaaGPIOoutputCofig[0].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[0].config.isOpenDrainEnabled = true;             /*!< Enable or disable open drain.*/
+   ciaaGPIOoutputCofig[0].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
    /*Digital Out 1 -> PTB06*/
    ciaaGPIOoutputCofig[1].pinName = GPIO_MAKE_PIN(HW_GPIOB, 6);
    ciaaGPIOoutputCofig[1].config.outputLogic = 0;                       /*!< Set default output logic.*/
    ciaaGPIOoutputCofig[1].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
    ciaaGPIOoutputCofig[1].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[1].config.isOpenDrainEnabled = true;             /*!< Enable or disable open drain.*/
+   ciaaGPIOoutputCofig[1].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
    /*Digital Out 2 -> PTB07*/
    ciaaGPIOoutputCofig[2].pinName = GPIO_MAKE_PIN(HW_GPIOB, 7);
    ciaaGPIOoutputCofig[2].config.outputLogic = 0;                       /*!< Set default output logic.*/
    ciaaGPIOoutputCofig[2].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
    ciaaGPIOoutputCofig[2].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[2].config.isOpenDrainEnabled = true;             /*!< Enable or disable open drain.*/
+   ciaaGPIOoutputCofig[2].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
    /*Digital Out 3 -> PTB17*/
    ciaaGPIOoutputCofig[3].pinName = GPIO_MAKE_PIN(HW_GPIOB, 17);
    ciaaGPIOoutputCofig[3].config.outputLogic = 0;                       /*!< Set default output logic.*/
    ciaaGPIOoutputCofig[3].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
    ciaaGPIOoutputCofig[3].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[3].config.isOpenDrainEnabled = true;             /*!< Enable or disable open drain.*/
+   ciaaGPIOoutputCofig[3].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
 
 
    /* MOSFETs */
-   /*Digital Out 4 -> PTB16*/
-   ciaaGPIOoutputCofig[4].pinName = GPIO_MAKE_PIN(HW_GPIOB, 16);
+   /*Digital Out 4 -> PTC15*/
+   ciaaGPIOoutputCofig[4].pinName = GPIO_MAKE_PIN(HW_GPIOC, 15);
    ciaaGPIOoutputCofig[4].config.outputLogic = 0;                       /*!< Set default output logic.*/
    ciaaGPIOoutputCofig[4].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
    ciaaGPIOoutputCofig[4].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[4].config.isOpenDrainEnabled = true;             /*!< Enable or disable open drain.*/
-   /*Digital Out 5 -> PTB06*/
-   ciaaGPIOoutputCofig[5].pinName = GPIO_MAKE_PIN(HW_GPIOB, 6);
+   ciaaGPIOoutputCofig[4].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
+   /*Digital Out 5 -> PTC14*/
+   ciaaGPIOoutputCofig[5].pinName = GPIO_MAKE_PIN(HW_GPIOC, 14);
    ciaaGPIOoutputCofig[5].config.outputLogic = 0;                       /*!< Set default output logic.*/
    ciaaGPIOoutputCofig[5].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
    ciaaGPIOoutputCofig[5].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[5].config.isOpenDrainEnabled = true;             /*!< Enable or disable open drain.*/
-   /*Digital Out 6 -> PTB07*/
-   ciaaGPIOoutputCofig[6].pinName = GPIO_MAKE_PIN(HW_GPIOB, 7);
+   ciaaGPIOoutputCofig[5].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
+   /*Digital Out 6 -> PTC13*/
+   ciaaGPIOoutputCofig[6].pinName = GPIO_MAKE_PIN(HW_GPIOC, 13);
    ciaaGPIOoutputCofig[6].config.outputLogic = 0;                       /*!< Set default output logic.*/
    ciaaGPIOoutputCofig[6].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
    ciaaGPIOoutputCofig[6].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[6].config.isOpenDrainEnabled = true;             /*!< Enable or disable open drain.*/
-   /*Digital Out 7 -> PTB17*/
-   ciaaGPIOoutputCofig[7].pinName = GPIO_MAKE_PIN(HW_GPIOB, 17);
+   ciaaGPIOoutputCofig[6].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
+   /*Digital Out 7 -> PTC12*/
+   ciaaGPIOoutputCofig[7].pinName = GPIO_MAKE_PIN(HW_GPIOC, 12);
    ciaaGPIOoutputCofig[7].config.outputLogic = 0;                       /*!< Set default output logic.*/
    ciaaGPIOoutputCofig[7].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
    ciaaGPIOoutputCofig[7].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[7].config.isOpenDrainEnabled = true;             /*!< Enable or disable open drain.*/
+   ciaaGPIOoutputCofig[7].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
 
-
-
+   //Note: This pinName must be defined here to indicate the end of array.
+   ciaaGPIOoutputCofig[8].pinName = GPIO_PINS_OUT_OF_RANGE,
 
    GPIO_DRV_Init(ciaaGPIOinputCofig, ciaaGPIOoutputCofig);
 
-#if 0
-	Chip_SCU_PinMux(4,0,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[0]  */
-   Chip_SCU_PinMux(4,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[1]  */
-   Chip_SCU_PinMux(4,2,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[2]  */
-   Chip_SCU_PinMux(4,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[3]  */
-   Chip_SCU_PinMux(7,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO3[11] */
-   Chip_SCU_PinMux(7,4,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO3[12] */
-   Chip_SCU_PinMux(7,5,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO3[13] */
-   Chip_SCU_PinMux(7,6,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO3[14] */
-
-   Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,0xF, 0);
-   Chip_GPIO_SetDir(LPC_GPIO_PORT, 3, 0xF<<11, 0);
-
-   /* MOSFETs */
-   Chip_SCU_PinMux(4,8,MD_PUP,FUNC4);  /* GPIO5[12] */
-   Chip_SCU_PinMux(4,9,MD_PUP,FUNC4);  /* GPIO5[13] */
-   Chip_SCU_PinMux(4,10,MD_PUP,FUNC4); /* GPIO5[14] */
-   Chip_SCU_PinMux(1,5,MD_PUP,FUNC0);  /* GPIO1[8]  */
-
-   Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14),1);
-   Chip_GPIO_SetDir(LPC_GPIO_PORT, 1,(1<<8),1);
-
-
-   Chip_GPIO_SetValue(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14));
-   Chip_GPIO_SetValue(LPC_GPIO_PORT, 1,(1<<8));
-
-   /* Relays */
-   Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6),1);
-   Chip_SCU_PinMux(2,1,MD_PUP,FUNC4);
-   Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<1),1);
-
-   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6));
-   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5,(1<<1));
-
-   /* LV-TTL GPIOs (not used yet) */
-   Chip_SCU_PinMux(6,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO0/P6_1/GPIO3[0] */
-   Chip_SCU_PinMux(2,5,MD_PUP|MD_EZI|MD_ZI,FUNC4);	/* GPIO1/P2_5/GPIO5[5] */
-#endif
 #else
    #error please define BOARD variable!
 #endif
@@ -352,10 +318,8 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
      else if(device == ciaaDioDevices[1])
      {
         int32_t i;
-
         for(i = 0; i < 8; i++)
         {
-           //ciaa_lpc4337_writeOutput(i, buffer[0] & (1 << i));
            GPIO_DRV_WritePinOutput(ciaaGPIOoutputCofig[i].pinName, (buffer[0] & (1 << i))>>i);
         }
 

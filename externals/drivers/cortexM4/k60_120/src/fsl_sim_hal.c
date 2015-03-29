@@ -53,7 +53,7 @@ sim_hal_status_t CLOCK_HAL_SetSource(uint32_t baseAddr,
                                      uint8_t setting)
 {
     sim_hal_status_t status = kSimHalSuccess;
-    assert(clockSource < kClockSourceMax);
+    //assert(clockSource < kClockSourceMax); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (clockSource)
     {
@@ -185,7 +185,7 @@ sim_hal_status_t CLOCK_HAL_GetSource(uint32_t baseAddr,
                                      uint8_t *setting)
 {
     sim_hal_status_t status = kSimHalSuccess;
-    assert(clockSource < kClockSourceMax);
+    //assert(clockSource < kClockSourceMax); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (clockSource)
     {
@@ -316,7 +316,7 @@ sim_hal_status_t CLOCK_HAL_SetDivider(uint32_t baseAddr,
                                       uint32_t setting)
 {
     sim_hal_status_t status = kSimHalSuccess;
-    assert(clockDivider < kClockDividerMax);
+    //assert(clockDivider < kClockDividerMax); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (clockDivider)
     {
@@ -436,7 +436,7 @@ sim_hal_status_t CLOCK_HAL_GetDivider(uint32_t baseAddr,
                                       uint32_t *setting)
 {
     sim_hal_status_t status = kSimHalSuccess;
-    assert(clockDivider < kClockDividerMax);
+    //assert(clockDivider < kClockDividerMax); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     *setting = 0;
 
@@ -528,7 +528,7 @@ sim_hal_status_t CLOCK_HAL_GetDivider(uint32_t baseAddr,
  *END**************************************************************************/
 void SIM_HAL_SetAdcAlternativeTriggerCmd(uint32_t baseAddr, uint8_t instance, bool enable)
 {
-    assert(instance < HW_ADC_INSTANCE_COUNT);
+    //assert(instance < HW_ADC_INSTANCE_COUNT); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (instance)
     {
@@ -564,7 +564,7 @@ bool SIM_HAL_GetAdcAlternativeTriggerCmd(uint32_t baseAddr, uint8_t instance)
 {
     bool retValue = false;
 
-    assert(instance < HW_ADC_INSTANCE_COUNT);
+    // assert(instance < HW_ADC_INSTANCE_COUNT); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (instance)
     {
@@ -602,7 +602,7 @@ bool SIM_HAL_GetAdcAlternativeTriggerCmd(uint32_t baseAddr, uint8_t instance)
  *END**************************************************************************/
 void SIM_HAL_SetAdcPreTriggerMode(uint32_t baseAddr, uint8_t instance, sim_pretrgsel_t select)
 {
-    assert(instance < HW_ADC_INSTANCE_COUNT);
+    //assert(instance < HW_ADC_INSTANCE_COUNT); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (instance)
     {
@@ -638,7 +638,7 @@ sim_pretrgsel_t SIM_HAL_GetAdcPreTriggerMode(uint32_t baseAddr, uint8_t instance
 {
     sim_pretrgsel_t retValue = (sim_pretrgsel_t)0;
 
-    assert(instance < HW_ADC_INSTANCE_COUNT);
+    //assert(instance < HW_ADC_INSTANCE_COUNT); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (instance)
     {
@@ -675,7 +675,7 @@ sim_pretrgsel_t SIM_HAL_GetAdcPreTriggerMode(uint32_t baseAddr, uint8_t instance
  *END**************************************************************************/
 void SIM_HAL_SetAdcTriggerMode(uint32_t baseAddr, uint8_t instance, sim_trgsel_t select)
 {
-    assert(instance < HW_ADC_INSTANCE_COUNT);
+    //assert(instance < HW_ADC_INSTANCE_COUNT); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (instance)
     {
@@ -711,7 +711,7 @@ sim_pretrgsel_t SIM_HAL_GetAdcTriggerMode(uint32_t baseAddr, uint8_t instance)
 {
     sim_pretrgsel_t retValue =(sim_pretrgsel_t)0;
 
-    assert(instance < HW_ADC_INSTANCE_COUNT);
+    //assert(instance < HW_ADC_INSTANCE_COUNT); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (instance)
     {
@@ -747,7 +747,7 @@ sim_pretrgsel_t SIM_HAL_GetAdcTriggerMode(uint32_t baseAddr, uint8_t instance)
  *END**************************************************************************/
 void SIM_HAL_SetUartRxSrcMode(uint32_t baseAddr, uint8_t instance, sim_uart_rxsrc_t select)
 {
-    assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT);
+    //assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (instance)
     {
@@ -773,7 +773,7 @@ sim_uart_rxsrc_t SIM_HAL_GetUartRxSrcMode(uint32_t baseAddr, uint8_t instance)
 {
     sim_uart_rxsrc_t retValue = (sim_uart_rxsrc_t)0;
 
-    assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT);
+    //assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (instance)
     {
@@ -799,7 +799,7 @@ sim_uart_rxsrc_t SIM_HAL_GetUartRxSrcMode(uint32_t baseAddr, uint8_t instance)
  *END**************************************************************************/
 void SIM_HAL_SetUartTxSrcMode(uint32_t baseAddr, uint8_t instance, sim_uart_txsrc_t select)
 {
-    assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT);
+    //assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (instance)
     {
@@ -825,7 +825,7 @@ sim_uart_txsrc_t SIM_HAL_GetUartTxSrcMode(uint32_t baseAddr, uint8_t instance)
 {
     sim_uart_txsrc_t retValue =(sim_uart_txsrc_t)0;
 
-    assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT);
+    //assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (instance)
     {
@@ -852,7 +852,7 @@ sim_uart_txsrc_t SIM_HAL_GetUartTxSrcMode(uint32_t baseAddr, uint8_t instance)
  *END**************************************************************************/
 void SIM_HAL_SetUartOpenDrainCmd(uint32_t baseAddr, uint8_t instance, bool enable)
 {
-    assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT);
+    //assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (instance)
     {
@@ -881,7 +881,7 @@ bool SIM_HAL_GetUartOpenDrainCmd(uint32_t baseAddr, uint8_t instance)
 {
     bool retValue = false;
 
-    assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT);
+    //assert(instance < FSL_FEATURE_SIM_OPT_UART_COUNT); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     switch (instance)
     {

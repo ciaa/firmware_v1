@@ -119,7 +119,7 @@ static inline void GPIO_HAL_SetPortDir(uint32_t baseAddr, uint32_t direction)
  */
 static inline gpio_pin_direction_t GPIO_HAL_GetPinDir(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32);
+    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     return (gpio_pin_direction_t)((HW_GPIO_PDDR_RD(baseAddr) >> pin) & 1U);
 } 
 
@@ -165,7 +165,7 @@ void GPIO_HAL_WritePinOutput(uint32_t baseAddr, uint32_t pin, uint32_t output);
  */
 static inline uint32_t GPIO_HAL_ReadPinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32);
+    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     return ((HW_GPIO_PDOR_RD(baseAddr) >> pin) & 0x1U);
 }
 
@@ -177,7 +177,7 @@ static inline uint32_t GPIO_HAL_ReadPinOutput(uint32_t baseAddr, uint32_t pin)
  */
 static inline void GPIO_HAL_SetPinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32);
+    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     HW_GPIO_PSOR_WR(baseAddr, 1U << pin);
 }
 
@@ -189,7 +189,7 @@ static inline void GPIO_HAL_SetPinOutput(uint32_t baseAddr, uint32_t pin)
  */
 static inline void GPIO_HAL_ClearPinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32);
+    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     HW_GPIO_PCOR_WR(baseAddr, 1U << pin);
 }
 
@@ -201,7 +201,7 @@ static inline void GPIO_HAL_ClearPinOutput(uint32_t baseAddr, uint32_t pin)
  */
 static inline void GPIO_HAL_TogglePinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32);
+    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     HW_GPIO_PTOR_WR(baseAddr, 1U << pin);
 }
 
@@ -257,7 +257,7 @@ static inline uint32_t GPIO_HAL_ReadPortOutput(uint32_t baseAddr)
  */
 static inline uint32_t GPIO_HAL_ReadPinInput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32);
+    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     return (HW_GPIO_PDIR_RD(baseAddr) >> pin) & 1U;
 }
 
@@ -304,7 +304,7 @@ static inline uint32_t GPIO_HAL_ReadPortInput(uint32_t baseAddr)
  */
 static inline void FGPIO_HAL_SetPinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32);
+    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     HW_FGPIO_PSOR_WR(baseAddr, 1U << pin);
 }
 
@@ -316,7 +316,7 @@ static inline void FGPIO_HAL_SetPinOutput(uint32_t baseAddr, uint32_t pin)
  */
 static inline void FGPIO_HAL_ClearPinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32);
+    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     HW_FGPIO_PCOR_WR(baseAddr, 1U << pin);
 }
 
@@ -328,7 +328,7 @@ static inline void FGPIO_HAL_ClearPinOutput(uint32_t baseAddr, uint32_t pin)
  */
 static inline void FGPIO_HAL_TogglePinOutput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32);
+    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     HW_FGPIO_PTOR_WR(baseAddr, 1U << pin);
 }
 
@@ -367,7 +367,7 @@ static inline void FGPIO_HAL_WritePortOutput(uint32_t baseAddr, uint32_t portOut
  */
 static inline uint32_t FGPIO_HAL_ReadPinInput(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32);
+    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     return (HW_FGPIO_PDIR_RD(baseAddr) >> pin) & 1U;
 }
 

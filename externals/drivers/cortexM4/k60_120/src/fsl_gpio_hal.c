@@ -41,7 +41,7 @@
  *END**************************************************************************/
 void GPIO_HAL_SetPinDir(uint32_t baseAddr, uint32_t pin, gpio_pin_direction_t direction)
 {
-    assert(pin < 32);
+    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     if (direction == kGpioDigitalOutput)
     {
@@ -61,7 +61,7 @@ void GPIO_HAL_SetPinDir(uint32_t baseAddr, uint32_t pin, gpio_pin_direction_t di
  *END**************************************************************************/
 void GPIO_HAL_WritePinOutput(uint32_t baseAddr, uint32_t pin, uint32_t output)
 {
-    assert(pin < 32);
+    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     if (output != 0U)
     {
         HW_GPIO_PSOR_WR(baseAddr, 1U << pin); /* Set pin output to high level.*/

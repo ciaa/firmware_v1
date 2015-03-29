@@ -106,6 +106,13 @@ void GPIO_DRV_InputPinInit(const gpio_input_pin_user_config_t *inputPin)
         /* Enable GPIO interrupt.*/
         INT_SYS_EnableIRQ(g_portIrqId[port]);
     }
+
+    /* Apermingeat: Configure pin muxing to set it as GPIO.
+     * In pure KSDK projects this step is usually performed when
+     * the hardware is initialized, but is better performing this
+     * step here, in order to have all GPIO initialization centralized*/
+    PORT_HAL_SetMuxMode(portBaseAddr,pin,kPortMuxAsGpio);
+
 }
 
 /*FUNCTION**********************************************************************
@@ -135,6 +142,12 @@ void GPIO_DRV_OutputPinInit(const gpio_output_pin_user_config_t *outputPin)
     #if FSL_FEATURE_PORT_HAS_OPEN_DRAIN
     PORT_HAL_SetOpenDrainCmd(portBaseAddr, pin, outputPin->config.isOpenDrainEnabled);
     #endif
+
+    /* Apermingeat: Configure pin muxing to set it as GPIO.
+     * In pure KSDK projects this step is usually performed when
+     * the hardware is initialized, but is better performing this
+     * step here, in order to have all GPIO initialization centralized*/
+    PORT_HAL_SetMuxMode(portBaseAddr,pin,kPortMuxAsGpio);
 }
 
 /*FUNCTION**********************************************************************

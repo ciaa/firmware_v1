@@ -85,8 +85,8 @@ void INT_SYS_InstallHandler(IRQn_Type irqNumber, void (*handler)(void));
 static inline void INT_SYS_EnableIRQ(IRQn_Type irqNumber)
 {
     /* check IRQ number */
-    assert(0 <= irqNumber);
-    assert(irqNumber <= FSL_FEATURE_INTERRUPT_IRQ_MAX);
+    //assert(0 <= irqNumber); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
+    //assert(irqNumber <= FSL_FEATURE_INTERRUPT_IRQ_MAX); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     /* call core API to enable the IRQ*/
     NVIC_EnableIRQ(irqNumber);
@@ -104,8 +104,8 @@ static inline void INT_SYS_EnableIRQ(IRQn_Type irqNumber)
 static inline void INT_SYS_DisableIRQ(IRQn_Type irqNumber)
 {
     /* check IRQ number */
-    assert(0 <= irqNumber);
-    assert(irqNumber <= FSL_FEATURE_INTERRUPT_IRQ_MAX);
+    //assert(0 <= irqNumber); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
+    //assert(irqNumber <= FSL_FEATURE_INTERRUPT_IRQ_MAX);Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
 
     /* call core API to disable the IRQ*/
     NVIC_DisableIRQ(irqNumber);

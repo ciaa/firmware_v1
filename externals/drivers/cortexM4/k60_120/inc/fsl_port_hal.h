@@ -123,7 +123,7 @@ static inline void PORT_HAL_SetPullMode(uint32_t baseAddr,
                                         uint32_t pin, 
                                         port_pull_t pullSelect)
 {
-    assert(pin < 32U);
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     BW_PORT_PCRn_PS(baseAddr, pin, pullSelect);
 }
 
@@ -138,7 +138,7 @@ static inline void PORT_HAL_SetPullMode(uint32_t baseAddr,
  */
 static inline void PORT_HAL_SetPullCmd(uint32_t baseAddr, uint32_t pin, bool isPullEnabled)
 {
-    assert(pin < 32U);    
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     BW_PORT_PCRn_PE(baseAddr, pin, isPullEnabled);
 }
 
@@ -155,7 +155,7 @@ static inline void PORT_HAL_SetSlewRateMode(uint32_t baseAddr,
                                                 uint32_t pin, 
                                                 port_slew_rate_t rateSelect)
 {
-    assert(pin < 32U);
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     BW_PORT_PCRn_SRE(baseAddr, pin, rateSelect);
 }
 
@@ -176,7 +176,7 @@ static inline void PORT_HAL_SetPassiveFilterCmd(uint32_t baseAddr,
                                                      uint32_t pin, 
                                                      bool isPassiveFilterEnabled)
 {
-    assert(pin < 32U);
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     BW_PORT_PCRn_PFE(baseAddr, pin, isPassiveFilterEnabled);
 }
 
@@ -194,7 +194,7 @@ static inline void PORT_HAL_SetOpenDrainCmd(uint32_t baseAddr,
                                                  uint32_t pin, 
                                                  bool isOpenDrainEnabled)
 {
-    assert(pin < 32U);
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     BW_PORT_PCRn_ODE(baseAddr, pin, isOpenDrainEnabled);
 }
 #endif /*FSL_FEATURE_PORT_HAS_OPEN_DRAIN*/
@@ -212,7 +212,7 @@ static inline void PORT_HAL_SetDriveStrengthMode(uint32_t baseAddr,
                                                      uint32_t pin, 
                                                      port_drive_strength_t driveSelect)
 {
-    assert(pin < 32U);
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     BW_PORT_PCRn_DSE(baseAddr, pin, driveSelect);
 }
 
@@ -228,7 +228,7 @@ static inline void PORT_HAL_SetDriveStrengthMode(uint32_t baseAddr,
  */
 static inline void PORT_HAL_SetMuxMode(uint32_t baseAddr, uint32_t pin, port_mux_t mux)
 {
-    assert(pin < 32U);
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     BW_PORT_PCRn_MUX(baseAddr, pin, mux);
 }
  
@@ -246,7 +246,7 @@ static inline void PORT_HAL_SetPinCtrlLockCmd(uint32_t baseAddr,
                                                        uint32_t pin, 
                                                        bool isPinLockEnabled)
 {
-    assert(pin < 32U);    
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     BW_PORT_PCRn_LK(baseAddr, pin, isPinLockEnabled);
 }
 #endif /* FSL_FEATURE_PORT_HAS_PIN_CONTROL_LOCK*/
@@ -266,7 +266,7 @@ static inline void PORT_HAL_SetDigitalFilterCmd(uint32_t baseAddr,
                                                      uint32_t pin,
                                                      bool isDigitalFilterEnabled)
 {
-    assert(pin < 32U);
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     HW_PORT_DFER_SET(baseAddr, (uint32_t)isDigitalFilterEnabled << pin);
 }
 
@@ -353,7 +353,7 @@ static inline void PORT_HAL_SetPinIntMode(uint32_t baseAddr,
                                           uint32_t pin, 
                                           port_interrupt_config_t intConfig)
 {
-    assert(pin < 32U);
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     BW_PORT_PCRn_IRQC(baseAddr, pin, intConfig);
 }
 
@@ -375,7 +375,7 @@ static inline void PORT_HAL_SetPinIntMode(uint32_t baseAddr,
  */
 static inline port_interrupt_config_t PORT_HAL_GetPinIntMode(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32U);
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     return (port_interrupt_config_t)BR_PORT_PCRn_IRQC(baseAddr, pin);
 }
 
@@ -396,7 +396,7 @@ static inline port_interrupt_config_t PORT_HAL_GetPinIntMode(uint32_t baseAddr, 
  */
 static inline bool PORT_HAL_IsPinIntPending(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32U);    
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     return BR_PORT_PCRn_ISF(baseAddr, pin);
 }
 
@@ -408,7 +408,7 @@ static inline bool PORT_HAL_IsPinIntPending(uint32_t baseAddr, uint32_t pin)
  */
 static inline void PORT_HAL_ClearPinIntFlag(uint32_t baseAddr, uint32_t pin)
 {
-    assert(pin < 32U);    
+    //assert(pin < 32U); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
     BW_PORT_PCRn_ISF(baseAddr, pin, 1U);
 }
 
