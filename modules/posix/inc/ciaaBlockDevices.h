@@ -158,7 +158,7 @@ extern ssize_t ciaaBlockDevices_write(ciaaDevices_deviceType const * device, uin
  ** \return -1 if failed, a non negative integer representing the count of
  **         written bytes if success
  **/
-extern int32_t ciaaBlockDevices_seek(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence);
+extern off_t ciaaBlockDevices_lseek(ciaaDevices_deviceType const * const device, off_t const offset, uint8_t const whence);
 
 /** \brief Write confirmation of a block device
  **

@@ -61,6 +61,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150327 v0.0.4 FS   renamed seek to lseek
  * 20150327 v0.0.3 FS   bugs fixed
  * 20150201 v0.0.2 EV   first operating version
  * 20141006 v0.0.1 EV   first initial version
@@ -89,7 +90,7 @@
  *  \param end Last block number to erase
  *  \return result of erase operation
  */
-int32_t ciaaDriverFlash_blockErase(uint32_t start, uint32_t end);
+static int32_t ciaaDriverFlash_blockErase(uint32_t start, uint32_t end);
 
 /** \brief Function to write a block of flash
  * @param address Number of block to write
@@ -97,10 +98,10 @@ int32_t ciaaDriverFlash_blockErase(uint32_t start, uint32_t end);
  * @param size Size of data buffer
  * @return Result of write operation
  */
-int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * const data, uint32_t size);
+static int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * const data, uint32_t size);
 
 /*==================[internal data definition]===============================*/
-/* Constant with filename of storage file maped to Flash */
+/* Constant with filename of storage file mapped to Flash */
 static const char ciaaDriverFlash_filename[] = CIAADRVFLASH_FILENAME;
 
 static ciaaDevices_deviceType ciaaDriverFlash_device = {
@@ -110,9 +111,9 @@ static ciaaDevices_deviceType ciaaDriverFlash_device = {
    ciaaDriverFlash_read,            /** <= read function */
    ciaaDriverFlash_write,           /** <= write function */
    ciaaDriverFlash_ioctl,           /** <= ioctl function */
-   ciaaDriverFlash_seek,            /** <= seek function is not provided */
+   ciaaDriverFlash_lseek,           /** <= lseek function */
    NULL,                            /** <= upper layer */
-   (void*)&ciaaDriverFlash_flash,  /** <= layer */
+   (void*)&ciaaDriverFlash_flash,   /** <= layer */
    NULL                             /** <= NULL no lower layer */
 };
 
@@ -121,7 +122,7 @@ static ciaaDevices_deviceType ciaaDriverFlash_device = {
 ciaaDriverFlash_flashType ciaaDriverFlash_flash;
 
 /*==================[internal functions definition]==========================*/
-int32_t ciaaDriverFlash_blockErase(uint32_t start, uint32_t end) {
+static int32_t ciaaDriverFlash_blockErase(uint32_t start, uint32_t end) {
    int32_t ret = -1;
    int32_t index;
    uint8_t buffer[CIAADRVFLASH_BLOCK_SIZE];
@@ -140,16 +141,21 @@ int32_t ciaaDriverFlash_blockErase(uint32_t start, uint32_t end) {
    return ret;
 }
 
-int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * const data, uint32_t size) {
-   int32_t ret = -1;
-   uint8_t buffer[CIAADRVFLASH_BLOCK_SIZE];
-   ciaaDriverFlash_flashType * flash = &ciaaDriverFlash_flash;
-   uint32_t data_index = 0;
+static int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * const data, uint32_t size) {
+   /* holds return values */
+   int32_t ret;
+   /* index used to iterate through the data */
+   uint32_t data_index = -1;
+   /* index used to iterate through the memory buffer */
    uint32_t buffer_index;
+   /* size of data to be written */
    uint32_t write_size;
+   ciaaDriverFlash_flashType * flash = &ciaaDriverFlash_flash;
+   uint8_t buffer[CIAADRVFLASH_BLOCK_SIZE];
 
-   if (address <= CIAADRVFLASH_BLOCK_SIZE * CIAADRVFLASH_BLOCK_CANT)
+   if (address <= CIAADRVFLASH_SIZE)
    {
+      data_index = 0;
       while(data_index < size)
       {
          /* calculate how much is to be written in this iteration */
@@ -158,7 +164,7 @@ int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * const data,
          /* rewind to change i/o mode */
          rewind(flash->storage);
 
-         /* seek the position to write in and bring its contents*/
+         /* seek the position to write in and bring its contents */
          ret = fseek(flash->storage, address + data_index, SEEK_SET);
          ciaaPOSIX_assert(0 == ret);
          ret = fread(buffer, 1, write_size, flash->storage);
@@ -246,6 +252,8 @@ extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device
             ciaaDriverFlash_blockErase((uint32_t) (flash->position/CIAADRVFLASH_BLOCK_SIZE), (uint32_t) (flash->position/CIAADRVFLASH_BLOCK_SIZE));
             ret = 1;
             break;
+         default:
+            break;
       }
    }
    return ret;
@@ -256,15 +264,12 @@ extern ssize_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device,
    ssize_t ret = -1;
    ciaaDriverFlash_flashType * flash = device->layer;
 
-   if(flash == &ciaaDriverFlash_flash)
+   if(flash == &ciaaDriverFlash_flash && NULL != flash->storage)
    {
-      if (flash->storage)
-      {
-         rewind(flash->storage);
-         fseek(flash->storage, flash->position, SEEK_SET);
-         ret = fread(buffer, 1, size, flash->storage);
-         flash->position += ret;
-      }
+      rewind(flash->storage);
+      fseek(flash->storage, flash->position, SEEK_SET);
+      ret = fread(buffer, 1, size, flash->storage);
+      flash->position += ret;
    }
 
    return ret;
@@ -283,10 +288,9 @@ extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device
    return ret;
 }
 
-extern int32_t ciaaDriverFlash_seek(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence)
+extern off_t ciaaDriverFlash_lseek(ciaaDevices_deviceType const * const device, off_t const offset, uint8_t const whence)
 {
-   int32_t ret = -1;
-   int32_t destination;
+   off_t destination = -1;
    ciaaDriverFlash_flashType * flash = device->layer;
 
    if(flash == &ciaaDriverFlash_flash)
@@ -301,15 +305,15 @@ extern int32_t ciaaDriverFlash_seek(ciaaDevices_deviceType const * const device,
             break;
          default:
             destination = offset;
+            break;
       }
 
       if ((destination >= 0) && (destination < CIAADRVFLASH_SIZE))
       {
          flash->position = destination;
-         ret = 0;
       }
    }
-   return ret;
+   return destination;
 }
 
 void ciaaDriverFlash_init(void)
