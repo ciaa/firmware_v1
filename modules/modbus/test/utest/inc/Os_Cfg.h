@@ -58,7 +58,7 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
@@ -67,14 +67,14 @@
  * 20090719 v0.1.3 MaCe rename file to Os_
  * 20090424 v0.1.2 MaCe add counters defines
  * 20090128 v0.1.1 MaCe add MEMMAP off configuration
- * 20080810 v0.1.0 MaCe	initial version
+ * 20080810 v0.1.0 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
 
 /*==================[macros]=================================================*/
 /** \brief Definition of the  DeclareTask Macro */
-#define DeclareTask(name)	void OSEK_TASK_ ## name (void)
+#define DeclareTask(name) void OSEK_TASK_ ## name (void)
 
 #define OSEK_OS_INTERRUPT_MASK ((InterruptFlagsType)0xFFFFFFFFU)
 

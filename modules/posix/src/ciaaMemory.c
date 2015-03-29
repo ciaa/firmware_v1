@@ -75,12 +75,12 @@ void (*ciaaMemory_pfFree) (void* pointer);
 
 void ciaaMemory_SetMalloc (void* (*pf) (uint32_t))
 {
-	ciaaMemory_pfMalloc = pf;
+   ciaaMemory_pfMalloc = pf;
 }
 
 void ciaaMemory_SetFree (void (*pf) (void*))
 {
-	ciaaMemory_pfFree = pf;
+   ciaaMemory_pfFree = pf;
 }
 
 /** @} doxygen end group definition */

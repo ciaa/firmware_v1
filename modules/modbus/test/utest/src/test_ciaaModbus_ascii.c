@@ -241,7 +241,7 @@ ssize_t ciaaPOSIX_write_stub(int32_t fildes, void const * buf, size_t nbyte, int
 
 void * memcpy_stub(void* s1, void const* s2, size_t n, int cmock_num_calls)
 {
-	return memcpy(s1, s2, n);
+   return memcpy(s1, s2, n);
 }
 
 
@@ -422,7 +422,7 @@ void test_ciaaModbus_ascii_ascii2bin_01(void)
    uint8_t buf[10][2][500];
 
    strcpy((char*)buf[0][0],
-		   (const char*)":000102030405060708090A0B0C0D0E0F");
+          (const char*)":000102030405060708090A0B0C0D0E0F");
         /*012345678901234567890123456789012345678901234567890123456789*/
         /*          1         2         3         4         5         */
    /* set input buffer (only add LRC) */
@@ -447,7 +447,7 @@ void test_ciaaModbus_ascii_ascii2bin_02(void)
    uint8_t buf[10][2][500];
 
    strcpy((char*)buf[0][0],
-		   (const char*)":000G");
+         (const char*)":000G");
    /* set input buffer (only add LRC) */
    lenin[0] = tst_asciipdu(buf[0][0], 0, 1);
    /* copy the buffer */
@@ -697,11 +697,11 @@ void test_ciaaModbus_asciiSendMsg_01(void)
    ciaaPOSIX_memcpy_StubWithCallback(memcpy_stub);
 
    strcpy((char*)buf[0][0],
-		   (const char*)":0001020304050607");
+          (const char*)":0001020304050607");
         /*012345678901234567890123456789012345678901234567890123456789*/
         /*          1         2         3         4         5         */
    strcpy((char*)buf[1][0],
-		   (const char*)":000102030405060712AF3DA1");
+          (const char*)":000102030405060712AF3DA1");
         /*012345678901234567890123456789012345678901234567890123456789*/
         /*          1         2         3         4         5         */
 
