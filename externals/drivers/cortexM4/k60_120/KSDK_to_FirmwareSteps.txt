@@ -72,3 +72,14 @@ find platform/hal/adc/  -type f -name "*.c" -exec cp {} /path/to/Firmware/extern
 find platform/drivers/adc/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
 
 find platform/drivers/adc/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+
+#For DAC drivers
+
+find platform/hal/dac/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/hal/dac/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/drivers/dac/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/drivers/dac/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
