@@ -68,188 +68,188 @@
  **
  **/
 class oilParserClass {
-	protected $file;
-	protected $lines;
-	protected $line;
-	protected $config = array();
+   protected $file;
+   protected $lines;
+   protected $line;
+   protected $config = array();
 
-	function removeComments()
-	{
-		/* todo removeall comments */
-		for ($l = 0; $l < count($this->lines); $l++)
-		{
-			/* remove spaces and tabs at start and end of the line */
-			$this->lines[$l] = trim($this->lines[$l]);
+   function removeComments()
+   {
+      /* todo removeall comments */
+      for ($l = 0; $l < count($this->lines); $l++)
+      {
+         /* remove spaces and tabs at start and end of the line */
+         $this->lines[$l] = trim($this->lines[$l]);
 
-			do
-			{
-				/* replaces multiply spaces with only one */
-				$this->lines[$l] = preg_replace('/ +/', " ", $this->lines[$l]);
+         do
+         {
+            /* replaces multiply spaces with only one */
+            $this->lines[$l] = preg_replace('/ +/', " ", $this->lines[$l]);
 
-				/* remove multpy tabs or tabs with one space */
-				$this->lines[$l] = preg_replace('/\t/', " ", $this->lines[$l]);
+            /* remove multpy tabs or tabs with one space */
+            $this->lines[$l] = preg_replace('/\t/', " ", $this->lines[$l]);
 
-			}
-			while (  ( strlen($this->lines[$l]) > 1 )  &&
-						( strpos($this->lines[$l], "  ") !== false) );
+         }
+         while ( ( strlen($this->lines[$l]) > 1 ) &&
+                 ( strpos($this->lines[$l], "  ") !== false) );
 
-			/* remove spaces sides of = */
-			$this->lines[$l] = str_replace(" = ", "=", $this->lines[$l]);
+         /* remove spaces sides of = */
+         $this->lines[$l] = str_replace(" = ", "=", $this->lines[$l]);
 
-			/* remove space before ; */
-			$this->lines[$l] = str_replace(" ;",";", $this->lines[$l]);
+         /* remove space before ; */
+         $this->lines[$l] = str_replace(" ;",";", $this->lines[$l]);
 
-			/* remove ; */
-			$this->lines[$l] = str_replace(";","", $this->lines[$l]);
+         /* remove ; */
+         $this->lines[$l] = str_replace(";","", $this->lines[$l]);
 
-			/* remove c++ comments */
-			if ( strpos($this->lines[$l],"//") !== false )
-			{
-				$tmp = split("//", $this->lines[$l]);
-				$this->lines[$l] = $tmp[0];
-			}
+         /* remove c++ comments */
+         if ( strpos($this->lines[$l],"//") !== false )
+         {
+            $tmp = split("//", $this->lines[$l]);
+            $this->lines[$l] = $tmp[0];
+         }
 
-			/* remove c comments in a complete line*/
-			/* to do...remove complex comments */
-			if ( strpos($this->lines[$l], "/*") == 0 && strpos($this->lines[$l], "*/") == strlen($this->lines[$l])-2)
-			{
+         /* remove c comments in a complete line*/
+         /* to do...remove complex comments */
+         if ( strpos($this->lines[$l], "/*") == 0 && strpos($this->lines[$l], "*/") == strlen($this->lines[$l])-2)
+         {
             $this->lines[$l] = "";
-			}
-		}
-	}
+         }
+      }
+   }
 
-	function resetLine()
-	{
-		$this->line = 0;
-	}
+   function resetLine()
+   {
+      $this->line = 0;
+   }
 
-	function nextLine()
-	{
-		$this->line++;
-	}
+   function nextLine()
+   {
+      $this->line++;
+   }
 
-	function eof()
-	{
-		$ret = false;
+   function eof()
+   {
+      $ret = false;
 
-		if ( $this->line == count ($this->lines) )
-		{
-			$ret = true;
-		}
+      if ( $this->line == count ($this->lines) )
+      {
+         $ret = true;
+      }
 
-		return $ret;
-	}
+      return $ret;
+   }
 
-	function getDefinition()
-	{
-		$ret = array ( "", "", false);
+   function getDefinition()
+   {
+      $ret = array ( "", "", false);
 
-		$tmp = $this->lines[$this->line];
-		if  ( strpos($tmp, "{") !== false )
-		{
-			$ret[2] = true;
-			$tmp = split("{",$tmp);
-			$tmp = $tmp[0];
-		}
+      $tmp = $this->lines[$this->line];
+      if  ( strpos($tmp, "{") !== false )
+      {
+         $ret[2] = true;
+         $tmp = split("{",$tmp);
+         $tmp = $tmp[0];
+      }
       if ($tmp != "")
-		{     
-		   if ( strpos($tmp, "=") !== false )
-   		{
-	   		$tmp = split("=", $tmp);
-		   	$ret[0] = $tmp[0];
-			   $ret[1] = $tmp[1];
-   		}
-	   	else
-		   {
+      {     
+         if ( strpos($tmp, "=") !== false )
+         {
+            $tmp = split("=", $tmp);
+            $ret[0] = $tmp[0];
+            $ret[1] = $tmp[1];
+         }
+         else
+         {
             $tmp = split(" ", $tmp);
             $ret[0] = $tmp[0];
             if (!empty($tmp[1]))
                $ret[1] = $tmp[1];
             else
                $ret[1] = "";
-   		}
-   	}
-		return $ret;
-	}
+         }
+      }
+      return $ret;
+   }
 
-	function parser($root)
-	{
-		$config = array();
-		$entry = array();
-		static $inst = 0;
-		$inst++;
+   function parser($root)
+   {
+      $config = array();
+      $entry = array();
+      static $inst = 0;
+      $inst++;
 
-		while( 	( ( $inst == 1 ) && ($this->eof() === false ) ) ||
-					( ( $inst != 1 ) && (strpos($this->lines[$this->line],"}") === false  ) ) )
-		{
-			$def = $this->getDefinition();
+      while( ( ( $inst == 1 ) && ($this->eof() === false ) ) ||
+             ( ( $inst != 1 ) && (strpos($this->lines[$this->line],"}") === false  ) ) )
+      {
+         $def = $this->getDefinition();
 
-			if ( $def[0] != "")
-			{
-				$entry["root"] = $root;
-				$entry["type"] = trim($def[0]);
-				$entry["value"] = trim($def[1]);
-				if ( $def[2] === true )
-				{
-					$this->nextLine();
-					if ( $def[0] != "AUTOSTART" )
-					{
-						$this->parser($root . "/" . trim($def[1]));
-					}
-					else
-					{
-						$this->parser($root);
-					}
-				}
-				else
-				{
-					$this->nextLine();
-				}
-				$this->config[] = $entry;
+         if ( $def[0] != "")
+         {
+            $entry["root"] = $root;
+            $entry["type"] = trim($def[0]);
+            $entry["value"] = trim($def[1]);
+            if ( $def[2] === true )
+            {
+               $this->nextLine();
+               if ( $def[0] != "AUTOSTART" )
+               {
+                  $this->parser($root . "/" . trim($def[1]));
+               }
+               else
+               {
+                  $this->parser($root);
+               }
+            }
+            else
+            {
+               $this->nextLine();
+            }
+            $this->config[] = $entry;
 
-			}
-			else
-			{
-				$this->nextLine();
-			}
-		}
-		if ( $inst != 1 )
-		{
-			$this->nextLine();
-		}
+         }
+         else
+         {
+            $this->nextLine();
+         }
+      }
+      if ( $inst != 1 )
+      {
+         $this->nextLine();
+      }
 
-		$inst--;
-	}
+      $inst--;
+   }
 
-	function oilParserClass($file)
-	{
-		if (file_exists($file) == false) {
-			error('Configuration file ' . $file . ' not found.');
-		}
+   function oilParserClass($file)
+   {
+      if (file_exists($file) == false) {
+         error('Configuration file ' . $file . ' not found.');
+      }
 
-		$this->file = $file;
-		$this->lines = file($file);
+      $this->file = $file;
+      $this->lines = file($file);
 
-		$entry = array();
+      $entry = array();
 
-		$this->removeComments();
+      $this->removeComments();
 
-		$this->resetLine();
+      $this->resetLine();
 
-		#$entry["root"] = "/OSEK";
-		#$entry["type"] = "OSEK";
-		#$entry["name"] = "";
+      #$entry["root"] = "/OSEK";
+      #$entry["type"] = "OSEK";
+      #$entry["name"] = "";
 
-		#$this->config[] = $entry;
+      #$this->config[] = $entry;
 
-		#$this->parser("/OSEK");
-		$this->parser("");
-	}
+      #$this->parser("/OSEK");
+      $this->parser("");
+   }
 
-	function getOil()
-	{
-		return $this->config;
-	}
+   function getOil()
+   {
+      return $this->config;
+   }
 
 }
 

@@ -69,168 +69,168 @@ require_once("oilParser.php");
  **
  **/
 class configClass {
-	protected $config = array();
+   protected $config = array();
 
-	function configClass()
-	{
-	}
+   function configClass()
+   {
+   }
 
-	function parseOilFile($file)
-	{
-		$parser = new oilParserClass($file);
+   function parseOilFile($file)
+   {
+      $parser = new oilParserClass($file);
 
-		$tmp = $parser->getOil();
+      $tmp = $parser->getOil();
 
-		foreach ($tmp as $element)
-		{
-			$this->config[] = $element;
-		}
+      foreach ($tmp as $element)
+      {
+         $this->config[] = $element;
+      }
 
-	}
+   }
 
-	function parseAutosarFile()
-	{
-	}
+   function parseAutosarFile()
+   {
+   }
 
-	function getValue($root, $type)
-	{
-		$ret = false;
-		foreach ($this->config as $element)
-		{
-			if ( ($element["root"] == $root) &&
-				($element["type"] == $type) )
-			{
-				$value = $element["value"];
-				if(strpos($value, "\"")!==false)
-				{
-					/* remove quotation marks */
-					$value = substr($value, 1, -1);
-				}
-				return $value;
-			}
-		}
-		return $ret;
-	}
+   function getValue($root, $type)
+   {
+      $ret = false;
+      foreach ($this->config as $element)
+      {
+         if ( ($element["root"] == $root) &&
+            ($element["type"] == $type) )
+         {
+            $value = $element["value"];
+            if(strpos($value, "\"")!==false)
+            {
+               /* remove quotation marks */
+               $value = substr($value, 1, -1);
+            }
+            return $value;
+         }
+      }
+      return $ret;
+   }
 
-	function getBase($db, $root)
-	{
-		$ret = array();
+   function getBase($db, $root)
+   {
+      $ret = array();
 
-		foreach($db as $el)
-		{
-			if ( $el["root"] == $root )
-			{
-				$ret[] = $el;
-			}
-		}
+      foreach($db as $el)
+      {
+         if ( $el["root"] == $root )
+         {
+            $ret[] = $el;
+         }
+      }
 
-		return $ret;
-	}
+      return $ret;
+   }
 
 
-	function getCount($root, $type)
-	{
-		$ret = 0;
+   function getCount($root, $type)
+   {
+      $ret = 0;
 
-		foreach ($this->config as $element)
-		{
-			if ( ( ($element["root"] == $root) && ($element["type"] == $type) ) ||
-				  ( ($element["root"] == $root) && ($type == "*") ) )
-			{
-				$ret++;
-			}
-		}
-
-		return $ret;
-	}
-
-	function getList($root, $type)
-	{
-		$ret = array();
-
-		foreach ($this->config as $element)
+      foreach ($this->config as $element)
       {
          if ( ( ($element["root"] == $root) && ($element["type"] == $type) ) ||
-				  ( ($element["root"] == $root) && ($type == "*") ) )
+              ( ($element["root"] == $root) && ($type == "*") ) )
+         {
+            $ret++;
+         }
+      }
+
+      return $ret;
+   }
+
+   function getList($root, $type)
+   {
+      $ret = array();
+
+      foreach ($this->config as $element)
+      {
+         if ( ( ($element["root"] == $root) && ($element["type"] == $type) ) ||
+              ( ($element["root"] == $root) && ($type == "*") ) )
          {
             $ret[] = $element["value"];
          }
       }
 
-		return $ret;
-	}
+      return $ret;
+   }
 
-	function listAll()
-	{
-		$ret = array();
+   function listAll()
+   {
+      $ret = array();
 
-		$ret = $this->listar($this->config);
+      $ret = $this->listar($this->config);
 
-		return $ret;
-	}
+      return $ret;
+   }
 
-	function foo() {}
+   function foo() {}
 
-	private function listar($dbase)
-	{
-		static $ret = array();
-		static $inst = -1;
+   private function listar($dbase)
+   {
+      static $ret = array();
+      static $inst = -1;
 
-		$inst++;
+      $inst++;
 
-		if ($inst == 0)
-		{
-			$dbase = $this->config;
-		}
+      if ($inst == 0)
+      {
+         $dbase = $this->config;
+      }
 
-		var_dump($dbase);
+      var_dump($dbase);
 
-		foreach ($dbase as $db)
-		{
-			$ret[] = $db["root"];
-			if ( $db["cont"]!=NULL)
-			{
-				$this->listar($db);
-			}
-		}
+      foreach ($dbase as $db)
+      {
+         $ret[] = $db["root"];
+         if ( $db["cont"]!=NULL)
+         {
+            $this->listar($db);
+         }
+      }
 
-		$inst--;
+      $inst--;
 
-		return $ret;
-	}
+      return $ret;
+   }
 
-	private function getListIn($root, $dbase, $level)
-	{
-		$ret = array();
+   private function getListIn($root, $dbase, $level)
+   {
+      $ret = array();
 
-		foreach ($dbase as $db)
-		{
-			$ret[] = getListIn($root,$db, $level + 1);
-		}
+      foreach ($dbase as $db)
+      {
+         $ret[] = getListIn($root,$db, $level + 1);
+      }
 
-		return $ret;
+      return $ret;
 
-	}
+   }
 
-	function exist($root, $attr)
-	{
-		$attributes = $this->getAttributes($root);
+   function exist($root, $attr)
+   {
+      $attributes = $this->getAttributes($root);
 
-		foreach ($attributes as $attribute)
-		{
-			if ($attribute == $attr)
-			{
-				return true;
-			}
-		}
+      foreach ($attributes as $attribute)
+      {
+         if ($attribute == $attr)
+         {
+            return true;
+         }
+      }
 
-		return false;
+      return false;
 
-	}
+   }
 
-	function getAttributes($root)
-	{
-		$ret = array();
+   function getAttributes($root)
+   {
+      $ret = array();
 
       foreach ($this->config as $element)
       {
@@ -242,12 +242,12 @@ class configClass {
 
       return $ret;
 
-	}
+   }
 
-	function dump()
-	{
-		var_dump($this->config);
-	}
+   function dump()
+   {
+      var_dump($this->config);
+   }
 
 }
 
