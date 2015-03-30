@@ -1,7 +1,8 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro
-# All rights reserved.
+# Copyright 2014, ACSE & CADIEEL
+#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+#    CADIEEL: http://www.cadieel.org.ar
 #
 # This file is part of CIAA Firmware.
 #
@@ -32,11 +33,4 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-LFLAGS += --specs=nosys.specs -T "externals/base/cortexM4/k60_120/linker/ciaa_mk60fx512vlq15.ld"
-
-#CPU MK60FX512VLQ15 and MK60FX512VLQ12 are almost equal. 
-#The only difference is the maximum speed.
-#KSDK porting developed for D. Baliña, includes MK60FX512VLQ12, but not MK60FX512VLQ15
-#Preliminary analysis determined that it is possible to use MK60FX512VLQ12 drivers for MK60FX512VLQ15 CPU.
-CFLAGS += -DCPU_MK60FX512VLQ12
 
