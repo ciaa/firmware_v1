@@ -1,5 +1,6 @@
 /* Copyright 2015, Mariano Cerdeiro
  * Copyright 2015, Esteban Volentini
+ * Copyright 2015, Franco J. Salinas Mendoza
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -49,11 +50,15 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * EV           Esteban Volentini
+ * FS           Franco J. Salinas Mendoza
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150327 v0.0.3 FS   bugs fixed
+ * 20150314 v0.0.2 EV   improved tests
  * 20150130 v0.0.1 MaCe Initial version
  */
 
@@ -229,16 +234,16 @@ TASK(InitTask)
    {
       buffer[0][i] = (uint8_t)i;
    }
-   /* ciaaPOSIX_seek must by called to change operation mode */
-   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
-   ASSERT_MSG(0 == ret, "Couldn't change operation mode");
+   /* rewind to write in to the previously erased block */
+   ret = ciaaPOSIX_lseek(filedes1, 0, SEEK_SET);
+   ASSERT_MSG(0 == ret, "Couldn't rewind");
    ret = ciaaPOSIX_write(filedes1, buffer[0], blockInfo.blockSize);
    ASSERT_MSG(blockInfo.blockSize == ret, "Trying to write a block failed");
 
    ASSERT_SEQ(5);
 
    /* set position to 0 */
-   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
+   ret = ciaaPOSIX_lseek(filedes1, 0, SEEK_SET);
    ASSERT(0 == ret);
 
    ASSERT_SEQ(6);
@@ -260,7 +265,7 @@ TASK(InitTask)
    ASSERT_MSG(0 == ret, "ciaaPOSIX_close devices returns error");
 
    /* Persistence test
-    * This secuence test that data writed in basic test persists  after close
+    * This sequence test that data written in basic test persists after close
     * and the reopen the device
     */
 
@@ -270,6 +275,10 @@ TASK(InitTask)
    filedes1 = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
    ASSERT_MSG(-1 < filedes1, "ciaaPOSIX_open returns an invalid handler");
 
+   /* read a block */
+   ret = ciaaPOSIX_read(filedes1, buffer[0], blockInfo.blockSize);
+   ASSERT_MSG(blockInfo.blockSize == ret, "Trying to read a block failed");
+
    /* compare write and read block */
    ret = ciaaPOSIX_memcmp(buffer[0], buffer[1], blockInfo.blockSize);
    ASSERT_MSG(0 == ret, "Previously written data can not be read");
@@ -277,7 +286,7 @@ TASK(InitTask)
    ASSERT_SEQ(10);
 
    /* set position to 0 */
-   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
+   ret = ciaaPOSIX_lseek(filedes1, 0, SEEK_SET);
    ASSERT(0 == ret);
 
    /* erase block */
@@ -306,24 +315,34 @@ TASK(InitTask)
 
 
    /* Seek test
-    * This secuence verifie that the internal pointer moves after read, write
+    * This sequence verifies that the internal pointer moves after read, write
     * and seek operations
     */
 
    ASSERT_SEQ(12);
 
+   /* seek to erase the second block */
+   ret = ciaaPOSIX_lseek(filedes1, blockInfo.blockSize, SEEK_SET);
+   ASSERT_MSG(blockInfo.blockSize == ret, "Seek failed");
+
+   /* erase the second block */
+   ret = ciaaPOSIX_ioctl(filedes1, ciaaPOSIX_IOCTL_BLOCK_ERASE, NULL);
+   ASSERT_MSG(-1 != ret, "Trying to erase a block failed");
+
+   /* rewind */
+   ret = ciaaPOSIX_lseek(filedes1, 0, SEEK_SET);
+   ASSERT_MSG(0 == ret, "Seek failed");
+
    /* write a block with 0xA5 and the next with 0x5A */
    ciaaPOSIX_memset(buffer[0], 0xA5, sizeof(buffer[0]));
    ciaaPOSIX_memset(buffer[1], 0x5A, sizeof(buffer[1]));
-   /* ciaaPOSIX_seek must be called to change operation mode */
-   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
-   ASSERT_MSG(0 == ret, "Couldn't change operation mode");
+
    ret = ciaaPOSIX_write(filedes1, buffer[0], blockInfo.blockSize * 2);
    ASSERT_MSG(ret == blockInfo.blockSize * 2, "Wrong count of bytes have been written");
 
    ASSERT_SEQ(13);
    /* set position to 0 */
-   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
+   ret = ciaaPOSIX_lseek(filedes1, 0, SEEK_SET);
    ASSERT(0 == ret);
 
    /* read 2 blocks and compare */
@@ -335,7 +354,7 @@ TASK(InitTask)
    ASSERT_SEQ(14);
 
    /* set position to 0 */
-   ret = ciaaPOSIX_seek(filedes1, 0, SEEK_SET);
+   ret = ciaaPOSIX_lseek(filedes1, 0, SEEK_SET);
    ASSERT(0 == ret);
 
    ASSERT_SEQ(15);
@@ -355,16 +374,12 @@ TASK(InitTask)
    ASSERT_SEQ(16);
 
    /* set position to blockSize */
-   ret = ciaaPOSIX_seek(filedes1, blockInfo.blockSize, SEEK_SET);
-   ASSERT(0 == ret);
+   ret = ciaaPOSIX_lseek(filedes1, blockInfo.blockSize, SEEK_SET);
+   ASSERT_MSG(blockInfo.blockSize == ret, "Seek failed");
 
    ret = ciaaPOSIX_read(filedes1, buffer[2], blockInfo.blockSize);
    ASSERT_MSG(ret == blockInfo.blockSize, "Wrong count of bytes have been read");
    ASSERT_MSG(0 == ciaaPOSIX_memcmp(buffer[1], buffer[2], blockInfo.blockSize), "Second block read error after seek");
-
-   /* set position to 0 */
-   ret = ciaaPOSIX_seek(filedes1, blockInfo.blockSize, SEEK_SET);
-   ASSERT(0 == ret);
 
    /* close the device */
    ret = ciaaPOSIX_close(filedes1);

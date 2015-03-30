@@ -63,6 +63,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150328 v0.0.3 FS   renamed seek to lseek
  * 20150201 v0.0.2 MaCe add seek function
  * 20141006 v0.0.1 EV   first initial version
  */
@@ -151,7 +152,7 @@ extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device
                            (offset shall be negative)
  ** \return     0 if success and -1 in other case
  **/
-extern int32_t ciaaDriverFlash_seek(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence);
+extern off_t ciaaDriverFlash_lseek(ciaaDevices_deviceType const * const device, off_t const offset, uint8_t const whence);
 
 /** \brief initialize the flash deriver
  **

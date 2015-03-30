@@ -162,7 +162,7 @@ extern void ciaaBlockDevices_addDriver(ciaaDevices_deviceType * driver)
       newDevice->ioctl = ciaaBlockDevices_ioctl;
       newDevice->read = ciaaBlockDevices_read;
       newDevice->write = ciaaBlockDevices_write;
-      newDevice->seek = ciaaBlockDevices_seek;
+      newDevice->lseek = ciaaBlockDevices_lseek;
 
       /* store layers information information */
       newDevice->layer = (void *) &ciaaBlockDevices.devstr[position];
@@ -220,12 +220,12 @@ extern int32_t ciaaBlockDevices_close(ciaaDevices_deviceType const * const devic
    return blockDevice->device->close((ciaaDevices_deviceType *)device->loLayer);
 }
 
-extern int32_t ciaaBlockDevices_seek(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence)
+extern off_t ciaaBlockDevices_lseek(ciaaDevices_deviceType const * const device, off_t const offset, uint8_t const whence)
 {
    ciaaBlockDevices_deviceType * blockDevice = 
       (ciaaBlockDevices_deviceType *) device->layer;
 
-   return blockDevice->device->seek((ciaaDevices_deviceType *)device->loLayer, offset, whence);
+   return blockDevice->device->lseek((ciaaDevices_deviceType *)device->loLayer, offset, whence);
 }
 
 extern int32_t ciaaBlockDevices_ioctl(ciaaDevices_deviceType const * const device, int32_t request, void* param)

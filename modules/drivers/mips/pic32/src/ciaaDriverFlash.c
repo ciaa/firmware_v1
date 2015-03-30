@@ -1,7 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, 2015, Mariano Cerdeiro
+/* Copyright 2015, ...
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,74 +31,57 @@
  *
  */
 
-#ifndef CIAAPOSIX_STDDEF_H
-#define CIAAPOSIX_STDDEF_H
-/** \brief Short description of this file
+/** \brief CIAA Flash Driver for PIC32
  **
- ** Long description of this file
+ ** Implements the Flash Driver for PIC32
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup Flash Flash Drivers
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140910 v0.0.1 MaCe add support for k60_120
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaPlatforms.h"
+#include "ciaaDriverUart.h"
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stdio.h"
+#include "os.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-#if (x86 == ARCH)
-#include "stddef.h"
-#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) )
-#include "stddef.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "stdint.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
-/*==================[macros]=================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[typedef]================================================*/
-/*@ -warnposixheaders @*/
-#if ( (x86 == ARCH) || (cortexM4 == ARCH) )
-#include "sys/types.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "sys/types.h"
-#if 0
-#include "stddef.h"
-#endif
-#endif
-/*@ =warnposixheaders @*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal data definition]===============================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[external data definition]===============================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+void ciaaDriverFlash_init(void)
+{
+
 }
-#endif
+
+/*==================[interrupt handlers]=====================================*/
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_STDDEF_H */
 
