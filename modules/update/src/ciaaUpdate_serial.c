@@ -60,37 +60,39 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_assert.h"
+#include "ciaaPOSIX_stdio.h"
 #include "ciaaUpdate_transport.h"
 
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
+
+/*==================[internal functions declaration]=========================*/
+int32_t ciaaUpdate_serialSend(const void *data, size_t size);
+int32_t ciaaUpdate_serialRecv(void *data, size_t size);
+/*==================[internal data definition]===============================*/
 static ciaaUpdate_transportType ciaaUpdate_serial_transport = {
    ciaaUpdate_serialRecv,
    ciaaUpdate_serialSend
-}
+};
 
 static int32_t ciaaUpdate_serial_fd = -1;
-
-/*==================[internal functions declaration]=========================*/
-int32_t ciaaUpdate_serialSend(const void *data, size_t size)
-{
-   ciaaPOSIX_assert(-1 != ciaaUpdate_serial_fd);
-
-   return ciaaPOSIX_write(ciaaUpdate_serial_fd, data, size);
-}
-int32_t ciaaUpdate_serialRecv(const void *data, size_t)
-{
-   ciaaPOSIX_assert(-1 != ciaaUpdate_serial_fd);
-
-   return ciaaPOSIX_write(ciaaUpdate_serial_fd, data, size);
-}
-/*==================[internal data definition]===============================*/
-
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+ssize_t ciaaUpdate_serialSend(const void *data, size_t size)
+{
+   ciaaPOSIX_assert(-1 != ciaaUpdate_serial_fd);
 
+   return ciaaPOSIX_write(ciaaUpdate_serial_fd, data, size);
+}
+ssize_t ciaaUpdate_serialRecv(void *data, size_t size)
+{
+   ciaaPOSIX_assert(-1 != ciaaUpdate_serial_fd);
+
+   return ciaaPOSIX_read(ciaaUpdate_serial_fd, data, size);
+}
 /*==================[external functions definition]==========================*/
 ciaaUpdate_transportType* ciaaUpdate_serialInit(int32_t fd)
 {

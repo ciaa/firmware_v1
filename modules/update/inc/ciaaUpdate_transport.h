@@ -63,7 +63,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-
+#include "ciaaPOSIX_stddef.h"
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -72,8 +72,8 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-typedef size_t (*ciaaUpdate_transportRecv)(const void* data, size_t size);
-typedef size_t (*ciaaUpdate_transportSend)(const void* data, size_t size);
+typedef ssize_t (*ciaaUpdate_transportRecv)(void* data, size_t size);
+typedef ssize_t (*ciaaUpdate_transportSend)(const void* data, size_t size);
 
 
 typedef struct

@@ -33,9 +33,12 @@
  *
  */
 
-/** \brief This file implements the Flash Update Services funcionality
+#ifndef _CIAAUPDATE_SERVICES_H_
+#define _CIAAUPDATE_SERVICES_H_
+/** \brief Flash Update Services Header File
  **
- ** This file implements the funcionality of the Flash Update Services
+ ** This files shall be included by moodules using the interfaces provided by
+ ** the Flash Update Services
  **
  **/
 
@@ -60,56 +63,28 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_services.h"
-#include "ciaaUpdate_protocol.h"
+#include "ciaaPOSIX_stdlib.h"
 #include "ciaaUpdate_transport.h"
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
+#define CIAAUPDATE_SERVICES_ERROR_NONE       0
+/*==================[typedef]================================================*/
 
-/*==================[internal data declaration]==============================*/
+/*==================[external data declaration]==============================*/
 
-/** \brief flash file descriptor */
-static int32_t ciaaUpdate_services_flash_fd = -1;
-
-/*==================[internal functions declaration]=========================*/
-
-/*==================[internal data definition]===============================*/
-
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-static ssize_t ciaaUpdate_servicesStore(const void *data, size_t size, uint32_t address)
-{
-   int32_t ret;
-   ciaaPOSIX_assert(-1 != ciaaUpdate_services_flash_fd);
-
-   ret = ciaaPOSIX_lseek(ciaaUpdate_services_flash_fd, address, SEEK_SET);
-   ciaaPOSIX_assert(address == ret);
-
-   ret = ciaaPOSIX_write(ciaaUpdate_services_flash_fd, data, size);
-   ciaaPOSIX_assert(size == ret);
-
-   return ret;
+/*==================[external functions declaration]=========================*/
+/** \brief starts update services */
+int32_t ciaaUpdate_servicesStart(ciaaUpdate_transportType *transport, int32_t flash_fd);
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-/*==================[external functions definition]==========================*/
-int32_t ciaaUpdate_servicesStart(
-   ciaaUpdate_transportType *transport
-)
-{
-   int32_t ret;
-   int32_t error;
-
-   ciaaUpdate_services_flash_fd = ciaaPOSIX_open("fd/0", O_RDWR);
-   ciaaPOSIX_assert(-1 != ciaaUpdate_services_flash_fd);
-
-   error = ciaaUpdate_protocolRecv(transport, ciaaUpdate_servicesStore);
-
-   ciaaPOSIX_close(ciaaUpdate_services_flash_fd);
-   ciaaPOSIX_assert(0 == ret);
-
-   ciaaUpdate_services_flash_fd = -1;
-   return error;
-}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CIAAUPDATE_SERVICES_H_ */
+

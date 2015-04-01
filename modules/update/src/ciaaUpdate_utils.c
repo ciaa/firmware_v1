@@ -73,7 +73,7 @@
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-uint32_t ciaaUpdate_utilsMin(uint32_t a, uint32_t b)
+int32_t ciaaUpdate_utilsMin(int32_t a, int32_t b)
 {
    return (a < b) ? a : b;
 }

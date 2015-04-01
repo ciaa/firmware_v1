@@ -85,6 +85,7 @@
  * Device path /dev/serial/uart/1
  */
 static int32_t fd_uart1;
+static int32_t fd_flash;
 
 /** \brief Periodic Task Counter
  *
@@ -152,10 +153,11 @@ TASK(InitTask)
    /* init CIAA kernel and devices */
    ciaak_start();
 
-   ciaaPOSIX_printf("Init Task...\n"););
+   ciaaPOSIX_printf("Init Task...\n");
 
    /* open UART connected to USB bridge (FT2232) */
    fd_uart1 = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+   fd_flash = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
 
    //input_file = fopen("input.bin", "rb");
    /* change baud rate for uart usb */
@@ -168,8 +170,8 @@ TASK(InitTask)
    Periodic_Task_Counter = 0;
    SetRelAlarm(ActivatePeriodicTask, 200, 200);
 
-   /* Activates the SerialEchoTask task */
-   ActivateTask(SerialEchoTask);
+   /* Activates the BootloaderTask task */
+   ActivateTask(BootloaderTask);
 
    /* end InitTask */
    TerminateTask();
@@ -184,16 +186,16 @@ TASK(InitTask)
 
 
 
-TASK(SerialEchoTask)
+TASK(BootloaderTask)
 {
    int32_t error;
    ciaaUpdate_transportType* transport;
 
-   ciaaPOSIX_printf("SerialEchoTask...\n");
+   ciaaPOSIX_printf("BootloaderTask...\n");
 
    transport = ciaaUpdate_serialInit(fd_uart1);
 
-   error = ciaaUpdate_servicesStart(transport);
+   error = ciaaUpdate_servicesStart(transport, fd_flash);
    switch(error)
    {
       case CIAAUPDATE_SERVICES_ERROR_NONE:

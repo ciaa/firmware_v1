@@ -72,6 +72,15 @@ OSEK OSEK {
       RESOURCE = POSIXR;
       EVENT = POSIXE;
    }
+   TASK BootloaderTask {
+      PRIORITY = 5;
+      ACTIVATION = 1;
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = FULL;
+      EVENT = POSIXE;
+      RESOURCE = POSIXR;
+   }
 
    TASK PeriodicTask {
       PRIORITY = 2;

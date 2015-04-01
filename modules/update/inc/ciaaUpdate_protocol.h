@@ -33,12 +33,12 @@
  *
  */
 
-#ifndef _CIAAUPDATE_SERVICES_H_
-#define _CIAAUPDATE_SERVICES_H_
-/** \brief Flash Update Services Header File
+#ifndef _CIAAUPDATE_PROTOCOL_H_
+#define _CIAAUPDATE_PROTOCOL_H_
+/** \brief Flash Update Protocol Header File
  **
  ** This files shall be included by moodules using the interfaces provided by
- ** the Flash Update Services
+ ** the Flash Update Protocol
  **
  **/
 
@@ -63,6 +63,8 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaUpdate_transport.h"
+#include "ciaaUpdate_utils.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -70,14 +72,30 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#define CIAAUPDATE_SERVICES_ERROR_NONE       0
-/*==================[typedef]================================================*/
 
+#define CIAAUPDATE_PROTOCOL_ERROR_NONE                0
+#define CIAAUPDATE_PROTOCOL_ERROR_UNKNOWN_VERSION     1
+#define CIAAUPDATE_PROTOCOL_ERROR_UNEXPECTED_PACKET   2
+/*==================[typedef]================================================*/
+/** \brief Stores the data received at the specified address.
+ ** \param data Data to be written.
+ ** \param size Number of bytes to write.
+ ** \param address Address to write at.
+ ** \return On success the number of bytes written. If this number differs
+ ** from the size parameter an error occurred.
+ **/
+typedef ssize_t (*ciaaUpdate_protocolStoreCallback) (const void *data, size_t size, uint32_t address);
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief starts update services */
-int32_t ciaaUpdate_servicesStart(ciaaUpdate_transportType *transport);
+/** \brief Performs all protocol operations to receive a binary image through
+ ** the specified transport type and stores it using the provided function **
+ ** \param transport Transport layer descriptor.
+ ** \param store_cb Callback function to store data at a specific address.
+ **/
+int32_t ciaaUpdate_protocolRecv(
+   ciaaUpdate_transportType* transport,
+   ciaaUpdate_protocolStoreCallback store_cb);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -85,5 +103,5 @@ int32_t ciaaUpdate_servicesStart(ciaaUpdate_transportType *transport);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_SERVICES_H_ */
+#endif /* #ifndef _CIAAUPDATE_PROTOCOL_H_ */
 

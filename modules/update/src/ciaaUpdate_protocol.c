@@ -60,6 +60,7 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_assert.h"
 #include "ciaaUpdate_protocol.h"
 #include "ciaaUpdate_transport.h"
 #include "ciaaUpdate_crypto.h"
@@ -68,12 +69,13 @@
 /*==================[macros and definitions]=================================*/
 #define CIAAUPDATE_PROTOCOL_HEADER_SIZE         4
 #define CIAAUPDATE_PROTOCOL_PAYLOAD_MAX_SIZE    248
-
+#define CIAAUPDATE_PROTOCOL_VERSION             0
 
 /* packet types */
 #define CIAAUPDATE_PROTOCOL_DATA_PACKET         2
 /*==================[internal data declaration]==============================*/
-
+static ciaaUpdate_transportType *ciaaUpdate_protocol_transport = NULL;
+static ciaaUpdate_protocolStoreCallback ciaaUpdate_protocol_store_cb = NULL;
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
@@ -82,29 +84,32 @@
 
 /*==================[internal functions definition]==========================*/
 
-int8_t ciaaUpdate_protocolHeaderVersion(const uint8_t *header)
+static int8_t ciaaUpdate_protocolHeaderVersion(const uint8_t *header)
 {
    ciaaPOSIX_assert(NULL != header);
    return (header[0] & 0x0F);
 }
-int8_t ciaaUpdate_protocolPacketType(const uint8_t *header)
+static int8_t ciaaUpdate_protocolPacketType(const uint8_t *header)
 {
    ciaaPOSIX_assert(NULL != header);
    return (header[0] >> 4) & 0x0F;
 }
-uint16_t ciaaUpdate_protocolPayloadSize(const uint8_t *header)
+static uint16_t ciaaUpdate_protocolPayloadSize(const uint8_t *header)
 {
    ciaaPOSIX_assert(NULL != header);
    return  (uint16_t) header[3] << 3;
 }
-int32_t ciaaUpdate_protocolRecvHeader(const uint8_t *header)
+static int32_t ciaaUpdate_protocolRecvHeader(uint8_t *header)
 {
-   int bytes_read = 0;
+   size_t bytes_read = 0;
+   ssize_t ret;
 
    /* read the whole header */
    while(bytes_read < CIAAUPDATE_PROTOCOL_HEADER_SIZE)
    {
-      bytes_read += ciaaUpdate_protocol_transport->recv(header + bytes_read, CIAAUPDATE_PROTOCOL_HEADER_SIZE - bytes_read);
+      ret = ciaaUpdate_protocol_transport->recv(header + bytes_read, CIAAUPDATE_PROTOCOL_HEADER_SIZE - bytes_read);
+      ciaaPOSIX_assert(-1 != ret);
+      bytes_read += ret;
    }
 
    /* if the version is unknown */
@@ -118,7 +123,7 @@ int32_t ciaaUpdate_protocolRecvHeader(const uint8_t *header)
 
    return CIAAUPDATE_PROTOCOL_ERROR_NONE;
 }
-int32_t ciaaUpdate_protocolHandleDataPayload(
+static int32_t ciaaUpdate_protocolHandleDataPayload(
    /* pointer to the payload contents */
    const uint8_t *payload_data,
    /* payload size */
@@ -191,8 +196,9 @@ int32_t ciaaUpdate_protocolHandleDataPayload(
    }
    return CIAAUPDATE_PROTOCOL_ERROR_NONE;
 }
-int32_t ciaaUpdate_protocolRecvData(size_t payload_size)
+static int32_t ciaaUpdate_protocolRecvData(size_t payload_size)
 {
+   ssize_t ret;
    size_t bytes_read = 0;
    uint8_t payload_buffer[CIAAUPDATE_PROTOCOL_PAYLOAD_MAX_SIZE];
 
@@ -205,7 +211,10 @@ int32_t ciaaUpdate_protocolRecvData(size_t payload_size)
    /* read the whole payload */
    while(bytes_read < payload_size)
    {
-      bytes_read += ciaaUpdate_protocol_transport->recv(payload_buffer + bytes_read, payload_size - bytes_read);
+      ret = ciaaUpdate_protocol_transport->recv(payload_buffer + bytes_read, payload_size - bytes_read);
+      ciaaPOSIX_assert(-1 != ret);
+
+      bytes_read += ret;
    }
 
    /* todo: decrypt */
@@ -221,6 +230,7 @@ int32_t ciaaUpdate_protocolRecv(
 {
    /* holds return values */
    int32_t ret;
+   uint16_t payload_size;
    /* packet header */
    uint8_t header[CIAAUPDATE_PROTOCOL_HEADER_SIZE];
 
@@ -245,7 +255,7 @@ int32_t ciaaUpdate_protocolRecv(
 
       if(CIAAUPDATE_PROTOCOL_DATA_PACKET != ciaaUpdate_protocolPacketType(header))
       {
-         return CIAAUPDATE_PROTOCOL_UNEXPECTED_PACKET;
+         return CIAAUPDATE_PROTOCOL_ERROR_UNEXPECTED_PACKET;
       }
 
       payload_size = ciaaUpdate_protocolPayloadSize(header);
