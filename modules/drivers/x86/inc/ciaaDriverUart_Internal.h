@@ -75,9 +75,9 @@ extern "C" {
 /* Define host port to use a serial port 1 */
 //#define CIAADRVUART_PORT_SERIAL_1 "/dev/cu.usbserial"
 /* Define TCP PORT for lisening socket emulation serial port 0 */
-//#define CIAADRVUART_TCP_PORT_0  2000
+#define CIAADRVUART_TCP_PORT_0  2000
 /* Define TCP PORT for lisening socket emulation serial port 1 */
-//#define CIAADRVUART_TCP_PORT_1 2001
+#define CIAADRVUART_TCP_PORT_1 2001
 
 /** Enable uart transmition via host interfaces */
 #if defined(CIAADRVUART_PORT_SERIAL_0) || defined(CIAADRVUART_PORT_SERIAL_1)

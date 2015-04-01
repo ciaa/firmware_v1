@@ -60,10 +60,18 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_Protocol.h"
+#include "ciaaUpdate_protocol.h"
+#include "ciaaUpdate_transport.h"
+#include "ciaaUpdate_crypto.h"
+#include "ciaaUpdate_utils.h"
 
 /*==================[macros and definitions]=================================*/
+#define CIAAUPDATE_PROTOCOL_HEADER_SIZE         4
+#define CIAAUPDATE_PROTOCOL_PAYLOAD_MAX_SIZE    248
 
+
+/* packet types */
+#define CIAAUPDATE_PROTOCOL_DATA_PACKET         2
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -74,8 +82,191 @@
 
 /*==================[internal functions definition]==========================*/
 
+int8_t ciaaUpdate_protocolHeaderVersion(const uint8_t *header)
+{
+   ciaaPOSIX_assert(NULL != header);
+   return (header[0] & 0x0F);
+}
+int8_t ciaaUpdate_protocolPacketType(const uint8_t *header)
+{
+   ciaaPOSIX_assert(NULL != header);
+   return (header[0] >> 4) & 0x0F;
+}
+uint16_t ciaaUpdate_protocolPayloadSize(const uint8_t *header)
+{
+   ciaaPOSIX_assert(NULL != header);
+   return  (uint16_t) header[3] << 3;
+}
+int32_t ciaaUpdate_protocolRecvHeader(const uint8_t *header)
+{
+   int bytes_read = 0;
+
+   /* read the whole header */
+   while(bytes_read < CIAAUPDATE_PROTOCOL_HEADER_SIZE)
+   {
+      bytes_read += ciaaUpdate_protocol_transport->recv(header + bytes_read, CIAAUPDATE_PROTOCOL_HEADER_SIZE - bytes_read);
+   }
+
+   /* if the version is unknown */
+   if(CIAAUPDATE_PROTOCOL_VERSION < ciaaUpdate_protocolHeaderVersion(header))
+   {
+      /* error */
+      return CIAAUPDATE_PROTOCOL_ERROR_UNKNOWN_VERSION;
+   }
+
+   /* todo: sequence number checking */
+
+   return CIAAUPDATE_PROTOCOL_ERROR_NONE;
+}
+int32_t ciaaUpdate_protocolHandleDataPayload(
+   /* pointer to the payload contents */
+   const uint8_t *payload_data,
+   /* payload size */
+   size_t payload_size
+)
+{
+   /* unreceived bytes in the current segment. */
+   static uint32_t segment_remaining_bytes = 0;
+   /* current destination address */
+   static uint32_t segment_destination_address = 0;
+   /* unparsed bytes in the current payload */
+   int32_t payload_remaining_bytes;
+   /* number of bytes to be written */
+   int32_t write_size;
+   /* holds return values */
+   int32_t ret;
+
+   /* reset static variables */
+   if(NULL == payload_data)
+   {
+      segment_remaining_bytes = 0;
+      segment_destination_address = 0;
+      return CIAAUPDATE_PROTOCOL_ERROR_NONE;
+   }
+
+   /* the payload is completely unparsed */
+   payload_remaining_bytes = payload_size;
+
+   /* while there are still bytes to parse */
+   while(payload_remaining_bytes > 0)
+   {
+      /* if the current segment is completely parsed or this is the start of
+       * the first segment */
+      if(segment_remaining_bytes == 0)
+      {
+         /* read the starting address from the first 4 bytes of the buffer */
+         segment_destination_address = ciaaUpdate_utilsNtohl(*((uint32_t*) payload_data));
+         /* increment payload pointer */
+         payload_data += sizeof(uint32_t);
+         /* update the unparsed bytes count */
+         payload_remaining_bytes -= sizeof(uint32_t);
+
+         /* read the segment size from the second 4 bytes of the buffer */
+         segment_remaining_bytes = ciaaUpdate_utilsNtohl(*((uint32_t*) payload_data));
+         /* increment payload pointer */
+         payload_data += sizeof(uint32_t);
+         /* update the unparsed bytes count */
+         payload_remaining_bytes -= sizeof(uint32_t);
+      }
+      else
+      {
+         /* there is pending bytes from the current segment */
+
+         /* calculate the amount of data to be written */
+         write_size = ciaaUpdate_utilsMin(segment_remaining_bytes, payload_remaining_bytes);
+
+         /* call the store function */
+         ret = ciaaUpdate_protocol_store_cb(payload_data, write_size, segment_destination_address);
+         ciaaPOSIX_assert(ret == write_size);
+
+         /* update payload pointer */
+         payload_data += write_size;
+         /* update destination address */
+         segment_destination_address += write_size;
+         /* update the unparsed payload bytes count */
+         payload_remaining_bytes -= write_size;
+         /* update the unreceived segment bytes count */
+         segment_remaining_bytes -= write_size;
+      }
+   }
+   return CIAAUPDATE_PROTOCOL_ERROR_NONE;
+}
+int32_t ciaaUpdate_protocolRecvData(size_t payload_size)
+{
+   size_t bytes_read = 0;
+   uint8_t payload_buffer[CIAAUPDATE_PROTOCOL_PAYLOAD_MAX_SIZE];
+
+   /* reset function state */
+   if(0 == payload_size)
+   {
+      return ciaaUpdate_protocolHandleDataPayload(NULL, 0);
+   }
+
+   /* read the whole payload */
+   while(bytes_read < payload_size)
+   {
+      bytes_read += ciaaUpdate_protocol_transport->recv(payload_buffer + bytes_read, payload_size - bytes_read);
+   }
+
+   /* todo: decrypt */
+
+   /* parse and store the payload contents */
+   return ciaaUpdate_protocolHandleDataPayload(payload_buffer, payload_size);
+}
 /*==================[external functions definition]==========================*/
 
+int32_t ciaaUpdate_protocolRecv(
+   ciaaUpdate_transportType* transport,
+   ciaaUpdate_protocolStoreCallback store_cb)
+{
+   /* holds return values */
+   int32_t ret;
+   /* packet header */
+   uint8_t header[CIAAUPDATE_PROTOCOL_HEADER_SIZE];
+
+   /* initialize global variables */
+   ciaaUpdate_protocol_transport = transport;
+   ciaaUpdate_protocol_store_cb = store_cb;
+
+
+   /* todo: receive client identification */
+
+
+   /* receive client data packets */
+
+   /* reset data packet handler state */
+   ciaaUpdate_protocolRecvData(0);
+
+   while(1)
+   {
+      ret = ciaaUpdate_protocolRecvHeader(header);
+      if(CIAAUPDATE_PROTOCOL_ERROR_NONE != ret)
+         return ret;
+
+      if(CIAAUPDATE_PROTOCOL_DATA_PACKET != ciaaUpdate_protocolPacketType(header))
+      {
+         return CIAAUPDATE_PROTOCOL_UNEXPECTED_PACKET;
+      }
+
+      payload_size = ciaaUpdate_protocolPayloadSize(header);
+      /* if the payload size */
+      if(0 == payload_size)
+      {
+         /* then we received the last data packet and the transmission is over */
+         break;
+      }
+      /* else */
+
+      /* receive a data packet and store its contents */
+      ret = ciaaUpdate_protocolRecvData(payload_size);
+      if(CIAAUPDATE_PROTOCOL_ERROR_NONE != ret)
+         return ret;
+   }
+
+   /* todo: receive and verify signature if necessary */
+
+   return CIAAUPDATE_PROTOCOL_ERROR_NONE;
+}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

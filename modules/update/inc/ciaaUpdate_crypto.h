@@ -33,12 +33,12 @@
  *
  */
 
-#ifndef _CIAAUPDATE_PROTOCOL_H_
-#define _CIAAUPDATE_PROTOCOL_H_
-/** \brief Flash Update Protocol Header File
+#ifndef _CIAAUPDATE_CRYPTO_H_
+#define _CIAAUPDATE_CRYPTO_H_
+/** \brief Flash Update Encription Header File
  **
- ** This files shall be included by moodules using the interfaces provided by
- ** the Flash Update Protocol
+ ** This files shall be included by modules using the interfaces provided by
+ ** the Flash Update Encription
  **
  **/
 
@@ -63,8 +63,6 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_transport.h"
-#include "ciaaUpdate_utils.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -73,28 +71,12 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 
-#define CIAAUPDATE_PROTOCOL_ERROR_NONE             0
-#define CIAAUPDATE_PROTOCOL_ERROR_UNKNOWN_VERSION  1
 /*==================[typedef]================================================*/
-/** \brief Stores the data received at the specified address.
- ** \param data Data to be written.
- ** \param size Number of bytes to write.
- ** \param address Address to write at.
- ** \return On success the number of bytes written. If this number differs
- ** from the size parameter an error occurred.
- **/
-typedef ssize_t (*ciaaUpdate_protocolStoreCallback) (const void *data, size_t size, uint32_t address);
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Performs all protocol operations to receive a binary image through
- ** the specified transport type and stores it using the provided function **
- ** \param transport Transport layer descriptor.
- ** \param store_cb Callback function to store data at a specific address.
- **/
-int32_t ciaaUpdate_protocolRecv(
-   ciaaUpdate_transportType* transport,
-   ciaaUpdate_protocolStoreCallback store_cb);
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -102,5 +84,5 @@ int32_t ciaaUpdate_protocolRecv(
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_PROTOCOL_H_ */
+#endif /* #ifndef _CIAAUPDATE_CRYPTO_H_ */
 

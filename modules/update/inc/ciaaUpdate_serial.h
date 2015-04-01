@@ -33,12 +33,12 @@
  *
  */
 
-#ifndef _CIAAUPDATE_ENCRIPTION_H_
-#define _CIAAUPDATE_ENCRIPTION_H_
-/** \brief Flash Update Encription Header File
+#ifndef _CIAAUPDATE_SERIAL_H_
+#define _CIAAUPDATE_SERIAL_H_
+/** \brief Flash Update Protocol Header File
  **
- ** This files shall be included by moodules using the interfaces provided by
- ** the Flash Update Encription
+ ** This files shall be included by modules using the interfaces provided by
+ ** the Flash Update Protocol
  **
  **/
 
@@ -63,7 +63,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-
+#include "ciaaUpdate_transport.h"
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -76,7 +76,9 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-
+/** \brief initializes the serial transport layer
+ **/
+ciaaUpdate_transportType* ciaaUpdate_serialInit(int32_t fd);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -84,5 +86,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_ENCRIPTION_H_ */
+#endif /* #ifndef _CIAAUPDATE_SERIAL_H_ */
 

@@ -70,13 +70,14 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-
+#define CIAAUPDATE_SERVICES_ERROR_NONE       0
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-
+/** \brief starts update services */
+int32_t ciaaUpdate_servicesStart(ciaaUpdate_transportType *transport);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }

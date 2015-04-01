@@ -33,9 +33,9 @@
  *
  */
 
-/** \brief This file implements the Flash Update Encription funcionality
+/** \brief This file implements the Flash Update Protocol funcionality
  **
- ** This file implements the funcionality of the Flash Update Encription
+ ** This file implements the funcionality of the Flash Update Protocol
  **
  **/
 
@@ -60,14 +60,31 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_Encription.h"
+#include "ciaaUpdate_transport.h"
 
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
+static ciaaUpdate_transportType ciaaUpdate_serial_transport = {
+   ciaaUpdate_serialRecv,
+   ciaaUpdate_serialSend
+}
+
+static int32_t ciaaUpdate_serial_fd = -1;
 
 /*==================[internal functions declaration]=========================*/
+int32_t ciaaUpdate_serialSend(const void *data, size_t size)
+{
+   ciaaPOSIX_assert(-1 != ciaaUpdate_serial_fd);
 
+   return ciaaPOSIX_write(ciaaUpdate_serial_fd, data, size);
+}
+int32_t ciaaUpdate_serialRecv(const void *data, size_t)
+{
+   ciaaPOSIX_assert(-1 != ciaaUpdate_serial_fd);
+
+   return ciaaPOSIX_write(ciaaUpdate_serial_fd, data, size);
+}
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
@@ -75,6 +92,13 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+ciaaUpdate_transportType* ciaaUpdate_serialInit(int32_t fd)
+{
+   ciaaPOSIX_assert(fd >= 0);
+
+   ciaaUpdate_serial_fd = fd;
+   return &ciaaUpdate_serial_transport;
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

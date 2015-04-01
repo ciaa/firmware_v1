@@ -1,7 +1,7 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
+ * Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,74 +33,46 @@
  *
  */
 
-#ifndef _CIAAUPDATE_PROTOCOL_H_
-#define _CIAAUPDATE_PROTOCOL_H_
-/** \brief Flash Update Protocol Header File
+#ifndef _BOOTLOADER_H_
+#define _BOOTLOADER_H_
+/** \brief Bootloader example header file
  **
- ** This files shall be included by moodules using the interfaces provided by
- ** the Flash Update Protocol
+ ** This is a mini example of the CIAA Firmware
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Service
+/** \addtogroup Examples CIAA Firmware Examples
+ ** @{ */
+/** \addtogroup Bootloader Bootloader example header file
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141010 v0.0.1  EV  first initial version
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_transport.h"
-#include "ciaaUpdate_utils.h"
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*==================[macros]=================================================*/
 
-#define CIAAUPDATE_PROTOCOL_ERROR_NONE             0
-#define CIAAUPDATE_PROTOCOL_ERROR_UNKNOWN_VERSION  1
 /*==================[typedef]================================================*/
-/** \brief Stores the data received at the specified address.
- ** \param data Data to be written.
- ** \param size Number of bytes to write.
- ** \param address Address to write at.
- ** \return On success the number of bytes written. If this number differs
- ** from the size parameter an error occurred.
- **/
-typedef ssize_t (*ciaaUpdate_protocolStoreCallback) (const void *data, size_t size, uint32_t address);
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Performs all protocol operations to receive a binary image through
- ** the specified transport type and stores it using the provided function **
- ** \param transport Transport layer descriptor.
- ** \param store_cb Callback function to store data at a specific address.
- **/
-int32_t ciaaUpdate_protocolRecv(
-   ciaaUpdate_transportType* transport,
-   ciaaUpdate_protocolStoreCallback store_cb);
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_PROTOCOL_H_ */
+#endif /* #ifndef _BOOTLOADER_H_ */
 
