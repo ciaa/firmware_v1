@@ -1,6 +1,8 @@
 /* Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * Copyright 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -54,6 +56,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150402 v0.0.2 MaCe add suport for devices groups
  * 20140422 v0.0.1 MaCe rework initial file
  */
 
@@ -81,7 +84,11 @@ extern "C" {
 /*@=namechecks@*/
 
 /*==================[typedef]================================================*/
+/** \brief Device Type */
 typedef struct ciaaDevices_deviceStruct ciaaDevices_deviceType;
+
+/** \brief Device Group Type */
+typedef struct ciaaDevices_deviceGroupStruct ciaaDevices_deviceGroupType;
 
 /** \brief open a device
  **
@@ -115,7 +122,7 @@ typedef ssize_t (*ciaaDevices_write)(ciaaDevices_deviceType const * const device
 /** \brief lseek function type */
 typedef off_t (*ciaaDevices_lseek)(ciaaDevices_deviceType const * const device, off_t const offset, uint8_t const whence);
 
-/** \brief Device Type */
+/** \brief Device Struct */
 struct ciaaDevices_deviceStruct {
    char const * path;            /** <- device path, eg. /dev/serlia/UART1 */
    ciaaDevices_open open;        /** <- pointer to open function */
@@ -129,6 +136,23 @@ struct ciaaDevices_deviceStruct {
    void * layer;                 /** <- pointer ot be used by the layer */
    void * loLayer;               /** <- pointer to be provided to the lower
                                         layer */
+};
+
+/** \brief Device Group Struct */
+struct ciaaDevices_deviceGroupStruct {
+   char const * path;            /** <- device path, eg. /dev/serlia/UART1 */
+   ciaaDevices_open open;        /** <- pointer to open function */
+   ciaaDevices_close close;      /** <- pointer to close function */
+   ciaaDevices_read read;        /** <- pointer to read function */
+   ciaaDevices_write write;      /** <- pointer to write function */
+   ciaaDevices_ioctl ioctl;      /** <- pointer to ioctl function */
+   ciaaDevices_lseek lseek;      /** <- pointer to lseek function */
+   void * upLayer;               /** <- pointer to be provided to the upper
+                                        layer */
+   void * layer;                 /** <- pointer ot be used by the layer */
+   void * loLayer;               /** <- pointer to be provided to the lower
+                                        layer */
+   uint32_t count;               /** <- count of devices in this group */
 };
 
 /** \brief Devices Status
@@ -166,6 +190,16 @@ extern void ciaaDevices_init(void);
  ** \remarks This function can not be called reentrant.
  **/
 extern void ciaaDevices_addDevice(ciaaDevices_deviceType * device);
+
+/** \brief add deivce group
+ **
+ ** Adds the device group during the initialization.
+ **
+ ** \param[in] device group device to be added
+ **
+ ** \remarks This function can not be called reentrant.
+ **/
+extern void ciaaDevices_addDeviceGroup(ciaaDevices_deviceGroupType * device);
 
 /** \brief get a device
  **
