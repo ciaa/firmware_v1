@@ -1,6 +1,8 @@
 /* Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * Copyright 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -92,6 +94,25 @@ extern void ciaaDevices_init(void)
 }
 
 extern void ciaaDevices_addDevice(ciaaDevices_deviceType * device)
+{
+   /* enter critical section */
+   /* not needed, only 1 task running */
+
+   /* check if positions are empty for more devices */
+   if (ciaaDevices.position < (uint8_t)ciaaDevices_MAXDEVICES)
+   {
+      /* store the device in the list */
+      ciaaDevices.device[ciaaDevices.position] = device;
+
+      /* increment the device position */
+      ciaaDevices.position++;
+   }
+
+   /* exit critical section */
+   /* not needed, only 1 task running */
+}
+
+extern void ciaaDevices_addDeviceGroup(ciaaDevices_deviceGroupType * device)
 {
    /* enter critical section */
    /* not needed, only 1 task running */
