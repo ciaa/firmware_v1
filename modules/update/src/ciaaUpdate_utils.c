@@ -37,6 +37,7 @@
  **
  ** This file implements the funcionality of the Flash Update Encription
  **
+ ** \todo Move the ntohl and ntohs functions to arpa/inet
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware

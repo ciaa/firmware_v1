@@ -75,7 +75,6 @@ extern "C" {
 
 #define CIAAUPDATE_PROTOCOL_ERROR_NONE                0
 #define CIAAUPDATE_PROTOCOL_ERROR_UNKNOWN_VERSION     1
-#define CIAAUPDATE_PROTOCOL_ERROR_UNEXPECTED_PACKET   2
 /*==================[typedef]================================================*/
 /** \brief Stores the data received at the specified address.
  ** \param data Data to be written.

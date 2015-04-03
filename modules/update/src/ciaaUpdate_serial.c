@@ -33,9 +33,10 @@
  *
  */
 
-/** \brief This file implements the Flash Update Protocol funcionality
+/** \brief This file implements the Flash Update serial transport layer
  **
- ** This file implements the funcionality of the Flash Update Protocol
+ ** This file implements the Flash Update serial transport layer. It should
+ ** be used for debug proposes only.
  **
  **/
 

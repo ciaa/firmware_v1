@@ -33,10 +33,18 @@
  *
  */
 
-/** \brief This file implements the Flash Update Services funcionality
+/** \brief This file implements the Flash Update Services functionality
  **
- ** This file implements the funcionality of the Flash Update Services
+ ** This file implements the functionality of the Flash Update Services
  **
+ ** \todo Improve flash writing functionality: Delete the block to be written
+ ** and implement a dirty block marking feature.
+ ** \todo Implement a write optimization method which buffers the data sent
+ ** by the protocol until there is a full block to write or the current
+ ** data segment finishes.
+ ** \todo Improve the performance by adding an additional thread to store the
+ ** data.
+ ** \todo Update credits
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
