@@ -76,6 +76,8 @@ extern "C" {
 /*@=namechecks@*/
 #endif
 
+/** \brief Maximum integer returned by ciaaPOSIX_rand */
+#define CIAAPOSIX_RAND_MAX    32767
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
@@ -103,6 +105,21 @@ void *ciaaPOSIX_malloc(size_t size);
  **/
 void ciaaPOSIX_free(void *);
 
+/** \param ciaaPOSIX rand
+ **
+ ** Generates a pseudo-aleatory integer between 0 and CIAAPOSIX_RAND_MAX.
+ **
+ ** \return pseudo-aleatory number.
+ **/
+ int ciaaPOSIX_rand(void);
+
+/** \param ciaaPOSIX srand
+ **
+ ** Sets the seed for the pseudo-random number generator.
+ **
+ ** \param new seed.
+ **/
+ void ciaaPOSIX_srand(unsigned int seed);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }

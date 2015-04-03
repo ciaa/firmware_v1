@@ -90,6 +90,9 @@ ciaaPOSIX_chunk_header *first_chunk_header;
 /** \brief ciaa memory buffer */
 static char ciaaPOSIX_buffer[CIAA_HEAP_MEM_SIZE];
 
+/** \brief ciaa rand state */
+static unsigned long ciaaPOSIX_rand_next = 1;
+
 /** \brief ciaa POSIX sempahore */
 sem_t ciaaPOSIX_stdlib_sem;
 
@@ -144,6 +147,15 @@ void *ciaaPOSIX_malloc(size_t size)
    /* exit critical section */
    ciaaPOSIX_sem_post(&ciaaPOSIX_stdlib_sem);
    return result;
+}
+
+int ciaaPOSIX_rand(void) {
+    ciaaPOSIX_rand_next = ciaaPOSIX_rand_next * 1103515245 + 12345;
+    return((unsigned int)(ciaaPOSIX_rand_next/65536) % (CIAAPOSIX_RAND_MAX+1));
+}
+
+void ciaaPOSIX_srand(unsigned int seed) {
+    ciaaPOSIX_rand_next = seed;
 }
 
 void ciaaPOSIX_free(void *ptr)
