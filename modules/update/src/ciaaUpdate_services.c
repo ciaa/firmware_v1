@@ -37,6 +37,7 @@
  **
  ** This file implements the functionality of the Flash Update Services
  **
+ ** \bug The last packet is not being stored.
  ** \todo Add writing address restrictions
  ** \todo Implement a write optimization method which buffers the data sent
  ** by the protocol until there is a full block to write or the current
@@ -70,15 +71,12 @@
 #include "ciaaUpdate_services.h"
 #include "ciaaUpdate_protocol.h"
 #include "ciaaUpdate_server.h"
+#include "ciaaUpdate_storage.h"
 #include "ciaaUpdate_unpacker.h"
 
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
-
-/** \brief flash file descriptor */
-static int32_t ciaaUpdate_services_flash_fd = -1;
-static uint8_t *ciaaUpdate_services_dirty_blocks;
 
 /*==================[internal functions declaration]=========================*/
 
@@ -87,62 +85,19 @@ static uint8_t *ciaaUpdate_services_dirty_blocks;
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-static void ciaaUpdate_servicesDirtyBlocksClearAll()
-{
-   int i;
-   for(i = 0; i < sizeof(ciaaUpdate_services_dirty_blocks); ++i)
-   {
-      ciaaUpdate_services_dirty_blocks = 0;
-   }
-}
-static void ciaaUpdate_servicesDirtyBlockMark(int address)
-{
-   int block_num = address / CIAADRVFLASH_BLOCK_SIZE;
 
-   ciaaUpdate_services_dirty_blocks[block_num >> 3] |= 1 << (block_num & 3);
-}
-static int ciaaUpdate_servicesDirtyBlockGet(int address)
-
-   int block_num = address / CIAADRVFLASH_BLOCK_SIZE;
-
-   return ciaaUpdate_services_dirty_blocks[block_num >> 3] & (1 << (block_num & 3));
-}
-static ssize_t ciaaUpdate_servicesStore(const void *data, size_t size, uint32_t address)
-{
-   int32_t ret;
-   ciaaPOSIX_assert(-1 != ciaaUpdate_services_flash_fd);
-
-   /* seek to the specified address */
-   ret = ciaaPOSIX_lseek(ciaaUpdate_services_flash_fd, address, SEEK_SET);
-   ciaaPOSIX_assert(address == ret);
-
-   /* if the block was not written */
-   if(0 == ciaaUpdate_servicesDirtyBlockGet(address))
-   {
-      /* then erase it */
-      ret = ciaaPOSIX_ioctl(ciaaUpdate_services_flash_fd, ciaaPOSIX_IOCTL_BLOCK_ERASE, NULL);
-      ciaaPOSIX_assert(-1 != ret);
-
-      /* mark it as dirty */
-      ckaaUpdate_servicesDirtyBlockMark(address);
-   }
-
-   /* write in the specified address */
-   ret = ciaaPOSIX_write(ciaaUpdate_services_flash_fd, data, size);
-   ciaaPOSIX_assert(size == ret);
-
-   return ret;
-}
 /*==================[external functions definition]==========================*/
 int32_t ciaaUpdate_servicesStart(
    ciaaUpdate_transportType *transport,
    int32_t flash_fd
 )
 {
-   /* unpacker instance reference */
-   ciaaUpdate_unpackerType *unpacker;
    /* server instance reference */
    ciaaUpdate_serverType *server;
+   /* unpacker instance reference */
+   ciaaUpdate_unpackerType *unpacker;
+   /* storage instance reference */
+   ciaaUpdate_storageType *storage;
    /* pointer to the unparsed data in the buffer */
    const uint8_t *unparsed_data;
    /* number of bytes received */
@@ -152,13 +107,7 @@ int32_t ciaaUpdate_servicesStart(
    /* buffer to hold the packets */
    uint8_t buffer[CIAAUPDATE_PROTOCOL_PACKET_MAX_SIZE];
 
-   ciaaUpdate_services_flash_fd = flash_fd;
-   ciaaPOSIX_assert(-1 != ciaaUpdate_services_flash_fd);
-
-
-   ciaaUpdate_services_diry_block = malloc([CIAADRVFLASH_BLOCK_CANT >> 3]
-   /* mark all flash blocks as not dirty */
-   ciaaUpdate_servicesDirtyBlocksClearAll();
+   ciaaPOSIX_assert(-1 != flash_fd && NULL != transport);
 
    /* create a server instance */
    server = ciaaUpdate_serverNew(transport);
@@ -166,6 +115,10 @@ int32_t ciaaUpdate_servicesStart(
    /* create an unpacker instance */
    unpacker = ciaaUpdate_unpackerNew();
    ciaaPOSIX_assert(NULL != unpacker);
+   /* create a storage instance */
+   storage = ciaaUpdate_storageNew(flash_fd);
+   ciaaPOSIX_assert(NULL != storage);
+
    /* TODO: device identification */
    while((size = ciaaUpdate_serverRecvData(server, buffer)) > 0)
    {
@@ -179,7 +132,7 @@ int32_t ciaaUpdate_servicesStart(
       do
       {
          unparsed_data = ciaaUpdate_unpackerExtract(unpacker, unparsed_data, &unparsed_bytes_count);
-         ciaaUpdate_servicesStore(unpacker->start, unpacker->size, unpacker->address);
+         ciaaUpdate_storageStore(storage, unpacker->start, unpacker->size, unpacker->address);
       } while(unparsed_bytes_count > 0);
       ciaaPOSIX_assert(0 == unparsed_bytes_count);
    }
@@ -187,12 +140,12 @@ int32_t ciaaUpdate_servicesStart(
 
    /* TODO: signature verification */
 
+   /* delete storage instance */
+   ciaaUpdate_storageDel(storage);
    /* delete unpacker instance */
    ciaaUpdate_unpackerDel(unpacker);
    /* delete server instance */
    ciaaUpdate_serverDel(server);
-
-   ciaaUpdate_services_flash_fd = -1;
    return 0;
 }
 /** @} doxygen end group definition */
