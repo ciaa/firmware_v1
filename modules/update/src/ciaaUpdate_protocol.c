@@ -67,7 +67,6 @@
 #include "ciaaPOSIX_string.h"
 #include "ciaaUpdate_protocol.h"
 #include "ciaaUpdate_transport.h"
-#include "ciaaUpdate_crypto.h"
 #include "ciaaUpdate_utils.h"
 
 /*==================[macros and definitions]=================================*/
@@ -150,7 +149,7 @@ int ciaaUpdate_protocolRecv(
    while(bytes_read < size)
    {
       ret = transport->recv(transport, buffer + bytes_read, size - bytes_read);
-      if(0 != transport->error)
+      if(ret < 0)
       {
          return CIAAUPDATE_PROTOCOL_ERROR_TRANSPORT;
       }
