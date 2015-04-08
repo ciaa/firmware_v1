@@ -86,14 +86,12 @@ typedef struct
 /*==================[internal functions definition]==========================*/
 ssize_t ciaaUpdate_serialSend(ciaaUpdate_transportType *serial, const void *data, size_t size)
 {
-   ssize_t ret;
    ciaaPOSIX_assert(NULL != serial);
 
    return ciaaPOSIX_write(((ciaaUpdate_serialType *) serial)->fd, data, size);
 }
 ssize_t ciaaUpdate_serialRecv(ciaaUpdate_transportType *serial, void *data, size_t size)
 {
-   ssize_t ret;
    ciaaPOSIX_assert(NULL != serial);
 
    return ciaaPOSIX_read(((ciaaUpdate_serialType *) serial)->fd, data, size);
