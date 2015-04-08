@@ -1,7 +1,7 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
+/* Copyright 2015, Daniel Cohen
+ * Copyright 2015, Esteban Volentini
+ * Copyright 2015, Matias Giori
+ * Copyright 2015, Franco Salinas
  *
  * This file is part of CIAA Firmware.
  *
@@ -51,13 +51,16 @@
 /*
  * Initials     Name
  * ---------------------------
- *
+ * DC           Daniel Cohen
+ * EV           Esteban Volentini
+ * MG           Matias Giori
+ * FS           Franco Salinas
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20150408 v0.0.1   FS   first initial version
  */
 
 /*==================[inclusions]=============================================*/

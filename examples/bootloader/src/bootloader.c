@@ -1,7 +1,7 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
+/* Copyright 2015, Daniel Cohen
+ * Copyright 2015, Esteban Volentini
+ * Copyright 2015, Matias Giori
+ * Copyright 2015, Franco Salinas
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,37 +33,30 @@
  *
  */
 
-/** \brief Blinking_echo example source file
+/** \brief Bootloader example source file
  **
- ** This is a mini example of the CIAA Firmware to test the periodical
- ** task excecution and serial port funcionality.
- ** To run this sample in x86 plataform you must enable the funcionality of
- ** uart device setting a value of une or more of folowing macros defined
- ** in header file modules/plataforms/x86/inc/ciaaDriverUart_Internal.h
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Blinking Blinking_echo example source file
+/** \addtogroup Bootloader Bootloader example source file
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
- * PR           Pablo Ridolfi
- * JuCe         Juan Cecconi
- * GMuro        Gustavo Muro
+ * DC           Daniel Cohen
+ * EV           Esteban Volentini
+ * MG           Matias Giori
+ * FS           Franco Salinas
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141019 v0.0.2   JuCe add printf in each task,
- *                        remove trailing spaces
- * 20140731 v0.0.1   PR   first functional version
+ * 20150408 v0.0.1   FS   first initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -76,9 +69,11 @@
 #include "ciaaUpdate_services.h"
 
 /*==================[macros and definitions]=================================*/
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
+
 /*==================[internal data definition]===============================*/
 /** \brief File descriptor of the USB uart
  *
@@ -121,7 +116,7 @@ int main(void)
 
 /** \brief Error Hook function
  *
- * This fucntion is called from the os if an os interface (API) returns an
+ * This function is called from the OS if an OS interface (API) returns an
  * error. Is for debugging proposes. If called this function triggers a
  * ShutdownOs which ends in a while(1).
  *
@@ -156,10 +151,8 @@ TASK(InitTask)
    ciaaPOSIX_printf("Init Task...\n");
 
    /* open UART connected to USB bridge (FT2232) */
-   fd_uart1 = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
    fd_flash = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
 
-   //input_file = fopen("input.bin", "rb");
    /* change baud rate for uart usb */
    ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);
 
@@ -177,15 +170,7 @@ TASK(InitTask)
    TerminateTask();
 }
 
-/** \brief Serial Echo Task
- *
- * This tasks waits for input data from fd_uart1 and writes the received data
- * to fd_uart1 and flash_fd. This taks alos blinkgs the output 5.
- *
- */
-
-
-
+/** \brief Bootloader Task */
 TASK(BootloaderTask)
 {
    int32_t error;
@@ -193,8 +178,7 @@ TASK(BootloaderTask)
 
    ciaaPOSIX_printf("BootloaderTask...\n");
 
-   transport = ciaaUpdate_serialInit(fd_uart1);
-
+   transport = ciaaUpdate_serialOpen("/dev/serial/uart/1");
    error = ciaaUpdate_servicesStart(transport, fd_flash);
    switch(error)
    {
@@ -205,6 +189,7 @@ TASK(BootloaderTask)
          ciaaPOSIX_printf("Error\n");
          break;
    }
+   ciaaUpdate_serialClose(transport);
    TerminateTask();
 }
 

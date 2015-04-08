@@ -73,7 +73,7 @@ OSEK OSEK {
       EVENT = POSIXE;
    }
    TASK BootloaderTask {
-      PRIORITY = 5;
+      PRIORITY = 0;
       ACTIVATION = 1;
       STACK = 512;
       TYPE = EXTENDED;
