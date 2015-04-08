@@ -44,7 +44,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Service
+/** \addtogroup Updater CIAA Updater Services
  ** @{ */
 
 /*
@@ -59,6 +59,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150408 v0.0.2  FS  first operating version
  * 20141010 v0.0.1  EV  first initial version
  */
 

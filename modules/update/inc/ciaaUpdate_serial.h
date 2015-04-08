@@ -1,7 +1,7 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2015, Daniel Cohen
+ * Copyright 2015, Esteban Volentini
+ * Copyright 2015, Matias Giori
+ * Copyright 2015, Franco Salinas
  *
  * This file is part of CIAA Firmware.
  *
@@ -35,16 +35,16 @@
 
 #ifndef _CIAAUPDATE_SERIAL_H_
 #define _CIAAUPDATE_SERIAL_H_
-/** \brief Flash Update Protocol Header File
+/** \brief Flash Update Serial Header File
  **
  ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Protocol
+ ** the Flash Update Serial
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Service
+/** \addtogroup Updater CIAA Updater Serial
  ** @{ */
 
 /*
@@ -59,7 +59,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141010 v0.0.1  EV  first initial version
+ * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -78,7 +78,8 @@ extern "C" {
 /*==================[external functions declaration]=========================*/
 /** \brief initializes the serial transport layer
  **/
-ciaaUpdate_transportType* ciaaUpdate_serialInit(int32_t fd);
+ciaaUpdate_transportType *ciaaUpdate_serialOpen(const char *dev);
+void ciaaUpdate_serialClose(ciaaUpdate_transportType *transport);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }

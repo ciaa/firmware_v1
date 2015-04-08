@@ -1,7 +1,7 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2015, Daniel Cohen
+ * Copyright 2015, Esteban Volentini
+ * Copyright 2015, Matias Giori
+ * Copyright 2015, Franco Salinas
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,15 +33,11 @@
  *
  */
 
-/** \brief This file implements the Flash Update Protocol funcionality
- **
- ** This file implements the funcionality of the Flash Update Protocol
- **
- **/
+/** \brief This file implements the Flash Update Protocol functionality */
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Service
+/** \addtogroup Updater CIAA Updater Transport
  ** @{ */
 
 /*
@@ -56,7 +52,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141010 v0.0.1  EV  first initial version
+ * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/

@@ -40,7 +40,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Service
+/** \addtogroup Updater CIAA Updater Utils
  ** @{ */
 
 /*
@@ -55,7 +55,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141010 v0.0.1  EV  first initial version
+ * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/

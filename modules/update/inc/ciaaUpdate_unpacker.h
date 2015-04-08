@@ -1,7 +1,7 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2015, Daniel Cohen
+ * Copyright 2015, Esteban Volentini
+ * Copyright 2015, Matias Giori
+ * Copyright 2015, Franco Salinas
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,18 +33,18 @@
  *
  */
 
-#ifndef _CIAAUPDATE_CRYPTO_H_
-#define _CIAAUPDATE_CRYPTO_H_
-/** \brief Flash Update Encription Header File
+#ifndef _CIAAUPDATE_UNPACKER_H_
+#define _CIAAUPDATE_UNPACKER_H_
+/** \brief Flash Update Unpacker Header File
  **
  ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Encription
+ ** the Flash Update Unpacker
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Service
+/** \addtogroup Updater CIAA Updater Unpacker
  ** @{ */
 
 /*
@@ -59,7 +59,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141010 v0.0.1  EV  first initial version
+ * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -72,11 +72,46 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+typedef struct
+{
+   uint32_t segment_remaining_bytes;
+   uint32_t segment_destination_address;
+   uint32_t address;
+   uint8_t *start;
+   size_t size;
 
+} ciaaUpdate_unpackerType;
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+ciaaUpdate_unpackerType *ciaaUpdate_unpackerNew(void);
+void ciaaUpdate_unpackerDel(ciaaUpdate_unpackerType *unpacker);
 
+/** \brief Extracts addressed data from a buffer.
+ **
+ ** \param[in] unpacker Unpacker descriptor. After a call to this function
+ ** its start, size and address fields are updated.
+ ** \param[in] unparsed_data Pointer to the unparsed data.
+ ** \param[in,out] size Pointer to the unparsed data size. This function also
+ ** decrements this size setting it up for the next call.
+ **
+ ** \return A pointer to the data to be parsed in the next call.
+ ** Example
+ ** \code{.c}
+ ** unparsed_data = buffer;
+ ** unparsed_bytes_count = buffer_size;
+ ** do
+ ** {
+ **   unparsed_data = ciaaUpdate_unpackerExtract(unpacker, unparsed_data, &unparsed_bytes_count);
+ **   store(unpacker->start, unpacker->size, unpacker->address);
+ ** } while(unparsed_bytes_count > 0);
+ ** \endcode
+ **/
+uint8_t *ciaaUpdate_unpackerExtract(
+   ciaaUpdate_unpackerType* unpacker,
+   const uint8_t * unparsed_data,
+   size_t *unparsed_bytes_count
+);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -84,5 +119,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_CRYPTO_H_ */
+#endif /* #ifndef _CIAAUPDATE_UNPACKER_H_ */
 

@@ -1,7 +1,7 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2015, Daniel Cohen
+ * Copyright 2015, Esteban Volentini
+ * Copyright 2015, Matias Giori
+ * Copyright 2015, Franco Salinas
  *
  * This file is part of CIAA Firmware.
  *
@@ -44,7 +44,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Service
+/** \addtogroup Updater CIAA Updater Transport
  ** @{ */
 
 /*
@@ -59,7 +59,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141010 v0.0.1  EV  first initial version
+ * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -72,11 +72,13 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-typedef ssize_t (*ciaaUpdate_transportRecv)(void* data, size_t size);
-typedef ssize_t (*ciaaUpdate_transportSend)(const void* data, size_t size);
+struct ciaaUpdate_transportStruct;
+typedef struct ciaaUpdate_transportStruct ciaaUpdate_transportType;
 
+typedef ssize_t (*ciaaUpdate_transportRecv)(ciaaUpdate_transportType* transport, void* data, size_t size);
+typedef ssize_t (*ciaaUpdate_transportSend)(ciaaUpdate_transportType* transport, const void* data, size_t size);
 
-typedef struct
+typedef struct ciaaUpdate_transportStruct
 {
    ciaaUpdate_transportRecv recv;
    ciaaUpdate_transportSend send;

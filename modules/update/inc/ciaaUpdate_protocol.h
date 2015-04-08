@@ -37,14 +37,14 @@
 #define _CIAAUPDATE_PROTOCOL_H_
 /** \brief Flash Update Protocol Header File
  **
- ** This files shall be included by moodules using the interfaces provided by
+ ** This files shall be included by modules using the interfaces provided by
  ** the Flash Update Protocol
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Service
+/** \addtogroup Updater CIAA Updater Protocol
  ** @{ */
 
 /*
@@ -59,12 +59,12 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150408 v0.0.2  FS  first operating version
  * 20141010 v0.0.1  EV  first initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaUpdate_transport.h"
-#include "ciaaUpdate_utils.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -75,26 +75,36 @@ extern "C" {
 
 #define CIAAUPDATE_PROTOCOL_ERROR_NONE                0
 #define CIAAUPDATE_PROTOCOL_ERROR_UNKNOWN_VERSION     1
+#define CIAAUPDATE_PROTOCOL_ERROR_TRANSPORT           2
+
+#define CIAAUPDATE_PROTOCOL_VERSION                0
+
+/* packet types */
+#define CIAAUPDATE_PROTOCOL_PACKET_DATA            2
+#define CIAAUPDATE_PROTOCOL_PACKET_ACK             3
+
+#define CIAAUPDATE_PROTOCOL_HEADER_SIZE            4
+#define CIAAUPDATE_PROTOCOL_PAYLOAD_MAX_SIZE       248
+
+#define CIAAUPDATE_PROTOCOL_PACKET_MAX_SIZE        (CIAAUPDATE_PROTOCOL_PAYLOAD_MAX_SIZE + CIAAUPDATE_PROTOCOL_HEADER_SIZE)
 /*==================[typedef]================================================*/
-/** \brief Stores the data received at the specified address.
- ** \param data Data to be written.
- ** \param size Number of bytes to write.
- ** \param address Address to write at.
- ** \return On success the number of bytes written. If this number differs
- ** from the size parameter an error occurred.
- **/
-typedef ssize_t (*ciaaUpdate_protocolStoreCallback) (const void *data, size_t size, uint32_t address);
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Performs all protocol operations to receive a binary image through
- ** the specified transport type and stores it using the provided function **
- ** \param transport Transport layer descriptor.
- ** \param store_cb Callback function to store data at a specific address.
- **/
-int32_t ciaaUpdate_protocolRecv(
-   ciaaUpdate_transportType* transport,
-   ciaaUpdate_protocolStoreCallback store_cb);
+int8_t ciaaUpdate_protocolGetHeaderVersion(const uint8_t *header);
+int8_t ciaaUpdate_protocolGetPacketType(const uint8_t *header);
+uint16_t ciaaUpdate_protocolGetPayloadSize(const uint8_t *header);
+uint8_t ciaaUpdate_protocolGetSequenceNumber(const uint8_t *header);
+
+
+int ciaaUpdate_protocolRecv(ciaaUpdate_transportType *transport, uint8_t *buffer, size_t size);
+
+
+void ciaaUpdate_protocolSetHeaderVersion(uint8_t *header, uint8_t version);
+void ciaaUpdate_protocolSetPacketType(uint8_t *header, uint8_t packet_type);
+void ciaaUpdate_protocolSetPayloadSize(uint8_t *header, uint16_t payload_size);
+void ciaaUpdate_protocolSetSequenceNumber(uint8_t *header, uint8_t sequence_number);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }

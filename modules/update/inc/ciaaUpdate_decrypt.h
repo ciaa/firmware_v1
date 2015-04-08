@@ -33,17 +33,18 @@
  *
  */
 
-/** \brief This file implements the Flash Update serial transport layer
+#ifndef _CIAAUPDATE_DECRYPT_H_
+#define _CIAAUPDATE_DECRYPT_H_
+/** \brief Flash Update Decrypt Header File
  **
- ** This file implements the Flash Update serial transport layer. It should
- ** be used for debug proposes only.
+ ** This files shall be included by modules using the interfaces provided by
+ ** the Flash Update Decrypt
  **
- ** \todo change the serial struct. add a void * field to the transport struct.
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Serial
+/** \addtogroup Updater CIAA Updater Decrypt
  ** @{ */
 
 /*
@@ -62,70 +63,26 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_assert.h"
-#include "ciaaPOSIX_stdio.h"
-#include "ciaaPOSIX_stdlib.h"
-#include "ciaaPOSIX_errno.h"
-#include "ciaaUpdate_transport.h"
 
-/*==================[macros and definitions]=================================*/
-typedef struct
-{
-   ciaaUpdate_transportRecv recv;
-   ciaaUpdate_transportSend send;
-   int32_t fd;
-} ciaaUpdate_serialType;
-/*==================[internal data declaration]==============================*/
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[internal functions declaration]=========================*/
+/*==================[macros]=================================================*/
 
-/*==================[internal data definition]===============================*/
+/*==================[typedef]================================================*/
 
-/*==================[external data definition]===============================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[internal functions definition]==========================*/
-ssize_t ciaaUpdate_serialSend(ciaaUpdate_transportType *serial, const void *data, size_t size)
-{
-   ssize_t ret;
-   ciaaPOSIX_assert(NULL != serial);
+/*==================[external functions declaration]=========================*/
 
-   return ciaaPOSIX_write(((ciaaUpdate_serialType *) serial)->fd, data, size);
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-ssize_t ciaaUpdate_serialRecv(ciaaUpdate_transportType *serial, void *data, size_t size)
-{
-   ssize_t ret;
-   ciaaPOSIX_assert(NULL != serial);
-
-   return ciaaPOSIX_read(((ciaaUpdate_serialType *) serial)->fd, data, size);
-}
-/*==================[external functions definition]==========================*/
-ciaaUpdate_transportType *ciaaUpdate_serialOpen(const char *dev)
-{
-   ciaaUpdate_serialType *serial;
-   ciaaPOSIX_assert(NULL != dev);
-
-   serial = ciaaPOSIX_malloc(sizeof(ciaaUpdate_serialType));
-
-   serial->fd = ciaaPOSIX_open(dev, O_RDWR);
-   ciaaPOSIX_assert(serial->fd >= 0);
-
-   serial->recv = ciaaUpdate_serialRecv;
-   serial->send = ciaaUpdate_serialSend;
-   return (ciaaUpdate_transportType *) serial;
-}
-void ciaaUpdate_serialClose(ciaaUpdate_transportType *transport)
-{
-   ciaaUpdate_serialType *serial;
-   ciaaPOSIX_assert(NULL != transport);
-
-   serial = (ciaaUpdate_serialType *) transport;
-   serial->send = NULL;
-   serial->recv = NULL;
-   ciaaPOSIX_close(serial->fd);
-   serial->fd = -1;
-   ciaaPOSIX_free(serial);
-}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CIAAUPDATE_DECRYPT_H_ */
 
