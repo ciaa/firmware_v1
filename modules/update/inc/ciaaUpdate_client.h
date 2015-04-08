@@ -33,9 +33,13 @@
  *
  */
 
-/** \brief This file implements the Flash Update Client functionality
+#ifndef _CIAAUPDATE_CLIENT_H_
+#define _CIAAUPDATE_CLIENT_H_
+/** \brief Flash Update Client Header File
  **
- ** This file implements the functionality of the Flash Update Client
+ ** This files shall be included by modules using the interfaces provided by
+ ** the Flash Update Client
+ **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
@@ -60,21 +64,25 @@
 
 /*==================[inclusions]=============================================*/
 
-/*==================[macros and definitions]=================================*/
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[internal data declaration]==============================*/
+/*==================[macros]=================================================*/
 
-/*==================[internal functions declaration]=========================*/
+/*==================[typedef]================================================*/
 
-/*==================[internal data definition]===============================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[external data definition]===============================*/
+/*==================[external functions declaration]=========================*/
 
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CIAAUPDATE_CLIENT_H_ */
 
