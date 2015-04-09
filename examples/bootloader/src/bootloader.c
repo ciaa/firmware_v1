@@ -150,15 +150,6 @@ TASK(InitTask)
 
    ciaaPOSIX_printf("Init Task...\n");
 
-   /* open UART connected to USB bridge (FT2232) */
-   fd_flash = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
-
-   /* change baud rate for uart usb */
-   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);
-
-   /* change FIFO TRIGGER LEVEL for uart usb */
-   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL, (void *)ciaaFIFO_TRIGGER_LEVEL3);
-
    /* activate example tasks */
    Periodic_Task_Counter = 0;
    SetRelAlarm(ActivatePeriodicTask, 200, 200);
@@ -179,6 +170,10 @@ TASK(BootloaderTask)
    ciaaPOSIX_printf("BootloaderTask...\n");
 
    transport = ciaaUpdate_serialOpen("/dev/serial/uart/1");
+
+   /* open UART connected to USB bridge (FT2232) */
+   fd_flash = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
+
    error = ciaaUpdate_servicesStart(transport, fd_flash);
    switch(error)
    {
@@ -189,6 +184,7 @@ TASK(BootloaderTask)
          ciaaPOSIX_printf("Error\n");
          break;
    }
+   ciaaPOSIX_close(fd_flash);
    ciaaUpdate_serialClose(transport);
    TerminateTask();
 }
