@@ -57,7 +57,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141010 v0.0.2  FS  first operating version
+ * 20150408 v0.0.2  FS  first operating version
  * 20141010 v0.0.1  EV  first initial version
  */
 
@@ -157,82 +157,34 @@ int ciaaUpdate_protocolRecv(
    }
    return CIAAUPDATE_PROTOCOL_ERROR_NONE;
 }
-#if 0
-int ciaaUpdate_protocolSendData(
+
+int ciaaUpdate_protocolSend(
    ciaaUpdate_transportType *transport,
-   uint8_t *data,
-   uint8_t data_size,
-   uint8_t sequence_number)
+   const uint8_t *buffer,
+   size_t size)
 {
-   uint8_t packet[CIAAUPDATE_PROTOCOL_PACKET_MAX_SIZE];
+   ssize_t ret;
+   size_t bytes_sent = 0;
 
-   ciaaUpdate_protocolSetHeaderVersion(packet, ciaaUpdate_protocol_version);
-   ciaaUpdate_protocolSetPacketType(packet, CIAAUPDATE_PROTOCOL_PACKET_DATA);
-   ciaaUpdate_protocolSetPayloadSize(packet, data_size);
-   ciaaUpdate_protocolSetSequenceNumber(packet, sequence_number);
+   ciaaPOSIX_assert(NULL != buffer);
 
-   ciaaPOSIX_memcpy(packet + CIAAUPDATE_PROTOCOL_HEADER_SIZE, data, data_size);
-   return transport->send(data, data_size);
-
-}
-int32_t ciaaUpdate_protocolSend(
-   ciaaUpdate_transportType* transport,
-   ciaaUpdate_protocolLoadCallback load_cb)
-{
-   /* holds return values */
-   int32_t ret;
-   uint16_t payload_size;
-   /* packet payload */
-   uint8_t payload_buffer[CIAAUPDATE_PROTOCOL_PAYLOAD_MAX_SIZE];
-   /* packet header */
-   uint8_t header[CIAAUPDATE_PROTOCOL_HEADER_SIZE];
-   uint8_t sequence_number;
-
-   /* initialize global variables */
-   ciaaUpdate_protocol_transport = transport;
-   ciaaUpdate_protocol_store_cb = load_cb;
-
-   sequence_number = ciaaPOSIX_rand() % 256;
-
-   /* TODO: send client identification */
-
-   /* here the version should be defined after negotiation */
-   ciaaUpdate_protocol_version = CIAAUPDATE_PROTOCOL_VERSION;
-
-   /* here the version should be defined after negotiation */
-
-   /* receive client data packets */
-
-   /* reset data packet handler state */
-   ciaaUpdate_protocolHandleDataPayload(NULL, 0);
-
-   do
+   if(0 == size)
    {
-      /* get data ready for transmission */
-      data_size = load_cb(data, CIAAUPDATE_PROTOCOL_PAYLOAD_MAX_SIZE);
-      ciaaPOSIX_assert(data_size >= 0);
-      ciaaPOSIX_assert_msg(data_size & 0x07 == 0, "data size must be multiple of 8");
-
-      /* retransmission loop */
-      do
-      {
-         /* send data packet */
-         ret = ciaaUpdate_protocolSendData(header, data, sequence_number);
-         if(CIAAUPDATE_PROTOCOL_ERROR_NONE != ret)
-            return ret;
-
-         /* wait for ACK */
-         ret = ciaaUpdate_protocolRecvAck();
-      }
-      while(ret == CIAAUPDATE_PROTOCOL_ERROR_ACK_TIMEOUT);
+      return 0;
    }
-   while(data_size == CIAAUPDATE_PROTOCOL_PAYLOAD_MAX_SIZE);
-
-
-   /* TODO: receive and verify signature if necessary */
+   /* send the specified number of bytes */
+   while(bytes_sent < size)
+   {
+      ret = transport->send(transport, buffer + bytes_sent, size - bytes_sent);
+      if(ret < 0)
+      {
+         return CIAAUPDATE_PROTOCOL_ERROR_TRANSPORT;
+      }
+      bytes_sent += ret;
+   }
    return CIAAUPDATE_PROTOCOL_ERROR_NONE;
 }
-#endif
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

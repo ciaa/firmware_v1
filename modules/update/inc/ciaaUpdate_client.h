@@ -63,7 +63,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-
+#include "ciaaUpdate_transport.h"
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -76,7 +76,22 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+typedef struct
+{
+   /** \brief transport layer */
+   ciaaUpdate_transportType *transport;
+   /** \brief negotiated protocol version */
+   uint8_t protocol_version;
+   /** \brief expected sequence number */
+   uint8_t sequence_number;
+} ciaaUpdate_clientType;
+/*==================[external data declaration]==============================*/
 
+/*==================[external functions declaration]=========================*/
+ciaaUpdate_clientType *ciaaUpdate_clientNew(ciaaUpdate_transportType *transport);
+void ciaaUpdate_clientDel(ciaaUpdate_clientType *client);
+
+ssize_t ciaaUpdate_clientSendData(ciaaUpdate_clientType *client, const uint8_t *payload_buffer, size_t payload_size);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }

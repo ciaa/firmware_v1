@@ -99,7 +99,7 @@ uint8_t ciaaUpdate_protocolGetSequenceNumber(const uint8_t *header);
 
 
 int ciaaUpdate_protocolRecv(ciaaUpdate_transportType *transport, uint8_t *buffer, size_t size);
-
+int ciaaUpdate_protocolSend(ciaaUpdate_transportType *transport, const uint8_t *buffer, size_t size);
 
 void ciaaUpdate_protocolSetHeaderVersion(uint8_t *header, uint8_t version);
 void ciaaUpdate_protocolSetPacketType(uint8_t *header, uint8_t packet_type);
