@@ -88,7 +88,7 @@ static int ciaaUpdate_serverSendAck(ciaaUpdate_serverType *server, uint8_t seque
    ciaaUpdate_protocolSetPayloadSize(header, 0);
    ciaaUpdate_protocolSetSequenceNumber(header, sequence_number);
 
-   return server->transport->send(server->transport, header, 4);
+   return ciaaUpdate_protocolSend(server->transport, header, 4);
 }
 /*==================[external functions definition]==========================*/
 ciaaUpdate_serverType *ciaaUpdate_serverNew(ciaaUpdate_transportType *transport)
