@@ -1,8 +1,10 @@
 ###############################################################################
 #
+# Copyright 2015, Mariano Cerdeiro
 # Copyright 2014, ACSE & CADIEEL
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -35,6 +37,8 @@
 ###############################################################################
 # library
 LIBS 				  += posix
+# version
+posix_VERSION     = 0.5.0
 # library path
 posix_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)posix
 # library source path

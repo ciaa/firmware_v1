@@ -1,6 +1,7 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro
+# Copyright 2015, Mariano Cerdeiro
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -31,15 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# library
-LIBS 				  += libs
-# version
-libs_VERSION      = 0.1.0
-# library path
-libs_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)libs
-# library source path
-libs_SRC_PATH 	= $(libs_PATH)$(DS)src
-# library include path
-libs_INC_PATH 	= $(libs_PATH)$(DS)inc
-# library source files
-libs_SRC_FILES 	= $(wildcard $(libs_SRC_PATH)$(DS)*.c)
+# This makefile is empty, shall be keeped since all modules need to have it in
+# order to conform the root makefile needs.
+###############################################################################
+

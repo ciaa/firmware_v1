@@ -37,6 +37,8 @@
 ###############################################################################
 # library
 LIBS 				      += drivers
+# version
+drivers_VERSION		= 0.1.0
 # library path
 drivers_PATH 	       = $(ROOT_DIR)$(DS)modules$(DS)drivers
 # library source path

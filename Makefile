@@ -546,6 +546,9 @@ endif
 
 ###############################################################################
 # version
+ifeq ($(MAKECMDGOALS),version)
+include $(foreach module, $(ALL_MODS), modules$(DS)$(module)$(DS)mak$(DS)Makefile)
+endif
 version:
 	@$(MULTILINE_ECHO) " $(foreach mod, $(ALL_MODS), $(mod): $($(mod)_VERSION)\n)"
 

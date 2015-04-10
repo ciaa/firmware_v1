@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro
+# Copyright 2014, 2015, Mariano Cerdeiro
 #
 # This file is part of CIAA Firmware.
 #
@@ -33,6 +33,8 @@
 ###############################################################################
 # library
 LIBS 				  += plc
+# version
+plc_VERSION       = 0.1.0
 # library path
 plc_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)plc
 # library source path
