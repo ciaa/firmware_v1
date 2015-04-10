@@ -553,6 +553,25 @@ version:
 	@$(MULTILINE_ECHO) " $(foreach mod, $(ALL_MODS), $(mod): $($(mod)_VERSION)\n)"
 
 ###############################################################################
+# performs a firmware release
+release:
+	@echo If you continue you will lost:
+	@echo "   * Ignored files from repo"
+	@echo "   * not commited changes"
+	@echo "   * the file ../Firmware.zip will be overwritten"
+	@echo "   * the file ../Firmware.tar.gz will be overwritten"
+	@echo
+	@read -p "you may want to press CTRL-C to cancel or any other key to continue... " y
+	@echo Cleaning
+	git clean -xdf
+	@echo Removing ../Firmware.zip
+	rm -f ../Firmware.zip
+	@echo Generating ../Firmware.zip
+	zip -r ../Firmware.zip . -x *.git*
+	@echo -f Removing ../Firmware.tar.gz
+	tar -zcvf ../Firmware.tar.gz --exclude "*.git*" .
+
+###############################################################################
 # help
 help:
 	@echo "+-----------------------------------------------------------------------------+"
@@ -563,6 +582,7 @@ help:
 	@echo info_\<mod\>..........: same as info but reporting information of a library
 	@echo info_ext_\<mod\>......: same as info_\<mod\> but for an external library
 	@echo version.............: dislpays the version of each module
+	@echo release.............: performs a firmware release (do not use it)
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               FreeOSEK (CIAA RTOS based on OSEK Standard)                   |"
 	@echo "+-----------------------------------------------------------------------------+"
