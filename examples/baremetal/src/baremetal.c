@@ -60,6 +60,7 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "chip.h"
 #include "baremetal.h"       /* <= own header */
 
 /*==================[macros and definitions]=================================*/
