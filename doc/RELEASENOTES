@@ -4,9 +4,10 @@
  **   Implement modbus master
  **   Add memset and memcmp posix functionality
  **   Add block device support
- **   Port to CIAA-FLS
+ **   Port to CIAA-FLS (GPIO, ADC, UART low level driver added. POSIX GPIO implemetned).
  **   Port to EDU-CIAA-NXP
  **   RTOS tests are passed in CIAA-NXP
+ **   RTOS tests are passed in CIAA-FSL
  **   Improve directory
  **
  ** CIAA Firmware 0.3.0 (14.12.2014)
