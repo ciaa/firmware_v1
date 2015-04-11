@@ -102,7 +102,7 @@ __attribute__ ((section(".isr_vector")))
 void (* const g_pfnVectors[])(void) = {
    /* System ISRs */
    &__StackTop,                    /* The initial stack pointer  */
-   Reset_Handler,                       /* The reset handler          */
+   Reset_Handler,                  /* The reset handler          */
    NMI_Handler,                    /* The NMI handler            */
    HardFault_Handler,              /* The hard fault handler     */
    MemManage_Handler,              /* The MPU fault handler      */
@@ -115,7 +115,7 @@ void (* const g_pfnVectors[])(void) = {
    SVC_Handler,                    /* SVCall handler             */
    DebugMon_Handler,               /* Debug monitor handler      */
    0,                              /* Reserved                   */
-   PendSV_Handler,                 /* The PendSV handler         */
+   0,                              /* The PendSV handler         */
    SysTick_Handler,                /* The SysTick handler        */
    /*** User Interruptions ***/
    ISR_NoHandler,      /* 0x10 0x00000040 - No Handler set for ISR DMA0_DMA16 (IRQ 0) */
