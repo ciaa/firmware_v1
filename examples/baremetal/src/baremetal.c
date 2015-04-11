@@ -60,8 +60,16 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "chip.h"
 #include "baremetal.h"       /* <= own header */
+
+#ifndef CPU
+#error CPU shall be defined
+#endif
+#if (lpc4337 == CPU)
+#include "chip.h"
+#elif (mk60fx512vlq15 == CPU)
+#else
+#endif
 
 /*==================[macros and definitions]=================================*/
 
