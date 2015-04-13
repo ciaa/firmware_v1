@@ -582,7 +582,7 @@ help:
 	@echo info_\<mod\>..........: same as info but reporting information of a library
 	@echo info_ext_\<mod\>......: same as info_\<mod\> but for an external library
 	@echo version.............: dislpays the version of each module
-	@echo release.............: performs a firmware release (do not use it)
+	@echo "release.............: performs a firmware release (do not use it)"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               FreeOSEK (CIAA RTOS based on OSEK Standard)                   |"
 	@echo "+-----------------------------------------------------------------------------+"
