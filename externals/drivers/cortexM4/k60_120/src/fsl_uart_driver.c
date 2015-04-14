@@ -87,8 +87,8 @@ uart_status_t UART_DRV_Init(uint32_t instance, uart_state_t * uartStatePtr,
     UART_HAL_Init(baseAddr);
 
     /* Create Semaphore for txIrq and rxIrq. */
-    OSA_SemaCreate(&uartStatePtr->txIrqSync, 0);
-    OSA_SemaCreate(&uartStatePtr->rxIrqSync, 0);
+    //OSA_SemaCreate(&uartStatePtr->txIrqSync, 0);
+    //OSA_SemaCreate(&uartStatePtr->rxIrqSync, 0);
 
     /* UART clock source is either system clock or bus clock depending on the instance */
     uartSourceClock = CLOCK_SYS_GetUartFreq(instance);
@@ -243,7 +243,7 @@ static void UART_DRV_CompleteSendData(uint32_t instance)
     /* Signal the synchronous completion object. */
     if (uartState->isTxBlocking)
     {
-        OSA_SemaPost(&uartState->txIrqSync);
+        //OSA_SemaPost(&uartState->txIrqSync);
     }
 
     /* Update the information of the module driver state */
@@ -336,7 +336,7 @@ static void UART_DRV_CompleteReceiveData(uint32_t instance)
     /* Signal the synchronous completion object. */
     if (uartState->isRxBlocking)
     {
-        OSA_SemaPost(&uartState->rxIrqSync);
+        //OSA_SemaPost(&uartState->rxIrqSync);
     }
 
     /* Update the information of the module driver state */
@@ -413,7 +413,7 @@ uart_status_t UART_DRV_SendDataBlocking(uint32_t instance,
     /* Wait until the transmit is complete. */
     do
     {
-        syncStatus = OSA_SemaWait(&uartState->txIrqSync, timeout);
+        //syncStatus = OSA_SemaWait(&uartState->txIrqSync, timeout);
     }while(syncStatus == kStatus_OSA_Idle);
 
     if (syncStatus != kStatus_OSA_Success)
@@ -567,7 +567,7 @@ uart_status_t UART_DRV_ReceiveDataBlocking(uint32_t instance, uint8_t * rxBuff,
     /* Wait until all the data is received or for timeout.*/
     do
     {
-        syncStatus = OSA_SemaWait(&uartState->rxIrqSync, timeout);
+        //syncStatus = OSA_SemaWait(&uartState->rxIrqSync, timeout);
     }while(syncStatus == kStatus_OSA_Idle);
 
     if (syncStatus != kStatus_OSA_Success)
