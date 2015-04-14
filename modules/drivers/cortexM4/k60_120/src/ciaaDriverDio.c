@@ -71,8 +71,8 @@ typedef struct  {
    uint8_t countOfDevices;
 } ciaaDriverConstType;
 
-#define CIAA_GPIO_INPUTS_NUMBER		8
-#define CIAA_GPIO_OUTPUTS_NUMBER	8
+#define CIAA_GPIO_INPUTS_NUMBER		2
+#define CIAA_GPIO_OUTPUTS_NUMBER	4
 
 /*==================[internal data declaration]==============================*/
 gpio_input_pin_user_config_t ciaaGPIOinputCofig[CIAA_GPIO_INPUTS_NUMBER+1];
@@ -134,17 +134,18 @@ void ciaa_k60_120_gpio_init(void)
 
    /* Inputs */
    /*Digital In 0 ->    GPIO14    PTC4*/
-   ciaaGPIOinputCofig[0].pinName = GPIO_MAKE_PIN(HW_GPIOC, 4);
+   ciaaGPIOinputCofig[0].pinName = GPIO_MAKE_PIN(HW_GPIOA, 19);
    ciaaGPIOinputCofig[0].config.isPullEnable = true;             /*!< Enable or disable pull. */
-   ciaaGPIOinputCofig[0].config.pullSelect = kPortPullUp;        /*!< Select internal pull(up/down) resistor.*/
+   ciaaGPIOinputCofig[0].config.pullSelect = kPortPullDown;        /*!< Select internal pull(up/down) resistor.*/
    ciaaGPIOinputCofig[0].config.isPassiveFilterEnabled = false;  /*!< Enable or disable passive filter.*/
    ciaaGPIOinputCofig[0].config.interrupt = kPortIntDisabled;    /*!< Select interrupt/DMA request.*/
    /*Digital In 1 ->     GPIO12    PTC5*/
-   ciaaGPIOinputCofig[1].pinName = GPIO_MAKE_PIN(HW_GPIOC, 5);
+   ciaaGPIOinputCofig[1].pinName = GPIO_MAKE_PIN(HW_GPIOE, 26);
    ciaaGPIOinputCofig[1].config.isPullEnable = true;             /*!< Enable or disable pull. */
    ciaaGPIOinputCofig[1].config.pullSelect = kPortPullUp;        /*!< Select internal pull(up/down) resistor.*/
    ciaaGPIOinputCofig[1].config.isPassiveFilterEnabled = false;  /*!< Enable or disable passive filter.*/
    ciaaGPIOinputCofig[1].config.interrupt = kPortIntDisabled;    /*!< Select interrupt/DMA request.*/
+#if 0
    /*Digital In 2 ->     GPIO10    PTC6*/
    ciaaGPIOinputCofig[2].pinName = GPIO_MAKE_PIN(HW_GPIOC, 6);
    ciaaGPIOinputCofig[2].config.isPullEnable = true;             /*!< Enable or disable pull. */
@@ -184,37 +185,39 @@ void ciaa_k60_120_gpio_init(void)
 
    //Note: This pinName must be defined here to indicate the end of array.
    ciaaGPIOinputCofig[8].pinName = GPIO_PINS_OUT_OF_RANGE,
-
+#endif
+   //Note: This pinName must be defined here to indicate the end of array.
+   ciaaGPIOinputCofig[2].pinName = GPIO_PINS_OUT_OF_RANGE,
 
    /* Outputs */
 
    /* Relays */
    /*Digital Out 0 -> PTB16*/
-   ciaaGPIOoutputCofig[0].pinName = GPIO_MAKE_PIN(HW_GPIOB, 16);
+   ciaaGPIOoutputCofig[0].pinName = GPIO_MAKE_PIN(HW_GPIOA, 11);
    ciaaGPIOoutputCofig[0].config.outputLogic = 0;                       /*!< Set default output logic.*/
    ciaaGPIOoutputCofig[0].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
    ciaaGPIOoutputCofig[0].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
    ciaaGPIOoutputCofig[0].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
    /*Digital Out 1 -> PTB06*/
-   ciaaGPIOoutputCofig[1].pinName = GPIO_MAKE_PIN(HW_GPIOB, 6);
+   ciaaGPIOoutputCofig[1].pinName = GPIO_MAKE_PIN(HW_GPIOA, 28);
    ciaaGPIOoutputCofig[1].config.outputLogic = 0;                       /*!< Set default output logic.*/
    ciaaGPIOoutputCofig[1].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
    ciaaGPIOoutputCofig[1].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
    ciaaGPIOoutputCofig[1].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
    /*Digital Out 2 -> PTB07*/
-   ciaaGPIOoutputCofig[2].pinName = GPIO_MAKE_PIN(HW_GPIOB, 7);
+   ciaaGPIOoutputCofig[2].pinName = GPIO_MAKE_PIN(HW_GPIOA, 29);
    ciaaGPIOoutputCofig[2].config.outputLogic = 0;                       /*!< Set default output logic.*/
    ciaaGPIOoutputCofig[2].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
    ciaaGPIOoutputCofig[2].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
    ciaaGPIOoutputCofig[2].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
    /*Digital Out 3 -> PTB17*/
-   ciaaGPIOoutputCofig[3].pinName = GPIO_MAKE_PIN(HW_GPIOB, 17);
+   ciaaGPIOoutputCofig[3].pinName = GPIO_MAKE_PIN(HW_GPIOA, 10);
    ciaaGPIOoutputCofig[3].config.outputLogic = 0;                       /*!< Set default output logic.*/
    ciaaGPIOoutputCofig[3].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
    ciaaGPIOoutputCofig[3].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
    ciaaGPIOoutputCofig[3].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
 
-
+#if 0
    /* MOSFETs */
    /*Digital Out 4 -> PTC15*/
    ciaaGPIOoutputCofig[4].pinName = GPIO_MAKE_PIN(HW_GPIOC, 15);
@@ -243,6 +246,9 @@ void ciaa_k60_120_gpio_init(void)
 
    //Note: This pinName must be defined here to indicate the end of array.
    ciaaGPIOoutputCofig[8].pinName = GPIO_PINS_OUT_OF_RANGE,
+#endif
+   //Note: This pinName must be defined here to indicate the end of array.
+   ciaaGPIOoutputCofig[4].pinName = GPIO_PINS_OUT_OF_RANGE,
 
    GPIO_DRV_Init(ciaaGPIOinputCofig, ciaaGPIOoutputCofig);
 
@@ -275,11 +281,11 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
   /* Can't store read result in buffer. At least 1 byte required. */
   if(size != 0)
   {
-     if(device == ciaaDioDevices[0])
+     if(device == &ciaaDriverDio_in0)
      {
 	 int32_t i;
 	 buffer[0] = 0;
-	 for(i = 0; i < 8; i++)
+	 for(i = 0; i < CIAA_GPIO_INPUTS_NUMBER; i++)
 	 {
 	    //ciaa_lpc4337_writeOutput(i, buffer[0] & (1 << i));
 	     buffer[0] |= GPIO_DRV_ReadPinInput(ciaaGPIOoutputCofig[i].pinName) << i;
@@ -288,7 +294,7 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
         /* 1 byte read */
         ret = 1;
      }
-     else if(device == ciaaDioDevices[1])
+     else if(device == &ciaaDriverDio_out0)
      {
         /* read actual output state from layer data */
         buffer[0] = (uint8_t)*((ciaaDriverDio_dioType *)device->layer);
@@ -310,15 +316,15 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
 
   if(size != 0)
   {
-     if(device == ciaaDioDevices[0])
+     if(device == &ciaaDriverDio_in0)
      {
         /* Inputs can't be written. */
         ret = -1;
      }
-     else if(device == ciaaDioDevices[1])
+     else if(device == &ciaaDriverDio_out0)
      {
         int32_t i;
-        for(i = 0; i < 8; i++)
+        for(i = 0; i < CIAA_GPIO_OUTPUTS_NUMBER; i++)
         {
            GPIO_DRV_WritePinOutput(ciaaGPIOoutputCofig[i].pinName, (buffer[0] & (1 << i))>>i);
         }
