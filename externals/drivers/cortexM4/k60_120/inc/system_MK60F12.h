@@ -59,10 +59,10 @@
 #ifndef SYSTEM_MK60F12_H_
 #define SYSTEM_MK60F12_H_                        /**< Symbol preventing repeated inclusion */
 
-#define DISABLE_WDOG    1
+#define DISABLE_WDOG                   1
 
 #ifndef CLOCK_SETUP
-  #define CLOCK_SETUP                  1
+  #define CLOCK_SETUP                  0
 #endif
 
 /* MCG mode constants */
