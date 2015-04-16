@@ -538,11 +538,11 @@ endif
 endif
 
 ###############################################################################
-# Download to target, syntax download [file]
+# Download to target, syntax download
 download:
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
-	@echo ERROR: You can not download to target in Windows nor Linux
+	@echo ERROR: You can not start openocd in Windows nor Linux
 else
 # if CPU is not entered shows an error
 ifeq ($(CPU),)
@@ -552,16 +552,9 @@ ifeq ($(OPENOCD_CFG),)
 	@echo ERROR: Your CPU: $(CPU) may not be supported...
 else
 	@echo ===============================================================================
-	@echo Starting GDB...be sure to run 'make openocd' in another console previously
+	@echo Starting OpenOCD and downloading...
 	@echo ' '
-#if there is an argument, it should be the FW file, if not We have to use the target file
-ifeq ($(words $(MAKECMDGOALS)),1)
-#	@echo 1$(filter-out $@,$(MAKECMDGOALS))2
-	$(GDB) $(GDB_DOWNLOAD_TO_TARGET) $(LD_TARGET)
-else
-#	@echo 3$(filter-out $@,$(MAKECMDGOALS))4
-	$(GDB) $(GDB_DOWNLOAD_TO_TARGET) $(filter-out $@,$(MAKECMDGOALS))
-endif
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt" -c "flash write_image erase unlock $(TARGET_NAME).bin 0x1A000000 bin" -c "exit"
 endif
 endif
 endif
