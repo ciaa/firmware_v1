@@ -516,6 +516,28 @@ endif
 endif
 
 ###############################################################################
+# openocd, erase flash (all)
+erase:
+# if windows or posix shows an error
+ifeq ($(ARCH),x86)
+	@echo ERROR: You can not start openocd in Windows nor Linux
+else
+# if CPU is not entered shows an error
+ifeq ($(CPU),)
+	@echo ERROR: The CPU variable of your makefile is empty.
+else
+ifeq ($(OPENOCD_CFG),)
+	@echo ERROR: Your CPU: $(CPU) may not be supported...
+else
+	@echo ===============================================================================
+	@echo Starting OpenOCD and erasing all...
+	@echo ' '
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt" -c "flash erase_sector 0 0 last" -c "exit"
+endif
+endif
+endif
+
+###############################################################################
 # Download to target, syntax download [file]
 download:
 # if windows or posix shows an error
@@ -603,7 +625,8 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "run.................: execute the binary file (Win/Posix only)"
 	@echo openocd.............: starts openocd for $(ARCH)
-	@echo download [file].....: download firmware file to the target
+	@echo "download [file].....: download firmware file to the target (default: axf target file)"
+	@echo "erase...............: erase all the flash (bank 0)"   
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Bulding                                                       |"
 	@echo "+-----------------------------------------------------------------------------+"
