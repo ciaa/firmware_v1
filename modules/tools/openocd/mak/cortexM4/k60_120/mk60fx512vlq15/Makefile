@@ -34,3 +34,5 @@
 ###############################################################################
 # openocd config
 OPENOCD_CFG				= $(OPENOCD_PATH)$(DS)cfg$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)ciaa-fsl.cfg
+TARGET_DOWNLOAD_BASE_ADDR = 0x00000000
+TARGET_DOWNLOAD_EXTENSION = bin

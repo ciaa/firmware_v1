@@ -554,7 +554,7 @@ else
 	@echo ===============================================================================
 	@echo Starting OpenOCD and downloading...
 	@echo ' '
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt" -c "flash write_image erase unlock $(TARGET_NAME).bin 0x1A000000 bin" -c "exit"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt" -c "flash write_image erase unlock $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "exit"
 endif
 endif
 endif

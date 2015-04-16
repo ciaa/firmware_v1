@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # Copyright 2014, Mariano Cerdeiro
-# Copyright 2014, Juan Cecconi
+# Copyright 2014, 2015, Juan Cecconi
 #
 # This file is part of CIAA Firmware.
 #
@@ -34,3 +34,5 @@
 ###############################################################################
 # openocd config
 OPENOCD_CFG				= $(OPENOCD_PATH)$(DS)cfg$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)ciaa-nxp.cfg
+TARGET_DOWNLOAD_BASE_ADDR = 0x1A000000
+TARGET_DOWNLOAD_EXTENSION = bin
