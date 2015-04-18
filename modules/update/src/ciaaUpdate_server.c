@@ -91,33 +91,28 @@ static int ciaaUpdate_serverSendAck(ciaaUpdate_serverType *server, uint8_t seque
    return ciaaUpdate_protocolSend(server->transport, header, 4);
 }
 /*==================[external functions definition]==========================*/
-ciaaUpdate_serverType *ciaaUpdate_serverNew(ciaaUpdate_transportType *transport)
+int32_t ciaaUpdate_serverInit(ciaaUpdate_serverType *server, ciaaUpdate_transportType *transport)
 {
-   ciaaUpdate_serverType *server;
+   ciaaPOSIX_assert(NULL != server && NULL != transport);
 
-   ciaaPOSIX_assert(NULL != transport);
+   server->transport = transport;
+   server->protocol_version = 0;
+   server->sequence_number = 0;
 
-   server = ciaaPOSIX_malloc(sizeof(ciaaUpdate_serverType));
-   if(NULL != server)
-   {
-      server->transport = transport;
-      server->protocol_version = 0;
-      server->sequence_number = 0;
-   }
-   return server;
+   return 0;
 }
-void ciaaUpdate_serverDel(ciaaUpdate_serverType *server)
+void ciaaUpdate_serverClear(ciaaUpdate_serverType *server)
 {
    ciaaPOSIX_assert(NULL != server);
 
-   server->transport = NULL;
-   server->protocol_version = 0;
    server->sequence_number = 0;
-   ciaaPOSIX_free(server);
+   server->protocol_version = 0;
+   server->transport = NULL;
 }
 ssize_t ciaaUpdate_serverRecvData(
    ciaaUpdate_serverType *server,
-   uint8_t *payload_buffer)
+   uint8_t *payload_buffer,
+   size_t buffer_size)
 {
    /* holds return values */
    int32_t ret;
@@ -127,6 +122,8 @@ ssize_t ciaaUpdate_serverRecvData(
    uint8_t header[CIAAUPDATE_PROTOCOL_HEADER_SIZE];
    /* received sequence number */
    uint8_t sequence_number;
+
+   ciaaPOSIX_assert(buffer_size >= CIAAUPDATE_PROTOCOL_PAYLOAD_MAX_SIZE);
    do
    {
       /* receive header */

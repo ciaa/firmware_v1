@@ -78,7 +78,7 @@
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
-
+static ciaaUpdate_serverType ciaaUpdate_services_server;
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
@@ -93,8 +93,6 @@ int32_t ciaaUpdate_servicesStart(
    int32_t flash_fd
 )
 {
-   /* server instance reference */
-   ciaaUpdate_serverType *server;
    /* unpacker instance reference */
    ciaaUpdate_unpackerType *unpacker;
    /* storage instance reference */
@@ -110,9 +108,8 @@ int32_t ciaaUpdate_servicesStart(
 
    ciaaPOSIX_assert(-1 != flash_fd && NULL != transport);
 
-   /* create a server instance */
-   server = ciaaUpdate_serverNew(transport);
-   ciaaPOSIX_assert(NULL != server);
+   /* initialize a server instance */
+   ciaaPOSIX_assert(0 == ciaaUpdate_serverInit(&ciaaUpdate_services_server, transport));
    /* create an unpacker instance */
    unpacker = ciaaUpdate_unpackerNew();
    ciaaPOSIX_assert(NULL != unpacker);
@@ -121,7 +118,7 @@ int32_t ciaaUpdate_servicesStart(
    ciaaPOSIX_assert(NULL != storage);
 
    /* TODO: device identification */
-   while((size = ciaaUpdate_serverRecvData(server, buffer)) > 0)
+   while((size = ciaaUpdate_serverRecvData(&ciaaUpdate_services_server, buffer, sizeof(buffer))) > 0)
    {
       /* TODO: decrypt */
       /* point to the beginning of the buffer */
@@ -145,8 +142,8 @@ int32_t ciaaUpdate_servicesStart(
    ciaaUpdate_storageDel(storage);
    /* delete unpacker instance */
    ciaaUpdate_unpackerDel(unpacker);
-   /* delete server instance */
-   ciaaUpdate_serverDel(server);
+   /* clear server instance */
+   ciaaUpdate_serverClear(&ciaaUpdate_services_server);
    return 0;
 }
 /** @} doxygen end group definition */
