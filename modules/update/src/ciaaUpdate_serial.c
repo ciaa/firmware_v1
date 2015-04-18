@@ -66,15 +66,11 @@
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_errno.h"
+#include "ciaaUpdate_serial.h"
 #include "ciaaUpdate_transport.h"
 
 /*==================[macros and definitions]=================================*/
-typedef struct
-{
-   ciaaUpdate_transportRecv recv;
-   ciaaUpdate_transportSend send;
-   int32_t fd;
-} ciaaUpdate_serialType;
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -84,12 +80,26 @@ typedef struct
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+/** \brief Sends a packet.
+ **
+ ** \param serial Serial structure.
+ ** \param data Data to send.
+ ** \param size Number of bytes to send.
+ ** \return Number of bytes sent. -1 on error.
+ **/
 ssize_t ciaaUpdate_serialSend(ciaaUpdate_transportType *serial, const void *data, size_t size)
 {
    ciaaPOSIX_assert(NULL != serial);
 
    return ciaaPOSIX_write(((ciaaUpdate_serialType *) serial)->fd, data, size);
 }
+/** \brief Receives a packet.
+ **
+ ** \param serial Serial structure.
+ ** \param data Buffer to receive.
+ ** \param size Number of bytes to receive.
+ ** \return Number of bytes received. -1 on error.
+ **/
 ssize_t ciaaUpdate_serialRecv(ciaaUpdate_transportType *serial, void *data, size_t size)
 {
    ciaaPOSIX_assert(NULL != serial);
@@ -97,31 +107,25 @@ ssize_t ciaaUpdate_serialRecv(ciaaUpdate_transportType *serial, void *data, size
    return ciaaPOSIX_read(((ciaaUpdate_serialType *) serial)->fd, data, size);
 }
 /*==================[external functions definition]==========================*/
-ciaaUpdate_transportType *ciaaUpdate_serialOpen(const char *dev)
+int32_t ciaaUpdate_serialInit(ciaaUpdate_serialType *serial, const char *dev)
 {
-   ciaaUpdate_serialType *serial;
-   ciaaPOSIX_assert(NULL != dev);
-
-   serial = ciaaPOSIX_malloc(sizeof(ciaaUpdate_serialType));
+   ciaaPOSIX_assert(NULL != serial && NULL != dev);
 
    serial->fd = ciaaPOSIX_open(dev, O_RDWR);
    ciaaPOSIX_assert(serial->fd >= 0);
 
    serial->recv = ciaaUpdate_serialRecv;
    serial->send = ciaaUpdate_serialSend;
-   return (ciaaUpdate_transportType *) serial;
+   return 0;
 }
-void ciaaUpdate_serialClose(ciaaUpdate_transportType *transport)
+void ciaaUpdate_serialClear(ciaaUpdate_serialType *serial)
 {
-   ciaaUpdate_serialType *serial;
-   ciaaPOSIX_assert(NULL != transport);
+   ciaaPOSIX_assert(NULL != serial);
 
-   serial = (ciaaUpdate_serialType *) transport;
    serial->send = NULL;
    serial->recv = NULL;
    ciaaPOSIX_close(serial->fd);
    serial->fd = -1;
-   ciaaPOSIX_free(serial);
 }
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

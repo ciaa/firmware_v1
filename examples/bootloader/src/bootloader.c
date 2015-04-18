@@ -75,11 +75,13 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+
+static ciaaUpdate_serialType serial;
+
 /** \brief File descriptor of the USB uart
  *
  * Device path /dev/serial/uart/1
  */
-static int32_t fd_uart1;
 static int32_t fd_flash;
 
 /** \brief Periodic Task Counter
@@ -165,16 +167,15 @@ TASK(InitTask)
 TASK(BootloaderTask)
 {
    int32_t error;
-   ciaaUpdate_transportType* transport;
 
    ciaaPOSIX_printf("BootloaderTask...\n");
 
-   transport = ciaaUpdate_serialOpen("/dev/serial/uart/1");
+   ciaaPOSIX_assert(0 == ciaaUpdate_serialInit(&serial, "/dev/serial/uart/1"));
 
    /* open UART connected to USB bridge (FT2232) */
    fd_flash = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
 
-   error = ciaaUpdate_servicesStart(transport, fd_flash);
+   error = ciaaUpdate_servicesStart((ciaaUpdate_transportType *) &serial, fd_flash);
    switch(error)
    {
       case CIAAUPDATE_SERVICES_ERROR_NONE:
@@ -185,7 +186,7 @@ TASK(BootloaderTask)
          break;
    }
    ciaaPOSIX_close(fd_flash);
-   ciaaUpdate_serialClose(transport);
+   ciaaUpdate_serialClear(&serial);
    TerminateTask();
 }
 

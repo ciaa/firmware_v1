@@ -72,14 +72,37 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-
+/** \brief Serial transport layer type. */
+typedef struct
+{
+   /** Receive non-blocking callback. */
+   ciaaUpdate_transportRecv recv;
+   /** Send non-blocking callback. */
+   ciaaUpdate_transportSend send;
+   /** UART file descriptor */
+   int32_t fd;
+} ciaaUpdate_serialType;
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief initializes the serial transport layer
+/** \brief Initializes a serial structure.
+ **
+ ** This function initializes a serial transport layer over the specified
+ ** device.
+ **
+ ** \param serial Serial structure to initialize.
+ ** \param device Device path.
+ ** \return 0 on success. Non-zero on error.
  **/
-ciaaUpdate_transportType *ciaaUpdate_serialOpen(const char *dev);
-void ciaaUpdate_serialClose(ciaaUpdate_transportType *transport);
+int32_t ciaaUpdate_serialInit(ciaaUpdate_serialType *serial, const char *device);
+
+/** \brief Clears a serial structure.
+ **
+ ** Clears the serial transport layer structure and closes the serial device.
+ **
+ ** \param serial The serial structure to clear.
+ **/
+void ciaaUpdate_serialClear(ciaaUpdate_serialType *serial);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
