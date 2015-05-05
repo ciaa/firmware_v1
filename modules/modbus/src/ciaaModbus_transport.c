@@ -309,7 +309,7 @@ extern int8_t ciaaModbus_transportGetType(int32_t handler)
    }
    else
    {
-      ret = -1;
+      ret = CIAAMODBUS_TRANSPORT_TYPE_INVALID;
    }
 
    return ret;
