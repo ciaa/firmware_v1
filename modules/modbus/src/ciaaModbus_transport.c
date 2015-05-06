@@ -284,7 +284,7 @@ void ciaaModbus_transportSendMsg(
 
 extern int8_t ciaaModbus_transportGetType(int32_t handler)
 {
-   int8_t ret;
+   int8_t ret = CIAAMODBUS_TRANSPORT_TYPE_INVALID;
 
    if (ciaaModbus_transportObj[handler].inUse == true)
    {
@@ -306,10 +306,6 @@ extern int8_t ciaaModbus_transportGetType(int32_t handler)
             ret = CIAAMODBUS_TRANSPORT_TYPE_INVALID;
             break;
       }
-   }
-   else
-   {
-      ret = CIAAMODBUS_TRANSPORT_TYPE_INVALID;
    }
 
    return ret;
