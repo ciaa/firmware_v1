@@ -532,7 +532,7 @@ else
 	@echo ===============================================================================
 	@echo Starting OpenOCD and erasing all...
 	@echo ' '
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt" -c "flash erase_sector 0 0 last" -c "exit"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt" -c "flash erase_sector 0 0 last" -c "shutdown"
 endif
 endif
 endif
@@ -554,7 +554,7 @@ else
 	@echo ===============================================================================
 	@echo Starting OpenOCD and downloading...
 	@echo ' '
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt" -c "flash write_image erase unlock $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "exit"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt" -c "flash write_image erase unlock $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 endif
 endif
 endif
@@ -680,7 +680,7 @@ info:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo Project Path.......: $(PROJECT_PATH)
 	@echo Project Name.......: $(PROJECT_NAME)
-	@echo ARCH/CPUTYPE/CPU...: $(ARCH)/$(CPUTYPE)/$(CPU)
+	@echo BOARD/ARCH/CPUTYPE/CPU...: $(BOARD)/$(ARCH)/$(CPUTYPE)/$(CPU)
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
 	@echo libraris with srcs.: $(LIBS_WITH_SRC)
