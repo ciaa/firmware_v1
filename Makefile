@@ -111,6 +111,12 @@ CPUTYPE        ?= ia32
 CPU            ?= none
 COMPILER       ?= gcc
 BOARD          ?= none
+# export defined vars to the environment
+export ARCH
+export CPUTYPE
+export CPU
+export COMPILER
+export BOARD
 
 DS             ?= /
 # Project
