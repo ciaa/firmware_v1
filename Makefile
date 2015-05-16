@@ -521,8 +521,11 @@ endif
 endif
 endif
 
+MAKE_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+# ...and turn them into do-nothing targets
+$(eval $(MAKE_ARGS):;@:)
 ###############################################################################
-# openocd, erase flash (all)
+# openocd, erase [FLASH|QSPI]
 erase:
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
@@ -537,14 +540,33 @@ ifeq ($(OPENOCD_CFG),)
 else
 	@echo ===============================================================================
 	@echo Starting OpenOCD and erasing all...
+	@echo "(after downloading a new firmware please do a hardware reset!)"
 	@echo ' '
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt" -c "flash erase_sector 0 0 last" -c "shutdown"
+ifeq ($(words $(MAKE_ARGS)),0)
+# command line: make erase
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector 0 0 last" -c "shutdown"
+else
+ifeq ($(words $(MAKE_ARGS)),1)
+# command line: make erase [FLASH|QSPI]
+ifeq ($(word 1, $(MAKE_ARGS)),FLASH)
+	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
+else
+ifeq ($(word 1, $(MAKE_ARGS)),QSPI)
+	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector $(TARGET_DOWNLOAD_QSPI_BANK) 0 last" -c "shutdown"
+else
+	@echo 'Error...unknown memory type'
+endif
+endif
+else
+	@echo 'Error...unknown arguments'
+endif
+endif
 endif
 endif
 endif
 
 ###############################################################################
-# Download to target, syntax download
+# Download to target, syntax download [file]
 download:
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
@@ -560,7 +582,17 @@ else
 	@echo ===============================================================================
 	@echo Starting OpenOCD and downloading...
 	@echo ' '
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt" -c "flash write_image erase unlock $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+ifeq ($(words $(MAKECMDGOALS)),1)
+# command line: make download
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+else
+ifeq ($(words $(MAKECMDGOALS)),2)
+# command line: make download [File]
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(subst .,,$(suffix $(word 2,$(MAKECMDGOALS))))" -c "reset run" -c "shutdown"
+else
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_$(word 3,$(MAKECMDGOALS))_BASE_ADDR) $(subst .,,$(suffix $(word 2,$(MAKECMDGOALS))))" -c "reset run" -c "shutdown"
+endif
+endif
 endif
 endif
 endif
@@ -624,8 +656,8 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "run.................: execute the binary file (Win/Posix only)"
 	@echo openocd.............: starts openocd for $(ARCH)
-	@echo "download [file].....: download firmware file to the target (default: axf target file)"
-	@echo "erase...............: erase all the flash (bank 0)"   
+	@echo "download [file] [FLASH|QSPI].: download FW file to the target"
+	@echo "erase [FLASH|QSPI]..: erase all the flash"   
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Bulding                                                       |"
 	@echo "+-----------------------------------------------------------------------------+"

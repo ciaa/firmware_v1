@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # Copyright 2014, Mariano Cerdeiro
-# Copyright 2014, Juan Cecconi
+# Copyright 2014, 2015, Juan Cecconi
 #
 # This file is part of CIAA Firmware.
 #
@@ -34,7 +34,8 @@
 ###############################################################################
 # openocd config
 OPENOCD_CFG				= $(OPENOCD_PATH)$(DS)cfg$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)ciaa-fsl.cfg
-# A relocation offset used when write the image file to the current target’s flash bank0
-TARGET_DOWNLOAD_BASE_ADDR = 0x00000000
+# A relocation offset used when write the image file to the current target’s flash bank
+TARGET_DOWNLOAD_FLASH_BASE_ADDR = 0x00000000
+TARGET_DOWNLOAD_FLASH_BANK = 0
 # The file type to be flashed, must be specified explicitly. ex.: bin
 TARGET_DOWNLOAD_EXTENSION = bin
