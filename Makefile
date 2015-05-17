@@ -588,9 +588,9 @@ ifeq ($(words $(MAKECMDGOALS)),1)
 else
 ifeq ($(words $(MAKECMDGOALS)),2)
 # command line: make download [File]
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(subst .,,$(suffix $(word 2,$(MAKECMDGOALS))))" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 else
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_$(word 3,$(MAKECMDGOALS))_BASE_ADDR) $(subst .,,$(suffix $(word 2,$(MAKECMDGOALS))))" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_$(word 3,$(MAKECMDGOALS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 endif
 endif
 endif
