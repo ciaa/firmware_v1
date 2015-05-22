@@ -289,10 +289,18 @@ ifeq ($(findstring tst_, $(MAKECMDGOALS)),tst_)
 tst_mod = $(firstword $(filter-out tst,$(subst _, ,$(MAKECMDGOALS))))
 
 # get file to be tested (if present) and store it in tst_file
+# this shall be done multiple times, one time for each possible _, no 3 _ are supported in the test file name
 tst_file := $(word 2,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS))))
 ifneq ($(word 3,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))),)
 tst_file := $(join $(tst_file),_$(word 3,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))))
 endif
+ifneq ($(word 4,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))),)
+tst_file := $(join $(tst_file),_$(word 4,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))))
+endif
+ifneq ($(word 5,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))),)
+tst_file := $(join $(tst_file),_$(word 5,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))))
+endif
+
 # if tst_file is all the variable shall be reset and all tests shall be executed
 ifeq ($(tst_file),all)
 tst_file :=
