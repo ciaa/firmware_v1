@@ -2,7 +2,7 @@
 
 package OutSummary;
 use Html;
-use Time::Piece;
+use POSIX qw(strftime);
 
 use strict;
 use warnings;
@@ -32,7 +32,7 @@ sub genReport
    print FILE "<title>CIAA Firmware Quality Report</title>";
    print FILE "<body>";
    print FILE "<h1>CIAA Firmware Quality Report</h1>";
-   print FILE "<p>Generated....: " . Time::Piece::localtime->strftime('%F %T') . "</p>";
+   print FILE "<p>Generated....: " . print "<p>Generated....: " . (strftime "%F %T", localtime) . "</p>";
    print FILE "<p>GIT Revision.: " . `git log -1 --format="%H"` . "</p>";
 
    print FILE "<table border='1'>";
