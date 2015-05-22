@@ -1,6 +1,5 @@
-/*------------------------------------------------------------------------
-
-Copyright © 2012-2014 Eric Nicolás Pernia. All rights reserved.
+/* Copyright 2012-2014, Eric Nicolás Pernia
+ * All rights reserved.
 
 This file is part of IDE4PLC Firmware. http://ide4plc.wordpress.com
 

@@ -1,9 +1,6 @@
-/*------------------------------------------------------------------------
-
-Copyright © 2012-2014 Eric Nicolás Pernia.
-Copyright © 2015 Eric Nicolás Pernia.
-Copyright © 2015 Leandro Kollenberger.
-All rights reserved.
+/* Copyright 2012-2015, Eric Nicolás Pernia
+ * Copyright 2015, Leandro Kollenberger
+ * All rights reserved.
 
 This file is part of IDE4PLC Firmware. http://ide4plc.wordpress.com
 
