@@ -41,6 +41,9 @@
 #ifndef PLC_IL_INSTRUCTIONS_H_
 	#define PLC_IL_INSTRUCTIONS_H_
 
+   #include "PLC_Registers.h"
+   #include "PLC_Lib.h"
+
 	/* Data type enumeration for PLC Boolean Operations (U, UN, O, ON, X, XN) */
 
 	typedef enum{AND, ANDN, OR, ORN, XOR, XORN} PLC_Boolean_Operation;

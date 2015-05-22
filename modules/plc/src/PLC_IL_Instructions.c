@@ -37,9 +37,7 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
  *      Author: Eric Pernia
  */
 
-#include "PLC_Registers.h"
 #include "PLC_IL_Instructions.h"
-#include "PLC_Lib.h"
 
 
 void PLC_IL_LD_BOOL_Literal(PLC_BOOL newValue, PLC_EnumModifiers modifier)
