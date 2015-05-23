@@ -1,4 +1,4 @@
-/* Copyright 2014, Juan Cecconi
+/* Copyright 2015, Juan Cecconi
   *
  * This file is part of CIAA Firmware.
  *
@@ -87,61 +87,139 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-void doNothing(void) {
-}
-
 /** \brief test Convert_PLC_1ByteRegister_2_PLC_BYTE
  **
- ** test the function Convert_PLC_1ByteRegister_2_PLC_BYTE
+ ** test the function Convert_PLC_1ByteRegister_2_PLC_BYTE with all zeros
  **
  **/
-void test_Convert_PLC_1ByteRegister_2_PLC_BYTE(void) {
+void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_01(void) {
    PLC_BYTE ret_PLC_Byte;
    PLC_1ByteRegister PORT;
    
    memset(&PORT, 0, sizeof(PORT));
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
-   TEST_ASSERT_TRUE(ret_PLC_Byte == 0x00);
+   TEST_ASSERT_EQUAL_INT(0, ret_PLC_Byte);
+}
 
+
+/** \brief test Convert_PLC_1ByteRegister_2_PLC_BYTE
+ **
+ ** test the function Convert_PLC_1ByteRegister_2_PLC_BYTE with bit 0
+ **
+ **/
+void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_02(void) {
+   PLC_BYTE ret_PLC_Byte;
+   PLC_1ByteRegister PORT;
+   
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x0 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
-   TEST_ASSERT_TRUE(ret_PLC_Byte == 0x01);
+   TEST_ASSERT_BIT_HIGH(0, ret_PLC_Byte);
+}
 
+/** \brief test Convert_PLC_1ByteRegister_2_PLC_BYTE
+ **
+ ** test the function Convert_PLC_1ByteRegister_2_PLC_BYTE with bit 1
+ **
+ **/
+void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_03(void) {
+   PLC_BYTE ret_PLC_Byte;
+   PLC_1ByteRegister PORT;
+   
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x1 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
-   TEST_ASSERT_TRUE(ret_PLC_Byte == 0x02);
+   TEST_ASSERT_BIT_HIGH(1, ret_PLC_Byte);
+}
 
+/** \brief test Convert_PLC_1ByteRegister_2_PLC_BYTE
+ **
+ ** test the function Convert_PLC_1ByteRegister_2_PLC_BYTE with bit 2
+ **
+ **/
+void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_04(void) {
+   PLC_BYTE ret_PLC_Byte;
+   PLC_1ByteRegister PORT;
+   
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x2 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
-   TEST_ASSERT_TRUE(ret_PLC_Byte == 0x04);
+   TEST_ASSERT_BIT_HIGH(2, ret_PLC_Byte);
+}
 
+/** \brief test Convert_PLC_1ByteRegister_2_PLC_BYTE
+ **
+ ** test the function Convert_PLC_1ByteRegister_2_PLC_BYTE with bit 3
+ **
+ **/
+void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_05(void) {
+   PLC_BYTE ret_PLC_Byte;
+   PLC_1ByteRegister PORT;
+   
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x3 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
-   TEST_ASSERT_TRUE(ret_PLC_Byte == 0x08);
+   TEST_ASSERT_BIT_HIGH(3, ret_PLC_Byte);
+}
 
+/** \brief test Convert_PLC_1ByteRegister_2_PLC_BYTE
+ **
+ ** test the function Convert_PLC_1ByteRegister_2_PLC_BYTE with bit 4
+ **
+ **/
+void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_06(void) {
+   PLC_BYTE ret_PLC_Byte;
+   PLC_1ByteRegister PORT;
+   
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x4 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
-   TEST_ASSERT_TRUE(ret_PLC_Byte == 0x10);
+   TEST_ASSERT_BIT_HIGH(4, ret_PLC_Byte);
+}
 
+/** \brief test Convert_PLC_1ByteRegister_2_PLC_BYTE
+ **
+ ** test the function Convert_PLC_1ByteRegister_2_PLC_BYTE with bit 5
+ **
+ **/
+void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_07(void) {
+   PLC_BYTE ret_PLC_Byte;
+   PLC_1ByteRegister PORT;
+   
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x5 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
-   TEST_ASSERT_TRUE(ret_PLC_Byte == 0x20);
+   TEST_ASSERT_BIT_HIGH(5, ret_PLC_Byte);
+}
 
+/** \brief test Convert_PLC_1ByteRegister_2_PLC_BYTE
+ **
+ ** test the function Convert_PLC_1ByteRegister_2_PLC_BYTE with bit 6
+ **
+ **/
+void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_08(void) {
+   PLC_BYTE ret_PLC_Byte;
+   PLC_1ByteRegister PORT;
+   
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x6 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
-   TEST_ASSERT_TRUE(ret_PLC_Byte == 0x40);
+   TEST_ASSERT_BIT_HIGH(6, ret_PLC_Byte);
+}
 
+/** \brief test Convert_PLC_1ByteRegister_2_PLC_BYTE
+ **
+ ** test the function Convert_PLC_1ByteRegister_2_PLC_BYTE with bit 7
+ **
+ **/
+void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_09(void) {
+   PLC_BYTE ret_PLC_Byte;
+   PLC_1ByteRegister PORT;
+   
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x7 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
-   TEST_ASSERT_TRUE(ret_PLC_Byte == 0x80);
+   TEST_ASSERT_BIT_HIGH(7, ret_PLC_Byte);
 }
 
 /** \brief test Convert_PLC_BYTE_2_PLC_1ByteRegister
