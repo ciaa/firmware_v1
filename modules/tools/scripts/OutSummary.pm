@@ -32,7 +32,7 @@ sub genReport
    print FILE "<title>CIAA Firmware Quality Report</title>";
    print FILE "<body>";
    print FILE "<h1>CIAA Firmware Quality Report</h1>";
-   print FILE "<p>Generated....: " . "<p>Generated....: " . (strftime "%F %T", localtime) . "</p>";
+   print FILE "<p>Generated....: " . (strftime "%F %T", localtime) . "</p>";
    print FILE "<p>GIT Revision.: " . `git log -1 --format="%H"` . "</p>";
 
    print FILE "<table border='1'>";
