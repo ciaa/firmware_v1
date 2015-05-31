@@ -2,7 +2,7 @@
  * Copyright 2015, Leandro Kollenberger
  * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,31 +32,57 @@
  *
  */
 
+#ifndef PLC_OPERATING_SYSTEM_H_
+#define PLC_OPERATING_SYSTEM_H_
+/** \brief Operating System interaction layer
+ **
+ ** Operating System interaction layer
+ **
+ **/
+
+/** \addtogroup CIAA_Firmware CIAA Firmware
+ ** @{ */
+/** \addtogroup PLC PLC Module
+ ** @{ */
+
 /*
- * PLC_OperatingSystem.h
- *
- *  Created on: 2012/02/04
- *      Author: Eric Pernia
+ * Initials     Name
+ * ---------------------------
+ * ErPe         Eric Pernia
+ * LeKo         Leandro Kollenberger
  */
 
-#ifndef PLC_OPERATING_SYSTEM_H_
-	#define PLC_OPERATING_SYSTEM_H_
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20150428 v0.0.1 ErPe & LeKo CIAA Firmware porting
+ * 20120204 v0.0.1 ErPe initial version (for LPCXpresso 1768/9)
+ */
 
-	/* FreeRTOS.org includes. */
-	//#include "FreeRTOS.h"
-	//#include "FreeRTOSConfig.h"
-	//#include "task.h"
-	//#include "basic_io.h"	// Para enviar datos a la consola. Viene de los Ejemplos de FreeRTOS
+/*==================[inclusions]=============================================*/
+#include "os.h"               /* <= operating system header */
+#include "ciaak.h"            /* <= ciaa kernel header */
 
-	// PLC Task Create Macro
-	//#define PLC_TaskCreate( pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask ) xTaskCreate( ( pvTaskCode ), ( pcName ), ( usStackDepth ), ( pvParameters ), ( uxPriority ), ( pxCreatedTask ) )
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	#include "os.h"               /* <= operating system header */
-	#include "ciaak.h"            /* <= ciaa kernel header */
+/*==================[macros]=================================================*/
 
-	// Function prototypes
-	//void PLC_TaskStartScheduler( void );
+/*==================[typedef]================================================*/
 
-	uint64_t PLC_GetTimersTime(void);
+/*==================[external data declaration]==============================*/
 
+/*==================[external functions declaration]=========================*/
+/** \brief PLC GetTimersTime Function */
+uint64_t PLC_GetTimersTime(void);
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/*==================[end of file]============================================*/
 #endif /* PLC_OPERATING_SYSTEM_H_ */
+

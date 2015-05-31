@@ -2,7 +2,7 @@
  * Copyright 2015, Leandro Kollenberger
  * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,36 +32,68 @@
  *
  */
 
+#ifndef PLC_STANDARD_C_DATA_TYPES_H
+#define PLC_STANDARD_C_DATA_TYPES_H
+/** \brief Standard C Data Types
+ **
+ ** Standard C Data Types
+ **
+ **/
+
+/** \addtogroup CIAA_Firmware CIAA Firmware
+ ** @{ */
+/** \addtogroup PLC PLC Module
+ ** @{ */
+
 /*
- * PLC_StandardCDataTypes.h
- *
- *  Created on: 2014/09/10
- *      Author: Eric Pernia
+ * Initials     Name
+ * ---------------------------
+ * ErPe         Eric Pernia
+ * LeKo         Leandro Kollenberger
  */
 
-#ifndef PLC_STANDARD_DATA_TYPES_H
-	#define PLC_STANDARD_DATA_TYPES_H
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20150428 v0.0.1 ErPe & LeKo CIAA Firmware porting
+ * 20140910 v0.0.1 ErPe initial version
+ */
 
-	/* REDlib includes. */
-	//#include <stdbool.h>
-	#include <stdint.h>
-	#include <string.h>
+/*==================[inclusions]=============================================*/
+#include <stdint.h>
+#include <string.h>
 
-	#define true 1
-	#define false 0
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+/*==================[macros]=================================================*/
+/** \brief True and False. */
+#define true    1
+#define false   0
 
-	/*Defino el tipo boolean usando el tipo bool definido en stdbool.h */
-	//typedef bool boolean;
+/** \brief Bit masks for 8 bit variables like unsigned char. */
+#define bit_0   0x01
+#define bit_1   0x02
+#define bit_2   0x04
+#define bit_3   0x08
+#define bit_4   0x10
+#define bit_5   0x20
+#define bit_6   0x40
+#define bit_7   0x80
+/*==================[typedef]================================================*/
 
-	/* Bit masks for 8 bit variables like unsigned char.*/
-	#define bit_0 0x01
-	#define bit_1 0x02
-	#define bit_2 0x04
-	#define bit_3 0x08
-	#define bit_4 0x10
-	#define bit_5 0x20
-	#define bit_6 0x40
-	#define bit_7 0x80
+/*==================[external data declaration]==============================*/
 
-#endif /* PLC_STANDARD_DATA_TYPES_H */
+/*==================[external functions declaration]=========================*/
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/*==================[end of file]============================================*/
+#endif /* PLC_STANDARD_C_DATA_TYPES_H */
+

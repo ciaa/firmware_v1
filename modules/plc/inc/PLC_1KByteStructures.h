@@ -34,9 +34,9 @@
 
 #ifndef PLC_1KBYTESTRUCTURES_H_
 #define PLC_1KBYTESTRUCTURES_H_
-/** \brief Short description of this file
+/** \brief Structures with 1Kbytes 
  **
- ** Long description of this file
+ ** Structures with 1Kbytes
  **
  **/
 
@@ -49,11 +49,13 @@
  * Initials     Name
  * ---------------------------
  * ErPe         Eric Pernia
+ * LeKo         Leandro Kollenberger
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150428 v0.0.1 ErPe & LeKo CIAA Firmware porting
  * 20120204 v0.0.1 ErPe initial version
  */
 

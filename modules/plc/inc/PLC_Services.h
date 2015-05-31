@@ -1,7 +1,7 @@
-/* Copyright 2012-2014, Eric Nicolás Pernia
+/* Copyright 2012-2015, Eric Nicolás Pernia
  * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,20 +31,55 @@
  *
  */
 
+#ifndef PLC_SERVICES_H_
+#define PLC_SERVICES_H_
+/** \brief PLC SERVICES
+ **
+ ** PLC SERVICES
+ **
+ **/
+
+/** \addtogroup CIAA_Firmware CIAA Firmware
+ ** @{ */
+/** \addtogroup PLC PLC Module
+ ** @{ */
+
 /*
- * PLC_Services.h
- *
- *  Created on: 2014/09/11
- *      Author: Eric Pernia
+ * Initials     Name
+ * ---------------------------
+ * ErPe         Eric Pernia
  */
 
-#ifndef PLC_SERVICES_H_
-	#define PLC_SERVICES_H_
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20140911 v0.0.1 ErPe initial version
+ */
 
+/*==================[inclusions]=============================================*/
+/* PLC Services Includes */
+#include "PLC_StandardCDataTypes.h"	// Standard C Data Types
+#include "PLC_Hardware.h"			// PLC Hardware
+#include "PLC_OperatingSystem.h"	// Real Time Operating System
 
-	/* PLC Services Includes */
-	#include "PLC_StandardCDataTypes.h"	// Standard C Data Types
-	#include "PLC_Hardware.h"			// PLC PLeriC - LPC1769 Hardware
-	#include "PLC_OperatingSystem.h"	// Real Time Operating System
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+/*==================[macros]=================================================*/
+
+/*==================[typedef]================================================*/
+
+/*==================[external data declaration]==============================*/
+
+/*==================[external functions declaration]=========================*/
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/*==================[end of file]============================================*/
 #endif /* PLC_SERVICES_H_ */

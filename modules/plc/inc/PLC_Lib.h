@@ -1,7 +1,7 @@
-/* Copyright 2012-2014, Eric Nicolás Pernia
+/* Copyright 2012-2015, Eric Nicolás Pernia
  * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,39 +31,61 @@
  *
  */
 
+#ifndef PLC_LIB_H_
+#define PLC_LIB_H_
+/** \brief PLC IL LIBRARY
+ **
+ ** PLC IL LIBRARY
+ **
+ **/
+
+/** \addtogroup CIAA_Firmware CIAA Firmware
+ ** @{ */
+/** \addtogroup PLC PLC Module
+ ** @{ */
+
 /*
- * PLC_Lib.h
- *
- *  Created on: 2014/09/11
- *      Author: Eric Pernia
+ * Initials     Name
+ * ---------------------------
+ * ErPe         Eric Pernia
  */
 
-#ifndef PLC_LIB_H_
-	#define PLC_LIB_H_
-
-
-	/* PLC Services Includes */
-
-	#include "PLC_Services.h"
-
-
-	/* PLC Lib includes. */
-
-	#include "PLC_ElementaryDataTypes.h"
-
-	#include "PLC_1KByteStructures.h"
-	#include "PLC_Registers.h"
-
-	#include "PLC_IL_Instructions.h"
-
-
-	// Manejo de errores
-	// void PLC_Error_Handler(PLC_USINT);
-
-	// DT Weekday
 /*
-	int DT_Weekday(PLC_INT, PLC_INT, PLC_INT);
-	void Day_Display(PLC_INT);
-*/
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20140911 v0.0.1 ErPe initial version
+ */
 
+/*==================[inclusions]=============================================*/
+/* PLC Services Includes */
+#include "PLC_Services.h"
+
+/* PLC Lib includes. */
+#include "PLC_ElementaryDataTypes.h"
+#include "PLC_1KByteStructures.h"
+#include "PLC_Registers.h"
+#include "PLC_IL_Instructions.h"
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*==================[macros]=================================================*/
+
+/*==================[typedef]================================================*/
+
+/*==================[external data declaration]==============================*/
+
+/*==================[external functions declaration]=========================*/
+/** \brief PLC DT Weekday Function */
+PLC_INT DT_Weekday(PLC_INT Year, PLC_INT Month, PLC_INT Day);
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/*==================[end of file]============================================*/
 #endif /* PLC_LIB_H_ */

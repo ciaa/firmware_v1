@@ -1,8 +1,7 @@
 /* Copyright 2012-2015, Eric Nicolás Pernia
- * Copyright 2015, Leandro Kollenberger
  * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,121 +31,144 @@
  *
  */
 
+#ifndef PLC_REGISTERS_H_
+#define PLC_REGISTERS_H_
+/** \brief PLC Registers
+ **
+ ** PLC Registers
+ **
+ **/
+
+/** \addtogroup CIAA_Firmware CIAA Firmware
+ ** @{ */
+/** \addtogroup PLC PLC Module
+ ** @{ */
+
 /*
- * PLC_Registers.h
- *
- *  Created on: 2012/02/04
- *      Author: Eric Pernia
+ * Initials     Name
+ * ---------------------------
+ * ErPe         Eric Pernia
  */
 
-#ifndef PLC_REGISTERS_H_
-	#define PLC_REGISTERS_H_
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20120204 v0.0.1 ErPe initial version
+ */
 
-	#include "PLC_1KByteStructures.h"
+/*==================[inclusions]=============================================*/
+#include "PLC_1KByteStructures.h"
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	// Registros del PLC de 1KByte.
-	// Esta estructura se utiliza para las variables representadas Directamente.
-	typedef union
-	{
-		PLC_1KByteAsBits	X;
-		PLC_1KByteAsBytes	B;
-		PLC_1KByteAsWords	W;
-		PLC_1KByteAsDoubles	D;
-		PLC_1KByteAsLongs	L;
-	}PLC_1KByteRegister;
+/*==================[macros]=================================================*/
 
+/*==================[typedef]================================================*/
+/** \brief  1KByte PLC Registers data type */
+// Use fore directly represented variables.
+typedef union
+{
+   PLC_1KByteAsBits           X;
+   PLC_1KByteAsBytes          B;
+   PLC_1KByteAsWords          W;
+   PLC_1KByteAsDoubles        D;
+   PLC_1KByteAsLongs          L;
+}PLC_1KByteRegister;
+      
+/** \brief PLC I/O Structures data type */
+typedef struct
+{
+   boolean x0:1;
+   boolean x1:1;
+   boolean x2:1;
+   boolean x3:1;
+   boolean x4:1;
+   boolean x5:1;
+   boolean x6:1;
+   boolean x7:1;
+}PLC_1ByteAsBits;
 
+/** \brief PLC I/O Structures data type */
+typedef struct
+{
+   uint8_t b0;
+}PLC_1ByteAsByte;
 
-	/* I/O Structures */
+/** \brief 1KByte PLC Registers data type */
+// Use fore directly represented variables.
+typedef union
+{
+   PLC_1ByteAsBits            X;
+   PLC_1ByteAsByte            B;
+}PLC_1ByteRegister;
 
-	typedef struct
-	{
-		boolean x0:1;
-		boolean x1:1;
-		boolean x2:1;
-		boolean x3:1;
-		boolean x4:1;
-		boolean x5:1;
-		boolean x6:1;
-		boolean x7:1;
-	}PLC_1ByteAsBits;
+/** \brief PLC Elementary enumerated data type */
+typedef enum{ BOOL, BYTE, WORD, DWORD, LWORD, SINT, INT, DINT, LINT,
+   USINT, UINT, UDINT, ULINT, REAL, LREAL, TIME, D, TOD, DT,
+   STRING, WSTRING, BCD16, BCD32, OTHER
+} PLC_EnumDataTypes;
 
-	typedef struct
-	{
-		uint8_t b0;
-	}PLC_1ByteAsByte;
+/** \brief PLC Symbolic Register data type */
+typedef union
+{
+   PLC_BOOL                   BOOL;      //  0
+   PLC_BYTE                   BYTE;      //  1
+   PLC_WORD                   WORD;      //  2
+   PLC_DWORD                  DWORD;     //  3
+   PLC_LWORD                  LWORD;     //  4
 
-	// Registros del PLC de 1 Byte.
-	// Esta estructura se utiliza para las variables representadas Directamente.
-	typedef union
-	{
-		PLC_1ByteAsBits	X;
-		PLC_1ByteAsByte	B;
-	}PLC_1ByteRegister;
+   PLC_SINT                   SINT;      //  5
+   PLC_INT                    INT;       //  6
+   PLC_DINT                   DINT;      //  7
+   PLC_LINT                   LINT;      //  8
 
+   PLC_USINT                  USINT;     //  9
+   PLC_UINT                   UINT;      // 10
+   PLC_UDINT                  UDINT;     // 11
+   PLC_ULINT                  ULINT;     // 12
 
+   PLC_REAL                   REAL;      // 13
+   PLC_LREAL                  LREAL;     // 14
 
-	// Enum de tipos de datos elementales
-	typedef enum{ BOOL, BYTE, WORD, DWORD, LWORD, SINT, INT, DINT, LINT,
-				  USINT, UINT, UDINT, ULINT, REAL, LREAL, TIME, D, TOD, DT,
-				  STRING, WSTRING, BCD16, BCD32, OTHER
-				} PLC_EnumDataTypes;
+   PLC_TIME                   TIME;      // 15
+   PLC_DATE                   D;         // 16
+   PLC_TIME_OF_DAY            TOD;       // 17
+   PLC_DATE_AND_TIME          DT;        // 18
 
-	typedef union
-	{
-		PLC_BOOL			BOOL;		//  0
-		PLC_BYTE			BYTE;		//  1
-		PLC_WORD			WORD;		//  2
-		PLC_DWORD			DWORD;		//  3
-		PLC_LWORD			LWORD;		//  4
+   PLC_STRING                 STRING;    // 19
+   PLC_WSTRING                WSTRING;   // 20
 
-		PLC_SINT			SINT;		//  5
-		PLC_INT				INT;		//  6
-		PLC_DINT			DINT;		//  7
-		PLC_LINT			LINT;		//  8
+   PLC_BCD16                  BCD16;     // 21
+   PLC_BCD32                  BCD32;     // 22
 
-		PLC_USINT			USINT;		//  9
-		PLC_UINT			UINT;		// 10
-		PLC_UDINT			UDINT;		// 11
-		PLC_ULINT			ULINT;		// 12
+   PLC_1KByteAsLongs          KBYTE;
 
-		PLC_REAL 			REAL;		// 13
-		PLC_LREAL 			LREAL;		// 14
+}PLC_SyRegDataTypesAccess;
 
-		PLC_TIME 			TIME;		// 15
-		PLC_DATE 			D;			// 16
-		PLC_TIME_OF_DAY		TOD;		// 17
-		PLC_DATE_AND_TIME	DT;			// 18
+/** \brief PLC Symbolic Register data type */
+typedef struct
+{
+   PLC_EnumDataTypes          TYPE;
+   PLC_SyRegDataTypesAccess   VALUE;
+}PLC_SymbolicRegister;
 
-	  	PLC_STRING			STRING;		// 19
-		PLC_WSTRING 		WSTRING;	// 20
+/*==================[external data declaration]==============================*/
 
-		PLC_BCD16			BCD16;		// 21
-		PLC_BCD32 			BCD32;		// 22
+/*==================[external functions declaration]=========================*/
+/** \brief PLC Convert_PLC_BYTE_2_PLC_1ByteRegister Function */
+PLC_1ByteRegister Convert_PLC_BYTE_2_PLC_1ByteRegister(PLC_BYTE);
+/** \brief PLC Convert_PLC_1ByteRegister_2_PLC_BYTE Function */
+PLC_BYTE Convert_PLC_1ByteRegister_2_PLC_BYTE(PLC_1ByteRegister);
 
-		PLC_1KByteAsLongs	KBYTE;
-
-	}PLC_SyRegDataTypesAccess;
-
-
-	typedef struct
-	{
-		PLC_EnumDataTypes			TYPE;
-		PLC_SyRegDataTypesAccess	VALUE;
-	}PLC_SymbolicRegister;
-
-
-
-
-
-
-
-
-	/*Functions Prototypes*/
-
-	PLC_1ByteRegister Convert_PLC_BYTE_2_PLC_1ByteRegister(PLC_BYTE);
-	PLC_BYTE Convert_PLC_1ByteRegister_2_PLC_BYTE(PLC_1ByteRegister);
-
-
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/*==================[end of file]============================================*/
 #endif /* PLC_REGISTERS_H_ */
+
