@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2015, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,17 +30,13 @@
  *
  */
 
-#ifndef _CIAAPLC_FUNCTION_H_
-#define _CIAAPLC_FUNCTION_H_
-/** \brief Implements a PLC Function
- **
- ** This file implements a PLC (Instruction List) function
+/** \brief This file implements the test os PLC IL
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup PLC PLC
+/** \addtogroup PLC PLC Module
  ** @{ */
 
 /*
@@ -52,47 +48,83 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140824 v0.0.1 MaCe initial version
+ * 20150522 v0.0.1 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
+#include "unity.h"
+#include "PLC_Registers.h"
+#include "PLC_IL_Instructions.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[typedef]================================================*/
-typedef uint8_t ciaaPLC_varCountType;
+/*==================[internal data declaration]==============================*/
 
-typedef struct {
-   ciaaPLC_varCountType uint8_t_count;
-   ciaaPLC_varCountType uint16_t_count;
-   ciaaPLC_varCountType uint32_t_count;
-   ciaaPLC_varCountType uint64_t_count;
-   ciaaPLC_varCountType int8_t_count;
-   ciaaPLC_varCountType int16_t_count;
-   ciaaPLC_varCountType int32_t_count;
-   ciaaPLC_varCountType int64_t_count;
-} ciaaPLC_funcLocalType;
+/*==================[internal data definition]===============================*/
 
-typedef struct {
-   ciaaPLC_funcLocalType local;
-} ciaaPLC_funcType;
+/*==================[external data definition]===============================*/
+PLC_SymbolicRegister CR;
 
-/*==================[external data declaration]==============================*/
+/*==================[internal functions definition]==========================*/
 
-/*==================[external functions declaration]=========================*/
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[external functions definition]==========================*/
+/** \brief set Up function
+ **
+ ** This function is called before each test case is executed
+ **
+ **/
+void setUp(void)
+{
 }
-#endif
+
+/** \brief tear Down function
+ **
+ ** This function is called after each test case is executed
+ **
+ **/
+void tearDown(void)
+{
+}
+
+void test_PLC_IL_LD_BOOL_Literal_01(void)
+{
+   CR.VALUE.BOOL = 0;
+
+   PLC_IL_LD_BOOL_Literal(0, N);
+
+   TEST_ASSERT_EQUAL_INT(1, CR.VALUE.BOOL);
+}
+
+void test_PLC_IL_LD_BOOL_Literal_02(void)
+{
+   CR.VALUE.BOOL = 1;
+
+   PLC_IL_LD_BOOL_Literal(1, N);
+
+   TEST_ASSERT_EQUAL_INT(0, CR.VALUE.BOOL);
+}
+
+void test_PLC_IL_LD_BOOL_Literal_03(void)
+{
+   CR.VALUE.BOOL = 1;
+
+   PLC_IL_LD_BOOL_Literal(0, C);
+
+   TEST_ASSERT_EQUAL_INT(0, CR.VALUE.BOOL);
+}
+
+void test_PLC_IL_LD_BOOL_Literal_04(void)
+{
+   CR.VALUE.BOOL = 0;
+
+   PLC_IL_LD_BOOL_Literal(1, C);
+
+   TEST_ASSERT_EQUAL_INT(1, CR.VALUE.BOOL);
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPLC_FUNCTION_H_ */
 

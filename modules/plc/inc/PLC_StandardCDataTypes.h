@@ -1,7 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
+/* Copyright 2012-2015, Eric Nicolás Pernia
+ * Copyright 2015, Leandro Kollenberger
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,46 +32,36 @@
  *
  */
 
-#ifndef PLC_APPLICATION_H
-#define PLC_APPLICATION_H
-/** \brief PLC Application header file
- **
- ** This is the PLC Application header of the CIAA Firmware
- **
- **/
-
-/** \addtogroup CIAA_Firmware CIAA Firmware
- ** @{ */
-/** \addtogroup PLC PLC Module
- ** @{ */
-/** \addtogroup PLC_Application PLC Application file
- ** @{ */
-
 /*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * PLC_StandardCDataTypes.h
+ *
+ *  Created on: 2014/09/10
+ *      Author: Eric Pernia
  */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150404 v0.0.1 MaCe initial version
- */
+#ifndef PLC_STANDARD_DATA_TYPES_H
+	#define PLC_STANDARD_DATA_TYPES_H
 
-/*==================[inclusions]=============================================*/
+	/* REDlib includes. */
+	//#include <stdbool.h>
+	#include <stdint.h>
+	#include <string.h>
 
-/*==================[macros]=================================================*/
+	#define true 1
+	#define false 0
 
-/*==================[typedef]================================================*/
 
-/*==================[external data declaration]==============================*/
+	/*Defino el tipo boolean usando el tipo bool definido en stdbool.h */
+	//typedef bool boolean;
 
-/*==================[external functions declaration]=========================*/
+	/* Bit masks for 8 bit variables like unsigned char.*/
+	#define bit_0 0x01
+	#define bit_1 0x02
+	#define bit_2 0x04
+	#define bit_3 0x08
+	#define bit_4 0x10
+	#define bit_5 0x20
+	#define bit_6 0x40
+	#define bit_7 0x80
 
-/** @} doxygen end group definition */
-/** @} doxygen end group definition */
-/** @} doxygen end group definition */
-/*==================[end of file]============================================*/
-#endif /* #ifndef PLC_APPLICATION_H */
-
+#endif /* PLC_STANDARD_DATA_TYPES_H */
