@@ -163,7 +163,7 @@ define cyg2win
 `cygpath -w $(1)`
 endef
 define cp4c
-$(call cyg2win,$(1))
+$(if $(findstring tst_,$(MAKECMDGOALS)),$(1),$(call cyg2win,$(1)))
 endef
 # Libraries group linker parameters
 START_GROUP       = -Xlinker --start-group
