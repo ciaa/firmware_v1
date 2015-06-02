@@ -30,20 +30,49 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
- 
+
+/** \brief PLC Libraries
+ **
+ ** PLC Libraries
+ **
+ **/
+
+/** \addtogroup CIAA_Firmware CIAA Firmware
+ ** @{ */
+/** \addtogroup PLC PLC Module
+ ** @{ */
+
 /*
- * PLC_Lib.h
- *
- *  Created on: 2014/09/11
- *      Author: Eric Pernia
+ * Initials     Name
+ * ---------------------------
+ * ErPe         Eric Pernia
+ * 
  */
 
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20140911 v0.0.1 ErPe initial version
+ */
 
+/*==================[inclusions]=============================================*/
 #include "PLC_Lib.h"
 
+/*==================[macros and definitions]=================================*/
 
-// Day of week algorithm
+/*==================[internal data declaration]==============================*/
+
+/*==================[internal functions declaration]=========================*/
+
+/*==================[internal data definition]===============================*/
+
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+
+/** \brief PLC Day of week algorithm. */
 PLC_INT DT_Weekday(PLC_INT Year, PLC_INT Month, PLC_INT Day)
 {
    int a, y, m, NumZeller, NumDT;
@@ -67,6 +96,20 @@ PLC_INT DT_Weekday(PLC_INT Year, PLC_INT Month, PLC_INT Day)
    //    6 = Saturday
 
    NumDT = NumZeller + 1;
-
+   
+   /** \brief The NumDT result is:
+    1 = Sunday
+    2 = Monday
+    3 = Tuesday
+    4 = Wednesday
+    5 = Thursday
+    6 = Friday
+    7 = Saturday
+   */
+   
    return NumDT;
 }
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/*==================[end of file]============================================*/

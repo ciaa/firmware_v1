@@ -1,4 +1,4 @@
-/* Copyright 2012-2015, Eric Nicolás Pernia
+ /* Copyright 2012-2015, Eric Nicolás Pernia
  * All rights reserved.
  *
  * This file is part of IDE4PLC and CIAA Firmware.
