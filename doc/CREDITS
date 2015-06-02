@@ -2,6 +2,33 @@
  **
  ** Authors and their contributions to CIAA Firmware:
  **
+ ** CIAA Firmware 0.5.0 (06.06.2015)
+ **
+ **   Following persons have invest a lot of effort and time to make
+ **   CIAA Firmware become true. We hope you enjoy it. :)
+ **
+ **   - Juan Cecconi (jcecconi@numetron.com.ar):
+ **      - Improve Continuous Integration script (make ci)
+ **      - Add first tests for PLC files (modules/plc/test/...)
+ **      - Improve openocd downloads scripting
+ **
+ **   - Mariano Cerdeiro (mcerdeiro@gmail.com):
+ **      - Add first tests for PLC files (modules/plc/test/...)
+ **      - Improve unit test environment to perform tests of files including multiples "_"
+ **
+ **   - Eric Pernia
+ **      - Add support for IDE4PLC (to use the CIAA Firmware as a PLC)
+ **
+ **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):
+ **
+ **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
+ **      - Fix minimal error in modbus
+ **
+ ** CIAA Firmware 0.4.1 (14.04.2015)
+ **
+ **   - Mariano Cerdeiro (mcerdeiro@gmail.com)
+ **      - Fix minimal error on the root makefile
+ **
  ** CIAA Firmware 0.4.0 (10.04.2015)
  **
  **   Following persons have invest a lot of effort and time to make
