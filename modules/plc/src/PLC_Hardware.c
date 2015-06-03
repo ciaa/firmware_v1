@@ -59,10 +59,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "PLC_StandardCDataTypes.h"   // Standard C Data Types
-
-#include "ciaaPOSIX_stdint.h"         // CIAA Posix Data Types
-typedef uint8_t uint8;                // Patch to CIAA Firmware compatibility
-
+#include "ciaaPOSIX_stdio.h"          /* <= device handler header */
 #include "PLC_Hardware.h"
 
 /*==================[macros and definitions]=================================*/
@@ -109,16 +106,16 @@ void PLC_DIOs_Init(void)
 /** \brief This function read PLC Digital Inputs */
 uint8_t PLC_Read_DIs(void)
 {
-   uint8 status = 0;
+   uint8_t status = 0;
    ciaaPOSIX_read(fd_in, &status, 1);
 
-   return (uint8_t)status;   
+   return status;   
 }
 
 /** \brief This function write PLC Digital Outputs */
 void PLC_Write_DOs(uint8_t salidas)
 {
-   ciaaPOSIX_write(fd_out, (uint8 *)&salidas, 1);
+   ciaaPOSIX_write(fd_out, &salidas, 1);
 }
 
 /** @} doxygen end group definition */
