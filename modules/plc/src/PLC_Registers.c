@@ -69,7 +69,7 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-PLC_SymbolicRegister CR;    // CURRENT RESULT REGISTER
+PLC_SymbolicRegister CR;    /* CURRENT RESULT REGISTER */
 
 /*==================[internal functions definition]==========================*/
 

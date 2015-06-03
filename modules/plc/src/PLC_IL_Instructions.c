@@ -365,7 +365,7 @@ void PLC_IL_LD(void* newValue, PLC_WORD lenght, PLC_EnumDataTypes type, PLC_Enum
       break;
       case OTHER:
       {
-         // VOLCADO DE MEMORIA
+         /* MEMORY COPY */
          PLC_BYTE *source;
          PLC_BYTE *destination;
          PLC_WORD i = 0;
@@ -390,13 +390,13 @@ void PLC_IL_LD(void* newValue, PLC_WORD lenght, PLC_EnumDataTypes type, PLC_Enum
    }
 }
 
-//-----------------------------------------------------------
+/*-----------------------------------------------------------*/
 
 void PLC_IL_ST(void* newValue, PLC_WORD lenght, PLC_EnumModifiers modifier)
 {
    extern PLC_SymbolicRegister CR;
 
-   // VOLCADO DE MEMORIA
+   /* MEMORY COPY */
    PLC_BYTE *source;
    PLC_BYTE *destination;
    PLC_WORD i = 0;
@@ -419,7 +419,7 @@ void PLC_IL_ST(void* newValue, PLC_WORD lenght, PLC_EnumModifiers modifier)
    }
 }
 
-//-----------------------------------------------------------
+/*-----------------------------------------------------------*/
 void PLC_IL_S(PLC_BOOL* operand)
 {
    extern PLC_SymbolicRegister CR;
@@ -430,7 +430,7 @@ void PLC_IL_S(PLC_BOOL* operand)
    }
 }
 
-//-----------------------------------------------------------
+/*-----------------------------------------------------------*/
 void PLC_IL_R(PLC_BOOL* operand)
 {
    extern PLC_SymbolicRegister CR;
@@ -441,14 +441,14 @@ void PLC_IL_R(PLC_BOOL* operand)
    }
 }
 
-//-----------------------------------------------------------
-// Equal =
+/*-----------------------------------------------------------*/
+/* Equal = */
 
 void PLC_IL_EQ(void* operand, PLC_EnumDataTypes type)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -572,14 +572,14 @@ void PLC_IL_EQ(void* operand, PLC_EnumDataTypes type)
       break;
       case STRING:
       {
-         //CR.VALUE.BOOL = ( (CR.VALUE.BOOL) == (*(PLC_Bool*) operand) );
-         //CR.VALUE.STRING = *(PLC_String*) newValue;
+         /* CR.VALUE.BOOL = ( (CR.VALUE.BOOL) == (*(PLC_Bool*) operand) );
+            CR.VALUE.STRING = *(PLC_String*) newValue; */
       }
       break;
       case WSTRING:
       {
-         //CR.VALUE.BOOL = ( (CR.VALUE.BOOL) == (*(PLC_Bool*) operand) );
-         //CR.VALUE.WSTRING = *(PLC_WString*) newValue;
+         /* CR.VALUE.BOOL = ( (CR.VALUE.BOOL) == (*(PLC_Bool*) operand) );
+            CR.VALUE.WSTRING = *(PLC_WString*) newValue; */
       }
       break;
       case BCD16:
@@ -595,15 +595,14 @@ void PLC_IL_EQ(void* operand, PLC_EnumDataTypes type)
    }
 }
 
-//-----------------------------------------------------------
-
-// Non Equal <>
+/*-----------------------------------------------------------*/
+/* Non Equal <> */
 
 void PLC_IL_NE(void* operand, PLC_EnumDataTypes type)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -727,14 +726,14 @@ void PLC_IL_NE(void* operand, PLC_EnumDataTypes type)
       break;
       case STRING:
       {
-         //CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
-         //CR.VALUE.STRING = *(PLC_String*) newValue;
+         /* CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
+            CR.VALUE.STRING = *(PLC_String*) newValue; */
       }
       break;
       case WSTRING:
       {
-         //CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
-         //CR.VALUE.WSTRING = *(PLC_WString*) newValue;
+         /* CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
+            CR.VALUE.WSTRING = *(PLC_WString*) newValue; */
       }
       break;
       case BCD16:
@@ -750,15 +749,14 @@ void PLC_IL_NE(void* operand, PLC_EnumDataTypes type)
    }
 }
 
-//-----------------------------------------------------------
-
-// Greater Than >
+/*-----------------------------------------------------------*/
+/* Greater Than > */
 
 void PLC_IL_GT(void* operand, PLC_EnumDataTypes type)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -876,14 +874,14 @@ void PLC_IL_GT(void* operand, PLC_EnumDataTypes type)
       break;
       case STRING:
       {
-         //CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
-         //CR.VALUE.STRING = *(PLC_String*) newValue;
+         /* CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
+            CR.VALUE.STRING = *(PLC_String*) newValue; */
       }
       break;
       case WSTRING:
       {
-         //CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
-         //CR.VALUE.WSTRING = *(PLC_WString*) newValue;
+         /* CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
+            CR.VALUE.WSTRING = *(PLC_WString*) newValue; */
       }
       break;
       case BCD16:
@@ -899,15 +897,14 @@ void PLC_IL_GT(void* operand, PLC_EnumDataTypes type)
    }
 }
 
-//-----------------------------------------------------------
-
-// Greater than or Equal >=
+/*-----------------------------------------------------------*/
+/* Greater than or Equal >= */
 
 void PLC_IL_GE(void* operand, PLC_EnumDataTypes type)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -1025,14 +1022,14 @@ void PLC_IL_GE(void* operand, PLC_EnumDataTypes type)
       break;
       case STRING:
       {
-         //CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
-         //CR.VALUE.STRING = *(PLC_String*) newValue;
+         /* CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
+            CR.VALUE.STRING = *(PLC_String*) newValue; */
       }
       break;
       case WSTRING:
       {
-         //CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
-         //CR.VALUE.WSTRING = *(PLC_WString*) newValue;
+         /* CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
+            CR.VALUE.WSTRING = *(PLC_WString*) newValue; */
       }
       break;
       case BCD16:
@@ -1048,15 +1045,14 @@ void PLC_IL_GE(void* operand, PLC_EnumDataTypes type)
    }
 }
 
-//-----------------------------------------------------------
-
-// Less Than <
+/*-----------------------------------------------------------*/
+/* Less Than < */
 
 void PLC_IL_LT(void* operand, PLC_EnumDataTypes type)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -1174,14 +1170,14 @@ void PLC_IL_LT(void* operand, PLC_EnumDataTypes type)
       break;
       case STRING:
       {
-         //CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
-         //CR.VALUE.STRING = *(PLC_String*) newValue;
+         /* CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
+            CR.VALUE.STRING = *(PLC_String*) newValue; */
       }
       break;
       case WSTRING:
       {
-         //CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
-         //CR.VALUE.WSTRING = *(PLC_WString*) newValue;
+         /* CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
+            CR.VALUE.WSTRING = *(PLC_WString*) newValue; */
       }
       break;
       case BCD16:
@@ -1197,15 +1193,14 @@ void PLC_IL_LT(void* operand, PLC_EnumDataTypes type)
    }
 }
 
-//-----------------------------------------------------------
-
-// Less than or Equal <=
+/*-----------------------------------------------------------*/
+/* Less than or Equal <= */
 
 void PLC_IL_LE(void* operand, PLC_EnumDataTypes type)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -1323,14 +1318,14 @@ void PLC_IL_LE(void* operand, PLC_EnumDataTypes type)
       break;
       case STRING:
       {
-         //CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
-         //CR.VALUE.STRING = *(PLC_String*) newValue;
+         /* CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
+            CR.VALUE.STRING = *(PLC_String*) newValue; */
       }
       break;
       case WSTRING:
       {
-         //CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
-         //CR.VALUE.WSTRING = *(PLC_WString*) newValue;
+         /* CR.VALUE.BOOL = ( (CR.VALUE.BOOL) != (*(PLC_Bool*) operand) );
+            CR.VALUE.WSTRING = *(PLC_WString*) newValue; */
       }
       break;
       case BCD16:
@@ -1346,20 +1341,19 @@ void PLC_IL_LE(void* operand, PLC_EnumDataTypes type)
    }
 }
 
-//-----------------------------------------------------------
+/*-----------------------------------------------------------*/
+/* ADD + Overloaded for:
+   SINT, INT, DINT, LINT, USINT, UINT, UDINT, ULINT, REAL, LREAL, TIME
 
-// ADD + Overloaded for:
-// SINT, INT, DINT, LINT, USINT, UINT, UDINT, ULINT, REAL, LREAL, TIME
-
-// CHECK CARRY AND OVERFLOW (O y V) bits implementation of 
-// microprocessors status registers work only for signed 
-// and unsigned integers, see how to do for floats (TODO).
+   CHECK CARRY AND OVERFLOW (O y V) bits implementation of 
+   microprocessors status registers work only for signed 
+   and unsigned integers, see how to do for floats (TODO). */
 
 void PLC_IL_ADD(void* operand, PLC_EnumDataTypes type)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -1425,20 +1419,19 @@ void PLC_IL_ADD(void* operand, PLC_EnumDataTypes type)
    }
 }
 
-//-----------------------------------------------------------
+/*-----------------------------------------------------------*/
+/* SUB - Overloaded for:
+   SINT, INT, DINT, LINT, USINT, UINT, UDINT, ULINT, REAL, LREAL, TIME
 
-// SUB - Overloaded for:
-// SINT, INT, DINT, LINT, USINT, UINT, UDINT, ULINT, REAL, LREAL, TIME
-
-// CHECK CARRY AND OVERFLOW (O y V) bits implementation of 
-// microprocessors status registers work only for signed 
-// and unsigned integers, see how to do for floats (TODO).
+   CHECK CARRY AND OVERFLOW (O y V) bits implementation of 
+   microprocessors status registers work only for signed 
+   and unsigned integers, see how to do for floats (TODO). */
 
 void PLC_IL_SUB(void* operand, PLC_EnumDataTypes type)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -1504,16 +1497,15 @@ void PLC_IL_SUB(void* operand, PLC_EnumDataTypes type)
    }
 }
 
-//-----------------------------------------------------------
-
-// MUL * Overloaded for:
-// SINT, INT, DINT, LINT, USINT, UINT, UDINT, ULINT, REAL, LREAL
+/*-----------------------------------------------------------*/
+/* MUL * Overloaded for:
+   SINT, INT, DINT, LINT, USINT, UINT, UDINT, ULINT, REAL, LREAL */
 
 void PLC_IL_MUL(void* operand, PLC_EnumDataTypes type)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -1579,16 +1571,15 @@ void PLC_IL_MUL(void* operand, PLC_EnumDataTypes type)
    }
 }
 
-//-----------------------------------------------------------
-
-// DIV / Overloaded for:
-// SINT, INT, DINT, LINT, USINT, UINT, UDINT, ULINT, REAL, LREAL
+/*-----------------------------------------------------------*/
+/* DIV / Overloaded for:
+   SINT, INT, DINT, LINT, USINT, UINT, UDINT, ULINT, REAL, LREAL */
 
 void PLC_IL_DIV(void* operand, PLC_EnumDataTypes type)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -1654,16 +1645,15 @@ void PLC_IL_DIV(void* operand, PLC_EnumDataTypes type)
    }
 }
 
-//-----------------------------------------------------------
-
-// MOD / Overloaded for:
-// SINT, INT, DINT, LINT, USINT, UINT, UDINT, ULINT
+/*-----------------------------------------------------------*/
+/* MOD / Overloaded for:
+   SINT, INT, DINT, LINT, USINT, UINT, UDINT, ULINT */
 
 void PLC_IL_MOD(void* operand, PLC_EnumDataTypes type)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -1714,16 +1704,15 @@ void PLC_IL_MOD(void* operand, PLC_EnumDataTypes type)
    }
 }
 
-//-----------------------------------------------------------
-
-// AND - logical AND - Overloaded for:
-// BOOL, BYTE, WORD, DWORD, LWORD
+/*-----------------------------------------------------------*/
+/* AND - logical AND - Overloaded for:
+   BOOL, BYTE, WORD, DWORD, LWORD */
 
 void PLC_IL_AND(void* operand, PLC_EnumDataTypes type, PLC_EnumModifiers modifier)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -1794,16 +1783,15 @@ void PLC_IL_AND(void* operand, PLC_EnumDataTypes type, PLC_EnumModifiers modifie
    }
 }
 
-//-----------------------------------------------------------
-
-// OR - logical OR - Overloaded for:
-// BOOL, BYTE, WORD, DWORD, LWORD
+/*-----------------------------------------------------------*/
+/* OR - logical OR - Overloaded for:
+   BOOL, BYTE, WORD, DWORD, LWORD */
 
 void PLC_IL_OR(void* operand, PLC_EnumDataTypes type, PLC_EnumModifiers modifier)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -1874,16 +1862,15 @@ void PLC_IL_OR(void* operand, PLC_EnumDataTypes type, PLC_EnumModifiers modifier
    }
 }
 
-//-----------------------------------------------------------
-
-// XOR - logical XOR - Overloaded for:
-// BOOL, BYTE, WORD, DWORD, LWORD
+/*-----------------------------------------------------------*/
+/* XOR - logical XOR - Overloaded for:
+   BOOL, BYTE, WORD, DWORD, LWORD */
 
 void PLC_IL_XOR(void* operand, PLC_EnumDataTypes type, PLC_EnumModifiers modifier)
 {
    extern PLC_SymbolicRegister CR;
 
-   // If CR and OPERAND are not of the same type then ERROR (TODO).
+   /* If CR and OPERAND are not of the same type then ERROR (TODO). */
    if(CR.TYPE != type)
    {
       return;
@@ -1954,10 +1941,9 @@ void PLC_IL_XOR(void* operand, PLC_EnumDataTypes type, PLC_EnumModifiers modifie
    }
 }
 
-//-----------------------------------------------------------
-
-// NOT - logical negation ( one´s complement) - Overloaded for:
-// BOOL, BYTE, WORD, DWORD, LWORD
+/*-----------------------------------------------------------
+/* NOT - logical negation ( one´s complement) - Overloaded for:
+   BOOL, BYTE, WORD, DWORD, LWORD */
 
 void PLC_IL_NOT(PLC_EnumDataTypes type)
 {
@@ -1994,7 +1980,7 @@ void PLC_IL_NOT(PLC_EnumDataTypes type)
    }
 }
 
-//-----------------------------------------------------------
+/*-----------------------------------------------------------*/
 
 /** \brief PLC IL Instructions that are not represented as C Functions (just inserted in POU C code). 
 

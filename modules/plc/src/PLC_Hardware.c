@@ -58,7 +58,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "PLC_StandardCDataTypes.h"   // Standard C Data Types
+#include "PLC_StandardCDataTypes.h"   /* <= Standard C Data Types */
 #include "ciaaPOSIX_stdio.h"          /* <= device handler header */
 #include "PLC_Hardware.h"
 

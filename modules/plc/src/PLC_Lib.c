@@ -80,20 +80,20 @@ PLC_INT DT_Weekday(PLC_INT Year, PLC_INT Month, PLC_INT Day)
    y = Year - a;
    m = Month + 12 * a - 2;
    
-   // For Julius calendar:
-   // NumZeller = (5 + Day + y + y/4 + (31*m)/12) % 7
+   /* For Julius calendar:
+      NumZeller = (5 + Day + y + y/4 + (31*m)/12) % 7 */
    
-   // For Gregorian calendar:
+   /* For Gregorian calendar: */
    NumZeller = (Day + y + y/4 - y/100 + y/400 + (31*m)/12) % 7;
 
-   // The NumZeller result is:
-   //    0 = Sunday
-   //    1 = Monday
-   //    2 = Tuesday
-   //    3 = Wednesday
-   //    4 = Thursday
-   //    5 = Friday
-   //    6 = Saturday
+   /* The NumZeller result is:
+         0 = Sunday
+         1 = Monday
+         2 = Tuesday
+         3 = Wednesday
+         4 = Thursday
+         5 = Friday
+         6 = Saturday */
 
    NumDT = NumZeller + 1;
    
