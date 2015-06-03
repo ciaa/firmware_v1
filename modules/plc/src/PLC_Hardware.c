@@ -58,7 +58,8 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "PLC_StandardCDataTypes.h"   // Standard C Data Types
+#include "PLC_StandardCDataTypes.h" // Standard C Data Types
+#include "ciaaPOSIX_stdint.h"       // CIAA Posix Data Types
 #include "PLC_Hardware.h"
 
 /*==================[macros and definitions]=================================*/

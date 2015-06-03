@@ -92,7 +92,6 @@ extern "C" {
 #define PLC_RUN (1UL << 10)
 #define PLC_ERR (1UL << 11)
 /*==================[typedef]================================================*/
-typedef uint8_t uint8; // Patch to CIAA Firmware compatibility
 
 /*==================[external data declaration]==============================*/
 
