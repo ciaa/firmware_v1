@@ -53,6 +53,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150604 v0.8.1 GMuro   replace numbers for macros
  * 20140906 v0.0.1 initials initial
  */
 
