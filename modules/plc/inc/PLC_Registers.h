@@ -68,7 +68,7 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 /** \brief  1KByte PLC Registers data type */
-// Use fore directly represented variables.
+/* Use fore directly represented variables. */
 typedef union
 {
    PLC_1KByteAsBits           X;
@@ -98,7 +98,7 @@ typedef struct
 }PLC_1ByteAsByte;
 
 /** \brief 1KByte PLC Registers data type */
-// Use fore directly represented variables.
+/* Use fore directly represented variables. */
 typedef union
 {
    PLC_1ByteAsBits            X;
@@ -114,35 +114,35 @@ typedef enum{ BOOL, BYTE, WORD, DWORD, LWORD, SINT, INT, DINT, LINT,
 /** \brief PLC Symbolic Register data type */
 typedef union
 {
-   PLC_BOOL                   BOOL;      //  0
-   PLC_BYTE                   BYTE;      //  1
-   PLC_WORD                   WORD;      //  2
-   PLC_DWORD                  DWORD;     //  3
-   PLC_LWORD                  LWORD;     //  4
+   PLC_BOOL                   BOOL;      /*  0 */
+   PLC_BYTE                   BYTE;      /*  1 */
+   PLC_WORD                   WORD;      /*  2 */
+   PLC_DWORD                  DWORD;     /*  3 */
+   PLC_LWORD                  LWORD;     /*  4 */
 
-   PLC_SINT                   SINT;      //  5
-   PLC_INT                    INT;       //  6
-   PLC_DINT                   DINT;      //  7
-   PLC_LINT                   LINT;      //  8
+   PLC_SINT                   SINT;      /*  5 */
+   PLC_INT                    INT;       /*  6 */
+   PLC_DINT                   DINT;      /*  7 */
+   PLC_LINT                   LINT;      /*  8 */
 
-   PLC_USINT                  USINT;     //  9
-   PLC_UINT                   UINT;      // 10
-   PLC_UDINT                  UDINT;     // 11
-   PLC_ULINT                  ULINT;     // 12
+   PLC_USINT                  USINT;     /*  9 */
+   PLC_UINT                   UINT;      /* 10 */
+   PLC_UDINT                  UDINT;     /* 11 */
+   PLC_ULINT                  ULINT;     /* 12 */
 
-   PLC_REAL                   REAL;      // 13
-   PLC_LREAL                  LREAL;     // 14
+   PLC_REAL                   REAL;      /* 13 */
+   PLC_LREAL                  LREAL;     /* 14 */
 
-   PLC_TIME                   TIME;      // 15
-   PLC_DATE                   D;         // 16
-   PLC_TIME_OF_DAY            TOD;       // 17
-   PLC_DATE_AND_TIME          DT;        // 18
+   PLC_TIME                   TIME;      /* 15 */
+   PLC_DATE                   D;         /* 16 */
+   PLC_TIME_OF_DAY            TOD;       /* 17 */
+   PLC_DATE_AND_TIME          DT;        /* 18 */
 
-   PLC_STRING                 STRING;    // 19
-   PLC_WSTRING                WSTRING;   // 20
+   PLC_STRING                 STRING;    /* 19 */
+   PLC_WSTRING                WSTRING;   /* 20 */
 
-   PLC_BCD16                  BCD16;     // 21
-   PLC_BCD32                  BCD32;     // 22
+   PLC_BCD16                  BCD16;     /* 21 */
+   PLC_BCD32                  BCD32;     /* 22 */
 
    PLC_1KByteAsLongs          KBYTE;
 

@@ -58,9 +58,9 @@
 
 /*==================[inclusions]=============================================*/
 /* PLC Services Includes */
-#include "PLC_StandardCDataTypes.h"	// Standard C Data Types
-#include "PLC_Hardware.h"			// PLC Hardware
-#include "PLC_OperatingSystem.h"	// Real Time Operating System
+#include "PLC_StandardCDataTypes.h"	/* Standard C Data Types */
+#include "PLC_Hardware.h"			/* PLC Hardware */
+#include "PLC_OperatingSystem.h"	/* Real Time Operating System */
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

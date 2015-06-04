@@ -30,20 +30,49 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
- 
+
+/** \brief PLC Libraries
+ **
+ ** PLC Libraries
+ **
+ **/
+
+/** \addtogroup CIAA_Firmware CIAA Firmware
+ ** @{ */
+/** \addtogroup PLC PLC Module
+ ** @{ */
+
 /*
- * PLC_Lib.h
- *
- *  Created on: 2014/09/11
- *      Author: Eric Pernia
+ * Initials     Name
+ * ---------------------------
+ * ErPe         Eric Pernia
+ * 
  */
 
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20140911 v0.0.1 ErPe initial version
+ */
 
+/*==================[inclusions]=============================================*/
 #include "PLC_Lib.h"
 
+/*==================[macros and definitions]=================================*/
 
-// Day of week algorithm
+/*==================[internal data declaration]==============================*/
+
+/*==================[internal functions declaration]=========================*/
+
+/*==================[internal data definition]===============================*/
+
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+
+/** \brief PLC Day of week algorithm. */
 PLC_INT DT_Weekday(PLC_INT Year, PLC_INT Month, PLC_INT Day)
 {
    int a, y, m, NumZeller, NumDT;
@@ -51,22 +80,36 @@ PLC_INT DT_Weekday(PLC_INT Year, PLC_INT Month, PLC_INT Day)
    y = Year - a;
    m = Month + 12 * a - 2;
    
-   // For Julius calendar:
-   // NumZeller = (5 + Day + y + y/4 + (31*m)/12) % 7
+   /* For Julius calendar:
+      NumZeller = (5 + Day + y + y/4 + (31*m)/12) % 7 */
    
-   // For Gregorian calendar:
+   /* For Gregorian calendar: */
    NumZeller = (Day + y + y/4 - y/100 + y/400 + (31*m)/12) % 7;
 
-   // The NumZeller result is:
-   //    0 = Sunday
-   //    1 = Monday
-   //    2 = Tuesday
-   //    3 = Wednesday
-   //    4 = Thursday
-   //    5 = Friday
-   //    6 = Saturday
+   /* The NumZeller result is:
+         0 = Sunday
+         1 = Monday
+         2 = Tuesday
+         3 = Wednesday
+         4 = Thursday
+         5 = Friday
+         6 = Saturday */
 
    NumDT = NumZeller + 1;
-
+   
+   /** \brief The NumDT result is:
+    1 = Sunday
+    2 = Monday
+    3 = Tuesday
+    4 = Wednesday
+    5 = Thursday
+    6 = Friday
+    7 = Saturday
+   */
+   
    return NumDT;
 }
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/*==================[end of file]============================================*/

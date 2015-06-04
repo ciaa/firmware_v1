@@ -16,7 +16,7 @@
  **      - Add first tests for PLC files (modules/plc/test/...)
  **      - Improve unit test environment to perform tests of files including multiples "_"
  **
- **   - Eric Pernia
+ **   - Eric Pernia (ericpernia@gmail.com)
  **      - Add support for IDE4PLC (to use the CIAA Firmware as a PLC)
  **
  **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):

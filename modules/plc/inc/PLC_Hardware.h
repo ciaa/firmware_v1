@@ -97,11 +97,11 @@ extern "C" {
 
 /*==================[external functions declaration]=========================*/
 /** \brief PLC PLC_DIOs_Init */ 
-void PLC_DIOs_Init(void);		// Initialize Digital Inputs and Outputs
+void PLC_DIOs_Init(void);		/* Initialize Digital Inputs and Outputs */
 /** \brief PLC_Read_DIs */ 
-uint8_t PLC_Read_DIs(void);		// Read Digital Outputs
+uint8_t PLC_Read_DIs(void);		/* Read Digital Outputs */
 /** \brief PLC_Write_DOs */ 
-void PLC_Write_DOs(uint8_t);	// Write Digital Outputs
+void PLC_Write_DOs(uint8_t);	/* Write Digital Outputs */
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
