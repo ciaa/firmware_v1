@@ -23,19 +23,32 @@ my $to = $ARGV[1];
 
 print "CIAA Firmware - Differences between branches \n\n";
 opendir my $modules, "$modules_dir/" or die "$0: opendir $!";
-my @mods;
+my @changed_mods;
 
 while (defined(my $module = readdir $modules)) {
    if ( ($module eq ".") || ($module eq "..") )
    {
       next;
    }
-   print "***************************************************************\n";
-   print "*** Differences for module: $module between \n";
-   print "***************************************************************\n";
    my $cmd = "git diff $from $to $modules_dir\/$module";
-   print "Running: $cmd\n";
-   print "Differences: " . `$cmd | wc -l`;
+   #print "Running: $cmd\n";
+   my $diff_count = `$cmd | wc -l`;
+   chomp($diff_count);
+   if ($diff_count != 0 )
+   {
+      print "***************************************************************\n";
+      print "*** Differences for module: $module between $from .. $to\n";
+      print "***************************************************************\n";
+      print "Differences: " . $diff_count ."\n";
+      my $cmd = "git diff $from $to --stat $modules_dir\/$module";
+      print "Running: $cmd\n";
+      print "Differences: " . `$cmd` . "\n";
+   } else
+   {
+#      print "***************************************************************\n";
+#      print "*** NO Differences for module: $module between $from .. $to\n";
+#      print "***************************************************************\n";
+   }
 
 }
 

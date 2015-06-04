@@ -35,7 +35,7 @@
 # library
 LIBS 				  += modbus
 # version
-modbus_VERSION		= 0.8.0
+modbus_VERSION		= 0.8.1
 # library path
 modbus_PATH 		= $(ROOT_DIR)$(DS)modules$(DS)modbus
 # library source path
