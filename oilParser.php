@@ -152,8 +152,8 @@ class oilParserClass {
 			$tmp = $tmp[0];
 		}
       if ($tmp != "")
-		{     
-		   if ( strpos($tmp, "=") !== false )
+		{
+         if ( strpos($tmp, "=") !== false )
    		{
 	   		$tmp = split("=", $tmp);
 		   	$ret[0] = $tmp[0];
