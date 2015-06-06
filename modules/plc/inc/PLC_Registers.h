@@ -77,7 +77,7 @@ typedef union
    PLC_1KByteAsDoubles        D;
    PLC_1KByteAsLongs          L;
 }PLC_1KByteRegister;
-      
+
 /** \brief PLC I/O Structures data type */
 typedef struct
 {

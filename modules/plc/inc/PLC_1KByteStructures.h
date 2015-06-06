@@ -34,7 +34,7 @@
 
 #ifndef PLC_1KBYTESTRUCTURES_H_
 #define PLC_1KBYTESTRUCTURES_H_
-/** \brief Structures with 1Kbytes 
+/** \brief Structures with 1Kbytes
  **
  ** Structures with 1Kbytes
  **

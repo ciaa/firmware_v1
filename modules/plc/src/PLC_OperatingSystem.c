@@ -46,7 +46,7 @@
  * Initials     Name
  * ---------------------------
  * ErPe         Eric Pernia
- * 
+ *
  */
 
 /*
@@ -64,7 +64,7 @@
 
 /*==================[internal data declaration]==============================*/
 
-/** \brief PLC_TimersTime is a variable that counts time in milliseconds for PLC Timers. */ 
+/** \brief PLC_TimersTime is a variable that counts time in milliseconds for PLC Timers. */
 uint64_t PLC_TimersTime = 0;
 
 /*==================[internal functions declaration]=========================*/

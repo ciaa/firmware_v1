@@ -42,7 +42,7 @@
  ** @{ */
 /** \addtogroup PLC PLC Module
  ** @{ */
- 
+
 /*
  * Initials     Name
  * ---------------------------
@@ -73,7 +73,7 @@
  *
  * fd_in Device path /dev/dio/in/0
  * fd_out Device path /dev/dio/out/0
- */ 
+ */
 static int32_t fd_in, fd_out;
 
 /*==================[external data definition]===============================*/
@@ -109,7 +109,7 @@ uint8_t PLC_Read_DIs(void)
    uint8_t status = 0;
    ciaaPOSIX_read(fd_in, &status, 1);
 
-   return status;   
+   return status;
 }
 
 /** \brief This function write PLC Digital Outputs */
