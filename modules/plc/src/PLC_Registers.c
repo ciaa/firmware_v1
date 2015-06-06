@@ -42,7 +42,7 @@
  ** @{ */
 /** \addtogroup PLC PLC Module
  ** @{ */
- 
+
 /*
  * Initials     Name
  * ---------------------------

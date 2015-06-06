@@ -46,7 +46,7 @@
  * Initials     Name
  * ---------------------------
  * ErPe         Eric Pernia
- * 
+ *
  */
 
 /*
@@ -79,10 +79,10 @@ PLC_INT DT_Weekday(PLC_INT Year, PLC_INT Month, PLC_INT Day)
    a = (14 - Month) / 12;
    y = Year - a;
    m = Month + 12 * a - 2;
-   
+
    /* For Julius calendar:
       NumZeller = (5 + Day + y + y/4 + (31*m)/12) % 7 */
-   
+
    /* For Gregorian calendar: */
    NumZeller = (Day + y + y/4 - y/100 + y/400 + (31*m)/12) % 7;
 
@@ -96,7 +96,7 @@ PLC_INT DT_Weekday(PLC_INT Year, PLC_INT Month, PLC_INT Day)
          6 = Saturday */
 
    NumDT = NumZeller + 1;
-   
+
    /** \brief The NumDT result is:
     1 = Sunday
     2 = Monday
@@ -106,7 +106,7 @@ PLC_INT DT_Weekday(PLC_INT Year, PLC_INT Month, PLC_INT Day)
     6 = Friday
     7 = Saturday
    */
-   
+
    return NumDT;
 }
 
