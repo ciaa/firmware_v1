@@ -149,6 +149,10 @@ LINUX_TOOLS_PATH     ?= $(DS)opt$(DS)ciaa_tools
 kconfig              ?= $(LINUX_TOOLS_PATH)$(DS)kconfig$(DS)kconfig-qtconf
 
 ###############################################################################
+# CIAA Firmware version information
+CIAA_FIRMWARE_VER     = 0.5.0
+
+###############################################################################
 # get OS
 #
 # This part of the makefile is used to detect your OS. Depending on the OS
@@ -611,6 +615,7 @@ ifeq ($(MAKECMDGOALS),version)
 include $(foreach module, $(ALL_MODS), modules$(DS)$(module)$(DS)mak$(DS)Makefile)
 endif
 version:
+	@echo CIAA Firmware version: $(CIAA_FIRMWARE_VER)
 	@$(MULTILINE_ECHO) " $(foreach mod, $(ALL_MODS), $(mod): $($(mod)_VERSION)\n)"
 
 ###############################################################################
@@ -665,7 +670,7 @@ help:
 	@echo "run.................: execute the binary file (Win/Posix only)"
 	@echo openocd.............: starts openocd for $(ARCH)
 	@echo "download [file] [FLASH|QSPI].: download FW file to the target"
-	@echo "erase [FLASH|QSPI]..: erase all the flash"   
+	@echo "erase [FLASH|QSPI]..: erase all the flash"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Bulding                                                       |"
 	@echo "+-----------------------------------------------------------------------------+"
@@ -737,9 +742,10 @@ info:
 	@echo Includes...........: $(INCLUDE)
 	@echo use make info_\<mod\>: to get information of a specific module. eg: make info_posix
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo "|               All available modules                                         |"
+	@echo "|               CIAA Firmware Info                                            |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo modules............: $(ALL_MODS)
+	@echo CIAA Firmware ver..: $(CIAA_FIRMWARE_VER)
+	@echo Available modules..: $(ALL_MODS)
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Compiler Info                                                 |"
 	@echo "+-----------------------------------------------------------------------------+"
