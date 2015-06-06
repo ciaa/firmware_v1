@@ -70,7 +70,7 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief PLC DIGITAL INPUT PINS */ 
+/** \brief PLC DIGITAL INPUT PINS */
 #define PLC_IN_0 0
 #define PLC_IN_1 1
 #define PLC_IN_2 2
@@ -79,7 +79,7 @@ extern "C" {
 #define PLC_IN_5 5
 #define PLC_IN_6 6
 #define PLC_IN_7 7
-/** \brief PLC DIGITAL OUTPUT PINS */ 
+/** \brief PLC DIGITAL OUTPUT PINS */
 #define PLC_OUT_0 0
 #define PLC_OUT_1 1
 #define PLC_OUT_2 2
@@ -88,7 +88,7 @@ extern "C" {
 #define PLC_OUT_5 5
 #define PLC_OUT_6 6
 #define PLC_OUT_7 7
-/** \brief PLC STATUS PINS */ 
+/** \brief PLC STATUS PINS */
 #define PLC_RUN (1UL << 10)
 #define PLC_ERR (1UL << 11)
 /*==================[typedef]================================================*/
@@ -96,11 +96,11 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief PLC PLC_DIOs_Init */ 
+/** \brief PLC PLC_DIOs_Init */
 void PLC_DIOs_Init(void);		/* Initialize Digital Inputs and Outputs */
-/** \brief PLC_Read_DIs */ 
+/** \brief PLC_Read_DIs */
 uint8_t PLC_Read_DIs(void);		/* Read Digital Outputs */
-/** \brief PLC_Write_DOs */ 
+/** \brief PLC_Write_DOs */
 void PLC_Write_DOs(uint8_t);	/* Write Digital Outputs */
 
 /*==================[cplusplus]==============================================*/

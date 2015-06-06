@@ -41,12 +41,12 @@
  ** @{ */
 /** \addtogroup PLC PLC Module
  ** @{ */
- 
+
 /*
  * Initials     Name
  * ---------------------------
  * ErPe         Eric Pernia
- * 
+ *
  */
 
 /*
@@ -74,7 +74,7 @@
 void PLC_IL_LD_BOOL_Literal(PLC_BOOL newValue, PLC_EnumModifiers modifier)
 {
    extern PLC_SymbolicRegister CR;
-   
+
    if (modifier == N)
    {
       CR.VALUE.BOOL = !(newValue);
@@ -88,7 +88,7 @@ void PLC_IL_LD_BOOL_Literal(PLC_BOOL newValue, PLC_EnumModifiers modifier)
 void PLC_IL_LD_INT_Literal(PLC_INT newValue, PLC_EnumModifiers modifier)
 {
    extern PLC_SymbolicRegister CR;
-   
+
    if (modifier == N)
    {
       CR.VALUE.INT = ~(newValue);
@@ -102,7 +102,7 @@ void PLC_IL_LD_INT_Literal(PLC_INT newValue, PLC_EnumModifiers modifier)
 void PLC_IL_LD_TIME_Literal(PLC_TIME newValue, PLC_EnumModifiers modifier)
 {
    extern PLC_SymbolicRegister CR;
-   
+
    if (modifier == N)
    {
       CR.VALUE.TIME = ~(newValue);
@@ -1345,8 +1345,8 @@ void PLC_IL_LE(void* operand, PLC_EnumDataTypes type)
 /* ADD + Overloaded for:
    SINT, INT, DINT, LINT, USINT, UINT, UDINT, ULINT, REAL, LREAL, TIME
 
-   CHECK CARRY AND OVERFLOW (O y V) bits implementation of 
-   microprocessors status registers work only for signed 
+   CHECK CARRY AND OVERFLOW (O y V) bits implementation of
+   microprocessors status registers work only for signed
    and unsigned integers, see how to do for floats (TODO). */
 
 void PLC_IL_ADD(void* operand, PLC_EnumDataTypes type)
@@ -1423,8 +1423,8 @@ void PLC_IL_ADD(void* operand, PLC_EnumDataTypes type)
 /* SUB - Overloaded for:
    SINT, INT, DINT, LINT, USINT, UINT, UDINT, ULINT, REAL, LREAL, TIME
 
-   CHECK CARRY AND OVERFLOW (O y V) bits implementation of 
-   microprocessors status registers work only for signed 
+   CHECK CARRY AND OVERFLOW (O y V) bits implementation of
+   microprocessors status registers work only for signed
    and unsigned integers, see how to do for floats (TODO). */
 
 void PLC_IL_SUB(void* operand, PLC_EnumDataTypes type)
@@ -1982,7 +1982,7 @@ void PLC_IL_NOT(PLC_EnumDataTypes type)
 
 /*-----------------------------------------------------------*/
 
-/** \brief PLC IL Instructions that are not represented as C Functions (just inserted in POU C code). 
+/** \brief PLC IL Instructions that are not represented as C Functions (just inserted in POU C code).
 
 RET
 ---

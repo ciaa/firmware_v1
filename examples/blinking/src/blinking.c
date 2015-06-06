@@ -59,7 +59,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150603 v0.0.3   ErPe change uint8 type by uint8_t 
+ * 20150603 v0.0.3   ErPe change uint8 type by uint8_t
  *                        in line 172
  * 20141019 v0.0.2   JuCe add printf in each task,
  *                        remove trailing spaces

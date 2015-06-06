@@ -95,7 +95,7 @@ void tearDown(void) {
 void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_01(void) {
    PLC_BYTE ret_PLC_Byte;
    PLC_1ByteRegister PORT;
-   
+
    memset(&PORT, 0, sizeof(PORT));
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
    TEST_ASSERT_EQUAL_INT(0, ret_PLC_Byte);
@@ -110,7 +110,7 @@ void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_01(void) {
 void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_02(void) {
    PLC_BYTE ret_PLC_Byte;
    PLC_1ByteRegister PORT;
-   
+
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x0 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
@@ -125,7 +125,7 @@ void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_02(void) {
 void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_03(void) {
    PLC_BYTE ret_PLC_Byte;
    PLC_1ByteRegister PORT;
-   
+
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x1 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
@@ -140,7 +140,7 @@ void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_03(void) {
 void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_04(void) {
    PLC_BYTE ret_PLC_Byte;
    PLC_1ByteRegister PORT;
-   
+
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x2 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
@@ -155,7 +155,7 @@ void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_04(void) {
 void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_05(void) {
    PLC_BYTE ret_PLC_Byte;
    PLC_1ByteRegister PORT;
-   
+
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x3 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
@@ -170,7 +170,7 @@ void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_05(void) {
 void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_06(void) {
    PLC_BYTE ret_PLC_Byte;
    PLC_1ByteRegister PORT;
-   
+
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x4 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
@@ -185,7 +185,7 @@ void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_06(void) {
 void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_07(void) {
    PLC_BYTE ret_PLC_Byte;
    PLC_1ByteRegister PORT;
-   
+
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x5 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
@@ -200,7 +200,7 @@ void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_07(void) {
 void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_08(void) {
    PLC_BYTE ret_PLC_Byte;
    PLC_1ByteRegister PORT;
-   
+
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x6 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
@@ -215,7 +215,7 @@ void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_08(void) {
 void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_09(void) {
    PLC_BYTE ret_PLC_Byte;
    PLC_1ByteRegister PORT;
-   
+
    memset(&PORT, 0, sizeof(PORT));
    PORT.X.x7 = 1;
    ret_PLC_Byte = Convert_PLC_1ByteRegister_2_PLC_BYTE(PORT);
@@ -230,7 +230,7 @@ void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_09(void) {
  void test_Convert_PLC_BYTE_2_PLC_1ByteRegister(void) {
    PLC_BYTE status;
    PLC_1ByteRegister PORT;
-   
+
    memset(&PORT, 0, sizeof(PORT));
    status = 0x00;
    PORT = Convert_PLC_BYTE_2_PLC_1ByteRegister(status);
@@ -245,36 +245,36 @@ void test_Convert_PLC_1ByteRegister_2_PLC_BYTE_09(void) {
    status = 0x02;
    PORT = Convert_PLC_BYTE_2_PLC_1ByteRegister(status);
    TEST_ASSERT_TRUE(PORT.X.x1 == 1 && PORT.B.b0 == 0x02);
-   
+
    memset(&PORT, 0, sizeof(PORT));
    status = 0x04;
    PORT = Convert_PLC_BYTE_2_PLC_1ByteRegister(status);
    TEST_ASSERT_TRUE(PORT.X.x2 == 1 && PORT.B.b0 == 0x04);
-   
+
    memset(&PORT, 0, sizeof(PORT));
    status = 0x08;
    PORT = Convert_PLC_BYTE_2_PLC_1ByteRegister(status);
    TEST_ASSERT_TRUE(PORT.X.x3 == 1 && PORT.B.b0 == 0x08);
-   
+
    memset(&PORT, 0, sizeof(PORT));
    status = 0x10;
    PORT = Convert_PLC_BYTE_2_PLC_1ByteRegister(status);
    TEST_ASSERT_TRUE(PORT.X.x4 == 1 && PORT.B.b0 == 0x10);
-   
+
    memset(&PORT, 0, sizeof(PORT));
    status = 0x20;
    PORT = Convert_PLC_BYTE_2_PLC_1ByteRegister(status);
    TEST_ASSERT_TRUE(PORT.X.x5 == 1 && PORT.B.b0 == 0x20);
-   
+
    memset(&PORT, 0, sizeof(PORT));
    status = 0x40;
    PORT = Convert_PLC_BYTE_2_PLC_1ByteRegister(status);
    TEST_ASSERT_TRUE(PORT.X.x6 == 1 && PORT.B.b0 == 0x40);
-   
+
    memset(&PORT, 0, sizeof(PORT));
    status = 0x80;
    PORT = Convert_PLC_BYTE_2_PLC_1ByteRegister(status);
-   TEST_ASSERT_TRUE(PORT.X.x7 == 1 && PORT.B.b0 == 0x80);  
+   TEST_ASSERT_TRUE(PORT.X.x7 == 1 && PORT.B.b0 == 0x80);
 }
 
 /** @} doxygen end group definition */
