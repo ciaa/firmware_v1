@@ -59,4 +59,5 @@ template_INC_PATH 	= $(template_PATH)$(DS)inc
 # library source files
 template_SRC_FILES 	= $(wildcard $(template_SRC_PATH)$(DS)*.c)
 # files to be generated
+# TODO see https://github.com/ciaa/Firmware/issues/277
 rtos_GEN_FILES += $(template_PATH)$(DS)gen$(DS)src$(DS)template_Cfg.c.php
