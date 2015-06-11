@@ -53,126 +53,109 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150515 v0.0.1  FS  first initial version
+ * 20150419 v0.0.2  FS  change prefixes
+ * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "UPDT_config.h"
-
 #include "ciaaPOSIX_assert.h"
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_string.h"
+#include "UPDT_unpacker.h"
 #include "UPDT_utils.h"
 
 /*==================[macros and definitions]=================================*/
-/** \brief Flash memory address where the configuration is stored */
-#define UPDT_CONFIG_ADDRESS      0x0
 
-/** \brief Configuration size */
-#define UPDT_CONFIG_SIZE         0x18
-
-typedef struct
-{
-   uint32_t reserved1;
-   uint32_t firmware_version;
-   uint32_t bootloader_flags;
-   uint32_t bootloader_version;
-   uint32_t reserved2;
-   uint32_t application_version;
-   uint32_t vendor_id;
-   uint32_t model_id;
-   uint64_t unique_id;
-   uint32_t data_size;
-} UPDT_configType;
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-static UPDT_configType UPDT_config_new;
-static UPDT_configType UPDT_config_old;
+
 /*==================[external data definition]===============================*/
 
-/* payload parsing */
-//void UPDT_protocolGetInfo(const uint8_t *payload, UPDT_protocolInfoType *info);
 /*==================[internal functions definition]==========================*/
-void UPDT_configParse(const uint8_t *payload, size_t size, UPDT_configType *info)
-{
-   uint32_t word;
-   const uint32_t *ptr;
-   ciaaPOSIX_assert(NULL != payload && NULL != info);
 
-   ptr = (const uint32_t *) payload;
-
-   word = UPDT_utilsNtohl(*ptr);
-   info->reserved1 = 0xFF & (word >> 24);
-   info->firmware_version = 0xFFFFFF & (word);
-
-   word = UPDT_utilsNtohl(*(ptr + 1));
-   info->bootloader_flags = 0xFF & (word >> 24);
-   info->bootloader_version = 0xFFFFFF & (word);
-
-   word = UPDT_utilsNtohl(*(ptr + 2));
-   info->reserved2 = 0xFF & (word >> 24);
-   info->application_version = 0xFFFFFF & (word);
-
-   word = UPDT_utilsNtohl(*(ptr + 3));
-   info->vendor_id = 0xFF & (word >> 24);
-   info->model_id = 0xFFFFFF & (word);
-
-   info->unique_id = UPDT_utilsNtohll(*(const uint64_t *) (ptr + 4));
-
-   info->data_size = UPDT_utilsNtohl(*(ptr + 6));
-}
 /*==================[external functions definition]==========================*/
-
-/** \note THE BOOTLOADER FLAGS AND VERSIONS ARE NOT STORED WITH A STORE CALL.
- ** BOTH MUST BE CONSTANTS DEFINED IN THE SERVICE HEADER FILE. A FIRMWARE
- ** UPDATE CANNOT CHANGE THE BOOTLOADER ATTRIBUTES.
- **/
-uint32_t UPDT_configSet(const uint8_t *config, size_t size)
+UPDT_unpackerType *UPDT_unpackerNew(void)
 {
-   uint32_t ret = 0;
-   /* compare the expected configuration size with the received size */
-   if(UPDT_CONFIG_SIZE != size)
+   UPDT_unpackerType *unpacker = ciaaPOSIX_malloc(sizeof(UPDT_unpackerType));
+
+   unpacker->segment_remaining_bytes = 0;
+   return unpacker;
+}
+void UPDT_unpackerDel(UPDT_unpackerType *unpacker)
+{
+   ciaaPOSIX_assert(NULL != unpacker);
+
+   unpacker->segment_remaining_bytes = 0;
+   ciaaPOSIX_free(unpacker);
+}
+uint8_t *UPDT_unpackerExtract(
+   UPDT_unpackerType* unpacker,
+   const uint8_t * unparsed_data,
+   size_t *unparsed_bytes_count
+)
+{
+   ciaaPOSIX_assert(NULL != unpacker && NULL != unparsed_data && NULL != unparsed_bytes_count);
+
+   /* multiple of 8 and smaller than 2048 */
+   ciaaPOSIX_assert(0 == (*unparsed_bytes_count & 0xF807));
+
+   unpacker->start = (uint8_t *) unparsed_data;
+   unpacker->size = 0;
+
+   if(*unparsed_bytes_count > 0)
    {
-      return UPDT_CONFIG_ERROR_INVALID_SIZE;
+      /* if the current segment is completely parsed or this is the start of
+       * the first segment */
+      if(unpacker->segment_remaining_bytes == 0)
+      {
+         /* then the segment address and size must be read */
+
+         /* read the starting address from the first 4 bytes of the buffer */
+         unpacker->segment_destination_address = UPDT_utilsNtohl(*((uint32_t*) unparsed_data));
+         /* increment data pointer */
+         unparsed_data += sizeof(uint32_t);
+         /* update the unparsed bytes count */
+         *unparsed_bytes_count -= sizeof(uint32_t);
+
+         /* read the segment size from the second 4 bytes of the buffer */
+         unpacker->segment_remaining_bytes = UPDT_utilsNtohl(*((uint32_t*) unparsed_data));
+         /* increment data pointer */
+         unparsed_data += sizeof(uint32_t);
+         /* update the unparsed bytes count */
+         *unparsed_bytes_count -= sizeof(uint32_t);
+
+         /* set the start of data */
+         unpacker->start = (uint8_t *) unparsed_data;
+      }
+
+      /* unparsed_bytes_count is still bigger than zero */
+      if(*unparsed_bytes_count > 0)
+      {
+         /* there is pending bytes */
+
+         /* set address */
+         unpacker->address = unpacker->segment_destination_address;
+
+         /* set the amount of data to be extracted */
+         unpacker->size = UPDT_utilsMin(unpacker->segment_remaining_bytes, *unparsed_bytes_count);
+
+         /* update data pointer */
+         unparsed_data += unpacker->size;
+         /* update the unparsed bytes count */
+         *unparsed_bytes_count -= unpacker->size;
+
+         /* update destination address */
+         unpacker->segment_destination_address += unpacker->size;
+         /* update the unreceived segment bytes count */
+         unpacker->segment_remaining_bytes -= unpacker->size;
+      }
    }
-
-   UPDT_configParse(config, UPDT_CONFIG_SIZE, &UPDT_config_new);
-   UPDT_configParse(UPDT_CONFIG_ADDRESS, UPDT_CONFIG_SIZE, &UPDT_config_old);
-
-   /* reserved fields must be zero */
-   if(0 != (UPDT_config_new.reserved1 | UPDT_config_new.reserved2))
-      ret |= UPDT_CONFIG_ERROR_RESERVED;
-
-   /** \todo all error checks */
-
-   if(UPDT_config_old.firmware_version > UPDT_config_new.firmware_version)
-      ret |= UPDT_CONFIG_WARNING_FIRMWARE_VERSION;
-
-   /** \todo all warning checks */
-
-   return ret;
-}
-
-
-int32_t UPDT_configStore(void)
-{
-   /** \todo
-    ** - format the new configuration in the compact form
-    ** - discard the bootloader version and flag fields
-    ** - store the formated configuration into the block device. UPDT_storage
-    ** function should not be used. Instead use direct block device access
-    **/
-
-   return 0;
-}
-
-ssize_t UPDT_configSetResponse(const uint8_t *buffer, size_t size)
-{
-   return 0;
+   return (uint8_t *) unparsed_data;
 }
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
 

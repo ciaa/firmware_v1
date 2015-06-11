@@ -33,18 +33,18 @@
  *
  */
 
-#ifndef UPDT_CONFIG_H_
-#define UPDT_CONFIG_H_
-/** \brief Flash Update Config Header File
+#ifndef UPDT_UNPACKER_H_
+#define UPDT_UNPACKER_H_
+/** \brief Flash Update Unpacker Header File
  **
  ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Config
+ ** the Flash Update Unpacker
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Update CIAA Update Config
+/** \addtogroup Updater CIAA Updater Unpacker
  ** @{ */
 
 /*
@@ -59,101 +59,60 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150512 v0.0.1  FS  first initial version
+ * 20150419 v0.0.2  FS  change prefixes
+ * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdlib.h"
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief Error mask */
-#define UPDT_CONFIG_ERROR_MASK                  0xFFFF0000
-
-/** \brief Warning mask */
-#define UPDT_CONFIG_WARNING_MASK                0x0000FFFF
-
-/** \brief Invalid size error
- **
- ** This happens when an info payload with a size different than expected is
- ** received. */
-#define UPDT_CONFIG_ERROR_INVALID_SIZE          0x00010000
-
-/** \brief Unexpected reserved fields values
- **
- ** The reserved1 or reserved2 fields have an unexpected value (not 0)
- **/
-#define UPDT_CONFIG_ERROR_RESERVED              0x00020000
-
-/** \brief Incompatible bootloader version error */
-#define UPDT_CONFIG_ERROR_BOOTLOADER_VERSION    0x00040000
-
-/** \brief Incompatible bootloader flags error
- **
- ** May happen if the image is encrypted and the current implementation does
- ** not support encryption or digital signature. */
-#define UPDT_CONFIG_ERROR_BOOTLOADER_FLAGS      0x00080000
-
-/** \brief Wrong vendor identification error
- **
- ** The received image is not for the vendor of this CIAA. */
-#define UPDT_CONFIG_ERROR_VENDOR_ID             0x00100000
-
-/** \brief Wrong model identification error
- **
- ** The received image is not for this CIAA model. */
-#define UPDT_CONFIG_ERROR_MODEL_ID              0x00200000
-
-/** \brief Wrong unique identification error
- **
- ** The received image is not for this specific CIAA. */
-#define UPDT_CONFIG_ERROR_UNIQUE_ID             0x00400000
-
-/** \brief Older firmware version */
-#define UPDT_CONFIG_WARNING_FIRMWARE_VERSION    0x00000001
-
-/** \brief Older application version */
-#define UPDT_CONFIG_WARNING_APPLICATION_VERSION 0x00000002
-
 
 /*==================[typedef]================================================*/
+typedef struct
+{
+   uint32_t segment_remaining_bytes;
+   uint32_t segment_destination_address;
+   uint32_t address;
+   uint8_t *start;
+   size_t size;
 
+} UPDT_unpackerType;
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+UPDT_unpackerType *UPDT_unpackerNew(void);
+void UPDT_unpackerDel(UPDT_unpackerType *unpacker);
 
-/** \brief Changes the installed binary image configuration.
+/** \brief Extracts addressed data from a buffer.
  **
- ** Compares the proposed configuration with the configuration stored. If there
- ** is compatibility the new configuration is held but not stored. To store the
- ** new configuration configStore must be called.
+ ** \param[in] unpacker Unpacker descriptor. After a call to this function
+ ** its start, size and address fields are updated.
+ ** \param[in] unparsed_data Pointer to the unparsed data.
+ ** \param[in,out] size Pointer to the unparsed data size. This function also
+ ** decrements this size setting it up for the next call.
  **
- ** \param config Pointer to the configuration raw data.
- ** \param size Size of the raw data.
- ** \return Returns error and warning flags. 0 on success.
+ ** \return A pointer to the data to be parsed in the next call.
+ ** Example
+ ** \code{.c}
+ ** unparsed_data = buffer;
+ ** unparsed_bytes_count = buffer_size;
+ ** do
+ ** {
+ **   unparsed_data = UPDT_unpackerExtract(unpacker, unparsed_data, &unparsed_bytes_count);
+ **   store(unpacker->start, unpacker->size, unpacker->address);
+ ** } while(unparsed_bytes_count > 0);
+ ** \endcode
  **/
-uint32_t UPDT_configSet(const uint8_t *config, size_t size);
-
-/** \brief Stores the current configuration.
- **
- ** Saves the current configuration in the storage device.
- ** \return Returns 0 on success, non-zero on error.
- **/
-int32_t UPDT_configStore(void);
-
-/** \brief Formats a response payload.
- **
- ** Creates a response payload to be sent.
- ** \param buffer Buffer to hold the payload.
- ** \param size Maximum buffer size.
- ** \return Payload size on success, -1 on error.
- **/
-ssize_t UPDT_configSetResponse(const uint8_t *buffer, size_t size);
-
-
+uint8_t *UPDT_unpackerExtract(
+   UPDT_unpackerType* unpacker,
+   const uint8_t * unparsed_data,
+   size_t *unparsed_bytes_count
+);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -161,4 +120,5 @@ ssize_t UPDT_configSetResponse(const uint8_t *buffer, size_t size);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_CONFIG_H_ */
+#endif /* #ifndef UPDT_UNPACKER_H_ */
+
