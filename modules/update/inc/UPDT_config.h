@@ -63,7 +63,8 @@
  */
 
 /*==================[inclusions]=============================================*/
-
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stdlib.h"
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -71,52 +72,52 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 /** \brief Error mask */
-#define UPDT_CONFIG_ERROR_MASK                  0xFFFF0000
+#define UPDT_CONFIG_ERROR_MASK                  0xFFFF0000u
 
 /** \brief Warning mask */
-#define UPDT_CONFIG_WARNING_MASK                0x0000FFFF
+#define UPDT_CONFIG_WARNING_MASK                0x0000FFFFu
 
 /** \brief Invalid size error
  **
  ** This happens when an info payload with a size different than expected is
  ** received. */
-#define UPDT_CONFIG_ERROR_INVALID_SIZE          0x00010000
+#define UPDT_CONFIG_ERROR_INVALID_SIZE          0x00010000u
 
 /** \brief Unexpected reserved fields values
  **
  ** The reserved1 or reserved2 fields have an unexpected value (not 0)
  **/
-#define UPDT_CONFIG_ERROR_RESERVED              0x00020000
+#define UPDT_CONFIG_ERROR_RESERVED              0x00020000u
 
 /** \brief Incompatible bootloader version error */
-#define UPDT_CONFIG_ERROR_BOOTLOADER_VERSION    0x00040000
+#define UPDT_CONFIG_ERROR_BOOTLOADER_VERSION    0x00040000u
 
 /** \brief Incompatible bootloader flags error
  **
  ** May happen if the image is encrypted and the current implementation does
  ** not support encryption or digital signature. */
-#define UPDT_CONFIG_ERROR_BOOTLOADER_FLAGS      0x00080000
+#define UPDT_CONFIG_ERROR_BOOTLOADER_FLAGS      0x00080000u
 
 /** \brief Wrong vendor identification error
  **
  ** The received image is not for the vendor of this CIAA. */
-#define UPDT_CONFIG_ERROR_VENDOR_ID             0x00100000
+#define UPDT_CONFIG_ERROR_VENDOR_ID             0x00100000u
 
 /** \brief Wrong model identification error
  **
  ** The received image is not for this CIAA model. */
-#define UPDT_CONFIG_ERROR_MODEL_ID              0x00200000
+#define UPDT_CONFIG_ERROR_MODEL_ID              0x00200000u
 
 /** \brief Wrong unique identification error
  **
  ** The received image is not for this specific CIAA. */
-#define UPDT_CONFIG_ERROR_UNIQUE_ID             0x00400000
+#define UPDT_CONFIG_ERROR_UNIQUE_ID             0x00400000u
 
 /** \brief Older firmware version */
-#define UPDT_CONFIG_WARNING_FIRMWARE_VERSION    0x00000001
+#define UPDT_CONFIG_WARNING_FIRMWARE_VERSION    0x00000001u
 
 /** \brief Older application version */
-#define UPDT_CONFIG_WARNING_APPLICATION_VERSION 0x00000002
+#define UPDT_CONFIG_WARNING_APPLICATION_VERSION 0x00000002u
 
 
 /*==================[typedef]================================================*/
