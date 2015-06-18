@@ -138,6 +138,8 @@ int32_t UPDT_storageInit(int32_t fd)
    ciaaPOSIX_assert(0 == UPDT_storage_init_flag);
    ciaaPOSIX_assert(fd >= 0);
 
+   UPDT_storage_init_flag = 1;
+
    ret = ciaaPOSIX_ioctl(fd, ciaaPOSIX_IOCTL_BLOCK_GETINFO, (void*)&blockInfo);
    ciaaPOSIX_assert(ret >= 0);
    UPDT_storage.block_size = blockInfo.blockSize;
@@ -145,7 +147,6 @@ int32_t UPDT_storageInit(int32_t fd)
    UPDT_storage.fd = fd;
    UPDT_storage.block_state = ciaaPOSIX_malloc(UPDT_storageBlockStateSize(UPDT_storage.block_count));
    ciaaPOSIX_assert(NULL != UPDT_storage.block_state);
-
    UPDT_storageUnmarkAll();
 
    return 0;

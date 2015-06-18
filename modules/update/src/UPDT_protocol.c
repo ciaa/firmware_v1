@@ -99,26 +99,20 @@ uint8_t UPDT_protocolGetSequenceNumber(const uint8_t *header)
    return header[2];
 }
 
-void UPDT_protocolSetPacketType(uint8_t *header, uint8_t packet_type)
-{
-   ciaaPOSIX_assert(NULL != header);
-
-   header[0] = (header[0] & 0xF0) | (packet_type & 0x0F);
-}
-
-void UPDT_protocolSetPayloadSize(uint8_t *header, uint16_t payload_size)
+void UPDT_protocolSetHeader(
+   uint8_t *header,
+   uint8_t packet_type,
+   uint8_t sequence_number,
+   uint16_t payload_size)
 {
    ciaaPOSIX_assert(NULL != header);
    /* payload must be size multiple of 8 and smaller than 2048 */
    ciaaPOSIX_assert(0 == (payload_size & 0xF807));
 
+   header[0] = (header[0] & 0xF0) | (packet_type & 0x0F);
+   header[1] = 0;
+   header[2] = sequence_number;
    header[3] = (uint8_t) (payload_size >> 3);
-}
-void UPDT_protocolSetSequenceNumber(uint8_t *header, uint8_t sequence_number)
-{
-   ciaaPOSIX_assert(NULL != header);
-
-   header[1] = sequence_number;
 }
 
 int32_t UPDT_protocolRecv(

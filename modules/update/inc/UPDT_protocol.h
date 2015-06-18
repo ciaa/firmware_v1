@@ -125,9 +125,11 @@ int32_t UPDT_protocolRecv(UPDT_ITransportType *transport, uint8_t *buffer, size_
 /** If size = 0 returns immediately */
 int32_t UPDT_protocolSend(UPDT_ITransportType *transport, const uint8_t *buffer, size_t size);
 
-void UPDT_protocolSetPacketType(uint8_t *header, uint8_t packet_type);
-void UPDT_protocolSetPayloadSize(uint8_t *header, uint16_t payload_size);
-void UPDT_protocolSetSequenceNumber(uint8_t *header, uint8_t sequence_number);
+void UPDT_protocolSetHeader(
+   uint8_t *header,
+   uint8_t packet_type,
+   uint8_t sequence_number,
+   uint16_t payload_size);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }

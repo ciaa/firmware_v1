@@ -79,7 +79,7 @@ extern "C" {
 /*==================[external functions declaration]=========================*/
 void UPDT_storageClear();
 int32_t UPDT_storageInit(int32_t fd);
-ssize_t UPDT_storageStore(const uint8_t *data, size_t size, uint32_t address);
+ssize_t UPDT_storageWrite(const uint8_t *data, size_t size, uint32_t address);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

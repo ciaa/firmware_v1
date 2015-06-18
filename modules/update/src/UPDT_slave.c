@@ -88,9 +88,7 @@ static int32_t UPDT_slaveSendResponse(
    ciaaPOSIX_assert(NULL != slave && NULL != payload);
 
    buffer = slave->send_buffer;
-   UPDT_protocolSetPacketType(buffer, response_type);
-   UPDT_protocolSetSequenceNumber(buffer, slave->sequence_number);
-   UPDT_protocolSetPayloadSize(buffer, payload_size);
+   UPDT_protocolSetHeader(buffer, response_type, slave->sequence_number, payload_size);
 
    ciaaPOSIX_memcpy(buffer + UPDT_PROTOCOL_HEADER_SIZE, payload, payload_size);
 
@@ -99,11 +97,14 @@ static int32_t UPDT_slaveSendResponse(
 /*==================[external functions definition]==========================*/
 int32_t UPDT_slaveInit(UPDT_slaveType *slave, UPDT_ITransportType *transport)
 {
-   ciaaPOSIX_assert(NULL != slave && NULL != transport);
+   ciaaPOSIX_assert(NULL != slave);
+   ciaaPOSIX_assert(NULL != transport);
 
    slave->transport = transport;
    slave->protocol_version = 0;
    slave->sequence_number = 0;
+   slave->payload_size = 0;
+   slave->done = 0;
 
    return 0;
 }
@@ -114,6 +115,8 @@ void UPDT_slaveClear(UPDT_slaveType *slave)
    slave->sequence_number = 0;
    slave->protocol_version = 0;
    slave->transport = NULL;
+   slave->payload_size = 0;
+   slave->done = 0;
 }
 
 ssize_t UPDT_slaveRecvInfo(
@@ -124,13 +127,15 @@ ssize_t UPDT_slaveRecvInfo(
    /* holds return values */
    int32_t ret;
    /* received payload size */
-   ssize_t payload_size;
+   ssize_t payload_size = 0;
    /* received packet header */
    uint8_t header[UPDT_PROTOCOL_HEADER_SIZE];
    /* received sequence number */
    uint8_t sequence_number;
 
    ciaaPOSIX_assert(buffer_size >= UPDT_PROTOCOL_PAYLOAD_MAX_SIZE);
+
+
    do
    {
       /* receive header */
@@ -172,53 +177,70 @@ ssize_t UPDT_slaveRecvData(
    /* holds return values */
    int32_t ret;
    /* received payload size */
-   ssize_t payload_size;
+   ssize_t payload_size = 0;
    /* received packet header */
    uint8_t header[UPDT_PROTOCOL_HEADER_SIZE];
    /* received sequence number */
    uint8_t sequence_number;
 
    ciaaPOSIX_assert(buffer_size >= UPDT_PROTOCOL_PAYLOAD_MAX_SIZE);
-   do
+
+   if(0 == slave->done)
    {
-      /* receive header */
-      ret = UPDT_protocolRecv(slave->transport, header, UPDT_PROTOCOL_HEADER_SIZE);
-      if(UPDT_PROTOCOL_ERROR_NONE != ret)
+      do
       {
-         /* transport layer error or timeout */
-         return -1;
+         /* receive header */
+         ret = UPDT_protocolRecv(slave->transport, header, UPDT_PROTOCOL_HEADER_SIZE);
+         if(UPDT_PROTOCOL_ERROR_NONE != ret)
+         {
+            /* transport layer error or timeout */
+            return -1;
+         }
+
+         payload_size = UPDT_protocolGetPayloadSize(header);
+         sequence_number = UPDT_protocolGetSequenceNumber(header);
+
+         /* if the expected payload size does not match with the received */
+         if(slave->payload_size != payload_size)
+         {
+            /* if this is the first packet */
+            if(0 == slave->payload_size)
+            {
+               /* then set the expected payload size */
+               slave->payload_size = payload_size;
+            } else {
+               /* this is the last packet */
+               slave->done = 1;
+            }
+         }
+
+         /* if we receive the same sequence number again */
+         if(slave->sequence_number - 1 == sequence_number)
+         {
+            /* then ACK sent may be lost. does not matter the packet type */
+
+            /* resend ACK */
+            UPDT_slaveSendResponse(slave, slave->send_buffer, 0, UPDT_PROTOCOL_PACKET_ACK);
+         }
+
+         /* get the data packet and remove it from the buffer */
+         ret = UPDT_protocolRecv(slave->transport, payload_buffer, payload_size);
+         if(UPDT_PROTOCOL_ERROR_NONE != ret)
+         {
+            /* transport layer error or timeout */
+            return -1;
+         }
       }
+      /* receive again if the packet is corrupted */
+      while(UPDT_protocolGetPacketType(header) != UPDT_PROTOCOL_PACKET_DAT ||
+            slave->sequence_number != sequence_number);
 
-      payload_size = UPDT_protocolGetPayloadSize(header);
-      sequence_number = UPDT_protocolGetSequenceNumber(header);
+      /* increment expected sequence number */
+      ++slave->sequence_number;
 
-      /* if we receive the same sequence number again */
-      if(slave->sequence_number - 1 == sequence_number)
-      {
-         /* then ACK sent may be lost. does not matter the packet type */
-
-         /* resend ACK */
-         UPDT_slaveSendResponse(slave, slave->send_buffer, 0, UPDT_PROTOCOL_PACKET_ACK);
-      }
-
-      /* get the data packet and remove it from the buffer */
-      ret = UPDT_protocolRecv(slave->transport, payload_buffer, payload_size);
-      if(UPDT_PROTOCOL_ERROR_NONE != ret)
-      {
-         /* transport layer error or timeout */
-         return -1;
-      }
+      /* send acknowledge */
+      UPDT_slaveSendResponse(slave, slave->send_buffer, 0, UPDT_PROTOCOL_PACKET_ACK);
    }
-   /* receive again if the packet is corrupted */
-   while(UPDT_protocolGetPacketType(header) != UPDT_PROTOCOL_PACKET_DAT ||
-         slave->sequence_number != sequence_number);
-
-   /* increment expected sequence number */
-   ++slave->sequence_number;
-
-   /* send acknowledge */
-   UPDT_slaveSendResponse(slave, slave->send_buffer, 0, UPDT_PROTOCOL_PACKET_ACK);
-
 
    return payload_size;
 }

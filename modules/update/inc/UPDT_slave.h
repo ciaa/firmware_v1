@@ -79,14 +79,18 @@ typedef struct
 {
    /** Transport layer */
    UPDT_ITransportType *transport;
-   /** Negotiated protocol version */
-   uint8_t protocol_version;
-   /** Expected sequence number */
-   uint8_t sequence_number;
    /** Buffer to hold outgoing packets */
    uint8_t send_buffer[UPDT_PROTOCOL_PACKET_MAX_SIZE];
    /** Buffer to hold incoming packets */
    uint8_t recv_buffer[UPDT_PROTOCOL_PACKET_MAX_SIZE];
+   /** Expected payload size */
+   uint8_t payload_size;
+   /** Negotiated protocol version */
+   uint8_t protocol_version;
+   /** Expected sequence number */
+   uint8_t sequence_number;
+   /** Data transfer finished flag */
+   uint8_t done;
 } UPDT_slaveType;
 /*==================[external data declaration]==============================*/
 
