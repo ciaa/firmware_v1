@@ -37,11 +37,9 @@
  **
  ** This file implements the functionality of the Flash Update Services
  **
- ** \bug The last packet is not being stored. It is intermittent. The call to
- ** ciaaPOSIX_write is always made. It is probably due to a block device bug.
  ** \todo Add writing address restrictions
  ** \todo Implement a write optimization method which buffers the data sent
- ** by the protocol until there is a full block to write or the current
+ ** by the protocol until there is a full block to write or until the current
  ** data segment finishes.
  **/
 
