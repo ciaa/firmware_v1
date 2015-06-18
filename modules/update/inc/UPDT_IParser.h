@@ -33,18 +33,18 @@
  *
  */
 
-#ifndef _CIAAUPDATE_CLIENT_H_
-#define _CIAAUPDATE_CLIENT_H_
-/** \brief Flash Update Client Header File
+#ifndef UPDT_PARSER_H_
+#define UPDT_PARSER_H_
+/** \brief Flash Update Parser Header File
  **
  ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Client
+ ** the Flash Update Parser
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Client
+/** \addtogroup Updater CIAA Updater Parser
  ** @{ */
 
 /*
@@ -63,7 +63,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_transport.h"
+#include "ciaaPOSIX_stdlib.h"
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -72,26 +72,17 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+struct UPDT_parserType;
+typedef struct UPDT_parserType UPDT_parserType;
 
-/*==================[external data declaration]==============================*/
-
-/*==================[external functions declaration]=========================*/
-typedef struct
+typedef struct UPDT_parserType
 {
-   /** \brief transport layer */
-   ciaaUpdate_transportType *transport;
-   /** \brief negotiated protocol version */
-   uint8_t protocol_version;
-   /** \brief expected sequence number */
-   uint8_t sequence_number;
-} ciaaUpdate_clientType;
+   const uint8_t * (*get) (UPDT_parserType *parser, uint32_t *address, uint32_t *size);
+} UPDT_parserType;
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-ciaaUpdate_clientType *ciaaUpdate_clientNew(ciaaUpdate_transportType *transport);
-void ciaaUpdate_clientDel(ciaaUpdate_clientType *client);
 
-ssize_t ciaaUpdate_clientSendData(ciaaUpdate_clientType *client, const uint8_t *payload_buffer, size_t payload_size);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -99,5 +90,5 @@ ssize_t ciaaUpdate_clientSendData(ciaaUpdate_clientType *client, const uint8_t *
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_CLIENT_H_ */
+#endif /* #ifndef UPDT_STORAGE_H_ */
 

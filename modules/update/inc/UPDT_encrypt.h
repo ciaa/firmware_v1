@@ -33,15 +33,18 @@
  *
  */
 
-#ifndef _CIAAUPDATE_PACKER_H_
-#define _CIAAUPDATE_PACKER_H_
-/** \brief Flash Update Packer Header File
+#ifndef UPDT_ENCRYPT_H_
+#define UPDT_ENCRYPT_H_
+/** \brief Flash Update Encrypt Header File
+ **
+ ** This files shall be included by modules using the interfaces provided by
+ ** the Flash Update Encrypt
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Packer
+/** \addtogroup Updater CIAA Updater Encrypt
  ** @{ */
 
 /*
@@ -69,72 +72,10 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Parses a segment of contiguous data and returns it. The segment
- ** should be as big as possible.
- **
- ** \param[out] address Address where the segment should be stored.
- ** \param[out] size Segment size
- **/
-typedef const uint8_t * (*ciaaUpdate_packerParseCallback)(uint32_t *address, uint32_t *size);
 
-/** \brief Packer type */
-typedef struct ciaaUpdate_packerType
-{
-   /** Parser callback function */
-   ciaaUpdate_packerParseCallback parse;
-   /** Buffer where the packed data will be stored */
-   uint8_t *buffer;
-   /** Pointer to the current segment data */
-   const uint8_t *segment_data;
-   /** Current segment size */
-   uint32_t segment_size;
-   /** Maximum buffer size */
-   size_t buffer_max_size;
-} ciaaUpdate_packerType;
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Writes the 8 bytes segment header into a buffer.
- **
- ** \param dest Destination buffer. Must have at least 8 bytes.
- ** \param segment_address Segment address.
- ** \param segment_size Segment size.
- **/
-void ciaaUpdate_packerMakeHeader(uint8_t *dest, uint32_t segment_address, uint32_t segment_size);
-
-/** \brief Writes the segment padding into a buffer.
- **
- ** This function creates a random padding of length n, such that
- ** n + segment_size is a multiple of 8.
- **
- ** \param dest Destination buffer.
- ** \param segment_size Segment size.
- ** \return The generated padding size.
- **/
-uint8_t ciaaUpdate_packerMakePadding(uint8_t *dest, uint32_t segment_size);
-
-/** \brief Initializes a packer structure.
- **
- ** \param packer Pointer to the structure.
- ** \param parse Callback to the parser function.
- ** \param buffer Pointer to the buffer.
- ** \param size Buffer size.
- ** \return 0 on success. Non-zero on error. */
-int32_t ciaaUpdate_packerInit(
-   ciaaUpdate_packerType *packer,
-   ciaaUpdate_packerParseCallback parse,
-   uint8_t *buffer,
-   size_t size);
-
-/** \brief Gets a block of data using the parse function, packs it and stores
- ** it into the buffer. If there is enough data to parse the number of bytes
- ** packed is equal to the buffer size. Otherwise all the remaining data is
- ** packed.
- **
- ** \param packer Packer instance.
- ** \return number of bytes packed.
- **/
-ssize_t ciaaUpdate_packerGet(ciaaUpdate_packerType *packer);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -143,4 +84,5 @@ ssize_t ciaaUpdate_packerGet(ciaaUpdate_packerType *packer);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_PACKER_H_ */
+#endif /* #ifndef UPDT_ENCRYPT_H_ */
+

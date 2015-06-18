@@ -33,18 +33,15 @@
  *
  */
 
-#ifndef _CIAAUPDATE_ENCRYPT_H_
-#define _CIAAUPDATE_ENCRYPT_H_
-/** \brief Flash Update Encrypt Header File
- **
- ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Encrypt
+#ifndef UPDT_PACKER_H_
+#define UPDT_PACKER_H_
+/** \brief Flash Update Packer Header File
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Encrypt
+/** \addtogroup Updater CIAA Updater Packer
  ** @{ */
 
 /*
@@ -63,7 +60,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-
+#include "UPDT_IParser.h"
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -73,10 +70,70 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 
+/** \brief Packer type */
+typedef struct UPDT_packerType
+{
+   /** Parser reference */
+   UPDT_parserType *parser;
+   /** Buffer where the packed data will be stored */
+   uint8_t *buffer;
+   /** Pointer to the current segment data */
+   const uint8_t *segment_data;
+   /** Current segment size */
+   uint32_t segment_size;
+   /** Maximum buffer size */
+   size_t buffer_max_size;
+} UPDT_packerType;
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief Writes the 8 bytes segment header into a buffer.
+ **
+ ** \param dest Destination buffer. Must have at least 8 bytes.
+ ** \param segment_address Segment address.
+ ** \param segment_size Segment size.
+ **/
+void UPDT_packerMakeHeader(uint8_t *dest, uint32_t segment_address, uint32_t segment_size);
 
+/** \brief Writes the segment padding into a buffer.
+ **
+ ** This function creates a random padding of length n, such that
+ ** n + segment_size is a multiple of 8.
+ **
+ ** \param dest Destination buffer.
+ ** \param segment_size Segment size.
+ ** \return The generated padding size.
+ **/
+uint8_t UPDT_packerMakePadding(uint8_t *dest, uint32_t segment_size);
+
+/** \brief Initializes a packer structure.
+ **
+ ** \param packer Pointer to the structure.
+ ** \param parse Callback to the parser function.
+ ** \param buffer Pointer to the buffer.
+ ** \param size Buffer size.
+ ** \return 0 on success. Non-zero on error. */
+int32_t UPDT_packerInit(
+   UPDT_packerType *packer,
+   UPDT_parserType *parser,
+   uint8_t *buffer,
+   size_t size);
+
+/** \brief Gets a block of data using the parse function, packs it and stores
+ ** it into the buffer. If there is enough data to parse the number of bytes
+ ** packed is equal to the buffer size. Otherwise all the remaining data is
+ ** packed.
+ **
+ ** \param packer Packer instance.
+ ** \return number of bytes packed.
+ **/
+ssize_t UPDT_packerGet(UPDT_packerType *packer);
+
+/** \brief Clears a packer structure.
+ **
+ ** \param packer Packer instance.
+ **/
+void UPDT_packerClear(UPDT_packerType *packer);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -84,5 +141,4 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_ENCRYPT_H_ */
-
+#endif /* #ifndef UPDT_PACKER_H_ */

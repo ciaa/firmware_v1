@@ -38,7 +38,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Encrypt
+/** \addtogroup UPDT CIAA UPDT Encrypt
  ** @{ */
 
 /*
@@ -57,7 +57,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_encrypt.h"
+#include "UPDT_encrypt.h"
 
 /*==================[macros and definitions]=================================*/
 

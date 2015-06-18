@@ -33,13 +33,13 @@
  *
  */
 
-/** \brief This file implements the Flash Update Packer functionality
+/** \brief This file implements the Flash UPDT Packer functionality
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Packer
+/** \addtogroup UPDT CIAA UPDT Packer
  ** @{ */
 
 /*
@@ -54,14 +54,16 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150419 v0.0.2  FS  change prefixes
  * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_assert.h"
 #include "ciaaPOSIX_string.h"
-#include "ciaaUpdate_packer.h"
-#include "ciaaUpdate_utils.h"
+#include "UPDT_packer.h"
+#include "UPDT_IParser.h"
+#include "UPDT_utils.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -76,34 +78,35 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-void ciaaUpdate_packerMakeHeader(uint8_t *dest, uint32_t segment_address, uint32_t segment_size)
+void UPDT_packerMakeHeader(uint8_t *dest, uint32_t segment_address, uint32_t segment_size)
 {
-   *(uint32_t *) dest = ciaaUpdate_utilsHtonl(segment_address);
-   *(uint32_t *) (dest + 4) = ciaaUpdate_utilsHtonl(segment_size);
+   *(uint32_t *) dest = UPDT_utilsHtonl(segment_address);
+   *(uint32_t *) (dest + 4) = UPDT_utilsHtonl(segment_size);
 }
 
-uint8_t ciaaUpdate_packerMakePadding(uint8_t *dest, uint32_t segment_size)
+uint8_t UPDT_packerMakePadding(uint8_t *dest, uint32_t segment_size)
 {
-   int32_t i;
+   uint32_t i;
    int32_t padding_size;
 
-   i = padding_size = ((~segment_size) + 1) & 0x07;
-   while(i--)
+   i = padding_size = ((~segment_size) + 1) & 0x07u;
+   while(i)
    {
-      dest[i] = ciaaPOSIX_rand() % 256;
+      dest[--i] = ciaaPOSIX_rand() % 256;
    }
+   ciaaPOSIX_assert(i < 8);
    return i;
 }
 
-int32_t ciaaUpdate_packerInit(
-   ciaaUpdate_packerType *packer,
-   ciaaUpdate_packerParseCallback parse,
+int32_t UPDT_packerInit(
+   UPDT_packerType *packer,
+   UPDT_parserType *parser,
    uint8_t *buffer,
    size_t size)
 {
-   ciaaPOSIX_assert(NULL != packer && NULL != parse && NULL != buffer && size > 0);
+   ciaaPOSIX_assert(NULL != packer && NULL != parser && NULL != buffer && size > 0);
 
-   packer->parse = parse;
+   packer->parser = parser;
    packer->buffer = buffer;
    packer->buffer_max_size = size;
 
@@ -112,8 +115,19 @@ int32_t ciaaUpdate_packerInit(
 
    return 0;
 }
+void UPDT_packerClear(UPDT_packerType *packer)
+{
+   ciaaPOSIX_assert(NULL != packer);
 
-ssize_t ciaaUpdate_packerGet(ciaaUpdate_packerType *packer)
+   packer->segment_data = NULL;
+   packer->segment_size = 0;
+
+   packer->buffer_max_size = 0;
+   packer->buffer = NULL;
+   packer->parser = NULL;
+
+}
+ssize_t UPDT_packerGet(UPDT_packerType *packer)
 {
    uint32_t address;
    uint32_t size;
@@ -122,7 +136,7 @@ ssize_t ciaaUpdate_packerGet(ciaaUpdate_packerType *packer)
    /* free space in the buffer */
    size_t buffer_size;
 
-   ciaaPOSIX_assert(NULL != packer && NULL != packer->parse && NULL != packer->buffer);
+   ciaaPOSIX_assert(NULL != packer && NULL != packer->parser && NULL != packer->buffer);
 
    /* initialize the buffer state */
    buffer_size = packer->buffer_max_size;
@@ -130,7 +144,7 @@ ssize_t ciaaUpdate_packerGet(ciaaUpdate_packerType *packer)
 
    /* while there is still segments to parse */
    while(0 != packer->segment_size ||
-         NULL != (packer->segment_data = packer->parse(&address, &size)))
+         NULL != (packer->segment_data = packer->parser->get(packer->parser, &address, &size)))
    {
       /* if the current segment is over (or this is the first one) */
       if(0 == packer->segment_size)
@@ -141,11 +155,11 @@ ssize_t ciaaUpdate_packerGet(ciaaUpdate_packerType *packer)
          packer->segment_size = size;
 
          /* write the header into the buffer */
-         ciaaUpdate_packerMakeHeader(buffer_ptr, address, size);
+         UPDT_packerMakeHeader(buffer_ptr, address, size);
 
          /* update the buffer state */
-         buffer_size += size;
-         buffer_ptr += size;
+         buffer_size -= 8;
+         buffer_ptr += 8;
 
          /* if the buffer is full */
          if(0 == buffer_size)
@@ -157,7 +171,7 @@ ssize_t ciaaUpdate_packerGet(ciaaUpdate_packerType *packer)
       /* write the segment data */
 
       /* calculate the number of bytes to write */
-      size = ciaaUpdate_utilsMin(packer->segment_size, buffer_size);
+      size = UPDT_utilsMin(packer->segment_size, buffer_size);
 
       /* write them into the buffer */
       ciaaPOSIX_memcpy(buffer_ptr, packer->segment_data, size);
@@ -174,7 +188,7 @@ ssize_t ciaaUpdate_packerGet(ciaaUpdate_packerType *packer)
       if(0 == packer->segment_size)
       {
          /* then add padding */
-         size = ciaaUpdate_packerMakePadding(buffer_ptr, packer->buffer_max_size - buffer_size);
+         size = UPDT_packerMakePadding(buffer_ptr, packer->buffer_max_size - buffer_size);
 
          /* update the buffer state */
          buffer_size -= size;
@@ -187,6 +201,7 @@ ssize_t ciaaUpdate_packerGet(ciaaUpdate_packerType *packer)
          return packer->buffer_max_size;
       }
    }
+   /* return the number of bytes written */
    return packer->buffer_max_size - buffer_size;
 }
 /** @} doxygen end group definition */
