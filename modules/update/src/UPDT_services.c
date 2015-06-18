@@ -119,6 +119,7 @@ int32_t UPDT_servicesStart(
    /* initialize a storage instance */
    ciaaPOSIX_assert(0 == UPDT_storageInit(flash_fd));
 
+#if 0
    /* device identification */
    do
    {
@@ -144,6 +145,12 @@ int32_t UPDT_servicesStart(
          UPDT_slaveSendDeny(&UPDT_services_slave, buffer, size);
 
    } while(installation_allowed == 0);
+#else
+
+   /* preset the sequence number */
+   /* this should be done during the handshake */
+   UPDT_services_slave.sequence_number = 0;
+#endif
 
    /* receive binary image data */
    while((size = UPDT_slaveRecvData(&UPDT_services_slave, buffer, sizeof(buffer))) > 0)
