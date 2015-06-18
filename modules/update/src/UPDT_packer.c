@@ -59,8 +59,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_assert.h"
-#include "ciaaPOSIX_string.h"
+#include "UPDT_osal.h"
 #include "UPDT_packer.h"
 #include "UPDT_IParser.h"
 #include "UPDT_utils.h"
@@ -92,9 +91,9 @@ uint8_t UPDT_packerMakePadding(uint8_t *dest, uint32_t segment_size)
    i = padding_size = ((~segment_size) + 1) & 0x07u;
    while(i)
    {
-      dest[--i] = ciaaPOSIX_rand() % 256;
+      dest[--i] = rand() % 256;
    }
-   ciaaPOSIX_assert(i < 8);
+   assert(i < 8);
    return i;
 }
 
@@ -104,7 +103,10 @@ int32_t UPDT_packerInit(
    uint8_t *buffer,
    size_t size)
 {
-   ciaaPOSIX_assert(NULL != packer && NULL != parser && NULL != buffer && size > 0);
+   assert(NULL != packer);
+   assert(NULL != parser);
+   assert(NULL != buffer);
+   assert(size > 0);
 
    packer->parser = parser;
    packer->buffer = buffer;
@@ -117,7 +119,7 @@ int32_t UPDT_packerInit(
 }
 void UPDT_packerClear(UPDT_packerType *packer)
 {
-   ciaaPOSIX_assert(NULL != packer);
+   assert(NULL != packer);
 
    packer->segment_data = NULL;
    packer->segment_size = 0;
@@ -136,7 +138,9 @@ ssize_t UPDT_packerGet(UPDT_packerType *packer)
    /* free space in the buffer */
    size_t buffer_size;
 
-   ciaaPOSIX_assert(NULL != packer && NULL != packer->parser && NULL != packer->buffer);
+   assert(NULL != packer);
+   assert(NULL != packer->parser);
+   assert(NULL != packer->buffer);
 
    /* initialize the buffer state */
    buffer_size = packer->buffer_max_size;
@@ -174,7 +178,7 @@ ssize_t UPDT_packerGet(UPDT_packerType *packer)
       size = UPDT_utilsMin(packer->segment_size, buffer_size);
 
       /* write them into the buffer */
-      ciaaPOSIX_memcpy(buffer_ptr, packer->segment_data, size);
+      memcpy(buffer_ptr, packer->segment_data, size);
 
       /* update the segment state */
       packer->segment_size -= size;

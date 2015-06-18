@@ -65,7 +65,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdlib.h"
+#include "UPDT_osal.h"
 #include "UPDT_ITransport.h"
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

@@ -57,9 +57,8 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "UPDT_osal.h"
 #include "UPDT_config.h"
-
-#include "ciaaPOSIX_assert.h"
 #include "UPDT_utils.h"
 
 /*==================[macros and definitions]=================================*/
@@ -98,7 +97,8 @@ void UPDT_configParse(const uint8_t *payload, size_t size, UPDT_configType *info
 {
    uint32_t word;
    const uint32_t *ptr;
-   ciaaPOSIX_assert(NULL != payload && NULL != info);
+   assert(NULL != payload);
+   assert(NULL != info);
 
    ptr = (const uint32_t *) payload;
 

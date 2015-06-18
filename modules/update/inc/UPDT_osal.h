@@ -33,14 +33,14 @@
  *
  */
 
-#ifndef UPDT_UTILS_H_
-#define UPDT_UTILS_H_
-/** \brief Flash Update Utils header file
+#ifndef UPDT_OSAL_H_
+#define UPDT_OSAL_H_
+/** \brief OS Abstraction Layer header file
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Utils
+/** \addtogroup Updater CIAA Updater OS Abstraction Layer
  ** @{ */
 
 /*
@@ -60,7 +60,23 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "UPDT_osal.h"
+#define CIAA
+
+#ifdef CIAA
+#include "ciaaPOSIX_assert.h"
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stddef.h"
+#include "ciaaPOSIX_stdio.h"
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_string.h"
+#else
+#include "assert.h"
+#include "stdint.h"
+#include "stddef.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
+#endif // CIAA
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -69,17 +85,27 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-#define UPDT_utilsHtonll UPDT_utilsNtohll
-#define UPDT_utilsHtonl UPDT_utilsNtohl
-#define UPDT_utilsHtons UPDT_utilsNtohs
+#ifdef CIAA
+#define assert ciaaPOSIX_assert
+
+#define close  ciaaPOSIX_close
+#define lseek  ciaaPOSIX_lseek
+#define open   ciaaPOSIX_open
+#define printf ciaaPOSIX_printf
+#define read   ciaaPOSIX_read
+#define write  ciaaPOSIX_write
+
+#define malloc ciaaPOSIX_malloc
+#define free   ciaaPOSIX_free
+#define memcpy ciaaPOSIX_memcpy
+
+#define rand   ciaaPOSIX_rand
+
+#endif
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-int32_t UPDT_utilsMin(int32_t a, int32_t b);
 
-uint16_t UPDT_utilsNtohs(uint16_t netshort);
-uint32_t UPDT_utilsNtohl(uint32_t netlong);
-uint64_t UPDT_utilsNtohll(uint64_t netlonglong);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -87,5 +113,4 @@ uint64_t UPDT_utilsNtohll(uint64_t netlonglong);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_UTILS_H_ */
-
+#endif /* #ifndef UPDT_OSAL_H_ */

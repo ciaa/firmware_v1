@@ -60,12 +60,11 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_assert.h"
-#include "ciaaPOSIX_stdlib.h"
-#include "ciaaPOSIX_string.h"
+#include "UPDT_osal.h"
 #include "UPDT_master.h"
 #include "UPDT_protocol.h"
 #include "UPDT_ITransport.h"
+
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
@@ -135,12 +134,12 @@ static ssize_t UPDT_masterSendAndRecv(
    int32_t ret = -1;
    uint8_t *buffer;
 
-   ciaaPOSIX_assert(NULL != master);
-   ciaaPOSIX_assert(NULL != payload_buffer);
+   assert(NULL != master);
+   assert(NULL != payload_buffer);
    /* packet has valid type */
-   ciaaPOSIX_assert(0 != UPDT_PROTOCOL_PACKET_VALID(packet_type));
+   assert(0 != UPDT_PROTOCOL_PACKET_VALID(packet_type));
    /* and that type expects a response (master cannot send ACK) */
-   ciaaPOSIX_assert(UPDT_PROTOCOL_PACKET_INV != UPDT_MASTER_EXPECTED_PACKET(packet_type));
+   assert(UPDT_PROTOCOL_PACKET_INV != UPDT_MASTER_EXPECTED_PACKET(packet_type));
 
    /* initialize buffer */
    buffer = master->send_buffer;
@@ -149,7 +148,7 @@ static ssize_t UPDT_masterSendAndRecv(
    UPDT_protocolSetHeader(buffer, packet_type, master->sequence_number, payload_size);
 
    /* copy data */
-   ciaaPOSIX_memcpy(buffer + UPDT_PROTOCOL_HEADER_SIZE, payload_buffer, payload_size);
+   memcpy(buffer + UPDT_PROTOCOL_HEADER_SIZE, payload_buffer, payload_size);
 
    /** \todo add retransmission limit */
    do
@@ -173,8 +172,8 @@ static ssize_t UPDT_masterSendAndRecv(
 /*==================[external functions definition]==========================*/
 int32_t UPDT_masterInit(UPDT_masterType *master, UPDT_ITransportType *transport)
 {
-   ciaaPOSIX_assert(NULL != master);
-   ciaaPOSIX_assert(NULL != transport);
+   assert(NULL != master);
+   assert(NULL != transport);
 
    master->transport = transport;
    master->protocol_version = 0;
@@ -186,7 +185,7 @@ int32_t UPDT_masterInit(UPDT_masterType *master, UPDT_ITransportType *transport)
 
 void UPDT_masterClear(UPDT_masterType *master)
 {
-   ciaaPOSIX_assert(NULL != master);
+   assert(NULL != master);
 
    master->sequence_number = 0;
    master->protocol_version = 0;
@@ -196,7 +195,8 @@ void UPDT_masterClear(UPDT_masterType *master)
 ssize_t UPDT_masterSendData(UPDT_masterType *master, const uint8_t *payload_buffer, size_t payload_size)
 {
    ssize_t resp_size;
-   ciaaPOSIX_assert(NULL != master && NULL != payload_buffer);
+   assert(NULL != master);
+   assert(NULL != payload_buffer);
 
    /* send the packet and wait the response */
    resp_size = UPDT_masterSendAndRecv(master, payload_buffer, payload_size, UPDT_PROTOCOL_PACKET_DAT);
@@ -222,9 +222,9 @@ ssize_t UPDT_masterHandshake(
    size_t response_buffer_size)
 {
    ssize_t resp_size;
-   ciaaPOSIX_assert(NULL != master);
-   ciaaPOSIX_assert(NULL != master_info);
-   ciaaPOSIX_assert(NULL != response_buffer);
+   assert(NULL != master);
+   assert(NULL != master_info);
+   assert(NULL != response_buffer);
 
    /* send the INFO packet and receive the response into the receive buffer */
    resp_size = UPDT_masterSendAndRecv(
@@ -248,7 +248,7 @@ ssize_t UPDT_masterHandshake(
       /* else */
 
       /* copy the response to the destination buffer */
-      ciaaPOSIX_memcpy(response_buffer, master->recv_buffer, resp_size);
+      memcpy(response_buffer, master->recv_buffer, resp_size);
 
       /* return payload size */
       return resp_size;

@@ -58,9 +58,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_assert.h"
-#include "ciaaPOSIX_stdlib.h"
-#include "ciaaPOSIX_string.h"
+#include "UPDT_osal.h"
 #include "UPDT_unpacker.h"
 #include "UPDT_utils.h"
 
@@ -79,17 +77,17 @@
 /*==================[external functions definition]==========================*/
 UPDT_unpackerType *UPDT_unpackerNew(void)
 {
-   UPDT_unpackerType *unpacker = ciaaPOSIX_malloc(sizeof(UPDT_unpackerType));
+   UPDT_unpackerType *unpacker = malloc(sizeof(UPDT_unpackerType));
 
    unpacker->segment_remaining_bytes = 0;
    return unpacker;
 }
 void UPDT_unpackerDel(UPDT_unpackerType *unpacker)
 {
-   ciaaPOSIX_assert(NULL != unpacker);
+   assert(NULL != unpacker);
 
    unpacker->segment_remaining_bytes = 0;
-   ciaaPOSIX_free(unpacker);
+   free(unpacker);
 }
 uint8_t *UPDT_unpackerExtract(
    UPDT_unpackerType* unpacker,
@@ -97,10 +95,12 @@ uint8_t *UPDT_unpackerExtract(
    size_t *unparsed_bytes_count
 )
 {
-   ciaaPOSIX_assert(NULL != unpacker && NULL != unparsed_data && NULL != unparsed_bytes_count);
+   assert(NULL != unpacker);
+   assert(NULL != unparsed_data);
+   assert(NULL != unparsed_bytes_count);
 
    /* multiple of 8 and smaller than 2048 */
-   ciaaPOSIX_assert(0 == (*unparsed_bytes_count & 0xF807));
+   assert(0 == (*unparsed_bytes_count & 0xF807));
 
    unpacker->start = (uint8_t *) unparsed_data;
    unpacker->size = 0;

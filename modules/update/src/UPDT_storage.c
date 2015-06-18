@@ -62,8 +62,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_assert.h"
-#include "ciaaPOSIX_stdlib.h"
+#include "UPDT_osal.h"
 #include "UPDT_storage.h"
 /*==================[macros and definitions]=================================*/
 typedef struct
@@ -80,7 +79,7 @@ UPDT_storageType UPDT_storage;
 /*==================[internal functions declaration]=========================*/
 static size_t UPDT_storageBlockStateSize(uint32_t block_count)
 {
-   ciaaPOSIX_assert(0 != UPDT_storage_init_flag);
+   assert(0 != UPDT_storage_init_flag);
    /* 1 bit per block */
    return (block_count >> 3) + ((block_count & 0x07) != 0);
 }
@@ -89,7 +88,7 @@ static void UPDT_storageUnmarkAll()
    int block_num;
    int last_block;
 
-   ciaaPOSIX_assert(0 != UPDT_storage_init_flag);
+   assert(0 != UPDT_storage_init_flag);
    last_block = UPDT_storageBlockStateSize(UPDT_storage.block_count);
    for(block_num = 0; block_num < last_block; ++block_num)
    {
@@ -98,15 +97,15 @@ static void UPDT_storageUnmarkAll()
 }
 static void UPDT_storageMark(int block_num)
 {
-   ciaaPOSIX_assert(0 != UPDT_storage_init_flag);
+   assert(0 != UPDT_storage_init_flag);
 
-   ciaaPOSIX_assert( block_num < UPDT_storage.block_count);
+   assert( block_num < UPDT_storage.block_count);
    UPDT_storage.block_state[block_num >> 3] |= 1 << (block_num & 0x07);
 }
 static int UPDT_storageIsMarked(int block_num)
 {
-   ciaaPOSIX_assert(0 != UPDT_storage_init_flag);
-   ciaaPOSIX_assert(block_num < UPDT_storage.block_count);
+   assert(0 != UPDT_storage_init_flag);
+   assert(block_num < UPDT_storage.block_count);
 
    return UPDT_storage.block_state[block_num >> 3] & (1 << (block_num & 0x07));
 }
@@ -119,9 +118,9 @@ static int UPDT_storageIsMarked(int block_num)
 /*==================[external functions definition]==========================*/
 void UPDT_storageClear()
 {
-   ciaaPOSIX_assert(0 != UPDT_storage_init_flag);
+   assert(0 != UPDT_storage_init_flag);
 
-   ciaaPOSIX_free(UPDT_storage.block_state);
+   free(UPDT_storage.block_state);
    UPDT_storage.block_state = NULL;
    UPDT_storage.fd = -1;
    UPDT_storage.block_count = 0;
@@ -135,18 +134,18 @@ int32_t UPDT_storageInit(int32_t fd)
    int32_t ret;
    ciaaDevices_blockType blockInfo;
 
-   ciaaPOSIX_assert(0 == UPDT_storage_init_flag);
-   ciaaPOSIX_assert(fd >= 0);
+   assert(0 == UPDT_storage_init_flag);
+   assert(fd >= 0);
 
    UPDT_storage_init_flag = 1;
 
    ret = ciaaPOSIX_ioctl(fd, ciaaPOSIX_IOCTL_BLOCK_GETINFO, (void*)&blockInfo);
-   ciaaPOSIX_assert(ret >= 0);
+   assert(ret >= 0);
    UPDT_storage.block_size = blockInfo.blockSize;
    UPDT_storage.block_count = blockInfo.lastPosition / blockInfo.blockSize;
    UPDT_storage.fd = fd;
-   UPDT_storage.block_state = ciaaPOSIX_malloc(UPDT_storageBlockStateSize(UPDT_storage.block_count));
-   ciaaPOSIX_assert(NULL != UPDT_storage.block_state);
+   UPDT_storage.block_state = malloc(UPDT_storageBlockStateSize(UPDT_storage.block_count));
+   assert(NULL != UPDT_storage.block_state);
    UPDT_storageUnmarkAll();
 
    return 0;
@@ -158,7 +157,7 @@ ssize_t UPDT_storageWrite(const uint8_t *data, size_t size, uint32_t address)
    int block_num;
    int last_block;
 
-   ciaaPOSIX_assert(0 != UPDT_storage_init_flag);
+   assert(0 != UPDT_storage_init_flag);
 
    /* erase the blocks to be written */
    last_block = (address + size - 1) / UPDT_storage.block_size;
@@ -171,12 +170,12 @@ ssize_t UPDT_storageWrite(const uint8_t *data, size_t size, uint32_t address)
 
          /* seek to the block address */
          block_address = block_num * UPDT_storage.block_size;
-         ret = ciaaPOSIX_lseek(UPDT_storage.fd, block_address, SEEK_SET);
-         ciaaPOSIX_assert(block_address == ret);
+         ret = lseek(UPDT_storage.fd, block_address, SEEK_SET);
+         assert(block_address == ret);
 
          /* erase */
          ret = ciaaPOSIX_ioctl(UPDT_storage.fd, ciaaPOSIX_IOCTL_BLOCK_ERASE, NULL);
-         ciaaPOSIX_assert(-1 != ret);
+         assert(-1 != ret);
 
          /* mark it as dirty */
          UPDT_storageMark(block_num);
@@ -184,12 +183,12 @@ ssize_t UPDT_storageWrite(const uint8_t *data, size_t size, uint32_t address)
    }
 
    /* seek to the specified address */
-   ret = ciaaPOSIX_lseek(UPDT_storage.fd, address, SEEK_SET);
-   ciaaPOSIX_assert(address == ret);
+   ret = lseek(UPDT_storage.fd, address, SEEK_SET);
+   assert(address == ret);
 
    /* write in the specified address */
-   ret = ciaaPOSIX_write(UPDT_storage.fd, data, size);
-   ciaaPOSIX_assert(size == ret);
+   ret = write(UPDT_storage.fd, data, size);
+   assert(size == ret);
 
    return ret;
 }
