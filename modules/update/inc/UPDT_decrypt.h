@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef UPDT_DECRYPT_H_
-#define UPDT_DECRYPT_H_
+#ifndef UPDT_DECRYPT_H
+#define UPDT_DECRYPT_H
 /** \brief Flash Update Decrypt Header File
  **
  ** This files shall be included by modules using the interfaces provided by
@@ -84,5 +84,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_DECRYPT_H_ */
+#endif /* #ifndef UPDT_DECRYPT_H */
 

@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef UPDT_CONFIG_H_
-#define UPDT_CONFIG_H_
+#ifndef UPDT_CONFIG_H
+#define UPDT_CONFIG_H
 /** \brief Flash Update Config Header File
  **
  ** This files shall be included by modules using the interfaces provided by
@@ -161,4 +161,4 @@ ssize_t UPDT_configSetResponse(const uint8_t *buffer, size_t size);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_CONFIG_H_ */
+#endif /* #ifndef UPDT_CONFIG_H */

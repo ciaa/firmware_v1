@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef UPDT_PACKER_H_
-#define UPDT_PACKER_H_
+#ifndef UPDT_PACKER_H
+#define UPDT_PACKER_H
 /** \brief Flash Update Packer Header File
  **
  **/
@@ -141,4 +141,4 @@ void UPDT_packerClear(UPDT_packerType *packer);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_PACKER_H_ */
+#endif /* #ifndef UPDT_PACKER_H */

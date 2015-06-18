@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef _TEST_UPDATE_H_
-#define _TEST_UPDATE_H_
+#ifndef TEST_UPDATE_H
+#define TEST_UPDATE_H
 /** \brief Update Test header file
  **/
 
@@ -74,5 +74,5 @@
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _UPDATE_TEST_H_ */
+#endif /* #ifndef UPDATE_TEST_H */
 

@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef UPDT_SERIAL_H_
-#define UPDT_SERIAL_H_
+#ifndef UPDT_SERIAL_H
+#define UPDT_SERIAL_H
 /** \brief Flash Update Serial Header File
  **
  ** This files shall be included by modules using the interfaces provided by
@@ -111,5 +111,5 @@ void UPDT_serialClear(UPDT_serialType *serial);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_SERIAL_H_ */
+#endif /* #ifndef UPDT_SERIAL_H */
 

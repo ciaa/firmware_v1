@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef UPDT_SLAVE_H_
-#define UPDT_SLAVE_H_
+#ifndef UPDT_SLAVE_H
+#define UPDT_SLAVE_H
 /** \brief Flash Update Slave Header File
  **
  ** This files shall be included by modules using the interfaces provided by
@@ -152,5 +152,5 @@ ssize_t UPDT_slaveSendDeny(
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_SLAVE_H_ */
+#endif /* #ifndef UPDT_SLAVE_H */
 

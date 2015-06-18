@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef UPDT_PROTOCOL_H_
-#define UPDT_PROTOCOL_H_
+#ifndef UPDT_PROTOCOL_H
+#define UPDT_PROTOCOL_H
 /** \brief Flash Update Protocol Header File
  **
  ** This files shall be included by modules using the interfaces provided by
@@ -137,5 +137,5 @@ void UPDT_protocolSetHeader(
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_PROTOCOL_H_ */
+#endif /* #ifndef UPDT_PROTOCOL_H */
 

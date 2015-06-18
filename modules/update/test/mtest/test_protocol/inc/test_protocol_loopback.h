@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef _TEST_UPDATE_LOOPBACK_H_
-#define _TEST_UPDATE_LOOPBACK_H_
+#ifndef TEST_UPDATE_LOOPBACK_H
+#define TEST_UPDATE_LOOPBACK_H
 /** \brief Flash Update test loopback transport layer file
  **
  **/
@@ -142,5 +142,5 @@ void test_update_loopbackClear(test_update_loopbackType *loopback);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _TEST_UPDATE_LOOPBACK_H_ */
+#endif /* #ifndef TEST_UPDATE_LOOPBACK_H */
 

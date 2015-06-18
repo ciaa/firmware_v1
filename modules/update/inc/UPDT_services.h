@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef UPDT_SERVICES_H_
-#define UPDT_SERVICES_H_
+#ifndef UPDT_SERVICES_H
+#define UPDT_SERVICES_H
 /** \brief Flash Update Services Header File
  **
  ** This files shall be included by modules using the interfaces provided by
@@ -88,5 +88,5 @@ int32_t UPDT_servicesStart(UPDT_ITransportType *transport, int32_t flash_fd);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_SERVICES_H_ */
+#endif /* #ifndef UPDT_SERVICES_H */
 

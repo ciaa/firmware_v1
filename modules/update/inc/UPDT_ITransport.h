@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef UPDT_TRANSPORT_H_
-#define UPDT_TRANSPORT_H_
+#ifndef UPDT_TRANSPORT_H
+#define UPDT_TRANSPORT_H
 /** \brief Flash Update Transport Header File
  **
  ** This files shall be included by modules using the interfaces provided by
@@ -96,5 +96,5 @@ typedef struct UPDT_ITransportStruct
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_TRANSPORT_H_ */
+#endif /* #ifndef UPDT_TRANSPORT_H */
 

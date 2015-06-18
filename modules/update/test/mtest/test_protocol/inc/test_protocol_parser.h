@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef _TEST_UPDATE_PARSER_H_
-#define _TEST_UPDATE_PARSER_H_
+#ifndef TEST_UPDATE_PARSER_H
+#define TEST_UPDATE_PARSER_H
 /** \brief Flash Update test parser file
  **
  **/
@@ -104,5 +104,5 @@ int32_t test_update_parserInit(
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _TEST_UPDATE_LOOPBACK_H_ */
+#endif /* #ifndef TEST_UPDATE_LOOPBACK_H */
 

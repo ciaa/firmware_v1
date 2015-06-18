@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef UPDT_UTILS_H_
-#define UPDT_UTILS_H_
+#ifndef UPDT_UTILS_H
+#define UPDT_UTILS_H
 /** \brief Flash Update Utils header file
  **/
 
@@ -87,5 +87,5 @@ uint64_t UPDT_utilsNtohll(uint64_t netlonglong);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_UTILS_H_ */
+#endif /* #ifndef UPDT_UTILS_H */
 

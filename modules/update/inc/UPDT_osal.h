@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef UPDT_OSAL_H_
-#define UPDT_OSAL_H_
+#ifndef UPDT_OSAL_H
+#define UPDT_OSAL_H
 /** \brief OS Abstraction Layer header file
  **/
 
@@ -113,4 +113,4 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_OSAL_H_ */
+#endif /* #ifndef UPDT_OSAL_H */

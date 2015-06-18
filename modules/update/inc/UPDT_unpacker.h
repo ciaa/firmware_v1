@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef UPDT_UNPACKER_H_
-#define UPDT_UNPACKER_H_
+#ifndef UPDT_UNPACKER_H
+#define UPDT_UNPACKER_H
 /** \brief Flash Update Unpacker Header File
  **
  ** This files shall be included by modules using the interfaces provided by
@@ -120,5 +120,5 @@ uint8_t *UPDT_unpackerExtract(
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef UPDT_UNPACKER_H_ */
+#endif /* #ifndef UPDT_UNPACKER_H */
 
