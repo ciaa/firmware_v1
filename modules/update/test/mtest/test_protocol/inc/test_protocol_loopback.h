@@ -65,6 +65,7 @@
 #include "ciaaPOSIX_assert.h"
 #include "ciaaLibs_CircBuf.h"
 #include "UPDT_ITransport.h"
+#include "UPDT_protocol.h"
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -80,10 +81,12 @@ typedef struct test_update_loopbackType
 {
    /** Transport interface */
    UPDT_ITransportType transport;
-   /** Receiver circular buffer struct */
-   ciaaLibs_CircBufType *rx_buffer;
-   /** Transmitter circular buffer struct */
-   ciaaLibs_CircBufType *tx_buffer;
+   /** Memory block for the circular buffer */
+   uint8_t own_cbuf_mem[UPDT_PROTOCOL_PACKET_MAX_SIZE * 2];
+   /** Own circular buffer struct */
+   ciaaLibs_CircBufType own_cbuf;
+   /** Destination circular buffer struct */
+   ciaaLibs_CircBufType *dest_cbuf;
    /** Task ID */
    TaskType task_id;
    /** Event Mask */
@@ -108,11 +111,16 @@ typedef struct test_update_loopbackType
  **/
 int32_t test_update_loopbackInit(
    test_update_loopbackType *loopback,
-   ciaaLibs_CircBufType *rx_buffer,
-   ciaaLibs_CircBufType *tx_buffer,
    TaskType task_id,
    EventMaskType recv_event);
 
+/** \brief Connects two loopback entities.
+ **
+ ** Two loopback entities must be connected before transmitting data.
+ **
+ ** \param loopback1 A loopback entity.
+ ** \param loopback1 A different loopback entity.
+ **/
 void test_update_loopbackConnect(
    test_update_loopbackType *loopback1,
    test_update_loopbackType *loopback2

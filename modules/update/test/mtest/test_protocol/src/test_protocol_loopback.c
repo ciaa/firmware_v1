@@ -74,6 +74,17 @@
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+static uint32_t test_update_nextPowerOfTwo(uint32_t v)
+{
+    --v;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    ++v;
+    return v;
+}
 /** \brief Sends a packet.
  **
  ** \param loopback Loopback structure.
@@ -81,7 +92,7 @@
  ** \param size Number of bytes to send.
  ** \return Number of bytes sent. -1 on error.
  **/
-ssize_t test_update_loopbackSend(UPDT_ITransportType *transport, const void *data, size_t size)
+static ssize_t test_update_loopbackSend(UPDT_ITransportType *transport, const void *data, size_t size)
 {
    ssize_t ret;
    test_update_loopbackType *loopback = (test_update_loopbackType *) transport;
@@ -89,7 +100,7 @@ ssize_t test_update_loopbackSend(UPDT_ITransportType *transport, const void *dat
    ciaaPOSIX_assert(NULL != loopback);
    ciaaPOSIX_assert(NULL != loopback->counterpart);
 
-   ret = ciaaLibs_circBufPut(((test_update_loopbackType *) loopback)->tx_buffer, data, size);
+   ret = ciaaLibs_circBufPut(((test_update_loopbackType *) loopback)->dest_cbuf, data, size);
 
    /* set the receiver event */
    SetEvent(loopback->counterpart->task_id, loopback->counterpart->recv_event);
@@ -102,7 +113,7 @@ ssize_t test_update_loopbackSend(UPDT_ITransportType *transport, const void *dat
  ** \param size Number of bytes to receive.
  ** \return Number of bytes received. -1 on error.
  **/
-ssize_t test_update_loopbackRecv(UPDT_ITransportType *transport, void *data, size_t size)
+static ssize_t test_update_loopbackRecv(UPDT_ITransportType *transport, void *data, size_t size)
 {
    ssize_t ret;
    size_t bytes_read = 0;
@@ -113,7 +124,7 @@ ssize_t test_update_loopbackRecv(UPDT_ITransportType *transport, void *data, siz
 
    while(bytes_read < size)
    {
-      ret = ciaaLibs_circBufGet(((test_update_loopbackType *) loopback)->rx_buffer, data + bytes_read, size - bytes_read);
+      ret = ciaaLibs_circBufGet(&((test_update_loopbackType *) loopback)->own_cbuf, data + bytes_read, size - bytes_read);
       ciaaPOSIX_assert(ret >= 0);
       bytes_read += ret;
 
@@ -125,30 +136,30 @@ ssize_t test_update_loopbackRecv(UPDT_ITransportType *transport, void *data, siz
          ClearEvent(loopback->recv_event);
       }
    }
-
    return ret;
 }
 /*==================[external functions definition]==========================*/
 
 int32_t test_update_loopbackInit(
    test_update_loopbackType *loopback,
-   ciaaLibs_CircBufType *rx_buffer,
-   ciaaLibs_CircBufType *tx_buffer,
    TaskType task_id,
    EventMaskType recv_event)
 {
+   size_t buffer_size;
+
    ciaaPOSIX_assert(NULL != loopback);
-   ciaaPOSIX_assert(NULL != rx_buffer);
-   ciaaPOSIX_assert(NULL != tx_buffer);
 
    loopback->transport.recv = test_update_loopbackRecv;
    loopback->transport.send = test_update_loopbackSend;
-   loopback->rx_buffer = rx_buffer;
-   loopback->tx_buffer = tx_buffer;
    loopback->task_id = task_id;
    loopback->recv_event = recv_event;
    loopback->counterpart = NULL;
-   return 0;
+   loopback->dest_cbuf = NULL;
+
+   buffer_size = test_update_nextPowerOfTwo(UPDT_PROTOCOL_PACKET_MAX_SIZE);
+
+   /* return non-zero on error */
+   return -1 == ciaaLibs_circBufInit(&loopback->own_cbuf, loopback->own_cbuf_mem, buffer_size);
 }
 
 void test_update_loopbackConnect(
@@ -158,9 +169,13 @@ void test_update_loopbackConnect(
 {
    ciaaPOSIX_assert(NULL != loopback1);
    ciaaPOSIX_assert(NULL != loopback2);
+   ciaaPOSIX_assert(loopback1 != loopback2);
 
    loopback1->counterpart = loopback2;
    loopback2->counterpart = loopback1;
+
+   loopback1->dest_cbuf = &loopback2->own_cbuf;
+   loopback2->dest_cbuf = &loopback1->own_cbuf;
 }
 
 void test_update_loopbackClear(test_update_loopbackType *loopback)
@@ -170,6 +185,7 @@ void test_update_loopbackClear(test_update_loopbackType *loopback)
    loopback->transport.send = NULL;
    loopback->transport.recv = NULL;
    loopback->counterpart = NULL;
+   loopback->dest_cbuf = NULL;
 }
 
 /** @} doxygen end group definition */
