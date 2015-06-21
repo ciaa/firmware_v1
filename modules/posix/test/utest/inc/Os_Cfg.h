@@ -127,6 +127,12 @@
 #define OSEK_MEMMAP DISABLE
 
 /*==================[typedef]================================================*/
+/** \brief Type definition of StatusType
+ **
+ ** This type is used to represent the status returned by all FreeOSEK APIs
+ **/
+/* \req OSEK_SYS_1.1 */
+typedef unsigned char StatusType;
 
 /*==================[external data declaration]==============================*/
 /** \brief Error Api Variable
