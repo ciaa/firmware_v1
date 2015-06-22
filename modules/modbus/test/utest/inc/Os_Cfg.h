@@ -58,7 +58,7 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
@@ -68,26 +68,20 @@
  * 20090719 v0.1.3 MaCe rename file to Os_
  * 20090424 v0.1.2 MaCe add counters defines
  * 20090128 v0.1.1 MaCe add MEMMAP off configuration
- * 20080810 v0.1.0 MaCe	initial version
+ * 20080810 v0.1.0 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
 
 /*==================[macros]=================================================*/
 /** \brief Definition of the  DeclareTask Macro */
-#define DeclareTask(name)	void OSEK_TASK_ ## name (void)
+#define DeclareTask(name)  void OSEK_TASK_ ## name (void)
 
 #define OSEK_OS_INTERRUPT_MASK ((InterruptFlagsType)0xFFFFFFFFU)
 
 /** \brief Task Definition */
-#define InitTask 0
-/** \brief Task Definition */
-#define ModbusMaster 1
-/** \brief Task Definition */
-#define PollingSlave 2
+#define dummyTask 0
 
-/** \brief Definition of the Application Mode AppMode1 */
-#define AppMode1 0
 
 /** \brief Definition of the Event POSIXE */
 #define POSIXE 0x1U
@@ -99,17 +93,7 @@
 /** \brief Definition of the resource MODBUSR */
 #define MODBUSR ((ResourceType)1)
 
-/** \brief Definition of the Alarm ActivateModbusTask */
-#define ActivateModbusTask 0
-/** \brief Definition of the Alarm AlarmCallBackPollingSlave */
-#define AlarmCallBackPollingSlave 1
-/** \brief Definition of the Alarm IncrementSWCounter */
-#define IncrementSWCounter 2
 
-/** \brief Definition of the Counter HardwareCounter */
-#define HardwareCounter 0
-/** \brief Definition of the Counter SoftwareCounter */
-#define SoftwareCounter 1
 
 /** \brief OS Error Get Service Id */
 /* \req OSEK_ERR_0.1 The macro OSErrorGetServiceId() shall provide the service
@@ -195,22 +179,10 @@ extern unsigned int Osek_ErrorRet;
 /** \brief Error Hook */
 extern void ErrorHook(void);
 
-/** \brief Task Declaration of Task InitTask */
-DeclareTask(InitTask);
-/** \brief Task Declaration of Task ModbusMaster */
-DeclareTask(ModbusMaster);
-/** \brief Task Declaration of Task PollingSlave */
-DeclareTask(PollingSlave);
+/** \brief Task Declaration of Task dummyTask */
+DeclareTask(dummyTask);
 
-/** \brief ISR Declaration */
-extern void OSEK_ISR_UART0_IRQHandler(void); /* Interrupt Handler UART0_IRQHandler */
-/** \brief ISR Declaration */
-extern void OSEK_ISR_UART2_IRQHandler(void); /* Interrupt Handler UART2_IRQHandler */
-/** \brief ISR Declaration */
-extern void OSEK_ISR_UART3_IRQHandler(void); /* Interrupt Handler UART3_IRQHandler */
 
-/** \brief Alarm Callback declaration */
-extern void OSEK_CALLBACK_CallBackActivatePollingSlave(void);
 
 /** \brief Schedule this Task if higher priority Task are Active
  **
