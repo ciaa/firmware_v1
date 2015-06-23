@@ -33,18 +33,18 @@
  *
  */
 
-#ifndef _CIAAUPDATE_SERVER_H_
-#define _CIAAUPDATE_SERVER_H_
-/** \brief Flash Update Server Header File
+#ifndef UPDT_SLAVE_H
+#define UPDT_SLAVE_H
+/** \brief Flash Update Slave Header File
  **
  ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Server
+ ** the Flash Update Slave
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Server
+/** \addtogroup Updater CIAA Updater Slave
  ** @{ */
 
 /*
@@ -59,11 +59,12 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150419 v0.0.2  FS  change prefixes. modify API
  * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_transport.h"
+#include "UPDT_ITransport.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -73,33 +74,41 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Server type. */
+/** \brief Slave type. */
 typedef struct
 {
    /** Transport layer */
-   ciaaUpdate_transportType *transport;
+   UPDT_ITransportType *transport;
+   /** Buffer to hold outgoing packets */
+   uint8_t send_buffer[UPDT_PROTOCOL_PACKET_MAX_SIZE];
+   /** Buffer to hold incoming packets */
+   uint8_t recv_buffer[UPDT_PROTOCOL_PACKET_MAX_SIZE];
+   /** Expected payload size */
+   uint8_t payload_size;
    /** Negotiated protocol version */
    uint8_t protocol_version;
    /** Expected sequence number */
    uint8_t sequence_number;
-} ciaaUpdate_serverType;
+   /** Data transfer finished flag */
+   uint8_t done;
+} UPDT_slaveType;
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Initializes a server structure.
+/** \brief Initializes a slave structure.
  **
- ** \param server Server structure to initialize.
+ ** \param slave Slave structure to initialize.
  ** \param transport Transport layer to use.
  ** \return 0 on success. -1 on error.
  **/
-int32_t ciaaUpdate_serverInit(ciaaUpdate_serverType *server, ciaaUpdate_transportType *transport);
+int32_t UPDT_slaveInit(UPDT_slaveType *slave, UPDT_ITransportType *transport);
 
-/** \brief Clears a server structure.
+/** \brief Clears a slave structure.
  **
 ** This function should be called when reception is over.
- ** \param server Server structure to clear.
+ ** \param slave Slave structure to clear.
  **/
-void ciaaUpdate_serverClear(ciaaUpdate_serverType *server);
+void UPDT_slaveClear(UPDT_slaveType *slave);
 
 /** \brief Waits and receives a data packet.
  **
@@ -107,13 +116,35 @@ void ciaaUpdate_serverClear(ciaaUpdate_serverType *server);
  ** acknowledgment. If an unexpected packet is received then it is discarded
  ** silently. It fails if a timeout or transport layer error occurs.
  **
- ** \param server Server structure.
+ ** \param slave Slave structure.
  ** \param payload_buffer Buffer where the payload must be returned.
  ** \param buffer_size Buffer size. Must be at least
- ** CIAAUPDATE_PAYLOAD_MAX_SIZE
+ ** UPDT_PAYLOAD_MAX_SIZE
  ** \return Number of bytes received. -1 on error.
  **/
-ssize_t ciaaUpdate_serverRecvData(ciaaUpdate_serverType *server, uint8_t *payload_buffer, size_t buffer_size);
+ssize_t UPDT_slaveRecvData(UPDT_slaveType *slave, uint8_t *payload_buffer, size_t buffer_size);
+
+/** \brief Waits and receives an info packet.
+ **
+ ** This function waits an info packet, extracts its payload and returns it.
+ ** It does not send an acknowledgment because info packets expect an info
+ ** response whose payload creation is a not responsibility of this library.
+ ** \param slave Slave structure
+ ** \param payload_buffer Buffer where the payload must be returned.
+ ** \param buffer_size Buffer size. Must be big enough to hold the payload.
+ ** \return Number of bytes received. -1 on error.
+ **/
+ssize_t UPDT_slaveRecvInfo(UPDT_slaveType *slave, uint8_t *payload_buffer, size_t buffer_size);
+
+ssize_t UPDT_slaveSendAllow(
+   UPDT_slaveType *slave,
+   uint8_t *payload,
+   size_t payload_size);
+
+ssize_t UPDT_slaveSendDeny(
+   UPDT_slaveType *slave,
+   uint8_t *payload,
+   size_t payload_size);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -121,5 +152,5 @@ ssize_t ciaaUpdate_serverRecvData(ciaaUpdate_serverType *server, uint8_t *payloa
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_SERVER_H_ */
+#endif /* #ifndef UPDT_SLAVE_H */
 

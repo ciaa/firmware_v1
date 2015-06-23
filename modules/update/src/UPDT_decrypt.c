@@ -33,18 +33,13 @@
  *
  */
 
-#ifndef _CIAAUPDATE_CLIENT_H_
-#define _CIAAUPDATE_CLIENT_H_
-/** \brief Flash Update Client Header File
- **
- ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Client
+/** \brief This file implements the Flash UPDT Decrypt functionality.
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Client
+/** \addtogroup UPDT CIAA UPDT Decrypt
  ** @{ */
 
 /*
@@ -63,41 +58,23 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_transport.h"
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "UPDT_decrypt.h"
 
-/*==================[macros]=================================================*/
+/*==================[macros and definitions]=================================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external functions declaration]=========================*/
-typedef struct
-{
-   /** \brief transport layer */
-   ciaaUpdate_transportType *transport;
-   /** \brief negotiated protocol version */
-   uint8_t protocol_version;
-   /** \brief expected sequence number */
-   uint8_t sequence_number;
-} ciaaUpdate_clientType;
-/*==================[external data declaration]==============================*/
+/*==================[internal data definition]===============================*/
 
-/*==================[external functions declaration]=========================*/
-ciaaUpdate_clientType *ciaaUpdate_clientNew(ciaaUpdate_transportType *transport);
-void ciaaUpdate_clientDel(ciaaUpdate_clientType *client);
+/*==================[external data definition]===============================*/
 
-ssize_t ciaaUpdate_clientSendData(ciaaUpdate_clientType *client, const uint8_t *payload_buffer, size_t payload_size);
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_CLIENT_H_ */
 

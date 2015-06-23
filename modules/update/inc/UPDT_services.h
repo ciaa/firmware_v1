@@ -1,7 +1,7 @@
-/* Copyright 2015, Daniel Cohen
- * Copyright 2015, Esteban Volentini
- * Copyright 2015, Matias Giori
- * Copyright 2015, Franco Salinas
+/* Copyright 2014, Daniel Cohen
+ * Copyright 2014, Esteban Volentini
+ * Copyright 2014, Matias Giori
+ * Copyright 2014, Franco Salinas
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,11 +33,18 @@
  *
  */
 
-/** \brief This file implements the Flash Update Protocol functionality */
+#ifndef UPDT_SERVICES_H
+#define UPDT_SERVICES_H
+/** \brief Flash Update Services Header File
+ **
+ ** This files shall be included by modules using the interfaces provided by
+ ** the Flash Update Services
+ **
+ **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Transport
+/** \addtogroup Update CIAA Update Services
  ** @{ */
 
 /*
@@ -52,27 +59,34 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150408 v0.0.1  FS  first initial version
+ * 20150419 v0.0.3  FS  change prefixes
+ * 20150408 v0.0.2  FS  first operating version
+ * 20141010 v0.0.1  EV  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_Protocol.h"
+#include "UPDT_osal.h"
+#include "UPDT_ITransport.h"
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
+#define UPDT_SERVICES_ERROR_NONE       0
+/*==================[typedef]================================================*/
 
-/*==================[internal data declaration]==============================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[internal functions declaration]=========================*/
-
-/*==================[internal data definition]===============================*/
-
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-
+/*==================[external functions declaration]=========================*/
+/** \brief starts update services */
+int32_t UPDT_servicesStart(UPDT_ITransportType *transport, int32_t flash_fd);
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef UPDT_SERVICES_H */
 

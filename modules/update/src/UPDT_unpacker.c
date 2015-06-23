@@ -33,12 +33,12 @@
  *
  */
 
-/** \brief This file implements the Flash Update Unpacker functionality
+/** \brief This file implements the UPDT unpacker functionality
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Unpacker
+/** \addtogroup UPDT CIAA UPDT Unpacker
  ** @{ */
 
 /*
@@ -53,15 +53,14 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150419 v0.0.2  FS  change prefixes
  * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_assert.h"
-#include "ciaaPOSIX_stdlib.h"
-#include "ciaaPOSIX_string.h"
-#include "ciaaUpdate_unpacker.h"
-#include "ciaaUpdate_utils.h"
+#include "UPDT_osal.h"
+#include "UPDT_unpacker.h"
+#include "UPDT_utils.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -76,30 +75,32 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-ciaaUpdate_unpackerType *ciaaUpdate_unpackerNew(void)
+UPDT_unpackerType *UPDT_unpackerNew(void)
 {
-   ciaaUpdate_unpackerType *unpacker = ciaaPOSIX_malloc(sizeof(ciaaUpdate_unpackerType));
+   UPDT_unpackerType *unpacker = malloc(sizeof(UPDT_unpackerType));
 
    unpacker->segment_remaining_bytes = 0;
    return unpacker;
 }
-void ciaaUpdate_unpackerDel(ciaaUpdate_unpackerType *unpacker)
+void UPDT_unpackerDel(UPDT_unpackerType *unpacker)
 {
-   ciaaPOSIX_assert(NULL != unpacker);
+   assert(NULL != unpacker);
 
    unpacker->segment_remaining_bytes = 0;
-   ciaaPOSIX_free(unpacker);
+   free(unpacker);
 }
-uint8_t *ciaaUpdate_unpackerExtract(
-   ciaaUpdate_unpackerType* unpacker,
+uint8_t *UPDT_unpackerExtract(
+   UPDT_unpackerType* unpacker,
    const uint8_t * unparsed_data,
    size_t *unparsed_bytes_count
 )
 {
-   ciaaPOSIX_assert(NULL != unpacker && NULL != unparsed_data && NULL != unparsed_bytes_count);
+   assert(NULL != unpacker);
+   assert(NULL != unparsed_data);
+   assert(NULL != unparsed_bytes_count);
 
    /* multiple of 8 and smaller than 2048 */
-   ciaaPOSIX_assert(0 == (*unparsed_bytes_count & 0xF807));
+   assert(0 == (*unparsed_bytes_count & 0xF807));
 
    unpacker->start = (uint8_t *) unparsed_data;
    unpacker->size = 0;
@@ -113,14 +114,14 @@ uint8_t *ciaaUpdate_unpackerExtract(
          /* then the segment address and size must be read */
 
          /* read the starting address from the first 4 bytes of the buffer */
-         unpacker->segment_destination_address = ciaaUpdate_utilsNtohl(*((uint32_t*) unparsed_data));
+         unpacker->segment_destination_address = UPDT_utilsNtohl(*((uint32_t*) unparsed_data));
          /* increment data pointer */
          unparsed_data += sizeof(uint32_t);
          /* update the unparsed bytes count */
          *unparsed_bytes_count -= sizeof(uint32_t);
 
          /* read the segment size from the second 4 bytes of the buffer */
-         unpacker->segment_remaining_bytes = ciaaUpdate_utilsNtohl(*((uint32_t*) unparsed_data));
+         unpacker->segment_remaining_bytes = UPDT_utilsNtohl(*((uint32_t*) unparsed_data));
          /* increment data pointer */
          unparsed_data += sizeof(uint32_t);
          /* update the unparsed bytes count */
@@ -139,7 +140,7 @@ uint8_t *ciaaUpdate_unpackerExtract(
          unpacker->address = unpacker->segment_destination_address;
 
          /* set the amount of data to be extracted */
-         unpacker->size = ciaaUpdate_utilsMin(unpacker->segment_remaining_bytes, *unparsed_bytes_count);
+         unpacker->size = UPDT_utilsMin(unpacker->segment_remaining_bytes, *unparsed_bytes_count);
 
          /* update data pointer */
          unparsed_data += unpacker->size;

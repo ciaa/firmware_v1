@@ -33,18 +33,18 @@
  *
  */
 
-#ifndef _CIAAUPDATE_STORAGE_H_
-#define _CIAAUPDATE_STORAGE_H_
-/** \brief Flash Update Storage Header File
+#ifndef UPDT_DECRYPT_H
+#define UPDT_DECRYPT_H
+/** \brief Flash Update Decrypt Header File
  **
  ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Storage
+ ** the Flash Update Decrypt
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Storage
+/** \addtogroup Updater CIAA Updater Decrypt
  ** @{ */
 
 /*
@@ -72,19 +72,10 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-typedef struct
-{
-   int32_t fd;
-   uint8_t *block_state;
-   uint32_t block_count;
-   size_t block_size;
-} ciaaUpdate_storageType;
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-void ciaaUpdate_storageDel(ciaaUpdate_storageType *storage);
-ciaaUpdate_storageType *ciaaUpdate_storageNew(int32_t fd);
-ssize_t ciaaUpdate_storageStore(ciaaUpdate_storageType *storage, const void *data, size_t size, uint32_t address);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -93,5 +84,5 @@ ssize_t ciaaUpdate_storageStore(ciaaUpdate_storageType *storage, const void *dat
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_STORAGE_H_ */
+#endif /* #ifndef UPDT_DECRYPT_H */
 

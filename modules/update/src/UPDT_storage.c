@@ -37,11 +37,12 @@
  **
  ** This file implements the functionality of the Flash Update Storage
  **
+ ** \todo remove malloc call from init
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Storage
+/** \addtogroup Update CIAA Update Storage
  ** @{ */
 
 /*
@@ -56,45 +57,57 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150419 v0.0.2  FS  change prefixes. modify API
  * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_assert.h"
-#include "ciaaPOSIX_stdlib.h"
-#include "ciaaUpdate_storage.h"
+#include "UPDT_osal.h"
+#include "UPDT_storage.h"
 /*==================[macros and definitions]=================================*/
-
+typedef struct
+{
+   int32_t fd;
+   uint8_t *block_state;
+   uint32_t block_count;
+   size_t block_size;
+} UPDT_storageType;
 /*==================[internal data declaration]==============================*/
 
+uint32_t UPDT_storage_init_flag = 0;
+UPDT_storageType UPDT_storage;
 /*==================[internal functions declaration]=========================*/
-static size_t ciaaUpdate_storageBlockStateSize(uint32_t block_count)
+static size_t UPDT_storageBlockStateSize(uint32_t block_count)
 {
+   assert(0 != UPDT_storage_init_flag);
    /* 1 bit per block */
    return (block_count >> 3) + ((block_count & 0x07) != 0);
 }
-static void ciaaUpdate_storageUnmarkAll(ciaaUpdate_storageType *storage)
+static void UPDT_storageUnmarkAll()
 {
    int block_num;
    int last_block;
 
-   ciaaPOSIX_assert(NULL != storage);
-   last_block = ciaaUpdate_storageBlockStateSize(storage->block_count);
+   assert(0 != UPDT_storage_init_flag);
+   last_block = UPDT_storageBlockStateSize(UPDT_storage.block_count);
    for(block_num = 0; block_num < last_block; ++block_num)
    {
-      storage->block_state[block_num] = 0;
+      UPDT_storage.block_state[block_num] = 0;
    }
 }
-static void ciaaUpdate_storageMark(ciaaUpdate_storageType *storage, int block_num)
+static void UPDT_storageMark(int block_num)
 {
-   ciaaPOSIX_assert(NULL != storage && block_num < storage->block_count);
-   storage->block_state[block_num >> 3] |= 1 << (block_num & 0x07);
-}
-static int ciaaUpdate_storageIsMarked(ciaaUpdate_storageType *storage, int block_num)
-{
-   ciaaPOSIX_assert(NULL != storage && block_num < storage->block_count);
+   assert(0 != UPDT_storage_init_flag);
 
-   return storage->block_state[block_num >> 3] & (1 << (block_num & 0x07));
+   assert( block_num < UPDT_storage.block_count);
+   UPDT_storage.block_state[block_num >> 3] |= 1 << (block_num & 0x07);
+}
+static int UPDT_storageIsMarked(int block_num)
+{
+   assert(0 != UPDT_storage_init_flag);
+   assert(block_num < UPDT_storage.block_count);
+
+   return UPDT_storage.block_state[block_num >> 3] & (1 << (block_num & 0x07));
 }
 /*==================[internal data definition]===============================*/
 
@@ -103,81 +116,82 @@ static int ciaaUpdate_storageIsMarked(ciaaUpdate_storageType *storage, int block
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-void ciaaUpdate_storageDel(ciaaUpdate_storageType *storage)
+void UPDT_storageClear()
 {
-   ciaaPOSIX_assert(NULL != storage && storage->fd >= 0 && NULL != storage->block_state);
+   assert(0 != UPDT_storage_init_flag);
 
-   ciaaPOSIX_free(storage->block_state);
-   storage->block_state = NULL;
-   storage->fd = -1;
-   storage->block_count = 0;
-   storage->block_size = 0;
-   ciaaPOSIX_free(storage);
+   free(UPDT_storage.block_state);
+   UPDT_storage.block_state = NULL;
+   UPDT_storage.fd = -1;
+   UPDT_storage.block_count = 0;
+   UPDT_storage.block_size = 0;
+
+   UPDT_storage_init_flag = 0;
 }
-ciaaUpdate_storageType *ciaaUpdate_storageNew(int32_t fd)
+
+int32_t UPDT_storageInit(int32_t fd)
 {
-   ciaaUpdate_storageType *storage;
    int32_t ret;
    ciaaDevices_blockType blockInfo;
 
-   ciaaPOSIX_assert(fd >= 0);
+   assert(0 == UPDT_storage_init_flag);
+   assert(fd >= 0);
 
-   storage = ciaaPOSIX_malloc(sizeof(ciaaUpdate_storageType));
-   ciaaPOSIX_assert(NULL != storage);
+   UPDT_storage_init_flag = 1;
 
    ret = ciaaPOSIX_ioctl(fd, ciaaPOSIX_IOCTL_BLOCK_GETINFO, (void*)&blockInfo);
-   ciaaPOSIX_assert(ret >= 0);
-   storage->block_size = blockInfo.blockSize;
-   storage->block_count = blockInfo.lastPosition / blockInfo.blockSize;
-   storage->fd = fd;
-   storage->block_state = ciaaPOSIX_malloc(ciaaUpdate_storageBlockStateSize(storage->block_count));
-   ciaaPOSIX_assert(NULL != storage->block_state);
+   assert(ret >= 0);
+   UPDT_storage.block_size = blockInfo.blockSize;
+   UPDT_storage.block_count = blockInfo.lastPosition / blockInfo.blockSize;
+   UPDT_storage.fd = fd;
+   UPDT_storage.block_state = malloc(UPDT_storageBlockStateSize(UPDT_storage.block_count));
+   assert(NULL != UPDT_storage.block_state);
+   UPDT_storageUnmarkAll();
 
-   ciaaUpdate_storageUnmarkAll(storage);
-   return storage;
+   return 0;
 }
-ssize_t ciaaUpdate_storageStore(ciaaUpdate_storageType *storage, const void *data, size_t size, uint32_t address)
+ssize_t UPDT_storageWrite(const uint8_t *data, size_t size, uint32_t address)
 {
    int32_t ret;
    uint32_t block_address;
    int block_num;
    int last_block;
-   ciaaPOSIX_assert(NULL != storage && storage->fd >= 0 && NULL != storage->block_state);
+
+   assert(0 != UPDT_storage_init_flag);
 
    /* erase the blocks to be written */
-   last_block = (address + size - 1) / storage->block_size;
-   for(block_num = address / storage->block_size; block_num <= last_block; ++block_num)
+   last_block = (address + size - 1) / UPDT_storage.block_size;
+   for(block_num = address / UPDT_storage.block_size; block_num <= last_block; ++block_num)
    {
       /* if the block was not erased before */
-      if(0 == ciaaUpdate_storageIsMarked(storage, block_num))
+      if(0 == UPDT_storageIsMarked(block_num))
       {
          /* then erase it */
 
          /* seek to the block address */
-         block_address = block_num * storage->block_size;
-         ret = ciaaPOSIX_lseek(storage->fd, block_address, SEEK_SET);
-         ciaaPOSIX_assert(block_address == ret);
+         block_address = block_num * UPDT_storage.block_size;
+         ret = lseek(UPDT_storage.fd, block_address, SEEK_SET);
+         assert(block_address == ret);
 
          /* erase */
-         ret = ciaaPOSIX_ioctl(storage->fd, ciaaPOSIX_IOCTL_BLOCK_ERASE, NULL);
-         ciaaPOSIX_assert(-1 != ret);
+         ret = ciaaPOSIX_ioctl(UPDT_storage.fd, ciaaPOSIX_IOCTL_BLOCK_ERASE, NULL);
+         assert(-1 != ret);
 
          /* mark it as dirty */
-         ciaaUpdate_storageMark(storage, block_num);
+         UPDT_storageMark(block_num);
       }
    }
 
    /* seek to the specified address */
-   ret = ciaaPOSIX_lseek(storage->fd, address, SEEK_SET);
-   ciaaPOSIX_assert(address == ret);
+   ret = lseek(UPDT_storage.fd, address, SEEK_SET);
+   assert(address == ret);
 
    /* write in the specified address */
-   ret = ciaaPOSIX_write(storage->fd, data, size);
-   ciaaPOSIX_assert(size == ret);
+   ret = write(UPDT_storage.fd, data, size);
+   assert(size == ret);
 
    return ret;
 }
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

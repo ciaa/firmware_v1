@@ -33,13 +33,12 @@
  *
  */
 
-/** \brief This file implements the Flash Update Decrypt functionality.
- **
+/** \brief This file implements the Flash Update Encrypt functionality
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Decrypt
+/** \addtogroup UPDT CIAA UPDT Encrypt
  ** @{ */
 
 /*
@@ -58,7 +57,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_decrypt.h"
+#include "UPDT_encrypt.h"
 
 /*==================[macros and definitions]=================================*/
 

@@ -1,7 +1,7 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2015, Daniel Cohen
+ * Copyright 2015, Esteban Volentini
+ * Copyright 2015, Matias Giori
+ * Copyright 2015, Franco Salinas
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,18 +33,18 @@
  *
  */
 
-#ifndef _CIAAUPDATE_PROTOCOL_H_
-#define _CIAAUPDATE_PROTOCOL_H_
-/** \brief Flash Update Protocol Header File
+#ifndef UPDT_SERIAL_H
+#define UPDT_SERIAL_H
+/** \brief Flash Update Serial Header File
  **
  ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Protocol
+ ** the Flash Update Serial
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Protocol
+/** \addtogroup Updater CIAA Updater Serial
  ** @{ */
 
 /*
@@ -59,13 +59,12 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150408 v0.0.2  FS  first operating version
- * 20141010 v0.0.1  EV  first initial version
+ * 20150419 v0.0.2  FS  change prefixes. modify API
+ * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_transport.h"
-
+#include "UPDT_ITransport.h"
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -73,38 +72,38 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 
-#define CIAAUPDATE_PROTOCOL_ERROR_NONE                0
-#define CIAAUPDATE_PROTOCOL_ERROR_UNKNOWN_VERSION     1
-#define CIAAUPDATE_PROTOCOL_ERROR_TRANSPORT           2
-
-#define CIAAUPDATE_PROTOCOL_VERSION                0
-
-/* packet types */
-#define CIAAUPDATE_PROTOCOL_PACKET_DATA            2
-#define CIAAUPDATE_PROTOCOL_PACKET_ACK             3
-
-#define CIAAUPDATE_PROTOCOL_HEADER_SIZE            4
-#define CIAAUPDATE_PROTOCOL_PAYLOAD_MAX_SIZE       248
-
-#define CIAAUPDATE_PROTOCOL_PACKET_MAX_SIZE        (CIAAUPDATE_PROTOCOL_PAYLOAD_MAX_SIZE + CIAAUPDATE_PROTOCOL_HEADER_SIZE)
 /*==================[typedef]================================================*/
-
+/** \brief Serial transport layer type. */
+typedef struct
+{
+   /** Receive non-blocking callback. */
+   UPDT_ITransportRecv recv;
+   /** Send non-blocking callback. */
+   UPDT_ITransportSend send;
+   /** UART file descriptor */
+   int32_t fd;
+} UPDT_serialType;
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-int8_t ciaaUpdate_protocolGetHeaderVersion(const uint8_t *header);
-int8_t ciaaUpdate_protocolGetPacketType(const uint8_t *header);
-uint16_t ciaaUpdate_protocolGetPayloadSize(const uint8_t *header);
-uint8_t ciaaUpdate_protocolGetSequenceNumber(const uint8_t *header);
+/** \brief Initializes a serial structure.
+ **
+ ** This function initializes a serial transport layer over the specified
+ ** device.
+ **
+ ** \param serial Serial structure to initialize.
+ ** \param device Device path.
+ ** \return 0 on success. Non-zero on error.
+ **/
+int32_t UPDT_serialInit(UPDT_serialType *serial, const char *device);
 
-
-int ciaaUpdate_protocolRecv(ciaaUpdate_transportType *transport, uint8_t *buffer, size_t size);
-int ciaaUpdate_protocolSend(ciaaUpdate_transportType *transport, const uint8_t *buffer, size_t size);
-
-void ciaaUpdate_protocolSetHeaderVersion(uint8_t *header, uint8_t version);
-void ciaaUpdate_protocolSetPacketType(uint8_t *header, uint8_t packet_type);
-void ciaaUpdate_protocolSetPayloadSize(uint8_t *header, uint16_t payload_size);
-void ciaaUpdate_protocolSetSequenceNumber(uint8_t *header, uint8_t sequence_number);
+/** \brief Clears a serial structure.
+ **
+ ** Clears the serial transport layer structure and closes the serial device.
+ **
+ ** \param serial The serial structure to clear.
+ **/
+void UPDT_serialClear(UPDT_serialType *serial);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -112,5 +111,5 @@ void ciaaUpdate_protocolSetSequenceNumber(uint8_t *header, uint8_t sequence_numb
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_PROTOCOL_H_ */
+#endif /* #ifndef UPDT_SERIAL_H */
 

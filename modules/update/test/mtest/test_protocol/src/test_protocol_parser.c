@@ -33,14 +33,14 @@
  *
  */
 
-#ifndef _CIAAUPDATE_UTILS_H_
-#define _CIAAUPDATE_UTILS_H_
-/** \brief Flash Update Utils header file
+/** \brief This file implements a parser for the protocol module test.
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Utils
+/** \addtogroup MTests CIAA Firmware Module Tests
+ ** @{ */
+/** \addtogroup Update Update Module Tests
  ** @{ */
 
 /*
@@ -55,34 +55,63 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150408 v0.0.1  FS  first initial version
+ * 20150418 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdlib.h"
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "ciaaPOSIX_assert.h"
+#include "test_protocol_parser.h"
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[typedef]================================================*/
-#define ciaaUpdate_utilsHtonl ciaaUpdate_utilsNtohl
-#define ciaaUpdate_utilsHtons ciaaUpdate_utilsNtohs
-/*==================[external data declaration]==============================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external functions declaration]=========================*/
-int32_t ciaaUpdate_utilsMin(int32_t a, int32_t b);
+/*==================[internal data definition]===============================*/
 
-uint16_t ciaaUpdate_utilsNtohs(uint16_t netshort);
-uint32_t ciaaUpdate_utilsNtohl(uint32_t netlong);
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+const uint8_t *test_update_parserGet(UPDT_parserType *p, uint32_t *address, uint32_t *size)
+{
+   test_update_parserType *parser;
+
+   ciaaPOSIX_assert(NULL != p);
+
+   parser = (test_update_parserType *) p;
+
+   if(parser->current_segment >= parser->total_segments)
+   {
+      *size = 0;
+      return NULL;
+   }
+   *address = parser->segments[parser->current_segment].address;
+   *size = parser->segments[parser->current_segment].size;
+
+   return parser->segments[parser->current_segment++].data;
 }
-#endif
+
+
+int32_t test_update_parserInit(
+   test_update_parserType *parser,
+   test_update_parserSegmentType *segments,
+   uint32_t total_segments)
+{
+   ciaaPOSIX_assert(NULL != parser && NULL != segments && total_segments > 0);
+
+   parser->parser.get = test_update_parserGet;
+   parser->segments = segments;
+   parser->total_segments = total_segments;
+
+   parser->current_segment = 0;
+
+   return 0;
+}
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_UTILS_H_ */
 

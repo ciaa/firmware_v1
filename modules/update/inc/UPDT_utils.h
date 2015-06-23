@@ -33,18 +33,14 @@
  *
  */
 
-#ifndef _CIAAUPDATE_TRANSPORT_H_
-#define _CIAAUPDATE_TRANSPORT_H_
-/** \brief Flash Update Transport Header File
- **
- ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Transport
- **
+#ifndef UPDT_UTILS_H
+#define UPDT_UTILS_H
+/** \brief Flash Update Utils header file
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Transport
+/** \addtogroup Updater CIAA Updater Utils
  ** @{ */
 
 /*
@@ -59,11 +55,12 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150419 v0.0.2  FS  change prefixes
  * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stddef.h"
+#include "UPDT_osal.h"
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -72,22 +69,17 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-struct ciaaUpdate_transportStruct;
-typedef struct ciaaUpdate_transportStruct ciaaUpdate_transportType;
-
-typedef ssize_t (*ciaaUpdate_transportRecv)(ciaaUpdate_transportType* transport, void* data, size_t size);
-typedef ssize_t (*ciaaUpdate_transportSend)(ciaaUpdate_transportType* transport, const void* data, size_t size);
-
-typedef struct ciaaUpdate_transportStruct
-{
-   ciaaUpdate_transportRecv recv;
-   ciaaUpdate_transportSend send;
-} ciaaUpdate_transportType;
-
+#define UPDT_utilsHtonll UPDT_utilsNtohll
+#define UPDT_utilsHtonl UPDT_utilsNtohl
+#define UPDT_utilsHtons UPDT_utilsNtohs
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+int32_t UPDT_utilsMin(int32_t a, int32_t b);
 
+uint16_t UPDT_utilsNtohs(uint16_t netshort);
+uint32_t UPDT_utilsNtohl(uint32_t netlong);
+uint64_t UPDT_utilsNtohll(uint64_t netlonglong);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -95,5 +87,5 @@ typedef struct ciaaUpdate_transportStruct
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_TRANSPORT_H_ */
+#endif /* #ifndef UPDT_UTILS_H */
 

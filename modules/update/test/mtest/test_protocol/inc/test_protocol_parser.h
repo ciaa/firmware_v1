@@ -33,17 +33,18 @@
  *
  */
 
-#ifndef _CIAAUPDATE_PACKER_H_
-#define _CIAAUPDATE_PACKER_H_
-/** \brief Flash Update Packer Header File
+#ifndef TEST_UPDATE_PARSER_H
+#define TEST_UPDATE_PARSER_H
+/** \brief Flash Update test parser file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Packer
+/** \addtogroup MTests CIAA Firmware Module Tests
  ** @{ */
-
+/** \addtogroup Update Update Module Tests
+ ** @{ */
 /*
  * Initials     Name
  * ---------------------------
@@ -56,11 +57,12 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150408 v0.0.1  FS  first initial version
+ * 20150418 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-
+#include "ciaaPOSIX_stdlib.h"
+#include "UPDT_IParser.h"
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -69,78 +71,38 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Parses a segment of contiguous data and returns it. The segment
- ** should be as big as possible.
- **
- ** \param[out] address Address where the segment should be stored.
- ** \param[out] size Segment size
- **/
-typedef const uint8_t * (*ciaaUpdate_packerParseCallback)(uint32_t *address, uint32_t *size);
-
-/** \brief Packer type */
-typedef struct ciaaUpdate_packerType
+typedef struct
 {
-   /** Parser callback function */
-   ciaaUpdate_packerParseCallback parse;
-   /** Buffer where the packed data will be stored */
-   uint8_t *buffer;
-   /** Pointer to the current segment data */
-   const uint8_t *segment_data;
-   /** Current segment size */
-   uint32_t segment_size;
-   /** Maximum buffer size */
-   size_t buffer_max_size;
-} ciaaUpdate_packerType;
+   uint32_t address;
+   uint32_t size;
+   uint8_t *data;
+} test_update_parserSegmentType;
+/** \brief Parser type. */
+typedef struct
+{
+   UPDT_parserType parser;
+   test_update_parserSegmentType *segments;
+   uint32_t total_segments;
+   uint32_t current_segment;
+} test_update_parserType;
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Writes the 8 bytes segment header into a buffer.
+/** \brief Initializes a parser structure.
  **
- ** \param dest Destination buffer. Must have at least 8 bytes.
- ** \param segment_address Segment address.
- ** \param segment_size Segment size.
+ ** \return 0 on success. Non-zero on error.
  **/
-void ciaaUpdate_packerMakeHeader(uint8_t *dest, uint32_t segment_address, uint32_t segment_size);
-
-/** \brief Writes the segment padding into a buffer.
- **
- ** This function creates a random padding of length n, such that
- ** n + segment_size is a multiple of 8.
- **
- ** \param dest Destination buffer.
- ** \param segment_size Segment size.
- ** \return The generated padding size.
- **/
-uint8_t ciaaUpdate_packerMakePadding(uint8_t *dest, uint32_t segment_size);
-
-/** \brief Initializes a packer structure.
- **
- ** \param packer Pointer to the structure.
- ** \param parse Callback to the parser function.
- ** \param buffer Pointer to the buffer.
- ** \param size Buffer size.
- ** \return 0 on success. Non-zero on error. */
-int32_t ciaaUpdate_packerInit(
-   ciaaUpdate_packerType *packer,
-   ciaaUpdate_packerParseCallback parse,
-   uint8_t *buffer,
-   size_t size);
-
-/** \brief Gets a block of data using the parse function, packs it and stores
- ** it into the buffer. If there is enough data to parse the number of bytes
- ** packed is equal to the buffer size. Otherwise all the remaining data is
- ** packed.
- **
- ** \param packer Packer instance.
- ** \return number of bytes packed.
- **/
-ssize_t ciaaUpdate_packerGet(ciaaUpdate_packerType *packer);
-
+int32_t test_update_parserInit(
+   test_update_parserType *parser,
+   test_update_parserSegmentType *segments,
+   uint32_t total_segments);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
 #endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
+/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_PACKER_H_ */
+#endif /* #ifndef TEST_UPDATE_LOOPBACK_H */
+

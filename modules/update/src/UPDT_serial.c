@@ -33,18 +33,17 @@
  *
  */
 
-#ifndef _CIAAUPDATE_DECRYPT_H_
-#define _CIAAUPDATE_DECRYPT_H_
-/** \brief Flash Update Decrypt Header File
+/** \brief This file implements the Flash Update serial transport layer
  **
- ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Decrypt
+ ** This file implements the Flash Update serial transport layer. It should
+ ** be used for debug proposes only.
  **
+ ** \todo change the serial struct. add a void * field to the transport struct.
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Decrypt
+/** \addtogroup Updater CIAA Updater Serial
  ** @{ */
 
 /*
@@ -59,30 +58,74 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150419 v0.0.2  FS  change prefixes. modify API
  * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
+#include "UPDT_osal.h"
+#include "UPDT_ITransport.h"
+#include "UPDT_serial.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal data definition]===============================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[external data definition]===============================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[internal functions definition]==========================*/
+/** \brief Sends a packet.
+ **
+ ** \param serial Serial structure.
+ ** \param data Data to send.
+ ** \param size Number of bytes to send.
+ ** \return Number of bytes sent. -1 on error.
+ **/
+ssize_t UPDT_serialSend(UPDT_ITransportType *serial, const void *data, size_t size)
+{
+   assert(NULL != serial);
+
+   return write(((UPDT_serialType *) serial)->fd, data, size);
 }
-#endif
+/** \brief Receives a packet.
+ **
+ ** \param serial Serial structure.
+ ** \param data Buffer to receive.
+ ** \param size Number of bytes to receive.
+ ** \return Number of bytes received. -1 on error.
+ **/
+ssize_t UPDT_serialRecv(UPDT_ITransportType *serial, void *data, size_t size)
+{
+   assert(NULL != serial);
+
+   return read(((UPDT_serialType *) serial)->fd, data, size);
+}
+/*==================[external functions definition]==========================*/
+int32_t UPDT_serialInit(UPDT_serialType *serial, const char *dev)
+{
+   assert(NULL != serial && NULL != dev);
+
+   serial->fd = open(dev, O_RDWR);
+   assert(serial->fd >= 0);
+
+   serial->recv = UPDT_serialRecv;
+   serial->send = UPDT_serialSend;
+   return 0;
+}
+void UPDT_serialClear(UPDT_serialType *serial)
+{
+   assert(NULL != serial);
+
+   serial->send = NULL;
+   serial->recv = NULL;
+   close(serial->fd);
+   serial->fd = -1;
+}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_DECRYPT_H_ */
 

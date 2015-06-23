@@ -37,11 +37,9 @@
  **
  ** This file implements the functionality of the Flash Update Services
  **
- ** \bug The last packet is not being stored. It is intermittent. The call to
- ** ciaaPOSIX_write is always made. It is probably due to a block device bug.
  ** \todo Add writing address restrictions
  ** \todo Implement a write optimization method which buffers the data sent
- ** by the protocol until there is a full block to write or the current
+ ** by the protocol until there is a full block to write or until the current
  ** data segment finishes.
  **/
 
@@ -62,23 +60,24 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150419 v0.0.3  FS  change prefixes
  * 20150408 v0.0.2  FS  first operating version
  * 20141010 v0.0.1  EV  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_assert.h"
-#include "ciaaPOSIX_stdio.h"
-#include "ciaaUpdate_services.h"
-#include "ciaaUpdate_protocol.h"
-#include "ciaaUpdate_server.h"
-#include "ciaaUpdate_storage.h"
-#include "ciaaUpdate_unpacker.h"
+#include "UPDT_osal.h"
+#include "UPDT_protocol.h"
+#include "UPDT_slave.h"
+#include "UPDT_unpacker.h"
+#include "UPDT_config.h"
+#include "UPDT_services.h"
+#include "UPDT_storage.h"
 
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
-static ciaaUpdate_serverType ciaaUpdate_services_server;
+static UPDT_slaveType UPDT_services_slave;
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
@@ -88,39 +87,74 @@ static ciaaUpdate_serverType ciaaUpdate_services_server;
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-int32_t ciaaUpdate_servicesStart(
-   ciaaUpdate_transportType *transport,
+int32_t UPDT_servicesStart(
+   UPDT_ITransportType *transport,
    int32_t flash_fd
 )
 {
    /* unpacker instance reference */
-   ciaaUpdate_unpackerType *unpacker;
-   /* storage instance reference */
-   ciaaUpdate_storageType *storage;
+   UPDT_unpackerType *unpacker;
    /* pointer to the unparsed data in the buffer */
    const uint8_t *unparsed_data;
+   /* installation allowed flag */
+   int32_t installation_allowed = 0;
    /* number of bytes received */
    ssize_t size;
    /* number of unparsed bytes in the buffer */
    size_t unparsed_bytes_count;
    /* buffer to hold the packets */
-   uint8_t buffer[CIAAUPDATE_PROTOCOL_PACKET_MAX_SIZE];
+   uint8_t buffer[UPDT_PROTOCOL_PACKET_MAX_SIZE];
 
-   ciaaPOSIX_assert(-1 != flash_fd && NULL != transport);
 
-   /* initialize a server instance */
-   ciaaPOSIX_assert(0 == ciaaUpdate_serverInit(&ciaaUpdate_services_server, transport));
+   assert(-1 != flash_fd);
+   assert(NULL != transport);
+
+   /* initialize a slave instance */
+   assert(0 == UPDT_slaveInit(&UPDT_services_slave, transport));
    /* create an unpacker instance */
-   unpacker = ciaaUpdate_unpackerNew();
-   ciaaPOSIX_assert(NULL != unpacker);
-   /* create a storage instance */
-   storage = ciaaUpdate_storageNew(flash_fd);
-   ciaaPOSIX_assert(NULL != storage);
+   unpacker = UPDT_unpackerNew();
+   assert(NULL != unpacker);
+   /* initialize a storage instance */
+   assert(0 == UPDT_storageInit(flash_fd));
 
-   /* TODO: device identification */
-   while((size = ciaaUpdate_serverRecvData(&ciaaUpdate_services_server, buffer, sizeof(buffer))) > 0)
+#if 0
+   /* device identification */
+   do
    {
-      /* TODO: decrypt */
+      /* receive image description from the master */
+      /* if there is a connection error */
+      if((size = UPDT_slaveRecvInfo(&UPDT_services_slave, buffer, sizeof(buffer))) < 0)
+      {
+         /* then notify and retry */
+         /** \todo notify the CIAA user through a console message */
+         continue;
+      }
+
+      /* check if it is compatible with the current installation */
+      installation_allowed = UPDT_configSet(buffer, size) == 0;
+
+      /* then create a response payload */
+      size = UPDT_configSetResponse(buffer, sizeof(buffer));
+
+      /* send the response */
+      if(0 != installation_allowed)
+         UPDT_slaveSendAllow(&UPDT_services_slave, buffer, size);
+      else
+         UPDT_slaveSendDeny(&UPDT_services_slave, buffer, size);
+
+   } while(installation_allowed == 0);
+#else
+
+   /* preset the sequence number */
+   /* this should be done during the handshake */
+   UPDT_services_slave.sequence_number = 0;
+#endif
+
+   /* receive binary image data */
+   while((size = UPDT_slaveRecvData(&UPDT_services_slave, buffer, sizeof(buffer))) > 0)
+   {
+      /** \todo decrypt */
+
       /* point to the beginning of the buffer */
       unparsed_data = buffer;
       /* data_size is unsigned */
@@ -129,21 +163,27 @@ int32_t ciaaUpdate_servicesStart(
       /* extract all the segments from the received packet */
       do
       {
-         unparsed_data = ciaaUpdate_unpackerExtract(unpacker, unparsed_data, &unparsed_bytes_count);
-         ciaaUpdate_storageStore(storage, unpacker->start, unpacker->size, unpacker->address);
+         unparsed_data = UPDT_unpackerExtract(unpacker, unparsed_data, &unparsed_bytes_count);
+         UPDT_storageWrite(unpacker->start, unpacker->size, unpacker->address);
       } while(unparsed_bytes_count > 0);
-      ciaaPOSIX_assert(0 == unparsed_bytes_count);
+      assert(0 == unparsed_bytes_count);
    }
-   ciaaPOSIX_assert(0 == size);
+   assert(0 == size);
 
-   /* TODO: signature verification */
+   /** \todo signature verification */
+
+   /** \todo add success checking */
+   /* if verified */
+   /* if ... */
+      /* store the new configuration */
+      UPDT_configStore();
 
    /* delete storage instance */
-   ciaaUpdate_storageDel(storage);
+   UPDT_storageClear();
    /* delete unpacker instance */
-   ciaaUpdate_unpackerDel(unpacker);
-   /* clear server instance */
-   ciaaUpdate_serverClear(&ciaaUpdate_services_server);
+   UPDT_unpackerDel(unpacker);
+   /* clear slave instance */
+   UPDT_slaveClear(&UPDT_services_slave);
    return 0;
 }
 /** @} doxygen end group definition */

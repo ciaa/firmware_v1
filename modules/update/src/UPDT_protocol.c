@@ -1,7 +1,7 @@
-/* Copyright 2015, Daniel Cohen
- * Copyright 2015, Esteban Volentini
- * Copyright 2015, Matias Giori
- * Copyright 2015, Franco Salinas
+/* Copyright 2014, Daniel Cohen
+ * Copyright 2014, Esteban Volentini
+ * Copyright 2014, Matias Giori
+ * Copyright 2014, Franco Salinas
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,17 +33,14 @@
  *
  */
 
-/** \brief This file implements the Flash Update serial transport layer
+/** \brief This file implements the Flash UPDT protocol functionality
  **
- ** This file implements the Flash Update serial transport layer. It should
- ** be used for debug proposes only.
- **
- ** \todo change the serial struct. add a void * field to the transport struct.
+ ** \todo Add device identification support.
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Serial
+/** \addtogroup UPDT CIAA UPDT Protocol
  ** @{ */
 
 /*
@@ -58,16 +55,16 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150408 v0.0.1  FS  first initial version
+ * 20150419 v0.0.3  FS  change prefixes
+ * 20150408 v0.0.2  FS  first operating version
+ * 20141010 v0.0.1  EV  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_assert.h"
-#include "ciaaPOSIX_stdio.h"
-#include "ciaaPOSIX_stdlib.h"
-#include "ciaaPOSIX_errno.h"
-#include "ciaaUpdate_serial.h"
-#include "ciaaUpdate_transport.h"
+#include "UPDT_osal.h"
+#include "UPDT_protocol.h"
+#include "UPDT_ITransport.h"
+#include "UPDT_utils.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -80,53 +77,96 @@
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-/** \brief Sends a packet.
- **
- ** \param serial Serial structure.
- ** \param data Data to send.
- ** \param size Number of bytes to send.
- ** \return Number of bytes sent. -1 on error.
- **/
-ssize_t ciaaUpdate_serialSend(ciaaUpdate_transportType *serial, const void *data, size_t size)
-{
-   ciaaPOSIX_assert(NULL != serial);
 
-   return ciaaPOSIX_write(((ciaaUpdate_serialType *) serial)->fd, data, size);
-}
-/** \brief Receives a packet.
- **
- ** \param serial Serial structure.
- ** \param data Buffer to receive.
- ** \param size Number of bytes to receive.
- ** \return Number of bytes received. -1 on error.
- **/
-ssize_t ciaaUpdate_serialRecv(ciaaUpdate_transportType *serial, void *data, size_t size)
-{
-   ciaaPOSIX_assert(NULL != serial);
-
-   return ciaaPOSIX_read(((ciaaUpdate_serialType *) serial)->fd, data, size);
-}
 /*==================[external functions definition]==========================*/
-int32_t ciaaUpdate_serialInit(ciaaUpdate_serialType *serial, const char *dev)
+
+int8_t UPDT_protocolGetPacketType(const uint8_t *header)
 {
-   ciaaPOSIX_assert(NULL != serial && NULL != dev);
-
-   serial->fd = ciaaPOSIX_open(dev, O_RDWR);
-   ciaaPOSIX_assert(serial->fd >= 0);
-
-   serial->recv = ciaaUpdate_serialRecv;
-   serial->send = ciaaUpdate_serialSend;
-   return 0;
+   assert(NULL != header);
+   return header[0] & 0x0F;
 }
-void ciaaUpdate_serialClear(ciaaUpdate_serialType *serial)
+uint16_t UPDT_protocolGetPayloadSize(const uint8_t *header)
 {
-   ciaaPOSIX_assert(NULL != serial);
-
-   serial->send = NULL;
-   serial->recv = NULL;
-   ciaaPOSIX_close(serial->fd);
-   serial->fd = -1;
+   assert(NULL != header);
+   return  ((uint16_t) header[3]) << 3;
 }
+uint8_t UPDT_protocolGetSequenceNumber(const uint8_t *header)
+{
+   assert(NULL != header);
+
+   return header[2];
+}
+
+void UPDT_protocolSetHeader(
+   uint8_t *header,
+   uint8_t packet_type,
+   uint8_t sequence_number,
+   uint16_t payload_size)
+{
+   assert(NULL != header);
+   /* payload must be size multiple of 8 and smaller than 2048 */
+   assert(0 == (payload_size & 0xF807));
+
+   header[0] = (header[0] & 0xF0) | (packet_type & 0x0F);
+   header[1] = 0;
+   header[2] = sequence_number;
+   header[3] = (uint8_t) (payload_size >> 3);
+}
+
+int32_t UPDT_protocolRecv(
+   UPDT_ITransportType *transport,
+   uint8_t *buffer,
+   size_t size)
+{
+   ssize_t ret;
+   size_t bytes_read = 0;
+
+   assert(NULL != buffer);
+
+   if(0 == size)
+   {
+      return 0;
+   }
+   /* read the specified number of bytes */
+   while(bytes_read < size)
+   {
+      ret = transport->recv(transport, buffer + bytes_read, size - bytes_read);
+      if(ret < 0)
+      {
+         return UPDT_PROTOCOL_ERROR_TRANSPORT;
+      }
+      bytes_read += ret;
+   }
+   return UPDT_PROTOCOL_ERROR_NONE;
+}
+
+int32_t UPDT_protocolSend(
+   UPDT_ITransportType *transport,
+   const uint8_t *buffer,
+   size_t size)
+{
+   ssize_t ret;
+   size_t bytes_sent = 0;
+
+   assert(NULL != buffer);
+
+   if(0 == size)
+   {
+      return 0;
+   }
+   /* send the specified number of bytes */
+   while(bytes_sent < size)
+   {
+      ret = transport->send(transport, buffer + bytes_sent, size - bytes_sent);
+      if(ret < 0)
+      {
+         return UPDT_PROTOCOL_ERROR_TRANSPORT;
+      }
+      bytes_sent += ret;
+   }
+   return UPDT_PROTOCOL_ERROR_NONE;
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

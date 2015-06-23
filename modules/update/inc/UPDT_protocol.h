@@ -1,7 +1,7 @@
-/* Copyright 2015, Daniel Cohen
- * Copyright 2015, Esteban Volentini
- * Copyright 2015, Matias Giori
- * Copyright 2015, Franco Salinas
+/* Copyright 2014, Daniel Cohen
+ * Copyright 2014, Esteban Volentini
+ * Copyright 2014, Matias Giori
+ * Copyright 2014, Franco Salinas
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,18 +33,18 @@
  *
  */
 
-#ifndef _CIAAUPDATE_ENCRYPT_H_
-#define _CIAAUPDATE_ENCRYPT_H_
-/** \brief Flash Update Encrypt Header File
+#ifndef UPDT_PROTOCOL_H
+#define UPDT_PROTOCOL_H
+/** \brief Flash Update Protocol Header File
  **
  ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Encrypt
+ ** the Flash Update Protocol
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Encrypt
+/** \addtogroup Update CIAA Update Protocol
  ** @{ */
 
 /*
@@ -59,10 +59,13 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150408 v0.0.1  FS  first initial version
+ * 20150419 v0.0.3  FS  change prefixes
+ * 20150408 v0.0.2  FS  first operating version
+ * 20141010 v0.0.1  EV  first initial version
  */
 
 /*==================[inclusions]=============================================*/
+#include "UPDT_ITransport.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -71,12 +74,62 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 
+#define UPDT_PROTOCOL_ERROR_NONE                0
+#define UPDT_PROTOCOL_ERROR_UNKNOWN_VERSION     1
+#define UPDT_PROTOCOL_ERROR_TRANSPORT           2
+
+#define UPDT_PROTOCOL_VERSION                0x00u
+
+/* packet types */
+#define UPDT_PROTOCOL_PACKET_INV             0xFFu
+#define UPDT_PROTOCOL_PACKET_ACK             0x00u
+#define UPDT_PROTOCOL_PACKET_DAT             0x01u
+#define UPDT_PROTOCOL_PACKET_INF             0x02u
+#define UPDT_PROTOCOL_PACKET_ALW             0x03u
+#define UPDT_PROTOCOL_PACKET_DNY             0x04u
+
+#define UPDT_PROTOCOL_PACKET_VALID(t)  ((t) <= 4)
+
+/* header */
+#define UPDT_PROTOCOL_HEADER_SIZE            4
+
+/* payload */
+/* payload sizes in bytes */
+#define UPDT_PROTOCOL_PACKET_ACK_PAYLOAD_SIZE    0
+#define UPDT_PROTOCOL_PACKET_DAT_PAYLOAD_SIZE    248 /* <= maximum */
+#define UPDT_PROTOCOL_PACKET_INF_PAYLOAD_SIZE    28
+
+#define UPDT_PROTOCOL_PAYLOAD_MAX_SIZE UPDT_PROTOCOL_PACKET_DAT_PAYLOAD_SIZE
+
+#define UPDT_PROTOCOL_PAYLOAD_SIZE(t) (                                       \
+   UPDT_PROTOCOL_PACKET_ACK == (t) ? UPDT_PROTOCOL_PACKET_ACK_PAYLOAD_SIZE : (\
+   UPDT_PROTOCOL_PACKET_DAT == (t) ? UPDT_PROTOCOL_PACKET_DAT_PAYLOAD_SIZE : (\
+   UPDT_PROTOCOL_PACKET_INF == (t) ? UPDT_PROTOCOL_PACKET_INF_PAYLOAD_SIZE :  \
+   UPDT_PROTOCOL_PACKET_INV)))
+
+
+#define UPDT_PROTOCOL_PACKET_MAX_SIZE    (UPDT_PROTOCOL_PAYLOAD_MAX_SIZE + UPDT_PROTOCOL_HEADER_SIZE)
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/* header parsing */
+int8_t   UPDT_protocolGetPacketType(const uint8_t *header);
+uint16_t UPDT_protocolGetPayloadSize(const uint8_t *header);
+uint8_t  UPDT_protocolGetSequenceNumber(const uint8_t *header);
 
+/** If size = 0 returns immediately */
+int32_t UPDT_protocolRecv(UPDT_ITransportType *transport, uint8_t *buffer, size_t size);
+
+/** If size = 0 returns immediately */
+int32_t UPDT_protocolSend(UPDT_ITransportType *transport, const uint8_t *buffer, size_t size);
+
+void UPDT_protocolSetHeader(
+   uint8_t *header,
+   uint8_t packet_type,
+   uint8_t sequence_number,
+   uint16_t payload_size);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -84,5 +137,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_ENCRYPT_H_ */
+#endif /* #ifndef UPDT_PROTOCOL_H */
 

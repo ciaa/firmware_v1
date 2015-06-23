@@ -33,14 +33,18 @@
  *
  */
 
-/** \brief This file implements the Flash Update Utils functionality
+#ifndef UPDT_STORAGE_H
+#define UPDT_STORAGE_H
+/** \brief Flash Update Storage Header File
  **
- ** \todo Move the ntohl and ntohs functions to <arpa/inet>
+ ** This files shall be included by modules using the interfaces provided by
+ ** the Flash Update Storage
+ **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Utils
+/** \addtogroup Updater CIAA Updater Storage
  ** @{ */
 
 /*
@@ -55,48 +59,34 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150419 v0.0.2  FS  change prefixes. modify API
  * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_utils.h"
-
-/*==================[macros and definitions]=================================*/
-
-/*==================[internal data declaration]==============================*/
-
-/*==================[internal functions declaration]=========================*/
-
-/*==================[internal data definition]===============================*/
-
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-int32_t ciaaUpdate_utilsMin(int32_t a, int32_t b)
-{
-   return (a < b) ? a : b;
-}
-uint16_t ciaaUpdate_utilsNtohs(uint16_t netshort)
-{
-#if CIAAPLATFORM_BIGENDIAN == 0
-   return (netshort << 8) | (netshort >> 8);
-#else
-   return n;
+#include "UPDT_storage.h"
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
 #endif
-}
-uint32_t ciaaUpdate_utilsNtohl(uint32_t netlong)
-{
-#if CIAAPLATFORM_BIGENDIAN == 0
-   return (((uint32_t) ciaaUpdate_utilsNtohs(netlong)) << 16) | ciaaUpdate_utilsNtohs(netlong >> 16);
-#else
-   return n;
-#endif // CIAAPLATFORM_BIGENDIAN
 
-}
-/*==================[external functions definition]==========================*/
+/*==================[macros]=================================================*/
 
+/*==================[typedef]================================================*/
+
+/*==================[external data declaration]==============================*/
+
+/*==================[external functions declaration]=========================*/
+void UPDT_storageClear();
+int32_t UPDT_storageInit(int32_t fd);
+ssize_t UPDT_storageWrite(const uint8_t *data, size_t size, uint32_t address);
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef UPDT_STORAGE_H */
 

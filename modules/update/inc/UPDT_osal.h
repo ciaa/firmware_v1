@@ -33,12 +33,14 @@
  *
  */
 
-/** \brief This file implements the Flash Update Encrypt functionality
+#ifndef UPDT_OSAL_H
+#define UPDT_OSAL_H
+/** \brief OS Abstraction Layer header file
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Encrypt
+/** \addtogroup Updater CIAA Updater OS Abstraction Layer
  ** @{ */
 
 /*
@@ -53,27 +55,62 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150419 v0.0.2  FS  change prefixes
  * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_encrypt.h"
+#define CIAA
 
-/*==================[macros and definitions]=================================*/
+#ifdef CIAA
+#include "ciaaPOSIX_assert.h"
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stddef.h"
+#include "ciaaPOSIX_stdio.h"
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_string.h"
+#else
+#include "assert.h"
+#include "stdint.h"
+#include "stddef.h"
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
+#endif // CIAA
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[internal data declaration]==============================*/
+/*==================[macros]=================================================*/
 
-/*==================[internal functions declaration]=========================*/
+/*==================[typedef]================================================*/
+#ifdef CIAA
+#define assert ciaaPOSIX_assert
 
-/*==================[internal data definition]===============================*/
+#define close  ciaaPOSIX_close
+#define lseek  ciaaPOSIX_lseek
+#define open   ciaaPOSIX_open
+#define printf ciaaPOSIX_printf
+#define read   ciaaPOSIX_read
+#define write  ciaaPOSIX_write
 
-/*==================[external data definition]===============================*/
+#define malloc ciaaPOSIX_malloc
+#define free   ciaaPOSIX_free
+#define memcpy ciaaPOSIX_memcpy
 
-/*==================[internal functions definition]==========================*/
+#define rand   ciaaPOSIX_rand
 
-/*==================[external functions definition]==========================*/
+#endif
+/*==================[external data declaration]==============================*/
 
+/*==================[external functions declaration]=========================*/
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
+#endif /* #ifndef UPDT_OSAL_H */

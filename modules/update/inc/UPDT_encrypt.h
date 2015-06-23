@@ -1,7 +1,7 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2015, Daniel Cohen
+ * Copyright 2015, Esteban Volentini
+ * Copyright 2015, Matias Giori
+ * Copyright 2015, Franco Salinas
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,18 +33,18 @@
  *
  */
 
-#ifndef _CIAAUPDATE_SERVICES_H_
-#define _CIAAUPDATE_SERVICES_H_
-/** \brief Flash Update Services Header File
+#ifndef UPDT_ENCRYPT_H
+#define UPDT_ENCRYPT_H
+/** \brief Flash Update Encrypt Header File
  **
- ** This files shall be included by moodules using the interfaces provided by
- ** the Flash Update Services
+ ** This files shall be included by modules using the interfaces provided by
+ ** the Flash Update Encrypt
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Services
+/** \addtogroup Updater CIAA Updater Encrypt
  ** @{ */
 
 /*
@@ -59,27 +59,24 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150408 v0.0.2  FS  first operating version
- * 20141010 v0.0.1  EV  first initial version
+ * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdlib.h"
-#include "ciaaUpdate_transport.h"
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#define CIAAUPDATE_SERVICES_ERROR_NONE       0
+
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief starts update services */
-int32_t ciaaUpdate_servicesStart(ciaaUpdate_transportType *transport, int32_t flash_fd);
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -87,5 +84,5 @@ int32_t ciaaUpdate_servicesStart(ciaaUpdate_transportType *transport, int32_t fl
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_SERVICES_H_ */
+#endif /* #ifndef UPDT_ENCRYPT_H */
 

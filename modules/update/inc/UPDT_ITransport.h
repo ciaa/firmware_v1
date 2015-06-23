@@ -33,18 +33,18 @@
  *
  */
 
-#ifndef _CIAAUPDATE_SERIAL_H_
-#define _CIAAUPDATE_SERIAL_H_
-/** \brief Flash Update Serial Header File
+#ifndef UPDT_TRANSPORT_H
+#define UPDT_TRANSPORT_H
+/** \brief Flash Update Transport Header File
  **
  ** This files shall be included by modules using the interfaces provided by
- ** the Flash Update Serial
+ ** the Flash Update Transport
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Updater CIAA Updater Serial
+/** \addtogroup Update CIAA Update Transport
  ** @{ */
 
 /*
@@ -59,11 +59,12 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150419 v0.0.2  FS  change prefixes
  * 20150408 v0.0.1  FS  first initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaUpdate_transport.h"
+#include "UPDT_osal.h"
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -72,37 +73,22 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Serial transport layer type. */
-typedef struct
+struct UPDT_ITransportStruct;
+typedef struct UPDT_ITransportStruct UPDT_ITransportType;
+
+typedef ssize_t (*UPDT_ITransportRecv)(UPDT_ITransportType* transport, void* data, size_t size);
+typedef ssize_t (*UPDT_ITransportSend)(UPDT_ITransportType* transport, const void* data, size_t size);
+
+typedef struct UPDT_ITransportStruct
 {
-   /** Receive non-blocking callback. */
-   ciaaUpdate_transportRecv recv;
-   /** Send non-blocking callback. */
-   ciaaUpdate_transportSend send;
-   /** UART file descriptor */
-   int32_t fd;
-} ciaaUpdate_serialType;
+   UPDT_ITransportRecv recv;
+   UPDT_ITransportSend send;
+} UPDT_ITransportType;
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Initializes a serial structure.
- **
- ** This function initializes a serial transport layer over the specified
- ** device.
- **
- ** \param serial Serial structure to initialize.
- ** \param device Device path.
- ** \return 0 on success. Non-zero on error.
- **/
-int32_t ciaaUpdate_serialInit(ciaaUpdate_serialType *serial, const char *device);
 
-/** \brief Clears a serial structure.
- **
- ** Clears the serial transport layer structure and closes the serial device.
- **
- ** \param serial The serial structure to clear.
- **/
-void ciaaUpdate_serialClear(ciaaUpdate_serialType *serial);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -110,5 +96,5 @@ void ciaaUpdate_serialClear(ciaaUpdate_serialType *serial);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAUPDATE_SERIAL_H_ */
+#endif /* #ifndef UPDT_TRANSPORT_H */
 
