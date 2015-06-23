@@ -116,6 +116,7 @@ class oilParserClass {
             $this->lines[$l] = "";
          }
       }
+      return $this->lines;
    }
 
    function resetLine()
@@ -221,15 +222,25 @@ class oilParserClass {
       $inst--;
    }
 
-   function oilParserClass($file)
+   function loadFile($file)
    {
       if (file_exists($file) == false) {
          error('Configuration file ' . $file . ' not found.');
       }
 
       $this->file = $file;
-      $this->lines = file($file);
+      $this->lines = file($file);   
+   }
+   function loadArray($lines)
+   {
+      $this->lines=$lines;
+   }
+   function oilParserClass()
+   {
 
+   }
+   function parse()
+   {
       $entry = array();
 
       $this->removeComments();

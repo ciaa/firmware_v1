@@ -77,7 +77,9 @@ class configClass {
 
    function parseOilFile($file)
    {
-      $parser = new oilParserClass($file);
+      $parser = new oilParserClass();
+      $parser->loadFile($file);
+      $parser->parse();
 
       $tmp = $parser->getOil();
 
