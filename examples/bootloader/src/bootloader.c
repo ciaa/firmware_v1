@@ -65,8 +65,8 @@
 #include "ciaaPOSIX_stdio.h"  /* <= device handler header */
 #include "ciaak.h"            /* <= ciaa kernel header */
 #include "bootloader.h"       /* <= own header */
-#include "ciaaUpdate_serial.h"
-#include "ciaaUpdate_services.h"
+#include "UPDT_serial.h"
+#include "UPDT_services.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -76,7 +76,7 @@
 
 /*==================[internal data definition]===============================*/
 
-static ciaaUpdate_serialType serial;
+static UPDT_serialType serial;
 
 /** \brief File descriptor of the USB uart
  *
@@ -170,15 +170,15 @@ TASK(BootloaderTask)
 
    ciaaPOSIX_printf("BootloaderTask...\n");
 
-   ciaaPOSIX_assert(0 == ciaaUpdate_serialInit(&serial, "/dev/serial/uart/1"));
+   ciaaPOSIX_assert(0 == UPDT_serialInit(&serial, "/dev/serial/uart/1"));
 
    /* open UART connected to USB bridge (FT2232) */
    fd_flash = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
 
-   error = ciaaUpdate_servicesStart((ciaaUpdate_transportType *) &serial, fd_flash);
+   error = UPDT_servicesStart((UPDT_ITransportType *) &serial, fd_flash);
    switch(error)
    {
-      case CIAAUPDATE_SERVICES_ERROR_NONE:
+      case UPDT_SERVICES_ERROR_NONE:
         ciaaPOSIX_printf("Success\n");
         break;
       default:
@@ -186,7 +186,7 @@ TASK(BootloaderTask)
          break;
    }
    ciaaPOSIX_close(fd_flash);
-   ciaaUpdate_serialClear(&serial);
+   UPDT_serialClear(&serial);
    TerminateTask();
 }
 

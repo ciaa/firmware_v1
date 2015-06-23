@@ -61,7 +61,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "UPDT_osal.h"
+#include "ciaaPOSIX_assert.h"
 #include "UPDT_protocol.h"
 #include "UPDT_slave.h"
 
@@ -83,21 +83,21 @@ static int32_t UPDT_slaveSendResponse(
    uint8_t response_type)
 {
    uint8_t *buffer;
-   assert(NULL != slave);
-   assert(NULL != payload);
+   ciaaPOSIX_assert(NULL != slave);
+   ciaaPOSIX_assert(NULL != payload);
 
    buffer = slave->send_buffer;
    UPDT_protocolSetHeader(buffer, response_type, slave->sequence_number, payload_size);
 
-   memcpy(buffer + UPDT_PROTOCOL_HEADER_SIZE, payload, payload_size);
+   ciaaPOSIX_memcpy(buffer + UPDT_PROTOCOL_HEADER_SIZE, payload, payload_size);
 
    return UPDT_protocolSend(slave->transport, buffer, UPDT_PROTOCOL_HEADER_SIZE + payload_size);
 }
 /*==================[external functions definition]==========================*/
 int32_t UPDT_slaveInit(UPDT_slaveType *slave, UPDT_ITransportType *transport)
 {
-   assert(NULL != slave);
-   assert(NULL != transport);
+   ciaaPOSIX_assert(NULL != slave);
+   ciaaPOSIX_assert(NULL != transport);
 
    slave->transport = transport;
    slave->protocol_version = 0;
@@ -109,7 +109,7 @@ int32_t UPDT_slaveInit(UPDT_slaveType *slave, UPDT_ITransportType *transport)
 }
 void UPDT_slaveClear(UPDT_slaveType *slave)
 {
-   assert(NULL != slave);
+   ciaaPOSIX_assert(NULL != slave);
 
    slave->sequence_number = 0;
    slave->protocol_version = 0;
@@ -132,7 +132,7 @@ ssize_t UPDT_slaveRecvInfo(
    /* received sequence number */
    uint8_t sequence_number;
 
-   assert(buffer_size >= UPDT_PROTOCOL_PAYLOAD_MAX_SIZE);
+   ciaaPOSIX_assert(buffer_size >= UPDT_PROTOCOL_PAYLOAD_MAX_SIZE);
 
 
    do
@@ -182,7 +182,7 @@ ssize_t UPDT_slaveRecvData(
    /* received sequence number */
    uint8_t sequence_number;
 
-   assert(buffer_size >= UPDT_PROTOCOL_PAYLOAD_MAX_SIZE);
+   ciaaPOSIX_assert(buffer_size >= UPDT_PROTOCOL_PAYLOAD_MAX_SIZE);
 
    if(0 == slave->done)
    {

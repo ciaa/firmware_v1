@@ -61,7 +61,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "UPDT_osal.h"
+#include "ciaaPOSIX_assert.h"
 #include "UPDT_protocol.h"
 #include "UPDT_ITransport.h"
 #include "UPDT_utils.h"
@@ -82,17 +82,17 @@
 
 int8_t UPDT_protocolGetPacketType(const uint8_t *header)
 {
-   assert(NULL != header);
+   ciaaPOSIX_assert(NULL != header);
    return header[0] & 0x0F;
 }
 uint16_t UPDT_protocolGetPayloadSize(const uint8_t *header)
 {
-   assert(NULL != header);
+   ciaaPOSIX_assert(NULL != header);
    return  ((uint16_t) header[3]) << 3;
 }
 uint8_t UPDT_protocolGetSequenceNumber(const uint8_t *header)
 {
-   assert(NULL != header);
+   ciaaPOSIX_assert(NULL != header);
 
    return header[2];
 }
@@ -103,9 +103,9 @@ void UPDT_protocolSetHeader(
    uint8_t sequence_number,
    uint16_t payload_size)
 {
-   assert(NULL != header);
+   ciaaPOSIX_assert(NULL != header);
    /* payload must be size multiple of 8 and smaller than 2048 */
-   assert(0 == (payload_size & 0xF807));
+   ciaaPOSIX_assert(0 == (payload_size & 0xF807));
 
    header[0] = (header[0] & 0xF0) | (packet_type & 0x0F);
    header[1] = 0;
@@ -121,7 +121,7 @@ int32_t UPDT_protocolRecv(
    ssize_t ret;
    size_t bytes_read = 0;
 
-   assert(NULL != buffer);
+   ciaaPOSIX_assert(NULL != buffer);
 
    if(0 == size)
    {

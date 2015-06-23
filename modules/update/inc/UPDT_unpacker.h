@@ -64,6 +64,8 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stdio.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

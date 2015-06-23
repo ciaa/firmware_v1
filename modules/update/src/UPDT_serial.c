@@ -63,7 +63,8 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "UPDT_osal.h"
+#include "ciaaPOSIX_assert.h"
+#include "ciaaPOSIX_stdio.h"
 #include "UPDT_ITransport.h"
 #include "UPDT_serial.h"
 
@@ -87,9 +88,9 @@
  **/
 ssize_t UPDT_serialSend(UPDT_ITransportType *serial, const void *data, size_t size)
 {
-   assert(NULL != serial);
+   ciaaPOSIX_assert(NULL != serial);
 
-   return write(((UPDT_serialType *) serial)->fd, data, size);
+   return ciaaPOSIX_write(((UPDT_serialType *) serial)->fd, data, size);
 }
 /** \brief Receives a packet.
  **
@@ -100,17 +101,17 @@ ssize_t UPDT_serialSend(UPDT_ITransportType *serial, const void *data, size_t si
  **/
 ssize_t UPDT_serialRecv(UPDT_ITransportType *serial, void *data, size_t size)
 {
-   assert(NULL != serial);
+   ciaaPOSIX_assert(NULL != serial);
 
-   return read(((UPDT_serialType *) serial)->fd, data, size);
+   return ciaaPOSIX_read(((UPDT_serialType *) serial)->fd, data, size);
 }
 /*==================[external functions definition]==========================*/
 int32_t UPDT_serialInit(UPDT_serialType *serial, const char *dev)
 {
-   assert(NULL != serial && NULL != dev);
+   ciaaPOSIX_assert(NULL != serial && NULL != dev);
 
-   serial->fd = open(dev, O_RDWR);
-   assert(serial->fd >= 0);
+   serial->fd = ciaaPOSIX_open(dev, O_RDWR);
+   ciaaPOSIX_assert(serial->fd >= 0);
 
    serial->recv = UPDT_serialRecv;
    serial->send = UPDT_serialSend;
@@ -118,11 +119,11 @@ int32_t UPDT_serialInit(UPDT_serialType *serial, const char *dev)
 }
 void UPDT_serialClear(UPDT_serialType *serial)
 {
-   assert(NULL != serial);
+   ciaaPOSIX_assert(NULL != serial);
 
    serial->send = NULL;
    serial->recv = NULL;
-   close(serial->fd);
+   ciaaPOSIX_close(serial->fd);
    serial->fd = -1;
 }
 /** @} doxygen end group definition */

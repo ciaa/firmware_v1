@@ -60,7 +60,9 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdio.h"
 #include "UPDT_IParser.h"
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {

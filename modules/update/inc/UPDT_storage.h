@@ -64,7 +64,10 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_string.h"
 #include "UPDT_storage.h"
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {

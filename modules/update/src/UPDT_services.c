@@ -66,7 +66,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "UPDT_osal.h"
+#include "ciaaPOSIX_assert.h"
 #include "UPDT_protocol.h"
 #include "UPDT_slave.h"
 #include "UPDT_unpacker.h"
@@ -106,16 +106,16 @@ int32_t UPDT_servicesStart(
    uint8_t buffer[UPDT_PROTOCOL_PACKET_MAX_SIZE];
 
 
-   assert(-1 != flash_fd);
-   assert(NULL != transport);
+   ciaaPOSIX_assert(-1 != flash_fd);
+   ciaaPOSIX_assert(NULL != transport);
 
    /* initialize a slave instance */
-   assert(0 == UPDT_slaveInit(&UPDT_services_slave, transport));
+   ciaaPOSIX_assert(0 == UPDT_slaveInit(&UPDT_services_slave, transport));
    /* create an unpacker instance */
    unpacker = UPDT_unpackerNew();
-   assert(NULL != unpacker);
+   ciaaPOSIX_assert(NULL != unpacker);
    /* initialize a storage instance */
-   assert(0 == UPDT_storageInit(flash_fd));
+   ciaaPOSIX_assert(0 == UPDT_storageInit(flash_fd));
 
 #if 0
    /* device identification */
@@ -166,9 +166,9 @@ int32_t UPDT_servicesStart(
          unparsed_data = UPDT_unpackerExtract(unpacker, unparsed_data, &unparsed_bytes_count);
          UPDT_storageWrite(unpacker->start, unpacker->size, unpacker->address);
       } while(unparsed_bytes_count > 0);
-      assert(0 == unparsed_bytes_count);
+      ciaaPOSIX_assert(0 == unparsed_bytes_count);
    }
-   assert(0 == size);
+   ciaaPOSIX_assert(0 == size);
 
    /** \todo signature verification */
 

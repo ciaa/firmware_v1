@@ -64,7 +64,8 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "UPDT_osal.h"
+#include "ciaaPOSIX_string.h"
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
