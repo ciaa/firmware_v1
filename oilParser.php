@@ -73,52 +73,96 @@ class oilParserClass {
    protected $line;
    protected $config = array();
 
-   function removeComments()
+   
+   public function removeMultiBlank($line)
    {
-      /* todo removeall comments */
+      return preg_replace("/[ \t]+/m", ' ', $line);
+   }
+   
+   function normalize()
+   {
       for ($l = 0; $l < count($this->lines); $l++)
       {
+
+         $this->lines[$l] = $this->removeMultiBlank($this->lines[$l]);
+      
          /* remove spaces and tabs at start and end of the line */
          $this->lines[$l] = trim($this->lines[$l]);
 
-         do
-         {
-            /* replaces multiply spaces with only one */
-            $this->lines[$l] = preg_replace('/ +/', " ", $this->lines[$l]);
-
-            /* remove multpy tabs or tabs with one space */
-            $this->lines[$l] = preg_replace('/\t/', " ", $this->lines[$l]);
-
-         }
-         while ( ( strlen($this->lines[$l]) > 1 ) &&
-                 ( strpos($this->lines[$l], "  ") !== false) );
-
+         /* remove spaces and tabs at start and end of the line */
+         $this->lines[$l] = trim($this->lines[$l]);                      // untested
+         
          /* remove spaces sides of = */
-         $this->lines[$l] = str_replace(" = ", "=", $this->lines[$l]);
+         $this->lines[$l] = str_replace(" = ", "=", $this->lines[$l]);   // untested
 
          /* remove space before ; */
-         $this->lines[$l] = str_replace(" ;",";", $this->lines[$l]);
+         $this->lines[$l] = str_replace(" ;",";", $this->lines[$l]);     // untested
 
          /* remove ; */
-         $this->lines[$l] = str_replace(";","", $this->lines[$l]);
-
-         /* remove c++ comments */
-         if ( strpos($this->lines[$l],"//") !== false )
-         {
-            $tmp = split("//", $this->lines[$l]);
-            $this->lines[$l] = $tmp[0];
-         }
-
-         /* remove c comments in a complete line*/
-         /* to do...remove complex comments */
-         if ( strpos($this->lines[$l], "/*") == 0 && strpos($this->lines[$l], "*/") == strlen($this->lines[$l])-2)
-         {
-            $this->lines[$l] = "";
-         }
+         $this->lines[$l] = str_replace(";","", $this->lines[$l]);       // only one?
       }
       return $this->lines;
    }
 
+   /**
+   /     state machine:
+   /    +-----------+       +-----------+  
+   /    | searching +-found-> searching |
+   /    |  opening  <-found-+  closing  |
+   /    +-----------+       +-----------+
+   /    @todo: deal with two multiline comments in the same line
+   /    
+   */
+   
+   function removeComments()
+   {
+      $state = 'searching opening';
+      
+      for ($l = 0; $l < count($this->lines); $l++)
+      {
+         if ($state == 'searching opening' ) {
+            $start = strpos($this->lines[$l], "/");
+            if ($start !== false) 
+            {
+               if (substr($this->lines[$l],$start,2) == "/*") 
+               {
+                  // is the closing in the same line?
+                  $end = strpos($this->lines[$l], "*/",$start);
+                  if ($end !== false) 
+                  {
+                     $this->lines[$l] = substr($this->lines[$l],0,$start) . substr($this->lines[$l],$end + 2);
+                  }
+                  else
+                  {
+                     $state = 'searching closing';
+                     $this->lines[$l] = substr($this->lines[$l],0,$start);
+                  }
+               }
+               elseif (substr($this->lines[$l],$start,2) == "//") 
+               {
+                  $this->lines[$l] =  substr($this->lines[$l],0,$start);
+               } 
+            }
+         }
+         else // searching closing
+         {
+
+            $start = strpos($this->lines[$l], "*/");
+            if ($start !== false)
+            {
+               $state = 'searching opening';
+               $this->lines[$l] = substr($this->lines[$l],$start + 2);
+            }
+            else 
+            {
+               $this->lines[$l] = '';
+            }
+         }
+      }
+      return $this->lines;
+    }
+   
+   
    function resetLine()
    {
       $this->line = 0;
@@ -244,6 +288,8 @@ class oilParserClass {
       $entry = array();
 
       $this->removeComments();
+
+      $this->normalize();
 
       $this->resetLine();
 
