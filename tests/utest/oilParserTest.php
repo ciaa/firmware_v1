@@ -51,7 +51,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-require_once(dirname(__FILE__) . '/../oilParser.php');
+require_once(dirname(__FILE__) . '/../../oilParser.php');
 /*==================[class definition]=======================================*/
 /** \brief Oil Parser Test Class Implementation
  **
