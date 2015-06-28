@@ -368,7 +368,7 @@ tst_link: $(UNITY_OBJ)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking Test
-	gcc $(addprefix $(OBJ_DIR)$(DS),$(UNITY_OBJ)) -lgcov -o out/bin/$(tst_file).bin
+	gcc $(addprefix $(OBJ_DIR)$(DS),$(UNITY_OBJ)) -lgcov -o out$(DS)bin$(DS)$(tst_file).bin
 
 # rule for tst_<mod>_<file>
 tst_$(tst_mod)_$(tst_file): $(RUNNERS_OUT_DIR)$(DS)$(notdir $(MTEST_SRC_FILES:.c=_Runner.c)) tst_link
@@ -414,7 +414,7 @@ mocks:
 	@echo ' '
 	@echo ===============================================================================
 	@$(MULTILINE_ECHO) "Creating Mocks for: \n $(foreach mock, $(FILES_TO_MOCK),     $(mock)\n)"
-	ruby externals/ceedling/vendor/cmock/lib/cmock.rb -omodules/tools/ceedling/project.yml $(FILES_TO_MOCK)
+	ruby externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)lib$(DS)cmock.rb -omodules$(DS)tools$(DS)ceedling$(DS)project.yml $(FILES_TO_MOCK)
 
 ###############################################################################
 # rule to inform about all available tests
@@ -508,7 +508,7 @@ generate : $(OIL_FILES)
 # doxygen
 doxygen:
 	@echo running doxygen
-	doxygen modules/tools/doxygen/doxygen.cnf
+	doxygen modules$(DS)tools$(DS)doxygen$(DS)doxygen.cnf
 
 ###############################################################################
 # openocd
@@ -631,11 +631,11 @@ release:
 	@echo Cleaning
 	git clean -xdf
 	@echo Removing ../Firmware.zip
-	rm -f ../Firmware.zip
+	rm -f ..$(DS)Firmware.zip
 	@echo Generating ../Firmware.zip
-	zip -r ../Firmware.zip . -x *.git*
-	@echo -f Removing ../Firmware.tar.gz
-	tar -zcvf ../Firmware.tar.gz --exclude "*.git*" .
+	zip -r ..$(DS)Firmware.zip . -x *.git*
+	@echo -f Removing ..$(DS)Firmware.tar.gz
+	tar -zcvf ..$(DS)Firmware.tar.gz --exclude "*.git*" .
 
 ###############################################################################
 # help
