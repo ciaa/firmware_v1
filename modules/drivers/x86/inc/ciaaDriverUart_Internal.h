@@ -132,7 +132,7 @@ typedef struct {
    struct termios deviceOptions;
 #endif /* CIAADRVUART_ENABLE_TRANSMITION */
 #ifdef CIAADRVUART_ENABLE_EMULATION
-	struct sockaddr_in serverAddress;
+   struct sockaddr_in serverAddress;
 #endif /* CIAADRVUART_ENABLE_EMULATION */
 } ciaaDriverUart_uartType;
 

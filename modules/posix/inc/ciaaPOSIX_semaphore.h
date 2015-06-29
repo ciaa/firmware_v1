@@ -69,7 +69,7 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 typedef struct {
-	uint8_t test;
+   uint8_t test;
 } sem_t;
 
 /*==================[external data declaration]==============================*/

@@ -100,7 +100,7 @@ typedef signed int int32_t;
  ** INT16_MAX is lower than the limit in 15 bits returns
  ** INT16_MIN
  **
- ** \param[in] 	  a first parameter to be added
+ ** \param[in]    a first parameter to be added
  ** \param[in]    b second parameter ot be added
  ** \return E_OK  returns addition of a+b
  **/

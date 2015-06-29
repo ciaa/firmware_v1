@@ -75,7 +75,7 @@
 
 /*==================[macros]=================================================*/
 /** \brief Definition of the  DeclareTask Macro */
-#define DeclareTask(name)  void OSEK_TASK_ ## name (void)
+#define DeclareTask(name) void OSEK_TASK_ ## name (void)
 
 #define OSEK_OS_INTERRUPT_MASK ((InterruptFlagsType)0xFFFFFFFFU)
 
