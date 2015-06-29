@@ -55,6 +55,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150604 v0.8.1 GMuro   replace numbers for macros
  * 20141108 v0.0.2 GMuro   New Modbus implementation
  * 20140623 v0.0.1 MaCe    first functional version
  */

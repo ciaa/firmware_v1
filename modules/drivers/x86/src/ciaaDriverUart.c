@@ -59,6 +59,7 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaDriverUart_Internal.h"
 #ifdef CIAADRVUART_ENABLE_FUNCIONALITY
    #include <pthread.h>
    #include <fcntl.h>
@@ -71,7 +72,6 @@
 #endif /* CIAADRVUART_ENABLE_FUNCIONALITY */
 
 #include "ciaaDriverUart.h"
-#include "ciaaDriverUart_Internal.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_string.h"
 #include "os.h"

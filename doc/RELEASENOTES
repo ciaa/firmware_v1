@@ -1,5 +1,26 @@
 /** \page RELEASENOTES Release Notes
  **
+ ** CIAA Firmware 0.5.0 (06.06.2015)
+ **   Add support for IDE4PLC (to use the CIAA Firmware as a PLC)
+ **   Improve Continuous Integration script (make ci)
+ **   Add first tests for PLC files (modules/plc/test/...)
+ **   Improve unit test environment to perform tests of files including multiples "_"
+ **   Fix minimal error in modbus
+ **   Improve openocd downloads scripting
+ **
+ ** CIAA Firmware 0.4.1 (14.04.2015)
+ **   Fix error in make help
+ **
+ ** CIAA Firmware 0.4.0 (10.04.2015)
+ **   Implement modbus master
+ **   Add memset and memcmp posix functionality
+ **   Add block device support
+ **   Port to CIAA-FLS (GPIO, ADC, UART low level drivers added. POSIX GPIO driver implemented).
+ **   Port to EDU-CIAA-NXP
+ **   RTOS tests are passed in CIAA-NXP
+ **   RTOS tests are passed in CIAA-FSL
+ **   Improve directory
+ **
  ** CIAA Firmware 0.3.0 (14.12.2014)
  **   3 new examples and rework of the original ones:
  **      - adc_dac: example to show how to use the ADC and DAC drivers

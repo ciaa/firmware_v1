@@ -1,8 +1,10 @@
 ###############################################################################
 #
+# Coypright 2015, Mariano Cerdeiro
 # Copyright 2014, ACSE & CADIEEL
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -35,6 +37,8 @@
 ###############################################################################
 # library
 LIBS 				  += ciaak
+# version
+ciaak_VERSION     = 0.1.0
 # library path
 ciaak_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)ciaak
 # library source path

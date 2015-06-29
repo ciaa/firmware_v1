@@ -48,6 +48,8 @@
 ###############################################################################
 # library
 LIBS 				     += template
+# version
+template_VERSION     = 0.1.0
 # library path
 template_PATH 		   = $(ROOT_DIR)$(DS)modules$(DS)template
 # library source path

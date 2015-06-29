@@ -27,6 +27,7 @@ while (defined(my $module = readdir $modules)) {
    {
       next;
    }
+   print "adding module to ci: $module\n";
    push(@mods, new Module($module));
 }
 
@@ -34,6 +35,7 @@ while (defined(my $module = readdir $modules)) {
 foreach my $mod (@mods)
 {
    # run the tests of each module
+   print "\nRunning tests for module: $mod->{_name}\n";
    $mod->runTests();
 }
 
