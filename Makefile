@@ -417,12 +417,21 @@ mocks:
 	ruby externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)lib$(DS)cmock.rb -omodules$(DS)tools$(DS)ceedling$(DS)project.yml $(FILES_TO_MOCK)
 
 ###############################################################################
+# rule to run phpunit tests
+phpunit: 
+	@echo ' '
+	@echo ===============================================================================
+	@echo Testing the module rtos_gen 
+	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)rtos$(DS)generator$(DS)tests$(DS)*.php
+
+###############################################################################
 # rule to inform about all available tests
 tst:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@$(MULTILINE_ECHO) "Following tst rules have been created:\n $(foreach TST,$(ALL_MODS),     tst_$(TST): run unit tests of $(TST)\n)"
+
 
 $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo ' '
