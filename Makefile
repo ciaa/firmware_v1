@@ -417,12 +417,13 @@ mocks:
 	ruby externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)lib$(DS)cmock.rb -omodules$(DS)tools$(DS)ceedling$(DS)project.yml $(FILES_TO_MOCK)
 
 ###############################################################################
-# rule to run phpunit tests
-phpunit: 
+# rule to run osek oil generator tests
+TMP = $(TESTS)$(DS)tmp/erator/tests/ftest/fixtures/gen
+osek_oir_gen_tst:
 	@echo ' '
 	@echo ===============================================================================
-	@echo Testing the module rtos_gen 
-	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)rtos$(DS)generator$(DS)tests$(DS)*.php
+	@echo Unit testing the module rtos_gen 
+	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)rtos$(DS)generator$(DS)tests$(DS)utest$(DS)*.php
 
 ###############################################################################
 # rule to inform about all available tests
