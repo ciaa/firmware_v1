@@ -1,5 +1,6 @@
 <?php
-/* Copyright 2015 Carlos Pantelides
+/* Copyright 2015, Carlos Pantelides
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *

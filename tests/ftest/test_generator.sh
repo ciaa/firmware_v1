@@ -1,0 +1,79 @@
+# Copyright 2015, Carlos Pantelides
+# All rights reserved.
+# 
+# This file is part of CIAA Firmware.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+# 1. Redistributions of source code must retain the above copyright notice,
+#    this list of conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+# 
+# 3. Neither the name of the copyright holder nor the names of its
+#    contributors may be used to endorse or promote products derived from this
+#    software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+ 
+testBlinkingExampleFull() {
+   php modules/rtos/generator/generator.php --cmdline -l -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
+      -c ${FIXTURES}${DS}blinking.oil \
+      -f ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
+         ${FIXTURES}${DS}gen/inc/Os_Cfg.h.php \
+         ${FIXTURES}${DS}gen/src/Os_Cfg.c.php \
+         ${FIXTURES}${DS}gen/src/Os_Internal_Cfg.c.php \
+         ${FIXTURES}${DS}gen/src/x86/Os_Internal_Arch_Cfg.c.php \
+         ${FIXTURES}${DS}gen/inc/x86/Os_Internal_Arch_Cfg.h.php \
+      -o ${TMP}${DS} > /dev/null 2>&1
+
+   GOT=${TMP}
+
+# ugly hack until generator.php get fixed
+   FILE=$(find "$GOT" -iname Os_Cfg.c)
+   diff -w  ${EXPECTED}${DS}src/Os_Cfg.c                     "$FILE"                    > /dev/null 
+   assertTrue $?
+
+# TODO: activate this after fixing generator.php   
+#    diff -w  ${EXPECTED}${DS}src/x86/Os_Internal_Arch_Cfg.c ${GOT}${DS}src/x86/Os_Internal_Arch_Cfg.c  > /dev/null 
+#    assertTrue $?   
+#    
+#    diff -w  ${EXPECTED}${DS}src/Os_Internal_Cfg.c          ${GOT}${DS}src/Os_Internal_Cfg.c           > /dev/null 
+#    assertTrue $?
+#    
+#    diff -w  ${EXPECTED}${DS}inc/x86/Os_Internal_Arch_Cfg.h ${GOT}${DS}inc/x86/Os_Internal_Arch_Cfg.h  > /dev/null 
+#    assertTrue $?
+#    
+#    diff -w  ${EXPECTED}${DS}inc/Os_Cfg.h                   ${GOT}${DS}inc/Os_Cfg.h                    > /dev/null 
+#    assertTrue $?
+#    
+#    diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h          ${GOT}${DS}inc/Os_Internal_Cfg.h           > /dev/null 
+#    assertTrue $?
+
+   rm -rf ${TMP}${DS}*
+}
+
+
+SHUNIT=$1
+TESTS=$2
+DS=$3
+FIXTURES=$4
+EXPECTED=$5
+TMP=$6
+
+shift $#
+
+. ${SHUNIT}
