@@ -122,7 +122,7 @@ static uint8 pulsador1=0;
 
 /*==================[external functions definition]==========================*/
 extern void ciaaKeyboard_MainTask(void);
-void ciaaKeyboard_FunctionInit(uint8_t);
+void ciaaKeyboard_FunctionsInit(uint8_t);
 void ciaaKeyboard_MainTask(void);
 int Empty_func(void);
 
@@ -314,7 +314,7 @@ void ciaaKeyboard_MainTask(void){
     uint8_t err;
 
     if(0 != change_keyb_func){
-    	ciaaKeyboard_FunctionInit(change_keyb_func);
+    	ciaaKeyboard_FunctionsInit(change_keyb_func);
     }
 
 	err = ciaaPOSIX_ioctl(fd_keyb,KEYB_LINE_CTRL,Row);
@@ -365,7 +365,7 @@ void ciaaKeyboard_MainTask(void){
  ** CHANGE_FUNCTION
   */
 
-void ciaaKeyboard_FunctionInit(uint8_t change_keyb_func){
+void ciaaKeyboard_FunctionsInit(uint8_t change_keyb_func){
 
 	switch(change_keyb_func){
 	case CHANGE_FUNCTION:
