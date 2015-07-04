@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2015, Juan Pablo Vecchio
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,101 +30,61 @@
  *
  */
 
-/** \brief Short description of this file
- **
- ** Long description of this file
+#ifndef _CIAADRIVERGPIO_INTERNAL_H_
+#define _CIAADRIVERGPIO_INTERNAL_H_
+/** \brief Internal Header file of GPIO Driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup GPIO GPIO Drivers
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * JPV           Juan Pablo Vecchio
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20150522 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaak.h"
-/* TODO configuration dependent includes */
-#include "ciaaDevices.h"
-#include "ciaaSerialDevices.h"
-#include "ciaaBlockDevices.h"
-#include "ciaaDriverUart.h"
-#include "ciaaDriverFlash.h"
-#include "ciaaDriverAio.h"
-#include "ciaaDriverDio.h"
-#include "ciaaDriverKeyboard.h"
-#include "ciaaDriverGpio.h"
+#include "ciaaPOSIX_stdint.h"
 
-#include "ciaaPOSIX_stdlib.h"
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
 
-/*==================[internal data declaration]==============================*/
+/*==================[typedef]================================================*/
+/** \brief Gpio Type */
+typedef uint32_t ciaaDriverGpio_gpioType;
 
-/*==================[internal functions declaration]=========================*/
+/*==================[external data declaration]==============================*/
+/** \brief Gpio 0 */
+extern ciaaDriverGpio_gpioType ciaaDriverGpio_gpio0;
 
-/*==================[internal data definition]===============================*/
+/** \brief Gpio 1 */
+extern ciaaDriverGpio_gpioType ciaaDriverGpio_gpio1;
 
-/*==================[external data definition]===============================*/
+/*==================[external functions declaration]=========================*/
 
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-void ciaak_start(void)
-{
-   /* init stdlib */
-   /* ATTENTION: ciaaPOSIX_stdlib_init has to be done before to any call to
-    * ciaaPOSIX_malloc or ciaak_malloc */
-   ciaaPOSIX_stdlib_init();
-
-   /* init device manager */
-   ciaaDevices_init();
-
-   /* init devices types */
-   ciaaSerialDevices_init();
-   ciaaBlockDevices_init();
-
-   /* init drivers */
-   ciaaDriverUart_init();
-   ciaaDriverFlash_init();
-
-   /* ciaaDioDevices_init(); */
-   ciaaDriverDio_init();
-   ciaaDriverGpio_init();
-   ciaaDriverAio_init();
-   ciaaDriverKeyboard_init();
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-void *ciaak_malloc(size_t size)
-{
-   /* try to alloc memory */
-   void* ret = ciaaPOSIX_malloc(size);
-
-   /* kernel memory shall not failed :( */
-   if (NULL == ret)
-   {
-      ciaaPOSIX_printf("Kernel out of memory :( ...\n");
-      while(1)
-      {
-         /* TODO perform an kernel panic or like */
-      }
-   }
-
-   return ret;
-}
-
+#endif
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CIAADRIVERGPIO_INTERNAL_H_ */
 

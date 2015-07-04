@@ -53,17 +53,18 @@
  * PR           Pablo Ridolfi
  * JuCe         Juan Cecconi
  * GMuro        Gustavo Muro
- * ErPe         Eric Pernia
+ * JPV          Juan Pablo Vecchio
+ * JR           Joaquin Rodriguez
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150603 v0.0.3   ErPe change uint8 type by uint8_t
- *                        in line 172
  * 20141019 v0.0.2   JuCe add printf in each task,
  *                        remove trailing spaces
  * 20140731 v0.0.1   PR   first functional version
+ * 20150703 v0.0.3   JPV  Drivers for GPIOs
+ * 20150704 v0.0.4   JR   Keyboard drivers and first Functions
  */
 
 /*==================[inclusions]=============================================*/
@@ -74,6 +75,27 @@
 #include "blinking.h"         /* <= own header */
 
 /*==================[macros and definitions]=================================*/
+#define ciaaPOSIX_IOCTL_GPIO_OUT 10
+#define ciaaPOSIX_IOCTL_GPIO_IN 11
+#define ciaaGPIO_0 (1<<0)
+#define ciaaGPIO_1 (1<<1)
+#define ciaaGPIO_2 (1<<2)
+#define ciaaGPIO_3 (1<<3)
+#define ciaaGPIO_4 (1<<4)
+#define ciaaGPIO_5 (1<<5)
+#define ciaaGPIO_6 (1<<6)
+#define ciaaGPIO_7 (1<<7)
+#define ciaaGPIO_8 (1<<8)
+
+
+#define KEYB_LINE_CTRL   11
+#define MAX_COLUMN       3
+
+#define MATH_FUNCTIONS      1
+#define NUMBER_FUNCTIONS    2
+#define BASICOP_FUNCTIONS   3
+#define SHIFT_FUNCTION      4
+#define CHANGE_FUNCTION     5
 
 /*==================[internal data declaration]==============================*/
 
@@ -85,13 +107,25 @@
  *
  * Device path /dev/dio/out/0
  */
-static int32_t fd_out;
+
+uint8_t change_keyb_func = NUMBER_FUNCTIONS;
+int (*functions[4][4])(void);
+static int32_t fd_out, fd_in, fd_gpio_out, fd_gpio_in,fd_keyb;
+static uint32_t Periodic_Task_Counter;
+static uint8 pulsador1=0;
+
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
+
 /*==================[external functions definition]==========================*/
+extern void ciaaKeyboard_MainTask(void);
+void ciaaKeyboard_FunctionInit(uint8_t);
+void ciaaKeyboard_MainTask(void);
+int Empty_func(void);
+
 /** \brief Main function
  *
  * This is the main entry point of the software.
@@ -149,18 +183,40 @@ TASK(InitTask)
    /* print message (only on x86) */
    ciaaPOSIX_printf("Init Task...\n");
 
-   /* open CIAA digital outputs */
+   /* open CIAA GPIO inputs-outputs */
+
+   fd_gpio_out = ciaaPOSIX_open("/dev/gpio/out/0", O_RDWR);
+
+   fd_gpio_in = ciaaPOSIX_open("/dev/gpio/in/0", O_RDONLY);
+
+   /* open CIAA digital inputs-outputs */
+
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+
+   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
+
+   /* open CIAA Keyboard from PONCHO  */
+
+   fd_keyb = ciaaPOSIX_open("/dev/keyb/keyb0",O_RDWR);
+   if(fd_keyb == (-1)){
+      /* Error. Keyboard can not be opened */
+      ciaaPOSIX_printf("Error creating OS Thread timer!\n");
+      while(1);
+   }
 
    /* activate periodic task:
     *  - for the first time after 350 ticks (350 ms)
     *  - and then every 250 ticks (250 ms)
     */
+
+   Periodic_Task_Counter = 0;
    SetRelAlarm(ActivatePeriodicTask, 350, 250);
+   SetRelAlarm(KeyboardLoop, 100, 250);
 
    /* terminate task */
    TerminateTask();
 }
+
 
 /** \brief Periodic Task
  *
@@ -168,20 +224,194 @@ TASK(InitTask)
  * ActivatePeriodicTask expires.
  *
  */
+
 TASK(PeriodicTask)
 {
-   uint8_t outputs;
+   uint8 outputs, inputs;
+   uint16 gpoutputs;
+   int32_t result;
 
-   /* write blinking message */
    ciaaPOSIX_printf("Blinking\n");
 
-   /* blink output */
-   ciaaPOSIX_read(fd_out, &outputs, 1);
-   outputs ^= 0x20;
+   /* Secuencia Aleatoria */
+   /*
+   outputs = (1<<(rand()%6));
    ciaaPOSIX_write(fd_out, &outputs, 1);
+   outputs = 0;
+   */
+   /***********************/
+
+   /* Escribe las 9 GPIO Salidas de manera intermitente */
+   /*
+   ciaaPOSIX_read(fd_gpio_out, &gpoutputs, 1);
+   gpoutputs ^= 0x1FF;
+   ciaaPOSIX_write(fd_gpio_out, &gpoutputs, 1);
+   */
+   /*****************************************************/
+
+   /* Uso ioclt para cambiar la GPIO 0 a entrada */
+   result = ciaaPOSIX_ioctl(fd_gpio_out, ciaaPOSIX_IOCTL_GPIO_IN, ciaaGPIO_0);
+   if((-1)==result){
+      /* Error. GPIO can not be changed */
+      ciaaPOSIX_printf("Error changing GPIO as input!\n");
+      while(1);
+   }
+
+   /* Leo las entradas GPIO */
+   /* Puenteando GPIO y GND devuelve 0, sino 1 */
+   ciaaPOSIX_read(fd_gpio_in, &gpoutputs, 1);
+
+   /* Leo las salidas GPIO */
+   ciaaPOSIX_read(fd_gpio_out, &gpoutputs, 1);
+
+
+   /* Lectura Pulsador 1 */
+
+   ciaaPOSIX_read(fd_in, &inputs, 1);
+
+   if(inputs == 1){
+	   if(pulsador1==0){
+		   pulsador1=1;
+	   }else{
+		   pulsador1=0;
+	   }
+   }
+
+   /* Secuencia de los 6 leds */
+   /* La inicio o pauso con el pulsador 1 */
+
+   if(pulsador1 == 1){
+
+	   ciaaPOSIX_read(fd_out, &outputs, 1);
+
+	   outputs ^= 1<<Periodic_Task_Counter;
+
+	   ciaaPOSIX_write(fd_out, &outputs, 1);
+
+	   Periodic_Task_Counter++;
+	   if(Periodic_Task_Counter>5){
+		   Periodic_Task_Counter=0;
+	   }
+   }
+
 
    /* terminate task */
    TerminateTask();
+}
+
+/* Keyboard Task */
+
+TASK(Keyboard_Handler){
+      ciaaKeyboard_MainTask();
+      TerminateTask();
+}
+
+void ciaaKeyboard_MainTask(void){
+
+    static uint8_t Column, Row = 0;
+    static uint8_t prev_col = 5;
+    static uint8_t prev_row = 5;
+    uint8_t err;
+
+    if(0 != change_keyb_func){
+    	ciaaKeyboard_FunctionInit(change_keyb_func);
+    }
+
+	err = ciaaPOSIX_ioctl(fd_keyb,KEYB_LINE_CTRL,Row);
+
+	if(err == (-1)){
+	   /* Error. ioctl function cannot be done */
+	   ciaaPOSIX_printf("Error changing Active Line\n");
+	   while(1);
+	}
+
+
+	err = ciaaPOSIX_read(fd_keyb,&Column,1);
+
+	if(err == (-1)){
+	   /* Error. read function cannot be done */
+	   ciaaPOSIX_printf("Error reading Keyboard\n");
+	   while(1);
+	}
+
+	if(0x0F != Column)
+	{
+
+	if((Row != prev_row) && (Column != prev_col))
+	{
+		err = functions[Row][Column]();
+	    prev_row = Row;
+	    prev_col = Column;
+	}
+	}
+
+	if(MAX_COLUMN <= Row){
+		Row = 0;
+	}
+	else{
+		Row++;
+	}
+}
+
+/** \brief Keyboard Functions Initialization
+ *
+ * This function executes reconfigurates the botton functions.
+ *
+ ** \param[in]  kind of function from the Keyboard. The options are:
+ ** MATH_FUNCTIONS
+ ** NUMBER_FUNCTIONS
+ ** BASICOP_FUNCTIONS
+ ** SHIFT_FUNCTION
+ ** CHANGE_FUNCTION
+  */
+
+void ciaaKeyboard_FunctionInit(uint8_t change_keyb_func){
+
+	switch(change_keyb_func){
+	case CHANGE_FUNCTION:
+	   functions[0][0] = Empty_func;
+	   functions[0][1] = Empty_func;
+	   functions[0][2] = Empty_func;
+	   functions[0][3] = Empty_func;
+	   functions[1][0] = Empty_func;
+	   functions[1][1] = Empty_func;
+	   functions[1][2] = Empty_func;
+	   functions[1][3] = Empty_func;
+	   functions[2][0] = Empty_func;
+	   functions[2][1] = Empty_func;
+	   functions[2][2] = Empty_func;
+	   functions[2][3] = Empty_func;
+	   functions[3][0] = Empty_func;
+	   functions[3][1] = Empty_func;
+	   functions[3][2] = Empty_func;
+	   functions[3][3] = Empty_func;
+	   break;
+	case NUMBER_FUNCTIONS:
+		   functions[0][0] = Empty_func;
+		   functions[0][1] = Empty_func;
+		   functions[0][2] = Empty_func;
+		   functions[0][3] = Empty_func;
+		   functions[1][0] = Empty_func;
+		   functions[1][1] = Empty_func;
+		   functions[1][2] = Empty_func;
+		   functions[1][3] = Empty_func;
+		   functions[2][0] = Empty_func;
+		   functions[2][1] = Empty_func;
+		   functions[2][2] = Empty_func;
+		   functions[2][3] = Empty_func;
+		   functions[3][0] = Empty_func;
+		   functions[3][1] = Empty_func;
+		   functions[3][2] = Empty_func;
+		   functions[3][3] = Empty_func;
+		   break;
+	}
+	change_keyb_func = 0;
+return;
+}
+
+int Empty_func(void){
+	change_keyb_func = 0;
+	return 1;
 }
 
 /** @} doxygen end group definition */

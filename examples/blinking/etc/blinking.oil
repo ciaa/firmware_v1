@@ -83,10 +83,27 @@ OSEK OSEK {
       EVENT = POSIXE;
    }
 
+   TASK Keyboard_Handler {
+      PRIORITY = 3;
+      ACTIVATION = 1;
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = NON;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+   }
+   
    ALARM ActivatePeriodicTask {
       COUNTER = HardwareCounter;
       ACTION = ACTIVATETASK {
          TASK = PeriodicTask;
+      }
+   }
+   
+      ALARM KeyboardLoop {
+      COUNTER = HardwareCounter;
+      ACTION = ACTIVATETASK {
+         TASK = Keyboard_Handler;
       }
    }
 
