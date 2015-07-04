@@ -418,12 +418,22 @@ mocks:
 
 ###############################################################################
 # rule to run osek oil generator tests
-TMP = $(TESTS)$(DS)tmp/erator/tests/ftest/fixtures/gen
+osek_oir_gen_tst: 
+PWD =$(shell pwd)
+SHUNIT = $(PWD)$(DS)externals$(DS)shunit$(DS)shunit2.sh
+TESTS = $(PWD)$(DS)modules$(DS)rtos$(DS)generator$(DS)tests$(DS)ftest
+FIXTURES = $(TESTS)$(DS)fixtures
+EXPECTED = $(TESTS)$(DS)expected
+TMP = $(TESTS)$(DS)tmp 
 osek_oir_gen_tst:
 	@echo ' '
 	@echo ===============================================================================
 	@echo Unit testing the module rtos_gen 
 	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)rtos$(DS)generator$(DS)tests$(DS)utest$(DS)*.php
+	@echo ' '
+	@echo ===============================================================================
+	@echo Functional testing the module rtos_gen 
+	$(foreach FILE, $(wildcard ${TESTS}${DS}test_*.sh) , $(FILE) $(SHUNIT) $(TESTS) $(DS)  $(FIXTURES) $(EXPECTED) $(TMP) )
 
 ###############################################################################
 # rule to inform about all available tests
