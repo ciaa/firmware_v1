@@ -253,8 +253,6 @@ class configClass {
 
 }
 
-$config = new configClass();
-
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

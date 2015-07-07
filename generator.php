@@ -246,7 +246,7 @@ foreach ($args as $arg)
       print "php generator.php [-l] [-h] [--cmdline] [-Ddef[=definition]] -c <CONFIG_1> [<CONFIG_2>] -o <OUTPUTDIR> -f <GENFILE_1> [<GENFILE_2>]\n";
       print "      -c   indicate the configuration input files\n";
       print "      -o   output directory\n";
-      print "      -f   indicate the files to be generated\n";
+      print "      -f   indicates the templates to be processed\n";
       print "   optional parameters:\n";
       print "      -h   display this help\n";
       print "      -l   displays a short license overview\n";
@@ -283,7 +283,7 @@ foreach ($args as $arg)
             break;
          case "-f":
             /* add generated file */
-            $genfiles[] = $arg;
+            $templatefiles[] = $arg;
             break;
          default:
             halt("invalid argument: " . $arg);
@@ -304,9 +304,9 @@ if (count($outputdir)!=1)
    halt("exactly one output directory shall be provided");
 }
 
-if (count($genfiles)==0)
+if (count($templatefiles)==0)
 {
-   halt("at least one file to be generated shall be provided");
+   halt("at least one tempalte file shall be provided");
 }
 
 if ($verbose)
@@ -318,15 +318,18 @@ if ($verbose)
       info("configuration file " . $count++ . ": " . $file);
    }
 
-   info("list of files to be generated:");
+   info("list of templates to be processed:");
    $count = 1;
-   foreach ($genfiles as $file)
+   foreach ($templatefiles as $file)
    {
-      info("generated file " . $count++ . ": " . $file);
+      info("template file " . $count++ . ": " . $file);
    }
 
    info("output directory: " . $outputdir[0]);
 }
+
+
+$config = new configClass();
 
 foreach ($configfiles as $file)
 {
@@ -334,7 +337,7 @@ foreach ($configfiles as $file)
    $config->parseOilFile($file);
 }
 
-foreach ($genfiles as $file)
+foreach ($templatefiles as $file)
 {
    $exits = false;
    $outfile = $file;
