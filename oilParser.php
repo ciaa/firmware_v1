@@ -3,6 +3,8 @@
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
+ * Copyright 2015, Carlos Pantelides
+ * All rights reserved. 
  *
  * This file is part of CIAA Firmware.
  *
@@ -46,18 +48,6 @@
  ** @{ */
 /** \addtogroup Generator
  ** @{ */
-
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20080713 v0.1.0 MaCe       - initial version
- */
 
 /*==================[inclusions]=============================================*/
 
