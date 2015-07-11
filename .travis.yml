@@ -1,0 +1,4 @@
+# This file is to run the CI in https://travis-ci.org/profile/ciaa
+script:
+   - bundle exec make generate
+   - bundle exec make
