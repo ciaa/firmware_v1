@@ -1,6 +1,7 @@
+Build in Travis: [![Build Status](https://travis-ci.org/ciaa/Firmware.svg?branch=master)](https://travis-ci.org/ciaa/Firmware)
+Build in Drone.: [![Build Status](https://drone.io/github.com/ciaa/Firmware/status.png)](https://drone.io/github.com/ciaa/Firmware/latest)
+
 /** \page README Readme
- ** Build in Travis: [![Build Status](https://travis-ci.org/ciaa/Firmware.svg?branch=master)](https://travis-ci.org/ciaa/Firmware)
- ** Build in Drone.: [![Build Status](https://drone.io/github.com/ciaa/Firmware/status.png)](https://drone.io/github.com/ciaa/Firmware/latest)
  **
  ** This is the root directory of the CIAA Firmware Project
  **
