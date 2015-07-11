@@ -1,4 +1,6 @@
 # This file is to run the CI in https://travis-ci.org/profile/ciaa
+install: php
+
 script:
    - make generate
    - make
