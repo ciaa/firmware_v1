@@ -28,9 +28,9 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
- 
+
 testBlinkingExampleFull() {
-   php modules/rtos/generator/generator.php --cmdline -l -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
+   php modules/rtos/generator/generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
       -f ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
          ${FIXTURES}${DS}gen/inc/Os_Cfg.h.php \
@@ -38,35 +38,72 @@ testBlinkingExampleFull() {
          ${FIXTURES}${DS}gen/src/Os_Internal_Cfg.c.php \
          ${FIXTURES}${DS}gen/src/x86/Os_Internal_Arch_Cfg.c.php \
          ${FIXTURES}${DS}gen/inc/x86/Os_Internal_Arch_Cfg.h.php \
+      -b /gen/ \
       -o ${TMP}${DS} > /dev/null 2>&1
 
    GOT=${TMP}
 
-# ugly hack until generator.php get fixed
+
    FILE=$(find "$GOT" -iname Os_Cfg.c)
-   diff -w  ${EXPECTED}${DS}src/Os_Cfg.c                     "$FILE"                    > /dev/null 
+   diff -w  ${EXPECTED}${DS}src/Os_Cfg.c                   "$FILE" > /dev/null 
    assertTrue $?
 
-# TODO: activate this after fixing generator.php   
-#    diff -w  ${EXPECTED}${DS}src/x86/Os_Internal_Arch_Cfg.c ${GOT}${DS}src/x86/Os_Internal_Arch_Cfg.c  > /dev/null 
-#    assertTrue $?   
-#    
-#    diff -w  ${EXPECTED}${DS}src/Os_Internal_Cfg.c          ${GOT}${DS}src/Os_Internal_Cfg.c           > /dev/null 
-#    assertTrue $?
-#    
-#    diff -w  ${EXPECTED}${DS}inc/x86/Os_Internal_Arch_Cfg.h ${GOT}${DS}inc/x86/Os_Internal_Arch_Cfg.h  > /dev/null 
-#    assertTrue $?
-#    
-#    diff -w  ${EXPECTED}${DS}inc/Os_Cfg.h                   ${GOT}${DS}inc/Os_Cfg.h                    > /dev/null 
-#    assertTrue $?
-#    
-#    diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h          ${GOT}${DS}inc/Os_Internal_Cfg.h           > /dev/null 
-#    assertTrue $?
+   FILE=$(find "$GOT" -iname Os_Internal_Arch_Cfg.c)
+   diff -w  ${EXPECTED}${DS}src/x86/Os_Internal_Arch_Cfg.c "$FILE" > /dev/null 
+   assertTrue $?   
+   
+   FILE=$(find "$GOT" -iname Os_Internal_Cfg.c)
+   diff -w  ${EXPECTED}${DS}src/Os_Internal_Cfg.c          "$FILE" > /dev/null 
+   assertTrue $?
+   
+   FILE=$(find "$GOT" -iname Os_Internal_Arch_Cfg.h)
+   diff -w  ${EXPECTED}${DS}inc/x86/Os_Internal_Arch_Cfg.h "$FILE" > /dev/null 
+   assertTrue $?
+   
+   FILE=$(find "$GOT" -iname Os_Cfg.h)
+   diff -w  ${EXPECTED}${DS}inc/Os_Cfg.h                   "$FILE" > /dev/null 
+   assertTrue $?
+   
+   FILE=$(find "$GOT" -iname Os_Internal_Cfg.h)
+   diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h          "$FILE" > /dev/null 
+   assertTrue $?
 
    rm -rf ${TMP}${DS}*
 }
 
+testOneTemplate() {
+   php modules/rtos/generator/generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
+      -c ${FIXTURES}${DS}blinking.oil \
+      -f ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
+      -b /gen/ \
+      -o ${TMP}${DS} > /dev/null 2>&1
 
+   GOT=${TMP}
+
+
+   FILE=$(find "$GOT" -iname Os_Internal_Cfg.h)
+   diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h                   "$FILE" > /dev/null 
+   assertTrue $?
+
+   rm -rf ${TMP}${DS}*
+}
+
+testOutputPath() {
+   php modules/rtos/generator/generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
+      -c ${FIXTURES}${DS}blinking.oil \
+      -f ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
+      -b /gen/ \
+      -o ${TMP}${DS} > /dev/null 2>&1
+
+   GOT=${TMP}
+
+
+   FILE=$(find "$GOT" -iname Os_Internal_Cfg.h)
+   diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h                   "$FILE" > /dev/null 
+   assertTrue $?
+
+   rm -rf ${TMP}${DS}*
+}
 SHUNIT=$1
 TESTS=$2
 DS=$3

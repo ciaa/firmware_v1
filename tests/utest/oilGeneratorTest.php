@@ -1,9 +1,5 @@
 <?php
-/* Copyright 2008, 2009, 2015 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
- * Copyright 2015, Carlos Pantelides
+/* Copyright 2015, Carlos Pantelides
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -36,11 +32,11 @@
  *
  */
 
-/** \brief FreeOSEK Generator caller
+/** \brief FreeOSEK Generator Oil Generator Implementation Test file
  **
- ** This file implements the FreeOSEK Generator caller
+ ** This file implements the Oil Generator Implementation Test
  **
- ** \file generator.php
+ ** \file oilGeneratorTest.php
  **
  **/
 
@@ -49,18 +45,60 @@
 /** \addtogroup Generator
  ** @{ */
 
-
 /*==================[inclusions]=============================================*/
-require_once("oilGenerator.php");
+require_once(dirname(__FILE__) . '/../../oilGenerator.php');
+/*==================[class definition]=======================================*/
+/** \brief Oil Generator Test Class Implementation
+ **
+ ** This class implements the Oil Generator Test Class
+ **
+ **/
+class oilGeneratorTest extends PHPUnit_Framework_TestCase
+{
 
-/*=================[user functions]============================================*/
+   public function OutputFileNameProvider()
+   {
+      return array(
 
+         array(
+            '/modules/out/inc/Os_Internal_Cfg.h',
+            array(
+               'template' => '/modules/gen/inc/Os_Internal_Cfg.h,php',
+               'outdir' => '/modules/out',
+               'relativeBase' => '/gen/'
+            ),
+            '// 1'),
+         array(
+            '/modules/out/inc/Os_Internal_Cfg.h',
+            array(
+               'template' => '/modules/tmp/inc/Os_Internal_Cfg.h,php',
+               'outdir' => '/modules/out',
+               'relativeBase' => '/tmp/'
+            ),
+            '// 1'),
+         array(
+            '/modules/out/inc/Os_Internal_Cfg.h',
+            array(
+               'template' => '/modules/templates/inc/Os_Internal_Cfg.h,php',
+               'outdir' => '/modules/out',
+               'relativeBase' => '/templates/'
+            ),
+            '// 1'),
+      );
+   }
+   /**
+   * @dataProvider OutputFileNameProvider
+   */
+   public function testOutputFileName($expected, $data, $msg)
+   {
 
-$generator = new OilGenerator();
-$generator->run($_SERVER['argv']);
+      $generator = new oilGenerator();
+      $got = $generator->outputFileName($data['template'], $data['outdir'], $data['relativeBase']);
+      $this->assertEquals($expected, $got ,$msg);
 
+   }
 
+}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-?>

@@ -222,6 +222,7 @@ class OilGenerator
       print "      -c   indicate the configuration input files\n";
       print "      -o   output directory\n";
       print "      -f   indicates the templates to be processed\n";
+      print "      -b   relative base path (default \"/templates/\")\n";
       print "   optional parameters:\n";
       print "      -h   display this help\n";
       print "      -l   displays a short license overview\n";
@@ -233,8 +234,9 @@ class OilGenerator
    {
       $configfiles= array();
       $definition=array();
-      $outputdir=array();
+      $baseOutDir=array();
       $templatefiles=array();
+      $pathDelimiter=array();
       
       foreach ($args as $arg)
       {
@@ -257,6 +259,7 @@ class OilGenerator
          case "-c":
          case "-o":
          case "-f":
+         case "-b":
             $oldarg = $arg;
             break;
          default:
@@ -276,11 +279,15 @@ class OilGenerator
                   break;
                case "-o":
                   /* add an output dir */
-                  $outputdir[]= $arg;
+                  $baseOutDir[]= $arg;
                   break;
                case "-f":
                   /* add generated file */
                   $templatefiles[] = $arg;
+                  break;
+               case "-b":
+                  /* add path delimiter */
+                  $pathDelimiter[] = $arg;
                   break;
                default:
                   $this->halt("invalid argument: " . $arg);
@@ -296,7 +303,7 @@ class OilGenerator
          $this->halt("at least one config file shall be provided");
       }
 
-      if (count($outputdir)!=1)
+      if (count($baseOutDir)!=1)
       {
          $this->halt("exactly one output directory shall be provided");
       }
@@ -305,15 +312,29 @@ class OilGenerator
       {
          $this->halt("at least one tempalte file shall be provided");
       }
-      
-      return array($this->verbose, $definition, $configfiles, $outputdir, $templatefiles);
-   }
 
+      if (count($pathDelimiter)>1)
+      {
+         $this->halt("no more than one path delimiter shall be provided");
+      }
+      
+      if (count($pathDelimiter == 0 ))
+      {
+         $pathDelimiter[]="/gen/"; #TODO: use /templates/
+      }
+      
+      return array($this->verbose, $definition, $configfiles, $baseOutDir[0], $templatefiles,$pathDelimiter[0]);
+   }
+   public function outputFileName($file,$baseOutDir,$pathDelimiter)
+   {
+      $outfile = substr($file, 0, strlen($file)-4);
+      $outfile = substr($outfile, strpos($outfile, $pathDelimiter)+strlen($pathDelimiter) -1);
+      $outfile = $baseOutDir . $outfile;
+      return $outfile;
+   }
    
    public function run($args) 
    {
-   
-   
       $this->path = array_shift($args);
 
       $this->path = substr($this->path,0, strlen($this->path)-strlen("/generator.php"));
@@ -324,7 +345,7 @@ class OilGenerator
       print "         CADIEEL: http://www.cadieel.org.ar\n";
       print "         All rights reserved.\n\n";
 
-      list($verbose, $definition, $configfiles, $outputdir, $templatefiles)= $this->processArgs($args);
+      list($verbose, $definition, $configfiles, $baseOutDir, $templatefiles,$pathDelimiter)= $this->processArgs($args);
 
       if ($this->verbose)
       {
@@ -342,7 +363,7 @@ class OilGenerator
             $this->info("template file " . $count++ . ": " . $file);
          }
 
-         $this->info("output directory: " . $outputdir[0]);
+         $this->info("output directory: " . $baseOutDir);
       }
 
       $config = new configClass();
@@ -355,17 +376,11 @@ class OilGenerator
 
       foreach ($templatefiles as $file)
       {
-         $exits = false;
-         $outfile = $file;
-         $outfile = substr($outfile, 0, strlen($outfile)-4);
-         //print "info aca: pos: ". strpos($outile, "a",1);
-         #while(strpos($outfile,"gen")!==FALSE)
-         {
-            #print "si: $outfile - ";
-            $outfile = substr($outfile, strpos($outfile, "gen")+3);
-            #print "$outfile\n";
-         }
-         $outfile = $outputdir[0] . $outfile;
+         $exists = false;
+         $outfile = $this->outputFileName($file,$baseOutDir,$pathDelimiter);
+
+
+
          $this->info("generating ". $file . " to " . $outfile);
 
          if(!file_exists(dirname($outfile)))
@@ -374,7 +389,7 @@ class OilGenerator
          }
          if(file_exists($outfile))
          {
-            $exits = true;
+            $exists = true;
             if(file_exists($outfile . ".old"))
             {
                unlink($outfile . ".old");
