@@ -418,18 +418,18 @@ mocks:
 
 ###############################################################################
 # rule to run osek oil generator tests
-osek_oir_gen_tst: 
+osek_oil_gen_tst: 
 PWD =$(shell pwd)
 SHUNIT = $(PWD)$(DS)externals$(DS)shunit$(DS)shunit2.sh
 TESTS = $(PWD)$(DS)modules$(DS)rtos$(DS)generator$(DS)tests$(DS)ftest
 FIXTURES = $(TESTS)$(DS)fixtures
 EXPECTED = $(TESTS)$(DS)expected
 TMP = $(TESTS)$(DS)tmp 
-osek_oir_gen_tst:
+osek_oil_gen_tst:
 	@echo ' '
 	@echo ===============================================================================
 	@echo Unit testing the module rtos_gen 
-	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)rtos$(DS)generator$(DS)tests$(DS)utest$(DS)*.php
+	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)rtos$(DS)generator$(DS)tests$(DS)utest$(DS)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Functional testing the module rtos_gen 
