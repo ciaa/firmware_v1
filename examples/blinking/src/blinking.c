@@ -101,6 +101,13 @@ static int32_t fd_out;
  * \remarks This function never returns. Return value is only to avoid compiler
  *          warnings or errors.
  */
+int MyFunc(int x)
+{
+   int y;
+   y = 1;
+   return x+y; 
+}
+
 int main(void)
 {
    /* Starts the operating system in the Application Mode 1 */
