@@ -45,7 +45,8 @@ NM = arm-none-eabi-nm
 # COMPILER AND LINKER OPTIONS
 AFLAGS += -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
 CFLAGS += -c -Wall -ggdb3 -fdata-sections -ffunction-sections -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -DCORE_M4 -D__CODE_RED
-LFLAGS += $(LINKSCRIPT) -fno-builtin -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -Wl,-Map="$(TARGET_NAME).map",-gc-sections,-print-gc-sections
+LFLAGS += $(LINKSCRIPT) -fno-builtin -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -Wl,-Map="$(TARGET_NAME).map",-gc-sections
+#,-print-gc-sections
 
 # Optional POST BUILD
 # Generates a .bin image file

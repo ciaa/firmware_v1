@@ -34,10 +34,8 @@ SECTIONS
 */
         __data_section_table_end = .;
         __bss_section_table = .;
-/*
         LONG(    ADDR(.bss));
         LONG(  SIZEOF(.bss));
-*/
         __bss_section_table_end = .;
         __section_table_end = . ;
         /* End of Global Section Table */
@@ -52,10 +50,13 @@ SECTIONS
         PROVIDE(__CRP_WORD_END__ = .) ;
         ASSERT(!(__CRP_WORD_START__ == __CRP_WORD_END__), "Linker CRP Enabled, but no CRP_WORD provided within application");
         /* End of Code Read Protect */
-        
+
+        *(.text.Chip_Clock*)
+        *(.text.Chip_System*)
+        *(.text.Chip_Setup*)
     } >MFlashA512
     
-    /* Code and read-only/const data, address: 0x10080000*/
+    /* Code and read-only/const data, address: 0x10080000 */
     .text : ALIGN(4)    
     {
         *(.text*)
@@ -64,28 +65,28 @@ SECTIONS
     } > RamLoc40
     /* MAIN DATA SECTION */
     
-    /* Initialized Data, address: 0x10000000*/
-    /* Main DATA section (RamLoc32) */
+    /* Initialized Data, address: 0x10080000 */
+    /* Main DATA section (RamLoc40) */
     .data : ALIGN(4)
     {
-       FILL(0xff)
+       FILL(0x00)
        _data = . ;
        *(.data*)
        . = ALIGN(4) ;
        _edata = . ;
-    } > RamLoc32
+    } > RamLoc40
 
-    /* uninitialized Data, address: 0x10000000 + .data (Initialized data)*/
     /* MAIN BSS SECTION */
     .bss : ALIGN(4)
     {
+       FILL(0x00)    
         _bss = .;
-        *(.bss*)
-        . = ALIGN(4) ;
+        *(.bss*);
+        . = ALIGN(4);
         _ebss = .;
         PROVIDE(end = .);
-    } > RamLoc32
+    } > RamLoc40
     
     PROVIDE(_pvHeapStart = .);
-    PROVIDE(_vStackTop = __top_RamLoc32 - 0);
+    PROVIDE(_vStackTop = __top_RamLoc40 - 0);
 }
