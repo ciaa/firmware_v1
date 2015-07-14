@@ -1,3 +1,9 @@
 [submodule "modules/rtos"]
 	path = modules/rtos
 	url = https://github.com/ciaa/firmware.modules.rtos.git
+[submodule "modules/update/common"]
+	path = modules/update/common
+	url = https://github.com/ciaa/firmware.modules.update.common
+[submodule "modules/update/slave"]
+	path = modules/update/slave
+	url = https://github.com/ciaa/firmware.modules.update.slave
