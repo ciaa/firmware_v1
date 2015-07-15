@@ -97,9 +97,7 @@ testOutputPath() {
 
    GOT=${TMP}
 
-
-   FILE=$(find "$GOT" -iname Os_Internal_Cfg.h)
-   diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h                   "$FILE" > /dev/null 
+   diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h  ${TMP}${DS}inc/Os_Internal_Cfg.h > /dev/null
    assertTrue $?
 
    rm -rf ${TMP}${DS}*
