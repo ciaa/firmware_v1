@@ -20,9 +20,12 @@ SECTIONS
     .text1 : ALIGN(4)
     {
         FILL(0xff)
-        __vectors_start__ = ABSOLUTE(.) ;
+        LONG(_vStackTop | 1);
+        LONG(ResetISR | 1);
+/*
+       __vectors_start__ = ABSOLUTE(.) ;
         KEEP(*(.isr_vector))      
-
+*/
         *(.after_vectors*)
         
         /* Code Read Protect data */
@@ -41,6 +44,8 @@ SECTIONS
     /* Code and read-only/const data, address: 0x10080000 */
     .text : ALIGN(4)    
     {
+        g_pfnVectors = 1<<29 | ABSOLUTE(.) ;
+        KEEP(*(.isr_vector))   
         *(.text*)
         *(.rodata .rodata.* .constdata .constdata.*)
         . = ALIGN(4);
