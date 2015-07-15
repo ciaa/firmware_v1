@@ -21,25 +21,7 @@ SECTIONS
     {
         FILL(0xff)
         __vectors_start__ = ABSOLUTE(.) ;
-        KEEP(*(.isr_vector))
-        
-        /* Global Section Table */
-        . = ALIGN(4) ;
-        __section_table_start = .;
-        __data_section_table = .;
-/*
-        LONG(LOADADDR(.data));
-        LONG(    ADDR(.data));
-        LONG(  SIZEOF(.data));
-*/
-        __data_section_table_end = .;
-        __bss_section_table = .;
-        LONG(    ADDR(.bss));
-        LONG(  SIZEOF(.bss));
-        __bss_section_table_end = .;
-        __section_table_end = . ;
-        /* End of Global Section Table */
-        
+        KEEP(*(.isr_vector))      
 
         *(.after_vectors*)
         
@@ -71,6 +53,22 @@ SECTIONS
     {
        FILL(0x00)
        _data = . ;
+
+       /* Global Section Table */
+        __section_table_start = .;
+        
+        __data_section_table = .;
+        /* Empty data Table */
+        __data_section_table_end = .;
+        
+        __bss_section_table = .;
+        LONG(    ADDR(.bss));
+        LONG(  SIZEOF(.bss));
+        __bss_section_table_end = .;
+        
+        __section_table_end = . ;
+        /* End of Global Section Table */
+
        *(.data*)
        . = ALIGN(4) ;
        _edata = . ;
