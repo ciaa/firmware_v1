@@ -50,7 +50,7 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-require_once("config.php");
+require_once("OilConfig.php");
 
 /*=================[user functions]============================================*/
 
@@ -366,7 +366,7 @@ class OilGenerator
          $this->info("output directory: " . $baseOutDir);
       }
 
-      $config = new configClass();
+      $config = new OilConfig();
       $runagain = false;
       foreach ($configfiles as $file)
       {

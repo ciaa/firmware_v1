@@ -46,14 +46,14 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-require_once(dirname(__FILE__) . '/../../oilGenerator.php');
+require_once(dirname(__FILE__) . '/../../OilGenerator.php');
 /*==================[class definition]=======================================*/
 /** \brief Oil Generator Test Class Implementation
  **
  ** This class implements the Oil Generator Test Class
  **
  **/
-class oilGeneratorTest extends PHPUnit_Framework_TestCase
+class OilGeneratorTest extends PHPUnit_Framework_TestCase
 {
 
    public function OutputFileNameProvider()
@@ -92,7 +92,7 @@ class oilGeneratorTest extends PHPUnit_Framework_TestCase
    public function testOutputFileName($expected, $data, $msg)
    {
 
-      $generator = new oilGenerator();
+      $generator = new OilGenerator();
       $got = $generator->outputFileName($data['template'], $data['outdir'], $data['relativeBase']);
       $this->assertEquals($expected, $got ,$msg);
 

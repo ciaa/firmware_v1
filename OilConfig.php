@@ -60,24 +60,24 @@
  */
 
 /*==================[inclusions]=============================================*/
-require_once("oilParser.php");
+require_once("OilParser.php");
 
 /*==================[class definition]=======================================*/
-/** \brief configClass Configuration Class
+/** \brief OilConfig Configuration Class
  **
  ** This class implements the generation configuration class of FreeOSEK
  **
  **/
-class configClass {
+class OilConfig {
    protected $config = array();
 
-   function configClass()
+   function OilConfig()
    {
    }
 
    function parseOilFile($file)
    {
-      $parser = new oilParserClass();
+      $parser = new OilParser();
       $parser->loadFile($file);
       $parser->parse();
 

@@ -36,7 +36,7 @@
  **
  ** This file implements the Oil Parser Implementation Test
  **
- ** \file oilParserTest.php
+ ** \file OilParserTest.php
  **
  **/
 
@@ -45,21 +45,15 @@
 /** \addtogroup Generator
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * CFP          Carlos Pantelides
- */
-
 /*==================[inclusions]=============================================*/
-require_once(dirname(__FILE__) . '/../../oilParser.php');
+require_once(dirname(__FILE__) . '/../../OilParser.php');
 /*==================[class definition]=======================================*/
 /** \brief Oil Parser Test Class Implementation
  **
  ** This class implements the Oil Parser Test Class
  **
  **/
-class oilParserTest extends PHPUnit_Framework_TestCase
+class OilParserTest extends PHPUnit_Framework_TestCase
 {
 
    public function removeCommentsProvider()
@@ -91,7 +85,7 @@ class oilParserTest extends PHPUnit_Framework_TestCase
    */
    public function testRemoveComments($expected, $data, $msg)
    {
-      $parser = new oilParserClass();
+      $parser = new OilParser();
       $parser->loadArray($data);
       $this->assertEquals($expected, $parser->removeComments() ,$msg);
    }
@@ -131,7 +125,7 @@ class oilParserTest extends PHPUnit_Framework_TestCase
    */
    public function testRemoveMultiBlank($expected, $data, $msg)
    {
-      $parser = new oilParserClass();
+      $parser = new OilParser();
       $this->assertEquals($expected, $parser->removeMultiBlank($data), $msg);
    }
 }

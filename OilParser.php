@@ -40,7 +40,7 @@
  **
  ** This file implements the Generator Oil Parser Class
  **
- ** \file oilParser.php
+ ** \file OilParser.php
  **
  **/
 
@@ -57,7 +57,7 @@
  ** This class implements the Oil Parser Class
  **
  **/
-class oilParserClass {
+class OilParser {
    protected $file;
    protected $lines;
    protected $line;
@@ -269,7 +269,7 @@ class oilParserClass {
    {
       $this->lines=$lines;
    }
-   function oilParserClass()
+   function OilParser()
    {
 
    }

@@ -51,7 +51,7 @@
 
 
 /*==================[inclusions]=============================================*/
-require_once("oilGenerator.php");
+require_once("OilGenerator.php");
 
 /*=================[user functions]============================================*/
 
