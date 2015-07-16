@@ -60,6 +60,7 @@
 #include "ciaaSerialDevices.h"
 #include "ciaaBlockDevices.h"
 #include "ciaaDriverUart.h"
+#include "ciaaDriverI2C.h"
 #include "ciaaDriverFlash.h"
 #include "ciaaDriverAio.h"
 #include "ciaaDriverDio.h"
@@ -91,10 +92,12 @@ void ciaak_start(void)
 
    /* init devices types */
    ciaaSerialDevices_init();
+   ciaaI2CDevices_init();
    ciaaBlockDevices_init();
 
    /* init drivers */
    ciaaDriverUart_init();
+   ciaaDriverI2C_init();
    ciaaDriverFlash_init();
 
    /* ciaaDioDevices_init(); */
