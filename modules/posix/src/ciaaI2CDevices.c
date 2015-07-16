@@ -1,5 +1,4 @@
-/* Copyright 2014, 2015 Mariano Cerdeiro
- * Copyright 2014, Juan Cecconi
+/* Copyright 2015, Sebastian Bedin para SUR Emprendimientos Tecnologicos S.R.L. / CONAE
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -46,8 +45,7 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
- * JuCe         Juan Cecconi
+ * SeBe         Sebastian Bedin
  */
 
 /*
@@ -78,10 +76,16 @@ typedef struct {
 } ciaaI2CDevices_blockerType;
 
 typedef struct {
+   uint8_t registerAddWidth;
+   uint32_t registerAdd;
+} ciaaI2CDevices_masterDataType;
+
+typedef struct {
    ciaaDevices_deviceType const * device;
    ciaaI2CDevices_blockerType blocked;
    ciaaLibs_CircBufType rxBuf;
    ciaaLibs_CircBufType txBuf;
+   ciaaI2CDevices_masterDataType masterData;
    uint8_t flags;
 } ciaaI2CDevices_deviceType;
 
@@ -100,10 +104,10 @@ ciaaI2CDevices_devicesType ciaaI2CDevices;
  * This prefix is used for all drevices which drivers are register against this
  * device.
  *
- * Eg. if a driver is uart/1 and it registers to this device type (/dev/I2C)
- * the resulting path will be /dev/I2C/uart/1
+ * Eg. if a driver is i2c/1 and it registers to this device type (/dev/i2c)
+ * the resulting path will be /dev/i2c/1
  */
-char const * const ciaaI2CDevices_prefix = "/dev/I2C";
+char const * const ciaaI2CDevices_prefix = "/dev/i2c";
 
 /*==================[internal functions declaration]=========================*/
 
@@ -132,7 +136,8 @@ extern void ciaaI2CDevices_init(void)
 
 extern void ciaaI2CDevices_addDriver(ciaaDevices_deviceType * driver)
 {
-   ciaaDevices_deviceGroupType * newDevice;
+   //	ciaaDevices_deviceGroupType * newDevice;
+   ciaaDevices_deviceType * newDevice;
    char * newDeviceName;
    uint8_t length;
    uint8_t position;
@@ -143,62 +148,66 @@ extern void ciaaI2CDevices_addDriver(ciaaDevices_deviceType * driver)
    /* check if more drivers can be added */
    if (ciaaI2CDevices_MAXDEVICES > ciaaI2CDevices.position) {
 
-      /* get position for next device */
-      position = ciaaI2CDevices.position;
+	 /* get position for next device */
+	 position = ciaaI2CDevices.position;
 
-      /* increment position for next device */
-      ciaaI2CDevices.position++;
+	 /* increment position for next device */
+	 ciaaI2CDevices.position++;
 
-      /* exit critical section */
-      /* not needed, only 1 task running */
+	 /* exit critical section */
+	 /* not needed, only 1 task running */
 
-      /* add driver */
-      ciaaI2CDevices.devstr[position].device = driver;
+	 /* add driver */
+	 ciaaI2CDevices.devstr[position].device = driver;
 
-      /* configure rx and tx buffers */
-      ciaaLibs_circBufInit(&ciaaI2CDevices.devstr[position].rxBuf, ciaak_malloc(64), 64);
-      ciaaLibs_circBufInit(&ciaaI2CDevices.devstr[position].txBuf, ciaak_malloc(64), 64);
+	 /* configure rx and tx buffers */
+	 ciaaLibs_circBufInit(&ciaaI2CDevices.devstr[position].rxBuf, ciaak_malloc(256), 256);
+	 ciaaLibs_circBufInit(&ciaaI2CDevices.devstr[position].txBuf, ciaak_malloc(256), 256);
 
-      /* initial flags */
-      ciaaI2CDevices.devstr[position].flags = 0;
+	 /* initial flags */
+	 ciaaI2CDevices.devstr[position].flags = 0;
 
-      /* allocate memory for new device */
-      newDevice = (ciaaDevices_deviceGroupType*) ciaak_malloc(sizeof(ciaaDevices_deviceGroupType));
+	 /* allocate memory for new device */
+	 //		newDevice = (ciaaDevices_deviceGroupType*) ciaak_malloc(sizeof(ciaaDevices_deviceGroupType));
+	 newDevice = (ciaaDevices_deviceType*) ciaak_malloc(sizeof(ciaaDevices_deviceType));
 
-      /* set functions for this device */
-      newDevice->open = ciaaI2CDevices_open;
-      newDevice->close = ciaaI2CDevices_close;
-      newDevice->ioctl = ciaaI2CDevices_ioctl;
-      newDevice->read = ciaaI2CDevices_read;
-      newDevice->write = ciaaI2CDevices_write;
+	 /* set functions for this device */
+	 newDevice->open = ciaaI2CDevices_open;
+	 newDevice->close = ciaaI2CDevices_close;
+	 newDevice->ioctl = ciaaI2CDevices_ioctl;
+	 newDevice->read = ciaaI2CDevices_read;
+	 newDevice->write = ciaaI2CDevices_write;
 
-      /* store layers information information */
-      newDevice->layer = (void *) &ciaaI2CDevices.devstr[position];
-      newDevice->loLayer = (void *) driver;
+	 /* store layers information information */
+	 newDevice->layer = (void *) &ciaaI2CDevices.devstr[position];
+	 newDevice->loLayer = (void *) driver;
 
-      /* store newDevice layer information in the lower layer */
-      driver->upLayer = newDevice;
+	 /* store newDevice layer information in the lower layer */
+	 driver->upLayer = newDevice;
 
-      /* create path string for this device */
-      length = ciaaPOSIX_strlen(driver->path);
-      length += ciaaPOSIX_strlen(ciaaI2CDevices_prefix);
-      length += 2; /* for the / and the termination null */
+	 /* create path string for this device */
+	 length = ciaaPOSIX_strlen(driver->path);
+	 length += ciaaPOSIX_strlen(ciaaI2CDevices_prefix);
+	 length += 2; /* for the / and the termination null */
 
-      /* create path for the new device */
-      newDeviceName = (char *) ciaak_malloc(length);
+	 /* create path for the new device */
+	 newDeviceName = (char *) ciaak_malloc(length);
 
-      /* start a new string */
-      *newDeviceName = 0;
+	 /* start a new string */
+	 *newDeviceName = 0;
 
-      /* add prefix, / and the device name */
-      ciaaPOSIX_strcat(newDeviceName, ciaaI2CDevices_prefix);
-      ciaaPOSIX_strcat(newDeviceName, "/");
-      ciaaPOSIX_strcat(newDeviceName, driver->path);
-      /* add path to device structure */
-      newDevice->path = newDeviceName;
+	 /* add prefix, / and the device name */
+	 ciaaPOSIX_strcat(newDeviceName, ciaaI2CDevices_prefix);
+	 ciaaPOSIX_strcat(newDeviceName, "/");
+	 ciaaPOSIX_strcat(newDeviceName, driver->path);
+	 /* add path to device structure */
+	 newDevice->path = newDeviceName;
 
-      /* add device */
-      ciaaDevices_addDeviceGroup(newDevice);
+	 /* add device */
+#if 0
+	 ciaaDevices_addDeviceGroup(newDevice);
+#endif
+	 ciaaDevices_addDevice(newDevice);
    }
    else
    {
@@ -207,11 +216,10 @@ extern void ciaaI2CDevices_addDriver(ciaaDevices_deviceType * driver)
    }
 }
 
-extern ciaaDevices_deviceType * ciaaI2CDevices_open(char const * path,
-      ciaaDevices_deviceType * device, uint8_t const oflag)
+extern ciaaDevices_deviceType * ciaaI2CDevices_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
    ciaaI2CDevices_deviceType * I2CDevice =
-      (ciaaI2CDevices_deviceType*) device->layer;
+	 (ciaaI2CDevices_deviceType*) device->layer;
 
    /* I2C devices does not support that the drivers update the device */
    /* the returned device shall be the same as passed */
@@ -234,6 +242,7 @@ extern int32_t ciaaI2CDevices_ioctl(ciaaDevices_deviceType const * const device,
    int32_t ret = 0;
 
    ciaaI2CDevices_deviceType * I2CDevice = (ciaaI2CDevices_deviceType *) device->layer;
+   ciaaI2CDevices_masterDataType * pI2CMaster = (ciaaI2CDevices_masterDataType *) &I2CDevice->masterData;
    ciaaLibs_CircBufType * cbuf;
    uint32_t tail, head;
 
@@ -253,9 +262,6 @@ extern int32_t ciaaI2CDevices_ioctl(ciaaDevices_deviceType const * const device,
          ret = 0;
          break;
 
-      case ciaaPOSIX_IOCTL_RXINDICATION:
-         break;
-
       case ciaaPOSIX_IOCTL_SET_NONBLOCK_MODE:
          if((bool)(intptr_t)param == false)
          {
@@ -270,6 +276,16 @@ extern int32_t ciaaI2CDevices_ioctl(ciaaDevices_deviceType const * const device,
          ret = 0;
          break;
 
+      case ciaaPOSIX_IOCTL_SET_REGISTERADDWIDTH:
+         pI2CMaster->registerAddWidth = (uint8_t)param;
+         ret = (int32_t)pI2CMaster->registerAddWidth;
+         break;
+
+      case ciaaPOSIX_IOCTL_SET_REGISTERADD:
+         pI2CMaster->registerAdd = (uint32_t)param;
+         ret = (int32_t)pI2CMaster->registerAdd;
+         break;
+
       default:
          ret = I2CDevice->device->ioctl(device->loLayer, request, param);
          break;
@@ -279,226 +295,75 @@ extern int32_t ciaaI2CDevices_ioctl(ciaaDevices_deviceType const * const device,
 
 extern ssize_t ciaaI2CDevices_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, size_t const nbyte)
 {
-   /* get I2C device */
-   ciaaI2CDevices_deviceType * I2CDevice =
-      (ciaaI2CDevices_deviceType*) device->layer;
+   ciaaI2CDevices_deviceType * I2CDevice = (ciaaI2CDevices_deviceType*) device->layer;
    int32_t ret = 0;
+   ciaaLibs_CircBufType * cbuftx = &I2CDevice->txBuf;
+   ciaaLibs_CircBufType * cbufrx = &I2CDevice->rxBuf;
+   uint32_t space;
+   int i;
+   uint8_t width;
+   uint8_t * pByte;
+   uint8_t val[4];
 
-   /* if the rx buffer is not empty */
-   if (!ciaaLibs_circBufEmpty(&I2CDevice->rxBuf))
+   space = ciaaLibs_circBufSpace(cbufrx, cbufrx->head);
+
+   if ( nbyte <= space )
    {
-      /* try to read nbyte from rxBuf and store it to the user buffer */
-      ret = ciaaLibs_circBufGet(&I2CDevice->rxBuf,
-            buf,
-            nbyte);
-   }
-   else
+   space = ciaaLibs_circBufSpace(cbuftx, cbuftx->head);
+
+   if ( I2CDevice->masterData.registerAddWidth <= space )
    {
-      /* There aren't data */
-      if(I2CDevice->flags & ciaaI2CDevices_NONBLOCK_MODE)
+      width = I2CDevice->masterData.registerAddWidth;
+      pByte = (uint8_t *)&I2CDevice->masterData.registerAdd;
+      for( i = 0; i < width; i++ )
       {
-         /* We are in non blocking mode */
-         /* We should do a blocking call...*/
-         ciaaPOSIX_errno = EAGAIN; /* shall return -1 and set errno to [EAGAIN]. */
-         ret = -1;
+         val[i] = pByte[width - 1 - i];
       }
-      else
-      {
-         /* We are in blocking mode */
-         /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
-         I2CDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT, (void*)false);
+      ciaaLibs_circBufPut(cbuftx, val, width);
 
-         /* get task id and function for waking up the task later */
-         GetTaskID(&I2CDevice->blocked.taskID);
-         I2CDevice->blocked.fct = (void*) ciaaI2CDevices_read;
+      I2CDevice->device->write( device->loLayer, ciaaLibs_circBufReadPos(cbuftx), I2CDevice->masterData.registerAddWidth);
 
-         /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
-         I2CDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT, (void*)true);
+      ret = I2CDevice->device->read( device->loLayer, buf, nbyte);
 
-         /* if no data wait for it */
-#ifdef POSIXE
-         WaitEvent(POSIXE);
-         ClearEvent(POSIXE);
-#endif
+      ciaaLibs_circBufClean(cbuftx);
 
-         /* after the wait is not needed to check if data is avaibale on the
-          * buffer. The event will be set first after adding some data into it */
-
-         /* try to read nbyte from rxBuf and store it to the user buffer */
-         ret = ciaaLibs_circBufGet(&I2CDevice->rxBuf,
-               buf,
-               nbyte);
       }
    }
+
    return ret;
 }
 
 extern ssize_t ciaaI2CDevices_write(ciaaDevices_deviceType const * const device, uint8_t const * buf, size_t const nbyte)
 {
-   /* get I2C device */
-   ciaaI2CDevices_deviceType * I2CDevice =
-      (ciaaI2CDevices_deviceType*) device->layer;
+   ciaaI2CDevices_deviceType * I2CDevice = (ciaaI2CDevices_deviceType*) device->layer;
    int32_t ret = 0;
-   int32_t total = 0;
    ciaaLibs_CircBufType * cbuf = &I2CDevice->txBuf;
-   int32_t head;
    uint32_t space;
+   int i;
+   uint8_t width;
+   uint8_t * pByte;
+   uint8_t val[4];
 
-   do
+   space = ciaaLibs_circBufSpace(cbuf, cbuf->head);
+
+   if ( (nbyte + I2CDevice->masterData.registerAddWidth) <= space )
    {
-      /* read head and space */
-      head = cbuf->head;
-      space = ciaaLibs_circBufSpace(cbuf, head);
-
-      /* put bytes in the queue */
-      ret = ciaaLibs_circBufPut(cbuf, buf, ciaaLibs_min(nbyte-total, space));
-      /* update total of written bytes */
-      total += ret;
-
-      /* starts the transmission if not already ongoing */
-      I2CDevice->device->ioctl(
-            device->loLayer,
-            ciaaPOSIX_IOCTL_STARTTX,
-            NULL);
-
-      /* if not all bytes could be stored in the buffer */
-      if (total < nbyte)
+      width = I2CDevice->masterData.registerAddWidth;
+      pByte = (uint8_t *)&I2CDevice->masterData.registerAdd;
+      for( i = 0; i < width; i++ )
       {
-         /* increment buffer */
-         buf += ret;
-
-         /* set the task to sleep until some data have been send */
-
-         /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
-         I2CDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)false);
-         /* get task id and function for waking up the task later */
-         GetTaskID(&I2CDevice->blocked.taskID);
-         I2CDevice->blocked.fct = (void*) ciaaI2CDevices_write;
-
-         /* TODO improve this: https://github.com/ciaa/Firmware/issues/88 */
-         I2CDevice->device->ioctl(device->loLayer, ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT, (void*)true);
-         /* wait to write all data or for the txConfirmation */
-#ifdef POSIXE
-         WaitEvent(POSIXE);
-         ClearEvent(POSIXE);
-#endif
+         val[i] = pByte[width - 1 - i];
       }
-   }
-   while (total < nbyte);
+      ciaaLibs_circBufPut(cbuf, val, width);
 
-   return total;
-}
+      ciaaLibs_circBufPut(cbuf, buf, nbyte);
 
-extern void ciaaI2CDevices_txConfirmation(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
-{
-   /* get I2C device */
-   ciaaI2CDevices_deviceType * I2CDevice =
-      (ciaaI2CDevices_deviceType*) device->layer;
-   uint32_t write = 0;
-   ciaaLibs_CircBufType * cbuf = &I2CDevice->txBuf;
-   uint32_t tail = cbuf->tail;
-   uint32_t rawCount = ciaaLibs_circBufRawCount(cbuf, tail);
-   uint32_t count = ciaaLibs_circBufCount(cbuf, tail);
-   TaskType taskID = I2CDevice->blocked.taskID;
+      ret = I2CDevice->device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), (nbyte + I2CDevice->masterData.registerAddWidth));
 
-   /* if some data have to be transmitted */
-   if (count > 0)
-   {
-      /* write data to the driver */
-      write = I2CDevice->device->write(device->loLayer, ciaaLibs_circBufReadPos(cbuf), rawCount);
-
-      /* update buffer */
-      ciaaLibs_circBufUpdateHead(cbuf, write);
-
-      /* if all bytes were written and more data is available */
-      if ( (write == rawCount) && (count > rawCount ) )
-      {
-         /* re calculate rawCount */
-         rawCount = ciaaLibs_circBufRawCount(cbuf, tail);
-
-         /* write more bytes */
-         write = I2CDevice->device->write(device->loLayer,
-               ciaaLibs_circBufReadPos(cbuf), rawCount);
-
-         if (write > 0)
-         {
-            /* update buffer */
-            ciaaLibs_circBufUpdateHead(cbuf, write);
-         }
-      }
-      /* if task is blocked and waiting for reception of this device */
-      if ( (255 != taskID) &&
-            (I2CDevice->blocked.fct ==
-             (void*) ciaaI2CDevices_write) )
-      {
-         /* invalidate task id */
-         I2CDevice->blocked.taskID = 255; /* TODO add a macro */
-
-         /* reset function */
-         I2CDevice->blocked.fct = NULL;
-
-         /* set task event */
-#ifdef POSIXE
-         SetEvent(taskID, POSIXE);
-#endif
-      }
-   }
-}
-
-extern void ciaaI2CDevices_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
-{
-   /* get I2C device */
-   ciaaI2CDevices_deviceType * I2CDevice =
-      (ciaaI2CDevices_deviceType*) device->layer;
-   ciaaLibs_CircBufType * cbuf = &I2CDevice->rxBuf;
-   uint32_t head = cbuf->head;
-   uint32_t rawSpace = ciaaLibs_circBufRawSpace(cbuf, head);
-   uint32_t space = ciaaLibs_circBufSpace(cbuf, head);
-   uint32_t read = 0;
-   TaskType taskID = I2CDevice->blocked.taskID;
-
-   read = I2CDevice->device->read(device->loLayer, ciaaLibs_circBufWritePos(cbuf), rawSpace);
-
-   /* if rawSpace is full but more space is avaialble */
-   if ((read == rawSpace) && (space > rawSpace))
-   {
-      read += I2CDevice->device->read(
-            device->loLayer,
-            &cbuf->buf[0],
-            space - rawSpace);
-   }
-   else
-   {
-      if ((read == rawSpace) && (space <= rawSpace))
-      {
-         /* data may be lost because not place on the receive buffer */
-         /* TODO */
-      }
-      else
-      {
-         /* read less bytes than provided */
-         /* nothing to do */
-      }
+      ciaaLibs_circBufClean(cbuf);
    }
 
-   /* update tail */
-   ciaaLibs_circBufUpdateTail(cbuf, read);
-
-   /* if data has been read */
-   if ( (0 < read) && (255 != taskID) &&
-         (I2CDevice->blocked.fct == (void*) ciaaI2CDevices_read ) )
-   {
-      /* invalidate task id */
-      I2CDevice->blocked.taskID = 255; /* TODO add macro */
-
-      /* reset blocked function */
-      I2CDevice->blocked.fct = NULL;
-
-#ifdef POSIXE
-      /* set task event */
-      SetEvent(taskID, POSIXE);
-#endif
-   }
+   return ret;
 }
 
 /** @} doxygen end group definition */

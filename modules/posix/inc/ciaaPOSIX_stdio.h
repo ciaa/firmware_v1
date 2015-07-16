@@ -70,6 +70,7 @@
 #include "ciaaMemory.h"
 #include "ciaaPOSIX_stddef.h"
 #include "ciaaPOSIX_ioctl_serial.h"
+#include "ciaaPOSIX_ioctl_i2c.h"
 #include "ciaaPOSIX_ioctl_block.h"
 
 /*==================[cplusplus]==============================================*/
