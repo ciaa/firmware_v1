@@ -200,7 +200,8 @@ typedef enum _usb_dev_state_t
 	USB_DEV_STATE_UNLOCKING2,        /**< */
     USB_DEV_STATE_CONFIGURED,        /**< Configured, in stand by for
 	                                      transactions.                       */
-    USB_DEV_STATE_SUSPENDED          /**< Bus inactive, waiting for activity. */
+    USB_DEV_STATE_SUSPENDED,         /**< Bus inactive, waiting for activity. */
+	USB_DEV_STATE_TEST,              /*   For testing purposes.               */
 } usb_dev_state_t;
 
 /**

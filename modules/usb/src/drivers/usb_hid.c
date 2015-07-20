@@ -250,6 +250,7 @@ int hid_update_device( uint8_t index )
 			if (!(pdev->status & HID_STATUS_FREE))
 			{
 				pdev->state   = HID_STATE_SET_IDLE;
+				pdev->state   = HID_STATE_INIT;
 				pdev->status |= HID_STATUS_ENTRY;
 			}
 			break;

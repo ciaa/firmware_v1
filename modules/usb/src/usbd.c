@@ -693,6 +693,22 @@ int usb_device_udpate( usb_stack_t* pstack, uint8_t index )
 			usbhci_ctrlxfer_start(ppipe, pstdreq, NULL);
 			pdevice->state = USB_DEV_STATE_WAITING_ACK;
 			pdevice->next_state = USB_DEV_STATE_UNLOCKING;
+			//pdevice->next_state = USB_DEV_STATE_TEST;
+			break;
+
+		case USB_DEV_STATE_TEST:
+			pstdreq->bmRequestType = USB_STDREQ_REQTYPE(
+					USB_DIR_IN,
+					USB_STDREQ_TYPE_STD,
+					USB_STDREQ_RECIP_INTERFACE );
+			pstdreq->bRequest      = USB_STDREQ_GET_DESCRIPTOR;
+			pstdreq->wValue        = (0x22 << 8);
+			pstdreq->wIndex        = 0;
+			pstdreq->wLength       = 40;
+
+			usbhci_ctrlxfer_start(ppipe, pstdreq, pdevice->xfer_buffer);
+			pdevice->state = USB_DEV_STATE_WAITING_ACK;
+			pdevice->next_state = USB_DEV_STATE_CONFIGURED;
 			break;
 
 		case USB_DEV_STATE_UNLOCKING:
