@@ -417,7 +417,7 @@ int usb_device_find(
 
 
 /******************************************************************************/
-int usb_device_udpate( usb_stack_t* pstack, uint8_t index )
+int usb_device_update( usb_stack_t* pstack, uint8_t index )
 {
 	usb_device_t* pdevice;
 #if (USB_MAX_HUBS > 0)
@@ -834,9 +834,9 @@ int usb_device_parse_ifacedesc(
 	usb_assert(pstack != NULL);
 	usb_assert(USB_ID_TO_DEV(id) < USB_MAX_DEVICES);
 	usb_assert(USB_ID_TO_IFACE(id) < USB_MAX_INTERFACES);
-	usb_assert(pbuff != NULL);
+	usb_assert(pbuff  != NULL);
 	usb_assert(*pbuff != NULL);
-	usb_assert(plen != NULL);
+	usb_assert(plen   != NULL);
 
 	buff        = *pbuff;
 	len         = *plen;
@@ -867,7 +867,7 @@ int usb_device_parse_ifacedesc(
 		 * through the USB stack, this way the user can get information about it
 		 * and find out why it wasn't assigned a driver.
 		 */
-		driver_idx = USB_IFACE_NO_DRIVER;
+		piface->driver_handle = (usb_driver_handle_t) USB_IFACE_NO_DRIVER;
 		return USB_STATUS_OK;
 	}
 
@@ -972,7 +972,7 @@ int usb_stack_update_devices( usb_stack_t* pstack )
 		if (usb_device_is_active(pstack, i))
 		{
 			++looped_devs;
-			status = usb_device_udpate(pstack, i);
+			status = usb_device_update(pstack, i);
 			if (status != USB_STATUS_OK)
 				usb_assert(0); /** @TODO: handle error */
 		}

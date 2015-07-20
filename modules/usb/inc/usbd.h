@@ -146,7 +146,7 @@ int usb_device_lock( usb_stack_t* pstack, uint8_t index );
 
 int usb_device_unlock( usb_stack_t* pstack, uint8_t index );
 
-int usb_device_udpate( usb_stack_t* pstack, uint8_t index );
+int usb_device_update( usb_stack_t* pstack, uint8_t index );
 
 int usb_dealloc_endpoint( usb_stack_t* pstack, usb_pipe_t* ppipe );
 
