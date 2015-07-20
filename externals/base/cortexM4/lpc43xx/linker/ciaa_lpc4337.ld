@@ -20,12 +20,77 @@ SECTIONS
     .text1 : ALIGN(4)
     {
         FILL(0xff)
-        LONG(_vStackTop | 1);
-        LONG(ResetISR | 1);
-/*
-       __vectors_start__ = ABSOLUTE(.) ;
-        KEEP(*(.isr_vector))      
-*/
+
+        LONG(_vStackTop);
+        LONG(ResetISR | 1);   /* 1 */
+        LONG(0x0);            /* 2 */
+        LONG(0x0);            /* 3 */        
+        LONG(0x1);            /* 4 */
+        LONG(0x0);            /* 5 */
+        LONG(0x0);            /* 6 */
+        LONG(0x0);            /* 7 */
+        LONG(0x0);            /* 8 */
+        LONG(0x0);            /* 9 */
+        LONG(0x0);            /* 10 */
+        LONG(0x0);            /* 11 */
+        LONG(0x0);            /* 12 */
+        LONG(0x0);            /* 13 */
+        LONG(0x0);            /* 14 */
+        LONG(0x0);            /* 15 */
+        LONG(0x0);            /* 16 */
+        LONG(0x0);            /* 17 */
+        LONG(0x0);            /* 18 */        
+        LONG(0x0);            /* 19 */
+        LONG(0x0);            /* 20 */
+        LONG(0x0);            /* 21 */
+        LONG(0x0);            /* 22 */
+        LONG(0x0);            /* 23 */
+        LONG(0x0);            /* 24 */
+        LONG(0x0);            /* 25 */
+        LONG(0x0);            /* 26 */
+        LONG(0x0);            /* 28 */
+        LONG(0x0);            /* 29 */        
+        LONG(0x0);            /* 30 */
+        LONG(0x0);            /* 31 */
+        LONG(0x0);            /* 32 */
+        LONG(0x0);            /* 33 */
+        LONG(0x0);            /* 34 */
+        LONG(0x0);            /* 35 */
+        LONG(0x0);            /* 36 */
+        LONG(0x0);            /* 37 */
+        LONG(0x0);            /* 38 */
+        LONG(0x0);            /* 39 */        
+        LONG(0x0);            /* 40 */
+        LONG(0x0);            /* 41 */
+        LONG(0x0);            /* 42 */
+        LONG(0x0);            /* 43 */
+        LONG(0x0);            /* 44 */
+        LONG(0x0);            /* 45 */
+        LONG(0x0);            /* 46 */
+        LONG(0x0);            /* 47 */
+        LONG(0x0);            /* 48 */
+        LONG(0x0);            /* 49 */        
+        LONG(0x0);            /* 50 */
+        LONG(0x0);            /* 51 */
+        LONG(0x0);            /* 52 */
+        LONG(0x0);            /* 53 */
+        LONG(0x0);            /* 54 */
+        LONG(0x0);            /* 55 */
+        LONG(0x0);            /* 56 */
+        LONG(0x0);            /* 57 */
+        LONG(0x0);            /* 58 */
+        LONG(0x0);            /* 59 */        
+        LONG(0x0);            /* 60 */
+        LONG(0x0);            /* 61 */
+        LONG(0x0);            /* 62 */
+        LONG(0x0);            /* 63 */
+        LONG(0x0);            /* 64 */
+        LONG(0x0);            /* 65 */
+        LONG(0x0);            /* 66 */
+        LONG(0x0);            /* 67 */
+        LONG(0x0);            /* 68 */
+        LONG(0x0);            /* 69 */
+
         *(.after_vectors*)
         
         /* Code Read Protect data */
@@ -44,8 +109,9 @@ SECTIONS
     /* Code and read-only/const data, address: 0x10080000 */
     .text : ALIGN(4)    
     {
-        g_pfnVectors = 1<<29 | ABSOLUTE(.) ;
+        g_pfnVectors = ABSOLUTE(.) ;
         KEEP(*(.isr_vector))   
+
         *(.text*)
         *(.rodata .rodata.* .constdata .constdata.*)
         . = ALIGN(4);
