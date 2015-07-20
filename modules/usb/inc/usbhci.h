@@ -69,9 +69,11 @@ uint32_t usbhci_get_frame_number( void );
  * On success, this call should be  followed  by  usbhci_pipe_configure()  right
  * after to configure the pipe.
  *
+ * @param type Type of endpoint to allocate,  not  all  type  of  endpoints  are
+ *             available on every physical endpoint.
  * @return Zero on success, non-zero otherwise.
  */
-int usbhci_pipe_alloc( void );
+int usbhci_pipe_alloc( usb_xfer_type_t type );
 
 /**
  * @brief Release hardware pipe.

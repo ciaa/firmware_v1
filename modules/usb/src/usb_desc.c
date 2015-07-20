@@ -1,11 +1,16 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "usb.h" /* for return status */
+#include "usb.h"  /* for return status */
 #include "usbd.h" /* for assert ?? */
 #include "usb_std.h"
 #include "usb_desc.h"
 
-int usb_goto_next_epdesc( const uint8_t** pbuff, uint8_t* plen )
+int usb_goto_next_desc(
+		const uint8_t** pbuff,
+		uint8_t*        plen,
+		usb_stddesc_t   ep_type,
+		uint8_t         ep_size
+)
 {
 	const uint8_t* buff;
 	int16_t        len; /* Signed to identify underflow on uint8_t variable. */
@@ -19,22 +24,22 @@ int usb_goto_next_epdesc( const uint8_t** pbuff, uint8_t* plen )
 
 	/* Assume we start on a descriptor, the first byte is the length. */
 	desc_len = buff[0];
-	buff += desc_len;
-	len  -= desc_len;
-	while (len >= USB_STDDESC_EP_SIZE)
+	buff    += desc_len;
+	len     -= desc_len;
+	while (len >= ep_size)
 	{
 		desc_len = buff[0];
-		if ((desc_len == USB_STDDESC_EP_SIZE) &&
-				(buff[1] == USB_STDDESC_ENDPOINT))
+		if ((desc_len == ep_size) &&
+				(buff[1] == ep_type))
 		{
 			/* Endpoint descriptor found! */
 			*pbuff = buff;
 			*plen  = (uint8_t) len;
-			return USB_STATUS_OK;
+			return 0;
 		}
 		buff += desc_len;
 		len  -= desc_len;
 	}
-	return USB_STATUS_EP_NA;
+	return -1;
 }
 

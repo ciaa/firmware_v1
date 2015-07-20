@@ -98,7 +98,8 @@ int usb_ctrlirp(
  * @param device_id Device  identifier,  coordinates  representing  device   and
  *                  interface.
  * @param pipe      Pipe number (given by order of endpoints in interface),  use
- *                  0 (zero) for default control pipe.
+ *                  0 (zero) for default control pipe. Use USB_CTRL_PIPE_TOKEN
+ *                  to check the device's default control pipe status.
  */
 int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe );
 
@@ -140,6 +141,10 @@ int usb_device_init( usb_stack_t* pstack, uint8_t index );
 int usb_device_release( usb_stack_t* pstack, uint8_t index );
 
 int usb_device_is_active( usb_stack_t* pstack, uint8_t index );
+
+int usb_device_lock( usb_stack_t* pstack, uint8_t index );
+
+int usb_device_unlock( usb_stack_t* pstack, uint8_t index );
 
 int usb_device_udpate( usb_stack_t* pstack, uint8_t index );
 

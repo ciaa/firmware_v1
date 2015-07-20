@@ -143,12 +143,19 @@ int usb_irp(
 	/* Validate parameters, no asserts 'cause it will be used by user drivers.*/
 	if (pstack == NULL || buffer == NULL)
 		return USB_STATUS_INV_PARAM;
-	if (USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES)
+	if (USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1)
 		return USB_STATUS_INV_PARAM;
-	if (USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES)
+	if (USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1)
 		return USB_STATUS_INV_PARAM;
-	if (pipe > USB_MAX_ENDPOINTS || len == 0)
+	if (pipe > USB_MAX_ENDPOINTS-1 || len == 0)
 		return USB_STATUS_INV_PARAM;
+
+	return usbhci_xfer_start(
+				&pstack->devices[USB_ID_TO_DEV(device_id)].
+					interfaces[USB_ID_TO_IFACE(device_id)].
+					endpoints[pipe],
+				buffer,
+				len );
 }
 
 int usb_ctrlirp(
@@ -158,12 +165,15 @@ int usb_ctrlirp(
 		uint8_t*            buffer
 )
 {
+	int           status;
+	usb_device_t* pdevice;
+
 	/* Validate parameters, no asserts 'cause it will be used by user drivers.*/
 	if (pstack == NULL || pstdreq == NULL)
 		return USB_STATUS_INV_PARAM;
-	if (USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES)
+	if (USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1)
 		return USB_STATUS_INV_PARAM;
-	if (USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES)
+	if (USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1)
 		return USB_STATUS_INV_PARAM;
 
 	/*
@@ -176,29 +186,60 @@ int usb_ctrlirp(
 	if (usb_device_lock(pstack, USB_ID_TO_DEV(device_id)) != USB_STATUS_OK)
 		return USB_STATUS_BUSY;
 
-	/* Device available, start control transaction. */
+	/* Reconfigure pipe accordingly. */
 	pdevice = &pstack->devices[USB_ID_TO_DEV(device_id)];
-	return usbhci_ctrlxfer_start(&pdevice->default_ep, pstdreq, buffer);
+	status = usbhci_pipe_configure(
+			&pdevice->default_ep,
+			pdevice->addr,
+			pdevice->speed );
+	if (status)
+		usb_assert(0); /** @TODO: handle error */
+
+	/* Device available, start control transaction. */
+	return usbhci_ctrlxfer_start(
+			&pdevice->default_ep,
+			pstdreq,
+			buffer );
 }
 
 int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe )
 {
+	int status;
+
 	/* Validate parameters, no asserts 'cause it will be used by user drivers.*/
 	if (pstack == NULL)
 		return USB_STATUS_INV_PARAM;
-	if (USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES)
+	if (USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1)
 		return USB_STATUS_INV_PARAM;
-	if (USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES)
-		return USB_STATUS_INV_PARAM;
-	if (pipe > USB_MAX_ENDPOINTS)
+	if (USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1)
 		return USB_STATUS_INV_PARAM;
 
-	pdevice = &pstack->devices[USB_ID_TO_DEV(device_id)];
-	return usbhci_xfer_status( usb_pipe_t* ppipe );
+	if (pipe == USB_CTRL_PIPE_TOKEN)
+	{
+		status = usbhci_xfer_status(
+				&pstack->devices[USB_ID_TO_DEV(device_id)].default_ep );
+		if (status != USB_STATUS_XFER_WAIT)
+			usb_device_unlock(pstack, USB_ID_TO_DEV(device_id));
+		if (status == USB_STATUS_EP_STALLED)
+			usbhci_xfer_cancel( /* ???? */
+					&pstack->devices[USB_ID_TO_DEV(device_id)].default_ep);
+		return status;
+	}
+	else
+	{
+		if (pipe > USB_MAX_ENDPOINTS-1)
+			return USB_STATUS_INV_PARAM;
+		return usbhci_xfer_status(
+				&pstack->devices[USB_ID_TO_DEV(device_id)].
+					interfaces[USB_ID_TO_IFACE(device_id)].
+					endpoints[pipe] );
+	}
 }
 
 int usb_irp_cancel( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe )
 {
+	/** @TODO write this function */
+	return USB_STATUS_OK;
 }
 
 
@@ -312,6 +353,15 @@ int usb_device_lock( usb_stack_t* pstack, uint8_t index )
 	return USB_STATUS_OK;
 }
 
+int usb_device_unlock( usb_stack_t* pstack, uint8_t index )
+{
+	usb_assert(pstack != NULL);
+	usb_assert(index < USB_MAX_DEVICES);
+/** @TODO: I don't think multi-threaded systems will affect this function... check! */
+	pstack->devices[index].status &= ~USB_DEV_STATUS_LOCKED;
+	return USB_STATUS_OK;
+}
+
 void usb_device_attach(
 		usb_stack_t*  pstack,
 #if (USB_MAX_HUBS > 0)
@@ -371,7 +421,7 @@ int usb_device_udpate( usb_stack_t* pstack, uint8_t index )
 {
 	usb_device_t* pdevice;
 #if (USB_MAX_HUBS > 0)
-/** FIXME: when requesting a reset through a HUB I should wait for ACK on those requests. */
+/** @FIXME: when requesting a reset through a HUB I should wait for ACK on those requests. */
 	usb_hub_t*    phub;
 #endif
 	usb_pipe_t*   ppipe;
@@ -385,7 +435,8 @@ int usb_device_udpate( usb_stack_t* pstack, uint8_t index )
 	usb_assert(pdevice->parent_hub  < USB_MAX_HUBS);
 	usb_assert(pdevice->parent_port < USB_MAX_HUB_PORTS);
 #endif
-	ppipe = &pdevice->default_ep;
+	ppipe   = &pdevice->default_ep;
+	pstdreq = &pdevice->stdreq;
 
 	switch (pdevice->state)
 	{
@@ -393,7 +444,7 @@ int usb_device_udpate( usb_stack_t* pstack, uint8_t index )
 			status = usbhci_xfer_status(ppipe);
 			if (status == USB_STATUS_XFER_WAIT)
 				break;
-			if (status != USB_STATUS_XFER_DONE)
+			if (status != USB_STATUS_OK)
 				usb_assert(0); /** @TODO: handle error */
 			pdevice->state = pdevice->next_state;
 			break;
@@ -506,7 +557,7 @@ int usb_device_udpate( usb_stack_t* pstack, uint8_t index )
 			ppipe->mps      = 8;
 			ppipe->dir      = USB_DIR_TOK;
 			ppipe->interval = 1;
-			status = usbhci_pipe_alloc();
+			status = usbhci_pipe_alloc(USB_CTRL);
 			if (status < 0)
 				usb_assert(0); /** @TODO: handle error */
 			ppipe->handle = (uint8_t) status;
@@ -524,7 +575,6 @@ int usb_device_udpate( usb_stack_t* pstack, uint8_t index )
 				usb_assert(0); /** @TODO: handle error */
 
 			/* Once the default pipe has been configured, get device's MPS. */
-			pstdreq = &pdevice->stdreq;
 			pstdreq->bmRequestType = USB_STDREQ_REQTYPE(
 					USB_DIR_IN,
 					USB_STDREQ_TYPE_STD,
@@ -551,7 +601,6 @@ int usb_device_udpate( usb_stack_t* pstack, uint8_t index )
 			if (status)
 				usb_assert(0); /** @TODO: handle error */
 
-			pstdreq = &pdevice->stdreq;
 			pstdreq->bmRequestType = USB_STDREQ_REQTYPE(
 					USB_DIR_OUT,
 					USB_STDREQ_TYPE_STD,
@@ -573,13 +622,12 @@ int usb_device_udpate( usb_stack_t* pstack, uint8_t index )
 			 * Also, release lock on stack to allow other devices to enumerate.
 			 */
 			pstack->status &= ~USB_STACK_STATUS_ZERO_ADDR;
-			ppipe->dir    = USB_DIR_TOK;
-			pdevice->addr = index + 1;
+			ppipe->dir      = USB_DIR_TOK;
+			pdevice->addr   = index + 1;
 			status = usbhci_pipe_configure(ppipe, pdevice->addr, pdevice->speed);
 			if (status)
 				usb_assert(0); /** @TODO: handle error */
 
-			pstdreq = &pdevice->stdreq;
 			pstdreq->bmRequestType = USB_STDREQ_REQTYPE(
 					USB_DIR_IN,
 					USB_STDREQ_TYPE_STD,
@@ -599,7 +647,6 @@ int usb_device_udpate( usb_stack_t* pstack, uint8_t index )
 			pdevice->vendor_ID  = ((usb_desc_dev_t*)pdevice->xfer_buffer)->idVendor;
 			pdevice->product_ID = ((usb_desc_dev_t*)pdevice->xfer_buffer)->idProduct;
 
-			pstdreq = &pdevice->stdreq;
 			pstdreq->bmRequestType = USB_STDREQ_REQTYPE(
 					USB_DIR_IN,
 					USB_STDREQ_TYPE_STD,
@@ -619,7 +666,6 @@ int usb_device_udpate( usb_stack_t* pstack, uint8_t index )
 			if (((usb_desc_cfg_t*)pdevice->xfer_buffer)->wTotalLength > 256)
 				usb_assert(0); /** @TODO: handle error */
 
-			pstdreq = &pdevice->stdreq;
 			pstdreq->wLength = ((usb_desc_cfg_t*)pdevice->xfer_buffer)->wTotalLength;
 			pdevice->xfer_length = pstdreq->wLength;
 
@@ -629,12 +675,47 @@ int usb_device_udpate( usb_stack_t* pstack, uint8_t index )
 			break;
 
 		case USB_DEV_STATE_CFG_DESC:
+			/* Parse descriptors and assign each interface a driver. */
 			status = usb_device_parse_cfgdesc(pstack, index);
+			if (status)
+				usb_assert(0); /** @TODO: handle error */
 
+			/* Once that's done, set the configuration on the device. */
+			pstdreq->bmRequestType = USB_STDREQ_REQTYPE(
+					USB_DIR_OUT,
+					USB_STDREQ_TYPE_STD,
+					USB_STDREQ_RECIP_DEV );
+			pstdreq->bRequest      = USB_STDREQ_SET_CONFIGURATION;
+			pstdreq->wValue        = pdevice->cfg_value;
+			pstdreq->wIndex        = 0;
+			pstdreq->wLength       = 0;
+
+			usbhci_ctrlxfer_start(ppipe, pstdreq, NULL);
+			pdevice->state = USB_DEV_STATE_WAITING_ACK;
+			pdevice->next_state = USB_DEV_STATE_UNLOCKING;
+			break;
+
+		case USB_DEV_STATE_UNLOCKING:
+			/*
+			 * This state is needed  to  delay  the  unlocking  of  the  default
+			 * control endpoint.
+			 */
+			pdevice->ticks_delay = pstack->ticks + 500;
+			pdevice->state = USB_DEV_STATE_WAITING_DELAY;
+			pdevice->next_state = USB_DEV_STATE_UNLOCKING2;
+			break;
+
+		case USB_DEV_STATE_UNLOCKING2:
+			/*
+			 * This state is only needed to unlock the default endpoint once the
+			 * stack is done with the enumeration process.
+			 */
+			usb_device_unlock(pstack, index);
 			pdevice->state = USB_DEV_STATE_CONFIGURED;
 			break;
 
 		case USB_DEV_STATE_CONFIGURED:
+			/* Nothing to do here... ? */
 			status = USB_STATUS_OK;
 			break;
 
@@ -652,7 +733,9 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
 {
 	usb_device_t*  pdevice;
 	const uint8_t* buff;
+	const uint8_t* next_buff;
 	uint8_t        len;
+	uint8_t        next_len;
 	uint8_t        i;
 	int            status;
 
@@ -662,16 +745,48 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
 	buff = pdevice->xfer_buffer;
 	len  = pdevice->xfer_length;
 	usb_assert(buff != NULL);
-	usb_assert(len > 9); /** ???? **/
+	usb_assert(len > USB_STDDESC_CFG_SIZE);
 
+	/* Get the number of interfaces. */
 	pdevice->n_interfaces = ((usb_desc_cfg_t*)buff)->bNumInterfaces;
 	if (pdevice->n_interfaces > USB_MAX_INTERFACES)
 		usb_assert(0); /** @TODO: handle error */
 
-	buff += 9;
-	len  -= 9;
+	/* Get the configuration value. */
+	pdevice->cfg_value = ((usb_desc_cfg_t*)buff)->bConfigurationValue;
+
+	buff += USB_STDDESC_CFG_SIZE;
+	len  -= USB_STDDESC_CFG_SIZE;
+	next_len = len;
 	for (i = 0; i < pdevice->n_interfaces; ++i)
 	{
+		/*
+		 * Find the next descriptor before parsing  so  we  can  pass  down  the
+		 * actual entire interface plus endpoints and such descriptors.
+		 */
+		next_buff = buff;
+		len = next_len;
+		if (usb_goto_next_desc(
+					&next_buff,
+					&next_len,
+					USB_STDDESC_INTERFACE,
+					USB_STDDESC_IFACE_SIZE) )
+		{
+			/* If no next iface desc. was found and ... */
+			if (i+1 < pdevice->n_interfaces)
+			{
+				/* ... this isn't the last iface, then something's wrong. */
+				usb_assert(0); /** @TODO: handle error */
+			}
+			else
+			{
+				/* Otherwise, it's alright so do nothing. */
+				next_buff = NULL;
+				next_len  = 0;
+			}
+		}
+
+		len = len - next_len;
 		status = usb_device_parse_ifacedesc(
 				pstack,
 				USB_TO_ID(index, i),
@@ -697,6 +812,8 @@ int usb_device_parse_ifacedesc(
 	uint8_t           ep;
 	int               driver_idx;
 	int               ret;
+	const uint8_t*    buff;
+	uint8_t           len;
 
 	usb_assert(pstack != NULL);
 	usb_assert(USB_ID_TO_DEV(id) < USB_MAX_DEVICES);
@@ -705,9 +822,11 @@ int usb_device_parse_ifacedesc(
 	usb_assert(*pbuff != NULL);
 	usb_assert(plen != NULL);
 
+	buff        = *pbuff;
+	len         = *plen;
 	pdevice     = &pstack->devices[USB_ID_TO_DEV(id)];
 	piface      = &pdevice->interfaces[USB_ID_TO_IFACE(id)];
-	piface_desc = (usb_desc_iface_t*)(*pbuff);
+	piface_desc = (usb_desc_iface_t*) buff;
 
 	if (*plen < USB_STDDESC_IFACE_SIZE)
 		return USB_STATUS_INV_PARAM;
@@ -723,7 +842,7 @@ int usb_device_parse_ifacedesc(
 	piface->protocol = piface_desc->bInterfaceProtocol;
 
 	/* Check whether there's a suitable driver for the given interface. */
-	driver_idx = usb_drivers_probe(pdevice, *pbuff, *plen);
+	driver_idx = usb_drivers_probe(pdevice, 0, buff, len);
 	if (driver_idx < 0)
 	{
 		/*
@@ -740,39 +859,57 @@ int usb_device_parse_ifacedesc(
 	usb_assert(driver_idx < USB_MAX_DRIVERS);
 	piface->driver_handle = (usb_driver_handle_t) driver_idx;
 
-	/*
-	 * Allocate  endpoints  but  don't  initialize  them  until  all  are  done,
-	 * otherwise, you might start  parsing  descriptors  to  discover  the  last
-	 * endpoint could not be allocated.
-	 */
-	for (ep = 0; ep < piface->n_endpoints; ++ep)
-	{
-		ret = usbhci_pipe_alloc();
-		if (ret < 0)
-			usb_assert(0); /** @TODO: handle error */
-		usb_assert(ret < USB_MAX_ENDPOINTS);
-		piface->endpoints[ep].handle = (uint8_t) ret;
-	}
+//	/*
+//	 * Allocate  endpoints  but  don't  initialize  them  until  all  are  done,
+//	 * otherwise, you might start  parsing  descriptors  to  discover  the  last
+//	 * endpoint could not be allocated.
+//	 */
+//	for (ep = 0; ep < piface->n_endpoints; ++ep)
+//	{
+//		ret = usbhci_pipe_alloc(piface->endpoints[ep].type);
+//		if (ret < 0)
+//			usb_assert(0); /** @TODO: handle error */
+//		usb_assert(ret < USB_MAX_ENDPOINTS);
+//		piface->endpoints[ep].handle = (uint8_t) ret;
+//	}
 
 	/* Endpoints pipes allocated, go ahead and parse descriptors. */
 	for (ep = 0; ep < piface->n_endpoints; ++ep)
 	{
-		/* First, advance buffer till next endpoint descriptor. */
-		if (usb_goto_next_epdesc(pbuff, plen))
+		/*
+		 * First,  advance  buffer  till  next  endpoint  descriptor,  this   is
+		 * important because other descriptors might be in between endpoint ones
+		 * and that is only known by the driver.
+		 */
+		if (usb_goto_next_desc(
+					pbuff,
+					plen,
+					USB_STDDESC_ENDPOINT,
+					USB_STDDESC_EP_SIZE) )
 			usb_assert(0); /** @TODO: handle error */
 
+		/* Get endpoint info and initialize it. */
 		usb_device_parse_epdesc(&piface->endpoints[ep], *pbuff);
-		*pbuff += USB_STDDESC_EP_SIZE;
-		*plen  -= USB_STDDESC_EP_SIZE;
+
+		/* Allocate physical endpoint to it ... */
+		ret = usbhci_pipe_alloc(piface->endpoints[ep].type);
+		if (ret < 0)
+			usb_assert(0); /** @TODO: handle error */
+		//usb_assert(ret < USB_MAX_ENDPOINTS);
+		piface->endpoints[ep].handle = (uint8_t) ret;
+
+		/* ... and configure it. */
+		if (usbhci_pipe_configure(
+				&piface->endpoints[ep],
+				pdevice->addr,
+				pdevice->speed) )
+			usb_assert(0); /** @TODO: handle error */
 	}
 
 	/* Finally, register interface with driver. */
-	ret = usb_drivers_assign(pstack, id, driver_idx);
+	ret = usb_drivers_assign(pstack, id, buff, len, driver_idx);
 	if (ret)
 		usb_assert(0); /** @TODO: handle error */
-
-	/** @FIXME: finish this function! */
-//	usb_assert(0);
 
 	return USB_STATUS_OK;
 }

@@ -35,7 +35,7 @@
 #define USB_MAX_INTERFACES   1
 
 /** @brief Maximum number of endpoints per interface (besides ep. 0).  */
-#define USB_MAX_ENDPOINTS    3
+#define USB_MAX_ENDPOINTS    2
 
 /** @brief Maximum number of HUBs, 0 equals no HUB support.  */
 #define USB_MAX_HUBS         0
@@ -52,6 +52,12 @@
 
 /** @brief Control transfer's buffer length.  */
 #define USB_XFER_BUFFER_LEN  256
+
+/**
+ * @brief Use this pipe value instead of an actual one when requesting the
+ * status of a control transfer.
+ */
+#define	USB_CTRL_PIPE_TOKEN  ((uint8_t) -1)
 
 /** @} Constants */
 
@@ -75,13 +81,12 @@ enum _usb_status_t
 	USB_STATUS_INV_DESC,       /**< Invalid descriptor.                       */
 	USB_STATUS_EP_AVAIL,       /**< Not enough pipes available.               */
 
-	USB_STATUS_EP_STALL,
+	USB_STATUS_EP_STALLED,
 	USB_STATUS_DEV_UNREACHABLE,
 	USB_STATUS_BUSY,           /**< Control endpoint is currently busy.       */
 
 	USB_STATUS_XFER_ERR,       /**< Error during transfer.                    */
 	USB_STATUS_XFER_WAIT,      /**< Transfer in progress.                     */
-	USB_STATUS_XFER_DONE,      /**< Transfer complete.              ????????  */
 };
 
 
@@ -191,7 +196,8 @@ typedef enum _usb_dev_state_t
 	                                      it full (up to 256 bytes).          */
 	USB_DEV_STATE_CFG_DESC,          /**< Parse cfg. desc. and request ifaces.
 	                                      descriptors.                        */
-	USB_DEV_STATE_IFACE_DESC,        /**< */
+	USB_DEV_STATE_UNLOCKING,         /**< */
+	USB_DEV_STATE_UNLOCKING2,        /**< */
     USB_DEV_STATE_CONFIGURED,        /**< Configured, in stand by for
 	                                      transactions.                       */
     USB_DEV_STATE_SUSPENDED          /**< Bus inactive, waiting for activity. */
@@ -242,6 +248,7 @@ typedef struct _usb_device_t
 	uint8_t         parent_port;    /**< Index of upstream HUB.               */
 #endif
 	uint8_t         n_interfaces;   /**< Number of interfaces.                */
+	uint8_t         cfg_value;      /**< Configuration value.                 */
 	uint8_t         xfer_length;    /**< Control buffer's length.             */
 } usb_device_t;
 
@@ -301,26 +308,31 @@ typedef struct _usb_stack_t
 typedef struct _usb_driver_t
 {
 	uint16_t  vendor_ID;
-	/**< Only probe devices that match this vendor ID, 0xFFFF to force. */
+	/**< Only probe devices that match this vendor ID, 0xFFFF to force.      */
 
 	uint16_t  product_ID;
-	/**< Only probe devices that match this product ID, 0xFFFF to force. */
+	/**< Only probe devices that match this product ID, 0xFFFF to force.     */
 
-	int (*probe) ( const uint8_t* buffer, const uint8_t len );
+	int (*probe)( const uint8_t* buffer, uint8_t len );
 	/**< Probing function, to determine driver compatibility with interface. */
 
-	int (*assign)( usb_stack_t* pstack, const uint16_t id );
-	/**< Assignment function to bind interface to driver.                    */
+	int (*assign)(
+			usb_stack_t*   pstack,
+			uint16_t       id,
+			const uint8_t* buffer,
+			uint8_t        length
+	);
+	/**< Assignment function to bind driver to interface.                    */
 
-	int (*remove)( usb_stack_t* pstack, const uint16_t id );
+	int (*remove)( usb_stack_t* pstack, uint16_t id );
 	/**< Remove and unbind interface from driver.                            */
 } usb_driver_t;
 
 #define USB_FORCE_PROBING_ID  0xFFFF
 
-#define	USB_ID_TO_DEV(id)     ((id) >> 8)
-#define	USB_ID_TO_IFACE(id)   ((id) & 0xFF)
-#define	USB_TO_ID(dev, iface) (((dev) << 8) | (iface))
+#define	USB_ID_TO_DEV(id)     ((uint8_t ) ((id) >> 8))
+#define	USB_ID_TO_IFACE(id)   ((uint8_t ) ((id) & 0xFF))
+#define	USB_TO_ID(dev, iface) ((uint16_t) (((dev) << 8) | (iface)))
 
 
 /* Validate constant definitions */

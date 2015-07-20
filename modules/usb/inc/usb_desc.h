@@ -21,7 +21,7 @@ typedef struct _usb_desc_dev_t
 	uint8_t  iProduct;
 	uint8_t  iSerialNumber;
 	uint8_t  bNumConfigurations;
-} usb_desc_dev_t;
+} __attribute__ ((__packed__)) usb_desc_dev_t;
 #define USB_STDDESC_DEV_SIZE   18
 
 typedef struct _usb_desc_cfg_t
@@ -34,8 +34,8 @@ typedef struct _usb_desc_cfg_t
 	uint8_t  iConfiguration;
 	uint8_t  bmAttributes;
 	uint8_t  bMaxPower;
-} usb_desc_cfg_t;
-#define USB_STDDESC_IFACE_SIZE  9
+} __attribute__ ((__packed__)) usb_desc_cfg_t;
+#define USB_STDDESC_CFG_SIZE    9
 
 typedef struct _usb_desc_iface_t
 {
@@ -48,7 +48,7 @@ typedef struct _usb_desc_iface_t
 	uint8_t  bInterfaceSubClass;
 	uint8_t  bInterfaceProtocol;
 	uint8_t  iInterface;
-} usb_desc_iface_t;
+} __attribute__ ((__packed__)) usb_desc_iface_t;
 #define USB_STDDESC_IFACE_SIZE  9
 
 typedef struct _usb_desc_ep_t
@@ -59,13 +59,18 @@ typedef struct _usb_desc_ep_t
 	uint8_t  bmAttributes;
 	uint16_t wMaxPacketSize;
 	uint8_t  bInterval;
-} usb_desc_ep_t;
+} __attribute__ ((__packed__)) usb_desc_ep_t;
 #define USB_STDDESC_EP_SIZE            7
 #define	USB_STDDESC_EP_ATTR_TYPE_MASK  0x03
 
 
 /* Descriptor handling methods. */
 
-int usb_goto_next_epdesc( const uint8_t** pbuff, uint8_t* plen );
+int usb_goto_next_desc(
+		const uint8_t** pbuff,
+		uint8_t*        plen,
+		usb_stddesc_t   ep_type,
+		uint8_t         ep_size
+);
 
 #endif /* __USB_DESC_H__ */
