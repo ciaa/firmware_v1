@@ -120,7 +120,7 @@ int main(void)
  *    OSErrorGetParam1
  *    OSErrorGetParam2
  *    OSErrorGetParam3
- *    OSErrorGetRet
+ *    OSErrorGetRejjgkfjgkft
  *
  * will provide you the interface, the input parameters and the returned value.
  * For more details see the OSEK specification:

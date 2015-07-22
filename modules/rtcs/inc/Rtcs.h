@@ -45,29 +45,29 @@
  *
  */
 
-#ifndef TEMPLATE_FILE_H
-#define TEMPLATE_FILE_H
-/** \brief Short description of this file
+#ifndef _RTCS_
+#define _RTCS_
+/** \brief Real-Time Control System Public Interface Header File
  **
- ** Long description of this file
+ ** Real-Time Control System Public Interface Header File
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup RTCS RTCS Implementation
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * DeV          Diego Ezequiel Vommaro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20150722 v0.0.1 DeV  initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -94,17 +94,26 @@ typedef signed int int32_t;
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Adds 2 16 bits signed and return a 16 bits signed value
+/** \brief Real-Time Control System initialization 
  **
- ** If the result is bigger than the limit in 15 bits returns
- ** INT16_MAX is lower than the limit in 15 bits returns
- ** INT16_MIN
+ ** Performs the initialization of the Rtcs tool
  **
- ** \param[in] 	  a first parameter to be added
- ** \param[in]    b second parameter ot be added
- ** \return E_OK  returns addition of a+b
  **/
-extern int16_t Template_Sum16bits(int16_t const a, int16_t const b);
+extern void Rtcs_Init(void);
+
+/** \brief Real-Time Control System boot 
+ **
+ ** Starts the Rtcs tool
+ **
+ **/
+extern void Rtcs_Start(void);
+
+/** \brief Real-Time Control System halt
+ **
+ ** Stops the Rtcs tool
+ **
+ **/
+extern void Rtcs_Stop(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -113,5 +122,5 @@ extern int16_t Template_Sum16bits(int16_t const a, int16_t const b);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef TEMPLATE_FILE_H */
+#endif /* #ifndef _RTCS_ */
 

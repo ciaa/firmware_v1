@@ -45,67 +45,73 @@
  *
  */
 
-/** \brief This file implements the public interface of the Rtcs tool 
+#ifndef TEMPLATE_FILE_H
+#define TEMPLATE_FILE_H
+/** \brief Short description of this file
  **
- ** This file implements the main functionality of the Rtcs tool
+ ** Long description of this file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup RTCS RTCS Implementation
+/** \addtogroup Template Template to start a new module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DeV          Diego Ezequiel Vommaro
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150722 v0.0.1 DeV  initial version
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "Rtcs.h"
-#include "Rtcs_Internal.h"
 
-/*==================[macros and definitions]=================================*/
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[internal data declaration]==============================*/
+/*==================[macros]=================================================*/
+/** \brief maximum value for a int16_t type */
+#define INT16_MAX   32767
 
-/*==================[internal functions declaration]=========================*/
+/** \brief minimum value for a int16_t type */
+#define INT16_MIN   -32768
 
-/*==================[internal data definition]===============================*/
+/*==================[typedef]================================================*/
+/** \brief Signed integer 16 bits */
+typedef signed short int16_t;
 
-/*==================[external data definition]===============================*/
+/** \brief Signed integer 32 bits type */
+typedef signed int int32_t;
 
-/*==================[internal functions definition]==========================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[external functions definition]==========================*/
-extern void Rtcs_Init(void)
-{
-   uint32_t i;
+/*==================[external functions declaration]=========================*/
+/** \brief Adds 2 16 bits signed and return a 16 bits signed value
+ **
+ ** If the result is bigger than the limit in 15 bits returns
+ ** INT16_MAX is lower than the limit in 15 bits returns
+ ** INT16_MIN
+ **
+ ** \param[in] 	  a first parameter to be added
+ ** \param[in]    b second parameter ot be added
+ ** \return E_OK  returns addition of a+b
+ **/
+extern int16_t Template_Sum16bits(int16_t const a, int16_t const b);
 
-   /* First execution of the all controllers */
-   for (i = 0; i < number_controllers; i++)
-      Rtcs_controllers_list[i]->ControllerFirstRunFunc(Rtcs_controllers_list[i]->data);
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-extern void Rtcs_Start(void)
-{
-   /* Activation of the Rtcs tool */
-   Rtcs_active = true;
-}
-
-extern void Rtcs_Stop(void)
-{
-   /* Deactivation of the Rtcs tool*/
-   Rtcs_active = false;
-}
-
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef TEMPLATE_FILE_H */
+

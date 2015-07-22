@@ -53,9 +53,9 @@ rtcs_VERSION     = 0.1.0
 # library path
 rtcs_PATH 		   = $(ROOT_DIR)$(DS)modules$(DS)rtcs
 # library source path
-rtcs_SRC_PATH 	= $(template_PATH)$(DS)src
+rtcs_SRC_PATH 	= $(rtcs_PATH)$(DS)src
 # library include path
-rtcs_INC_PATH 	= $(template_PATH)$(DS)inc
+rtcs_INC_PATH 	= $(rtcs_PATH)$(DS)inc
 # library source files
 rtcs_SRC_FILES 	= $(wildcard $(rtcs_SRC_PATH)$(DS)*.c)
 # files to be generated

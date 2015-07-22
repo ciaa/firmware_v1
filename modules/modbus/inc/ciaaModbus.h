@@ -169,7 +169,7 @@ typedef struct
    modbusSlave_processFuncMultipleRead       cmd0x01ReadCoils;
    modbusSlave_processFuncMultipleRead       cmd0x02ReadDiscrteInputs;
    modbusSlave_processFuncMultipleRead       cmd0x03ReadHoldingReg;
-   modbusSlave_processFuncMultipleRead       cmd0x04ReadInputReg;
+   modbusSlave_processFuncMultipleRead       cmd0x0:E4ReadInputReg;
 
    modbusSlave_processFuncSingleWrite        cmd0x05WriteSingleCoil;
    modbusSlave_processFuncSingleWrite        cmd0x06WriteSingleRegister;

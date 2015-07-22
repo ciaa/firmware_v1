@@ -45,10 +45,9 @@
  *
  */
 
-/** \brief This file implements the public interface of the Rtcs tool 
+/** \brief Real-Time Control System Internal Implementation File
  **
- ** This file implements the main functionality of the Rtcs tool
- **
+ ** \file Rtcs_Internal.c
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
@@ -65,11 +64,10 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150722 v0.0.1 DeV  initial version
+ * 20150721 v0.0.1 Dev  initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "Rtcs.h"
 #include "Rtcs_Internal.h"
 
 /*==================[macros and definitions]=================================*/
@@ -81,30 +79,12 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+bool Rtcs_active = false;
+Rtcs_generic_controller_t Rtcs_controllers_list[number_controllers];
 
 /*==================[internal functions definition]==========================*/
 
-/*==================[external functions definition]==========================*/
-extern void Rtcs_Init(void)
-{
-   uint32_t i;
-
-   /* First execution of the all controllers */
-   for (i = 0; i < number_controllers; i++)
-      Rtcs_controllers_list[i]->ControllerFirstRunFunc(Rtcs_controllers_list[i]->data);
-}
-
-extern void Rtcs_Start(void)
-{
-   /* Activation of the Rtcs tool */
-   Rtcs_active = true;
-}
-
-extern void Rtcs_Stop(void)
-{
-   /* Deactivation of the Rtcs tool*/
-   Rtcs_active = false;
-}
+/*==================[external functions definition]==========================*/_
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

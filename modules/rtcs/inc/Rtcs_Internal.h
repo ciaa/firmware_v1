@@ -45,10 +45,13 @@
  *
  */
 
-/** \brief This file implements the public interface of the Rtcs tool 
+#ifndef _RTCS_INTERNAL_H_
+#define _RTCS_INTERNAL_H_
+/** \brief Real-Time Control System Internal Header File
  **
- ** This file implements the main functionality of the Rtcs tool
+ ** Real-Time Control System Internal Header File
  **
+ ** \file Rtcs_Internal.h
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
@@ -65,47 +68,47 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150722 v0.0.1 DeV  initial version
+ * 20150721 v0.0.1 DeV  initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "Rtcs.h"
-#include "Rtcs_Internal.h"
 
-/*==================[macros and definitions]=================================*/
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[internal data declaration]==============================*/
+/*==================[macros]=================================================*/
 
-/*==================[internal functions declaration]=========================*/
+/*==================[typedef]================================================*/
+/** \brief Signed integer 16 bits */
+typedef signed short int16_t;
 
-/*==================[internal data definition]===============================*/
+/** \brief Signed integer 32 bits type */
+typedef signed int int32_t;
 
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-extern void Rtcs_Init(void)
+/** \brief Generic controller type */
+typedef struct
 {
-   uint32_t i;
+   void (*ControllerFirstRunFunc) (void *);
+   void (*ControllerSendFunc) (float *, uint16_t);
+   uint32_t period_in_ms;
+   void *data;
+}Rtcs_generic_controllers_t;
 
-   /* First execution of the all controllers */
-   for (i = 0; i < number_controllers; i++)
-      Rtcs_controllers_list[i]->ControllerFirstRunFunc(Rtcs_controllers_list[i]->data);
+/*==================[external data declaration]==============================*/
+extern uint32_t number_controllers;
+extern bool Rtcs_active;
+extern Rtcs_generic_controller_t* Rtcs_controllers_list[number_controllers];
+
+/*==================[external functions declaration]=========================*/
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-extern void Rtcs_Start(void)
-{
-   /* Activation of the Rtcs tool */
-   Rtcs_active = true;
-}
-
-extern void Rtcs_Stop(void)
-{
-   /* Deactivation of the Rtcs tool*/
-   Rtcs_active = false;
-}
-
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _RTCS_INTERNAL_H_ */
+

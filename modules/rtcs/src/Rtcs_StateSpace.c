@@ -45,32 +45,31 @@
  *
  */
 
-/** \brief This file implements the public interface of the Rtcs tool 
+/** \brief Short description of this file
  **
- ** This file implements the main functionality of the Rtcs tool
+ ** Long description of this file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup RTCS RTCS Implementation
+/** \addtogroup Template Template to start a new module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DeV          Diego Ezequiel Vommaro
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150722 v0.0.1 DeV  initial version
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "Rtcs.h"
-#include "Rtcs_Internal.h"
+#include "template.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -85,25 +84,18 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern void Rtcs_Init(void)
+extern int16_t Template_Sum16bits(int16_t const a, int16_t const b)
 {
-   uint32_t i;
+    int16_t ret;
+    if (((int32_t)((int32_t)a+(int32_t)b)) > (int32_t)INT16_MAX) {
+        ret = INT16_MAX;
+    } else if (((int32_t)((int32_t)a+(int32_t)b)) < (int32_t)INT16_MIN) {
+        ret = INT16_MIN;
+    } else {
+        ret = a + b;
+    }
 
-   /* First execution of the all controllers */
-   for (i = 0; i < number_controllers; i++)
-      Rtcs_controllers_list[i]->ControllerFirstRunFunc(Rtcs_controllers_list[i]->data);
-}
-
-extern void Rtcs_Start(void)
-{
-   /* Activation of the Rtcs tool */
-   Rtcs_active = true;
-}
-
-extern void Rtcs_Stop(void)
-{
-   /* Deactivation of the Rtcs tool*/
-   Rtcs_active = false;
+    return ret;
 }
 
 /** @} doxygen end group definition */
