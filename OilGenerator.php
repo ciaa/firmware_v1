@@ -51,7 +51,7 @@
 
 /*==================[inclusions]=============================================*/
 require_once("OilConfig.php");
-
+require_once("FileWriter.php");
 /*=================[user functions]============================================*/
 
 class OilGenerator
@@ -62,10 +62,7 @@ class OilGenerator
 
    private $errors = 0;
    private $warnings = 0;
-   private $generating = false;
    
-   private $ob_file;
-
    /** \brief Compare Files Function
    **/
    function comfiles($f)
@@ -109,14 +106,14 @@ class OilGenerator
    **/
    function info($msg)
    {
-      if($this->generating == true)
-         ob_end_flush();
+      $this->writer->pause();
+
       if ($this->verbose)
       {
          print "INFO: " . $msg . "\n";
       }
-      if($this->generating == true)
-         ob_start(array($this, 'ob_file_callback'));
+      $this->writer->resume();
+
    }
 
    /** \brief Warning Generator Function
@@ -128,10 +125,12 @@ class OilGenerator
    **/
    function warning($msg)
    {
-      ob_end_flush();
+      $this->writer->pause();
+
       print "WARNING: " . $msg . "\n";
       $this->warnings++;
-      ob_start(array($this, 'ob_file_callback'));
+      $this->writer->resume();
+
    }
 
    /** \brief Error Generator Function
@@ -146,12 +145,12 @@ class OilGenerator
    **/
    function error($msg)
    {
-      global $error;
-      ob_end_flush();
+      $this->writer->pause();
+
       print "ERROR: " . $msg . "\n";
       $this->errors++;
-      $error = true;
-      ob_start(array($this, 'ob_file_callback'));
+      $this->writer->resume();
+
    }
 
    /** \brief Abort Generator Function
@@ -163,8 +162,9 @@ class OilGenerator
    **/
    function halt($msg)
    {
-      ob_end_flush();
-      $this->error($msg);
+      $this->writer->pause();
+      $this->error("Generation Finished with WARNINGS: " .$this->warnings . " and ERRORS: " . $this->errors);
+      $this->writer->close();
       exit(1);
    }
 
@@ -172,11 +172,6 @@ class OilGenerator
 
    /*=================[global variables]==========================================*/
 
-
-   function ob_file_callback($buffer)
-   {
-      fwrite($this->ob_file,$buffer);
-   }
 
    function printCmdLine()
    {
@@ -332,9 +327,55 @@ class OilGenerator
       $outfile = $baseOutDir . $outfile;
       return $outfile;
    }
+
+   public function checkFiles( $configfiles, $baseOutDir, $templatefiles)
+   {
+      $ok = true;
+      foreach ($configfiles as $file)
+      {
+         if ( !file_exists($file))
+         {
+            $this->error("configuration file $file not found");
+            $ok = false;
+         }
+      }
+
+      foreach ($templatefiles as $file)
+      {
+         if(!file_exists($file))
+         {         
+            $this->error("Template $file does not exists");
+            $ok = false;
+         }
+      }
+
+      if ( ! is_dir($baseOutDir) || ! is_writeable($baseOutDir) )
+      { 
+         $this->error("Directory $baseOutDir not writeable");
+         $ok = false;
+      }
+      return $ok;
+   }
+
+   function isMak($outfile, $runagain)
+   {
+      if ($runagain)
+      {
+         if($this->comfiles(array($outfile, $outfile . ".old")) == false)
+         {
+            if(substr($file, strlen($file) - strlen(".mak.php") ) == ".mak.php")
+            {
+               $runagain = true;
+            }
+         }
+      }
+      return $runagain;
+   }
+
    
    public function run($args) 
    {
+      $this->writer = new FileWriter(); // get from caller
       $this->path = array_shift($args);
 
       $this->path = substr($this->path,0, strlen($this->path)-strlen("/generator.php"));
@@ -346,7 +387,10 @@ class OilGenerator
       print "         All rights reserved.\n\n";
 
       list($verbose, $definition, $configfiles, $baseOutDir, $templatefiles,$pathDelimiter)= $this->processArgs($args);
-
+      if ( ! $this->checkFiles($configfiles, $baseOutDir , $templatefiles) )
+      {
+         $this->halt("Missing files");
+      }
       if ($this->verbose)
       {
          $this->info("list of configuration files:");
@@ -376,41 +420,18 @@ class OilGenerator
 
       foreach ($templatefiles as $file)
       {
-         $exists = false;
-         $outfile = $this->outputFileName($file,$baseOutDir,$pathDelimiter);
-
-
-
-         $this->info("generating ". $file . " to " . $outfile);
-
-         if(!file_exists(dirname($outfile)))
-         {
-            mkdir(dirname($outfile), 0777, TRUE);
+         if(!file_exists($file))
+         {         
+            $this->error("Template $file does not exists");
          }
-         if(file_exists($outfile))
+         else
          {
-            $exists = true;
-            if(file_exists($outfile . ".old"))
-            {
-               unlink($outfile . ".old");
-            }
-            rename($outfile, $outfile . ".old");
-         }
-         $this->ob_file = fopen($outfile, "w");
-         ob_start(array($this, 'ob_file_callback'));
-         $this->generating=true;
-         require_once($file);
-         $this->generating=false;
-         ob_end_flush();
-         fclose($this->ob_file);
-         if($this->comfiles(array($outfile, $outfile . ".old")) == false)
-         {
-            if(substr($file, strlen($file) - strlen(".mak.php") ) == ".mak.php")
-            {
-               $runagain = true;
-            }
-         }
-
+            $outfile = $this->writer->open($file,$baseOutDir,$pathDelimiter, $this);
+            $this->writer->start();
+            require_once($file);
+            $this->writer->close();
+            $runagain = $this->isMak($outfile, $runagain);
+        }
       }
 
       $this->info("Generation Finished with WARNINGS: " .$this->warnings . " and ERRORS: " . $this->errors);
@@ -418,7 +439,7 @@ class OilGenerator
       {
          exit(1);
       }
-      elseif($runagain == true)
+      if($runagain == true)
       {
          $this->info("a makefile was generated, generation process will be executed again");
          system("make generate");
