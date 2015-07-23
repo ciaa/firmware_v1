@@ -6,11 +6,18 @@ class FileWriter extends OutputWriter
 {
 
    private $ob_file;
-   private $buffering = false;
 
+   public function outputFileName($file,$baseOutDir,$pathDelimiter)
+   {
+      $outfile = substr($file, 0, strlen($file)-4);
+      $outfile = substr($outfile, strpos($outfile, $pathDelimiter)+strlen($pathDelimiter) -1);
+      $outfile = $baseOutDir . $outfile;
+      return $outfile;
+   }
+   
    public function open($file,$baseOutDir,$pathDelimiter, $caller)
    {
-      $outfile = $caller->outputFileName($file,$baseOutDir,$pathDelimiter);
+      $outfile = $this->outputFileName($file,$baseOutDir,$pathDelimiter);
       
       $caller->info("buffering ". $file . " to " . $outfile);
       
@@ -31,24 +38,6 @@ class FileWriter extends OutputWriter
       return $outfile; 
    }
    
-   function start()
-   {
-      ob_start(array($this, 'ob_file_callback'));
-      $this->buffering = true;
-   }
-   
-   function pause()
-   {
-      if($this->buffering == true)
-         ob_end_flush();
-   }
-   
-   function resume()
-   {
-      if($this->buffering == true)
-         $this->start();
-   }
-   
    public function close()
    {
       $this->buffering=false;
@@ -56,7 +45,7 @@ class FileWriter extends OutputWriter
       fclose($this->ob_file);
    }
 
-   function ob_file_callback($buffer)
+   public function ob_file_callback($buffer)
    {  
       fwrite($this->ob_file,$buffer);
    }

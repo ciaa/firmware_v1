@@ -51,7 +51,6 @@
 
 /*==================[inclusions]=============================================*/
 require_once("OilConfig.php");
-require_once("FileWriter.php");
 /*=================[user functions]============================================*/
 
 class OilGenerator
@@ -320,13 +319,7 @@ class OilGenerator
       
       return array($this->verbose, $definition, $configfiles, $baseOutDir[0], $templatefiles,$pathDelimiter[0]);
    }
-   public function outputFileName($file,$baseOutDir,$pathDelimiter)
-   {
-      $outfile = substr($file, 0, strlen($file)-4);
-      $outfile = substr($outfile, strpos($outfile, $pathDelimiter)+strlen($pathDelimiter) -1);
-      $outfile = $baseOutDir . $outfile;
-      return $outfile;
-   }
+
 
    public function checkFiles( $configfiles, $baseOutDir, $templatefiles)
    {
@@ -373,9 +366,9 @@ class OilGenerator
    }
 
    
-   public function run($args) 
+   public function run($writer, $args) 
    {
-      $this->writer = new FileWriter(); // get from caller
+      $this->writer = $writer;
       $this->path = array_shift($args);
 
       $this->path = substr($this->path,0, strlen($this->path)-strlen("/generator.php"));
