@@ -838,6 +838,7 @@ else
 endif
 ###############################################################################
 # Run all FreeOSEK Tests
+include modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)mak$(DS)Makefile
 rtostests:
 	mkdir -p $(OUT_DIR)$(DS)doc$(DS)ctest
 	@echo GDB:$(GDB) $(GFLAGS) > $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
