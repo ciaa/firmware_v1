@@ -52,13 +52,15 @@
 
 /*==================[inclusions]=============================================*/
 require_once("FileWriter.php");
+require_once("StdoutWriter.php");
+
 require_once("OilGenerator.php");
 
 /*=================[user functions]============================================*/
 
 
-$generator = new OilGenerator();
-$generator->run(new FileWriter(),$_SERVER['argv']);
+$generator = new OilGenerator(new StdoutWriter());
+$generator->run($_SERVER['argv']);
 
 
 /** @} doxygen end group definition */
