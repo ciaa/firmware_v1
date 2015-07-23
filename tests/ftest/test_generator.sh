@@ -30,6 +30,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 testBlinkingExampleFull() {
+   rm -rf ${TMP}${DS}*
+
    php modules/rtos/generator/generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
       -f ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
@@ -39,10 +41,9 @@ testBlinkingExampleFull() {
          ${FIXTURES}${DS}gen/src/x86/Os_Internal_Arch_Cfg.c.php \
          ${FIXTURES}${DS}gen/inc/x86/Os_Internal_Arch_Cfg.h.php \
       -b /gen/ \
-      -o ${TMP}${DS} > /dev/null 2>&1
+      -o ${TMP} > /dev/null 2>&1
 
    GOT=${TMP}
-
 
    FILE=$(find "$GOT" -iname Os_Cfg.c)
    diff -w  ${EXPECTED}${DS}src/Os_Cfg.c                   "$FILE" > /dev/null 
@@ -72,14 +73,15 @@ testBlinkingExampleFull() {
 }
 
 testOneTemplate() {
+   rm -rf ${TMP}${DS}*
+
    php modules/rtos/generator/generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
       -f ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
       -b /gen/ \
-      -o ${TMP}${DS} > /dev/null 2>&1
+      -o ${TMP} > /dev/null 2>&1
 
    GOT=${TMP}
-
 
    FILE=$(find "$GOT" -iname Os_Internal_Cfg.h)
    diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h                   "$FILE" > /dev/null 
@@ -93,7 +95,7 @@ testOutputPath() {
       -c ${FIXTURES}${DS}blinking.oil \
       -f ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
       -b /gen/ \
-      -o ${TMP}${DS} > /dev/null 2>&1
+      -o ${TMP} > /dev/null 2>&1
 
    GOT=${TMP}
 
@@ -102,6 +104,8 @@ testOutputPath() {
 
    rm -rf ${TMP}${DS}*
 }
+
+
 SHUNIT=$1
 TESTS=$2
 DS=$3

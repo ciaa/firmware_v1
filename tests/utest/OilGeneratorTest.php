@@ -75,7 +75,7 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
                'outdir' => '/modules/out',
                'relativeBase' => '/tmp/'
             ),
-            '// 1'),
+            '// 2'),
          array(
             '/modules/out/inc/Os_Internal_Cfg.h',
             array(
@@ -83,7 +83,15 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
                'outdir' => '/modules/out',
                'relativeBase' => '/templates/'
             ),
-            '// 1'),
+            '// 3'),
+         array(
+            '/home/ciaa/Firmware/modules/rtos/generator/tests/ftest/tmp/inc/Os_Cfg.h',
+            array(
+               'template' => '/home/ciaa/Firmware/modules/rtos/generator/tests/ftest/fixtures/templates/inc/Os_Cfg.h.php',
+               'outdir' => '/home/ciaa/Firmware/modules/rtos/generator/tests/ftest/tmp',
+               'relativeBase' => '/templates/'
+            ),
+            '// 4'),
       );
    }
    /**
@@ -97,6 +105,9 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
       $this->assertEquals($expected, $got ,$msg);
 
    }
+
+
+
 
 }
 /** @} doxygen end group definition */
