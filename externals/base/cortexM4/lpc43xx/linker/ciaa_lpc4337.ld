@@ -15,81 +15,60 @@ ENTRY(ResetISR)
 
 SECTIONS
 {
+    
+    .text_Flash2 : ALIGN(4)
+    {
+       FILL(0xff)
+    	*(.text_Flash2*) /* for compatibility with previous releases */
+    	*(.text_MFlashB512*) /* for compatibility with previous releases */
+    	*(.text.$Flash2*)
+    	*(.text.$MFlashB512*)
+    	*(.rodata.$Flash2*)
+    	*(.rodata.$MFlashB512*)
+    } > MFlashB512
 
     /* MAIN TEXT SECTION */    
-    .text1 : ALIGN(4)
+    .text : ALIGN(4)
     {
         FILL(0xff)
-
-        LONG(_vStackTop);
-        LONG(ResetISR | 1);   /* 1 */
-        LONG(0x0);            /* 2 */
-        LONG(0x0);            /* 3 */        
-        LONG(0x1);            /* 4 */
-        LONG(0x0);            /* 5 */
-        LONG(0x0);            /* 6 */
-        LONG(0x0);            /* 7 */
-        LONG(0x0);            /* 8 */
-        LONG(0x0);            /* 9 */
-        LONG(0x0);            /* 10 */
-        LONG(0x0);            /* 11 */
-        LONG(0x0);            /* 12 */
-        LONG(0x0);            /* 13 */
-        LONG(0x0);            /* 14 */
-        LONG(0x0);            /* 15 */
-        LONG(0x0);            /* 16 */
-        LONG(0x0);            /* 17 */
-        LONG(0x0);            /* 18 */        
-        LONG(0x0);            /* 19 */
-        LONG(0x0);            /* 20 */
-        LONG(0x0);            /* 21 */
-        LONG(0x0);            /* 22 */
-        LONG(0x0);            /* 23 */
-        LONG(0x0);            /* 24 */
-        LONG(0x0);            /* 25 */
-        LONG(0x0);            /* 26 */
-        LONG(0x0);            /* 28 */
-        LONG(0x0);            /* 29 */        
-        LONG(0x0);            /* 30 */
-        LONG(0x0);            /* 31 */
-        LONG(0x0);            /* 32 */
-        LONG(0x0);            /* 33 */
-        LONG(0x0);            /* 34 */
-        LONG(0x0);            /* 35 */
-        LONG(0x0);            /* 36 */
-        LONG(0x0);            /* 37 */
-        LONG(0x0);            /* 38 */
-        LONG(0x0);            /* 39 */        
-        LONG(0x0);            /* 40 */
-        LONG(0x0);            /* 41 */
-        LONG(0x0);            /* 42 */
-        LONG(0x0);            /* 43 */
-        LONG(0x0);            /* 44 */
-        LONG(0x0);            /* 45 */
-        LONG(0x0);            /* 46 */
-        LONG(0x0);            /* 47 */
-        LONG(0x0);            /* 48 */
-        LONG(0x0);            /* 49 */        
-        LONG(0x0);            /* 50 */
-        LONG(0x0);            /* 51 */
-        LONG(0x0);            /* 52 */
-        LONG(0x0);            /* 53 */
-        LONG(0x0);            /* 54 */
-        LONG(0x0);            /* 55 */
-        LONG(0x0);            /* 56 */
-        LONG(0x0);            /* 57 */
-        LONG(0x0);            /* 58 */
-        LONG(0x0);            /* 59 */        
-        LONG(0x0);            /* 60 */
-        LONG(0x0);            /* 61 */
-        LONG(0x0);            /* 62 */
-        LONG(0x0);            /* 63 */
-        LONG(0x0);            /* 64 */
-        LONG(0x0);            /* 65 */
-        LONG(0x0);            /* 66 */
-        LONG(0x0);            /* 67 */
-        LONG(0x0);            /* 68 */
-        LONG(0x0);            /* 69 */
+        __vectors_start__ = ABSOLUTE(.) ;
+        KEEP(*(.isr_vector))
+        
+        /* Global Section Table */
+        . = ALIGN(4) ;
+        __section_table_start = .;
+        __data_section_table = .;
+        LONG(LOADADDR(.data));
+        LONG(    ADDR(.data));
+        LONG(  SIZEOF(.data));
+        LONG(LOADADDR(.data_RAM2));
+        LONG(    ADDR(.data_RAM2));
+        LONG(  SIZEOF(.data_RAM2));
+        LONG(LOADADDR(.data_RAM3));
+        LONG(    ADDR(.data_RAM3));
+        LONG(  SIZEOF(.data_RAM3));
+        LONG(LOADADDR(.data_RAM4));
+        LONG(    ADDR(.data_RAM4));
+        LONG(  SIZEOF(.data_RAM4));
+        LONG(LOADADDR(.data_RAM5));
+        LONG(    ADDR(.data_RAM5));
+        LONG(  SIZEOF(.data_RAM5));
+        __data_section_table_end = .;
+        __bss_section_table = .;
+        LONG(    ADDR(.bss));
+        LONG(  SIZEOF(.bss));
+        LONG(    ADDR(.bss_RAM2));
+        LONG(  SIZEOF(.bss_RAM2));
+        LONG(    ADDR(.bss_RAM3));
+        LONG(  SIZEOF(.bss_RAM3));
+        LONG(    ADDR(.bss_RAM4));
+        LONG(  SIZEOF(.bss_RAM4));
+        LONG(    ADDR(.bss_RAM5));
+        LONG(  SIZEOF(.bss_RAM5));
+        __bss_section_table_end = .;
+        __section_table_end = . ;
+        /* End of Global Section Table */
+        
 
         *(.after_vectors*)
         
@@ -100,62 +79,186 @@ SECTIONS
         PROVIDE(__CRP_WORD_END__ = .) ;
         ASSERT(!(__CRP_WORD_START__ == __CRP_WORD_END__), "Linker CRP Enabled, but no CRP_WORD provided within application");
         /* End of Code Read Protect */
-
-        *(.text.Chip_Clock*)
-        *(.text.Chip_System*)
-        *(.text.Chip_Setup*)
+        
     } >MFlashA512
     
-    /* Code and read-only/const data, address: 0x10080000 */
     .text : ALIGN(4)    
     {
-        g_pfnVectors = ABSOLUTE(.) ;
-        KEEP(*(.isr_vector))   
-
-        *(.text*)
+         *(.text*)
         *(.rodata .rodata.* .constdata .constdata.*)
         . = ALIGN(4);
-    } > RamLoc40
+        
+    } > MFlashA512
+
+    /*
+     * for exception handling/unwind - some Newlib functions (in common
+     * with C++ and STDC++) use this. 
+     */
+    .ARM.extab : ALIGN(4)
+    {
+    	*(.ARM.extab* .gnu.linkonce.armextab.*)
+    } > MFlashA512
+    __exidx_start = .;
+    
+    .ARM.exidx : ALIGN(4)
+    {
+    	*(.ARM.exidx* .gnu.linkonce.armexidx.*)
+    } > MFlashA512
+    __exidx_end = .;
+    
+    _etext = .;
+        
+    
+    /* DATA section for RamLoc40 */
+   .data_RAM2 : ALIGN(4)
+    {
+       FILL(0xff)
+      /*  __core_m0app_START__ = .; start of slave image 
+         KEEP(*(.core_m0app))
+       __core_m0app_END__ = .;  end of slave image 
+       ASSERT(!(__core_m0app_START__ == __core_m0app_END__), "No slave code for _core_m0app");
+       ASSERT( (ABSOLUTE(__core_m0app_START__) == __vectors_start___core_m0app), "M0APP execute address differs from address provided in source image");*/
+       *(.ramfunc.$RAM2)
+       *(.ramfunc.$RamLoc40)
+    	*(.data.$RAM2*)
+    	*(.data.$RamLoc40*)
+       . = ALIGN(4) ;
+    } > RamLoc40 AT>MFlashA512
+    
+    /* DATA section for RamAHB32 */
+    .data_RAM3 : ALIGN(4)
+    {
+       FILL(0xff)
+       *(.ramfunc.$RAM3)
+       *(.ramfunc.$RamAHB32)
+    	*(.data.$RAM3*)
+    	*(.data.$RamAHB32*)
+       . = ALIGN(4) ;
+    } > RamAHB32 AT>MFlashA512
+    
+    /* DATA section for RamAHB16 */
+    .data_RAM4 : ALIGN(4)
+    {
+       FILL(0xff)
+       *(.ramfunc.$RAM4)
+       *(.ramfunc.$RamAHB16)
+    	*(.data.$RAM4*)
+    	*(.data.$RamAHB16*)
+       . = ALIGN(4) ;
+    } > RamAHB16 AT>MFlashA512
+    
+    /* DATA section for RamAHB_ETB16 */
+    .data_RAM5 : ALIGN(4)
+    {
+       FILL(0xff)
+       *(.ramfunc.$RAM5)
+       *(.ramfunc.$RamAHB_ETB16)
+    	*(.data.$RAM5*)
+    	*(.data.$RamAHB_ETB16*)
+       . = ALIGN(4) ;
+    } > RamAHB_ETB16 AT>MFlashA512
+    
     /* MAIN DATA SECTION */
     
-    /* Initialized Data, address: 0x10080000 */
-    /* Main DATA section (RamLoc40) */
-    .data : ALIGN(4)
+
+    .uninit_RESERVED : ALIGN(4)
     {
-       FILL(0x00)
-       _data = . ;
+        KEEP(*(.bss.$RESERVED*))
+        . = ALIGN(4) ;
+        _end_uninit_RESERVED = .;
+    } > RamLoc32
 
-       /* Global Section Table */
-        __section_table_start = .;
-        
-        __data_section_table = .;
-        /* Empty data Table */
-        __data_section_table_end = .;
-        
-        __bss_section_table = .;
-        LONG(    ADDR(.bss));
-        LONG(  SIZEOF(.bss));
-        __bss_section_table_end = .;
-        
-        __section_table_end = . ;
-        /* End of Global Section Table */
+	
+	/* Main DATA section (RamLoc32) */
+	.data : ALIGN(4)
+	{
+	   FILL(0xff)
+	   _data = . ;
+	   *(vtable)
+	   *(.ramfunc*)
+	   *(.data*)
+	   . = ALIGN(4) ;
+	   _edata = . ;
+	} > RamLoc32 AT>MFlashA512
 
-       *(.data*)
+    /* BSS section for RamLoc40 */
+    .bss_RAM2 : ALIGN(4)
+    {
+    	*(.bss.$RAM2*)
+    	*(.bss.$RamLoc40*)
        . = ALIGN(4) ;
-       _edata = . ;
     } > RamLoc40
+    /* BSS section for RamAHB32 */
+    .bss_RAM3 : ALIGN(4)
+    {
+    	*(.bss.$RAM3*)
+    	*(.bss.$RamAHB32*)
+       . = ALIGN(4) ;
+    } > RamAHB32
+    /* BSS section for RamAHB16 */
+    .bss_RAM4 : ALIGN(4)
+    {
+    	*(.bss.$RAM4*)
+    	*(.bss.$RamAHB16*)
+       . = ALIGN(4) ;
+    } > RamAHB16
+    /* BSS section for RamAHB_ETB16 */
+    .bss_RAM5 : ALIGN(4)
+    {
+    	*(.bss.$RAM5*)
+    	*(.bss.$RamAHB_ETB16*)
+       . = ALIGN(4) ;
+    } > RamAHB_ETB16
 
     /* MAIN BSS SECTION */
     .bss : ALIGN(4)
     {
-       FILL(0x00)    
         _bss = .;
-        *(.bss*);
-        . = ALIGN(4);
+        *(.bss*)
+        *(COMMON)
+        . = ALIGN(4) ;
         _ebss = .;
         PROVIDE(end = .);
-    } > RamLoc40
+    } > RamLoc32
+        
+    /* NOINIT section for RamLoc40 */
+    .noinit_RAM2 (NOLOAD) : ALIGN(4)
+    {
+    	*(.noinit.$RAM2*)
+    	*(.noinit.$RamLoc40*)
+       . = ALIGN(4) ;
+    } > RamLoc40 
+    /* NOINIT section for RamAHB32 */
+    .noinit_RAM3 (NOLOAD) : ALIGN(4)
+    {
+    	*(.noinit.$RAM3*)
+    	*(.noinit.$RamAHB32*)
+       . = ALIGN(4) ;
+    } > RamAHB32 
+    /* NOINIT section for RamAHB16 */
+    .noinit_RAM4 (NOLOAD) : ALIGN(4)
+    {
+    	*(.noinit.$RAM4*)
+    	*(.noinit.$RamAHB16*)
+       . = ALIGN(4) ;
+    } > RamAHB16 
+    /* NOINIT section for RamAHB_ETB16 */
+    .noinit_RAM5 (NOLOAD) : ALIGN(4)
+    {
+    	*(.noinit.$RAM5*)
+    	*(.noinit.$RamAHB_ETB16*)
+       . = ALIGN(4) ;
+    } > RamAHB_ETB16 
+    
+    /* DEFAULT NOINIT SECTION */
+    .noinit (NOLOAD): ALIGN(4)
+    {
+        _noinit = .;
+        *(.noinit*) 
+         . = ALIGN(4) ;
+        _end_noinit = .;
+    } > RamLoc32
     
     PROVIDE(_pvHeapStart = .);
-    PROVIDE(_vStackTop = __top_RamLoc40 - 0);
+    PROVIDE(_vStackTop = __top_RamLoc32 - 0);
 }
