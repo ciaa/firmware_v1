@@ -105,3 +105,6 @@ public function OutputFileNameProvider()
 
    }
 }
+  
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */

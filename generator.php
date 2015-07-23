@@ -63,5 +63,3 @@ $generator->run($_SERVER['argv']);
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/*==================[end of file]============================================*/
-?>

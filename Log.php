@@ -1,9 +1,5 @@
 <?php
-/* Copyright 2008, 2009, 2015 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
- * Copyright 2015, Carlos Pantelides 
+/* Copyright 2015, Carlos Pantelides 
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -147,15 +143,6 @@ class Log
    }
 
 }
-/** \addtogroup FreeOSEK
- ** @{ */
-/** \addtogroup Generator
- ** @{ */
- 
- 
- 
- 
- 
+  
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/*==================[end of file]============================================*/

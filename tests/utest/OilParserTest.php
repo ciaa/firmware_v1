@@ -129,6 +129,6 @@ class OilParserTest extends PHPUnit_Framework_TestCase
       $this->assertEquals($expected, $parser->removeMultiBlank($data), $msg);
    }
 }
+  
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/*==================[end of file]============================================*/

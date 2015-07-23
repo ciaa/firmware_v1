@@ -56,12 +56,10 @@ require_once("Log.php");
 
 class OilGenerator
 {
-
    private $verbose = false;
    private $path = "";
    private $log;
    private $writer;
-
    
    /** \brief Compare Files Function
    **/
@@ -73,7 +71,6 @@ class OilGenerator
       {
          $f1 = file($f[0]);
          $f2 = file($f[1]);
-         #info("File: " . $f[0] . ", " . $f[1]);
 
          if(count($f1)==count($f2))
          {
@@ -96,13 +93,6 @@ class OilGenerator
       return $ret;
 
    }
-
-
-
-
-
-
-
 
    /*=================[end of user functions]=====================================*/
 
@@ -163,11 +153,11 @@ class OilGenerator
 
    function processArgs($args)
    {
-      $configfiles= array();
-      $definition=array();
+      $configFiles= array();
+      $definitions=array();
       $baseOutDir=array();
-      $templatefiles=array();
-      $pathDelimiter=array();
+      $templateFiles=array();
+      $directorySeparator=array();
       
       foreach ($args as $arg)
       {
@@ -199,14 +189,14 @@ class OilGenerator
                if (0 == strpos("-D", $arg))
                {
                   $tmp = explode("=", substr($arg, 2));
-                  $definition[$tmp[0]] = $tmp[1];
+                  $definitions[$tmp[0]] = $tmp[1];
                }
             } else {
                switch($oldarg)
                {
                case "-c":
                   /* add a config file */
-                  $configfiles[] = $arg;
+                  $configFiles[] = $arg;
                   break;
                case "-o":
                   /* add an output dir */
@@ -214,11 +204,11 @@ class OilGenerator
                   break;
                case "-f":
                   /* add generated file */
-                  $templatefiles[] = $arg;
+                  $templateFiles[] = $arg;
                   break;
                case "-b":
                   /* add path delimiter */
-                  $pathDelimiter[] = $arg;
+                  $directorySeparator[] = $arg;
                   break;
                default:
                   $this->halt("invalid argument: " . $arg);
@@ -229,7 +219,7 @@ class OilGenerator
          }
       }
       
-      if (count($configfiles)==0)
+      if (count($configFiles)==0)
       {
          $this->halt("at least one config file shall be provided");
       }
@@ -239,38 +229,37 @@ class OilGenerator
          $this->halt("exactly one output directory shall be provided");
       }
 
-      if (count($templatefiles)==0)
+      if (count($templateFiles)==0)
       {
          $this->halt("at least one tempalte file shall be provided");
       }
 
-      if (count($pathDelimiter)>1)
+      if (count($directorySeparator)>1)
       {
          $this->halt("no more than one path delimiter shall be provided");
       }
       
-      if (count($pathDelimiter == 0 ))
+      if (count($directorySeparator == 0 ))
       {
-         $pathDelimiter[]="/gen/"; #TODO: use /templates/
+         $directorySeparator[]="/gen/"; #TODO: use /templates/
       }
       
-      return array($this->verbose, $definition, $configfiles, $baseOutDir[0], $templatefiles,$pathDelimiter[0]);
+      return array($this->verbose, $definitions, $configFiles, $baseOutDir[0], $templateFiles,$directorySeparator[0]);
    }
 
-
-   public function checkFiles( $configfiles, $baseOutDir, $templatefiles)
+   public function checkFiles( $configFiles, $baseOutDir, $templateFiles)
    {
       $ok = true;
-      foreach ($configfiles as $file)
+      foreach ($configFiles as $file)
       {
          if ( !file_exists($file))
          {
-            $this->error("configuration file $file not found");
+            $this->error("Configuration file $file not found");
             $ok = false;
          }
       }
 
-      foreach ($templatefiles as $file)
+      foreach ($templateFiles as $file)
       {
          if(!file_exists($file))
          {         
@@ -317,16 +306,20 @@ class OilGenerator
 
       $this->path = substr($this->path,0, strlen($this->path)-strlen("/generator.php"));
 
-      print "ciaaFirmware RTOS Generator - Copyright 2008, 2009, 2015 Mariano Cerdeiro\n";
-      print "                              Copyright 2014, ACSE & CADIEEL\n";
-      print "         ACSE : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/\n";
-      print "         CADIEEL: http://www.cadieel.org.ar\n";
-      print "         All rights reserved.\n\n";
 
-      list($verbose, $definition, $configfiles, $baseOutDir, $templatefiles,$pathDelimiter)= $this->processArgs($args);
+      list($verbose, $definitions, $configFiles, $baseOutDir, $templateFiles,$directorySeparator)= $this->processArgs($args);
       
       $this->log->setVerbose($verbose);
-      if ( ! $this->checkFiles($configfiles, $baseOutDir , $templatefiles) )
+      if ($verbose)
+      {
+         print "ciaaFirmware RTOS Generator - Copyright 2008, 2009, 2015 Mariano Cerdeiro\n";
+         print "                              Copyright 2014, ACSE & CADIEEL\n";
+         print "         ACSE : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/\n";
+         print "         CADIEEL: http://www.cadieel.org.ar\n";
+         print "         All rights reserved.\n\n";
+      }
+      
+      if ( ! $this->checkFiles($configFiles, $baseOutDir , $templateFiles) )
       {
          $this->log->halt("Missing files");
       }
@@ -334,14 +327,14 @@ class OilGenerator
       {
          $this->log->info("list of configuration files:");
          $count = 1;
-         foreach ($configfiles as $file)
+         foreach ($configFiles as $file)
          {
             $this->log->info("configuration file " . $count++ . ": " . $file);
          }
 
          $this->log->info("list of templates to be processed:");
          $count = 1;
-         foreach ($templatefiles as $file)
+         foreach ($templateFiles as $file)
          {
             $this->log->info("template file " . $count++ . ": " . $file);
          }
@@ -351,13 +344,13 @@ class OilGenerator
 
       $config = new OilConfig();
       $runagain = false;
-      foreach ($configfiles as $file)
+      foreach ($configFiles as $file)
       {
          $this->log->info("reading " . $file);
          $config->parseOilFile($file);
       }
 
-      foreach ($templatefiles as $file)
+      foreach ($templateFiles as $file)
       {
          if(!file_exists($file))
          {         
@@ -365,7 +358,7 @@ class OilGenerator
          }
          else
          {
-            $outfile = $this->writer->open($file,$baseOutDir,$pathDelimiter, $this);
+            $outfile = $this->writer->open($file,$baseOutDir,$directorySeparator, $this);
             $this->writer->start();
             require_once($file);
             $this->writer->close();
@@ -387,7 +380,6 @@ class OilGenerator
    }
 }
 
+ 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/*==================[end of file]============================================*/
-?>

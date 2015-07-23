@@ -253,7 +253,6 @@ class OilConfig {
 
 }
 
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/*==================[end of file]============================================*/
-?>
