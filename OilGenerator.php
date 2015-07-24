@@ -40,7 +40,7 @@
  **
  ** This file implements the FreeOSEK Generator
  **
- ** \file oilGenerator.php
+ ** \file OilGenerator.php
  **
  **/
 
@@ -51,6 +51,7 @@
 
 /*==================[inclusions]=============================================*/
 require_once("OilConfig.php");
+require_once("Log.php");
 /*=================[user functions]============================================*/
 
 class OilGenerator
@@ -58,9 +59,9 @@ class OilGenerator
 
    private $verbose = false;
    private $path = "";
+   private $log;
+   private $writer;
 
-   private $errors = 0;
-   private $warnings = 0;
    
    /** \brief Compare Files Function
    **/
@@ -96,76 +97,12 @@ class OilGenerator
 
    }
 
-   /** \brief Info Generator Function
-   **
-   ** This function shall be used to report generation information to the user.
-   ** Please don't use this function for report warnings or errors.
-   **
-   ** \param[in] msg string containing the information message to be reported
-   **/
-   function info($msg)
-   {
-      $this->writer->pause();
 
-      if ($this->verbose)
-      {
-         print "INFO: " . $msg . "\n";
-      }
-      $this->writer->resume();
 
-   }
 
-   /** \brief Warning Generator Function
-   **
-   ** This function shall be used to report warnings information to the user.
-   ** Don't use this function to report information or errors.
-   **
-   ** \param[in] msg string containing the warning message to be reported.
-   **/
-   function warning($msg)
-   {
-      $this->writer->pause();
 
-      print "WARNING: " . $msg . "\n";
-      $this->warnings++;
-      $this->writer->resume();
 
-   }
 
-   /** \brief Error Generator Function
-   **
-   ** This function shall be used to report error information to the user.
-   ** The generation process will continues to provide all error to the user.
-   ** If you wan to report an error and to abort the generation use the
-   ** abort function.
-   ** Don't use this function to report information or warnings.
-   **
-   ** \param[in] msg string containing the error message to be reported.
-   **/
-   function error($msg)
-   {
-      $this->writer->pause();
-
-      print "ERROR: " . $msg . "\n";
-      $this->errors++;
-      $this->writer->resume();
-
-   }
-
-   /** \brief Abort Generator Function
-   **
-   ** This function shall be used to report an error and abort the generation.
-   ** Don't use this function to report information or warnings.
-   **
-   ** \param[in] msg string containing the error message to be reported.
-   **/
-   function halt($msg)
-   {
-      $this->writer->pause();
-      $this->error("Generation Finished with WARNINGS: " .$this->warnings . " and ERRORS: " . $this->errors);
-      $this->writer->close();
-      exit(1);
-   }
 
    /*=================[end of user functions]=====================================*/
 
@@ -368,7 +305,9 @@ class OilGenerator
    public function OilGenerator($writer)
    {
       $this->writer = $writer;
-      $this->writer->setLog($this);
+      $this->log = new Log($writer);
+      $this->writer->setLog($this->log);
+
    }
    
    public function run($args) 
@@ -385,34 +324,36 @@ class OilGenerator
       print "         All rights reserved.\n\n";
 
       list($verbose, $definition, $configfiles, $baseOutDir, $templatefiles,$pathDelimiter)= $this->processArgs($args);
+      
+      $this->log->setVerbose($verbose);
       if ( ! $this->checkFiles($configfiles, $baseOutDir , $templatefiles) )
       {
-         $this->halt("Missing files");
+         $this->log->halt("Missing files");
       }
       if ($this->verbose)
       {
-         $this->info("list of configuration files:");
+         $this->log->info("list of configuration files:");
          $count = 1;
          foreach ($configfiles as $file)
          {
-            $this->info("configuration file " . $count++ . ": " . $file);
+            $this->log->info("configuration file " . $count++ . ": " . $file);
          }
 
-         $this->info("list of templates to be processed:");
+         $this->log->info("list of templates to be processed:");
          $count = 1;
          foreach ($templatefiles as $file)
          {
-            $this->info("template file " . $count++ . ": " . $file);
+            $this->log->info("template file " . $count++ . ": " . $file);
          }
 
-         $this->info("output directory: " . $baseOutDir);
+         $this->log->info("output directory: " . $baseOutDir);
       }
 
       $config = new OilConfig();
       $runagain = false;
       foreach ($configfiles as $file)
       {
-         $this->info("reading " . $file);
+         $this->log->info("reading " . $file);
          $config->parseOilFile($file);
       }
 
@@ -420,7 +361,7 @@ class OilGenerator
       {
          if(!file_exists($file))
          {         
-            $this->error("Template $file does not exists");
+            $this->log->error("Template $file does not exists");
          }
          else
          {
@@ -432,14 +373,15 @@ class OilGenerator
         }
       }
 
-      $this->info("Generation Finished with WARNINGS: " .$this->warnings . " and ERRORS: " . $this->errors);
-      if ($this->errors > 0)
+      $this->log->info($this->log->getReport());
+      
+      if ($this->log->getErrors() > 0)
       {
          exit(1);
       }
       if($runagain == true)
       {
-         $this->info("a makefile was generated, generation process will be executed again");
+         $this->log->info("a makefile was generated, generation process will be executed again");
          system("make generate");
       }
    }

@@ -15,11 +15,11 @@ class FileWriter extends OutputWriter
       return $outfile;
    }
    
-   public function open($file,$baseOutDir,$pathDelimiter, $caller)
+   public function open($file,$baseOutDir,$pathDelimiter)
    {
       $outfile = $this->outputFileName($file,$baseOutDir,$pathDelimiter);
       
-      $caller->info("buffering ". $file . " to " . $outfile);
+      $this->log->info("buffering ". $file . " to " . $outfile);
       
       if(!file_exists(dirname($outfile)))
       {  
