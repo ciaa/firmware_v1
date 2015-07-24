@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef _RTCS_INTERNAL_H_
-#define _RTCS_INTERNAL_H_
+#ifndef RTCS_INTERNAL_H
+#define RTCS_INTERNAL_H
 /** \brief Real-Time Control System Internal Header File
  **
  ** Real-Time Control System Internal Header File
@@ -91,10 +91,9 @@ typedef signed int int32_t;
 typedef struct
 {
    void (*ControllerFirstRunFunc) (void *);
-   void (*ControllerSendFunc) (float *, uint16_t);
-   uint32_t period_in_ms;
+   uint32_t cycle_in_ms;
    void *data;
-}Rtcs_generic_controllers_t;
+}Rtcs_generic_controller_t;
 
 /*==================[external data declaration]==============================*/
 extern uint32_t number_controllers;
@@ -110,5 +109,5 @@ extern Rtcs_generic_controller_t* Rtcs_controllers_list[number_controllers];
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _RTCS_INTERNAL_H_ */
+#endif /* #ifndef RTCS_INTERNAL_H */
 

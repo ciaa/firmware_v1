@@ -45,29 +45,30 @@
  *
  */
 
-#ifndef TEMPLATE_FILE_H
-#define TEMPLATE_FILE_H
-/** \brief Short description of this file
+#ifndef RTCS_STATESPACE_H
+#define RTCS_STATESPACE_H
+/** \brief State Space Controller Header File
  **
- ** Long description of this file
+ ** State Space Controller Header File
  **
+ ** \file Rtcs_StateSpace.h
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup RTCS RTCS Implementation
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * DeV          Diego Ezequiel Vommaro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20150722 v0.0.1 DeV  initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -91,20 +92,65 @@ typedef signed short int16_t;
 /** \brief Signed integer 32 bits type */
 typedef signed int int32_t;
 
+/** \brief System Control type */
+typedef enum {REGULATOR, SERVO, FULL_CONTROL} system_type_t;
+
+/** \brief Luenberger's observer type */
+typedef enum {REDUCED, FULL} observer_type_t;
+
+/** \brief State Space Controller type */
+typedef struct
+{
+   uint32_t period_in_ms;
+   uint32_t r_size;
+   uint32_t x_size;
+   uint32_t e_size;
+   uint32_t u_size;
+   uint32_t y_size;
+   float *r_vector;
+   float *x_vector;
+   float *e_vector;
+   float *u_vector;
+   float *y_vector;
+   float *k_matrix;
+   float *ao_matrix;
+   float *bo_matrix;
+   float *l_matrix;
+   void (*ControllerSendFunc) (float *, uint16_t); 
+   void (*ErrorFunc) (void *data);
+   void (*ObserverFunc) (void *data);
+   system_type_t system;
+   observer_type_t observer;
+}Rtcs_statespace_data_t;
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Adds 2 16 bits signed and return a 16 bits signed value
+/** \brief Execution of the control algorithm
  **
- ** If the result is bigger than the limit in 15 bits returns
- ** INT16_MAX is lower than the limit in 15 bits returns
- ** INT16_MIN
+ ** Executes control algorithm. It must be called cyclically
  **
- ** \param[in] 	  a first parameter to be added
- ** \param[in]    b second parameter ot be added
- ** \return E_OK  returns addition of a+b
+ ** \param[in] data structure of the controller
  **/
-extern int16_t Template_Sum16bits(int16_t const a, int16_t const b);
+extern void Rtcs_StateSpaceRun(void *data);
+
+/** \brief Execution of the control algorithm for the first time
+ **
+ ** It runs algorithm that performs all mathematical operations of
+ ** the controller which do not require to be updated in each iteration.
+ **
+ ** \param[in] data structure of the controller
+ **/
+extern void Rtcs_StateSpaceFirstRun(void *data);
+
+/** \brief Worst-case execution of the control algorithm
+ **
+ ** Executes the worst case of the control algorithm. It is useful
+ ** for measuring computation time of the controller. 
+ **
+ ** \param[in] data structure of the controller
+ **/
+extern void Rtcs_StateSpaceWorstRun(void *data);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -113,5 +159,5 @@ extern int16_t Template_Sum16bits(int16_t const a, int16_t const b);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef TEMPLATE_FILE_H */
+#endif /* #ifndef RTCS_STATESPACE_H */
 

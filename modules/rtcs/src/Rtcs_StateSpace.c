@@ -45,57 +45,108 @@
  *
  */
 
-/** \brief Short description of this file
+/** \brief State Space Controller
  **
- ** Long description of this file
+ ** Implements State Space Controller
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup RTCS RTCS Implementation
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * DeV          Diego Ezequiel Vommaro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20150724 v0.0.1 DeV  initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "template.h"
+#include "Rtcs_StateSpace.h"
 
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
+/** \brief Error calculation for regulator system
+ **
+ ** Calculates the error for regulator system
+ **
+ **/
+static void RegulatorError (void);
+
+/** \brief Error calculation for regulator system
+ **
+ ** Calculates the error for servo system
+ **
+ **/
+static void ServoError (void);
+
+/** \brief Error calculation for full system
+ **
+ ** Calculates the error for complete system
+ **
+ **/
+static void FullControlError (void);
+
+/** \brief Full Order State Observer
+ **
+ ** Estimates complete state vector
+ **
+ **/
+static void FullObserver (void);
+
+/** \brief Reduced Order State Observer
+ **
+ ** Estimates reduced state vector
+ **
+ **/
+static void ReducedObserver (void);
 
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+static void RegulatorError (void)
+{
+}
+
+static void ServoError (void)
+{
+}
+
+static void FullControlError (void)
+{
+}
+
+static void FullObserver (void)
+{
+}
+
+static void ReducedObserver (void)
+{
+}
 
 /*==================[external functions definition]==========================*/
-extern int16_t Template_Sum16bits(int16_t const a, int16_t const b)
+extern void Rtcs_StateSpaceRun(void *data)
 {
-    int16_t ret;
-    if (((int32_t)((int32_t)a+(int32_t)b)) > (int32_t)INT16_MAX) {
-        ret = INT16_MAX;
-    } else if (((int32_t)((int32_t)a+(int32_t)b)) < (int32_t)INT16_MIN) {
-        ret = INT16_MIN;
-    } else {
-        ret = a + b;
-    }
+}
 
-    return ret;
+extern void Rtcs_StateSpaceFirstRun(void *data)
+{
+}
+
+extern void Rtcs_StateSpaceWorstRun(void *data)
+{
 }
 
 /** @} doxygen end group definition */

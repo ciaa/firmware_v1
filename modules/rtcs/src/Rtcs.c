@@ -88,6 +88,9 @@
 extern void Rtcs_Init(void)
 {
    uint32_t i;
+   
+   /* Loading data of controllers in the corresponding structures */
+   Rtcs_InitCfg();
 
    /* First execution of the all controllers */
    for (i = 0; i < number_controllers; i++)

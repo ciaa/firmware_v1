@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef _RTCS_
-#define _RTCS_
+#ifndef RTCS_H
+#define RTCS_H
 /** \brief Real-Time Control System Public Interface Header File
  **
  ** Real-Time Control System Public Interface Header File
@@ -71,6 +71,7 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "Rtcs_Cfg.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -122,5 +123,5 @@ extern void Rtcs_Stop(void);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _RTCS_ */
+#endif /* #ifndef RTCS_H */
 
