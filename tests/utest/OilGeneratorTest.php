@@ -47,6 +47,8 @@
 
 /*==================[inclusions]=============================================*/
 require_once(dirname(__FILE__) . '/../../OilGenerator.php');
+require_once(dirname(__FILE__) . '/../../StdoutWriter.php');
+
 /*==================[class definition]=======================================*/
 /** \brief Oil Generator Test Class Implementation
  **
@@ -56,58 +58,12 @@ require_once(dirname(__FILE__) . '/../../OilGenerator.php');
 class OilGeneratorTest extends PHPUnit_Framework_TestCase
 {
 
-   public function OutputFileNameProvider()
-   {
-      return array(
-
-         array(
-            '/modules/out/inc/Os_Internal_Cfg.h',
-            array(
-               'template' => '/modules/gen/inc/Os_Internal_Cfg.h,php',
-               'outdir' => '/modules/out',
-               'relativeBase' => '/gen/'
-            ),
-            '// 1'),
-         array(
-            '/modules/out/inc/Os_Internal_Cfg.h',
-            array(
-               'template' => '/modules/tmp/inc/Os_Internal_Cfg.h,php',
-               'outdir' => '/modules/out',
-               'relativeBase' => '/tmp/'
-            ),
-            '// 2'),
-         array(
-            '/modules/out/inc/Os_Internal_Cfg.h',
-            array(
-               'template' => '/modules/templates/inc/Os_Internal_Cfg.h,php',
-               'outdir' => '/modules/out',
-               'relativeBase' => '/templates/'
-            ),
-            '// 3'),
-         array(
-            '/home/ciaa/Firmware/modules/rtos/generator/tests/ftest/tmp/inc/Os_Cfg.h',
-            array(
-               'template' => '/home/ciaa/Firmware/modules/rtos/generator/tests/ftest/fixtures/templates/inc/Os_Cfg.h.php',
-               'outdir' => '/home/ciaa/Firmware/modules/rtos/generator/tests/ftest/tmp',
-               'relativeBase' => '/templates/'
-            ),
-            '// 4'),
-      );
-   }
-   /**
-   * @dataProvider OutputFileNameProvider
-   */
-   public function testOutputFileName($expected, $data, $msg)
-   {
-
-      $generator = new OilGenerator();
-      $got = $generator->outputFileName($data['template'], $data['outdir'], $data['relativeBase']);
-      $this->assertEquals($expected, $got ,$msg);
+   public function testWarning() {
+      $writer = new FileWriter();
+      $generator = new OilGenerator($writer);
+;
 
    }
-
-
-
 
 }
 /** @} doxygen end group definition */

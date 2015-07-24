@@ -52,14 +52,12 @@
 
 /*==================[inclusions]=============================================*/
 require_once("FileWriter.php");
-require_once("StdoutWriter.php");
-
 require_once("OilGenerator.php");
 
 /*=================[user functions]============================================*/
 
 
-$generator = new OilGenerator(new StdoutWriter());
+$generator = new OilGenerator(new FileWriter());
 $generator->run($_SERVER['argv']);
 
 

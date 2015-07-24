@@ -365,10 +365,15 @@ class OilGenerator
       return $runagain;
    }
 
-   
-   public function run($writer, $args) 
+   public function OilGenerator($writer)
    {
       $this->writer = $writer;
+      $this->writer->setLog($this);
+   }
+   
+   public function run($args) 
+   {
+
       $this->path = array_shift($args);
 
       $this->path = substr($this->path,0, strlen($this->path)-strlen("/generator.php"));

@@ -3,6 +3,8 @@
 abstract class OutputWriter
 {
    protected $buffering = false;
+   
+   protected $log = null;
 
    abstract function close();
    
@@ -26,5 +28,8 @@ abstract class OutputWriter
          $this->start();
    }
    
-   
+   public function setLog($log)
+   {
+      $this->log = $log;
+   }
 }
