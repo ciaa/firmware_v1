@@ -72,6 +72,8 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stdlib.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -79,11 +81,6 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief maximum value for a int16_t type */
-#define INT16_MAX   32767
-
-/** \brief minimum value for a int16_t type */
-#define INT16_MIN   -32768
 
 /*==================[typedef]================================================*/
 /** \brief Signed integer 16 bits */
@@ -121,7 +118,7 @@ typedef struct
    void (*ObserverFunc) (void *data);
    system_type_t system;
    observer_type_t observer;
-}Rtcs_statespace_data_t;
+}Rtcs_state_feedback_data_t;
 
 /*==================[external data declaration]==============================*/
 
@@ -132,7 +129,7 @@ typedef struct
  **
  ** \param[in] data structure of the controller
  **/
-extern void Rtcs_StateSpaceRun(void *data);
+extern void Rtcs_StateFeedbackRun(void *data);
 
 /** \brief Execution of the control algorithm for the first time
  **
@@ -141,7 +138,7 @@ extern void Rtcs_StateSpaceRun(void *data);
  **
  ** \param[in] data structure of the controller
  **/
-extern void Rtcs_StateSpaceFirstRun(void *data);
+extern void Rtcs_StateFeedbackFirstRun(void *data);
 
 /** \brief Worst-case execution of the control algorithm
  **
@@ -150,7 +147,7 @@ extern void Rtcs_StateSpaceFirstRun(void *data);
  **
  ** \param[in] data structure of the controller
  **/
-extern void Rtcs_StateSpaceWorstRun(void *data);
+extern void Rtcs_StateFeedbackWorstRun(void *data);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

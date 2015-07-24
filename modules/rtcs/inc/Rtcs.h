@@ -79,18 +79,8 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief maximum value for a int16_t type */
-#define INT16_MAX   32767
-
-/** \brief minimum value for a int16_t type */
-#define INT16_MIN   -32768
 
 /*==================[typedef]================================================*/
-/** \brief Signed integer 16 bits */
-typedef signed short int16_t;
-
-/** \brief Signed integer 32 bits type */
-typedef signed int int32_t;
 
 /*==================[external data declaration]==============================*/
 

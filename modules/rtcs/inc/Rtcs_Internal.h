@@ -72,6 +72,9 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "Rtcs_Internal_Cfg.h"
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stdlib.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -81,12 +84,6 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Signed integer 16 bits */
-typedef signed short int16_t;
-
-/** \brief Signed integer 32 bits type */
-typedef signed int int32_t;
-
 /** \brief Generic controller type */
 typedef struct
 {
@@ -96,9 +93,8 @@ typedef struct
 }Rtcs_generic_controller_t;
 
 /*==================[external data declaration]==============================*/
-extern uint32_t number_controllers;
 extern bool Rtcs_active;
-extern Rtcs_generic_controller_t* Rtcs_controllers_list[number_controllers];
+extern Rtcs_generic_controller_t *Rtcs_controllers_list[];
 
 /*==================[external functions declaration]=========================*/
 

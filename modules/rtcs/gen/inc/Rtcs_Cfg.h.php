@@ -37,7 +37,7 @@
  *
  */
 
-#error this is a remember to remove the comment on the following line
+//#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * add your copyright notice
  * Copyright <year>, <your name>
@@ -48,10 +48,10 @@
  * PLEASE REMOVE THIS COMMENT
  *****************************************************************************/
 
-#ifndef _OS_INTERNAL_ARCH_CFG_H_
-#define _OS_INTERNAL_ARCH_CFG_H_
+//#ifndef _OS_INTERNAL_ARCH_CFG_H_
+//#define _OS_INTERNAL_ARCH_CFG_H_
 
-#error this is a remember to remove the comment on the following line
+//#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * update the tmparch directory on the \file doxygen comment with your
  * architecture
@@ -74,7 +74,7 @@
 /** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
 
-#error this is a remember to remove the comment on the following line
+//#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * add your name to the developers and create for you a nick with
  * 3 or 4 letters. Please do not use any given nick.
@@ -87,7 +87,7 @@
  * MaCe			 Mariano Cerdeiro
  */
 
-#error this is a remember to remove the comment on the following line
+//#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * add a new version to this file, add the date, your initials and the main
  * changes, only main changes shall be listed here. A detailed message log
@@ -103,7 +103,10 @@
  */
 
 /*==================[inclusions]=============================================*/
-#error this is a remember to remove the comment on the following line
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stdlib.h"
+
+//#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * add any needed include, please take into account that normaly NO INCLUDE
  * shall be included here, but in case you can do it, but discuss the reason
@@ -113,7 +116,7 @@
  *****************************************************************************/
 
 /*==================[macros]=================================================*/
-#error this is a remember to remove the comment on the following line
+//#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * Please define here all needed macros of your configuration that can
  * be configured or are used in Osek_Internal_Arch_Cfg.c.php
@@ -122,7 +125,7 @@
  *****************************************************************************/
 
 /*==================[typedef]================================================*/
-#error this is a remember to remove the comment on the following line
+//#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * Please define here all needed types to be configured or used in
  * Osek_Internal_Arch_Cfg.c.php
@@ -131,15 +134,16 @@
  *****************************************************************************/
 
 /** \brief Task Context Type */
-#error Define the TaskContextType structure and remove this error message
-typedef struct {
-} TaskContextType;
+//#error Define the TaskContextType structure and remove this error message
+//typedef struct {
+//} TaskContextType;
 
 /** \brief Task Context Type */
-typedef TaskContextType* TaskContextRefType;
+//typedef TaskContextType* TaskContextRefType;
 
 /*==================[external data declaration]==============================*/
-#error this is a remember to remove the comment on the following line
+extern void Rtcs_InitCfg(void);
+//#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * Please declare here all exported data defined
  * Osek_Internal_Arch_Cfg.c.php
@@ -148,7 +152,7 @@ typedef TaskContextType* TaskContextRefType;
  *****************************************************************************/
 
 /*==================[external functions declaration]=========================*/
-#error this is a remember to remove the comment on the following line
+//#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * Please declare here all exported functions defined
  * Osek_Internal_Arch_Cfg.c.php
@@ -160,5 +164,5 @@ typedef TaskContextType* TaskContextRefType;
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _OS_INTERNAL_ARCH_CFG_H_ */
+//#endif /* #ifndef _OS_INTERNAL_ARCH_CFG_H_ */
 

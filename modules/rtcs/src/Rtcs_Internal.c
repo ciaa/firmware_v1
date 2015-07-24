@@ -80,11 +80,11 @@
 
 /*==================[external data definition]===============================*/
 bool Rtcs_active = false;
-Rtcs_generic_controller_t Rtcs_controllers_list[number_controllers];
+Rtcs_generic_controller_t *Rtcs_controllers_list[CONTROLLERS_LIST_SIZE];
 
 /*==================[internal functions definition]==========================*/
 
-/*==================[external functions definition]==========================*/_
+/*==================[external functions definition]==========================*/
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

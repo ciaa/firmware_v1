@@ -61,4 +61,5 @@ rtcs_SRC_FILES 	= $(wildcard $(rtcs_SRC_PATH)$(DS)*.c)
 # files to be generated
 # TODO see https://github.com/ciaa/Firmware/issues/277
 rtos_GEN_FILES += $(rtcs_PATH)$(DS)gen$(DS)src$(DS)Rtcs_Cfg.c.php	\
-	$(rtcs_PATH)$(DS)gen$(DS)inc$(DS)Rtcs_Cfg.h.php
+	$(rtcs_PATH)$(DS)gen$(DS)inc$(DS)Rtcs_Cfg.h.php \
+   $(rtcs_PATH)$(DS)gen$(DS)inc$(DS)Rtcs_Internal_Cfg.h.php

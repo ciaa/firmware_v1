@@ -69,7 +69,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "Rtcs_StateSpace.h"
+#include "Rtcs_StateFeedback.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -137,15 +137,15 @@ static void ReducedObserver (void)
 }
 
 /*==================[external functions definition]==========================*/
-extern void Rtcs_StateSpaceRun(void *data)
+extern void Rtcs_StateFeedbackRun(void *data)
 {
 }
 
-extern void Rtcs_StateSpaceFirstRun(void *data)
+extern void Rtcs_StateFeedbackFirstRun(void *data)
 {
 }
 
-extern void Rtcs_StateSpaceWorstRun(void *data)
+extern void Rtcs_StateFeedbackWorstRun(void *data)
 {
 }
 

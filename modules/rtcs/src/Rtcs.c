@@ -93,7 +93,7 @@ extern void Rtcs_Init(void)
    Rtcs_InitCfg();
 
    /* First execution of the all controllers */
-   for (i = 0; i < number_controllers; i++)
+   for (i = 0; i < CONTROLLERS_LIST_SIZE; i++)
       Rtcs_controllers_list[i]->ControllerFirstRunFunc(Rtcs_controllers_list[i]->data);
 }
 
