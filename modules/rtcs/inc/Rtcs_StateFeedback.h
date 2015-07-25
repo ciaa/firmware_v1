@@ -118,7 +118,7 @@ typedef struct
    void (*ObserverFunc) (void *data);
    system_type_t system;
    observer_type_t observer;
-}Rtcs_state_feedback_data_t;
+}Rtcs_statefeedback_data_t;
 
 /*==================[external data declaration]==============================*/
 
