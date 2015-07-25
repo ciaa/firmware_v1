@@ -1,6 +1,8 @@
-/* Copyright 2014, Gustavo Muro
+/* Copyright 2012-2015, Eric Nicolás Pernia
+ * Copyright 2015, Leandro Kollenberger
+ * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,37 +32,37 @@
  *
  */
 
-#ifndef _CIAAMODBUSGATEWAY_H_
-#define _CIAAMODBUSGATEWAY_H_
-/** \brief Modbus Slave Header File
+#ifndef PLC_HARDWARE_H_
+#define PLC_HARDWARE_H_
+/** \brief Hardware interaction layer
  **
- ** This files shall be included by moodules using the interfaces provided by
- ** the Modbus Slave
+ ** Hardware interaction layer
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Modbus CIAA Modbus
+/** \addtogroup PLC PLC Module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * GMuro        Gustavo Muro
- *
+ * ErPe         Eric Pernia
+ * LeKo         Leandro Kollenberger
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150604 v0.8.1 GMuro   replace numbers for macros
- * 20141108 v0.0.1 GMuro   initial version
+ * 20150428 v0.0.1 ErPe & LeKo CIAA Firmware porting
+ * 20120204 v0.0.1 ErPe initial version (for LPCXpresso 1768/9)
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaModbus.h"
+#include "ciaaPOSIX_stdio.h"  /* <= device handler header */
+#include "ciaaPOSIX_string.h" /* <= string header */
+#include "ciaak.h"            /* <= ciaa kernel header */
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -68,19 +70,38 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-
+/** \brief PLC DIGITAL INPUT PINS */
+#define PLC_IN_0 0
+#define PLC_IN_1 1
+#define PLC_IN_2 2
+#define PLC_IN_3 3
+#define PLC_IN_4 4
+#define PLC_IN_5 5
+#define PLC_IN_6 6
+#define PLC_IN_7 7
+/** \brief PLC DIGITAL OUTPUT PINS */
+#define PLC_OUT_0 0
+#define PLC_OUT_1 1
+#define PLC_OUT_2 2
+#define PLC_OUT_3 3
+#define PLC_OUT_4 4
+#define PLC_OUT_5 5
+#define PLC_OUT_6 6
+#define PLC_OUT_7 7
+/** \brief PLC STATUS PINS */
+#define PLC_RUN (1UL << 10)
+#define PLC_ERR (1UL << 11)
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-
-/** \brief ciaaModbus_gateway initialization
- **
- ** Performs the initialization of the MODBUS Gateway
- **
- **/
-extern void ciaaModbus_gatewayInit(void);
+/** \brief PLC PLC_DIOs_Init */
+void PLC_DIOs_Init(void);		/* Initialize Digital Inputs and Outputs */
+/** \brief PLC_Read_DIs */
+uint8_t PLC_Read_DIs(void);		/* Read Digital Outputs */
+/** \brief PLC_Write_DOs */
+void PLC_Write_DOs(uint8_t);	/* Write Digital Outputs */
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -89,5 +110,5 @@ extern void ciaaModbus_gatewayInit(void);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUSGATEWAY_H_ */
+#endif /* PLC_HARDWARE_H_ */
 

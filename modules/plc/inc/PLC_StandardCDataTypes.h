@@ -1,6 +1,8 @@
-/* Copyright 2014, Gustavo Muro
+/* Copyright 2012-2015, Eric Nicolás Pernia
+ * Copyright 2015, Leandro Kollenberger
+ * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,37 +32,36 @@
  *
  */
 
-#ifndef _CIAAMODBUSGATEWAY_H_
-#define _CIAAMODBUSGATEWAY_H_
-/** \brief Modbus Slave Header File
+#ifndef PLC_STANDARD_C_DATA_TYPES_H
+#define PLC_STANDARD_C_DATA_TYPES_H
+/** \brief Standard C Data Types
  **
- ** This files shall be included by moodules using the interfaces provided by
- ** the Modbus Slave
+ ** Standard C Data Types
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Modbus CIAA Modbus
+/** \addtogroup PLC PLC Module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * GMuro        Gustavo Muro
- *
+ * ErPe         Eric Pernia
+ * LeKo         Leandro Kollenberger
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150604 v0.8.1 GMuro   replace numbers for macros
- * 20141108 v0.0.1 GMuro   initial version
+ * 20150428 v0.0.1 ErPe & LeKo CIAA Firmware porting
+ * 20140910 v0.0.1 ErPe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaModbus.h"
+#include <stdint.h>
+#include <string.h>
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -68,19 +69,24 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief True and False. */
+#define true    1
+#define false   0
 
+/** \brief Bit masks for 8 bit variables like unsigned char. */
+#define bit_0   0x01
+#define bit_1   0x02
+#define bit_2   0x04
+#define bit_3   0x08
+#define bit_4   0x10
+#define bit_5   0x20
+#define bit_6   0x40
+#define bit_7   0x80
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-
-/** \brief ciaaModbus_gateway initialization
- **
- ** Performs the initialization of the MODBUS Gateway
- **
- **/
-extern void ciaaModbus_gatewayInit(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -89,5 +95,5 @@ extern void ciaaModbus_gatewayInit(void);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUSGATEWAY_H_ */
+#endif /* PLC_STANDARD_C_DATA_TYPES_H */
 

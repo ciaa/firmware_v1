@@ -1,6 +1,8 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2012-2015, Eric Nicolás Pernia
+ * Copyright 2015, Leandro Kollenberger
+ * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,33 +32,36 @@
  *
  */
 
-#ifndef _CIAAPLC_FUNCTION_H_
-#define _CIAAPLC_FUNCTION_H_
-/** \brief Implements a PLC Function
+#ifndef PLC_OPERATING_SYSTEM_H_
+#define PLC_OPERATING_SYSTEM_H_
+/** \brief Operating System interaction layer
  **
- ** This file implements a PLC (Instruction List) function
+ ** Operating System interaction layer
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup PLC PLC
+/** \addtogroup PLC PLC Module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * ErPe         Eric Pernia
+ * LeKo         Leandro Kollenberger
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140824 v0.0.1 MaCe initial version
+ * 20150428 v0.0.1 ErPe & LeKo CIAA Firmware porting
+ * 20120204 v0.0.1 ErPe initial version (for LPCXpresso 1768/9)
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
+#include "os.h"               /* <= operating system header */
+#include "ciaak.h"            /* <= ciaa kernel header */
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -66,27 +71,12 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-typedef uint8_t ciaaPLC_varCountType;
-
-typedef struct {
-   ciaaPLC_varCountType uint8_t_count;
-   ciaaPLC_varCountType uint16_t_count;
-   ciaaPLC_varCountType uint32_t_count;
-   ciaaPLC_varCountType uint64_t_count;
-   ciaaPLC_varCountType int8_t_count;
-   ciaaPLC_varCountType int16_t_count;
-   ciaaPLC_varCountType int32_t_count;
-   ciaaPLC_varCountType int64_t_count;
-} ciaaPLC_funcLocalType;
-
-typedef struct {
-   ciaaPLC_funcLocalType local;
-} ciaaPLC_funcType;
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-
+/** \brief PLC GetTimersTime Function */
+uint64_t PLC_GetTimersTime(void);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -94,5 +84,5 @@ typedef struct {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPLC_FUNCTION_H_ */
+#endif /* PLC_OPERATING_SYSTEM_H_ */
 

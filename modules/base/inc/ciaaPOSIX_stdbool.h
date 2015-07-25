@@ -68,9 +68,9 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 /** \brief true */
-#define true		1
+#define true      1
 /** \brief false */
-#define false		0
+#define false     0
 /** \brief bool
  **
  ** bool is not a type but a macro exapnded to _Bool

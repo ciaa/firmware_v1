@@ -1,6 +1,7 @@
-/* Copyright 2014, Gustavo Muro
+/* Copyright 2012-2015, Eric Nicolás Pernia
+ * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,37 +31,34 @@
  *
  */
 
-#ifndef _CIAAMODBUSGATEWAY_H_
-#define _CIAAMODBUSGATEWAY_H_
-/** \brief Modbus Slave Header File
+#ifndef PLC_IL_INSTRUCTIONS_H_
+#define PLC_IL_INSTRUCTIONS_H_
+/** \brief PLC IL Instructions
  **
- ** This files shall be included by moodules using the interfaces provided by
- ** the Modbus Slave
+ ** PLC IL Instructions
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Modbus CIAA Modbus
+/** \addtogroup PLC PLC Module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * GMuro        Gustavo Muro
- *
+ * ErPe         Eric Pernia
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150604 v0.8.1 GMuro   replace numbers for macros
- * 20141108 v0.0.1 GMuro   initial version
+ * 20120204 v0.0.1 ErPe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaModbus.h"
+#include "PLC_Registers.h"
+#include "PLC_Lib.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -70,17 +68,46 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+/** \brief PLC  Data type enumeration for PLC Boolean Operations (U, UN, O, ON, X, XN) */
+typedef enum{AND, ANDN, OR, ORN, XOR, XORN} PLC_Boolean_Operation;
+
+/** \brief PLC Data type enumeration for IL modifiers */
+typedef enum{ NullModifier, N, C, NullModifierC, NC} PLC_EnumModifiers;
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief PLC Load and Storage IL Functions */
+void PLC_IL_LD_BOOL_Literal( PLC_BOOL, PLC_EnumModifiers);
+void PLC_IL_LD_INT_Literal( PLC_INT, PLC_EnumModifiers);
+void PLC_IL_LD_TIME_Literal( PLC_TIME, PLC_EnumModifiers);
+void PLC_IL_LD(void*, PLC_WORD, PLC_EnumDataTypes, PLC_EnumModifiers);
+void PLC_IL_ST(void*, PLC_WORD, PLC_EnumModifiers);
 
-/** \brief ciaaModbus_gateway initialization
- **
- ** Performs the initialization of the MODBUS Gateway
- **
- **/
-extern void ciaaModbus_gatewayInit(void);
+/** \brief PLC Set and Reset IL Functions */
+void PLC_IL_S(PLC_BOOL* operand);
+void PLC_IL_R(PLC_BOOL* operand);
+
+/** \brief PLC Comparison IL Functions */
+void PLC_IL_EQ(void*, PLC_EnumDataTypes);
+void PLC_IL_NE(void*, PLC_EnumDataTypes);
+void PLC_IL_GT(void*, PLC_EnumDataTypes);
+void PLC_IL_GE(void*, PLC_EnumDataTypes);
+void PLC_IL_LT(void*, PLC_EnumDataTypes);
+void PLC_IL_LE(void*, PLC_EnumDataTypes);
+
+/** \brief PLC Arithmetics IL Functions */
+void PLC_IL_ADD(void*, PLC_EnumDataTypes);
+void PLC_IL_SUB(void*, PLC_EnumDataTypes);
+void PLC_IL_MUL(void*, PLC_EnumDataTypes);
+void PLC_IL_DIV(void*, PLC_EnumDataTypes);
+void PLC_IL_MOD(void*, PLC_EnumDataTypes);
+
+/** \brief PLC Logical IL Functions */
+void PLC_IL_AND(void*, PLC_EnumDataTypes, PLC_EnumModifiers);
+void PLC_IL_OR(void*, PLC_EnumDataTypes, PLC_EnumModifiers);
+void PLC_IL_XOR(void*, PLC_EnumDataTypes, PLC_EnumModifiers);
+void PLC_IL_NOT(PLC_EnumDataTypes);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -89,5 +116,5 @@ extern void ciaaModbus_gatewayInit(void);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUSGATEWAY_H_ */
+#endif /* PLC_IL_INSTRUCTIONS_H_ */
 

@@ -278,9 +278,9 @@ void test_ciaaPOSIX_memcmp(void) {
 
    ret = ciaaPOSIX_memcmp(str1, str2, 9);
    TEST_ASSERT_TRUE(0 == ret);
-   ret = ciaaPOSIX_memcmp(str1, str2, 10);   
+   ret = ciaaPOSIX_memcmp(str1, str2, 10);
    TEST_ASSERT_TRUE(0 > ret);
-   ret = ciaaPOSIX_memcmp(str2, str1, 10);   
+   ret = ciaaPOSIX_memcmp(str2, str1, 10);
    TEST_ASSERT_TRUE(0 < ret);
 }
 /** @} doxygen end group definition */

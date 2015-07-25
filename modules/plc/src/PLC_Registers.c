@@ -1,8 +1,8 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2012-2015, Eric Nicolás Pernia
+ * Copyright 2015, Leandro Kollenberger
+ * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,30 +32,33 @@
  *
  */
 
-/** \brief CIAA Devices source file
+/** \brief PLC Registers
  **
- ** This header file describes the Devices.
+ ** PLC Registers
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup PLC PLC Module
  ** @{ */
+
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * ErPe         Eric Pernia
+ * LeKo         Leandro Kollenberger
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140503 v0.0.1 MaCe initial version
+ * 20150428 v0.0.1 ErPe & LeKo CIAA Firmware porting
+ * 20120204 v0.0.1 ErPe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_semaphore.h"
+#include "PLC_Registers.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -66,29 +69,77 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+PLC_SymbolicRegister CR;    /* CURRENT RESULT REGISTER */
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern int8_t ciaaPOSIX_sem_init(sem_t * const sem)
+
+/** \brief This function converts PLC_1ByteRegister to PLC_BYTE data type
+   A.X.x0 - Access to one bit in byte A
+   A.B.b0 - Access to byte A
+*/
+PLC_BYTE Convert_PLC_1ByteRegister_2_PLC_BYTE(PLC_1ByteRegister PORT)
 {
-   (void)sem;
-   return 0;
+   PLC_BYTE status = 0;
+
+   if (PORT.X.x0)
+      {status |= bit_0;}
+   if (PORT.X.x1 != 0)
+      {status |= bit_1;}
+   if (PORT.X.x2)
+      {status |= bit_2;}
+   if (PORT.X.x3)
+      {status |= bit_3;}
+   if (PORT.X.x4)
+      {status |= bit_4;}
+   if (PORT.X.x5)
+      {status |= bit_5;}
+   if (PORT.X.x6)
+      {status |= bit_6;}
+   if (PORT.X.x7)
+      {status |= bit_7;}
+
+   return status;
 }
 
-extern int8_t ciaaPOSIX_sem_wait(sem_t * const sem)
+/** \brief This function converts PLC_BYTE to PLC_1ByteRegister data type
+   A.X.x0 - Access to one bit in byte A
+   A.B.b0 - Access to byte A
+*/
+PLC_1ByteRegister Convert_PLC_BYTE_2_PLC_1ByteRegister(PLC_BYTE status)
 {
-   (void)sem;
-   return 0;
-}
+   PLC_1ByteRegister PORT;
 
-extern int8_t ciaaPOSIX_sem_post(sem_t * const sem)
-{
-   (void)sem;
-   return 0;
+   PORT.X.x0 = 0;
+   PORT.X.x1 = 0;
+   PORT.X.x2 = 0;
+   PORT.X.x3 = 0;
+   PORT.X.x4 = 0;
+   PORT.X.x5 = 0;
+   PORT.X.x6 = 0;
+   PORT.X.x7 = 0;
+
+   if ((status & bit_0))
+      {PORT.X.x0 = 1;}
+   if ((status & bit_1))
+      {PORT.X.x1 = 1;}
+   if ((status & bit_2))
+      {PORT.X.x2 = 1;}
+   if ((status & bit_3))
+      {PORT.X.x3 = 1;}
+   if ((status & bit_4))
+      {PORT.X.x4 = 1;}
+   if ((status & bit_5))
+      {PORT.X.x5 = 1;}
+   if ((status & bit_6))
+      {PORT.X.x6 = 1;}
+   if ((status & bit_7))
+      {PORT.X.x7 = 1;}
+
+   return PORT;
 }
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

@@ -1,6 +1,7 @@
-/* Copyright 2014, Gustavo Muro
+/* Copyright 2012-2015, Eric Nicolás Pernia
+ * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,64 +31,58 @@
  *
  */
 
-#ifndef _CIAAMODBUSGATEWAY_H_
-#define _CIAAMODBUSGATEWAY_H_
-/** \brief Modbus Slave Header File
+/** \brief PLC Operating System Interface
  **
- ** This files shall be included by moodules using the interfaces provided by
- ** the Modbus Slave
+ ** PLC Operating System Interface
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Modbus CIAA Modbus
+/** \addtogroup PLC PLC Module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * GMuro        Gustavo Muro
+ * ErPe         Eric Pernia
  *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150604 v0.8.1 GMuro   replace numbers for macros
- * 20141108 v0.0.1 GMuro   initial version
+ * 20140911 v0.0.1 ErPe initial version
+ * 20150502 v0.0.1 ErPe rewrite for CIAA Firmware compatibility
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaModbus.h"
+#include "PLC_ElementaryDataTypes.h"
+#include "PLC_OperatingSystem.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[typedef]================================================*/
+/** \brief PLC_TimersTime is a variable that counts time in milliseconds for PLC Timers. */
+uint64_t PLC_TimersTime = 0;
 
-/*==================[external data declaration]==============================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[internal data definition]===============================*/
 
-/** \brief ciaaModbus_gateway initialization
- **
- ** Performs the initialization of the MODBUS Gateway
- **
- **/
-extern void ciaaModbus_gatewayInit(void);
+/*==================[external data definition]===============================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+
+/** \brief It returns the PLC_TimersTime variable. */
+uint64_t PLC_GetTimersTime(void)
+{
+   return PLC_TimersTime;
 }
-#endif
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUSGATEWAY_H_ */
-

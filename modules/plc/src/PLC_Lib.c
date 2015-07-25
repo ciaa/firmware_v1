@@ -1,10 +1,7 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
+/* Copyright 2012-2015, Eric Nicolás Pernia
  * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,11 +31,9 @@
  *
  */
 
-#ifndef PLC_APPLICATION_H
-#define PLC_APPLICATION_H
-/** \brief PLC Application header file
+/** \brief PLC Libraries
  **
- ** This is the PLC Application header of the CIAA Firmware
+ ** PLC Libraries
  **
  **/
 
@@ -46,34 +41,75 @@
  ** @{ */
 /** \addtogroup PLC PLC Module
  ** @{ */
-/** \addtogroup PLC_Application PLC Application file
- ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * ErPe         Eric Pernia
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150404 v0.0.1 MaCe initial version
+ * 20140911 v0.0.1 ErPe initial version
  */
 
 /*==================[inclusions]=============================================*/
+#include "PLC_Lib.h"
 
-/*==================[macros]=================================================*/
+/*==================[macros and definitions]=================================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[internal data definition]===============================*/
 
-/** @} doxygen end group definition */
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+
+/** \brief PLC Day of week algorithm. */
+PLC_INT DT_Weekday(PLC_INT Year, PLC_INT Month, PLC_INT Day)
+{
+   int a, y, m, NumZeller, NumDT;
+   a = (14 - Month) / 12;
+   y = Year - a;
+   m = Month + 12 * a - 2;
+
+   /* For Julius calendar:
+      NumZeller = (5 + Day + y + y/4 + (31*m)/12) % 7 */
+
+   /* For Gregorian calendar: */
+   NumZeller = (Day + y + y/4 - y/100 + y/400 + (31*m)/12) % 7;
+
+   /* The NumZeller result is:
+         0 = Sunday
+         1 = Monday
+         2 = Tuesday
+         3 = Wednesday
+         4 = Thursday
+         5 = Friday
+         6 = Saturday */
+
+   NumDT = NumZeller + 1;
+
+   /** \brief The NumDT result is:
+    1 = Sunday
+    2 = Monday
+    3 = Tuesday
+    4 = Wednesday
+    5 = Thursday
+    6 = Friday
+    7 = Saturday
+   */
+
+   return NumDT;
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef PLC_APPLICATION_H */
-

@@ -1,0 +1,10 @@
+# This file is to run the CI in https://travis-ci.org/profile/ciaa
+language: php
+
+php:
+   - 5.4
+
+script:
+   - export BOARD=ciaa_sim_ia64
+   - make generate
+   - make

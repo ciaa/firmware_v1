@@ -1,4 +1,4 @@
-/* Copyright 2014, Gustavo Muro
+/* Copyright 2015, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,64 +30,101 @@
  *
  */
 
-#ifndef _CIAAMODBUSGATEWAY_H_
-#define _CIAAMODBUSGATEWAY_H_
-/** \brief Modbus Slave Header File
- **
- ** This files shall be included by moodules using the interfaces provided by
- ** the Modbus Slave
+/** \brief This file implements the test os PLC IL
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Modbus CIAA Modbus
+/** \addtogroup PLC PLC Module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * GMuro        Gustavo Muro
- *
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150604 v0.8.1 GMuro   replace numbers for macros
- * 20141108 v0.0.1 GMuro   initial version
+ * 20150522 v0.0.1 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaModbus.h"
+#include "unity.h"
+#include "PLC_Registers.h"
+#include "PLC_IL_Instructions.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal data definition]===============================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[external data definition]===============================*/
+PLC_SymbolicRegister CR;
 
-/** \brief ciaaModbus_gateway initialization
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+/** \brief set Up function
  **
- ** Performs the initialization of the MODBUS Gateway
+ ** This function is called before each test case is executed
  **
  **/
-extern void ciaaModbus_gatewayInit(void);
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+void setUp(void)
+{
 }
-#endif
+
+/** \brief tear Down function
+ **
+ ** This function is called after each test case is executed
+ **
+ **/
+void tearDown(void)
+{
+}
+
+void test_PLC_IL_LD_BOOL_Literal_01(void)
+{
+   CR.VALUE.BOOL = 0;
+
+   PLC_IL_LD_BOOL_Literal(0, N);
+
+   TEST_ASSERT_EQUAL_INT(1, CR.VALUE.BOOL);
+}
+
+void test_PLC_IL_LD_BOOL_Literal_02(void)
+{
+   CR.VALUE.BOOL = 1;
+
+   PLC_IL_LD_BOOL_Literal(1, N);
+
+   TEST_ASSERT_EQUAL_INT(0, CR.VALUE.BOOL);
+}
+
+void test_PLC_IL_LD_BOOL_Literal_03(void)
+{
+   CR.VALUE.BOOL = 1;
+
+   PLC_IL_LD_BOOL_Literal(0, C);
+
+   TEST_ASSERT_EQUAL_INT(0, CR.VALUE.BOOL);
+}
+
+void test_PLC_IL_LD_BOOL_Literal_04(void)
+{
+   CR.VALUE.BOOL = 0;
+
+   PLC_IL_LD_BOOL_Literal(1, C);
+
+   TEST_ASSERT_EQUAL_INT(1, CR.VALUE.BOOL);
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAMODBUSGATEWAY_H_ */
 

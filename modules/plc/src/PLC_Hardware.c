@@ -1,6 +1,8 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2012-2015, Eric Nicolás Pernia
+ * Copyright 2015, Leandro Kollenberger
+ * All rights reserved.
  *
- * This file is part of CIAA Firmware.
+ * This file is part of IDE4PLC and CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,31 +32,35 @@
  *
  */
 
-/** \brief Implements a PLC Function
+/** \brief PLC Registers
  **
- ** This file implements a PLC (Instruction List) function
+ ** PLC Hardware interaction layer
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup PLC PLC
+/** \addtogroup PLC PLC Module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * ErPe         Eric Pernia
+ * LeKo         Leandro Kollenberger
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140824 v0.0.1 MaCe initial version
+ * 20150428 v0.0.1 ErPe & LeKo CIAA Firmware porting
+ * 20120204 v0.0.1 ErPe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPLC_function.h"
+#include "PLC_StandardCDataTypes.h"   /* <= Standard C Data Types */
+#include "ciaaPOSIX_stdio.h"          /* <= device handler header */
+#include "PLC_Hardware.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -63,24 +69,53 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+/** \brief File descriptors for digital input and output ports
+ *
+ * fd_in Device path /dev/dio/in/0
+ * fd_out Device path /dev/dio/out/0
+ */
+static int32_t fd_in, fd_out;
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern int32_t ciaaPLC_function(ciaaPLC_funcType * func)
+/** \brief This function initialize PLC Digital Inputs */
+void PLC_DIs_Init (void)
 {
-   uint32_t uint32_t_var[func->local.uint32_t_count];
-   int32_t int32_t_var[func->local.int32_t_count];
-   uint16_t uint16_t_var[func->local.uint16_t_count];
-   int16_t int16_t_var[func->local.int16_t_count];
-   uint8_t uint8_t_var[func->local.uint8_t_count];
-   int8_t int8_t_var[func->local.int8_t_count];
+   /* open CIAA digital inputs */
+   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDWR);
+}
 
+/** \brief This function initialize PLC Digital Outputs */
+void PLC_DOs_Init(void)
+{
+   /* open CIAA digital outputs */
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
 
+}
 
-   return 0;
+/** \brief This function initialize PLC Digital Inputs and Outputs */
+void PLC_DIOs_Init(void)
+{
+   PLC_DOs_Init();
+   PLC_DIs_Init();
+}
+
+/** \brief This function read PLC Digital Inputs */
+uint8_t PLC_Read_DIs(void)
+{
+   uint8_t status = 0;
+   ciaaPOSIX_read(fd_in, &status, 1);
+
+   return status;
+}
+
+/** \brief This function write PLC Digital Outputs */
+void PLC_Write_DOs(uint8_t salidas)
+{
+   ciaaPOSIX_write(fd_out, &salidas, 1);
 }
 
 /** @} doxygen end group definition */

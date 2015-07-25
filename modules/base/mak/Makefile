@@ -36,7 +36,7 @@
 # library
 LIBS               += base
 # version
-base_VERSION		  = 0.4.0
+base_VERSION		  = 0.4.1
 # library path
 base_PATH      = $(ROOT_DIR)$(DS)modules$(DS)base
 # library source path

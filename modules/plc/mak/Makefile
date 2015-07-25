@@ -1,6 +1,8 @@
 ###############################################################################
 #
-# Copyright 2014, 2015, Mariano Cerdeiro
+# Copyright 2015, Eric Nicolás Pernia
+# Copyright 2015, Leandro Kollenberger
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -32,14 +34,14 @@
 #
 ###############################################################################
 # library
-LIBS 				  += plc
+LIBS          += plc
 # version
-plc_VERSION       = 0.1.0
+plc_VERSION    = 0.1.0
 # library path
-plc_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)plc
+plc_PATH       = $(ROOT_DIR)$(DS)modules$(DS)plc
 # library source path
-plc_SRC_PATH 	= $(plc_PATH)$(DS)src
+plc_SRC_PATH   = $(plc_PATH)$(DS)src
 # library include path
-plc_INC_PATH 	= $(plc_PATH)$(DS)inc
+plc_INC_PATH   = $(plc_PATH)$(DS)inc
 # library source files
-plc_SRC_FILES 	= $(wildcard $(plc_SRC_PATH)$(DS)*.c)
+plc_SRC_FILES  = $(wildcard $(plc_SRC_PATH)$(DS)*.c)
