@@ -28,21 +28,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "fsl_device_registers.h"
+#ifndef _STARTUP_H_
+#define _STARTUP_H_
 
 /*******************************************************************************
- * Variables
+ * API
  ******************************************************************************/
 
-/* Pointer to uart runtime state structure.*/
-void * g_uartStatePtr[HW_UART_INSTANCE_COUNT] = { NULL };
+/*!
+ * @brief Make necessary initializations for RAM.
+ *
+ * - Copy initialized data from ROM to RAM.
+ * - Clear the zero-initialized data section.
+ * - Copy the vector table from ROM to RAM. This could be an option.  
+ */
+void init_data_bss(void);
 
-/* Table of base addresses for uart instances. */
-const uint32_t g_uartBaseAddr[HW_UART_INSTANCE_COUNT] = UART_BASE_ADDRS;
-
-/* Table to save UART IRQ numbers defined in CMSIS files. */
-IRQn_Type g_uartRxTxIrqId[HW_UART_INSTANCE_COUNT] = UART_RX_TX_IRQS;
-
+#endif /* _STARTUP_H_*/
 /*******************************************************************************
  * EOF
  ******************************************************************************/
