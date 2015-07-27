@@ -57,6 +57,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "fsl_device_registers.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -68,6 +69,12 @@ extern "C" {
 /*==================[typedef]================================================*/
 /** \brief Dio Type */
 typedef uint32_t ciaaDriverDio_dioType;
+
+typedef struct ciaaDriverDio_pinStruct {
+   PORT_Type * port;
+   GPIO_Type * gpio;
+   uint32_t pin;
+} ciaaDriverDio_pinType;
 
 /*==================[external data declaration]==============================*/
 /** \brief Dio 0 */

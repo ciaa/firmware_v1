@@ -59,7 +59,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
-#include "fsl_uart_driver.h"
+#include "fsl_uart_hal.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -71,9 +71,16 @@ extern "C" {
 /*==================[typedef]================================================*/
 /** \brief Uart Type */
 typedef struct {
-   uint32_t instance;               /** <= uart instance diver */
-	uart_user_config_t config;			/** <= driver configuration */
-	uart_state_t state;					/** <= driver status */
+   uint32_t instance;                   /** <= uart instance diver */
+   UART_Type * base;                    /** <= uart base address */
+   struct {
+      uint32_t baudRate;
+      uart_bit_count_per_char_t bitCountPerChar;
+      uart_parity_mode_t parityMode;
+#if FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT
+      uart_stop_bit_count_t stopBitCount;
+#endif
+   } config;
 } ciaaDriverUart_uartType;
 
 /*==================[external data declaration]==============================*/
