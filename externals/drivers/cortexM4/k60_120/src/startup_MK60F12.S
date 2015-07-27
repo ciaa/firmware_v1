@@ -1,13 +1,13 @@
 /* ---------------------------------------------------------------------------------------*/
-/*  @file:    startup_MK60F15.s                                                           */
+/*  @file:    startup_MK60F12.s                                                           */
 /*  @purpose: CMSIS Cortex-M4 Core Device Startup File                                    */
-/*            MK60F15                                                                     */
-/*  @version: 2.0                                                                         */
-/*  @date:    2014-2-3                                                                    */
-/*  @build:   b140606                                                                     */
+/*            MK60F12                                                                     */
+/*  @version: 2.7                                                                         */
+/*  @date:    2015-2-19                                                                   */
+/*  @build:   b150225                                                                     */
 /* ---------------------------------------------------------------------------------------*/
 /*                                                                                        */
-/* Copyright (c) 1997 - 2014 , Freescale Semiconductor, Inc.                              */
+/* Copyright (c) 1997 - 2015 , Freescale Semiconductor, Inc.                              */
 /* All rights reserved.                                                                   */
 /*                                                                                        */
 /* Redistribution and use in source and binary forms, with or without modification,       */
@@ -68,30 +68,30 @@ __isr_vector:
     .long   SysTick_Handler                                 /* SysTick Handler*/
 
                                                             /* External Interrupts*/
-    .long   DMA0_DMA16_IRQHandler                           /* DMA channel 0/16 transfer complete interrupt*/
-    .long   DMA1_DMA17_IRQHandler                           /* DMA channel 1/17 transfer complete interrupt*/
-    .long   DMA2_DMA18_IRQHandler                           /* DMA channel 2/18 transfer complete interrupt*/
-    .long   DMA3_DMA19_IRQHandler                           /* DMA channel 3/19 transfer complete interrupt*/
-    .long   DMA4_DMA20_IRQHandler                           /* DMA channel 4/20 transfer complete interrupt*/
-    .long   DMA5_DMA21_IRQHandler                           /* DMA channel 5/21 transfer complete interrupt*/
-    .long   DMA6_DMA22_IRQHandler                           /* DMA channel 6/22 transfer complete interrupt*/
-    .long   DMA7_DMA23_IRQHandler                           /* DMA channel 7/23 transfer complete interrupt*/
-    .long   DMA8_DMA24_IRQHandler                           /* DMA channel 8/24 transfer complete interrupt*/
-    .long   DMA9_DMA25_IRQHandler                           /* DMA channel 9/25 transfer complete interrupt*/
-    .long   DMA10_DMA26_IRQHandler                          /* DMA channel 10/26 transfer complete interrupt*/
-    .long   DMA11_DMA27_IRQHandler                          /* DMA channel 11/27 transfer complete interrupt*/
-    .long   DMA12_DMA28_IRQHandler                          /* DMA channel 12/28 transfer complete interrupt*/
-    .long   DMA13_DMA29_IRQHandler                          /* DMA channel 13/29 transfer complete interrupt*/
-    .long   DMA14_DMA30_IRQHandler                          /* DMA channel 14/30 transfer complete interrupt*/
-    .long   DMA15_DMA31_IRQHandler                          /* DMA channel 15/31 transfer complete interrupt*/
-    .long   DMA_Error_IRQHandler                            /* DMA error interrupt*/
+    .long   DMA0_IRQHandler                                 /* DMA Channel 0 Transfer Complete*/
+    .long   DMA1_IRQHandler                                 /* DMA Channel 1 Transfer Complete*/
+    .long   DMA2_IRQHandler                                 /* DMA Channel 2 Transfer Complete*/
+    .long   DMA3_IRQHandler                                 /* DMA Channel 3 Transfer Complete*/
+    .long   DMA4_IRQHandler                                 /* DMA Channel 4 Transfer Complete*/
+    .long   DMA5_IRQHandler                                 /* DMA Channel 5 Transfer Complete*/
+    .long   DMA6_IRQHandler                                 /* DMA Channel 6 Transfer Complete*/
+    .long   DMA7_IRQHandler                                 /* DMA Channel 7 Transfer Complete*/
+    .long   DMA8_IRQHandler                                 /* DMA Channel 8 Transfer Complete*/
+    .long   DMA9_IRQHandler                                 /* DMA Channel 9 Transfer Complete*/
+    .long   DMA10_IRQHandler                                /* DMA Channel 10 Transfer Complete*/
+    .long   DMA11_IRQHandler                                /* DMA Channel 11 Transfer Complete*/
+    .long   DMA12_IRQHandler                                /* DMA Channel 12 Transfer Complete*/
+    .long   DMA13_IRQHandler                                /* DMA Channel 13 Transfer Complete*/
+    .long   DMA14_IRQHandler                                /* DMA Channel 14 Transfer Complete*/
+    .long   DMA15_IRQHandler                                /* DMA Channel 15 Transfer Complete*/
+    .long   DMA_Error_IRQHandler                            /* DMA Error interrupt*/
     .long   MCM_IRQHandler                                  /* Normal interrupt*/
-    .long   FTFE_IRQHandler                                 /* FTFE interrupt*/
+    .long   FTFE_IRQHandler                                 /* FTFE Command complete interrupt*/
     .long   Read_Collision_IRQHandler                       /* Read collision interrupt*/
     .long   LVD_LVW_IRQHandler                              /* Low Voltage Detect, Low Voltage Warning*/
-    .long   LLW_IRQHandler                                  /* Low Leakage Wakeup*/
-    .long   Watchdog_IRQHandler                             /* WDOG interrupt*/
-    .long   RNG_IRQHandler                                  /* RNGB interrupt*/
+    .long   LLWU_IRQHandler                                 /* Low Leakage Wakeup Unit*/
+    .long   WDOG_EWM_IRQHandler                             /* WDOG interrupt*/
+    .long   RNG_IRQHandler                                  /* RNG interrupt*/
     .long   I2C0_IRQHandler                                 /* I2C0 interrupt*/
     .long   I2C1_IRQHandler                                 /* I2C1 interrupt*/
     .long   SPI0_IRQHandler                                 /* SPI0 interrupt*/
@@ -113,18 +113,18 @@ __isr_vector:
     .long   CAN1_Wake_Up_IRQHandler                         /* CAN1 wake up interrupt*/
     .long   Reserved59_IRQHandler                           /* Reserved interrupt 59*/
     .long   UART0_LON_IRQHandler                            /* UART0 LON interrupt*/
-    .long   UART0_RX_TX_IRQHandler                          /* UART0 receive/transmit interrupt*/
-    .long   UART0_ERR_IRQHandler                            /* UART0 error interrupt*/
-    .long   UART1_RX_TX_IRQHandler                          /* UART1 receive/transmit interrupt*/
-    .long   UART1_ERR_IRQHandler                            /* UART1 error interrupt*/
-    .long   UART2_RX_TX_IRQHandler                          /* UART2 receive/transmit interrupt*/
-    .long   UART2_ERR_IRQHandler                            /* UART2 error interrupt*/
-    .long   UART3_RX_TX_IRQHandler                          /* UART3 receive/transmit interrupt*/
-    .long   UART3_ERR_IRQHandler                            /* UART3 error interrupt*/
-    .long   UART4_RX_TX_IRQHandler                          /* UART4 receive/transmit interrupt*/
-    .long   UART4_ERR_IRQHandler                            /* UART4 error interrupt*/
-    .long   UART5_RX_TX_IRQHandler                          /* UART5 receive/transmit interrupt*/
-    .long   UART5_ERR_IRQHandler                            /* UART5 error interrupt*/
+    .long   UART0_RX_TX_IRQHandler                          /* UART0 Receive/Transmit interrupt*/
+    .long   UART0_ERR_IRQHandler                            /* UART0 Error interrupt*/
+    .long   UART1_RX_TX_IRQHandler                          /* UART1 Receive/Transmit interrupt*/
+    .long   UART1_ERR_IRQHandler                            /* UART1 Error interrupt*/
+    .long   UART2_RX_TX_IRQHandler                          /* UART2 Receive/Transmit interrupt*/
+    .long   UART2_ERR_IRQHandler                            /* UART2 Error interrupt*/
+    .long   UART3_RX_TX_IRQHandler                          /* UART3 Receive/Transmit interrupt*/
+    .long   UART3_ERR_IRQHandler                            /* UART3 Error interrupt*/
+    .long   UART4_RX_TX_IRQHandler                          /* UART4 Receive/Transmit interrupt*/
+    .long   UART4_ERR_IRQHandler                            /* UART4 Error interrupt*/
+    .long   UART5_RX_TX_IRQHandler                          /* UART5 Receive/Transmit interrupt*/
+    .long   UART5_ERR_IRQHandler                            /* UART5 Error interrupt*/
     .long   ADC0_IRQHandler                                 /* ADC0 interrupt*/
     .long   ADC1_IRQHandler                                 /* ADC1 interrupt*/
     .long   CMP0_IRQHandler                                 /* CMP0 interrupt*/
@@ -319,8 +319,6 @@ __isr_vector:
     .long 0xFFFFFFFF
     .long 0xFFFFFFFE
 
-    .equ _NVIC_ICER0, 0xE000E180
-    .equ _NVIC_ICPR0, 0xE000E280
     .text
     .thumb
 
@@ -329,98 +327,42 @@ __isr_vector:
     .thumb_func
     .align 2
     .globl   Reset_Handler
+    .weak    Reset_Handler
     .type    Reset_Handler, %function
 Reset_Handler:
     cpsid   i               /* Mask interrupts */
-    ldr r0, =_NVIC_ICER0    /* Disable interrupts and clear pending flags */
-    ldr r1, =_NVIC_ICPR0
-    ldr r2, =0xFFFFFFFF
-    mov r3, #8
-_irq_clear:
-    cbz r3, _irq_clear_end
-    str r2, [r0], #4        /* NVIC_ICERx - clear enable IRQ register */
-    str r2, [r1], #4        /* NVIC_ICPRx - clear pending IRQ register */
-    sub r3, r3, #1
-    b _irq_clear
-_irq_clear_end:
 #ifndef __NO_SYSTEM_INIT
     bl SystemInit
 #endif
+    bl init_data_bss
     cpsie   i               /* Unmask interrupts */
-/*     Loop to copy data from read only memory to RAM. The ranges
- *      of copy from/to are specified by following symbols evaluated in
- *      linker script.
- *      __etext: End of code section, i.e., begin of data sections to copy from.
- *      __data_start__/__data_end__: RAM address range that data should be
- *      copied to. Both must be aligned to 4 bytes boundary.  */
-
-    ldr    r1, =__etext
-    ldr    r2, =__data_start__
-    ldr    r3, =__data_end__
-
-#if 1
-/* Here are two copies of loop implemenations. First one favors code size
- * and the second one favors performance. Default uses the first one.
- * Change to "#if 0" to use the second one */
-.LC0:
-    cmp     r2, r3
-    ittt    lt
-    ldrlt   r0, [r1], #4
-    strlt   r0, [r2], #4
-    blt    .LC0
-#else
-    subs    r3, r2
-    ble    .LC1
-.LC0:
-    subs    r3, #4
-    ldr    r0, [r1, r3]
-    str    r0, [r2, r3]
-    bgt    .LC0
-.LC1:
-#endif
-
-#ifdef __STARTUP_CLEAR_BSS
-/*     This part of work usually is done in C library startup code. Otherwise,
- *     define this macro to enable it in this startup.
- *
- *     Loop to zero out BSS section, which uses following symbols
- *     in linker script:
- *      __bss_start__: start of BSS section. Must align to 4
- *      __bss_end__: end of BSS section. Must align to 4
- */
-    ldr r1, =__bss_start__
-    ldr r2, =__bss_end__
-
-    movs    r0, 0
-.LC2:
-    cmp     r1, r2
-    itt    lt
-    strlt   r0, [r1], #4
-    blt    .LC2
-#endif /* __STARTUP_CLEAR_BSS */
-
 #ifndef __START
 #define __START _start
 #endif
+#ifndef __ATOLLIC__
     bl    __START
+#else
+    bl    __libc_init_array
+    bl    main
+#endif
     .pool
     .size Reset_Handler, . - Reset_Handler
 
-  .align	1
-  .thumb_func
-  .weak	Default_Handler
-  .type	Default_Handler, %function
-Default_Handler:
-  b	.
-  .size	Default_Handler, . - Default_Handler
+    .align	1
+    .thumb_func
+    .weak DefaultISR
+    .type DefaultISR, %function
+DefaultISR:
+    b	DefaultISR
+    .size DefaultISR, . - DefaultISR
 
 /*    Macro to define default handlers. Default handler
  *    will be weak symbol and just dead loops. They can be
  *    overwritten by other handlers */
-  .macro	def_irq_handler	handler_name
-  .weak	\handler_name
-  .set	\handler_name, Default_Handler
-  .endm
+    .macro def_irq_handler	handler_name
+    .weak \handler_name
+    .set  \handler_name, DefaultISR
+    .endm
 
 /* *************************************************************************************/
 /* 2015 Apermingeat:
@@ -439,29 +381,29 @@ Default_Handler:
     def_irq_handler    DebugMon_Handler
     def_irq_handler    PendSV_Handler
     def_irq_handler    SysTick_Handler
-    def_irq_handler    DMA0_DMA16_IRQHandler
-    def_irq_handler    DMA1_DMA17_IRQHandler
-    def_irq_handler    DMA2_DMA18_IRQHandler
-    def_irq_handler    DMA3_DMA19_IRQHandler
-    def_irq_handler    DMA4_DMA20_IRQHandler
-    def_irq_handler    DMA5_DMA21_IRQHandler
-    def_irq_handler    DMA6_DMA22_IRQHandler
-    def_irq_handler    DMA7_DMA23_IRQHandler
-    def_irq_handler    DMA8_DMA24_IRQHandler
-    def_irq_handler    DMA9_DMA25_IRQHandler
-    def_irq_handler    DMA10_DMA26_IRQHandler
-    def_irq_handler    DMA11_DMA27_IRQHandler
-    def_irq_handler    DMA12_DMA28_IRQHandler
-    def_irq_handler    DMA13_DMA29_IRQHandler
-    def_irq_handler    DMA14_DMA30_IRQHandler
-    def_irq_handler    DMA15_DMA31_IRQHandler
+    def_irq_handler    DMA0_IRQHandler
+    def_irq_handler    DMA1_IRQHandler
+    def_irq_handler    DMA2_IRQHandler
+    def_irq_handler    DMA3_IRQHandler
+    def_irq_handler    DMA4_IRQHandler
+    def_irq_handler    DMA5_IRQHandler
+    def_irq_handler    DMA6_IRQHandler
+    def_irq_handler    DMA7_IRQHandler
+    def_irq_handler    DMA8_IRQHandler
+    def_irq_handler    DMA9_IRQHandler
+    def_irq_handler    DMA10_IRQHandler
+    def_irq_handler    DMA11_IRQHandler
+    def_irq_handler    DMA12_IRQHandler
+    def_irq_handler    DMA13_IRQHandler
+    def_irq_handler    DMA14_IRQHandler
+    def_irq_handler    DMA15_IRQHandler
     def_irq_handler    DMA_Error_IRQHandler
     def_irq_handler    MCM_IRQHandler
     def_irq_handler    FTFE_IRQHandler
     def_irq_handler    Read_Collision_IRQHandler
     def_irq_handler    LVD_LVW_IRQHandler
-    def_irq_handler    LLW_IRQHandler
-    def_irq_handler    Watchdog_IRQHandler
+    def_irq_handler    LLWU_IRQHandler
+    def_irq_handler    WDOG_EWM_IRQHandler
     def_irq_handler    RNG_IRQHandler
     def_irq_handler    I2C0_IRQHandler
     def_irq_handler    I2C1_IRQHandler
@@ -545,7 +487,6 @@ Default_Handler:
     def_irq_handler    ADC3_IRQHandler
     def_irq_handler    I2S1_Tx_IRQHandler
     def_irq_handler    I2S1_Rx_IRQHandler
-    def_irq_handler    DefaultISR
 #endif
 
     .end

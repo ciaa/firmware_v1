@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2014, Freescale Semiconductor, Inc.
+ * Copyright (c) 2013 - 2015, Freescale Semiconductor, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,25 +27,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#if !defined(__FSL_UART_COMMON_H__)
-#define __FSL_UART_COMMON_H__
 
-#include "fsl_device_registers.h"
+#include "fsl_osc_hal.h"
+#if FSL_FEATURE_SOC_OSC_COUNT
 
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
 
-/*! Pointer to uart runtime state structure. */
-extern void * g_uartStatePtr[HW_UART_INSTANCE_COUNT];
+/*******************************************************************************
+ * Code
+ ******************************************************************************/
 
-/*! @brief Table of base addresses for uart instances. */
-extern const uint32_t g_uartBaseAddr[HW_UART_INSTANCE_COUNT];
+/*FUNCTION**********************************************************************
+ *
+ * Function Name : OSC_HAL_SetCapacitor
+ * Description   : Enable/disable the capacitor configuration for oscillator
+ * This function will enable/disable the specified capacitors configuration for  
+ * oscillator. This should be done in early system level init function call
+ * based on system configuration.
+ * 
+ *END**************************************************************************/
+void OSC_HAL_SetCapacitor(OSC_Type * base, uint32_t bitMask)
+{
+    OSC_WR_CR(base, (OSC_RD_CR(base)
+                    & ~(OSC_CR_SC2P_MASK |
+                        OSC_CR_SC4P_MASK |
+                        OSC_CR_SC8P_MASK |
+                        OSC_CR_SC16P_MASK))
+                    | bitMask);
+}
+#endif
 
-/*! @brief Table to save uart IRQ enum numbers defined in CMSIS header file. */
-extern const IRQn_Type g_uartRxTxIrqId[HW_UART_INSTANCE_COUNT];
-
-#endif /* __FSL_UART_COMMON_H__*/
 /*******************************************************************************
  * EOF
  ******************************************************************************/

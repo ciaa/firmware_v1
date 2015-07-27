@@ -29,22 +29,34 @@
  */
 
 #include "fsl_device_registers.h"
-#include "fsl_adc_features.h"
+#include "fsl_clock_manager.h"
 
 /*******************************************************************************
  * Variables
  ******************************************************************************/
 
-/* Table of base addresses for ADC instances. */
- const uint32_t g_adcBaseAddr[] = ADC_BASES;
-/*const uint32_t g_adcBaseAddr[] = ADC_BASE_ADDRS;*/
+/*******************************************************************************
+ * Definitions
+ ******************************************************************************/
+/* Table of base addresses for instances. */
+SIM_Type * const g_simBase[] = SIM_BASE_PTRS;
+#if (defined(CLOCK_USE_MCG) || defined(CLOCK_USE_MCG_LITE))
+MCG_Type * const g_mcgBase[] = MCG_BASE_PTRS;
+#endif
 
-/* Table to save ADC IRQ enum numbers defined in CMSIS header file. */
-/*Apermingeat: Removed because is not used*/
-/*const IRQn_Type g_adcIrqId[HW_ADC_INSTANCE_COUNT] = ADC_IRQS;*/
+#if (defined(CLOCK_USE_SCG))
+const uint32_t g_scgBase[] = SCG_BASE_PTRS;
+#endif
+
+#if (!defined(CLOCK_USE_SCG))
+OSC_Type * const g_oscBase[] = OSC_BASE_PTRS; 
+#endif
+
+#if (defined(PCC_INSTANCE_COUNT))
+PCC_Type * const g_pccBase[] = PCC_BASE_PTRS; 
+#endif
 
 /*******************************************************************************
  * EOF
  ******************************************************************************/
-
 
