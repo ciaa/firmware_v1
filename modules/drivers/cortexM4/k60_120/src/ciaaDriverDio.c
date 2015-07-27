@@ -62,7 +62,8 @@
 #include "ciaaDriverDio_Internal.h"
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_string.h"
-#include "fsl_gpio_driver.h"
+#include "fsl_port_hal.h"
+#include "fsl_gpio_hal.h"
 
 /*==================[macros and definitions]=================================*/
 /** \brief Pointer to Devices */
@@ -72,11 +73,15 @@ typedef struct  {
 } ciaaDriverConstType;
 
 #define CIAA_GPIO_INPUTS_NUMBER		2
-#define CIAA_GPIO_OUTPUTS_NUMBER	4
+#define CIAA_GPIO_OUTPUTS_NUMBER	   4
 
 /*==================[internal data declaration]==============================*/
-gpio_input_pin_user_config_t ciaaGPIOinputCofig[CIAA_GPIO_INPUTS_NUMBER+1];
-gpio_output_pin_user_config_t ciaaGPIOoutputCofig[CIAA_GPIO_OUTPUTS_NUMBER+1];
+static ciaaDriverDio_pinType const ciaaGPIOinputPins[CIAA_GPIO_INPUTS_NUMBER] = {
+      {PORTA, PTA, 19u}, {PORTE, PTE, 26u}
+};
+static ciaaDriverDio_pinType const ciaaGPIOoutputPins[CIAA_GPIO_OUTPUTS_NUMBER] = {
+      {PORTA, PTA, 11u}, {PORTA, PTA, 28u}, {PORTA, PTA, 29u}, {PORTA, PTA, 10u}
+};
 
 /*==================[internal functions declaration]=========================*/
 
@@ -126,141 +131,30 @@ ciaaDriverDio_dioType ciaaDriverDio_dio0;
 /** \brief Dio 1 */
 ciaaDriverDio_dioType ciaaDriverDio_dio1;
 /*==================[internal functions definition]==========================*/
-void ciaa_k60_120_gpio_init(void)
-{
-
-
-#if (BOARD == ciaa_fsl)
-
-   /* Inputs */
-   /*Digital In 0 ->    GPIO14    PTC4*/
-   ciaaGPIOinputCofig[0].pinName = GPIO_MAKE_PIN(HW_GPIOA, 19);
-   ciaaGPIOinputCofig[0].config.isPullEnable = true;             /*!< Enable or disable pull. */
-   ciaaGPIOinputCofig[0].config.pullSelect = kPortPullDown;        /*!< Select internal pull(up/down) resistor.*/
-   ciaaGPIOinputCofig[0].config.isPassiveFilterEnabled = false;  /*!< Enable or disable passive filter.*/
-   ciaaGPIOinputCofig[0].config.interrupt = kPortIntDisabled;    /*!< Select interrupt/DMA request.*/
-   /*Digital In 1 ->     GPIO12    PTC5*/
-   ciaaGPIOinputCofig[1].pinName = GPIO_MAKE_PIN(HW_GPIOE, 26);
-   ciaaGPIOinputCofig[1].config.isPullEnable = true;             /*!< Enable or disable pull. */
-   ciaaGPIOinputCofig[1].config.pullSelect = kPortPullUp;        /*!< Select internal pull(up/down) resistor.*/
-   ciaaGPIOinputCofig[1].config.isPassiveFilterEnabled = false;  /*!< Enable or disable passive filter.*/
-   ciaaGPIOinputCofig[1].config.interrupt = kPortIntDisabled;    /*!< Select interrupt/DMA request.*/
-#if 0
-   /*Digital In 2 ->     GPIO10    PTC6*/
-   ciaaGPIOinputCofig[2].pinName = GPIO_MAKE_PIN(HW_GPIOC, 6);
-   ciaaGPIOinputCofig[2].config.isPullEnable = true;             /*!< Enable or disable pull. */
-   ciaaGPIOinputCofig[2].config.pullSelect = kPortPullUp;        /*!< Select internal pull(up/down) resistor.*/
-   ciaaGPIOinputCofig[2].config.isPassiveFilterEnabled = false;  /*!< Enable or disable passive filter.*/
-   ciaaGPIOinputCofig[2].config.interrupt = kPortIntDisabled;    /*!< Select interrupt/DMA request.*/
-   /*Digital In 3 ->     GPIO8    PTC7*/
-   ciaaGPIOinputCofig[3].pinName = GPIO_MAKE_PIN(HW_GPIOC, 7);
-   ciaaGPIOinputCofig[3].config.isPullEnable = true;             /*!< Enable or disable pull. */
-   ciaaGPIOinputCofig[3].config.pullSelect = kPortPullUp;        /*!< Select internal pull(up/down) resistor.*/
-   ciaaGPIOinputCofig[3].config.isPassiveFilterEnabled = false;  /*!< Enable or disable passive filter.*/
-   ciaaGPIOinputCofig[3].config.interrupt = kPortIntDisabled;    /*!< Select interrupt/DMA request.*/
-    /*Digital In 4 ->     GPIO6    PTC8*/
-   ciaaGPIOinputCofig[4].pinName = GPIO_MAKE_PIN(HW_GPIOC, 8);
-   ciaaGPIOinputCofig[4].config.isPullEnable = true;             /*!< Enable or disable pull. */
-   ciaaGPIOinputCofig[4].config.pullSelect = kPortPullUp;        /*!< Select internal pull(up/down) resistor.*/
-   ciaaGPIOinputCofig[4].config.isPassiveFilterEnabled = false;  /*!< Enable or disable passive filter.*/
-   ciaaGPIOinputCofig[4].config.interrupt = kPortIntDisabled;    /*!< Select interrupt/DMA request.*/
-   /*Digital In 5 ->     GPIO4    PTC9*/
-   ciaaGPIOinputCofig[5].pinName = GPIO_MAKE_PIN(HW_GPIOC, 9);
-   ciaaGPIOinputCofig[5].config.isPullEnable = true;             /*!< Enable or disable pull. */
-   ciaaGPIOinputCofig[5].config.pullSelect = kPortPullUp;        /*!< Select internal pull(up/down) resistor.*/
-   ciaaGPIOinputCofig[5].config.isPassiveFilterEnabled = false;  /*!< Enable or disable passive filter.*/
-   ciaaGPIOinputCofig[5].config.interrupt = kPortIntDisabled;    /*!< Select interrupt/DMA request.*/
-    /*Digital In 6 ->     GPIO2    PTC10*/
-   ciaaGPIOinputCofig[6].pinName = GPIO_MAKE_PIN(HW_GPIOC, 10);
-   ciaaGPIOinputCofig[6].config.isPullEnable = true;             /*!< Enable or disable pull. */
-   ciaaGPIOinputCofig[6].config.pullSelect = kPortPullUp;        /*!< Select internal pull(up/down) resistor.*/
-   ciaaGPIOinputCofig[6].config.isPassiveFilterEnabled = false;  /*!< Enable or disable passive filter.*/
-   ciaaGPIOinputCofig[6].config.interrupt = kPortIntDisabled;    /*!< Select interrupt/DMA request.*/
-   /*Digital In 7 ->     GPIO0    PTC11*/
-   ciaaGPIOinputCofig[7].pinName = GPIO_MAKE_PIN(HW_GPIOC, 11);
-   ciaaGPIOinputCofig[7].config.isPullEnable = true;             /*!< Enable or disable pull. */
-   ciaaGPIOinputCofig[7].config.pullSelect = kPortPullUp;        /*!< Select internal pull(up/down) resistor.*/
-   ciaaGPIOinputCofig[7].config.isPassiveFilterEnabled = false;  /*!< Enable or disable passive filter.*/
-   ciaaGPIOinputCofig[7].config.interrupt = kPortIntDisabled;    /*!< Select interrupt/DMA request.*/
-
-   //Note: This pinName must be defined here to indicate the end of array.
-   ciaaGPIOinputCofig[8].pinName = GPIO_PINS_OUT_OF_RANGE,
-#endif
-   //Note: This pinName must be defined here to indicate the end of array.
-   ciaaGPIOinputCofig[2].pinName = GPIO_PINS_OUT_OF_RANGE,
-
-   /* Outputs */
-
-   /* Relays */
-   /*Digital Out 0 -> PTB16*/
-   ciaaGPIOoutputCofig[0].pinName = GPIO_MAKE_PIN(HW_GPIOA, 11);
-   ciaaGPIOoutputCofig[0].config.outputLogic = 0;                       /*!< Set default output logic.*/
-   ciaaGPIOoutputCofig[0].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
-   ciaaGPIOoutputCofig[0].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[0].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
-   /*Digital Out 1 -> PTB06*/
-   ciaaGPIOoutputCofig[1].pinName = GPIO_MAKE_PIN(HW_GPIOA, 28);
-   ciaaGPIOoutputCofig[1].config.outputLogic = 0;                       /*!< Set default output logic.*/
-   ciaaGPIOoutputCofig[1].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
-   ciaaGPIOoutputCofig[1].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[1].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
-   /*Digital Out 2 -> PTB07*/
-   ciaaGPIOoutputCofig[2].pinName = GPIO_MAKE_PIN(HW_GPIOA, 29);
-   ciaaGPIOoutputCofig[2].config.outputLogic = 0;                       /*!< Set default output logic.*/
-   ciaaGPIOoutputCofig[2].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
-   ciaaGPIOoutputCofig[2].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[2].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
-   /*Digital Out 3 -> PTB17*/
-   ciaaGPIOoutputCofig[3].pinName = GPIO_MAKE_PIN(HW_GPIOA, 10);
-   ciaaGPIOoutputCofig[3].config.outputLogic = 0;                       /*!< Set default output logic.*/
-   ciaaGPIOoutputCofig[3].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
-   ciaaGPIOoutputCofig[3].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[3].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
-
-#if 0
-   /* MOSFETs */
-   /*Digital Out 4 -> PTC15*/
-   ciaaGPIOoutputCofig[4].pinName = GPIO_MAKE_PIN(HW_GPIOC, 15);
-   ciaaGPIOoutputCofig[4].config.outputLogic = 0;                       /*!< Set default output logic.*/
-   ciaaGPIOoutputCofig[4].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
-   ciaaGPIOoutputCofig[4].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[4].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
-   /*Digital Out 5 -> PTC14*/
-   ciaaGPIOoutputCofig[5].pinName = GPIO_MAKE_PIN(HW_GPIOC, 14);
-   ciaaGPIOoutputCofig[5].config.outputLogic = 0;                       /*!< Set default output logic.*/
-   ciaaGPIOoutputCofig[5].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
-   ciaaGPIOoutputCofig[5].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[5].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
-   /*Digital Out 6 -> PTC13*/
-   ciaaGPIOoutputCofig[6].pinName = GPIO_MAKE_PIN(HW_GPIOC, 13);
-   ciaaGPIOoutputCofig[6].config.outputLogic = 0;                       /*!< Set default output logic.*/
-   ciaaGPIOoutputCofig[6].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
-   ciaaGPIOoutputCofig[6].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[6].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
-   /*Digital Out 7 -> PTC12*/
-   ciaaGPIOoutputCofig[7].pinName = GPIO_MAKE_PIN(HW_GPIOC, 12);
-   ciaaGPIOoutputCofig[7].config.outputLogic = 0;                       /*!< Set default output logic.*/
-   ciaaGPIOoutputCofig[7].config.slewRate = kPortFastSlewRate;          /*! Select fast/slow slew rate.*/
-   ciaaGPIOoutputCofig[7].config.driveStrength = kPortHighDriveStrength;/*!< Select low/high drive strength.*/
-   ciaaGPIOoutputCofig[7].config.isOpenDrainEnabled = false;             /*!< Enable or disable open drain.*/
-
-   //Note: This pinName must be defined here to indicate the end of array.
-   ciaaGPIOoutputCofig[8].pinName = GPIO_PINS_OUT_OF_RANGE,
-#endif
-   //Note: This pinName must be defined here to indicate the end of array.
-   ciaaGPIOoutputCofig[4].pinName = GPIO_PINS_OUT_OF_RANGE,
-
-   GPIO_DRV_Init(ciaaGPIOinputCofig, ciaaGPIOoutputCofig);
-
-#else
-   #error please define BOARD variable!
-#endif
-}
 
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
+   uint8_t index;
+
+   if (device == &ciaaDriverDio_in0) {
+      for(index = 0; index < CIAA_GPIO_INPUTS_NUMBER; index++) {
+         PORT_HAL_SetPassiveFilterCmd(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, false);
+         PORT_HAL_SetMuxMode(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, kPortMuxAsGpio);
+         PORT_HAL_SetPullMode(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, kPortPullUp);
+         PORT_HAL_SetPullCmd(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, true);
+         PORT_HAL_SetPinIntMode(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, kPortIntDisabled);
+         GPIO_HAL_SetPinDir(ciaaGPIOinputPins[index].gpio, ciaaGPIOinputPins[index].pin, kGpioDigitalInput);
+      }
+   } else if (device == &ciaaDriverDio_out0) {
+      for(index = 0; index < CIAA_GPIO_OUTPUTS_NUMBER; index++) {
+         PORT_HAL_SetMuxMode(ciaaGPIOoutputPins[index].port, ciaaGPIOoutputPins[index].pin, kPortMuxAsGpio);
+         PORT_HAL_SetPullCmd(ciaaGPIOoutputPins[index].port, ciaaGPIOoutputPins[index].pin, false);
+         GPIO_HAL_SetPinDir(ciaaGPIOoutputPins[index].gpio, ciaaGPIOoutputPins[index].pin, kGpioDigitalOutput);
+         GPIO_HAL_ClearPinOutput(ciaaGPIOoutputPins[index].gpio, ciaaGPIOoutputPins[index].pin);
+      }
+   }
    return device;
 }
 
@@ -288,7 +182,7 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
 	 for(i = 0; i < CIAA_GPIO_INPUTS_NUMBER; i++)
 	 {
 	    //ciaa_lpc4337_writeOutput(i, buffer[0] & (1 << i));
-	     buffer[0] |= GPIO_DRV_ReadPinInput(ciaaGPIOoutputCofig[i].pinName) << i;
+	     buffer[0] |= GPIO_HAL_ReadPinInput(ciaaGPIOinputPins[i].gpio, ciaaGPIOinputPins[i].pin) << i;
 	 }
 
         /* 1 byte read */
@@ -326,7 +220,7 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
         int32_t i;
         for(i = 0; i < CIAA_GPIO_OUTPUTS_NUMBER; i++)
         {
-           GPIO_DRV_WritePinOutput(ciaaGPIOoutputCofig[i].pinName, (buffer[0] & (1 << i))>>i);
+           GPIO_HAL_WritePinOutput(ciaaGPIOoutputPins[i].gpio, ciaaGPIOoutputPins[i].pin, (buffer[0] & (1 << i))>>i);
         }
 
         /* save actual output state in layer data */
@@ -346,8 +240,6 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
 void ciaaDriverDio_init(void)
 {
    uint8_t loopi;
-
-   ciaa_k60_120_gpio_init();
 
    /* add dio driver to the list of devices */
    for(loopi = 0; loopi < ciaaDriverDioConst.countOfDevices; loopi++) {

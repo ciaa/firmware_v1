@@ -63,10 +63,14 @@
 #include "ciaaDriverUart.h"
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_stdio.h"
-#include "fsl_uart_hal.h"
-#include "fsl_uart_common.h"
-#include "fsl_clock_manager.h"
 #include "os.h"
+
+#include "fsl_device_registers.h"
+#include "fsl_clock_manager.h"
+#include "fsl_mcg_hal.h"
+#include "fsl_port_hal.h"
+#include "fsl_uart_hal.h"
+
 
 /*==================[macros and definitions]=================================*/
 /** \brief Pointer to Devices */
@@ -163,20 +167,49 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
 void ciaaDriverUart_configInit(ciaaDevices_deviceType * device, uint8_t index)
 {
    ciaaDriverUart_uartType * uart = device->layer;
+
 	uart->instance = index;
-   uart->config.baudRate = 115200;
-   uart->config.baudRate = kUart8BitsPerChar;
+   uart->config.baudRate = 19200;
+   uart->config.bitCountPerChar = kUart8BitsPerChar;
    uart->config.parityMode = kUartParityDisabled;
+#if FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT
    uart->config.stopBitCount = kUartOneStopBit;
+#endif
+
+   uart->base = UART5;
 }
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
    ciaaDriverUart_uartType * uart = device->layer;
+   uint32_t uartSourceClock;
 
-   if (kStatus_UART_Success != UART_DRV_Init(uart->instance, &uart->state, &uart->config)) {
-      device = NULL;
+   if (uart->instance == 0) {
+      /* enable clock for PORTs */
+      SIM_HAL_EnableClock(SIM, kSimClockGatePortE);
+      /* Affects PORTE_PCR9 register */
+      PORT_HAL_SetMuxMode(PORTE,9u,kPortMuxAlt3);
+      /* Affects PORTE_PCR8 register */
+      PORT_HAL_SetMuxMode(PORTE,8u,kPortMuxAlt3);
    }
+
+   UART_HAL_Init(uart->base);
+
+   /* UART clock source is either system or bus clock depending on instance */
+   uartSourceClock = CLOCK_SYS_GetUartFreq(uart->instance);
+
+  /* Initialize UART baud rate, bit count, parity and stop bit. */
+   UART_HAL_SetBaudRate(uart->base, uartSourceClock, uart->config.baudRate);
+   UART_HAL_SetBitCountPerChar(uart->base, uart->config.bitCountPerChar);
+   UART_HAL_SetParityMode(uart->base, uart->config.parityMode);
+#if FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT
+   UART_HAL_SetStopBitCount(uart->base, uart->config.stopBitCount);
+#endif
+
+   UART_HAL_EnableTransmitter(uart->base);
+   UART_HAL_EnableReceiver(uart->base);
+   NVIC_EnableIRQ(UART5_RX_TX_IRQn);
+
    return device;
 }
 
@@ -185,7 +218,8 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
    ciaaDriverUart_uartType * uart = device->layer;
    int32_t ret = -1;
 
-   UART_DRV_Deinit(uart->instance);
+   UART_HAL_DisableTransmitter(uart->base);
+   UART_HAL_DisableReceiver(uart->base);
    ret = 0;
 
    return ret;
@@ -194,8 +228,6 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
    ciaaDriverUart_uartType * uart = device->layer;
-   uint32_t baseAddr = g_uartBaseAddr[uart->instance];
-   uint32_t uartSourceClock;
    int32_t ret = -1;
 
    if((device == ciaaDriverUartConst.devices[0]) ||
@@ -212,13 +244,7 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
          /* set serial port baudrate */
          case ciaaPOSIX_IOCTL_SET_BAUDRATE:
             uart->config.baudRate = (uint32_t)(param);
-
-            /* UART clock source is either system clock or bus clock depending on the instance */
-            uartSourceClock = CLOCK_SYS_GetUartFreq(uart->instance);
-
-            if (kStatus_UART_Success == UART_HAL_SetBaudRate(baseAddr, uartSourceClock, uart->config.baudRate)) {
-               ret = 0;
-            }
+            /** @todo Cambiar velocidad en el puerto fisico */
             break;
       }
    }
