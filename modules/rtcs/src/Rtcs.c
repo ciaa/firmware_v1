@@ -69,6 +69,7 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "Rtcs_port.h"
 #include "Rtcs.h"
 #include "Rtcs_Internal.h"
 

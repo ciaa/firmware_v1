@@ -73,8 +73,6 @@
 
 /*==================[inclusions]=============================================*/
 #include "Rtcs_Internal_Cfg.h"
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaPOSIX_stdlib.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

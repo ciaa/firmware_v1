@@ -103,8 +103,6 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaPOSIX_stdlib.h"
 
 //#error this is a remember to remove the comment on the following line
 /*****************************************************************************

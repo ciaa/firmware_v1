@@ -45,13 +45,12 @@
  *
  */
 
-#ifndef RTCS_STATESPACE_H
-#define RTCS_STATESPACE_H
-/** \brief State Space Controller Header File
+#ifndef RTCS_PORT_H
+#define RTCS_PORT_H
+/** \brief Real-Time Control System Port Header File
  **
- ** State Space Controller Header File
+ ** Real-Time Control System Port Header File
  **
- ** \file Rtcs_StateSpace.h
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
@@ -72,6 +71,7 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdlib.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -81,65 +81,10 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief System Control type */
-typedef enum {REGULATOR, SERVO, FULL_CONTROL} system_type_t;
-
-/** \brief Luenberger's observer type */
-typedef enum {REDUCED, FULL} observer_type_t;
-
-/** \brief State Space Controller type */
-typedef struct
-{
-   uint32_t period_in_ms;
-   uint32_t r_size;
-   uint32_t x_size;
-   uint32_t e_size;
-   uint32_t u_size;
-   uint32_t y_size;
-   float *r_vector;
-   float *x_vector;
-   float *e_vector;
-   float *u_vector;
-   float *y_vector;
-   float *k_matrix;
-   float *ao_matrix;
-   float *bo_matrix;
-   float *l_matrix;
-   void (*ControllerSendFunc) (float *, uint16_t); 
-   void (*ErrorFunc) (void *data);
-   void (*ObserverFunc) (void *data);
-   system_type_t system;
-   observer_type_t observer;
-}Rtcs_statefeedback_data_t;
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Execution of the control algorithm
- **
- ** Executes control algorithm. It must be called cyclically
- **
- ** \param[in] data structure of the controller
- **/
-extern void Rtcs_StateFeedbackRun(void *data);
-
-/** \brief Execution of the control algorithm for the first time
- **
- ** It runs algorithm that performs all mathematical operations of
- ** the controller which do not require to be updated in each iteration.
- **
- ** \param[in] data structure of the controller
- **/
-extern void Rtcs_StateFeedbackFirstRun(void *data);
-
-/** \brief Worst-case execution of the control algorithm
- **
- ** Executes the worst case of the control algorithm. It is useful
- ** for measuring computation time of the controller. 
- **
- ** \param[in] data structure of the controller
- **/
-extern void Rtcs_StateFeedbackWorstRun(void *data);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -148,5 +93,5 @@ extern void Rtcs_StateFeedbackWorstRun(void *data);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef RTCS_STATESPACE_H */
+#endif /* #ifndef RTCS_PORT_H */
 
