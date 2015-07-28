@@ -68,8 +68,6 @@
 #include "fsl_device_registers.h"
 #include "fsl_clock_manager.h"
 #include "fsl_mcg_hal.h"
-#include "fsl_port_hal.h"
-#include "fsl_uart_hal.h"
 
 
 /*==================[macros and definitions]=================================*/
@@ -79,7 +77,25 @@ typedef struct  {
    uint8_t countOfDevices;
 } ciaaDriverConstType;
 
+#define UART_RX_FIFO_SIZE       (1)
+
+typedef struct {
+   uint8_t hwbuf[UART_RX_FIFO_SIZE];
+   uint8_t rxcnt;
+} ciaaDriverUartControl;
+
 /*==================[internal data declaration]==============================*/
+/** \brief Uart Port 0 */
+static ciaaDriverUart_portType const ciaaDriverUart_port0;
+
+/** \brief Uart Port 1 */
+static ciaaDriverUart_portType const ciaaDriverUart_port1;
+
+/** \brief Uart Port 2 */
+static ciaaDriverUart_portType const ciaaDriverUart_port2;
+
+/** \brief Buffers */
+ciaaDriverUartControl uartControl[3];
 
 static ciaaDevices_deviceType ciaaDriverUart_device0 = {
    "uart/0",                        /** <= driver name */
@@ -91,7 +107,7 @@ static ciaaDevices_deviceType ciaaDriverUart_device0 = {
    NULL,                            /** <= seek function is not provided */
    NULL,                            /** <= upper layer */
    (void*)&ciaaDriverUart_uart0,    /** <= layer */
-   NULL                             /** <= NULL no lower layer */
+   (void*)&ciaaDriverUart_port0     /** <= NULL no lower layer */
 };
 
 /** \brief Device for UART 1 */
@@ -105,7 +121,7 @@ static ciaaDevices_deviceType ciaaDriverUart_device1 = {
    NULL,                            /** <= seek function is not provided */
    NULL,                            /** <= upper layer */
    (void*)&ciaaDriverUart_uart1,    /** <= layer */
-   NULL                             /** <= NULL no lower layer */
+   (void*)&ciaaDriverUart_port1     /** <= NULL no lower layer */
 };
 
 /** \brief Device for UART 2 */
@@ -119,7 +135,7 @@ static ciaaDevices_deviceType ciaaDriverUart_device2 = {
    NULL,                            /** <= seek function is not provided */
    NULL,                            /** <= upper layer */
    (void*)&ciaaDriverUart_uart2,    /** <= layer */
-   NULL                             /** <= NULL no lower layer */
+   (void*)&ciaaDriverUart_port2     /** <= NULL no lower layer */
 };
 
 static ciaaDevices_deviceType * const ciaaUartDevices[] = {
@@ -143,24 +159,39 @@ ciaaDriverUart_uartType ciaaDriverUart_uart1;
 /** \brief Uart 2 */
 ciaaDriverUart_uartType ciaaDriverUart_uart2;
 
+
 /*==================[internal data definition]===============================*/
+static ciaaDriverUart_portType const ciaaDriverUart_port0 = {
+   UART0, 0, UART0_RX_TX_IRQn, kSimClockGateUart0,
+   { PORTD, 6u, kPortMuxAlt3, kSimClockGatePortD },
+   { PORTD, 7u, kPortMuxAlt3, kSimClockGatePortD }
+};
+
+static ciaaDriverUart_portType const ciaaDriverUart_port1 = {
+   UART5, 5, UART5_RX_TX_IRQn, kSimClockGateUart5,
+   { PORTE, 9u, kPortMuxAlt3, kSimClockGatePortE },
+   { PORTE, 8u, kPortMuxAlt3, kSimClockGatePortE }
+};
+
+static ciaaDriverUart_portType const ciaaDriverUart_port2 = {
+   UART4, 4, UART4_RX_TX_IRQn, kSimClockGateUart4,
+   { PORTC, 14u, kPortMuxAlt3, kSimClockGatePortC },
+   { PORTC, 15u, kPortMuxAlt3, kSimClockGatePortC }
+};
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device)
+static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
 {
    /* receive the data and forward to upper layer */
-   //ciaaDriverUart_uartType * uart = device->layer;
-
-   //ciaaSerialDevices_rxIndication(device->upLayer, uart->rxBuffer.length);
+   ciaaSerialDevices_rxIndication(device->upLayer, nbyte);
 }
+
 static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const device)
 {
    /* receive the data and forward to upper layer */
-   //ciaaDriverUart_uartType * uart = device->layer;
-
-   //ciaaSerialDevices_txConfirmation(device->upLayer, uart->txBuffer.length);
+   ciaaSerialDevices_txConfirmation(device->upLayer, 1 );
 }
 
 /** \brief Initialize configuration variables and hardware port  */
@@ -169,57 +200,63 @@ void ciaaDriverUart_configInit(ciaaDevices_deviceType * device, uint8_t index)
    ciaaDriverUart_uartType * uart = device->layer;
 
 	uart->instance = index;
-   uart->config.baudRate = 19200;
+
+   uart->config.baudRate = 115200;
    uart->config.bitCountPerChar = kUart8BitsPerChar;
    uart->config.parityMode = kUartParityDisabled;
 #if FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT
    uart->config.stopBitCount = kUartOneStopBit;
 #endif
 
-   uart->base = UART5;
 }
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
    ciaaDriverUart_uartType * uart = device->layer;
+   ciaaDriverUart_portType const * port = device->loLayer;
+
    uint32_t uartSourceClock;
 
-   if (uart->instance == 0) {
-      /* enable clock for PORTs */
-      SIM_HAL_EnableClock(SIM, kSimClockGatePortE);
-      /* Affects PORTE_PCR9 register */
-      PORT_HAL_SetMuxMode(PORTE,9u,kPortMuxAlt3);
-      /* Affects PORTE_PCR8 register */
-      PORT_HAL_SetMuxMode(PORTE,8u,kPortMuxAlt3);
-   }
+   /* Enable clock for PORTs */
+   SIM_HAL_EnableClock(SIM, port->rx.gate);
+   SIM_HAL_EnableClock(SIM, port->tx.gate);
+   /* Configure port pins functions to UART */
+   PORT_HAL_SetMuxMode(port->rx.port, port->rx.pin, port->rx.mux);
+   PORT_HAL_SetMuxMode(port->tx.port, port->tx.pin, port->tx.mux);
 
-   UART_HAL_Init(uart->base);
+   SIM_HAL_EnableClock(SIM, port->gate);
+   /* Initialize HAL UART to known state */
+   UART_HAL_Init(port->base);
 
    /* UART clock source is either system or bus clock depending on instance */
-   uartSourceClock = CLOCK_SYS_GetUartFreq(uart->instance);
+   uartSourceClock = CLOCK_SYS_GetUartFreq(port->instance);
 
   /* Initialize UART baud rate, bit count, parity and stop bit. */
-   UART_HAL_SetBaudRate(uart->base, uartSourceClock, uart->config.baudRate);
-   UART_HAL_SetBitCountPerChar(uart->base, uart->config.bitCountPerChar);
-   UART_HAL_SetParityMode(uart->base, uart->config.parityMode);
+   UART_HAL_SetBaudRate(port->base, uartSourceClock, uart->config.baudRate);
+   UART_HAL_SetBitCountPerChar(port->base, uart->config.bitCountPerChar);
+   UART_HAL_SetParityMode(port->base, uart->config.parityMode);
 #if FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT
-   UART_HAL_SetStopBitCount(uart->base, uart->config.stopBitCount);
+   UART_HAL_SetStopBitCount(port->base, uart->config.stopBitCount);
 #endif
+   /* Enable UART transmitter and receiver modules */
+   UART_HAL_EnableTransmitter(port->base);
+   UART_HAL_EnableReceiver(port->base);
 
-   UART_HAL_EnableTransmitter(uart->base);
-   UART_HAL_EnableReceiver(uart->base);
-   NVIC_EnableIRQ(UART5_RX_TX_IRQn);
+   /* Enable interrupts from UART module */
+   NVIC_EnableIRQ(port->irq);
 
    return device;
 }
 
 extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
-   ciaaDriverUart_uartType * uart = device->layer;
+   ciaaDriverUart_portType const * port = device->loLayer;
    int32_t ret = -1;
 
-   UART_HAL_DisableTransmitter(uart->base);
-   UART_HAL_DisableReceiver(uart->base);
+   UART_HAL_DisableTransmitter(port->base);
+   UART_HAL_DisableReceiver(port->base);
+   NVIC_EnableIRQ(port->irq);
+
    ret = 0;
 
    return ret;
@@ -261,9 +298,22 @@ extern ssize_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
 
 extern ssize_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
-   //ciaaDriverUart_uartType * uart = device->layer;
-   ssize_t ret = -1;
+   ciaaDriverUart_portType const * port = device->loLayer;
+   ssize_t ret = 0;
 
+   if((device == ciaaDriverUartConst.devices[0]) ||
+      (device == ciaaDriverUartConst.devices[1]) ||
+      (device == ciaaDriverUartConst.devices[2]) )
+   {
+      while(UART_HAL_GetStatusFlag(port->base, kUartTxDataRegEmpty) && (ret < size))
+      {
+         /* send first byte */
+         UART_HAL_Putchar(port->base, buffer[ret]);
+         /* bytes written */
+         ret++;
+      }
+      UART_HAL_SetIntMode(port->base, kUartIntTxDataRegEmpty, true);
+   }
    return ret;
 }
 
@@ -290,6 +340,29 @@ ISR(UART0_IRQHandler)
 
 ISR(UART2_IRQHandler)
 {
+   ciaaDriverUart_portType const * port = ciaaUartDevices[1]->loLayer;
+
+   if (UART_HAL_GetStatusFlag(port->base, kUartRxDataRegFull) && UART_HAL_GetIntMode(port->base, kUartRxDataRegFull))
+   {
+      do
+      {
+         UART_HAL_Getchar(port->base, &uartControl[1].hwbuf[uartControl[1].rxcnt]);
+         uartControl[1].rxcnt++;
+      } while((UART_HAL_GetStatusFlag(port->base, kUartRxDataRegFull)) &&
+             (uartControl[1].rxcnt < UART_RX_FIFO_SIZE));
+
+      ciaaDriverUart_rxIndication(&ciaaDriverUart_device1, uartControl[1].rxcnt);
+   }
+   if (UART_HAL_GetStatusFlag(port->base, kUartTxDataRegEmpty) && UART_HAL_GetIntMode(port->base, kUartIntTxDataRegEmpty))
+   {
+      /* tx confirmation, 1 byte sent */
+      ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
+
+      if (UART_HAL_GetStatusFlag(port->base, kUartTxDataRegEmpty))
+      {  /* There is not more bytes to send, disable THRE irq */
+         UART_HAL_SetIntMode(port->base, kUartIntTxDataRegEmpty, false);
+      }
+   }
 
 }
 
