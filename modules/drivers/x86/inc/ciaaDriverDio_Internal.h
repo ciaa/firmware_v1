@@ -76,6 +76,9 @@ extern ciaaDriverDio_dioType ciaaDriverDio_dio0;
 /** \brief Dio 1 */
 extern ciaaDriverDio_dioType ciaaDriverDio_dio1;
 
+/** \brief Dio 2 */
+extern ciaaDriverDio_dioType ciaaDriverDio_dio2;
+
 /*==================[external functions declaration]=========================*/
 
 /*==================[cplusplus]==============================================*/
