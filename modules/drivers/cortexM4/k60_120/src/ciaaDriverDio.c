@@ -77,10 +77,10 @@ typedef struct  {
 
 /*==================[internal data declaration]==============================*/
 static ciaaDriverDio_pinType const ciaaGPIOinputPins[CIAA_GPIO_INPUTS_NUMBER] = {
-      {PORTA, PTA, 19u}, {PORTE, PTE, 26u}
+      {PORTA, 19u, PTA}, {PORTE, 26u, PTE}
 };
 static ciaaDriverDio_pinType const ciaaGPIOoutputPins[CIAA_GPIO_OUTPUTS_NUMBER] = {
-      {PORTA, PTA, 11u}, {PORTA, PTA, 28u}, {PORTA, PTA, 29u}, {PORTA, PTA, 10u}
+      {PORTA, 11u, PTA}, {PORTA, 28u, PTA }, {PORTA, 29u, PTA}, {PORTA, 10u, PTA}
 };
 
 /*==================[internal functions declaration]=========================*/

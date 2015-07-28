@@ -67,15 +67,14 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Dio Type */
-typedef uint32_t ciaaDriverDio_dioType;
-
 typedef struct ciaaDriverDio_pinStruct {
    PORT_Type * port;
-   GPIO_Type * gpio;
    uint32_t pin;
+   GPIO_Type * gpio;
 } ciaaDriverDio_pinType;
 
+/** \brief Dio Type */
+typedef uint32_t ciaaDriverDio_dioType;
 /*==================[external data declaration]==============================*/
 /** \brief Dio 0 */
 extern ciaaDriverDio_dioType ciaaDriverDio_dio0;

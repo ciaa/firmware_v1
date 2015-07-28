@@ -60,6 +60,8 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "fsl_uart_hal.h"
+#include "fsl_port_hal.h"
+#include "fsl_sim_hal.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -69,10 +71,26 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+typedef struct ciaaDriverUart_pinStruct {
+   PORT_Type * port;                      /** <= i/o port base address */
+   uint32_t pin;                          /** <= pin number of i/o port */
+   port_mux_t mux;                        /** <= function multiplexor value */
+   sim_clock_gate_name_t gate;            /** <= Port clock gate name */
+} ciaaDriverUart_pinType;
+
+typedef struct ciaaDriverUart_portStruct {
+   UART_Type * base;                      /** <= uart port base address */
+   uint32_t instance;                     /** <= uart port instance */
+   IRQn_Type irq;                         /** <= uart port interrupt */
+   sim_clock_gate_name_t gate;            /** <= uart clock gate name */
+   ciaaDriverUart_pinType rx;             /** <= i/o pin to rx function */
+   ciaaDriverUart_pinType tx;             /** <= i/o pin to tx function */
+} ciaaDriverUart_portType;
+
 /** \brief Uart Type */
 typedef struct {
-   uint32_t instance;                   /** <= uart instance diver */
-   UART_Type * base;                    /** <= uart base address */
+   uint32_t instance;                     /** <= uart instance diver */
+//   ciaaDriverUart_portType const * port;
    struct {
       uint32_t baudRate;
       uart_bit_count_per_char_t bitCountPerChar;
