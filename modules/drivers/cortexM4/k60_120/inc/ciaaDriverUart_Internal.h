@@ -69,8 +69,11 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief Size of Uart Rx buffer */
+   #define UART_RX_FIFO_SIZE       (32)
 
 /*==================[typedef]================================================*/
+/** \brief Pin port resource descriptor Type */
 typedef struct ciaaDriverUart_pinStruct {
    PORT_Type * port;                      /** <= i/o port base address */
    uint32_t pin;                          /** <= pin number of i/o port */
@@ -78,6 +81,7 @@ typedef struct ciaaDriverUart_pinStruct {
    sim_clock_gate_name_t gate;            /** <= Port clock gate name */
 } ciaaDriverUart_pinType;
 
+/** \brief Uart port resource descriptor Type */
 typedef struct ciaaDriverUart_portStruct {
    UART_Type * base;                      /** <= uart port base address */
    uint32_t instance;                     /** <= uart port instance */
@@ -87,7 +91,13 @@ typedef struct ciaaDriverUart_portStruct {
    ciaaDriverUart_pinType tx;             /** <= i/o pin to tx function */
 } ciaaDriverUart_portType;
 
-/** \brief Uart Type */
+/** \brief Uart reception buffer Type */
+typedef struct ciaaDriverUart_bufferStruct {
+   uint8_t data[UART_RX_FIFO_SIZE];
+   uint8_t size;
+} ciaaDriverUart_bufferType;
+
+/** \brief Uart driver state Type */
 typedef struct {
    uint32_t instance;                     /** <= uart instance diver */
 //   ciaaDriverUart_portType const * port;
@@ -99,6 +109,7 @@ typedef struct {
       uart_stop_bit_count_t stopBitCount;
 #endif
    } config;
+   ciaaDriverUart_bufferType buffer;
 } ciaaDriverUart_uartType;
 
 /*==================[external data declaration]==============================*/
