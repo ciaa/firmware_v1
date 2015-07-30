@@ -38,7 +38,7 @@
  **
  ** This file implements the Configuration Class of the Generator
  **
- ** \file config.php
+ ** \file OilConfig.php
  **
  **/
 
@@ -80,14 +80,12 @@ class OilConfig {
       $parser = new OilParser();
       $parser->loadFile($file);
       $parser->parse();
+      $this->config = $parser->getOil();
+   }
 
-      $tmp = $parser->getOil();
-
-      foreach ($tmp as $element)
-      {
-         $this->config[] = $element;
-      }
-
+   function setConfig($config)
+   {
+      $this->config = $config;
    }
 
    function parseAutosarFile()
@@ -96,82 +94,72 @@ class OilConfig {
 
    function getValue($root, $type)
    {
-      $ret = false;
       foreach ($this->config as $element)
       {
-         if ( ($element["root"] == $root) &&
-            ($element["type"] == $type) )
+         if ( ($element["root"] == $root) && ($element["type"] == $type) )
          {
-            $value = $element["value"];
-            if(strpos($value, "\"")!==false)
-            {
-               /* remove quotation marks */
-               $value = substr($value, 1, -1);
-            }
-            return $value;
+            return $element["value"];
          }
       }
-      return $ret;
+      return false;
    }
+//     DEAD CODE: waiting to be removed
+//    function getBase($db, $root)
+//    {
+//       $ret = array();
+// 
+//       foreach($db as $el)
+//       {
+//          if ( $el["root"] == $root )
+//          {
+//             $ret[] = $el;
+//          }
+//       }
+// 
+//       return $ret;
+//    }
 
-   function getBase($db, $root)
+   private function compare($element, $root, $type)
    {
-      $ret = array();
-
-      foreach($db as $el)
-      {
-         if ( $el["root"] == $root )
-         {
-            $ret[] = $el;
-         }
-      }
-
-      return $ret;
+      return ( $element['root']==$root &&
+         ($element['type'] == $type || $type == '*') 
+      );
    }
-
 
    function getCount($root, $type)
    {
-      $ret = 0;
+      $count = 0;
 
       foreach ($this->config as $element)
       {
-         if ( ( ($element["root"] == $root) && ($element["type"] == $type) ) ||
-              ( ($element["root"] == $root) && ($type == "*") ) )
+         if ( $this->compare($element, $root, $type) )
          {
-            $ret++;
+            $count++;
          }
       }
 
-      return $ret;
+      return $count;
    }
 
    function getList($root, $type)
    {
-      $ret = array();
+      $list = array();
 
       foreach ($this->config as $element)
       {
-         if ( ( ($element["root"] == $root) && ($element["type"] == $type) ) ||
-              ( ($element["root"] == $root) && ($type == "*") ) )
+         if ( $this->compare($element, $root, $type) )
          {
-            $ret[] = $element["value"];
+            $list[] = $element["value"];
          }
       }
 
-      return $ret;
+      return $list;
    }
 
    function listAll()
    {
-      $ret = array();
-
-      $ret = $this->listar($this->config);
-
-      return $ret;
+      return $this->listar($this->config);
    }
-
-   function foo() {}
 
    private function listar($dbase)
    {
@@ -184,8 +172,6 @@ class OilConfig {
       {
          $dbase = $this->config;
       }
-
-      var_dump($dbase);
 
       foreach ($dbase as $db)
       {

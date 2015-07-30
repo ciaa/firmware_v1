@@ -165,14 +165,7 @@ class OilParser {
 
    function eof()
    {
-      $ret = false;
-
-      if ( $this->line == count ($this->lines) )
-      {
-         $ret = true;
-      }
-
-      return $ret;
+      return ( $this->line == count ($this->lines) );
    }
 
    function getDefinition()
