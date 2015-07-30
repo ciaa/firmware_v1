@@ -134,7 +134,6 @@ class Log
       $this->writer->pause();
       $this->error();
       $this->writer->close();
-      exit(1);
    }
    
    public function getReport()

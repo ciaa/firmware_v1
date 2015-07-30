@@ -212,6 +212,7 @@ class OilGenerator
                   break;
                default:
                   $this->halt("invalid argument: " . $arg);
+                  exit(1);
                   break;
                }
             }
@@ -222,21 +223,25 @@ class OilGenerator
       if (count($configFiles)==0)
       {
          $this->halt("at least one config file shall be provided");
+         exit(1);
       }
 
       if (count($baseOutDir)!=1)
       {
          $this->halt("exactly one output directory shall be provided");
+         exit(1);
       }
 
       if (count($templateFiles)==0)
       {
          $this->halt("at least one tempalte file shall be provided");
+         exit(1);
       }
 
       if (count($directorySeparator)>1)
       {
          $this->halt("no more than one path delimiter shall be provided");
+         exit(1);
       }
       
       if (count($directorySeparator == 0 ))
@@ -322,6 +327,7 @@ class OilGenerator
       if ( ! $this->checkFiles($configFiles, $baseOutDir , $templateFiles) )
       {
          $this->log->halt("Missing files");
+         exit(1);
       }
       if ($this->verbose)
       {
