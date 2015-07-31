@@ -1,5 +1,5 @@
 <?php
- /* Copyright 2015, Carlos Pantelides 
+ /* Copyright 2015, Carlos Pantelides
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -58,30 +58,30 @@ class FileWriter extends OutputWriter
       $outfile = $baseOutDir . $outfile;
       return $outfile;
    }
-   
+
    public function open($file,$baseOutDir,$directorySeparator)
    {
       $outfile = $this->outputFileName($file,$baseOutDir,$directorySeparator);
-      
+
       $this->log->info("buffering ". $file . " to " . $outfile);
-      
+
       if(!file_exists(dirname($outfile)))
-      {  
+      {
          mkdir(dirname($outfile), 0777, TRUE);
       }
       if(file_exists($outfile))
-      {  
+      {
          $exists = true;
          if(file_exists($outfile . ".old"))
-         {  
+         {
             unlink($outfile . ".old");
          }
          rename($outfile, $outfile . ".old");
       }
       $this->ob_file = fopen($outfile, "w");
-      return $outfile; 
+      return $outfile;
    }
-   
+
    public function close()
    {
       $this->buffering=false;
@@ -90,10 +90,10 @@ class FileWriter extends OutputWriter
    }
 
    public function ob_file_callback($buffer)
-   {  
+   {
       fwrite($this->ob_file,$buffer);
    }
 }
-  
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

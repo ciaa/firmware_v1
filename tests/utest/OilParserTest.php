@@ -64,19 +64,19 @@ class OilParserTest extends PHPUnit_Framework_TestCase
          array(array(''),array('// comment'),'// 2'),
          array(array('code '),array("code // comment"),'// 3'),
          array(array('code '),array("code // comment // comment"),'// 4'),
-         
+
          // /**/ style
          array(array('code '),array('code /* comment */'),'/**/ 1'),
          array(array(' code'),array('/* comment */ code'),'/**/ 2'),
          array(array('code  code'),array('code /* comment */ code'),'/**/ 3'),
 
          // mixed style
-         array(array('code '),array("code // comment /* comment"),'mixed 1'),         
+         array(array('code '),array("code // comment /* comment"),'mixed 1'),
 
          // multiline
          array(array('code '),array('code /*'),'multiline 1'),
          array(array('code */'),array('code */'),'multiline 2'),
-         array(array('code1','','','code2'),array('code1','/* comment1', ' comment2*/','code2'),'multiline 3')  
+         array(array('code1','','','code2'),array('code1','/* comment1', ' comment2*/','code2'),'multiline 3')
       );
    }
    /**
@@ -99,26 +99,26 @@ class OilParserTest extends PHPUnit_Framework_TestCase
          array('a ','a  ','spaces 3'),
          array(' a b ','  a b  ','spaces 4'),
          array(' a b ','  a  b  ','spaces 5'),
-         
+
          // tabs
          array(' a ',"\t\ta\t\t",'tabs 1'),
          array(' a',"\t\ta",'tabs 2'),
          array('a ',"a\t\t",'tabs 3'),
          array(' a b ',"\t\ta\tb\t\t",'tabs 4'),
          array(' a b ',"\t\ta\t\tb\t\t",'tabs 5'),
-      
+
          // mixed
          array(' a ',"\t a\t ",'mixed 1'),
          array(' a'," \ta",'mixed 2'),
          array('a ',"a \t",'mixed 3'),
          array(' a b '," \ta b\t ",'mixed 4'),
          array(' a b ',"\t a \tb \t",'mixed 5'),
-         
+
          // final
          array('a b c d e',"a\t \t \t  \tb \t c d\t\t   \t  e",'final'),
       );
    }
-   
+
    /**
    * @dataProvider removeMultiBlankProvider
    *
@@ -129,6 +129,6 @@ class OilParserTest extends PHPUnit_Framework_TestCase
       $this->assertEquals($expected, $parser->removeMultiBlank($data), $msg);
    }
 }
-  
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

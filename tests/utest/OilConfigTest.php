@@ -84,7 +84,7 @@ class OilConfigTest extends PHPUnit_Framework_TestCase
          array(array("POSIX","HardwareCounter"),array("/OSEK","*"),"//2"),
       );
    }
-   
+
    /**
    * @dataProvider getListProvider
    *
@@ -95,7 +95,7 @@ class OilConfigTest extends PHPUnit_Framework_TestCase
       $config->setConfig($this->config);
       $this->assertEquals($expected, $config->getList($data[0],$data[1]) ,$msg);
    }
-   
+
    public function getValueProvider()
    {
       return array(
@@ -103,7 +103,7 @@ class OilConfigTest extends PHPUnit_Framework_TestCase
          array(false,array("/OSEK/ExampleOS","MEMMAP"),"//2"),
       );
    }
-   
+
    /**
    * @dataProvider getValueProvider
    *
@@ -113,7 +113,7 @@ class OilConfigTest extends PHPUnit_Framework_TestCase
       $config = new OilConfig();
       $config->setConfig($this->config);
       $this->assertEquals($expected, $config->getValue($data[0],$data[1]) ,$msg);
-   }   
+   }
    public function getCountProvider()
    {
       return array(
@@ -122,7 +122,7 @@ class OilConfigTest extends PHPUnit_Framework_TestCase
          array(2,array("/OSEK/ExampleOS","*"),"//3"),
       );
    }
-   
+
    /**
    * @dataProvider getCountProvider
    *
@@ -135,6 +135,6 @@ class OilConfigTest extends PHPUnit_Framework_TestCase
    }
 
 }
-  
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

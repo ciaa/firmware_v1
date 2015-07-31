@@ -1,5 +1,5 @@
 <?php
- /* Copyright 2015, Carlos Pantelides 
+ /* Copyright 2015, Carlos Pantelides
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -47,36 +47,36 @@
 abstract class OutputWriter
 {
    protected $buffering = false;
-   
+
    protected $log = null;
 
    abstract function close();
-   
+
    abstract function ob_file_callback($buffer);
-   
+
    public function start()
    {
       ob_start(array($this, 'ob_file_callback'));
       $this->buffering = true;
    }
-   
+
    public function pause()
    {
       if($this->buffering == true)
          ob_end_flush();
    }
-   
+
    public function resume()
    {
       if($this->buffering == true)
          $this->start();
    }
-   
+
    public function setLog($log)
    {
       $this->log = $log;
    }
 }
-  
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

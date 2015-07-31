@@ -1,5 +1,5 @@
 <?php
-/* Copyright 2015, Carlos Pantelides 
+/* Copyright 2015, Carlos Pantelides
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -45,12 +45,12 @@ class Log
    private $warnings = 0;
    private $writer;
    private $verbose = false;
-   
-   public function Log($writer) 
+
+   public function Log($writer)
    {
       $this->writer = $writer;
    }
-   
+
    public function setVerbose($verbose = true)
    {
       $this->verbose = $verbose;
@@ -60,12 +60,12 @@ class Log
    {
       return $this->errors;
    }
-   
+
    public function getWarnings()
    {
       return $this->warnings;
    }
-   
+
    /** \brief Info Generator Function
    **
    ** This function shall be used to report generation information to the user.
@@ -101,7 +101,7 @@ class Log
       $this->writer->resume();
 
    }
-   
+
    /** \brief Error Generator Function
    **
    ** This function shall be used to report error information to the user.
@@ -121,7 +121,7 @@ class Log
       $this->writer->resume();
 
    }
-   
+
    /** \brief Abort Generator Function
    **
    ** This function shall be used to report an error and abort the generation.
@@ -135,13 +135,13 @@ class Log
       $this->error();
       $this->writer->close();
    }
-   
+
    public function getReport()
    {
       return "Generation Finished with WARNINGS: " .$this->warnings . " and ERRORS: " . $this->errors;
    }
 
 }
-  
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

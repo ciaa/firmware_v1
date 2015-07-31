@@ -8,7 +8,7 @@ class StdoutWriter extends OutputWriter
    public function open($file,$baseOutDir,$pathDelimiter)
    {
       $this->log->info("generating ". $file . " to STDOUT");
-      return "STDOUT"; 
+      return "STDOUT";
    }
 
    public function close()
@@ -17,7 +17,7 @@ class StdoutWriter extends OutputWriter
       ob_end_flush();
    }
    public function ob_file_callback($buffer)
-   {  
+   {
       print $buffer;
    }
 

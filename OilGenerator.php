@@ -3,7 +3,7 @@
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
- * Copyright 2015, Carlos Pantelides 
+ * Copyright 2015, Carlos Pantelides
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -60,7 +60,7 @@ class OilGenerator
    private $path = "";
    private $log;
    private $writer;
-   
+
    /** \brief Compare Files Function
    **/
    function comfiles($f)
@@ -158,7 +158,7 @@ class OilGenerator
       $baseOutDir=array();
       $templateFiles=array();
       $directorySeparator=array();
-      
+
       foreach ($args as $arg)
       {
          switch ($arg)
@@ -219,7 +219,7 @@ class OilGenerator
             break;
          }
       }
-      
+
       if (count($configFiles)==0)
       {
          $this->halt("at least one config file shall be provided");
@@ -243,12 +243,12 @@ class OilGenerator
          $this->halt("no more than one path delimiter shall be provided");
          exit(1);
       }
-      
+
       if (count($directorySeparator == 0 ))
       {
          $directorySeparator[]="/gen/"; #TODO: use /templates/
       }
-      
+
       return array($this->verbose, $definitions, $configFiles, $baseOutDir[0], $templateFiles,$directorySeparator[0]);
    }
 
@@ -267,14 +267,14 @@ class OilGenerator
       foreach ($templateFiles as $file)
       {
          if(!file_exists($file))
-         {         
+         {
             $this->error("Template $file does not exists");
             $ok = false;
          }
       }
 
       if ( ! is_dir($baseOutDir) || ! is_writeable($baseOutDir) )
-      { 
+      {
          $this->error("Directory $baseOutDir not writeable");
          $ok = false;
       }
@@ -303,8 +303,8 @@ class OilGenerator
       $this->writer->setLog($this->log);
 
    }
-   
-   public function run($args) 
+
+   public function run($args)
    {
 
       $this->path = array_shift($args);
@@ -313,7 +313,7 @@ class OilGenerator
 
 
       list($verbose, $definitions, $configFiles, $baseOutDir, $templateFiles,$directorySeparator)= $this->processArgs($args);
-      
+
       $this->log->setVerbose($verbose);
       if ($verbose)
       {
@@ -323,7 +323,7 @@ class OilGenerator
          print "         CADIEEL: http://www.cadieel.org.ar\n";
          print "         All rights reserved.\n\n";
       }
-      
+
       if ( ! $this->checkFiles($configFiles, $baseOutDir , $templateFiles) )
       {
          $this->log->halt("Missing files");
@@ -359,7 +359,7 @@ class OilGenerator
       foreach ($templateFiles as $file)
       {
          if(!file_exists($file))
-         {         
+         {
             $this->log->error("Template $file does not exists");
          }
          else
@@ -373,7 +373,7 @@ class OilGenerator
       }
 
       $this->log->info($this->log->getReport());
-      
+
       if ($this->log->getErrors() > 0)
       {
          exit(1);
@@ -386,6 +386,6 @@ class OilGenerator
    }
 }
 
- 
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

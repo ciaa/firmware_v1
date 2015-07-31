@@ -66,6 +66,6 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
    }
 
 }
-  
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -107,7 +107,7 @@ class OilConfig {
 //    function getBase($db, $root)
 //    {
 //       $ret = array();
-// 
+//
 //       foreach($db as $el)
 //       {
 //          if ( $el["root"] == $root )
@@ -115,14 +115,14 @@ class OilConfig {
 //             $ret[] = $el;
 //          }
 //       }
-// 
+//
 //       return $ret;
 //    }
 
    private function compare($element, $root, $type)
    {
       return ( $element['root']==$root &&
-         ($element['type'] == $type || $type == '*') 
+         ($element['type'] == $type || $type == '*')
       );
    }
 

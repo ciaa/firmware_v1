@@ -4,7 +4,7 @@
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
  * Copyright 2015, Carlos Pantelides
- * All rights reserved. 
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -63,25 +63,25 @@ class OilParser {
    protected $line;
    protected $config = array();
 
-   
+
    public function removeMultiBlank($line)
    {
       return preg_replace("/[ \t]+/m", ' ', $line);
    }
-   
+
    function normalize()
    {
       for ($l = 0; $l < count($this->lines); $l++)
       {
 
          $this->lines[$l] = $this->removeMultiBlank($this->lines[$l]);
-      
+
          /* remove spaces and tabs at start and end of the line */
          $this->lines[$l] = trim($this->lines[$l]);
 
          /* remove spaces and tabs at start and end of the line */
          $this->lines[$l] = trim($this->lines[$l]);                      // untested
-         
+
          /* remove spaces sides of = */
          $this->lines[$l] = str_replace(" = ", "=", $this->lines[$l]);   // untested
 
@@ -96,29 +96,29 @@ class OilParser {
 
    /**
    /     state machine:
-   /    +-----------+       +-----------+  
+   /    +-----------+       +-----------+
    /    | searching +-found-> searching |
    /    |  opening  <-found-+  closing  |
    /    +-----------+       +-----------+
    /    @todo: deal with two multiline comments in the same line
-   /    
+   /
    */
-   
+
    function removeComments()
    {
       $state = 'searching opening';
-      
+
       for ($l = 0; $l < count($this->lines); $l++)
       {
          if ($state == 'searching opening' ) {
             $start = strpos($this->lines[$l], "/");
-            if ($start !== false) 
+            if ($start !== false)
             {
-               if (substr($this->lines[$l],$start,2) == "/*") 
+               if (substr($this->lines[$l],$start,2) == "/*")
                {
                   // is the closing in the same line?
                   $end = strpos($this->lines[$l], "*/",$start);
-                  if ($end !== false) 
+                  if ($end !== false)
                   {
                      $this->lines[$l] = substr($this->lines[$l],0,$start) . substr($this->lines[$l],$end + 2);
                   }
@@ -128,10 +128,10 @@ class OilParser {
                      $this->lines[$l] = substr($this->lines[$l],0,$start);
                   }
                }
-               elseif (substr($this->lines[$l],$start,2) == "//") 
+               elseif (substr($this->lines[$l],$start,2) == "//")
                {
                   $this->lines[$l] =  substr($this->lines[$l],0,$start);
-               } 
+               }
             }
          }
          else // searching closing
@@ -143,7 +143,7 @@ class OilParser {
                $state = 'searching opening';
                $this->lines[$l] = substr($this->lines[$l],$start + 2);
             }
-            else 
+            else
             {
                $this->lines[$l] = '';
             }
@@ -151,8 +151,8 @@ class OilParser {
       }
       return $this->lines;
     }
-   
-   
+
+
    function resetLine()
    {
       $this->line = 0;
@@ -180,7 +180,7 @@ class OilParser {
          $tmp = $tmp[0];
       }
       if ($tmp != "")
-      {     
+      {
          if ( strpos($tmp, "=") !== false )
          {
             $tmp = split("=", $tmp);
@@ -256,7 +256,7 @@ class OilParser {
       }
 
       $this->file = $file;
-      $this->lines = file($file);   
+      $this->lines = file($file);
    }
    function loadArray($lines)
    {

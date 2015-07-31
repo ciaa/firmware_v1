@@ -167,7 +167,7 @@ const AutoStartType AutoStart[1]  = {
    }
 };
 
-const ReadyConstType ReadyConst[2] = { 
+const ReadyConstType ReadyConst[2] = {
    {
       1, /* Length of this ready list */
       ReadyList1 /* Pointer to the Ready List */
@@ -178,7 +178,7 @@ const ReadyConstType ReadyConst[2] = {
    }
 };
 
-/** TODO replace next line with: 
+/** TODO replace next line with:
  ** ReadyVarType ReadyVar[2] ; */
 ReadyVarType ReadyVar[2];
 
@@ -186,7 +186,7 @@ ReadyVarType ReadyVar[2];
 const TaskPriorityType ResourcesPriority[1]  = {
    1
 };
-/** TODO replace next line with: 
+/** TODO replace next line with:
  ** AlarmVarType AlarmsVar[1]; */
 AlarmVarType AlarmsVar[1];
 
