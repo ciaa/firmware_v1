@@ -364,7 +364,7 @@ class OilGenerator
          }
          else
          {
-            $outfile = $this->writer->open($file,$baseOutDir,$directorySeparator, $this);
+            $outfile = $this->writer->open($file,$baseOutDir,$directorySeparator);
             $this->writer->start();
             require_once($file);
             $this->writer->close();

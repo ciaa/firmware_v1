@@ -141,7 +141,7 @@ arsort($priority);
 $taskscount = $config->getCount("/OSEK","TASK");
 if ($taskscount<=0)
 {
-   error("No tasks found in the configuration.\n");
+   $this->log->error("No tasks found in the configuration.\n");
 }
 print "#define TASKS_COUNT $taskscount" . "U\n\n";
 
@@ -150,7 +150,7 @@ print "#define TASKS_COUNT $taskscount" . "U\n\n";
 $resources = $config->getList("/OSEK","RESOURCE");
 if(count($resources)>31)
 {
-   error("more than 31 resources were defined");
+   $this->log->error("more than 31 resources were defined");
 }
 else
 {
@@ -161,7 +161,7 @@ else
 $os = $config->getList("/OSEK","OS");
 if (count($os)>1)
 {
-   error("More than one OS defined on the configuration");
+   $this->log->error("More than one OS defined on the configuration");
 }
 $osattr = $config->getValue("/OSEK/" . $os[0],"STATUS");
 print "/** \brief Error Checking Type */\n";
@@ -175,7 +175,7 @@ elseif ( $osattr == "STANDARD" )
 }
 else
 {
-   error("Wrong OS Status configuration");
+   $this->log->error("Wrong OS Status configuration");
 }
 
 /* PRETASKHOOK */
@@ -183,7 +183,7 @@ $pretaskhook=$config->getValue("/OSEK/" . $os[0],"PRETASKHOOK");
 print "/** \brief pre task hook enable-disable macro */\n";
 if($pretaskhook == "")
 {
-   warning("PRETASKHOOK isn't defined on the configuration, set disable as default");
+   $this->log->warning("PRETASKHOOK isn't defined on the configuration, set disable as default");
    print "#define HOOK_PRETASKHOOK OSEK_DISABLE\n";
 }
 elseif($pretaskhook == "TRUE")
@@ -196,14 +196,14 @@ elseif($pretaskhook == "FALSE")
 }
 else
 {
-   error("PRETASKHOOK set to an invalid value \"$pretaskhook\"");
+   $this->log->error("PRETASKHOOK set to an invalid value \"$pretaskhook\"");
 }
 /* POSTTAKHOOK */
 $posttaskhook=$config->getValue("/OSEK/" . $os[0],"POSTTASKHOOK");
 print "/** \brief post task hook enable-disable macro */\n";
 if($posttaskhook == "")
 {
-   warning("POSTTASKHOOK isn't defined on the configuration, set disable as default");
+   $this->log->warning("POSTTASKHOOK isn't defined on the configuration, set disable as default");
    print "#define HOOK_POSTTASKHOOK OSEK_DISABLE\n";
 }
 elseif($posttaskhook == "TRUE")
@@ -216,14 +216,14 @@ elseif($posttaskhook == "FALSE")
 }
 else
 {
-   error("POSTTASKHOOK set to an invalid value \"$pretaskhook\"");
+   $this->log->error("POSTTASKHOOK set to an invalid value \"$pretaskhook\"");
 }
 /* ERRORHOOK */
 $errorhook=$config->getValue("/OSEK/" . $os[0],"ERRORHOOK");
 print "/** \brief error hook enable-disable macro */\n";
 if($errorhook == "")
 {
-   warning("ERRORHOOK isn't defined on the configuration, set disable as default");
+   $this->log->warning("ERRORHOOK isn't defined on the configuration, set disable as default");
    print "#define HOOK_ERRORHOOK OSEK_DISABLE\n";
 }
 elseif($errorhook == "TRUE")
@@ -236,14 +236,14 @@ elseif($errorhook == "FALSE")
 }
 else
 {
-   error("ERRORHOOK set to an invalid value \"$pretaskhook\"");
+   $this->log->error("ERRORHOOK set to an invalid value \"$pretaskhook\"");
 }
 /* STARTUPHOOK */
 $startuphook=$config->getValue("/OSEK/" . $os[0],"STARTUPHOOK");
 print "/** \brief startup hook enable-disable macro */\n";
 if($startuphook == "")
 {
-   warning("STARTUPHOOK isn't defined on the configuration, set disable as default");
+   $this->log->warning("STARTUPHOOK isn't defined on the configuration, set disable as default");
    print "#define HOOK_STARTUPHOOK OSEK_DISABLE\n";
 }
 elseif($startuphook == "TRUE")
@@ -256,14 +256,14 @@ elseif($startuphook == "FALSE")
 }
 else
 {
-   error("STARTUPHOOK set to an invalid value \"$pretaskhook\"");
+   $this->log->error("STARTUPHOOK set to an invalid value \"$pretaskhook\"");
 }
 /* SHUTDOWNHOOK */
 $shutdownhook=$config->getValue("/OSEK/" . $os[0],"SHUTDOWNHOOK");
 print "/** \brief shutdown hook enable-disable macro */\n";
 if($shutdownhook == "")
 {
-   warning("SHUTDOWNHOOK isn't defined on the configuration, set disable as default");
+   $this->log->warning("SHUTDOWNHOOK isn't defined on the configuration, set disable as default");
    print "#define HOOK_SHUTDOWNHOOK OSEK_DISABLE\n";
 }
 elseif($shutdownhook == "TRUE")
@@ -276,7 +276,7 @@ elseif($shutdownhook == "FALSE")
 }
 else
 {
-   error("SHUTDOWNHOOK set to an invalid value \"$pretaskhook\"");
+   $this->log->error("SHUTDOWNHOOK set to an invalid value \"$pretaskhook\"");
 }
 
 
@@ -367,7 +367,7 @@ switch($schedulerpolicy)
       print "#define NO_RES_SCHEDULER OSEK_DISABLE\n\n";
       break;
    default :
-      warning("USERESSCHEDULER not defined on the configuration, using FALSE as default");
+      $this->log->warning("USERESSCHEDULER not defined on the configuration, using FALSE as default");
       print "#define NO_RES_SCHEDULER OSEK_ENABLE\n\n";
       break;
 }
