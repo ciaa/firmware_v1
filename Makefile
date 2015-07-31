@@ -432,8 +432,10 @@ osek_oil_gen_tst:
 	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)rtos$(DS)generator$(DS)tests$(DS)utest$(DS)
 	@echo ' '
 	@echo ===============================================================================
-	@echo Functional testing the module rtos_gen 
-	$(foreach FILE, $(wildcard ${TESTS}${DS}test_*.sh) , $(FILE) $(SHUNIT) $(TESTS) $(DS)  $(FIXTURES) $(EXPECTED) $(TMP) )
+	@echo Functional testing the module rtos_gen
+	# TODO: make make dynamically call every test
+	@${TESTS}${DS}test_generator.sh $(SHUNIT) $(TESTS) $(DS)  $(FIXTURES) $(EXPECTED) $(TMP)
+	@${TESTS}${DS}test_stdoutwriter.sh $(SHUNIT) $(TESTS) $(DS)  $(FIXTURES) $(EXPECTED) $(TMP)
 
 ###############################################################################
 # rule to inform about all available tests
