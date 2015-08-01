@@ -77,10 +77,11 @@ typedef struct  {
 
 /*==================[internal data declaration]==============================*/
 static ciaaDriverDio_pinType const ciaaGPIOinputPins[CIAA_GPIO_INPUTS_NUMBER] = {
-      {PORTA, 19u, PTA}, {PORTE, 26u, PTE}
+      {PORTA, 19u, PTA, kSimClockGatePortA}, {PORTE, 26u, PTE, kSimClockGatePortE}
 };
 static ciaaDriverDio_pinType const ciaaGPIOoutputPins[CIAA_GPIO_OUTPUTS_NUMBER] = {
-      {PORTA, 11u, PTA}, {PORTA, 28u, PTA }, {PORTA, 29u, PTA}, {PORTA, 10u, PTA}
+      {PORTA, 11u, PTA, kSimClockGatePortA}, {PORTA, 28u, PTA, kSimClockGatePortA},
+      {PORTA, 29u, PTA, kSimClockGatePortA}, {PORTA, 10u, PTA, kSimClockGatePortA}
 };
 
 /*==================[internal functions declaration]=========================*/
@@ -140,17 +141,24 @@ extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path,
 
    if (device == &ciaaDriverDio_in0) {
       for(index = 0; index < CIAA_GPIO_INPUTS_NUMBER; index++) {
+         /* Enable clock for PORTs */
+         SIM_HAL_EnableClock(SIM, ciaaGPIOinputPins[index].gate);
+
          PORT_HAL_SetPassiveFilterCmd(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, false);
          PORT_HAL_SetMuxMode(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, kPortMuxAsGpio);
          PORT_HAL_SetPullMode(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, kPortPullUp);
          PORT_HAL_SetPullCmd(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, true);
          PORT_HAL_SetPinIntMode(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, kPortIntDisabled);
+
          GPIO_HAL_SetPinDir(ciaaGPIOinputPins[index].gpio, ciaaGPIOinputPins[index].pin, kGpioDigitalInput);
       }
    } else if (device == &ciaaDriverDio_out0) {
       for(index = 0; index < CIAA_GPIO_OUTPUTS_NUMBER; index++) {
+         SIM_HAL_EnableClock(SIM, ciaaGPIOoutputPins[index].gate);
+
          PORT_HAL_SetMuxMode(ciaaGPIOoutputPins[index].port, ciaaGPIOoutputPins[index].pin, kPortMuxAsGpio);
          PORT_HAL_SetPullCmd(ciaaGPIOoutputPins[index].port, ciaaGPIOoutputPins[index].pin, false);
+
          GPIO_HAL_SetPinDir(ciaaGPIOoutputPins[index].gpio, ciaaGPIOoutputPins[index].pin, kGpioDigitalOutput);
          GPIO_HAL_ClearPinOutput(ciaaGPIOoutputPins[index].gpio, ciaaGPIOoutputPins[index].pin);
       }
@@ -245,8 +253,6 @@ void ciaaDriverDio_init(void)
    for(loopi = 0; loopi < ciaaDriverDioConst.countOfDevices; loopi++) {
       /* add each device */
       ciaaDioDevices_addDriver(ciaaDriverDioConst.devices[loopi]);
-      /* init layer data for each device */
-      *((ciaaDriverDio_dioType *)ciaaDriverDioConst.devices[loopi]->layer) = 0;
    }
 }
 

@@ -58,6 +58,7 @@
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "fsl_device_registers.h"
+#include "fsl_sim_hal.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -71,6 +72,7 @@ typedef struct ciaaDriverDio_pinStruct {
    PORT_Type * port;
    uint32_t pin;
    GPIO_Type * gpio;
+   sim_clock_gate_name_t gate;            /** <= Port clock gate name */
 } ciaaDriverDio_pinType;
 
 /** \brief Dio Type */
