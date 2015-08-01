@@ -47,11 +47,13 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * DeV          Diego Ezequiel Vommaro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150727 v0.0.3 DeV  declatation of functions with matrix operations
  * 20140613 v0.0.2 MaCe implement min, max, setBit and clearBit
  * 20140611 v0.0.1 initials initial version
  */
@@ -110,10 +112,135 @@ extern "C" {
    ((var) &= (~( 1 << (bit) )))
 
 /*==================[typedef]================================================*/
+/** \brief data types type */
+typedef enum
+{
+   FLOAT_64,
+   FLOAT_32,
+   INT_32,
+   INT_16,
+   INT_8
+}data_type;
+
+/** \brief Matrix data type */
+typedef struct
+{
+   uint16_t n_rows;
+   uint16_t n_columns;
+   data_type type;
+   void *data;
+}ciaaLibs_matrix_t;
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief Matrix Initialization
+ **
+ ** Initializes a matrix
+ **
+ ** \param[in] mat pointer to the ciaa generic matrix
+ ** \param[in] n_rows count of rows
+ ** \param[in] n_columns count of columns
+ ** \param[in] type type of data of the matrix
+ ** \param[in] data pointer to matrix data
+ **/
+extern void ciaaLibs_MatrixInit(ciaaLibs_matrix_t *mat, uint16_t n_rows, uint16_t n_columns, data_type type, void *data);
+
+/** \brief Generic Matrices Addition
+ **
+ ** Adds two generic matrices and stores the result in a third matrix
+ **
+ ** \param[in] src1 pointer to the ciaa generic matrix
+ ** \param[in] src2 pointer to the ciaa generic matrix
+ ** \param[in] dst pointer to the ciaa generic matrix
+ **/
+extern void ciaaLibs_MatrixAdd(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
+
+/** \brief Generic Matrices Substraction
+ **
+ ** Substracs two generic matrices and stores the result in a third matrix
+ **
+ ** \param[in] src1 pointer to the ciaa generic matrix
+ ** \param[in] src2 pointer to the ciaa generic matrix
+ ** \param[in] dst pointer to the ciaa generic matrix
+ **/
+extern void ciaaLibs_MatrixSub(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
+
+/** \brief Generic Matrix Multiplication
+ **
+ ** Multiplies two generic matrices and stores the result in a third matrix
+ **
+ ** \param[in] src1 pointer to the ciaa generic matrix
+ ** \param[in] src2 pointer to the ciaa generic matrix
+ ** \param[in] dst pointer to the ciaa generic matrix
+ **/
+extern void ciaaLibs_MatrixMul(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
+
+/** \brief Generic Inverse Matrix 
+ **
+ ** Inverses a generic matrix and stores the result in other matrix
+ **
+ ** \param[in] src pointer to the ciaa generic matrix
+ ** \param[in] dst pointer to the ciaa generic matrix
+ **/
+extern void ciaaLibs_MatrixInv(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
+
+/** \brief Generic Transposed Matrix
+ **
+ ** Transposes a matrix
+ **
+ ** \param[in] src pointer to the ciaa generic matrix
+ ** \param[in] dst pointer to the ciaa generic matrix
+ **/
+extern void ciaaLibs_MatrixTran(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
+
+/** \brief Float Matrices Addition
+ **
+ ** Adds two float matrices and stores the result in a third matrix
+ **
+ ** \param[in] src1 pointer to the ciaa float matrix
+ ** \param[in] src2 pointer to the ciaa float matrix
+ ** \param[in] dst pointer to the ciaa float matrix
+ **/
+extern void ciaaLibs_MatrixAdd_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
+
+/** \brief Float Matrices Substraction
+ **
+ ** Substracs two float matrices and stores the result in a third matrix
+ **
+ ** \param[in] src1 pointer to the ciaa float matrix
+ ** \param[in] src2 pointer to the ciaa float matrix
+ ** \param[in] dst pointer to the ciaa float matrix
+ **/
+extern void ciaaLibs_MatrixSub_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
+
+/** \brief Float Matrix Multiplication
+ **
+ ** Multiplies two float matrices and stores the result in a third matrix
+ **
+ ** \param[in] src1 pointer to the ciaa float matrix
+ ** \param[in] src2 pointer to the ciaa float matrix
+ ** \param[in] dst pointer to the ciaa float matrix
+ **/
+extern void ciaaLibs_MatrixMul_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
+
+/** \brief Float Inverse Matrix 
+ **
+ ** Inverses a float matrix and stores the result in other matrix
+ **
+ ** \param[in] src pointer to the ciaa float matrix
+ ** \param[in] dst pointer to the ciaa float matrix
+ **/
+extern void ciaaLibs_MatrixInv_float(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
+
+/** \brief Float Transposed Matrix
+ **
+ ** Transposes a matrix
+ **
+ ** \param[in] src pointer to the ciaa float matrix
+ ** \param[in] dst pointer to the ciaa float matrix
+ **/
+extern void ciaaLibs_MatrixTran_float(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
