@@ -259,11 +259,21 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevic
 #if FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT
    UART_HAL_SetStopBitCount(port->base, uart->config.stopBitCount);
 #endif
+
+#if FSL_FEATURE_UART_HAS_FIFO
+//   UART_HAL_SetTxFifoWatermark(port->base, 4);
+   UART_HAL_SetRxFifoWatermark(port->base, 1);
+//   UART_HAL_SetTxFifoCmd(port->base, true);
+   UART_HAL_SetRxFifoCmd(port->base, true);
+   UART_HAL_FlushTxFifo(port->base);
+   UART_HAL_FlushRxFifo(port->base);
+#endif
+
    /* Enable UART transmitter and receiver modules */
    UART_HAL_EnableTransmitter(port->base);
    UART_HAL_EnableReceiver(port->base);
 
-   /* Enable interupts for receiver*/
+   /* Enable interupts for receiver */
    UART_HAL_SetIntMode(port->base, kUartIntRxDataRegFull, true);
 
    /* Enable interrupts from UART module */
@@ -292,6 +302,9 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
    ciaaDriverUart_uartType * uart = device->layer;
+   ciaaDriverUart_portType const * port = device->loLayer;
+
+   uint32_t uartSourceClock;
    int32_t ret = -1;
 
    if((device == ciaaDriverUartConst.devices[0]) ||
@@ -300,15 +313,37 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
    {
       switch(request)
       {
-         /* signal to start transmition */
          case ciaaPOSIX_IOCTL_STARTTX:
+            /* Disable interupts for transmiter */
+            UART_HAL_SetIntMode(port->base, kUartIntTxDataRegEmpty, false);
+            /* this one calls write */
             ciaaDriverUart_txConfirmation(device);
-         break;
+            /* Enable interupts for transmiter */
+            UART_HAL_SetIntMode(port->base, kUartIntTxDataRegEmpty, true);
+            ret = 0;
+            break;
 
-         /* set serial port baudrate */
          case ciaaPOSIX_IOCTL_SET_BAUDRATE:
-            uart->config.baudRate = (uint32_t)(param);
-            /** @todo Cambiar velocidad en el puerto fisico */
+            /* UART clock source is either system or bus clock depending on instance */
+            uartSourceClock = CLOCK_SYS_GetUartFreq(port->instance);
+
+           /* Configure baud reate */
+            uart->config.baudRate = 115200;
+            ret = UART_HAL_SetBaudRate(port->base, uartSourceClock, uart->config.baudRate);
+            break;
+
+         case ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL:
+            //Chip_UART_SetupFIFOS((LPC_USART_T *)device->loLayer,  UART_FCR_FIFO_EN | UART_FCR_TX_RS | UART_FCR_RX_RS | (int32_t)param);
+            break;
+
+         case ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT:
+            /* Configure interupts for transmiter */
+            UART_HAL_SetIntMode(port->base, kUartIntTxDataRegEmpty, (bool)(intptr_t)param);
+            break;
+
+         case ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT:
+            /* Configure interupts for receiver */
+            UART_HAL_SetIntMode(port->base, kUartIntRxDataRegFull, (bool)(intptr_t)param);
             break;
       }
    }

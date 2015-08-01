@@ -177,14 +177,14 @@ extern void ciaaDioDevices_addDriver(ciaaDevices_deviceType * driver)
 }
 
 extern ciaaDevices_deviceType * ciaaDioDevices_open(char const * path,
-      ciaaDevices_deviceType * device,
-      uint8_t const oflag)
+      ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-   ciaaDevices_deviceType * drv = (ciaaDevices_deviceType*) device->loLayer;
+   ciaaDioDevices_deviceType * dioDevice =
+      (ciaaDioDevices_deviceType*) device->layer;
 
-   /* serial devices does not support that the drivers update the device */
-   /* the returned device shall be the same as passed */
-   ciaaPOSIX_assert(drv->open(path, drv, oflag) == drv);
+   ciaaPOSIX_assert(dioDevice->device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag) == device->loLayer);
+
+   //ciaaPOSIX_assert(device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag) == device->loLayer);
 
    return device;
 }
