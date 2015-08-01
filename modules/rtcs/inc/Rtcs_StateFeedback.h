@@ -105,7 +105,7 @@ typedef struct
    float *ao_matrix;
    float *bo_matrix;
    float *l_matrix;
-   void (*ControllerSendFunc) (float *, uint16_t); 
+   void (*ControllerSendFunc) (float *, uint16_t);
    void (*ErrorFunc) (void *data);
    void (*ObserverFunc) (void *data);
    system_type_t system;
@@ -135,7 +135,7 @@ extern void Rtcs_StateFeedbackFirstRun(void *data);
 /** \brief Worst-case execution of the control algorithm
  **
  ** Executes the worst case of the control algorithm. It is useful
- ** for measuring computation time of the controller. 
+ ** for measuring computation time of the controller.
  **
  ** \param[in] data structure of the controller
  **/

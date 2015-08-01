@@ -45,7 +45,7 @@
  *
  */
 
-/** \brief This file implements the public interface of the Rtcs tool 
+/** \brief This file implements the public interface of the Rtcs tool
  **
  ** This file implements the main functionality of the Rtcs tool
  **
@@ -89,13 +89,15 @@
 extern void Rtcs_Init(void)
 {
    uint32_t i;
-   
+
    /* Loading data of controllers in the corresponding structures */
    Rtcs_InitCfg();
 
    /* First execution of the all controllers */
    for (i = 0; i < CONTROLLERS_LIST_SIZE; i++)
+   {
       Rtcs_controllers_list[i]->ControllerFirstRunFunc(Rtcs_controllers_list[i]->data);
+   }
 }
 
 extern void Rtcs_Start(void)

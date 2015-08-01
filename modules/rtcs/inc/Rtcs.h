@@ -85,14 +85,14 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Real-Time Control System initialization 
+/** \brief Real-Time Control System initialization
  **
  ** Performs the initialization of the Rtcs tool
  **
  **/
 extern void Rtcs_Init(void);
 
-/** \brief Real-Time Control System boot 
+/** \brief Real-Time Control System boot
  **
  ** Starts the Rtcs tool
  **

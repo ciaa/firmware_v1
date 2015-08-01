@@ -176,7 +176,7 @@ extern void ciaaLibs_MatrixSub(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2,
  **/
 extern void ciaaLibs_MatrixMul(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 
-/** \brief Generic Inverse Matrix 
+/** \brief Generic Inverse Matrix
  **
  ** Inverses a generic matrix and stores the result in other matrix
  **
@@ -224,7 +224,7 @@ extern void ciaaLibs_MatrixSub_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t 
  **/
 extern void ciaaLibs_MatrixMul_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 
-/** \brief Float Inverse Matrix 
+/** \brief Float Inverse Matrix
  **
  ** Inverses a float matrix and stores the result in other matrix
  **
