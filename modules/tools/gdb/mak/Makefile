@@ -1,7 +1,6 @@
 ###############################################################################
 #
-# Copyright 2014, 2015, Mariano Cerdeiro
-# Copyright 2015, Juan Cecconi (UTN-FRBA)
+# Copyright 2015, Juan Cecconi
 #
 # This file is part of CIAA Firmware.
 #
@@ -32,9 +31,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-LINKER_SCRIPT ?= ciaa_lpc4337.ld
-LFLAGS += -nostdlib -T "externals/base/cortexM4/lpc43xx/linker/$(LINKER_SCRIPT)"
+# gdb path
+GDB_PATH 		   = $(ROOT_DIR)$(DS)modules$(DS)tools$(DS)gdb
 
-# this file needs to be compiled separated and not added to a library
-SRC_FILES                  += $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)crp.c
+# gdb bin file
+GDB_BIN 		   = arm-none-eabi-gdb
 
+# gdb Flag
+GDB_FLAGS 		   = $(LD_TARGET) -ex "target remote localhost:3333"
+
+# gdb dependent makefile
+-include $(GDB_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Makefile
