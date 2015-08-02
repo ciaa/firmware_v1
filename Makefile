@@ -533,6 +533,20 @@ endif
 endif
 endif
 
+###############################################################################
+# gdb
+include modules$(DS)tools$(DS)gdb$(DS)mak$(DS)Makefile
+gdb:
+# if CPU is not entered shows an error
+ifeq ($(CPU),)
+	@echo ERROR: The CPU variable of your makefile is empty.
+else
+	@echo ===============================================================================
+	@echo Starting GDB...
+	@echo ' '
+	$(GDB_BIN) $(GDB_FLAGS)
+endif
+
 MAKE_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 # ...and turn them into do-nothing targets
 $(eval $(MAKE_ARGS):;@:)
@@ -668,6 +682,7 @@ help:
 	@echo "|               Debugging / Running / Programming                             |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "run.................: execute the binary file (Win/Posix only)"
+	@echo gdb.................: starts gdb for $(ARCH)
 	@echo openocd.............: starts openocd for $(ARCH)
 	@echo "download [file] [FLASH|QSPI].: download FW file to the target"
 	@echo "erase [FLASH|QSPI]..: erase all the flash"
@@ -823,6 +838,7 @@ else
 endif
 ###############################################################################
 # Run all FreeOSEK Tests
+include modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)mak$(DS)Makefile
 rtostests:
 	mkdir -p $(OUT_DIR)$(DS)doc$(DS)ctest
 	@echo GDB:$(GDB) $(GFLAGS) > $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
