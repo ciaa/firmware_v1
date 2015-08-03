@@ -1,5 +1,5 @@
-#ifndef __USBD_H__
-#define __USBD_H__
+#ifndef USBD_H
+#define USBD_H
 /**
 * @addtogroup USBD
 * @brief CIAA USB Driver
@@ -26,11 +26,6 @@
 
 #include <stdint.h>
 #include "usb.h"
-
-/** FIXME: having this is a disaster, but LPCxpresso doesn't see it!!! */
-#ifndef NULL
-# define NULL ((void*)0)
-#endif
 
 
 /**
@@ -63,11 +58,11 @@ int usb_run( usb_stack_t* pstack );
  * @param len       Length of data buffer.
  */
 int usb_irp(
-		usb_stack_t* pstack,
-		uint16_t     device_id,
-		uint8_t      pipe,
-		uint8_t*     buffer,
-		uint32_t     len
+      usb_stack_t* pstack,
+      uint16_t     device_id,
+      uint8_t      pipe,
+      uint8_t*     buffer,
+      uint32_t     len
 );
 
 
@@ -86,10 +81,10 @@ int usb_irp(
  * @TODO complete the return values list.
  */
 int usb_ctrlirp(
-		usb_stack_t*        pstack,
-		uint16_t            device_id,
-		const usb_stdreq_t* pstdreq,
-		uint8_t*            buffer
+      usb_stack_t*        pstack,
+      uint16_t            device_id,
+      const usb_stdreq_t* pstdreq,
+      uint8_t*            buffer
 );
 
 /**
@@ -151,19 +146,19 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index );
 int usb_dealloc_endpoint( usb_stack_t* pstack, usb_pipe_t* ppipe );
 
 void usb_device_attach(
-		usb_stack_t*  pstack,
+      usb_stack_t*  pstack,
 #if (USB_MAX_HUBS > 0)
-		uint8_t       parent_hub,
-		uint8_t       parent_port,
+      uint8_t       parent_hub,
+      uint8_t       parent_port,
 #endif
-		usb_device_t* pdevice
+      usb_device_t* pdevice
 );
 
 #if (USB_MAX_HUBS > 0)
 int usb_device_find(
-		usb_stack_t* pstack,
-		uint8_t      hub_index,
-		uint8_t      port
+      usb_stack_t* pstack,
+      uint8_t      hub_index,
+      uint8_t      port
 );
 
 int usb_stack_handle_hubs( usb_stack_t* pstack );
@@ -179,14 +174,14 @@ int usb_stack_update_devices( usb_stack_t* pstack );
 int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index );
 
 int usb_device_parse_ifacedesc(
-		usb_stack_t*    pstack,
-		uint16_t        id,
-		const uint8_t** pbuff,
-		uint8_t*        plen
+      usb_stack_t*    pstack,
+      uint16_t        id,
+      const uint8_t** pbuff,
+      uint8_t*        plen
 );
 
 int usb_device_parse_epdesc( usb_pipe_t* ppipe, const uint8_t* buffer );
 
 
 /**  @} USBD */
-#endif  /* __USBD_H__ */
+#endif  /* USBD_H */

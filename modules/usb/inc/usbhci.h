@@ -1,5 +1,5 @@
-#ifndef __USBHCI_H__
-#define __USBHCI_H__
+#ifndef USBHCI_H
+#define USBHCI_H
 /**
 * @addtogroup USBHCI
 * @brief CIAA USB Host Controller Interface
@@ -98,9 +98,9 @@ int usbhci_pipe_configure( usb_pipe_t* ppipe, uint8_t addr, usb_speed_t speed );
  * @todo Replace return info with retvals
  */
 int usbhci_xfer_start(
-	usb_pipe_t* ppipe,
-	uint8_t*    buffer,
-	uint32_t    length
+   usb_pipe_t* ppipe,
+   uint8_t*    buffer,
+   uint32_t    length
 );
 
 /**
@@ -117,9 +117,9 @@ int usbhci_xfer_start(
  * @todo Replace  return info with retvals
  */
 int usbhci_ctrlxfer_start(
-	usb_pipe_t*         ppipe,
-	const usb_stdreq_t* pstdreq,
-	uint8_t*            buffer
+   usb_pipe_t*         ppipe,
+   const usb_stdreq_t* pstdreq,
+   uint8_t*            buffer
 );
 
 /**
@@ -140,10 +140,29 @@ int usbhci_xfer_status( usb_pipe_t* ppipe );
 int usbhci_xfer_cancel( usb_pipe_t* ppipe );
 
 
+/**
+* @name HCD Callbacks
+* @brief Methods called directly by the Host Controller Driver on interrupts.
+* @{ */
+/**
+ * @brief Callback for when a device connection is detected.
+ *
+ * @warning Keep in mind this connection is of a device directly to the hardware
+ * controller, HUBs are handled through the stack and have nothing  to  do  with
+ * this kind of events.
+ */
 void _usb_host_on_connection( uint8_t corenum );
 
+/**
+ * @brief Callback for when a device disconnection is detected.
+ *
+ * @warning Keep in mind this connection is of a device directly to the hardware
+ * controller, HUBs are handled through the stack and have nothing  to  do  with
+ * this kind of events.
+ */
 void _usb_host_on_disconnection( uint8_t corenum );
+/** @} HCD Callbacks */
 
 
 /**  @} USBHCI */
-#endif  /* __USBHCI_H__ */
+#endif  /* USBHCI_H */
