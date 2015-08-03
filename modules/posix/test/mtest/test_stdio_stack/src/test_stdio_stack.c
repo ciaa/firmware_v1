@@ -270,7 +270,7 @@ TASK(TaskA) {
 
    ASSERT_SEQ(17);
 
-   fildes2 = ciaaPOSIX_open("/dev/dio/0", O_RDWR);
+   fildes2 = ciaaPOSIX_open("/dev/dio/in/0", O_RDWR);
    ASSERT_MSG(0 <= fildes2, "ciaaPOSIX_open returns an invalid handler");
 
    TerminateTask();
