@@ -84,8 +84,10 @@
 /** \brief File descriptor for digital output ports
  *
  * Device path /dev/dio/out/0
+ * Device path /dev/dio/in_out/0
  */
 static int32_t fd_out;
+static int32_t fd_in_out;
 
 /*==================[external data definition]===============================*/
 
@@ -151,6 +153,8 @@ TASK(InitTask)
 
    /* open CIAA digital outputs */
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   fd_in_out = ciaaPOSIX_open("/dev/dio/in_out/0", O_RDWR);
+   ciaaPOSIX_ioctl(fd_in_out, 0, 1);
 
    /* activate periodic task:
     *  - for the first time after 350 ticks (350 ms)
@@ -179,6 +183,10 @@ TASK(PeriodicTask)
    ciaaPOSIX_read(fd_out, &outputs, 1);
    outputs ^= 0x20;
    ciaaPOSIX_write(fd_out, &outputs, 1);
+
+   ciaaPOSIX_read(fd_in_out, &outputs, 1);
+   outputs ^= 0x1;
+   ciaaPOSIX_write(fd_in_out, &outputs, 1);
 
    /* terminate task */
    TerminateTask();

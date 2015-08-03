@@ -101,24 +101,24 @@ static ciaaDevices_deviceType ciaaDriverDio_device1 = {
    NULL                            /** <= NULL no lower layer */
 };
 
-/** \brief Device for in GPIO 0 */
-static ciaaDevices_deviceType ciaaDriverGpio_device2 = {
-   "in-out/0",                         /** <= driver name */
-   ciaaDriverGpio_open,             /** <= open function */
-   ciaaDriverGpio_close,            /** <= close function */
-   ciaaDriverGpio_read,             /** <= read function */
-   ciaaDriverGpio_write,            /** <= write function */
-   ciaaDriverGpio_ioctl,            /** <= ioctl function */
+/** \brief Device for in DIO 2 */
+static ciaaDevices_deviceType ciaaDriverDio_device2 = {
+   "in_out/0",                         /** <= driver name */
+   ciaaDriverDio_open,             /** <= open function */
+   ciaaDriverDio_close,            /** <= close function */
+   ciaaDriverDio_read,             /** <= read function */
+   ciaaDriverDio_write,            /** <= write function */
+   ciaaDriverDio_ioctl,            /** <= ioctl function */
    NULL,                           /** <= seek function is not provided */
    NULL,                           /** <= upper layer */
-   (void*)&ciaaDriverGpio_dio2,     /** <= layer */
+   (void*)&ciaaDriverDio_dio2,     /** <= layer */
    NULL                            /** <= NULL no lower layer */
 };
 
 static ciaaDevices_deviceType * const ciaaDioDevices[] = {
    &ciaaDriverDio_device0,
-   &ciaaDriverDio_device1
-   &ciaaDriverDio_device1
+   &ciaaDriverDio_device1,
+   &ciaaDriverDio_device2
 };
 
 static ciaaDriverConstType const ciaaDriverDioConst = {

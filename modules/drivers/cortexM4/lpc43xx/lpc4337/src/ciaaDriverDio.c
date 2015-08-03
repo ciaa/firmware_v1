@@ -103,8 +103,8 @@ static ciaaDevices_deviceType ciaaDriverDio_out0 = {
 };
 
 /** \brief Device for DIO 2 */
-static ciaaDevices_deviceType ciaaDriverDio_in-out0 = {
-   "in-out/0",                          /** <= driver name */
+static ciaaDevices_deviceType ciaaDriverDio_in_out0 = {
+   "in_out/0",                          /** <= driver name */
    ciaaDriverDio_open,             /** <= open function */
    ciaaDriverDio_close,            /** <= close function */
    ciaaDriverDio_read,             /** <= read function */
@@ -118,8 +118,8 @@ static ciaaDevices_deviceType ciaaDriverDio_in-out0 = {
 
 static ciaaDevices_deviceType * const ciaaDioDevices[] = {
    &ciaaDriverDio_in0,
-   &ciaaDriverDio_out0
-   &ciaaDriverDio_in-out0
+   &ciaaDriverDio_out0,
+   &ciaaDriverDio_in_out0
 };
 
 static ciaaDriverConstType const ciaaDriverDioConst = {
@@ -227,7 +227,7 @@ void ciaa_lpc4337_gpio_init(void)
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 3,(1<<0)|(1<<3)|(1<<4)|(1<<5)|(1<<6)|(1<<7),0);
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<15)|(1<<16),0);
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,(1<<8),0);
-   
+
 #else
    #error please define BOARD variable!
 #endif
@@ -574,7 +574,7 @@ void ciaa_lpc4337_writeGPIO_Output(uint32_t outputNumber, uint32_t value)
 #endif
 }
 
-   
+
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
@@ -593,15 +593,15 @@ extern int32_t ciaaDriverDio_ioctl(ciaaDevices_deviceType const * const device, 
 
    /* LV-TTL GPIOs can be configured as input or output
 	request = port number
-                            0 -GPIO0 
+                            0 - GPIO0
                             1 - GPIO1
                             ... - ...
                             x - GPIOx
 	param = port dir
-                         0 - input 
+                         0 - input
                          1 - output                                                              */
 
-   if(device == ciaaDioDevices[2])   
+   if(device == ciaaDioDevices[2])
    {
       int32_t port_mode;
       if ((int32_t)param == 0)
@@ -614,7 +614,7 @@ extern int32_t ciaaDriverDio_ioctl(ciaaDevices_deviceType const * const device, 
          /* Output ports: Pull up enabled */
 	     port_mode= MD_PUP;
       }
-	  
+
 #if(BOARD == ciaa_nxp)
       switch(request)
       {
@@ -690,7 +690,7 @@ extern int32_t ciaaDriverDio_ioctl(ciaaDevices_deviceType const * const device, 
             Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,(1<<8),(int32_t)param);
             break;
       }
-      ret=1
+      ret=1;
 
 #endif
    }
