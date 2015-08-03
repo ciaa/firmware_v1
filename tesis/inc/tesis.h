@@ -1,7 +1,19 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
+/* Copyright 2014, ACSE & CADIEEL
+ *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *    CADIEEL: http://www.cadieel.org.ar
+ * All rights reserved.
+ *
+ *    or
+ *
+ * Copyright 2014, Your Name <youremail@domain.com>
+ * All rights reserved.
+ *
+ *    or
+ *
+ * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
+ *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *    CADIEEL: http://www.cadieel.org.ar
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -35,42 +47,58 @@
 
 #ifndef _TESIS_H_
 #define _TESIS_H_
-/** \brief Blinking example header file
+/** \brief Speech Recognition Tesis header file
  **
- ** This is a mini example of the CIAA Firmware
+ ** Long description of this file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Examples CIAA Firmware Examples
- ** @{ */
-/** \addtogroup Blinking Blinking example header file
+/** \addtogroup Template Template to start a new module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaMar        Mariano Marufo
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20150803 v0.0.1   MaMar   initials initial version
  */
 
 /*==================[inclusions]=============================================*/
 
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*==================[macros]=================================================*/
+/** \brief maximum value for a int16_t type */
+//#define INT16_MAX   32767
+
+/** \brief minimum value for a int16_t type */
+//#define INT16_MIN   -32768
 
 /*==================[typedef]================================================*/
+/** \brief Signed integer 16 bits */
+typedef signed short int16_t;
+
+/** \brief Signed integer 32 bits type */
+//typedef signed int int32_t;
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
 
-/** @} doxygen end group definition */
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

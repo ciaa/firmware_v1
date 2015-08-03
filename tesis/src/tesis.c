@@ -1,7 +1,19 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
+/* Copyright 2014, ACSE & CADIEEL
+ *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *    CADIEEL: http://www.cadieel.org.ar
+ * All rights reserved.
+ *
+ *    or
+ *
+ * Copyright 2014, Your Name <youremail@domain.com>
+ * All rights reserved.
+ *
+ *    or
+ *
+ * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
+ *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *    CADIEEL: http://www.cadieel.org.ar
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,37 +45,27 @@
  *
  */
 
-/** \brief Blinking_echo example source file
+/** \brief Speech Recognition Tesis main source file
  **
- ** This is a mini example of the CIAA Firmware to test the periodical
- ** task excecution and serial port funcionality.
- ** To run this sample in x86 plataform you must enable the funcionality of
- ** uart device setting a value of une or more of folowing macros defined
- ** in header file modules/plataforms/x86/inc/ciaaDriverUart_Internal.h
+ ** Long description of this file
+ **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Examples CIAA Firmware Examples
- ** @{ */
-/** \addtogroup Blinking Blinking_echo example source file
+/** \addtogroup Template Template to start a new module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
- * PR           Pablo Ridolfi
- * JuCe         Juan Cecconi
- * GMuro        Gustavo Muro
+ * MaMar        Mariano Marufo
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141019 v0.0.2   JuCe add printf in each task,
- *                        remove trailing spaces
- * 20140731 v0.0.1   PR   first functional version
+ * 20150803 v0.0.1   MaMar   initials initial version
  */
 
 /*==================[inclusions]=============================================*/
