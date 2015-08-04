@@ -1,16 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
- *
- *    or
- *
- * Copyright 2014, Your Name <youremail@domain.com>
- * All rights reserved.
- *
- *    or
- *
- * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
+/* Copyright 2015, ACSE & CADIEEL & Diego Ezequiel Vommaro
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  * All rights reserved.
@@ -45,53 +33,102 @@
  *
  */
 
-#ifndef RTCS_PORT_H
-#define RTCS_PORT_H
-/** \brief Real-Time Control System Port Header File
+/** \brief Matrix Library implementation
  **
- ** Real-Time Control System Port Header File
+ ** This file implements matricial operations
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup RTCS RTCS Implementation
+/** \addtogroup Libs CIAA Libraries
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DeV          Diego Ezequiel Vommaro
+ * Dev          Diego Ezequiel Vommaro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150722 v0.0.1 DeV  initial version
+ * 20150801 v0.0.1 DeV  initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaLibs_Matrix.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal data definition]===============================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[external data definition]===============================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[internal functions definition]==========================*/
+extern void ciaaLibs_MatrixInit(ciaaLibs_matrix_t *mat, uint16_t n_rows, uint16_t n_columns, data_type type, void *data)
+{
+
 }
-#endif
+
+extern void ciaaLibs_MatrixAdd(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
+{
+
+}
+
+extern void ciaaLibs_MatrixSub(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
+{
+
+}
+
+extern void ciaaLibs_MatrixMul(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
+{
+
+}
+
+extern void ciaaLibs_MatrixInv(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
+{
+
+}
+
+extern void ciaaLibs_MatrixTran(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
+{
+
+}
+
+extern void ciaaLibs_MatrixAdd_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
+{
+
+}
+
+extern void ciaaLibs_MatrixSub_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
+{
+
+}
+
+extern void ciaaLibs_MatrixMul_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
+{
+
+}
+
+extern void ciaaLibs_MatrixInv_float(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
+{
+
+}
+
+extern void ciaaLibs_MatrixTran_float(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
+{
+
+}
+
+/*==================[external functions definition]==========================*/
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef RTCS_PORT_H */
 

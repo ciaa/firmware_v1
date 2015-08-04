@@ -60,7 +60,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "Rtcs_port.h"
+#include "Rtcs_Port.h"
 #include "Rtcs_StateFeedback.h"
 
 /*==================[macros and definitions]=================================*/

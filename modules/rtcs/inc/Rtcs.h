@@ -1,16 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
- *
- *    or
- *
- * Copyright 2014, Your Name <youremail@domain.com>
- * All rights reserved.
- *
- *    or
- *
- * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
+/* Copyright 2015, ACSE & CADIEEL & Diego Ezequiel Vommaro
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  * All rights reserved.
