@@ -75,16 +75,33 @@ typedef struct  {
    uint8_t countOfDevices;
 } ciaaDriverConstType;
 
-#define CIAA_GPIO_INPUTS_NUMBER		2
-#define CIAA_GPIO_OUTPUTS_NUMBER	   4
+//#define CIAA_GPIO_INPUTS_NUMBER      2
+//#define CIAA_GPIO_OUTPUTS_NUMBER     4
+
+#define CIAA_GPIO_INPUTS_NUMBER        8
+#define CIAA_GPIO_OUTPUTS_NUMBER    8
 
 /*==================[internal data declaration]==============================*/
+/*
 static ciaaDriverDio_pinType const ciaaGPIOinputPins[CIAA_GPIO_INPUTS_NUMBER] = {
       {PORTA, 19u, PTA, kSimClockGatePortA}, {PORTE, 26u, PTE, kSimClockGatePortE}
 };
 static ciaaDriverDio_pinType const ciaaGPIOoutputPins[CIAA_GPIO_OUTPUTS_NUMBER] = {
       {PORTA, 11u, PTA, kSimClockGatePortA}, {PORTA, 28u, PTA, kSimClockGatePortA},
       {PORTA, 29u, PTA, kSimClockGatePortA}, {PORTA, 10u, PTA, kSimClockGatePortA}
+};
+*/
+static ciaaDriverDio_pinType const ciaaGPIOinputPins[CIAA_GPIO_INPUTS_NUMBER] = {
+      {PORTC,  4u, PTC, kSimClockGatePortC}, {PORTC,  5u, PTC, kSimClockGatePortC},
+      {PORTC,  6u, PTC, kSimClockGatePortC}, {PORTC,  7u, PTC, kSimClockGatePortC},
+      {PORTC,  8u, PTC, kSimClockGatePortC}, {PORTC,  9u, PTC, kSimClockGatePortC},
+      {PORTC, 10u, PTC, kSimClockGatePortC}, {PORTC, 11u, PTC, kSimClockGatePortC}
+};
+static ciaaDriverDio_pinType const ciaaGPIOoutputPins[CIAA_GPIO_OUTPUTS_NUMBER] = {
+      {PORTB, 16u, PTB, kSimClockGatePortB}, {PORTB,  6u, PTB, kSimClockGatePortB},
+      {PORTB,  7u, PTB, kSimClockGatePortB}, {PORTB, 17u, PTB, kSimClockGatePortB},
+      {PORTC, 15u, PTC, kSimClockGatePortC}, {PORTC, 14u, PTC, kSimClockGatePortC},
+      {PORTC, 13u, PTC, kSimClockGatePortC}, {PORTC, 13u, PTC, kSimClockGatePortC}
 };
 
 /*==================[internal functions declaration]=========================*/
@@ -140,30 +157,48 @@ ciaaDriverDio_dioType ciaaDriverDio_dio1;
 extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
+   ciaaDriverDio_pinType const * dio;
    uint8_t index;
 
    if (device == &ciaaDriverDio_in0) {
       for(index = 0; index < CIAA_GPIO_INPUTS_NUMBER; index++) {
+         dio = &ciaaGPIOinputPins[index];
+
          /* Enable clock for PORTs */
-         SIM_HAL_EnableClock(SIM, ciaaGPIOinputPins[index].gate);
+         SIM_HAL_EnableClock(SIM, dio->gate);
 
-         PORT_HAL_SetPassiveFilterCmd(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, false);
-         PORT_HAL_SetMuxMode(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, kPortMuxAsGpio);
-         PORT_HAL_SetPullMode(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, kPortPullUp);
-         PORT_HAL_SetPullCmd(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, true);
-         PORT_HAL_SetPinIntMode(ciaaGPIOinputPins[index].port, ciaaGPIOinputPins[index].pin, kPortIntDisabled);
+         PORT_HAL_SetPassiveFilterCmd(dio->port, dio->pin, false);
+         PORT_HAL_SetMuxMode(dio->port, dio->pin, kPortMuxAsGpio);
+         PORT_HAL_SetPullMode(dio->port, dio->pin, kPortPullUp);
+         PORT_HAL_SetPullCmd(dio->port, dio->pin, true);
+         PORT_HAL_SetPinIntMode(dio->port, dio->pin, kPortIntDisabled);
 
-         GPIO_HAL_SetPinDir(ciaaGPIOinputPins[index].gpio, ciaaGPIOinputPins[index].pin, kGpioDigitalInput);
+         GPIO_HAL_SetPinDir(dio->gpio, dio->pin, kGpioDigitalInput);
       }
    } else if (device == &ciaaDriverDio_out0) {
       for(index = 0; index < CIAA_GPIO_OUTPUTS_NUMBER; index++) {
+         dio = &ciaaGPIOoutputPins[index];
+
          SIM_HAL_EnableClock(SIM, ciaaGPIOoutputPins[index].gate);
 
-         PORT_HAL_SetMuxMode(ciaaGPIOoutputPins[index].port, ciaaGPIOoutputPins[index].pin, kPortMuxAsGpio);
-         PORT_HAL_SetPullCmd(ciaaGPIOoutputPins[index].port, ciaaGPIOoutputPins[index].pin, false);
+         PORT_HAL_SetMuxMode(dio->port, dio->pin, kPortMuxAsGpio);
+         PORT_HAL_SetPullCmd(dio->port, dio->pin, false);
 
-         GPIO_HAL_SetPinDir(ciaaGPIOoutputPins[index].gpio, ciaaGPIOoutputPins[index].pin, kGpioDigitalOutput);
-         GPIO_HAL_ClearPinOutput(ciaaGPIOoutputPins[index].gpio, ciaaGPIOoutputPins[index].pin);
+         GPIO_HAL_SetPinDir(dio->gpio, dio->pin, kGpioDigitalOutput);
+         GPIO_HAL_ClearPinOutput(dio->gpio, dio->pin);
+
+         /* Configure GPIO output features. */
+         GPIO_HAL_WritePinOutput(dio->gpio, dio->pin, 0);
+#if FSL_FEATURE_PORT_HAS_SLEW_RATE
+         PORT_HAL_SetSlewRateMode(dio->port, dio->pin, kPortFastSlewRate);
+#endif
+#if FSL_FEATURE_PORT_HAS_DRIVE_STRENGTH
+         PORT_HAL_SetDriveStrengthMode(dio->port, dio->pin, kPortHighDriveStrength);
+#endif
+#if FSL_FEATURE_PORT_HAS_OPEN_DRAIN
+         PORT_HAL_SetOpenDrainCmd(dio->port, dio->pin, false);
+#endif
+
       }
    } else {
       device = NULL;
@@ -190,13 +225,13 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
   {
      if(device == &ciaaDriverDio_in0)
      {
-	 int32_t i;
-	 buffer[0] = 0;
-	 for(i = 0; i < CIAA_GPIO_INPUTS_NUMBER; i++)
-	 {
-	    //ciaa_lpc4337_writeOutput(i, buffer[0] & (1 << i));
-	     buffer[0] |= GPIO_HAL_ReadPinInput(ciaaGPIOinputPins[i].gpio, ciaaGPIOinputPins[i].pin) << i;
-	 }
+    int32_t i;
+    buffer[0] = 0;
+    for(i = 0; i < CIAA_GPIO_INPUTS_NUMBER; i++)
+    {
+       //ciaa_lpc4337_writeOutput(i, buffer[0] & (1 << i));
+        buffer[0] |= GPIO_HAL_ReadPinInput(ciaaGPIOinputPins[i].gpio, ciaaGPIOinputPins[i].pin) << i;
+    }
 
         /* 1 byte read */
         ret = 1;
