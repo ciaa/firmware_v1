@@ -45,12 +45,15 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140525 v0.0.1 initials initial version
+ * 20150803 v0.0.3 EsVo assert open driver result is not null
+ * 20150801 v0.0.2 EsVo correct bug in open function
+ * 20140525 v0.0.1 MaCe initials initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -182,9 +185,10 @@ extern ciaaDevices_deviceType * ciaaDioDevices_open(char const * path,
    ciaaDioDevices_deviceType * dioDevice =
       (ciaaDioDevices_deviceType*) device->layer;
 
-   ciaaPOSIX_assert(dioDevice->device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag) == device->loLayer);
-
-   //ciaaPOSIX_assert(device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag) == device->loLayer);
+   ciaaPOSIX_assert(
+         dioDevice->device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag)
+         == device->loLayer);
+   ciaaPOSIX_assert(device->loLayer != NULL);
 
    return device;
 }
