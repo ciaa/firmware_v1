@@ -210,7 +210,7 @@ extern ciaaDevices_deviceType * ciaaBlockDevices_open(char const * path,
    /* block devices does not support that the drivers update the device */
    /* the returned device shall be the same as passed */
    ciaaPOSIX_assert(
-      blockDevice->device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag) 
+      blockDevice->device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag)
       == device->loLayer);
    ciaaPOSIX_assert(device->loLayer != NULL);
 
