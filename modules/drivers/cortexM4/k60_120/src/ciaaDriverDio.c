@@ -47,13 +47,16 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
- * PR           Pablo Ridolfi
- * Apermingeat  Alejandro Permingeat
+ * AP           Alejandro Permingeat
+ * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150803 v0.0.4 EsVo verify device received in open function
+ * 20150801 v0.0.3 EsVo migration to KSDK 1.2 and remove of drivers files
+ * 20150329 v0.0.2 AP   first operational version using KSDK 1.0
  * 20140913 v0.0.1 MaCe first stub version
  */
 
@@ -162,6 +165,8 @@ extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path,
          GPIO_HAL_SetPinDir(ciaaGPIOoutputPins[index].gpio, ciaaGPIOoutputPins[index].pin, kGpioDigitalOutput);
          GPIO_HAL_ClearPinOutput(ciaaGPIOoutputPins[index].gpio, ciaaGPIOoutputPins[index].pin);
       }
+   } else {
+      device = NULL;
    }
    return device;
 }

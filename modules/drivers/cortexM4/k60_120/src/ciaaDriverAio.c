@@ -48,12 +48,14 @@
  * Initials     Name
  * ---------------------------
  * AP           Alejandro Permingeat
+ * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- *
+ * 20150803 v0.0.2 EsVo verify device received in open function
+ * 20150329 v0.0.1 AP   first stub version
  */
 
 /*==================[inclusions]=============================================*/
@@ -191,6 +193,12 @@ void ciaa_lpc4337_aio_init(void)
 extern ciaaDevices_deviceType * ciaaDriverAio_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
+   if ((device != &ciaaDriverAio_in0) && (device != &ciaaDriverAio_in1) &&
+       (device != &ciaaDriverAio_out0))
+   {
+      device == NULL;
+   }
+
    return device;
 }
 

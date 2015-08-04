@@ -46,13 +46,15 @@
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe         Mariano Cerdeiro
+ * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140528 v0.0.1 initials initial version
+ * 20150801 v0.0.2 EsVo definition on structur to define a pin
+ * 20140528 v0.0.1 MaCe initials initial version
  */
 
 /*==================[inclusions]=============================================*/
