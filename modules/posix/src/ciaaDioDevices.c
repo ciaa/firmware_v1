@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2015, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -177,7 +177,8 @@ extern void ciaaDioDevices_addDriver(ciaaDevices_deviceType * driver)
 }
 
 extern ciaaDevices_deviceType * ciaaDioDevices_open(char const * path,
-            ciaaDevices_deviceType * device, uint8_t const oflag)
+      ciaaDevices_deviceType * device,
+      uint8_t const oflag)
 {
    ciaaDevices_deviceType * drv = (ciaaDevices_deviceType*) device->loLayer;
 
@@ -187,7 +188,6 @@ extern ciaaDevices_deviceType * ciaaDioDevices_open(char const * path,
 
    return device;
 }
-
 
 extern int32_t ciaaDioDevices_close(ciaaDevices_deviceType const * const device)
 {
