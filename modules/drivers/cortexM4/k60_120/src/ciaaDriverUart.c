@@ -48,13 +48,15 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
- * EV			Esteban Volentini
+ * EsVo			 Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150403 v0.0.2 EV   first operational version
+ * 20150803 v0.0.4 EsVo verify device received in open function
+ * 20150801 v0.0.3 EsVo migration to KSDK 1.2 and remove of drivers files
+ * 20150403 v0.0.2 EsVo first operational version
  * 20140913 v0.0.1 MaCe first stub version
  */
 
@@ -235,50 +237,56 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevic
 {
    ciaaDriverUart_uartType * uart = device->layer;
    ciaaDriverUart_portType const * port = device->loLayer;
-
    uint32_t uartSourceClock;
 
-   /* Enable clock for PORTs */
-   SIM_HAL_EnableClock(SIM, port->rx.gate);
-   SIM_HAL_EnableClock(SIM, port->tx.gate);
-   /* Configure port pins functions to UART */
-   PORT_HAL_SetMuxMode(port->rx.port, port->rx.pin, port->rx.mux);
-   PORT_HAL_SetMuxMode(port->tx.port, port->tx.pin, port->tx.mux);
+   if ((device != &ciaaDriverUart_device0) && (device != &ciaaDriverUart_device1) &&
+       (device != &ciaaDriverUart_device0))
+   {
+      device == NULL;
+   }
+   else
+   {
+      /* Enable clock for PORTs */
+      SIM_HAL_EnableClock(SIM, port->rx.gate);
+      SIM_HAL_EnableClock(SIM, port->tx.gate);
+      /* Configure port pins functions to UART */
+      PORT_HAL_SetMuxMode(port->rx.port, port->rx.pin, port->rx.mux);
+      PORT_HAL_SetMuxMode(port->tx.port, port->tx.pin, port->tx.mux);
 
-   SIM_HAL_EnableClock(SIM, port->gate);
-   /* Initialize HAL UART to known state */
-   UART_HAL_Init(port->base);
+      SIM_HAL_EnableClock(SIM, port->gate);
+      /* Initialize HAL UART to known state */
+      UART_HAL_Init(port->base);
 
-   /* UART clock source is either system or bus clock depending on instance */
-   uartSourceClock = CLOCK_SYS_GetUartFreq(port->instance);
+      /* UART clock source is either system or bus clock depending on instance */
+      uartSourceClock = CLOCK_SYS_GetUartFreq(port->instance);
 
-  /* Initialize UART baud rate, bit count, parity and stop bit. */
-   UART_HAL_SetBaudRate(port->base, uartSourceClock, uart->config.baudRate);
-   UART_HAL_SetBitCountPerChar(port->base, uart->config.bitCountPerChar);
-   UART_HAL_SetParityMode(port->base, uart->config.parityMode);
+     /* Initialize UART baud rate, bit count, parity and stop bit. */
+      UART_HAL_SetBaudRate(port->base, uartSourceClock, uart->config.baudRate);
+      UART_HAL_SetBitCountPerChar(port->base, uart->config.bitCountPerChar);
+      UART_HAL_SetParityMode(port->base, uart->config.parityMode);
 #if FSL_FEATURE_UART_HAS_STOP_BIT_CONFIG_SUPPORT
-   UART_HAL_SetStopBitCount(port->base, uart->config.stopBitCount);
+      UART_HAL_SetStopBitCount(port->base, uart->config.stopBitCount);
 #endif
 
 #if FSL_FEATURE_UART_HAS_FIFO
-//   UART_HAL_SetTxFifoWatermark(port->base, 4);
-   UART_HAL_SetRxFifoWatermark(port->base, 1);
-//   UART_HAL_SetTxFifoCmd(port->base, true);
-   UART_HAL_SetRxFifoCmd(port->base, true);
-   UART_HAL_FlushTxFifo(port->base);
-   UART_HAL_FlushRxFifo(port->base);
+   //   UART_HAL_SetTxFifoWatermark(port->base, 4);
+      UART_HAL_SetRxFifoWatermark(port->base, 1);
+   //   UART_HAL_SetTxFifoCmd(port->base, true);
+      UART_HAL_SetRxFifoCmd(port->base, true);
+      UART_HAL_FlushTxFifo(port->base);
+      UART_HAL_FlushRxFifo(port->base);
 #endif
 
-   /* Enable UART transmitter and receiver modules */
-   UART_HAL_EnableTransmitter(port->base);
-   UART_HAL_EnableReceiver(port->base);
+      /* Enable UART transmitter and receiver modules */
+      UART_HAL_EnableTransmitter(port->base);
+      UART_HAL_EnableReceiver(port->base);
 
-   /* Enable interupts for receiver */
-   UART_HAL_SetIntMode(port->base, kUartIntRxDataRegFull, true);
+      /* Enable interupts for receiver */
+      UART_HAL_SetIntMode(port->base, kUartIntRxDataRegFull, true);
 
-   /* Enable interrupts from UART module */
-   NVIC_EnableIRQ(port->irq);
-
+      /* Enable interrupts from UART module */
+      NVIC_EnableIRQ(port->irq);
+   }
    return device;
 }
 

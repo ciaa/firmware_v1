@@ -47,13 +47,13 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
- * EV			Esteban Volentini
+ * EsVo			 Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150403 v0.0.2 EV   first operational version
+ * 20150801 v0.0.2 EsVo first operational version
  * 20140913 v0.0.1 MaCe first stub version
  */
 

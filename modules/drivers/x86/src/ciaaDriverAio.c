@@ -48,12 +48,14 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141101 v0.0.1 initials initial version
+ * 20150803 v0.0.2 EsVo verify device received in open function
+ * 20141101 v0.0.1 MaCe initials initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -141,6 +143,11 @@ static void ciaaDriverAio_txConfirmation(ciaaDevices_deviceType const * const de
 extern ciaaDevices_deviceType * ciaaDriverAio_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
+   if ((device != &ciaaDriverAio_device0) && (device != &ciaaDriverAio_device1))
+   {
+      device = NULL;
+   }
+
    return device;
 }
 
