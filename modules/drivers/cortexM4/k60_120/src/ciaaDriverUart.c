@@ -151,9 +151,9 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
 
 /*==================[internal data definition]===============================*/
 static ciaaDriverUart_portType const ciaaDriverUart_port0 = {
-   UART0, 0, UART0_RX_TX_IRQn, kSimClockGateUart0,
-   { PORTD, 6u, kPortMuxAlt3, kSimClockGatePortD },
-   { PORTD, 7u, kPortMuxAlt3, kSimClockGatePortD }
+   UART3, 3, UART3_RX_TX_IRQn, kSimClockGateUart3,
+   { PORTB, 10u, kPortMuxAlt3, kSimClockGatePortB },
+   { PORTB, 11u, kPortMuxAlt3, kSimClockGatePortB }
 };
 
 static ciaaDriverUart_portType const ciaaDriverUart_port1 = {
@@ -163,9 +163,9 @@ static ciaaDriverUart_portType const ciaaDriverUart_port1 = {
 };
 
 static ciaaDriverUart_portType const ciaaDriverUart_port2 = {
-   UART4, 4, UART4_RX_TX_IRQn, kSimClockGateUart4,
-   { PORTC, 14u, kPortMuxAlt3, kSimClockGatePortC },
-   { PORTC, 15u, kPortMuxAlt3, kSimClockGatePortC }
+   UART0, 0, UART0_RX_TX_IRQn, kSimClockGateUart0,
+   { PORTD, 6u, kPortMuxAlt3, kSimClockGatePortD },
+   { PORTD, 7u, kPortMuxAlt3, kSimClockGatePortD }
 };
 
 /** \brief Uart 0 */
