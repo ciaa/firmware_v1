@@ -156,36 +156,40 @@ class OilConfig {
       return $list;
    }
 
-   function listAll()
-   {
-      return $this->listar($this->config);
-   }
+// DEAD CODE
+// @TODO check and erase
+//    function listAll()
+//    {
+//       return $this->listar($this->config);
+//    }
 
-   private function listar($dbase)
-   {
-      static $ret = array();
-      static $inst = -1;
-
-      $inst++;
-
-      if ($inst == 0)
-      {
-         $dbase = $this->config;
-      }
-
-      foreach ($dbase as $db)
-      {
-         $ret[] = $db["root"];
-         if ( $db["cont"]!=NULL)
-         {
-            $this->listar($db);
-         }
-      }
-
-      $inst--;
-
-      return $ret;
-   }
+// DEAD CODE
+// @TODO check and erase
+//    private function listar($dbase)
+//    {
+//       static $ret = array();
+//       static $inst = -1;
+//
+//       $inst++;
+//
+//       if ($inst == 0)
+//       {
+//          $dbase = $this->config;
+//       }
+//
+//       foreach ($dbase as $db)
+//       {
+//          $ret[] = $db["root"];
+//          if ( $db["cont"]!=NULL)
+//          {
+//             $this->listar($db);
+//          }
+//       }
+//
+//       $inst--;
+//
+//       return $ret;
+//    }
 
    private function getListIn($root, $dbase, $level)
    {
@@ -200,21 +204,23 @@ class OilConfig {
 
    }
 
-   function exist($root, $attr)
-   {
-      $attributes = $this->getAttributes($root);
-
-      foreach ($attributes as $attribute)
-      {
-         if ($attribute == $attr)
-         {
-            return true;
-         }
-      }
-
-      return false;
-
-   }
+//    DEAD CODE
+//    @TODO check and erase
+//    function exist($root, $attr)
+//    {
+//       $attributes = $this->getAttributes($root);
+//
+//       foreach ($attributes as $attribute)
+//       {
+//          if ($attribute == $attr)
+//          {
+//             return true;
+//          }
+//       }
+//
+//       return false;
+//
+//    }
 
    function getAttributes($root)
    {

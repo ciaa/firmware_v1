@@ -62,7 +62,7 @@ class OilParser {
    protected $lines;
    protected $line;
    protected $config = array();
-
+   protected $inst = 0; // must be reset before parser()
 
    public function removeMultiBlank($line)
    {
@@ -201,11 +201,11 @@ class OilParser {
    {
       $config = array();
       $entry = array();
-      static $inst = 0;
-      $inst++;
 
-      while( ( ( $inst == 1 ) && ($this->eof() === false ) ) ||
-             ( ( $inst != 1 ) && (strpos($this->lines[$this->line],"}") === false  ) ) )
+      $this->inst++;
+
+      while( ( ( $this->inst == 1 ) && ($this->eof() === false ) ) ||
+             ( ( $this->inst != 1 ) && (strpos($this->lines[$this->line],"}") === false  ) ) )
       {
          $def = $this->getDefinition();
 
@@ -238,12 +238,12 @@ class OilParser {
             $this->nextLine();
          }
       }
-      if ( $inst != 1 )
+      if ( $this->inst != 1 )
       {
          $this->nextLine();
       }
 
-      $inst--;
+      $this->inst--;
    }
 
    /**
