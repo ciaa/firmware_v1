@@ -211,7 +211,7 @@ class OilGenerator
                   $directorySeparator[] = $arg;
                   break;
                default:
-                  $this->halt("invalid argument: " . $arg);
+                  $this->log->halt("invalid argument: " . $arg);
                   exit(1);
                   break;
                }
@@ -222,25 +222,25 @@ class OilGenerator
 
       if (count($configFiles)==0)
       {
-         $this->halt("at least one config file shall be provided");
+         $this->log->halt("at least one config file shall be provided");
          exit(1);
       }
 
       if (count($baseOutDir)!=1)
       {
-         $this->halt("exactly one output directory shall be provided");
+         $this->log->halt("exactly one output directory shall be provided");
          exit(1);
       }
 
       if (count($templateFiles)==0)
       {
-         $this->halt("at least one tempalte file shall be provided");
+         $this->log->halt("at least one tempalte file shall be provided");
          exit(1);
       }
 
       if (count($directorySeparator)>1)
       {
-         $this->halt("no more than one path delimiter shall be provided");
+         $this->log->halt("no more than one path delimiter shall be provided");
          exit(1);
       }
 
@@ -259,7 +259,7 @@ class OilGenerator
       {
          if ( !file_exists($file))
          {
-            $this->error("Configuration file $file not found");
+            $this->log->error("Configuration file $file not found");
             $ok = false;
          }
       }
@@ -268,14 +268,14 @@ class OilGenerator
       {
          if(!file_exists($file))
          {
-            $this->error("Template $file does not exists");
+            $this->log->error("Template $file does not exists");
             $ok = false;
          }
       }
 
       if ( ! is_dir($baseOutDir) || ! is_writeable($baseOutDir) )
       {
-         $this->error("Directory $baseOutDir not writeable");
+         $this->log->error("Directory $baseOutDir not writeable");
          $ok = false;
       }
       return $ok;
