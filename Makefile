@@ -531,7 +531,7 @@ debug : $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
 generate : $(OIL_FILES)
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
-		-c $(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+		-c $(OIL_FILES) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 
 ###############################################################################
 # doxygen
