@@ -317,7 +317,7 @@ switch ($definition["CPU"])
       break;
 
    default:
-      error("the CPU " . $definition["CPU"] . " is not supported.");
+     $this->log->error("the CPU " . $definition["CPU"] . " is not supported.");
       break;
 }
 
@@ -365,7 +365,7 @@ void (* const g_pfnVectors[])(void) = {
    PendSV_Handler,                 /* The PendSV handler         */
    SysTick_Handler,                /* The SysTick handler        */
 <?php else :
-      error("Not supported CPU: " . $definition["CPU"]);
+     $this->log->error("Not supported CPU: " . $definition["CPU"]);
    endif;
 ?>
    /*** User Interruptions ***/
@@ -394,7 +394,7 @@ for($i=0; $i < $MAX_INT_COUNT; $i++)
             $src_found = 1;
          } else
          {
-            error("Interrupt $int type $inttype has an invalid category $intcat");
+           $this->log->error("Interrupt $int type $inttype has an invalid category $intcat");
          }
       }
    }

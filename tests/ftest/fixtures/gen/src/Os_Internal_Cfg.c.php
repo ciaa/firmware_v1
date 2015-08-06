@@ -182,7 +182,7 @@ foreach ($tasks as $task)
    }
    else
    {
-      error("Wrong definition of task type \"" . $extended . "\" for task \"" . $task . "\".");
+     $this->log->error("Wrong definition of task type \"" . $extended . "\" for task \"" . $task . "\".");
    }
    $schedule = $config->getValue("/OSEK/" .$task, "SCHEDULE");
    if ($schedule == "FULL")
@@ -195,7 +195,7 @@ foreach ($tasks as $task)
    }
    else
    {
-      error("Wrong definition of task schedule \"" . $schedule . "\" for task \"" . $task . "\".");
+     $this->log->error("Wrong definition of task schedule \"" . $schedule . "\" for task \"" . $task . "\".");
    }
    print "         0\n";
    print "      }, /* task const flags */\n";
@@ -388,7 +388,7 @@ foreach ($alarms as $alarm)
       print "         0 /* no counter */\n";
       break;
    default:
-      error("Alarm $alarm has an invalid action: $action");
+     $this->log->error("Alarm $alarm has an invalid action: $action");
       break;
    }
    print "      },\n";

@@ -135,7 +135,7 @@ for ($loopi = 0; $loopi < 32; $loopi++)
                   }
                   else
                   {
-                     error("Interrupt $int type $inttype has an invalid category $intcat");
+                    $this->log->error("Interrupt $int type $inttype has an invalid category $intcat");
                   }
                }
                break;
@@ -154,7 +154,7 @@ for ($loopi = 0; $loopi < 32; $loopi++)
                   }
                   else
                   {
-                     error("Interrupt $int type $inttype has an invalid category $intcat");
+                    $this->log->error("Interrupt $int type $inttype has an invalid category $intcat");
                   }
                }
                break;
