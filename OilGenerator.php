@@ -307,10 +307,7 @@ class OilGenerator
    public function run($args)
    {
 
-      $this->path = array_shift($args);
-
-      $this->path = substr($this->path,0, strlen($this->path)-strlen("/generator.php"));
-
+      $path = dirname(array_shift($args));
 
       list($verbose, $definitions, $configFiles, $baseOutDir, $templateFiles,$directorySeparator)= $this->processArgs($args);
 
