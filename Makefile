@@ -417,6 +417,13 @@ mocks:
 	ruby externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)lib$(DS)cmock.rb -omodules$(DS)tools$(DS)ceedling$(DS)project.yml $(FILES_TO_MOCK)
 
 ###############################################################################
+# rule to check trailing spaces
+code_sanity:
+	@echo ' '
+	@echo ===============================================================================
+	@echo Checking for trailing spaces
+	@./modules/tools/scripts/check_trailing_spaces.sh
+###############################################################################
 # rule to run osek oil generator tests
 osek_oil_gen_tst:
 PWD =$(shell pwd)
@@ -425,7 +432,7 @@ TESTS = $(PWD)$(DS)modules$(DS)rtos$(DS)generator$(DS)tests$(DS)ftest
 FIXTURES = $(TESTS)$(DS)fixtures
 EXPECTED = $(TESTS)$(DS)expected
 TMP = $(TESTS)$(DS)tmp
-osek_oil_gen_tst:
+osek_oil_gen_tst: code_sanity
 	@echo ' '
 	@echo ===============================================================================
 	@echo Unit testing the module rtos_gen
