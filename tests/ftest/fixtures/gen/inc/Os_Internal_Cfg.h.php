@@ -76,36 +76,35 @@
 
 function remove($a,$index)
 {
-if ($index < count($a))
-{
-for ($i = $index; $i < count($a)-1; $i++)
-{
- $a[$i] = $a[$i+1];
-}
-array_pop($a);
-}
-return $a;
+   if ($index < count($a))
+   {
+      for ($i = $index; $i < count($a)-1; $i++)
+      {
+         $a[$i] = $a[$i+1];
+      }
+      array_pop($a);
+   }
+   return $a;
 }
 
 function remove_doubles($a)
 {
-sort($a);
-$old = NULL;
-for($loopi = 0; $loopi < count($a); $loopi++)
-{
-if ($old == $a[$loopi])
-{
- /* if equal remove this element */
- $a = remove($a,$loopi);
- $loopi--;
-}
-else
-{
- $old = $a[$loopi];
-}
-}
-
-return $a;
+   sort($a);
+   $old = NULL;
+   for($loopi = 0; $loopi < count($a); $loopi++)
+   {
+      if ($old == $a[$loopi])
+      {
+         /* if equal remove this element */
+         $a = remove($a,$loopi);
+         $loopi--;
+      }
+      else
+      {
+         $old = $a[$loopi];
+      }
+   }
+   return $a;
 }
 
 /* get tasks */
@@ -115,14 +114,14 @@ $tasks = $config->getList("/OSEK","TASK");
 $priorities = array();
 foreach ($tasks as $task)
 {
-$priorities[] = $config->getValue("/OSEK/" . $task, "PRIORITY");
+   $priorities[] = $config->getValue("/OSEK/" . $task, "PRIORITY");
 }
 $priorities = remove_doubles($priorities);
 $count = 0;
 $priority = array();
 foreach ($priorities as $prio)
 {
-$priority[$prio] = $count++;
+   $priority[$prio] = $count++;
 }
 arsort($priority);
 
