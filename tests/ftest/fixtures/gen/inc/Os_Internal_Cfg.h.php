@@ -117,11 +117,11 @@ foreach ($tasks as $task)
    $priorities[] = $config->getValue("/OSEK/" . $task, "PRIORITY");
 }
 $priorities = remove_doubles($priorities);
-$count = 0;
+
 $priority = array();
-foreach ($priorities as $prio)
+foreach ($priorities as $count=>$prio)
 {
-   $priority[$prio] = $count++;
+   $priority[$prio] = $count;
 }
 arsort($priority);
 
@@ -313,11 +313,10 @@ foreach ($alarms as $alarm)
 
 <?php
 $counters = $config->getList("/OSEK","COUNTER");
-$count = 0;
-foreach ($counters as $counter)
+
+foreach ($counters as $count => $counter)
 {
    print "#define OSEK_COUNTER_" . $counter . " " . $count . "\n";
-   $count++;
 }
 
 $alarms = $config->getList("/OSEK","ALARM");

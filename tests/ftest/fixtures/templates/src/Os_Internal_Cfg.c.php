@@ -157,11 +157,11 @@ print " */\n";
 
 const TaskConstType TasksConst[TASKS_COUNT] = {
 <?php
-$count = 0;
+
 /* create task const structure */
-foreach ($tasks as $task)
+foreach ($tasks as $count=>$task)
 {
-   if ( $count++ != 0 ) print ",\n";
+   if ( $count != 0 ) print ",\n";
    print "   /* Task $task */\n";
    print "   {\n";
    print "       OSEK_TASK_$task,   /* task entry point */\n";
@@ -241,12 +241,11 @@ foreach ($appmodes as $appmode)
    }
    if (count($tasksinmode) > 0)
    {
-      $count = 0;
       print "/** \brief List of Auto Start Tasks in Application Mode $appmode */\n";
       print "const TaskType TasksAppMode" . $appmode . "[" . count($tasksinmode). "]  = {\n";
-      foreach($tasksinmode as $task)
+      foreach($tasksinmode as $count=>$task)
       {
-         if ($count++ != 0) print ",\n";
+         if ($count != 0) print ",\n";
          print "   $task";
       }
       print "\n};\n";
@@ -255,10 +254,10 @@ foreach ($appmodes as $appmode)
 
 print "/** \brief AutoStart Array */\n";
 print "const AutoStartType AutoStart[" . count($appmodes) . "]  = {\n";
-$count = 0;
-foreach ($appmodes as $appmode)
+
+foreach ($appmodes as $count=>$appmode)
 {
-   if ( $count++ != 0 ) print ",\n";
+   if ( $count != 0 ) print ",\n";
    print "   /* Application Mode $appmode */\n";
    print "   {\n";
    $tasksinmode = array();
@@ -349,10 +348,10 @@ print " ** AlarmVarType AlarmsVar[" . count($alarms) . "]; */\n";
 print "AlarmVarType AlarmsVar[" . count($alarms) . "];\n\n";
 
 print "const AlarmConstType AlarmsConst[" . count($alarms) . "]  = {\n";
-$count = 0;
-foreach ($alarms as $alarm)
+
+foreach ($alarms as $count=>$alarm)
 {
-   if ($count++ != 0)
+   if ($count != 0)
    {
       print ",\n";
    }
@@ -398,12 +397,12 @@ foreach ($alarms as $alarm)
 print "\n};\n\n";
 
 print "const AutoStartAlarmType AutoStartAlarm[ALARM_AUTOSTART_COUNT] = {\n";
-$count = 0;
-foreach ($alarms as $alarm)
+
+foreach ($alarms as $count=>$alarm)
 {
    if ($config->getValue("/OSEK/" . $alarm, "AUTOSTART") == "TRUE")
    {
-      if ($count++ != 0)
+      if ($count != 0)
       {
          print ",\n";
       }
@@ -423,11 +422,11 @@ $counters = $config->getList("/OSEK","COUNTER");
 print "CounterVarType CountersVar[" . count($counters) . "];\n\n";
 
 $alarms = $config->getList("/OSEK","ALARM");
-$count = 0;
+
 print "const CounterConstType CountersConst[" . count($counters) . "] = {\n";
-foreach ($counters as $counter)
+foreach ($counters as $count=>$counter)
 {
-   if ($count++!=0)
+   if ($count!=0)
    {
       print ",\n";
    }
