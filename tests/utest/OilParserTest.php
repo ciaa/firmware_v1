@@ -55,6 +55,15 @@ require_once(dirname(__FILE__) . '/../../OilParser.php');
  **/
 class OilParserTest extends PHPUnit_Framework_TestCase
 {
+   /**
+   * @expectedException Exception
+   * @todo expect proper exception
+   */
+   public function testLoadFile()
+   {
+       $parser = new OilParser();
+       $parser->loadFile("");
+   }
 
    public function removeCommentsProvider()
    {

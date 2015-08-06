@@ -246,10 +246,13 @@ class OilParser {
       $inst--;
    }
 
+   /**
+   * @todo throw proper exception
+   */
    function loadFile($file)
    {
       if (file_exists($file) == false) {
-         error('Configuration file ' . $file . ' not found.');
+         throw new Exception("Configuration file $file not found.");
       }
 
       $this->file = $file;
