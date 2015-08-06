@@ -19,7 +19,7 @@ or clone using:
 * examples      -> contains examples of how to use CIAA Firmware.
 * externals     -> contains extenral of this project, software not developed by CIAA but used within. This externals may have different license, please take this into account.
 * modules       -> contains the CIAA Firmware software.
-* README        -> aftear reading this file and before reading the documentation (Doc dir) you may want to take a look here. This directory also contains the License information.
+* README        -> aftear reading this file and before reading the documentation (Doc dir) you may want to take a look here.
 
 Report tickets to: https://github.com/ciaa/firmware/issues
  
