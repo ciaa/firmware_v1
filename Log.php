@@ -132,7 +132,7 @@ class Log
    function halt($msg)
    {
       $this->writer->pause();
-      $this->error();
+      $this->error($msg);
       $this->writer->close();
    }
 
