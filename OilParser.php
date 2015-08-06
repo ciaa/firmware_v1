@@ -79,9 +79,6 @@ class OilParser {
          /* remove spaces and tabs at start and end of the line */
          $this->lines[$l] = trim($this->lines[$l]);
 
-         /* remove spaces and tabs at start and end of the line */
-         $this->lines[$l] = trim($this->lines[$l]);                      // untested
-
          /* remove spaces sides of = */
          $this->lines[$l] = str_replace(" = ", "=", $this->lines[$l]);   // untested
 
