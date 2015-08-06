@@ -63,34 +63,14 @@ class OilGenerator
 
    /** \brief Compare Files Function
    **/
-   function comfiles($f)
+   function compareFiles($filename1,$filename2)
    {
-      $ret = false;
-
-      if( file_exists($f[0]) && file_exists($f[1]) )
+      if( file_exists($filename1) && file_exists($filename2) )
       {
-         $f1 = file($f[0]);
-         $f2 = file($f[1]);
-
-         if(count($f1)==count($f2))
-         {
-            $loopi = 0;
-            for (; ($loopi < count($f1)) && ($f1[$loopi]==$f2[$loopi]); $loopi++)
-            {
-               /* nothing to do */
-            }
-            if( ($loopi == count($f1)) )
-            {
-               $ret = true;
-            }
-         }
-      }
-      else
-      {
-         #info("one file doesnt exist!!!!!!!!!!!!!!!!!!!!");
+         return (file($filename1) == file($filename2));
       }
 
-      return $ret;
+      return false;
 
    }
 
@@ -285,7 +265,7 @@ class OilGenerator
    {
       if ($runagain)
       {
-         if($this->comfiles(array($outfile, $outfile . ".old")) == false)
+         if($this->compareFiles($outfile, $outfile . ".old") === false)
          {
             if(substr($file, strlen($file) - strlen(".mak.php") ) == ".mak.php")
             {

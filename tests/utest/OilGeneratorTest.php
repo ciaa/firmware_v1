@@ -48,6 +48,7 @@
 /*==================[inclusions]=============================================*/
 require_once(dirname(__FILE__) . '/../../OilGenerator.php');
 require_once(dirname(__FILE__) . '/../../StdoutWriter.php');
+require_once(dirname(__FILE__) . '/../../FileWriter.php');
 
 /*==================[class definition]=======================================*/
 /** \brief Oil Generator Test Class Implementation
@@ -57,6 +58,29 @@ require_once(dirname(__FILE__) . '/../../StdoutWriter.php');
  **/
 class OilGeneratorTest extends PHPUnit_Framework_TestCase
 {
+   public function compareFilesProvider()
+   {
+      return array(
+         array('fileA.txt','fileNotLikeA.txt', false, '//1'),
+         array('fileA.txt','fileLikeA.txt', true, '//2'),
+      );
+   }
+
+
+   /**
+   * @dataProvider compareFilesProvider
+   *
+   */
+   public function testCompareFiles($f1, $f2, $expected, $msg)
+   {
+      $f1=dirname(__FILE__). "/fixtures/$f1";
+      $f2=dirname(__FILE__). "/fixtures/$f2";
+      echo "checking diff $f1 $f2 for $expected\n";
+      $writer = new StdoutWriter();
+      $generator = new OilGenerator($writer);
+      $this->assertEquals($expected, $generator->compareFiles($f1,$f2), $msg);
+
+   }
 
    public function testWarning() {
       $writer = new FileWriter();
