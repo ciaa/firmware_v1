@@ -1,5 +1,11 @@
 /** \page RELEASENOTES Release Notes
  **
+ ** CIAA Firmware 0.6.0 (06.08.2015)
+ **   Improve some minimal issues in DIO
+ **   Correct bug #279 of the RTOS
+ **   RTOS tests can be executed on RAM
+ **   RTOS configuration file for unit tests has been added
+ **
  ** CIAA Firmware 0.5.0 (06.06.2015)
  **   Add support for IDE4PLC (to use the CIAA Firmware as a PLC)
  **   Improve Continuous Integration script (make ci)
