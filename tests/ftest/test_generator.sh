@@ -34,7 +34,7 @@ testBlinkingExampleFull() {
 
    php modules/rtos/generator/generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
-      -f ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
+      -t ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
          ${FIXTURES}${DS}gen/inc/Os_Cfg.h.php \
          ${FIXTURES}${DS}gen/src/Os_Cfg.c.php \
          ${FIXTURES}${DS}gen/src/Os_Internal_Cfg.c.php \
@@ -77,7 +77,7 @@ testOneTemplate() {
 
    php modules/rtos/generator/generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
-      -f ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
+      -t ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
       -b /gen/ \
       -o ${TMP} > /dev/null 2>&1
 
@@ -93,7 +93,7 @@ testOneTemplate() {
 testOutputPath() {
    php modules/rtos/generator/generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
-      -f ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
+      -t ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
       -b /gen/ \
       -o ${TMP} > /dev/null 2>&1
 

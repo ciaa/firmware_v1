@@ -33,7 +33,7 @@
 testNoFileOutput() {
    OUTPUT=$(php modules/rtos/generator/tests/ftest/stdoutWriterLauncher.php  -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
-      -f ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
+      -t ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
       -b /gen/ \
       -o ${TMP})
   GOT=${TMP}

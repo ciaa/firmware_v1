@@ -139,10 +139,10 @@ class OilGenerator
 
    function printHelp()
    {
-      print "php generator.php [-l] [-h] [--cmdline] [-Ddef[=definition]] -c <CONFIG_1> [<CONFIG_2>] -o <OUTPUTDIR> -f <GENFILE_1> [<GENFILE_2>]\n";
+      print "php generator.php [-l] [-h] [--cmdline] [-Ddef[=definition]] -c <CONFIG_1> [<CONFIG_2>] -o <OUTPUTDIR> -t <GENFILE_1> [<GENFILE_2>]\n";
       print "      -c   indicate the configuration input files\n";
       print "      -o   output directory\n";
-      print "      -f   indicates the templates to be processed\n";
+      print "      -t   indicates the templates to be processed\n";
       print "      -b   relative base path (default \"/templates/\")\n";
       print "   optional parameters:\n";
       print "      -h   display this help\n";
@@ -179,7 +179,7 @@ class OilGenerator
             break;
          case "-c":
          case "-o":
-         case "-f":
+         case "-t":
          case "-b":
             $oldarg = $arg;
             break;
@@ -202,7 +202,7 @@ class OilGenerator
                   /* add an output dir */
                   $baseOutDir[]= $arg;
                   break;
-               case "-f":
+               case "-t":
                   /* add generated file */
                   $templateFiles[] = $arg;
                   break;
