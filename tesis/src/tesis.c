@@ -74,8 +74,22 @@
 #include "ciaaPOSIX_string.h" /* <= string header */
 #include "ciaak.h"            /* <= ciaa kernel header */
 #include "tesis.h"         	  /* <= own header */
+//#include "gpdma_18xx_43xx.h"  /* <= dma header*/
+//#include "chip_lpc43xx.h"
+//#include "ssp_18xx_43xx.h" /* <= ssp header*/
+//#include "core_cm4.h"
+//#include "cmsis_43xx.h"
 
 /*==================[macros and definitions]=================================*/
+////#define SAMPLE_RATE 16000   /* Hz */
+////#define DATA_SIZE   16      /* bits */
+#define LPC_SSP         LPC_SSP1
+#define SSP_DATA_BITS   (SSP_BITS_8)
+#define BITRATE 2400// in kbps
+#define WINDOWSIZE 25// in miliseconds
+#define MEMDMASIZE  BITRATE*WINDOWSIZE/8  // in bytes
+#define LPC_GPDMA_SSP_TX  GPDMA_CONN_SSP1_Tx
+#define LPC_GPDMA_SSP_RX  GPDMA_CONN_SSP1_Rx
 
 /*==================[internal data declaration]==============================*/
 
@@ -110,6 +124,36 @@ static int32_t fd_uart2;
  *
  */
 static uint32_t Periodic_Task_Counter;
+
+/** \brief
+ *
+ */
+static SSP_ConfigFormat ssp_format;
+
+/** \brief
+ *
+ */
+static uint8_t dmaChSSPTx, dmaChSSPRx;
+
+/** \brief
+ *
+ */
+static uint8_t memDest1DMA[MEMDMASIZE];
+
+/** \brief
+ *
+ */
+static uint8_t memDest2DMA[MEMDMASIZE];
+
+/** \brief
+ *
+ */
+static uint8_t currentDMA;
+
+/** \brief Dummy transmission data used to generate the SSP transmission
+ *
+ */
+static uint8_t memDMATx;
 
 /*==================[external data definition]===============================*/
 
@@ -171,6 +215,7 @@ TASK(InitTask)
    ciaak_start();
 
    ciaaPOSIX_printf("Init Task...\n");
+
    /* open CIAA digital inputs */
    fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
 
@@ -196,8 +241,115 @@ TASK(InitTask)
    /* Activates the SerialEchoTask task */
    ActivateTask(SerialEchoTask);
 
+
+   /* SSP DMA Read and Write: fixed on 8bits */
+
+   /* Initialize the SSP interface */
+
+   //Primero inicializar los pines (como en el ejemplo?)!!!
+
+   Chip_SSP_Init(LPC_SSP);
+   Chip_SSP_SetBitRate(LPC_SSP, BITRATE);
+
+   /* Configure SSP Format */
+   ssp_format.frameFormat = SSP_FRAMEFORMAT_SPI;
+   ssp_format.bits = SSP_DATA_BITS;
+   ssp_format.clockMode = SSP_CLOCK_MODE0;
+   Chip_SSP_SetFormat(LPC_SSP, ssp_format.bits, ssp_format.frameFormat, ssp_format.clockMode);
+
+
+   Chip_SSP_Enable(LPC_SSP);
+
+   /* Initialize GPDMA controller */
+   Chip_GPDMA_Init(LPC_GPDMA);
+
+   /* Setting GPDMA interrupt */
+   NVIC_DisableIRQ(DMA_IRQn);
+   NVIC_SetPriority(DMA_IRQn, ((0x01 << 3) | 0x01));
+   NVIC_EnableIRQ(DMA_IRQn);
+
+   /* Set the SSP in master mode */
+   Chip_SSP_SetMaster(LPC_SSP, 1);
+
+   /* Get a free GPDMA channel for one DMA connection for transmission */
+   dmaChSSPTx = Chip_GPDMA_GetFreeChannel(LPC_GPDMA, LPC_GPDMA_SSP_TX);
+
+   /* Get a free GPDMA channel for one DMA connection for reception */
+   dmaChSSPRx = Chip_GPDMA_GetFreeChannel(LPC_GPDMA, LPC_GPDMA_SSP_RX);
+
+   Chip_SSP_DMA_Enable(LPC_SSP);
+
+   /* Do a DMA transfer P2M: memDMATx --> SSP */
+   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
+   				  (uint32_t) &memDMATx, // source
+   				  LPC_GPDMA_SSP_TX, // destination
+   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL
+   			 	  MEMDMASIZE);
+   /* Do a DMA transfer P2M: data SSP --> memDest1DMA */
+   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
+   				  LPC_GPDMA_SSP_RX, // source
+   				  (uint32_t) &memDest1DMA[0], // destination
+   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL
+   				  MEMDMASIZE);
+
+   currentDMA = 1;
+
    /* end InitTask */
    TerminateTask();
+}
+
+/** \brief DMA interrupt handler sub-routine
+ *
+ */
+void DMA_IRQHandler(void)
+{
+
+   ciaaPOSIX_printf("DMA Interrupt\n");
+
+   if ((Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPTx) == SUCCESS) && (Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPRx) == SUCCESS)) {
+
+	   ciaaPOSIX_printf("DMA 2 success\n");
+
+	   if (currentDMA == 1){
+
+		   /* Do a DMA transfer P2M: memDMATx --> SSP */
+		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
+		   				  (uint32_t) &memDMATx, // source
+		   				  LPC_GPDMA_SSP_TX, // destination
+		   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL
+		   			 	  MEMDMASIZE);
+		   /* Do a DMA transfer P2M: data SSP --> memDest2DMA */
+		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
+		   				  LPC_GPDMA_SSP_RX, // source
+		   				  (uint32_t) &memDest2DMA[0], // destination
+		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL
+		   				  MEMDMASIZE);
+
+		   currentDMA = 2;
+	   }
+	   else{ //currentDMA = 2
+
+		   /* Do a DMA transfer P2M: memDMATx --> SSP */
+		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
+		   				  (uint32_t) &memDMATx, // source
+		   				  LPC_GPDMA_SSP_TX, // destination
+		   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL
+		   			 	  MEMDMASIZE);
+		   /* Do a DMA transfer P2M: data SSP --> memDest1DMA */
+		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
+		   				  LPC_GPDMA_SSP_RX, // source
+		   				  (uint32_t) &memDest1DMA[0], // destination
+		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL
+		   				  MEMDMASIZE);
+
+
+		   currentDMA = 1;
+	   }
+
+
+   }
+
+
 }
 
 /** \brief Serial Echo Task
