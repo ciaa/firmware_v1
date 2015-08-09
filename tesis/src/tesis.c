@@ -74,15 +74,11 @@
 #include "ciaaPOSIX_string.h" /* <= string header */
 #include "ciaak.h"            /* <= ciaa kernel header */
 #include "tesis.h"         	  /* <= own header */
-//#include "gpdma_18xx_43xx.h"  /* <= dma header*/
-//#include "chip_lpc43xx.h"
-//#include "ssp_18xx_43xx.h" /* <= ssp header*/
-//#include "core_cm4.h"
-//#include "cmsis_43xx.h"
+
 
 /*==================[macros and definitions]=================================*/
-////#define SAMPLE_RATE 16000   /* Hz */
-////#define DATA_SIZE   16      /* bits */
+//#define SAMPLE_RATE 16000   /* Hz */
+//#define DATA_SIZE   16      /* bits */
 #define LPC_SSP         LPC_SSP1
 #define SSP_DATA_BITS   (SSP_BITS_8)
 #define BITRATE 2400// in kbps
@@ -249,14 +245,13 @@ TASK(InitTask)
    //Primero inicializar los pines (como en el ejemplo?)!!!
 
    Chip_SSP_Init(LPC_SSP);
-   Chip_SSP_SetBitRate(LPC_SSP, BITRATE);
+   Chip_SSP_SetBitRate(LPC_SSP, BITRATE*1000); // chequear que este funcionando realmente a este bitrate
 
    /* Configure SSP Format */
    ssp_format.frameFormat = SSP_FRAMEFORMAT_SPI;
    ssp_format.bits = SSP_DATA_BITS;
    ssp_format.clockMode = SSP_CLOCK_MODE0;
    Chip_SSP_SetFormat(LPC_SSP, ssp_format.bits, ssp_format.frameFormat, ssp_format.clockMode);
-
 
    Chip_SSP_Enable(LPC_SSP);
 
@@ -284,6 +279,7 @@ TASK(InitTask)
    				  (uint32_t) &memDMATx, // source
    				  LPC_GPDMA_SSP_TX, // destination
    				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL
+   				  //GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL,
    			 	  MEMDMASIZE);
    /* Do a DMA transfer P2M: data SSP --> memDest1DMA */
    Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
@@ -301,23 +297,26 @@ TASK(InitTask)
 /** \brief DMA interrupt handler sub-routine
  *
  */
-void DMA_IRQHandler(void)
+ISR(DMA_IRQHandler)
 {
 
-   ciaaPOSIX_printf("DMA Interrupt\n");
+   char message1[] = "DMA1 \n";
+   char message2[] = "DMA2 \n";
+   char message3[] = "DMA3 \n";
+   char message3A[] = "DMA3A \n";
+   char message3B[] = "DMA3B \n";
+   char message4[] = "DMA4 \n";
+   ciaaPOSIX_write(fd_uart1, message1, ciaaPOSIX_strlen(message1));
 
-   if ((Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPTx) == SUCCESS) && (Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPRx) == SUCCESS)) {
 
-	   ciaaPOSIX_printf("DMA 2 success\n");
+   if(Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPRx) == SUCCESS){
+
+	   ciaaPOSIX_write(fd_uart1, message3, ciaaPOSIX_strlen(message3));
 
 	   if (currentDMA == 1){
+		   ciaaPOSIX_write(fd_uart1, message3A, ciaaPOSIX_strlen(message3A));
 
-		   /* Do a DMA transfer P2M: memDMATx --> SSP */
-		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
-		   				  (uint32_t) &memDMATx, // source
-		   				  LPC_GPDMA_SSP_TX, // destination
-		   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL
-		   			 	  MEMDMASIZE);
+
 		   /* Do a DMA transfer P2M: data SSP --> memDest2DMA */
 		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
 		   				  LPC_GPDMA_SSP_RX, // source
@@ -328,13 +327,9 @@ void DMA_IRQHandler(void)
 		   currentDMA = 2;
 	   }
 	   else{ //currentDMA = 2
+		   ciaaPOSIX_write(fd_uart1, message3B, ciaaPOSIX_strlen(message3B));
 
-		   /* Do a DMA transfer P2M: memDMATx --> SSP */
-		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
-		   				  (uint32_t) &memDMATx, // source
-		   				  LPC_GPDMA_SSP_TX, // destination
-		   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL
-		   			 	  MEMDMASIZE);
+
 		   /* Do a DMA transfer P2M: data SSP --> memDest1DMA */
 		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
 		   				  LPC_GPDMA_SSP_RX, // source
@@ -346,9 +341,24 @@ void DMA_IRQHandler(void)
 		   currentDMA = 1;
 	   }
 
+   }
+   else if (Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPTx) == SUCCESS){
+
+      ciaaPOSIX_write(fd_uart1, message2, ciaaPOSIX_strlen(message2));
+
+	   /* Do a DMA transfer P2M: memDMATx --> SSP */
+	   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
+	   				  (uint32_t) &memDMATx, // source
+	   				  LPC_GPDMA_SSP_TX, // destination
+	   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL
+	   			 	  MEMDMASIZE);
 
    }
+   else
+   {
+	      ciaaPOSIX_write(fd_uart1, message4, ciaaPOSIX_strlen(message4));
 
+   }
 
 }
 

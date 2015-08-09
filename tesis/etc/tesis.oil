@@ -145,4 +145,10 @@ ISR UART3_IRQHandler {
    PRIORITY = 0;
 };
 
+ISR DMA_IRQHandler {
+   INTERRUPT = DMA;
+   CATEGORY = 2;
+   PRIORITY = 0;
+};
+
 };

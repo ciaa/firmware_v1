@@ -590,10 +590,10 @@ ISR(ADC1_IRQHandler)
    ciaaDriverAio_adcIRQHandler(&ciaaDriverAio_in1);
 }
 
-ISR(DMA_IRQHandler)
-{
-   ciaaDriverAio_dacIRQHandler(&ciaaDriverAio_out0);
-}
+//ISR(DMA_IRQHandler)
+//{
+//   ciaaDriverAio_dacIRQHandler(&ciaaDriverAio_out0);
+//}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
