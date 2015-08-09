@@ -197,16 +197,16 @@ typedef struct {
 #define GPDMA_CONN_UART3_Rx         ((17UL))		/**< UART3 Rx           */
 #define GPDMA_CONN_SCT_1            ((18UL))		/**< SCT timer channel 1*/
 #define GPDMA_CONN_SSP0_Rx          ((19UL))		/**< SSP0 Rx            */
-#define GPDMA_CONN_I2S_Tx_Channel_0 ((20UL))		/**< I2S channel 0      */
+#define GPDMA_CONN_I2S_Tx_Channel_0 ((20UL))		/**< I2S0 Tx on channel 0 */
 #define GPDMA_CONN_SSP0_Tx          ((21UL))		/**< SSP0 Tx            */
-#define GPDMA_CONN_I2S_Rx_Channel_1 ((22UL))		/**< I2S channel 1      */
+#define GPDMA_CONN_I2S_Rx_Channel_1 ((22UL))		/**< I2S0 Rx on channel 0 */
 #define GPDMA_CONN_SSP1_Rx          ((23UL))		/**< SSP1 Rx            */
 #define GPDMA_CONN_SSP1_Tx          ((24UL))		/**< SSP1 Tx            */
 #define GPDMA_CONN_ADC_0            ((25UL))		/**< ADC 0              */
 #define GPDMA_CONN_ADC_1            ((26UL))		/**< ADC 1              */
 #define GPDMA_CONN_DAC              ((27UL))		/**< DAC                */
-#define GPDMA_CONN_I2S_Tx_Channel_1 ((28UL))		/**< I2S channel 0      */
-#define GPDMA_CONN_I2S_Rx_Channel_0 ((29UL))		/**< I2S channel 0      */
+#define GPDMA_CONN_I2S1_Tx_Channel_0 ((28UL))		/**< I2S1 Tx on channel 0 */
+#define GPDMA_CONN_I2S1_Rx_Channel_1 ((29UL))		/**< I2S1 Rx on channel 0 */
 
 /**
  * @brief GPDMA Burst size in Source and Destination definitions

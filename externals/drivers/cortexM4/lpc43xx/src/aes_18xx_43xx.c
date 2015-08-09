@@ -35,8 +35,11 @@
  * Private types/enumerations/variables
  ****************************************************************************/
 
-#define BOOTROM_BASE            0x10400100
-#define AES_API_TABLE_OFFSET    0x2
+#define BOOTROM_BASE			0x10400100
+#define AES_API_TABLE_OFFSET	0x2
+
+typedef	void		(*V_FP_V)(void);
+typedef	uint32_t	(*U32_FP_V)(void);
 
 static unsigned long *BOOTROM_API_TABLE;
 
@@ -58,6 +61,9 @@ static void (*aes_LoadIV_IC)(void);
 static uint32_t (*aes_Operate)(uint8_t *pDatOut, uint8_t *pDatIn, uint32_t size);
 static uint32_t (*aes_ProgramKey1)(uint8_t *pKey);
 static uint32_t (*aes_ProgramKey2)(uint8_t *pKey);
+static uint32_t (*aes_Config_DMA) (uint32_t channel_id);
+static uint32_t (*aes_Operate_DMA)(uint32_t channel_id, uint8_t *dataOutAddr, uint8_t *dataInAddr, uint32_t size);
+static uint32_t (*aes_Get_Status_DMA) (uint32_t channel_id);
 
 /*****************************************************************************
  * Public functions
@@ -70,18 +76,21 @@ void Chip_AES_Init(void)
 
 	BOOTROM_API_TABLE = *((unsigned long * *) BOOTROM_BASE + AES_API_TABLE_OFFSET);
 
-	ROM_aes_Init      = (uint32_t (*)(void))BOOTROM_API_TABLE[0];
-	aes_SetMode       = (uint32_t (*)(CHIP_AES_OP_MODE_T AesMode))BOOTROM_API_TABLE[1];
-	aes_LoadKey1      = (void (*)(void))BOOTROM_API_TABLE[2];
-	aes_LoadKey2      = (void (*)(void))BOOTROM_API_TABLE[3];
-	aes_LoadKeyRNG    = (void (*)(void))BOOTROM_API_TABLE[4];
-	aes_LoadKeySW     = (void (*)(uint8_t *pKey))BOOTROM_API_TABLE[5];
-	aes_LoadIV_SW     = (void (*)(uint8_t *pVector))BOOTROM_API_TABLE[6];
-	aes_LoadIV_IC     = (void (*)(void))BOOTROM_API_TABLE[7];
-	aes_Operate       = (uint32_t (*)(uint8_t *pDatOut, uint8_t *pDatIn, uint32_t Size))BOOTROM_API_TABLE[8];
-	aes_ProgramKey1   = (uint32_t (*)(uint8_t *pKey))BOOTROM_API_TABLE[9];
-	aes_ProgramKey2   = (uint32_t (*)(uint8_t *pKey))BOOTROM_API_TABLE[10];
-
+	ROM_aes_Init		= (uint32_t (*)(void))BOOTROM_API_TABLE[0];
+	aes_SetMode			= (uint32_t (*)(CHIP_AES_OP_MODE_T AesMode))BOOTROM_API_TABLE[1];
+	aes_LoadKey1		= (void (*)(void))BOOTROM_API_TABLE[2];
+	aes_LoadKey2		= (void (*)(void))BOOTROM_API_TABLE[3];
+	aes_LoadKeyRNG		= (void (*)(void))BOOTROM_API_TABLE[4];
+	aes_LoadKeySW		= (void (*)(uint8_t *pKey))BOOTROM_API_TABLE[5];
+	aes_LoadIV_SW		= (void (*)(uint8_t *pVector))BOOTROM_API_TABLE[6];
+	aes_LoadIV_IC		= (void (*)(void))BOOTROM_API_TABLE[7];
+	aes_Operate			= (uint32_t (*)(uint8_t *pDatOut, uint8_t *pDatIn, uint32_t Size))BOOTROM_API_TABLE[8];
+	aes_ProgramKey1		= (uint32_t (*)(uint8_t *pKey))BOOTROM_API_TABLE[9];
+	aes_ProgramKey2		= (uint32_t (*)(uint8_t *pKey))BOOTROM_API_TABLE[10];
+	aes_Config_DMA		= (uint32_t (*)(uint32_t channel_id))BOOTROM_API_TABLE[11];
+	aes_Operate_DMA		= (uint32_t (*)(uint32_t channel_id, uint8_t *dataOutAddr, uint8_t *dataInAddr, uint32_t size))BOOTROM_API_TABLE[12];
+	aes_Get_Status_DMA	= (uint32_t (*) (uint32_t channel_id))BOOTROM_API_TABLE[13];
+	
 	ROM_aes_Init();
 }
 
@@ -144,4 +153,22 @@ uint32_t Chip_AES_ProgramKey(uint32_t KeyNum, uint8_t *pKey)
 		status = aes_ProgramKey1(pKey);
 	}
 	return status;
+}
+
+/* Configure DMA channel to process AES block */
+uint32_t Chip_AES_Config_DMA(uint32_t channel_id)
+{
+	return aes_Config_DMA(channel_id);
+}
+
+/* Enables DMA channel and Operates AES Engine */
+uint32_t Chip_AES_OperateDMA(uint32_t channel_id, uint8_t *dataOutAddr, uint8_t *dataInAddr, uint32_t size)
+{
+	return aes_Operate_DMA(channel_id,dataOutAddr,dataInAddr,size);
+}
+
+/* Read status of DMA channels that process an AES data block. */
+uint32_t Chip_AES_GetStatusDMA(uint32_t channel_id)
+{
+	return aes_Get_Status_DMA(channel_id);
 }

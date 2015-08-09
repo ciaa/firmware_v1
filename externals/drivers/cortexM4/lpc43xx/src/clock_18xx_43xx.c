@@ -77,6 +77,106 @@ static uint32_t audio_usb_pll_freq[CGU_AUDIO_PLL+1];
 /*****************************************************************************
  * Private functions
  ****************************************************************************/
+__STATIC_INLINE uint32_t ABS(int val)
+{
+	if (val < 0)
+		return -val;
+	return val;
+}
+
+static void pll_calc_divs(uint32_t freq, PLL_PARAM_T *ppll)
+{
+
+	uint32_t prev = freq;
+	int n, m, p;
+
+	/* When direct mode is set FBSEL should be a don't care */
+	if (ppll->ctrl & (1 << 7)) {
+		ppll->ctrl &= ~(1 << 6);
+	}
+	for (n = 1; n <= 4; n++) {
+		for (p = 0; p < 4; p ++) {
+			for (m = 1; m <= 256; m++) {
+				uint32_t fcco, fout;
+				if (ppll->ctrl & (1 << 6)) {
+					fcco = ((m << (p + 1)) * ppll->fin) / n;
+				} else {
+					fcco = (m * ppll->fin) / n;
+				}
+				if (fcco < PLL_MIN_CCO_FREQ) continue;
+				if (fcco > PLL_MAX_CCO_FREQ) break;
+				if (ppll->ctrl & (1 << 7)) {
+					fout = fcco;
+				} else {
+					fout = fcco >> (p + 1);
+				}
+
+				if (ABS(freq - fout) < prev) {
+					ppll->nsel = n;
+					ppll->psel = p + 1;
+					ppll->msel = m;
+					ppll->fout = fout;
+					ppll->fcco = fcco;
+					prev = ABS(freq - fout);
+				}
+			}
+		}
+	}
+}
+
+static void pll_get_frac(uint32_t freq, PLL_PARAM_T *ppll)
+{
+	int diff[3];
+	PLL_PARAM_T pll[3] = {{0},{0},{0}};
+
+	/* Try direct mode */
+	pll[0].ctrl |= (1 << 7);
+	pll[0].fin = ppll->fin;
+	pll[0].srcin = ppll->srcin;
+	pll_calc_divs(freq, &pll[0]);
+	if (pll[0].fout == freq) {
+		*ppll = pll[0];
+		return ;
+	}
+	diff[0] = ABS(freq - pll[0].fout);
+
+	/* Try non-Integer mode */
+	pll[2].ctrl = (1 << 6);
+	pll[2].fin = ppll->fin;
+	pll[2].srcin = ppll->srcin;
+	pll_calc_divs(freq, &pll[2]);
+	if (pll[2].fout == freq) {
+		*ppll = pll[2];
+		return ;
+	}
+
+	diff[2] = ABS(freq - pll[2].fout);
+	/* Try integer mode */
+	pll[1].ctrl = (1 << 6);
+	pll[1].fin = ppll->fin;
+	pll[1].srcin = ppll->srcin;
+	pll_calc_divs(freq, &pll[1]);
+	if (pll[1].fout == freq) {
+		*ppll = pll[1];
+		return ;
+	}
+	diff[1] = ABS(freq - pll[1].fout);
+
+	/* Find the min of 3 and return */
+	if (diff[0] <= diff[1]) {
+		if (diff[0] <= diff[2]) {
+			*ppll = pll[0];
+		} else {
+			*ppll = pll[2];
+		}
+	} else {
+		if (diff[1] <= diff[2]) {
+			*ppll = pll[1];
+		} else {
+			*ppll = pll[2];
+		}
+	}
+}
 
 /* Test PLL input values for a specific frequency range */
 static uint32_t Chip_Clock_TestMainPLLMultiplier(uint32_t InputHz, uint32_t TestMult, uint32_t MinHz, uint32_t MaxHz)
@@ -126,6 +226,8 @@ static CHIP_CGU_BASE_CLK_T Chip_Clock_FindBaseClock(CHIP_CCU_CLK_T clk)
 /* Enables the crystal oscillator */
 void Chip_Clock_EnableCrystal(void)
 {
+	volatile uint32_t delay = 1000;
+
 	uint32_t OldCrystalConfig = LPC_CGU->XTAL_OSC_CTRL;
 
 	/* Clear bypass mode */
@@ -141,6 +243,45 @@ void Chip_Clock_EnableCrystal(void)
 
 	}
 	LPC_CGU->XTAL_OSC_CTRL = OldCrystalConfig;
+
+	/* Delay for 250uSec */
+	while(delay--) {}
+}
+
+/* Calculate the Main PLL div values */
+int Chip_Clock_CalcMainPLLValue(uint32_t freq, PLL_PARAM_T *ppll)
+{
+	ppll->fin = Chip_Clock_GetClockInputHz(ppll->srcin);
+
+	/* Do sanity check on frequency */
+	if (freq > MAX_CLOCK_FREQ || freq < (PLL_MIN_CCO_FREQ / 16) || !ppll->fin) {
+		return -1;
+	}
+
+	ppll->ctrl = 1 << 7; /* Enable direct mode [If possible] */
+	ppll->nsel = 0;
+	ppll->psel = 0;
+	ppll->msel = freq / ppll->fin;
+
+	if (freq < PLL_MIN_CCO_FREQ || ppll->msel * ppll->fin != freq) {
+		pll_get_frac(freq, ppll);
+		if (!ppll->nsel) {
+			return -1;
+		}
+		ppll->nsel --;
+	}
+
+	if (ppll->msel == 0) {
+		return - 1;
+	}
+
+	if (ppll->psel) {
+		ppll->psel --;
+	}
+
+	ppll->msel --;
+
+	return 0;
 }
 
 /* Disables the crystal oscillator */
@@ -213,6 +354,7 @@ uint32_t Chip_Clock_SetupMainPLLHz(CHIP_CGU_CLKIN_T Input, uint32_t MinHz, uint3
 /* Directly set the PLL multipler */
 uint32_t Chip_Clock_SetupMainPLLMult(CHIP_CGU_CLKIN_T Input, uint32_t mult)
 {
+	volatile uint32_t delay = 250;
 	uint32_t freq = Chip_Clock_GetClockInputHz(Input);
 	uint32_t msel = 0, nsel = 0, psel = 0, pval = 1;
 	uint32_t PLLReg = LPC_CGU->PLL1_CTRL;
@@ -246,6 +388,9 @@ uint32_t Chip_Clock_SetupMainPLLMult(CHIP_CGU_CLKIN_T Input, uint32_t mult)
 		return 0;
 	}
 	LPC_CGU->PLL1_CTRL = PLLReg & ~(1 << 0);
+
+	/* Wait for 50uSec */
+	while(delay--) {}
 
 	return freq;
 }
@@ -281,27 +426,6 @@ uint32_t Chip_Clock_GetMainPLLHz(void)
 	return (m / (2 * p)) * (freq / n);
 }
 
-/* Disables the main PLL */
-void Chip_Clock_DisableMainPLL(void)
-{
-	/* power down main PLL */
-	LPC_CGU->PLL1_CTRL |= 1;
-}
-
-/* Disables the main PLL */
-void Chip_Clock_EnableMainPLL(void)
-{
-	/* power down main PLL */
-	LPC_CGU->PLL1_CTRL &= ~1;
-}
-
-/* Returns the lock status of the main PLL */
-bool Chip_Clock_MainPLLLocked(void)
-{
-	/* Return true if locked */
-	return (bool) (LPC_CGU->PLL1_STAT & 1);
-}
-
 /* Sets up a CGU clock divider and it's input clock */
 void Chip_Clock_SetDivider(CHIP_CGU_IDIV_T Divider, CHIP_CGU_CLKIN_T Input, uint32_t Divisor)
 {
@@ -311,7 +435,7 @@ void Chip_Clock_SetDivider(CHIP_CGU_IDIV_T Divider, CHIP_CGU_CLKIN_T Input, uint
 
 	if (Input != CLKINPUT_PD) {
 		/* Mask off bits that need to changes */
-		reg &= ~((0x1F << 24) | 1 | (0xF << 2));
+		reg &= ~((0x1F << 24) | 1 | (CHIP_CGU_IDIV_MASK(Divider) << 2));
 
 		/* Enable autoblocking, clear PD, and set clock source & divisor */
 		LPC_CGU->IDIV_CTRL[Divider] = reg | (1 << 11) | (Input << 24) | (Divisor << 2);
@@ -336,7 +460,7 @@ CHIP_CGU_CLKIN_T Chip_Clock_GetDividerSource(CHIP_CGU_IDIV_T Divider)
 /* Gets a CGU clock divider divisor */
 uint32_t Chip_Clock_GetDividerDivisor(CHIP_CGU_IDIV_T Divider)
 {
-	return (CHIP_CGU_CLKIN_T) ((LPC_CGU->IDIV_CTRL[Divider] >> 2) & 0xF);
+	return (CHIP_CGU_CLKIN_T) ((LPC_CGU->IDIV_CTRL[Divider] >> 2) & CHIP_CGU_IDIV_MASK(Divider));
 }
 
 /* Returns the frequency of the specified input clock source */

@@ -654,12 +654,13 @@ STATIC INLINE void Chip_ENET_TXStart(LPC_ENET_T *pENET)
 /**
  * @brief	Initialize ethernet interface
  * @param	pENET	: The base of ENET peripheral on the chip
+ * @param	phyAddr : Address of the Phy [valid range 0 to 31]
  * @return	Nothing
  * @note	Performs basic initialization of the ethernet interface in a default
  * state. This is enough to place the interface in a usable state, but
  * may require more setup outside this function.
  */
-void Chip_ENET_Init(LPC_ENET_T *pENET);
+void Chip_ENET_Init(LPC_ENET_T *pENET, uint32_t phyAddr);
 
 /**
  * @brief	De-initialize the ethernet interface

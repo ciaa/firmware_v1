@@ -167,8 +167,8 @@ static INLINE void Chip_I2CM_SendStart(LPC_I2C_T *pI2C)
  */
 static INLINE void Chip_I2CM_ResetControl(LPC_I2C_T *pI2C)
 {
-	/* Reset STA, STO, SI */
-	pI2C->CONCLR = I2C_CON_SI | I2C_CON_STO | I2C_CON_STA | I2C_CON_AA;
+	/* Reset STA, AA and SI. Stop flag should not be cleared as it is a reserved bit */
+	pI2C->CONCLR = I2C_CON_SI | I2C_CON_STA | I2C_CON_AA;
 
 }
 
@@ -276,7 +276,8 @@ static INLINE uint32_t Chip_I2CM_StateChanged(LPC_I2C_T *pI2C)
  */
 static INLINE void Chip_I2CM_ClearSI(LPC_I2C_T *pI2C)
 {
-	pI2C->CONCLR = I2C_CON_SI | I2C_CON_STO | I2C_CON_STA;
+	/* Stop flag should not be cleared as it is a reserved bit */
+	pI2C->CONCLR = I2C_CON_SI | I2C_CON_STA;
 }
 
 /**

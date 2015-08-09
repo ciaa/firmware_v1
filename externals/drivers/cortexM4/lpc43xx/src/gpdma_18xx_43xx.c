@@ -128,16 +128,16 @@ volatile static const void *GPDMA_LUTPerAddr[] = {
 	(&LPC_USART3-> /*RBTHDLR.*/ RBR),	/* UART3 Rx           */
 	0,								/* SCT timer channel 1*/
 	(&LPC_SSP0->DR),				/* SSP0 Rx            */
-	(&LPC_I2S0->TXFIFO),			/* I2S channel 0      */
+	(&LPC_I2S0->TXFIFO),			/* I2S0 Tx on channel 0 */
 	(&LPC_SSP0->DR),				/* SSP0 Tx            */
-	(&LPC_I2S0->RXFIFO),			/* I2S channel 1      */
+	(&LPC_I2S0->RXFIFO),			/* I2S0 Rx on channel 1  */
 	(&LPC_SSP1->DR),				/* SSP1 Rx            */
 	(&LPC_SSP1->DR),				/* SSP1 Tx            */
 	(&LPC_ADC0->GDR),				/* ADC 0              */
 	(&LPC_ADC1->GDR),				/* ADC 1              */
 	(&LPC_DAC->CR),					/* DAC                */
-	(&LPC_I2S0->TXFIFO),			/* I2S channel 0      */
-	(&LPC_I2S0->RXFIFO)				/* I2S channel 0      */
+	(&LPC_I2S1->TXFIFO),			/* I2S1 Tx on channel 0 */
+	(&LPC_I2S1->RXFIFO)				/* I2S1 Rx on channel 1 */
 };
 
 /*****************************************************************************
@@ -183,6 +183,11 @@ STATIC uint8_t configDMAMux(uint32_t gpdma_peripheral_connection_number)
 		channel = 3;
 		break;
 
+	case GPDMA_CONN_I2S1_Tx_Channel_0:
+		function = 2;
+		channel = 3;
+		break;
+
 	case GPDMA_CONN_MAT1_1:
 		function = 0;
 		channel = 4;
@@ -191,6 +196,11 @@ STATIC uint8_t configDMAMux(uint32_t gpdma_peripheral_connection_number)
 	case GPDMA_CONN_UART1_Rx:
 		function = 1;
 		channel = 4;
+		break;
+
+	case GPDMA_CONN_I2S1_Rx_Channel_1:
+		function = 2;
+		channel =  4;
 		break;
 
 	case GPDMA_CONN_MAT2_0:
@@ -249,7 +259,6 @@ STATIC uint8_t configDMAMux(uint32_t gpdma_peripheral_connection_number)
 		break;
 
 	case GPDMA_CONN_I2S_Tx_Channel_0:
-	case GPDMA_CONN_I2S_Rx_Channel_0:
 		function = 1;
 		channel = 9;
 		break;
@@ -259,7 +268,6 @@ STATIC uint8_t configDMAMux(uint32_t gpdma_peripheral_connection_number)
 		channel = 10;
 		break;
 
-	case GPDMA_CONN_I2S_Tx_Channel_1:
 	case GPDMA_CONN_I2S_Rx_Channel_1:
 		function = 1;
 		channel = 10;

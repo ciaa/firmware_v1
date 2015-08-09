@@ -62,6 +62,7 @@ So use POST_PACK immediately after struct keyword
 #define POST_PACK
 #define PRAGMA_ALIGN_4096       _Pragma("data_alignment=4096")
 #define PRAGMA_ALIGN_2048       _Pragma("data_alignment=2048")
+#define PRAGMA_ALIGN_512        _Pragma("data_alignment=512")
 #define PRAGMA_ALIGN_256        _Pragma("data_alignment=256")
 #define PRAGMA_ALIGN_128        _Pragma("data_alignment=128")
 #define PRAGMA_ALIGN_64         _Pragma("data_alignment=64")

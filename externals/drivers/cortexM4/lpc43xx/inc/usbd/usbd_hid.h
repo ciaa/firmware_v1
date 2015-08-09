@@ -416,6 +416,7 @@ typedef struct _HID_DESCRIPTOR HID_DESCRIPTOR;
 #define HID_ReportSize(x)      0x75,x
 #define HID_ReportID(x)        0x85,x
 #define HID_ReportCount(x)     0x95,x
+#define HID_ReportCount16(x)   0x96,(x&0xFF),((x>>8)&0xFF)
 #define HID_Push               0xA0
 #define HID_Pop                0xB0
 

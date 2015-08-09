@@ -137,6 +137,8 @@ typedef enum CHIP_CGU_IDIV {
 	CLK_IDIV_LAST
 } CHIP_CGU_IDIV_T;
 
+#define CHIP_CGU_IDIV_MASK(x)  ("\x03\x0F\x0F\x0F\xFF"[x])
+
 /**
  * @brief Peripheral clocks
  * Peripheral clocks are individual clocks routed to peripherals. Although

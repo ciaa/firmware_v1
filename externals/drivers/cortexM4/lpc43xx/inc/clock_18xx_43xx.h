@@ -48,9 +48,11 @@ extern "C" {
  * The clock driver has options that configure it's operation at build-time.<br>
  *
  * <b>MAX_CLOCK_FREQ</b><br>
- * This define, when set, identifies the running CPU clock rate of the system
- * (change this to alter running CPU speed).<br>
- * When this is not defined, The maximum clock rate for the CPU is used.<br>
+ * This macro defines the maximum frequency supported by the Chip [204MHz for LPC43xx
+ * 180MHz for LPC18xx]. API Chip_SetupXtalClocking() and Chip_SetupIrcClocking() will
+ * use this macro to set the CPU Core frequency to the maximum supported.<br>
+ * To set a Core frequency other than the maximum frequency Chip_SetupCoreClock() API
+ * must be used. <b>Using this macro to set the Core freqency is not recommended.</b>
  * @{
  */
 
@@ -61,11 +63,30 @@ extern "C" {
 /* Internal oscillator frequency */
 #define CGU_IRC_FREQ (12000000)
 
+#ifndef MAX_CLOCK_FREQ
 #if defined(CHIP_LPC43XX)
 #define MAX_CLOCK_FREQ (204000000)
 #else
 #define MAX_CLOCK_FREQ (180000000)
 #endif
+#endif
+
+#define PLL_MIN_CCO_FREQ 156000000  /**< Min CCO frequency of main PLL */
+#define PLL_MAX_CCO_FREQ 320000000  /**< Max CCO frequency of main PLL */
+
+/**
+ * @brief	PLL Parameter strucutre
+ */
+typedef struct {
+	int ctrl;       /**< Control register value */
+	CHIP_CGU_CLKIN_T srcin; /**< Input clock Source see #CHIP_CGU_CLKIN_T */
+	int nsel;       /**< Pre-Div value */
+	int psel;       /**< Post-Div Value */
+	int msel;       /**< M-Div value */
+	uint32_t fin;   /**< Input frequency */
+	uint32_t fout;  /**< Output frequency */
+	uint32_t fcco;  /**< CCO frequency */
+} PLL_PARAM_T;
 
 /**
  * @brief	Enables the crystal oscillator
@@ -113,21 +134,33 @@ uint32_t Chip_Clock_GetMainPLLHz(void);
  * Make sure the main PLL is not needed to clock the part before disabling it.
  * Saves power if the main PLL is not needed.
  */
-void Chip_Clock_DisableMainPLL(void);
+__STATIC_INLINE void Chip_Clock_DisableMainPLL(void)
+{
+	/* power down main PLL */
+	LPC_CGU->PLL1_CTRL |= 1;
+}
 
 /**
  * @brief	Enbles the main PLL
  * @return	none
  * Make sure the main PLL is enabled.
  */
-void Chip_Clock_EnableMainPLL(void);
-
+__STATIC_INLINE void Chip_Clock_EnableMainPLL(void)
+{
+	/* power up main PLL */
+	LPC_CGU->PLL1_CTRL &= ~1;
+}
 /**
- * @brief   Returns the lock status of the main PLL
- * @return	true if the PLL is locked, otherwise false
- * The main PLL should be locked prior to using it as a clock input for a base clock.
+ * @brief	Sets-up the main PLL
+ * @param	ppll	: Pointer to pll param structure #PLL_PARAM_T
+ * @return	none
+ * Make sure the main PLL is enabled.
  */
-bool Chip_Clock_MainPLLLocked(void);
+__STATIC_INLINE void Chip_Clock_SetupMainPLL(const PLL_PARAM_T *ppll)
+{
+	/* power up main PLL */
+	LPC_CGU->PLL1_CTRL = ppll->ctrl | ((uint32_t) ppll->srcin << 24) | (ppll->msel << 16) | (ppll->nsel << 12) | (ppll->psel << 8);
+}
 
 /**
  * @brief	Sets up a CGU clock divider and it's input clock
@@ -325,6 +358,30 @@ void Chip_Clock_DisablePLL(CHIP_CGU_USB_AUDIO_PLL_T pllnum);
  * @return	An OR'ed value of CGU_PLL_LOCKED or CGU_PLL_FR
  */
 uint32_t Chip_Clock_GetPLLStatus(CHIP_CGU_USB_AUDIO_PLL_T pllnum);
+
+/**
+ * @brief	Calculate main PLL Pre, Post and M div values
+ * @param	freq	: Expected output frequency
+ * @param	ppll	: Pointer to #PLL_PARAM_T structure
+ * @return	0 on success; < 0 on failure
+ * @note
+ * ppll->srcin[IN] should have the appropriate Input clock source selected<br>
+ * ppll->fout[OUT] will have the actual output frequency<br>
+ * ppll->fcco[OUT] will have the frequency of CCO
+ */
+int Chip_Clock_CalcMainPLLValue(uint32_t freq, PLL_PARAM_T *ppll);
+
+
+/**
+ * @brief	Wait for Main PLL to be locked
+ * @return	1 - PLL is LOCKED; 0 - PLL is not locked
+ * @note	The main PLL should be locked prior to using it as a clock input for a base clock.
+ */
+__STATIC_INLINE int Chip_Clock_MainPLLLocked(void)
+{
+	/* Return true if locked */
+	return (LPC_CGU->PLL1_STAT & 1) != 0;
+}
 
 /**
  * @}

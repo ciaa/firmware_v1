@@ -53,22 +53,22 @@ typedef enum CHIP_AES_OP_MODE {
 
 /**
  * @brief	Initialize the AES Engine function
- * @return	 None
- * This function will initialise all the AES Engine driver function pointers
- * and call the AES Engine Initialisation function.
+ * @return	None
+ * This function will initialize all the AES Engine driver function pointers
+ * and call the AES Engine Initialization function.
  */
 void Chip_AES_Init(void);
 
 /**
  * @brief	Set operation mode in AES Engine
- * @param	AesMode	: AES Operation Mode
+ * @param	AesMode		: AES Operation Mode
  * @return	Status
  */
 uint32_t Chip_AES_SetMode(CHIP_AES_OP_MODE_T AesMode);
 
 /**
  * @brief	Load 128-bit AES user key in AES Engine
- * @param   keyNum: 0 - Load AES 128-bit user key 1, else load user key2
+ * @param	keyNum: 0 - Load AES 128-bit user key 1, else load user key2
  * @return	None
  */
 void Chip_AES_LoadKey(uint32_t keyNum);
@@ -83,14 +83,14 @@ void Chip_AES_LoadKeyRNG(void);
 
 /**
  * @brief	Load 128-bit AES software defined user key in AES Engine
- * @param   pKey        : Pointer to 16 byte user key
+ * @param	pKey		: Pointer to 16 byte user key
  * @return	None
  */
 void Chip_AES_LoadKeySW(uint8_t *pKey);
 
 /**
  * @brief Load 128-bit AES initialization vector in AES Engine
- * @param   pVector     : Pointer to 16 byte Initialisation vector
+ * @param	pVector		: Pointer to 16 byte Initialisation vector
  * @return	None
  */
 void Chip_AES_LoadIV_SW(uint8_t *pVector);
@@ -105,9 +105,9 @@ void Chip_AES_LoadIV_IC(void);
 
 /**
  * @brief Operate AES Engine
- * @param   pDatOut     : Pointer to output data stream
- * @param   pDatIn      : Pointer to input data stream
- * @param   Size        : Size of the data stream (128-bit)
+ * @param	pDatOut		: Pointer to output data stream
+ * @param	pDatIn		: Pointer to input data stream
+ * @param	Size		: Size of the data stream (128-bit)
  * @return	Status
  * This function performs the AES operation after the AES mode
  * has been set using Chip_AES_SetMode and the appropriate keys
@@ -117,12 +117,38 @@ uint32_t Chip_AES_Operate(uint8_t *pDatOut, uint8_t *pDatIn, uint32_t Size);
 
 /**
  * @brief	Program 128-bit AES Key in OTP
- * @param   KeyNum      : Key Number (Select 0 or 1)
- * @param	pKey        : Pointer to AES Key (16 bytes required)
+ * @param	KeyNum		: Key Number (Select 0 or 1)
+ * @param	pKey		: Pointer to AES Key (16 bytes required)
  * @return	Status
  * When calling the aes_ProgramKey2 function, ensure that VPP = 2.7 V to 3.6 V.
  */
 uint32_t Chip_AES_ProgramKey(uint32_t KeyNum, uint8_t *pKey);
+
+/**
+ * @brief	Checks for valid AES configuration of the chip and setup 
+ *			DMA channel to process an AES data block.
+ * @param	channel_id	: channel id
+ * @return	Status
+ */
+uint32_t Chip_AES_Config_DMA(uint32_t channel_id);
+
+/**
+ * @brief	Checks for valid AES configuration of the chip and 
+ *			enables DMA channel to process an AES data block.
+ * @param	channel_id	: channel_id
+ * @param	dataOutAddr	: destination address(16 x size of consecutive bytes)
+ * @param	dataInAddr	: source address(16 x size of consecutive bytes)
+ * @param	size		: number of 128 bit AES blocks
+ * @return	Status
+ */
+uint32_t Chip_AES_OperateDMA(uint32_t channel_id, uint8_t *dataOutAddr, uint8_t *dataInAddr, uint32_t size);
+
+/**
+ * @brief	Read status of DMA channels that process an AES data block.
+ * @param	channel_id	: channel id
+ * @return	Status
+ */
+ uint32_t Chip_AES_GetStatusDMA(uint32_t channel_id);
 
 /**
  * @}

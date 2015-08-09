@@ -108,7 +108,7 @@ uint32_t Chip_SDMMC_Acquire(LPC_SDMMC_T *pSDMMC, mci_card_struct *pcardinfo);
  * @param	pSDMMC	: SDMMC peripheral selected
  * @return	Card size in number of bytes (capacity)
  */
-int32_t Chip_SDMMC_GetDeviceSize(LPC_SDMMC_T *pSDMMC);
+uint64_t Chip_SDMMC_GetDeviceSize(LPC_SDMMC_T *pSDMMC);
 
 /**
  * @brief	Get the number of device blocks of SD/MMC card (after enumeration)
