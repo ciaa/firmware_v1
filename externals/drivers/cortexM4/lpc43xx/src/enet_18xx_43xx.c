@@ -49,11 +49,34 @@ STATIC uint32_t phyCfg;
 STATIC INLINE void reset(LPC_ENET_T *pENET)
 {
     Chip_RGU_TriggerReset(RGU_ETHERNET_RST);
-	while (Chip_RGU_InReset(RGU_ETHERNET_RST)) 
+	while (Chip_RGU_InReset(RGU_ETHERNET_RST))
     {}
 
 	/* Reset ethernet peripheral */
 	Chip_ENET_Reset(pENET);
+}
+
+STATIC uint32_t Chip_ENET_CalcMDCClock(void)
+{
+	uint32_t val = SystemCoreClock / 1000000UL;
+
+	if (val >= 20 && val < 35)
+		return 2;
+	if (val >= 35 && val < 60)
+		return 3;
+	if (val >= 60 && val < 100)
+		return 0;
+	if (val >= 100 && val < 150)
+		return 1;
+	if (val >= 150 && val < 250)
+		return 4;
+	if (val >= 250 && val < 300)
+		return 5;
+
+	/* Code should never reach here
+	   unless there is BUG in frequency settings
+	*/
+	return 0;
 }
 
 /*****************************************************************************
@@ -61,14 +84,14 @@ STATIC INLINE void reset(LPC_ENET_T *pENET)
  ****************************************************************************/
 
 /* Basic Ethernet interface initialization */
-void Chip_ENET_Init(LPC_ENET_T *pENET)
+void Chip_ENET_Init(LPC_ENET_T *pENET, uint32_t phyAddr)
 {
 	Chip_Clock_EnableOpts(CLK_MX_ETHERNET, true, true, 1);
 
 	reset(pENET);
 
 	/* Setup MII link divider to /102 and PHY address 1 */
-	Chip_ENET_SetupMII(pENET, 4, 1);
+	Chip_ENET_SetupMII(pENET, Chip_ENET_CalcMDCClock(), phyAddr);
 
 	/* Enhanced descriptors, burst length = 1 */
 	pENET->DMA_BUS_MODE = DMA_BM_ATDS | DMA_BM_PBL(1) | DMA_BM_RPBL(1);

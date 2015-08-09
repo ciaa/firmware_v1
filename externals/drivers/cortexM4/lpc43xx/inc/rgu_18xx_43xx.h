@@ -102,16 +102,11 @@ typedef enum CHIP_RGU_RST {
  */
 typedef struct {							/*!< RGU Structure          */
 	__I  uint32_t  RESERVED0[64];
-	__O  uint32_t  RESET_CTRL0;				/*!< Reset control register 0 */
-	__O  uint32_t  RESET_CTRL1;				/*!< Reset control register 1 */
+	__O  uint32_t  RESET_CTRL[2];			/*!< Reset control register 0,1 */
 	__I  uint32_t  RESERVED1[2];
-	__IO uint32_t  RESET_STATUS0;			/*!< Reset status register 0 */
-	__IO uint32_t  RESET_STATUS1;			/*!< Reset status register 1 */
-	__IO uint32_t  RESET_STATUS2;			/*!< Reset status register 2 */
-	__IO uint32_t  RESET_STATUS3;			/*!< Reset status register 3 */
+	__IO uint32_t  RESET_STATUS[4];			/*!< Reset status register 0 to 3 */
 	__I  uint32_t  RESERVED2[12];
-	__I  uint32_t  RESET_ACTIVE_STATUS0;	/*!< Reset active status register 0 */
-	__I  uint32_t  RESET_ACTIVE_STATUS1;	/*!< Reset active status register 1 */
+	__I  uint32_t  RESET_ACTIVE_STATUS[2];	/*!< Reset active status register 0, 1 */
 	__I  uint32_t  RESERVED3[170];
 	__IO uint32_t  RESET_EXT_STAT[RGU_LAST_RST + 1];/*!< Reset external status registers */
 } LPC_RGU_T;
@@ -121,24 +116,36 @@ typedef struct {							/*!< RGU Structure          */
  * @param	ResetNumber	: Peripheral reset number to trigger
  * @return	Nothing
  */
-void Chip_RGU_TriggerReset(CHIP_RGU_RST_T ResetNumber);
+STATIC INLINE void Chip_RGU_TriggerReset(CHIP_RGU_RST_T ResetNumber)
+{
+	LPC_RGU->RESET_CTRL[ResetNumber >> 5] = 1 << (ResetNumber & 31);
+	/* Reset will auto clear after 1 clock cycle */
+}
 
 /**
  * @brief	Checks the reset status of a peripheral
  * @param	ResetNumber	: Peripheral reset number to trigger
  * @return	true if the periperal is still being reset
  */
-bool Chip_RGU_InReset(CHIP_RGU_RST_T ResetNumber);
+STATIC INLINE bool Chip_RGU_InReset(CHIP_RGU_RST_T ResetNumber)
+{
+	return !(LPC_RGU->RESET_ACTIVE_STATUS[ResetNumber >> 5] & (1 << (ResetNumber & 31)));
+}
 
 /**
  * @brief	Clears reset for the selected peripheral
- * @param	ResetNumber	: Peripheral reset number to trigger
+ * @param	ResetNumber	: Peripheral reset number to trigger (RGU_M0SUB_RST or RGU_M0APP_RST)
  * @return	Nothing
+ * @note
  * Almost all peripherals will auto clear the reset bit. Only a few peripherals
  * like the Cortex M0 Core in LPC43xx will not auto clear the reset and require
- * this function to clear the reset bit.
+ * this function to clear the reset bit. This function clears all reset bits in
+ * a reset register.
  */
-void Chip_RGU_ClearReset(CHIP_RGU_RST_T ResetNumber);
+STATIC INLINE void Chip_RGU_ClearReset(CHIP_RGU_RST_T ResetNumber)
+{
+	LPC_RGU->RESET_CTRL[ResetNumber >> 5] = 0;
+}
 
 /**
  * @}

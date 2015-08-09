@@ -60,8 +60,7 @@ typedef struct {
 	__I  uint32_t  RESERVED17[27];
 	__IO uint32_t  EMCDELAYCLK;			/*!< EMC clock delay register */
 	__I  uint32_t  RESERVED18[63];
-	__IO uint32_t  PINTSEL0;			/*!< Pin interrupt select register for pin interrupts 0 to 3. */
-	__IO uint32_t  PINTSEL1;			/*!< Pin interrupt select register for pin interrupts 4 to 7. */
+	__IO uint32_t  PINTSEL[2];			/*!< Pin interrupt select register for pin int 0 to 3 index 0, 4 to 7 index 1. */
 } LPC_SCU_T;
 
 /**
@@ -183,7 +182,12 @@ STATIC INLINE void Chip_SCU_ClockPinMux(uint8_t clknum, uint16_t mode, uint8_t f
  * @param	PinNum	: GPIO pin number Interrupt , should be: 0 to 31
  * @return	Nothing
  */
-void Chip_SCU_GPIOIntPinSel(uint8_t PortSel, uint8_t PortNum, uint8_t PinNum);
+STATIC INLINE void Chip_SCU_GPIOIntPinSel(uint8_t PortSel, uint8_t PortNum, uint8_t PinNum)
+{
+	int32_t of = (PortSel & 3) << 3;
+	uint32_t val = (((PortNum & 0x7) << 5) | (PinNum & 0x1F)) << of;
+	LPC_SCU->PINTSEL[PortSel >> 2] = (LPC_SCU->PINTSEL[PortSel >> 2] & ~(0xFF << of)) | val;
+}
 
 /**
  * @brief	I2C Pin Configuration

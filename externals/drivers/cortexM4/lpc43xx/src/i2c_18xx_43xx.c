@@ -93,7 +93,7 @@ STATIC INLINE uint32_t getClkRate(I2C_ID_T id)
 STATIC INLINE void startMasterXfer(LPC_I2C_T *pI2C)
 {
 	/* Reset STA, STO, SI */
-	pI2C->CONCLR = I2C_CON_SI | I2C_CON_STO | I2C_CON_STA | I2C_CON_AA;
+	pI2C->CONCLR = I2C_CON_SI | I2C_CON_STA | I2C_CON_AA;
 
 	/* Enter to Master Transmitter mode */
 	pI2C->CONSET = I2C_CON_I2EN | I2C_CON_STA;
@@ -103,7 +103,7 @@ STATIC INLINE void startMasterXfer(LPC_I2C_T *pI2C)
 STATIC INLINE void startSlaverXfer(LPC_I2C_T *pI2C)
 {
 	/* Reset STA, STO, SI */
-	pI2C->CONCLR = I2C_CON_SI | I2C_CON_STO | I2C_CON_STA;
+	pI2C->CONCLR = I2C_CON_SI | I2C_CON_STA;
 
 	/* Enter to Master Transmitter mode */
 	pI2C->CONSET = I2C_CON_I2EN | I2C_CON_AA;
@@ -232,7 +232,7 @@ int handleMasterXferState(LPC_I2C_T *pI2C, I2C_XFER_T  *xfer)
 
 	/* Set clear control flags */
 	pI2C->CONSET = cclr ^ I2C_CON_FLAGS;
-	pI2C->CONCLR = cclr;
+	pI2C->CONCLR = cclr & ~I2C_CON_STO;
 
 	/* If stopped return 0 */
 	if (!(cclr & I2C_CON_STO) || (xfer->status == I2C_STATUS_ARBLOST)) {
@@ -318,7 +318,7 @@ int handleSlaveXferState(LPC_I2C_T *pI2C, I2C_XFER_T *xfer)
 
 	/* Set clear control flags */
 	pI2C->CONSET = cclr ^ I2C_CON_FLAGS;
-	pI2C->CONCLR = cclr;
+	pI2C->CONCLR = cclr & ~I2C_CON_STO;
 
 	return ret;
 }
@@ -375,7 +375,7 @@ void Chip_I2C_Init(I2C_ID_T id)
 void Chip_I2C_DeInit(I2C_ID_T id)
 {
 	/* Disable I2C control */
-	LPC_I2Cx(id)->CONCLR = I2C_CON_I2EN | I2C_CON_SI | I2C_CON_STO | I2C_CON_STA | I2C_CON_AA;
+	LPC_I2Cx(id)->CONCLR = I2C_CON_I2EN | I2C_CON_SI | I2C_CON_STA | I2C_CON_AA;
 
 	disableClk(id);
 }

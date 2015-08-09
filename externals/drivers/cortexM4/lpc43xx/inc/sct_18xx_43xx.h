@@ -191,6 +191,8 @@ typedef struct {
 
 #define SCT_CONFIG_NORELOADL_U          (0x1 << 7)	/*!< Operate as 1 32-bit counter */
 #define SCT_CONFIG_NORELOADH            (0x1 << 8)	/*!< Operate as 1 32-bit counter */
+#define SCT_CONFIG_AUTOLIMIT_L          (0x1 << 17) /*!< Limits counter(L) based on MATCH0 */
+#define SCT_CONFIG_AUTOLIMIT_H          (0x1 << 18) /*!< Limits counter(L) based on MATCH0 */
 
 /*
  * @brief Macro defines for SCT control register
@@ -326,6 +328,28 @@ STATIC INLINE void Chip_SCT_SetCountH(LPC_SCT_T *pSCT, uint16_t count)
 STATIC INLINE void Chip_SCT_SetMatchCount(LPC_SCT_T *pSCT, CHIP_SCT_MATCH_REG_T n, uint32_t value)
 {
 	pSCT->MATCH[n].U = value;
+}
+
+/**
+ * @brief	Set control register in State Configurable Timer
+ * @param	pSCT	: The base of SCT peripheral on the chip
+ * @param	value	: Value (ORed value of SCT_CTRL_* bits)
+ * @return	Nothing
+ */
+STATIC INLINE void Chip_SCT_SetControl(LPC_SCT_T *pSCT, uint32_t value)
+{
+	pSCT->CTRL_U |= value;
+}
+
+/**
+ * @brief	Clear control register in State Configurable Timer
+ * @param	pSCT	: The base of SCT peripheral on the chip
+ * @param	value	: Value (ORed value of SCT_CTRL_* bits)
+ * @return	Nothing
+ */
+STATIC INLINE void Chip_SCT_ClearControl(LPC_SCT_T *pSCT, uint32_t value)
+{
+	pSCT->CTRL_U &= ~(value);
 }
 
 /**

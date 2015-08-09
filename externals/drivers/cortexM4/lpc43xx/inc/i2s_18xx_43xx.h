@@ -342,6 +342,32 @@ STATIC INLINE void Chip_I2S_RxStop(LPC_I2S_T *pI2S)
 }
 
 /**
+ * @brief	Sets the I2S receive channel in slave mode
+ * @param	pI2S	: The base of I2S peripheral on the chip
+ * @return	Nothing
+ * @note	4 pin mode must be enabled on appropriate channel.
+ * Must be called after each Chip_I2S_TxModeConfig call if
+ * slave mode is needed.
+ */
+STATIC INLINE void Chip_I2S_RxSlave(LPC_I2S_T *pI2S)
+{
+	pI2S->DAI |= I2S_SLAVE_MODE;
+}
+
+/**
+ * @brief	Sets the I2S transmit channel in slave mode
+ * @param	pI2S	: The base of I2S peripheral on the chip
+ * @return	Nothing
+ * @note	4 pin mode must be enabled on appropriate channel.
+ * Must be called after each Chip_I2S_TxModeConfig call if
+ * slave mode is needed.
+ */
+STATIC INLINE void Chip_I2S_TxSlave(LPC_I2S_T *pI2S)
+{
+	pI2S->DAO |= I2S_SLAVE_MODE;
+}
+
+/**
  * @brief	Set the I2S transmit mode
  * @param	pI2S	: The base of I2S peripheral on the chip
  * @param	clksel	: Clock source selection for the receive bit clock divider

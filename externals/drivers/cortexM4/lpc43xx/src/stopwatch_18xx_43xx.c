@@ -1,8 +1,8 @@
 /*
- * @brief LPC18xx/43xx System Control Unit (SCU) control functions
+ * @brief LPC18xx/43xx specific stopwatch implementation
  *
  * @note
- * Copyright(C) NXP Semiconductors, 2012
+ * Copyright(C) NXP Semiconductors, 2014
  * All rights reserved.
  *
  * @par
@@ -30,10 +30,16 @@
  */
 
 #include "chip.h"
+#include "stopwatch.h"
 
 /*****************************************************************************
  * Private types/enumerations/variables
  ****************************************************************************/
+
+/* Precompute these to optimize runtime */
+static uint32_t ticksPerSecond;
+static uint32_t ticksPerMs;
+static uint32_t ticksPerUs;
 
 /*****************************************************************************
  * Public types/enumerations/variables
@@ -47,23 +53,54 @@
  * Public functions
  ****************************************************************************/
 
-/* GPIO Interrupt Pin Select */
-void Chip_SCU_GPIOIntPinSel(uint8_t PortSel, uint8_t PortNum, uint8_t PinNum)
+/* Initialize stopwatch */
+void StopWatch_Init(void)
 {
-	uint8_t  pinInt;
-	volatile uint32_t pinSel;
+	/* Use timer 1. Set prescaler to divide by 8 */
+	const uint32_t prescaleDivisor = 8;
+	Chip_TIMER_Init(LPC_TIMER0);
+	Chip_TIMER_PrescaleSet(LPC_TIMER0, prescaleDivisor - 1);
+	Chip_TIMER_Enable(LPC_TIMER0);
 
-	pinInt = ((PortNum & 0x7) << 5) | (PinNum & 0x1F);
-	if (PortSel < 4) {
-		pinSel = LPC_SCU->PINTSEL0;
-		pinSel &= ~(0xFF << (PortSel * 8));
-		pinSel |= (pinInt << (PortSel * 8));
-		LPC_SCU->PINTSEL0 = pinSel;
-	}
-	else {
-		pinSel = LPC_SCU->PINTSEL1;
-		pinSel &= ~(0xFF << ((PortSel - 4) * 8));
-		pinSel |= (pinInt << ((PortSel - 4) * 8));
-		LPC_SCU->PINTSEL1 = pinSel;
-	}
+	/* Pre-compute tick rate. */
+	ticksPerSecond = Chip_Clock_GetRate(CLK_MX_TIMER0) / prescaleDivisor;
+	ticksPerMs = ticksPerSecond / 1000;
+	ticksPerUs = ticksPerSecond / 1000000;
+}
+
+/* Start a stopwatch */
+uint32_t StopWatch_Start(void)
+{
+	/* Return the current timer count. */
+	return Chip_TIMER_ReadCount(LPC_TIMER0);
+}
+
+/* Returns number of ticks per second of the stopwatch timer */
+uint32_t StopWatch_TicksPerSecond(void)
+{
+	return ticksPerSecond;
+}
+
+/* Converts from stopwatch ticks to mS. */
+uint32_t StopWatch_TicksToMs(uint32_t ticks)
+{
+	return ticks / ticksPerMs;
+}
+
+/* Converts from stopwatch ticks to uS. */
+uint32_t StopWatch_TicksToUs(uint32_t ticks)
+{
+	return ticks / ticksPerUs;
+}
+
+/* Converts from mS to stopwatch ticks. */
+uint32_t StopWatch_MsToTicks(uint32_t mS)
+{
+	return mS * ticksPerMs;
+}
+
+/* Converts from uS to stopwatch ticks. */
+uint32_t StopWatch_UsToTicks(uint32_t uS)
+{
+	return uS * ticksPerUs;
 }

@@ -45,26 +45,28 @@ STATIC volatile FlagStatus ABsyncSts = RESET;
 /*****************************************************************************
  * Private functions
  ****************************************************************************/
+ /* UART Peripheral clocks */
+static const CHIP_CCU_CLK_T UART_PClock[] = {CLK_MX_UART0, CLK_MX_UART1, CLK_MX_UART2, CLK_MX_UART3};
+
+/* UART Bus clocks */
+static const CHIP_CCU_CLK_T UART_BClock[] = {CLK_APB0_UART0, CLK_APB0_UART1, CLK_APB2_UART2, CLK_APB2_UART3};
 
 /* Returns clock index for the peripheral block */
-STATIC CHIP_CCU_CLK_T Chip_UART_GetClockIndex(LPC_USART_T *pUART)
+static int Chip_UART_GetIndex(LPC_USART_T *pUART)
 {
-	CHIP_CCU_CLK_T clkUART;
-
-	if (pUART == LPC_USART3) {
-		clkUART = CLK_MX_UART3;
+	uint32_t base = (uint32_t) pUART;
+	switch(base) {
+		case LPC_USART0_BASE:
+			return 0;
+		case LPC_UART1_BASE:
+			return 1;
+		case LPC_USART2_BASE:
+			return 2;
+		case LPC_USART3_BASE:
+			return 3;
+		default:
+			return 0; /* Should never come here */
 	}
-	else if (pUART == LPC_USART2) {
-		clkUART = CLK_MX_UART2;
-	}
-	else if (pUART == LPC_UART1) {
-		clkUART = CLK_MX_UART1;
-	}
-	else {
-		clkUART = CLK_MX_UART0;
-	}
-
-	return clkUART;
 }
 
 /* UART Autobaud command interrupt handler */
@@ -72,16 +74,16 @@ STATIC void Chip_UART_ABIntHandler(LPC_USART_T *pUART)
 {
 	/* Handle End Of Autobaud interrupt */
 	if((Chip_UART_ReadIntIDReg(pUART) & UART_IIR_ABEO_INT) != 0) {
-        Chip_UART_SetAutoBaudReg(pUART, UART_ACR_ABEOINT_CLR); 
+        Chip_UART_SetAutoBaudReg(pUART, UART_ACR_ABEOINT_CLR);
 		Chip_UART_IntDisable(pUART, UART_IER_ABEOINT);
 	    if (ABsyncSts == RESET) {
 	        ABsyncSts = SET;
         }
 	}
-	
+
     /* Handle Autobaud Timeout interrupt */
 	if((Chip_UART_ReadIntIDReg(pUART) & UART_IIR_ABTO_INT) != 0) {
-        Chip_UART_SetAutoBaudReg(pUART, UART_ACR_ABTOINT_CLR); 
+        Chip_UART_SetAutoBaudReg(pUART, UART_ACR_ABTOINT_CLR);
 		Chip_UART_IntDisable(pUART, UART_IER_ABTOINT);
 	}
 }
@@ -93,19 +95,17 @@ STATIC void Chip_UART_ABIntHandler(LPC_USART_T *pUART)
 /* Initializes the pUART peripheral */
 void Chip_UART_Init(LPC_USART_T *pUART)
 {
-    uint32_t tmp;
+    volatile uint32_t tmp;
 
-	(void) tmp;
-	
 	/* Enable UART clocking. UART base clock(s) must already be enabled */
-	Chip_Clock_EnableOpts(Chip_UART_GetClockIndex(pUART), true, true, 1);
+	Chip_Clock_EnableOpts(UART_PClock[Chip_UART_GetIndex(pUART)], true, true, 1);
 
 	/* Enable FIFOs by default, reset them */
 	Chip_UART_SetupFIFOS(pUART, (UART_FCR_FIFO_EN | UART_FCR_RX_RS | UART_FCR_TX_RS));
-    
+
     /* Disable Tx */
     Chip_UART_TXDisable(pUART);
-	
+
     /* Disable interrupts */
 	pUART->IER = 0;
 	/* Set LCR to default state */
@@ -118,7 +118,7 @@ void Chip_UART_Init(LPC_USART_T *pUART)
 	pUART->RS485DLY = 0;
 	/* Set RS485 addr match to default state */
 	pUART->RS485ADRMATCH = 0;
-	
+
     /* Clear MCR */
     if (pUART == LPC_UART1) {
 		/* Set Modem Control to default state */
@@ -141,7 +141,7 @@ void Chip_UART_DeInit(LPC_USART_T *pUART)
     Chip_UART_TXDisable(pUART);
 
     /* Disable clock */
-	Chip_Clock_Disable(Chip_UART_GetClockIndex(pUART));
+	Chip_Clock_Disable(UART_PClock[Chip_UART_GetIndex(pUART)]);
 }
 
 /* Transmit a byte array through the UART peripheral (non-blocking) */
@@ -227,7 +227,7 @@ uint32_t Chip_UART_SetBaud(LPC_USART_T *pUART, uint32_t baudrate)
 	uint32_t div, divh, divl, clkin;
 
 	/* Determine UART clock in rate without FDR */
-	clkin = Chip_Clock_GetRate(Chip_UART_GetClockIndex(pUART));
+	clkin = Chip_Clock_GetRate(UART_BClock[Chip_UART_GetIndex(pUART)]);
 	div = clkin / (baudrate * 16);
 
 	/* High and low halves of the divider */
@@ -322,56 +322,65 @@ void Chip_UART_IRQRBHandler(LPC_USART_T *pUART, RINGBUFF_T *pRXRB, RINGBUFF_T *p
 }
 
 /* Determines and sets best dividers to get a target baud rate */
-uint32_t Chip_UART_SetBaudFDR(LPC_USART_T *pUART, uint32_t baudrate)
+uint32_t Chip_UART_SetBaudFDR(LPC_USART_T *pUART, uint32_t baud)
 {
-	uint32_t uClk;
-    uint32_t dval, mval;
-    uint32_t dl;
-    uint32_t rate16 = 16 * baudrate;
-	uint32_t actualRate = 0;
+	uint32_t sdiv = 0, sm = 1, sd = 0;
+	uint32_t pclk, m, d;
+	uint32_t odiff = -1UL; /* old best diff */
 
-	/* Get Clock rate */
-	uClk = Chip_Clock_GetRate(Chip_UART_GetClockIndex(pUART));
-    
-    /* The fractional is calculated as (PCLK  % (16 * Baudrate)) / (16 * Baudrate)
-     * Let's make it to be the ratio DivVal / MulVal
-     */
-	dval = uClk % rate16;
+	/* Get base clock for the corresponding UART */
+	pclk = Chip_Clock_GetRate(UART_BClock[Chip_UART_GetIndex(pUART)]);
 
-   /* The PCLK / (16 * Baudrate) is fractional
-    * => dval = pclk % rate16
-    * mval = rate16;
-    * now mormalize the ratio
-    * dval / mval = 1 / new_mval
-    * new_mval = mval / dval
-    * new_dval = 1
-    */
-    if (dval > 0) {
-        mval = rate16 / dval;
-        dval = 1;
+	/* Loop through all possible fractional divider values */
+	for (m = 1; odiff && m < 16; m++) {
+		for (d = 0; d < m; d++) {
+			uint32_t diff, div;
+			uint64_t dval = (((uint64_t) pclk << 28) * m) / (baud * (m + d));
 
-        /* In case mval still bigger then 4 bits
-        * no adjustment require
-        */
-        if (mval > 12) {
-         dval = 0;
-      }
-    }
-    dval &= 0xf;
-    mval &= 0xf;
-    dl = uClk / (rate16 + rate16 *dval / mval);
+			/* Lower 32-bit of dval has diff */
+			diff = (uint32_t) dval;
+			/* Upper 32-bit of dval has div */
+			div = (uint32_t) (dval >> 32);
 
-    /* Update UART registers */
-    Chip_UART_EnableDivisorAccess(pUART);
-	Chip_UART_SetDivisorLatches(pUART, UART_LOAD_DLL(dl), UART_LOAD_DLM(dl));
+			/* Closer to next div */
+			if ((int)diff < 0) {
+				diff = -diff;
+				div ++;
+			}
+
+			/* Check if new value is worse than old or out of range */
+			if (odiff < diff || !div || (div >> 16) || (div < 3 && d)) {
+				continue;
+			}
+
+			/* Store the new better values */
+			sdiv = div;
+			sd = d;
+			sm = m;
+			odiff = diff;
+
+			/* On perfect match, break loop */
+			if(!diff) {
+				break;
+			}
+		}
+	}
+
+	/* Return 0 if a vaild divisor is not possible */
+	if (!sdiv) {
+		return 0;
+	}
+
+	/* Update UART registers */
+	Chip_UART_EnableDivisorAccess(pUART);
+	Chip_UART_SetDivisorLatches(pUART, UART_LOAD_DLL(sdiv), UART_LOAD_DLM(sdiv));
 	Chip_UART_DisableDivisorAccess(pUART);
 
 	/* Set best fractional divider */
-	pUART->FDR = (UART_FDR_MULVAL(mval) | UART_FDR_DIVADDVAL(dval));
+	pUART->FDR = (UART_FDR_MULVAL(sm) | UART_FDR_DIVADDVAL(sd));
 
 	/* Return actual baud rate */
-	actualRate = uClk / (16 * dl + 16 * dl * dval / mval);
-	return actualRate;
+	return (pclk >> 4) * sm / (sdiv * (sm + sd));
 }
 
 /* UART interrupt service routine */

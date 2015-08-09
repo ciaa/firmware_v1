@@ -364,7 +364,7 @@ void Chip_HSADC_SetACDCBias(LPC_HSADC_T *pHSADC, uint8_t channel,
  */
 STATIC INLINE void Chip_HSADC_EnablePower(LPC_HSADC_T *pHSADC)
 {
-	pHSADC->POWER_CONTROL &= ~((1 << 17) | (1 << 18));
+	pHSADC->POWER_CONTROL |= (1 << 17) | (1 << 18);
 }
 
 /**
@@ -376,7 +376,7 @@ STATIC INLINE void Chip_HSADC_EnablePower(LPC_HSADC_T *pHSADC)
  */
 STATIC INLINE void Chip_HSADC_DisablePower(LPC_HSADC_T *pHSADC)
 {
-	pHSADC->POWER_CONTROL |= ((1 << 17) | (1 << 18));
+	pHSADC->POWER_CONTROL &= ~((1 << 17) | (1 << 18));
 }
 
 /** HSADC FIFO registers bit fields for unpacked sample in lower 16 bits */
