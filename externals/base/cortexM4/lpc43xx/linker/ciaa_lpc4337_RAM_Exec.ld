@@ -111,9 +111,7 @@ SECTIONS
       LONG(0x0);            /* 67 */
       LONG(0x0);            /* 68 */
       LONG(0x0);            /* 69 */
-
-      *(.after_vectors*);
-        
+      
       /* CRP (Code Read Protect) */
       . = 0x000002FC;
       PROVIDE(__CRP_WORD_START__ = .);
@@ -121,41 +119,35 @@ SECTIONS
       PROVIDE(__CRP_WORD_END__ = .);
       ASSERT(!(__CRP_WORD_START__ == __CRP_WORD_END__), "Linker CRP Enabled, but no CRP_WORD provided within application");
       /* End of CRP (Code Read Protect) */
-
-      /* StartUp Main Code */
-      chip*(.text*);
-      clock*(.text*);
-      sysinit*(.text*);
-      core_cm4*(.text*);
                       
    } >MFlashA512
     
-   /* Code and read-only/const data for StartUp, address: 0x10080000 */
-   .text_RAM_StartUp : ALIGN(4)    
+   /* Code and read-only/const data, address: 0x10080000 */
+   .text_RAM : ALIGN(4)    
    {
       FILL(0x00);
       /* RAM Vector Table  must be at the beginning */
       g_pfnVectors = ABSOLUTE(.);
       KEEP(*(.isr_vector));
 
-      /* StartUp Reset Code */
+      /* StartUp Reset Code, must be always at the same address */
       *(.text.ResetISR);
+      *(.after_vectors*);
 
-      /* read-only/const data for StartUp, constant address */
-      chip*(.rodata* .constdata*);
-      clock*(.rodata* .constdata*);
-      sysinit*(.rodata* .constdata*);
-      core_cm4*(.rodata* .constdata*);
+      /* StartUp and App Code */
+      *(.text*);
+      
+      /* StartUp and App read-oly/const data */
+      *(.rodata .rodata.* .constdata .constdata.*);
       
    } > RamLoc40
 
-   /* Initialized StartUp Data */
-   /* Main DATA section for StartUp (RamLoc40) */
-   .data_StartUp : ALIGN(4)
+   /* Initialized Data */
+   /* Main DATA section for StartUp and App (RamLoc40) */
+   .data_RAM : ALIGN(4)
    {
       FILL(0x00);
-      . = ALIGN(0x200);
-      _data_StartUp = .;
+      _data = .;
       
       /* Global Section Table */
       __section_table_start = .;  
@@ -171,10 +163,10 @@ SECTIONS
       __section_table_end = .;
       /* End of Global Section Table */
 
-      chip*(.data*);
-      clock*(.data*);
-      sysinit*(.data*);
-      core_cm4*(.data*);
+      /* StartUp and App Initialized data */
+      *(.data*);
+      
+      _edata = .;
 
    } > RamLoc40
 
@@ -182,37 +174,15 @@ SECTIONS
    .bss : ALIGN(4)
    {
       FILL(0x00);
-	   . = ALIGN(0x200);
       _bss = .;
-
-      chip*(.bss* COMMON);
-      clock*(.bss* COMMON);
-      sysinit*(.bss* COMMON);
-      core_cm4*(.bss* COMMON);
 
       *(COMMON);
       *(.bss*);
+      
       _ebss = .;
     
     } > RamLoc40
  
-   /* Initialized App Data */
-   /* Main DATA section for App (RamLoc40) */
-   .data_App : ALIGN(4)
-   {
-      FILL(0x00);
-
-      _data_App = .;
-       *(.data*);
-       
-   } > RamLoc40
-
-   .text_RAM_App : ALIGN(4)    
-   {
-      *(.text*);
-      *(.rodata .rodata.* .constdata .constdata.*);
-   } > RamLoc40
-
    PROVIDE(_pvHeapStart = .);
    PROVIDE(_vStackTop = __top_RamLoc40 - 0);
 }
