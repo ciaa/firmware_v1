@@ -151,7 +151,7 @@ kconfig              ?= $(LINUX_TOOLS_PATH)$(DS)kconfig$(DS)kconfig-qtconf
 
 ###############################################################################
 # CIAA Firmware version information
-CIAA_FIRMWARE_VER     = 0.5.0
+CIAA_FIRMWARE_VER     = 0.6.1
 
 ###############################################################################
 # get OS
