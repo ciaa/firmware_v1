@@ -83,7 +83,8 @@
 #define SSP_DATA_BITS   (SSP_BITS_8)
 #define BITRATE 2400// in kbps
 #define WINDOWSIZE 25// in miliseconds
-#define MEMDMASIZE  BITRATE*WINDOWSIZE/8  // in bytes
+#define MEMDMASIZE  BITRATE*WINDOWSIZE/8  // in bytes - MAX: 4096
+#define MEMDMASIZE_temp  4000 //MAX: 4096
 #define LPC_GPDMA_SSP_TX  GPDMA_CONN_SSP1_Tx
 #define LPC_GPDMA_SSP_RX  GPDMA_CONN_SSP1_Rx
 
@@ -210,8 +211,6 @@ TASK(InitTask)
    /* init CIAA kernel and devices */
    ciaak_start();
 
-   ciaaPOSIX_printf("Init Task...\n");
-
    /* open CIAA digital inputs */
    fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
 
@@ -232,7 +231,7 @@ TASK(InitTask)
 
    /* activate example tasks */
    Periodic_Task_Counter = 0;
-   SetRelAlarm(ActivatePeriodicTask, 200, 200);
+   SetRelAlarm(ActivatePeriodicTask, 200, 10);
 
    /* Activates the SerialEchoTask task */
    ActivateTask(SerialEchoTask);
@@ -240,9 +239,21 @@ TASK(InitTask)
 
    /* SSP DMA Read and Write: fixed on 8bits */
 
-   /* Initialize the SSP interface */
+   /* Initialize CIAA Pins for the SSP interface */
 
-   //Primero inicializar los pines (como en el ejemplo?)!!!
+   if (LPC_SSP == LPC_SSP1) {
+      Chip_SCU_PinMuxSet(0x1, 5, (SCU_PINIO_FAST | SCU_MODE_FUNC5));  /* P1.5 => SSEL1 (not connected to microphone) */
+      Chip_SCU_PinMuxSet(0xF, 4, (SCU_PINIO_FAST | SCU_MODE_FUNC0));  /* PF.4 => SCK1 */
+
+   	  Chip_SCU_PinMuxSet(0x1, 4, (SCU_MODE_INACT | SCU_MODE_INBUFF_EN | SCU_MODE_ZIF_DIS | SCU_MODE_FUNC5)); /* P1.4 => MOSI1 (not connected to microphone) */
+   	  Chip_SCU_PinMuxSet(0x1, 3, (SCU_MODE_INACT | SCU_MODE_INBUFF_EN | SCU_MODE_ZIF_DIS | SCU_MODE_FUNC5)); /* P1.3 => MISO1 */
+   }
+   else {
+      while(1){}
+   }
+
+
+   /* Initialize the SSP interface */
 
    Chip_SSP_Init(LPC_SSP);
    Chip_SSP_SetBitRate(LPC_SSP, BITRATE*1000); // chequear que este funcionando realmente a este bitrate
@@ -274,19 +285,22 @@ TASK(InitTask)
 
    Chip_SSP_DMA_Enable(LPC_SSP);
 
+   /* Do a DMA transfer P2M: data SSP --> memDest1DMA */
+   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
+   				  LPC_GPDMA_SSP_RX, // source
+   				  (uint32_t) &memDest1DMA[0], // destination
+   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL
+   				  //GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL,
+   				  MEMDMASIZE_temp);
+
+
    /* Do a DMA transfer P2M: memDMATx --> SSP */
    Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
    				  (uint32_t) &memDMATx, // source
    				  LPC_GPDMA_SSP_TX, // destination
    				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL
    				  //GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL,
-   			 	  MEMDMASIZE);
-   /* Do a DMA transfer P2M: data SSP --> memDest1DMA */
-   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-   				  LPC_GPDMA_SSP_RX, // source
-   				  (uint32_t) &memDest1DMA[0], // destination
-   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL
-   				  MEMDMASIZE);
+   				MEMDMASIZE_temp);
 
    currentDMA = 1;
 
@@ -300,42 +314,29 @@ TASK(InitTask)
 ISR(DMA_IRQHandler)
 {
 
-   char message1[] = "DMA1 \n";
-   char message2[] = "DMA2 \n";
-   char message3[] = "DMA3 \n";
-   char message3A[] = "DMA3A \n";
-   char message3B[] = "DMA3B \n";
-   char message4[] = "DMA4 \n";
-   ciaaPOSIX_write(fd_uart1, message1, ciaaPOSIX_strlen(message1));
-
-
    if(Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPRx) == SUCCESS){
 
-	   ciaaPOSIX_write(fd_uart1, message3, ciaaPOSIX_strlen(message3));
-
 	   if (currentDMA == 1){
-		   ciaaPOSIX_write(fd_uart1, message3A, ciaaPOSIX_strlen(message3A));
-
 
 		   /* Do a DMA transfer P2M: data SSP --> memDest2DMA */
 		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
 		   				  LPC_GPDMA_SSP_RX, // source
 		   				  (uint32_t) &memDest2DMA[0], // destination
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL
-		   				  MEMDMASIZE);
+		   				  //GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL,
+		   				MEMDMASIZE_temp);
 
 		   currentDMA = 2;
 	   }
 	   else{ //currentDMA = 2
-		   ciaaPOSIX_write(fd_uart1, message3B, ciaaPOSIX_strlen(message3B));
-
 
 		   /* Do a DMA transfer P2M: data SSP --> memDest1DMA */
 		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
 		   				  LPC_GPDMA_SSP_RX, // source
 		   				  (uint32_t) &memDest1DMA[0], // destination
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL
-		   				  MEMDMASIZE);
+		   				  //GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL,
+		   				MEMDMASIZE_temp);
 
 
 		   currentDMA = 1;
@@ -344,19 +345,13 @@ ISR(DMA_IRQHandler)
    }
    else if (Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPTx) == SUCCESS){
 
-      ciaaPOSIX_write(fd_uart1, message2, ciaaPOSIX_strlen(message2));
-
 	   /* Do a DMA transfer P2M: memDMATx --> SSP */
 	   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
 	   				  (uint32_t) &memDMATx, // source
 	   				  LPC_GPDMA_SSP_TX, // destination
 	   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL
-	   			 	  MEMDMASIZE);
-
-   }
-   else
-   {
-	      ciaaPOSIX_write(fd_uart1, message4, ciaaPOSIX_strlen(message4));
+	   				  //GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL,
+	   				MEMDMASIZE_temp);
 
    }
 
@@ -374,10 +369,9 @@ TASK(SerialEchoTask)
    uint8_t outputs;  /* to store outputs status                */
    int32_t ret;      /* return value variable for posix calls  */
 
-   ciaaPOSIX_printf("SerialEchoTask...\n");
    /* send a message to the world :) */
-   char message[] = "Hi! :)\nSerialEchoTask: Waiting for characters...\n";
-   ciaaPOSIX_write(fd_uart1, message, ciaaPOSIX_strlen(message));
+//   char message[] = "Hi! :)\nSerialEchoTask: Waiting for characters...\n";
+//   ciaaPOSIX_write(fd_uart1, message, ciaaPOSIX_strlen(message));
 
    while(1)
    {
@@ -435,7 +429,6 @@ TASK(PeriodicTask)
 
    /* Print Task info */
    Periodic_Task_Counter++;
-   ciaaPOSIX_printf("Periodic Task: %d\n", Periodic_Task_Counter);
 
    /* end PeriodicTask */
    TerminateTask();
