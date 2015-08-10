@@ -65,6 +65,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150810 v0.0.2   MaMar   SPI working with DMA
  * 20150803 v0.0.1   MaMar   initials initial version
  */
 
