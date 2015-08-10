@@ -52,6 +52,10 @@ void Chip_RTC_Init(LPC_RTC_T *pRTC)
 {
 	Chip_Clock_RTCEnable();
 
+	/* 2-Second delay after enabling RTC clock */
+	LPC_ATIMER->DOWNCOUNTER = 2048;
+	while (LPC_ATIMER->DOWNCOUNTER);
+
 	/* Disable RTC */
 	Chip_RTC_Enable(pRTC, DISABLE);
 
@@ -80,27 +84,22 @@ void Chip_RTC_DeInit(LPC_RTC_T *pRTC)
 /* Reset clock tick counter in the RTC peripheral */
 void Chip_RTC_ResetClockTickCounter(LPC_RTC_T *pRTC)
 {
-	do {
-		/* Reset RTC clock*/
-		pRTC->CCR |= RTC_CCR_CTCRST;
-	} while ((pRTC->CCR & RTC_CCR_CTCRST) != RTC_CCR_CTCRST);
+	/* Reset RTC clock*/
+	pRTC->CCR |= RTC_CCR_CTCRST;
+	while (!(pRTC->CCR & RTC_CCR_CTCRST)) {}
 
-	do {
-		/* Finish resetting RTC clock */
-		pRTC->CCR &= (~RTC_CCR_CTCRST) & RTC_CCR_BITMASK;
-	} while (pRTC->CCR & RTC_CCR_CTCRST);
+	/* Finish resetting RTC clock */
+	pRTC->CCR = (pRTC->CCR & ~RTC_CCR_CTCRST) & RTC_CCR_BITMASK;
+	while (pRTC->CCR & RTC_CCR_CTCRST) {}
 }
 
 /* Start/Stop RTC peripheral */
 void Chip_RTC_Enable(LPC_RTC_T *pRTC, FunctionalState NewState)
 {
 	if (NewState == ENABLE) {
-		do {
-			pRTC->CCR |= RTC_CCR_CLKEN;
-		} while ((pRTC->CCR & RTC_CCR_CLKEN) == 0);
-	}
-	else {
-		pRTC->CCR &= (~RTC_CCR_CLKEN) & RTC_CCR_BITMASK;
+		pRTC->CCR |= RTC_CCR_CLKEN;
+	} else {
+		pRTC->CCR = (pRTC->CCR & ~RTC_CCR_CLKEN) & RTC_CCR_BITMASK;
 	}
 }
 

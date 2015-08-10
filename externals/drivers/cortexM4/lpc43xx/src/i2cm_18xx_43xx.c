@@ -157,7 +157,8 @@ uint32_t Chip_I2CM_XferHandler(LPC_I2C_T *pI2C, I2CM_XFER_T *xfer)
 
 	/* Set clear control flags */
 	pI2C->CONSET = cclr ^ I2C_CON_FLAGS;
-	pI2C->CONCLR = cclr;
+	/* Stop flag should not be cleared as it is a reserved bit */
+	pI2C->CONCLR = cclr & (I2C_CON_AA | I2C_CON_SI | I2C_CON_STA);
 
 	return xfer->status != I2CM_STATUS_BUSY;
 }

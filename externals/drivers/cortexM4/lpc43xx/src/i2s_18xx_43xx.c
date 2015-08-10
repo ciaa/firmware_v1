@@ -195,13 +195,13 @@ void Chip_I2S_Int_TxCmd(LPC_I2S_T *pI2S, FunctionalState newState, uint8_t depth
 	uint32_t temp;
 	depth &= 0x0F;
 	if (newState == ENABLE) {
+	    temp = pI2S->IRQ & (~I2S_IRQ_TX_DEPTH_MASK);
+	    pI2S->IRQ = temp | (I2S_IRQ_TX_DEPTH(depth));
 		pI2S->IRQ |= 0x02;
 	}
 	else {
 		pI2S->IRQ &= (~0x02);
 	}
-	temp = pI2S->IRQ & (~I2S_IRQ_TX_DEPTH_MASK);
-	pI2S->IRQ = temp | (I2S_IRQ_TX_DEPTH(depth));
 }
 
 /* Enable/Disable Interrupt with a specific FIFO depth */
@@ -210,13 +210,13 @@ void Chip_I2S_Int_RxCmd(LPC_I2S_T *pI2S, FunctionalState newState, uint8_t depth
 	uint32_t temp;
 	depth &= 0x0F;
 	if (newState == ENABLE) {
+	    temp = pI2S->IRQ & (~I2S_IRQ_RX_DEPTH_MASK);
+	    pI2S->IRQ = temp | (I2S_IRQ_RX_DEPTH(depth));
 		pI2S->IRQ |= 0x01;
 	}
 	else {
 		pI2S->IRQ &= (~0x01);
 	}
-	temp = pI2S->IRQ & (~I2S_IRQ_RX_DEPTH_MASK);
-	pI2S->IRQ = temp | (I2S_IRQ_RX_DEPTH(depth));
 }
 
 /* Enable/Disable DMA with a specific FIFO depth */
@@ -225,15 +225,15 @@ void Chip_I2S_DMA_TxCmd(LPC_I2S_T *pI2S,
 						FunctionalState newState,
 						uint8_t depth)
 {
-	/* Set FIFO Level */
-	pI2S->DMA[dmaNum] &= ~(0x0F << 16);
-	pI2S->DMA[dmaNum] |= depth << 16;
 	/* Enable/Disable I2S transmit*/
 	if (newState == ENABLE) {
-		pI2S->DMA[dmaNum] |= 0x02;
+	    /* Set FIFO Level */
+	    pI2S->DMA[I2S_DMA_REQUEST_CHANNEL_1] &= ~(0x0F << 16);
+	    pI2S->DMA[I2S_DMA_REQUEST_CHANNEL_1] |= depth << 16;
+		pI2S->DMA[I2S_DMA_REQUEST_CHANNEL_1] |= 0x02;
 	}
 	else {
-		pI2S->DMA[dmaNum] &= ~0x02;
+		pI2S->DMA[I2S_DMA_REQUEST_CHANNEL_1] &= ~0x02;
 	}
 }
 
@@ -243,15 +243,16 @@ void Chip_I2S_DMA_RxCmd(LPC_I2S_T *pI2S,
 						FunctionalState newState,
 						uint8_t depth)
 {
-	/* Set FIFO Level */
-	pI2S->DMA[dmaNum] &= ~(0x0F << 8);
-	pI2S->DMA[dmaNum] |= depth << 8;
+	
 	/* Enable/Disable I2S Receive */
 	if (newState == ENABLE) {
-		pI2S->DMA[dmaNum] |= 0x01;
+	    /* Set FIFO Level */
+	    pI2S->DMA[I2S_DMA_REQUEST_CHANNEL_2] &= ~(0x0F << 8);
+	    pI2S->DMA[I2S_DMA_REQUEST_CHANNEL_2] |= depth << 8;
+		pI2S->DMA[I2S_DMA_REQUEST_CHANNEL_2] |= 0x01;
 	}
 	else {
-		pI2S->DMA[dmaNum] &= ~0x01;
+		pI2S->DMA[I2S_DMA_REQUEST_CHANNEL_2] &= ~0x01;
 	}
 }
 

@@ -101,7 +101,7 @@ STATIC void SSP_Read1BFifo(LPC_SSP_T *pSSP, Chip_SSP_DATA_SETUP_T *xf_setup)
 	}
 }
 
-/* Returns clock index for the peripheral block */
+/* Returns clock index for the register interface */
 STATIC CHIP_CCU_CLK_T Chip_SSP_GetClockIndex(LPC_SSP_T *pSSP)
 {
 	CHIP_CCU_CLK_T clkSSP;
@@ -116,6 +116,20 @@ STATIC CHIP_CCU_CLK_T Chip_SSP_GetClockIndex(LPC_SSP_T *pSSP)
 	return clkSSP;
 }
 
+/* Returns clock index for the peripheral block */
+STATIC CHIP_CCU_CLK_T Chip_SSP_GetPeriphClockIndex(LPC_SSP_T *pSSP)
+{
+	CHIP_CCU_CLK_T clkSSP;
+
+	if (pSSP == LPC_SSP1) {
+		clkSSP = CLK_APB2_SSP1;
+	}
+	else {
+		clkSSP = CLK_APB0_SSP0;
+	}
+
+	return clkSSP;
+}
 /*****************************************************************************
  * Public functions
  ****************************************************************************/
@@ -183,7 +197,7 @@ uint32_t Chip_SSP_RWFrames_Blocking(LPC_SSP_T *pSSP, Chip_SSP_DATA_SETUP_T *xf_s
 }
 
 /* SSP Polling Write in blocking mode */
-uint32_t Chip_SSP_WriteFrames_Blocking(LPC_SSP_T *pSSP, uint8_t *buffer, uint32_t buffer_len)
+uint32_t Chip_SSP_WriteFrames_Blocking(LPC_SSP_T *pSSP, const uint8_t *buffer, uint32_t buffer_len)
 {
 	uint32_t tx_cnt = 0, rx_cnt = 0;
 
@@ -221,7 +235,7 @@ uint32_t Chip_SSP_WriteFrames_Blocking(LPC_SSP_T *pSSP, uint8_t *buffer, uint32_
 		}
 	}
 	else {
-		uint8_t *wdata8;
+		const uint8_t *wdata8;
 
 		wdata8 = buffer;
 
@@ -412,7 +426,7 @@ void Chip_SSP_SetBitRate(LPC_SSP_T *pSSP, uint32_t bitRate)
 {
 	uint32_t ssp_clk, cr0_div, cmp_clk, prescale;
 
-	ssp_clk = Chip_Clock_GetRate(Chip_SSP_GetClockIndex(pSSP));
+	ssp_clk = Chip_Clock_GetRate(Chip_SSP_GetPeriphClockIndex(pSSP));
 
 	cr0_div = 0;
 	cmp_clk = 0xFFFFFFFF;
@@ -436,6 +450,7 @@ void Chip_SSP_SetBitRate(LPC_SSP_T *pSSP, uint32_t bitRate)
 void Chip_SSP_Init(LPC_SSP_T *pSSP)
 {
 	Chip_Clock_Enable(Chip_SSP_GetClockIndex(pSSP));
+	Chip_Clock_Enable(Chip_SSP_GetPeriphClockIndex(pSSP));
 
 	Chip_SSP_Set_Mode(pSSP, SSP_MODE_MASTER);
 	Chip_SSP_SetFormat(pSSP, SSP_BITS_8, SSP_FRAMEFORMAT_SPI, SSP_CLOCK_CPHA0_CPOL0);
@@ -447,6 +462,8 @@ void Chip_SSP_DeInit(LPC_SSP_T *pSSP)
 {
 	Chip_SSP_Disable(pSSP);
 
+	Chip_Clock_Disable(Chip_SSP_GetPeriphClockIndex(pSSP));
 	Chip_Clock_Disable(Chip_SSP_GetClockIndex(pSSP));
+	
 }
 

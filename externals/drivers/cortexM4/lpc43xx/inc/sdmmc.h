@@ -199,7 +199,7 @@ typedef struct {
 	uint16_t rca;								/*!< Relative address assigned to card */
 	uint32_t speed;								/*!< Speed */
 	uint32_t block_len;							/*!< Card sector size */
-	uint32_t device_size;						/*!< Device Size */
+	uint64_t device_size;						/*!< Device Size */
 	uint32_t blocknr;							/*!< Block Number */
 	uint32_t clk_rate;							/*! Clock rate */
 	SDMMC_EVSETUP_FUNC_T evsetup_cb;			/*!< Function to setup event information */

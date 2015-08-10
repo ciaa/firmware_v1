@@ -123,7 +123,7 @@ void Chip_HSADC_SetSpeed(LPC_HSADC_T *pHSADC, uint8_t channel, uint8_t speed)
 	uint32_t reg, shift = channel * 4;
 
 	reg = pHSADC->ADC_SPEED & ~(0xF << shift);
-	pHSADC->ADC_SPEED = reg | (speed < shift);
+	pHSADC->ADC_SPEED = reg | (speed << shift);
 }
 
 /* Setup (common) HSADC power and speed settings */

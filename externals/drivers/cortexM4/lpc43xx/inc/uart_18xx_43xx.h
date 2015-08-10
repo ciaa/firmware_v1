@@ -288,7 +288,7 @@ typedef struct {					/*!< USARTn Structure       */
 #define UART_TER2_TXEN      (1 << 0)		/*!< Transmit enable bit  - valid for 18xx/43xx only */
 
 /**
- * @brief Macro defines for UART Synchronous Control Register - 11xx, 18xx/43xx UART0/2/3 only 
+ * @brief Macro defines for UART Synchronous Control Register - 11xx, 18xx/43xx UART0/2/3 only
  */
 #define UART_SYNCCTRL_SYNC             (1 << 0)			/*!< enable synchronous mode*/
 #define UART_SYNCCTRL_CSRC_MASTER      (1 << 1)  		/*!< synchronous master mode*/
@@ -703,10 +703,15 @@ uint32_t Chip_UART_SetBaud(LPC_USART_T *pUART, uint32_t baudrate);
 /**
  * @brief	Sets best dividers to get a target bit rate (with fractional divider)
  * @param	pUART		: Pointer to selected UART peripheral
- * @param	baudrate	: Target baud rate (baud rate = bit rate)
+ * @param	baud		: Target baud rate (baud rate = bit rate)
  * @return	The actual baud rate, or 0 if no rate can be found
+ * @note	The maximum bit rate possible is (clk / 16), the next possible bit
+ * 			rate is (clk / 32), the next possible bit rate is (clk / 48), no
+ * 			rates in-between any of the above three maximum rates could be set
+ * 			using this API. Fractional dividers can only be used for rates
+ * 			lower than (clk / 48) where @a clk is the base clock of the UART.
  */
-uint32_t Chip_UART_SetBaudFDR(LPC_USART_T *pUART, uint32_t baudrate);
+uint32_t Chip_UART_SetBaudFDR(LPC_USART_T *pUART, uint32_t baud);
 
 /**
  * @brief	Transmit a byte array through the UART peripheral (blocking)
@@ -803,11 +808,11 @@ FlagStatus Chip_UART_GetABEOStatus(LPC_USART_T *pUART);
  * @param	pUART	    : Pointer to selected UART peripheral
  * @param	mode	    : Autobaud mode (UART_ACR_MODE0 or UART_ACR_MODE1)
  * @param	autorestart	: Enable autorestart (true to enable or false to disable)
- * @param	NewState	: ENABLE to start autobaud operation, DISABLE to 
+ * @param	NewState	: ENABLE to start autobaud operation, DISABLE to
  *                          stop autobaud operation
  * @return	Nothing
  */
-void Chip_UART_ABCmd(LPC_USART_T *pUART, uint32_t mode, bool autorestart, 
+void Chip_UART_ABCmd(LPC_USART_T *pUART, uint32_t mode, bool autorestart,
         FunctionalState NewState);
 
 /**

@@ -1,8 +1,8 @@
 /*
- * @brief LPC18xx/43xx Reset Generator Unit driver
+ * @brief LPC18xx_43xx State Configurable Timer PWM driver
  *
  * @note
- * Copyright(C) NXP Semiconductors, 2012
+ * Copyright(C) NXP Semiconductors, 2013
  * All rights reserved.
  *
  * @par
@@ -47,46 +47,41 @@
  * Public functions
  ****************************************************************************/
 
-/* Trigger a peripheral reset for the selected peripheral */
-void Chip_RGU_TriggerReset(CHIP_RGU_RST_T ResetNumber)
+/* Setup the OUTPUT pin corresponding to the PWM index */
+void Chip_SCTPWM_SetOutPin(LPC_SCT_T *pSCT, uint8_t index, uint8_t pin)
 {
-	volatile uint32_t *p;
+	int ix = (int) index;
+	pSCT->EVENT[ix].CTRL = index | (1 << 12);
+	pSCT->EVENT[ix].STATE = 1;
+	pSCT->OUT[pin].SET = 1;
+	pSCT->OUT[pin].CLR = 1 << ix;
 
-	/* To trigger reset- write RESET_CTRLx with a 1 bit */
-	p = (volatile uint32_t *) &(LPC_RGU->RESET_CTRL0);
+	/* Clear the output in-case of conflict */
+	pSCT->RES = (pSCT->RES & ~(3 << (pin << 1))) | (0x01 << (pin << 1));
 
-	/* higher numbers are in RESET_CTRL1, RESET_CTRL2, etc. */
-	p += ResetNumber / 32;
-
-	/* On the LPC18xx and LPC43xx, most of the reset bits automatically clear
-	   after 1 clock cycle, so set the bit and return */
-	*p = (1 << (ResetNumber % 32));
+	/* Set and Clear do not depend on direction */
+	pSCT->OUTPUTDIRCTRL = (pSCT->OUTPUTDIRCTRL & ~(3 << (pin << 1)));
 }
 
-/* Clears reset for the selected peripheral */
-void Chip_RGU_ClearReset(CHIP_RGU_RST_T ResetNumber)
+/* Set the PWM frequency */
+void Chip_SCTPWM_SetRate(LPC_SCT_T *pSCT, uint32_t freq)
 {
-	volatile uint32_t *p;
+	uint32_t rate;
 
-	/* To trigger reset- write RESET_CTRLx with a 1 bit */
-	p = (volatile uint32_t *) &(LPC_RGU->RESET_CTRL0);
+	rate = Chip_Clock_GetRate(CLK_MX_SCT) / freq;;
 
-	/* higher numbers are in RESET_CTRL1, RESET_CTRL2, etc. */
-	p += ResetNumber / 32;
+	/* Stop the SCT before configuration */
+	Chip_SCTPWM_Stop(pSCT);
 
-	/* On the LPC18xx and LPC43xx, most of the reset bits automatically clear
-	   after 1 clock cycle, so set the bit and return */
-	*p = 0;
-}
+	/* Set MATCH0 for max limit */
+	pSCT->REGMODE_L = 0;
+	pSCT->REGMODE_H = 0;
+	Chip_SCT_SetMatchCount(pSCT, SCT_MATCH_0, 0);
+	Chip_SCT_SetMatchReload(pSCT, SCT_MATCH_0, rate);
+	pSCT->EVENT[0].CTRL = 1 << 12;
+	pSCT->EVENT[0].STATE = 1;
+	pSCT->LIMIT_L = 1;
 
-/* Checks the reset status of a peripheral */
-bool Chip_RGU_InReset(CHIP_RGU_RST_T ResetNumber)
-{
-	volatile uint32_t *read;
-
-	read = (volatile uint32_t *) &(LPC_RGU->RESET_ACTIVE_STATUS0);
-	read += ResetNumber / 32;
-
-	/* Reset not asserted if bit is set */
-	return (bool) ((*read & (1 << (ResetNumber % 32))) == 0);
+	/* Set SCT Counter to count 32-bits and reset to 0 after reaching MATCH0 */
+	Chip_SCT_Config(pSCT, SCT_CONFIG_32BIT_COUNTER | SCT_CONFIG_AUTOLIMIT_L);
 }

@@ -542,7 +542,7 @@ uint32_t Chip_SSP_RWFrames_Blocking(LPC_SSP_T *pSSP, Chip_SSP_DATA_SETUP_T *xf_s
  * This function can be used in both master and slave mode. First, a writing operation will send
  * the needed data. After that, a dummy reading operation is generated to clear data buffer
  */
-uint32_t Chip_SSP_WriteFrames_Blocking(LPC_SSP_T *pSSP, uint8_t *buffer, uint32_t buffer_len);
+uint32_t Chip_SSP_WriteFrames_Blocking(LPC_SSP_T *pSSP, const uint8_t *buffer, uint32_t buffer_len);
 
 /**
  * @brief   SSP Polling Read in blocking mode

@@ -216,7 +216,7 @@ void Chip_GPIO_SetDir(LPC_GPIO_T *pGPIO, uint8_t portNum, uint32_t bitValue, uin
  * @note	Sets multiple GPIO pins to the output direction, each bit's position that is
  * high sets the corresponding pin number for that bit to an output.
  */
-STATIC INLINE void Chip_GPIO_SetPortDIROutput(LPC_GPIO_T *pGPIO, uint8_t port, uint8_t pinMask)
+STATIC INLINE void Chip_GPIO_SetPortDIROutput(LPC_GPIO_T *pGPIO, uint8_t port, uint32_t pinMask)
 {
 	pGPIO->DIR[port] |= pinMask;
 }
@@ -230,7 +230,7 @@ STATIC INLINE void Chip_GPIO_SetPortDIROutput(LPC_GPIO_T *pGPIO, uint8_t port, u
  * @note	Sets multiple GPIO pins to the input direction, each bit's position that is
  * high sets the corresponding pin number for that bit to an input.
  */
-STATIC INLINE void Chip_GPIO_SetPortDIRInput(LPC_GPIO_T *pGPIO, uint8_t port, uint8_t pinMask)
+STATIC INLINE void Chip_GPIO_SetPortDIRInput(LPC_GPIO_T *pGPIO, uint8_t port, uint32_t pinMask)
 {
 	pGPIO->DIR[port] &= ~pinMask;
 }
