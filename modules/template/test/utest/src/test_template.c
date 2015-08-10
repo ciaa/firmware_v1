@@ -1,19 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
- *
- *    or
- *
- * Copyright 2014, Your Name <youremail@domain.com>
- * All rights reserved.
- *
- *    or
- *
- * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
+/* Copyright 2015, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -45,15 +30,15 @@
  *
  */
 
-/** \brief Short description of this file
- **
- ** Long description of this file
+/** \brief This file implements the test of the Devices
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
 /** \addtogroup Template Template to start a new module
+ ** @{ */
+/** \addtogroup UnitTests Unit Tests
  ** @{ */
 
 /*
@@ -69,7 +54,8 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "template.h"
+#include "unity.h"
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -84,22 +70,52 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern int16_t Template_Sum16bits(int16_t const a, int16_t const b)
+/** \brief set Up function
+ **
+ ** This function is called before each test case is executed
+ **
+ **/
+void setUp(void) {
+}
+
+/** \brief tear Down function
+ **
+ ** This function is called after each test case is executed
+ **
+ **/
+void tearDown(void) {
+}
+
+void test_Template_Sum_01(void)
 {
-    int16_t ret;
-    int32_t tmp = (int32_t)a + (int32_t)b;
+   int16_t sum;
 
-    if (tmp > (int32_t)INT16_MAX) {
-        ret = INT16_MAX;
-    } else if (tmp < (int32_t)INT16_MIN) {
-        ret = INT16_MIN;
-    } else {
-        ret = (int16_t)tmp;
-    }
+   sum = Template_Sum16bits(45,90);
 
-    return ret;
+   TEST_ASSERT_EQUAL_INT16(135, sum);
+}
+
+
+void test_Template_Sum_02(void)
+{
+   int16_t sum;
+
+   sum = Template_Sum16bits(9500,32090);
+
+   TEST_ASSERT_EQUAL_INT16(32767, sum);
+}
+
+void test_Template_Sum_03(void)
+{
+   int16_t sum;
+
+   sum = Template_Sum16bits(-4500, -31000);
+
+   TEST_ASSERT_EQUAL_INT16(-32768, sum);
 }
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
+/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+
