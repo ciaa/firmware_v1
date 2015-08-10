@@ -83,8 +83,7 @@
 #define SSP_DATA_BITS   (SSP_BITS_8)
 #define BITRATE 2400// in kbps
 #define WINDOWSIZE 25// in miliseconds
-#define MEMDMASIZE  BITRATE*WINDOWSIZE/8  // in bytes - MAX: 4096
-#define MEMDMASIZE_temp  4000 //MAX: 4096
+#define MEMDMASIZE  BITRATE*WINDOWSIZE/8/2  // in bytes - MAX: 4096
 #define LPC_GPDMA_SSP_TX  GPDMA_CONN_SSP1_Tx
 #define LPC_GPDMA_SSP_RX  GPDMA_CONN_SSP1_Rx
 
@@ -132,15 +131,31 @@ static SSP_ConfigFormat ssp_format;
  */
 static uint8_t dmaChSSPTx, dmaChSSPRx;
 
-/** \brief
- *
+/** \brief First memory buffer for window 1
+ * Maximum DMA transference size: 4096 =>
+ * => Two memory buffers used for each window
  */
+//static uint8_t memDest1ADMA[MEMDMASIZE];
 static uint8_t memDest1DMA[MEMDMASIZE];
 
-/** \brief
- *
+/** \brief Second memory buffer for window 1
+ * Maximum DMA transference size: 4096 =>
+ * => Two memory buffers used for each window
  */
+static uint8_t memDest1BDMA[MEMDMASIZE];
+
+/** \brief First memory buffer for window 2
+ * Maximum DMA transference size: 4096 =>
+ * => Two memory buffers used for each window
+ */
+//static uint8_t memDest2ADMA[MEMDMASIZE];
 static uint8_t memDest2DMA[MEMDMASIZE];
+
+/** \brief Second memory buffer for window 2
+ * Maximum DMA transference size: 4096 =>
+ * => Two memory buffers used for each window
+ */
+static uint8_t memDest2BDMA[MEMDMASIZE];
 
 /** \brief
  *
@@ -291,7 +306,7 @@ TASK(InitTask)
    				  (uint32_t) &memDest1DMA[0], // destination
    				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL
    				  //GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL,
-   				  MEMDMASIZE_temp);
+   				  MEMDMASIZE);
 
 
    /* Do a DMA transfer P2M: memDMATx --> SSP */
@@ -300,7 +315,7 @@ TASK(InitTask)
    				  LPC_GPDMA_SSP_TX, // destination
    				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL
    				  //GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL,
-   				MEMDMASIZE_temp);
+   				  MEMDMASIZE);
 
    currentDMA = 1;
 
@@ -324,7 +339,7 @@ ISR(DMA_IRQHandler)
 		   				  (uint32_t) &memDest2DMA[0], // destination
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL
 		   				  //GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL,
-		   				MEMDMASIZE_temp);
+		   				  MEMDMASIZE);
 
 		   currentDMA = 2;
 	   }
@@ -336,7 +351,7 @@ ISR(DMA_IRQHandler)
 		   				  (uint32_t) &memDest1DMA[0], // destination
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL
 		   				  //GPDMA_TRANSFERTYPE_P2M_CONTROLLER_PERIPHERAL,
-		   				MEMDMASIZE_temp);
+		   				  MEMDMASIZE);
 
 
 		   currentDMA = 1;
@@ -351,7 +366,7 @@ ISR(DMA_IRQHandler)
 	   				  LPC_GPDMA_SSP_TX, // destination
 	   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, //probar sino con GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL
 	   				  //GPDMA_TRANSFERTYPE_M2P_CONTROLLER_PERIPHERAL,
-	   				MEMDMASIZE_temp);
+	   				  MEMDMASIZE);
 
    }
 
