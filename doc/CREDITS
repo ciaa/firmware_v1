@@ -2,6 +2,23 @@
  **
  ** Authors and their contributions to CIAA Firmware:
  **
+ ** CIAA Firmware 0.6.1 (10.08.2015)
+ **
+ **   Following persons have invest a lot of effort and time to make
+ **   CIAA Firmware become true. We hope you enjoy it. :)
+ **
+ **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):
+ **      - fix ADC driver for EDU-CIAA-NXP: #305
+ **
+ **   - Juan Cecconi (jcecconi@numetron.com.ar):
+ **      - correct bug in linker script.
+ **
+ **   - Martin Ribelotta:
+ **      - Update lpcopen to 2.16: #306
+ **
+ **   - Mariano Cerdeiro
+ **      - add tests of template module: #308
+ **
  ** CIAA Firmware 0.6.0 (06.08.2015)
  **
  **   Following persons have invest a lot of effort and time to make

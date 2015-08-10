@@ -1,5 +1,11 @@
 /** \page RELEASENOTES Release Notes
  **
+ ** CIAA Firmware 0.6.1 (10.08.2015)
+ **   fix ADC driver for EDU-CIAA-NXP: #305
+ **   correct bug in linker script.
+ **   Update lpcopen to 2.16: #306
+ **   add tests of template module: #308
+ **
  ** CIAA Firmware 0.6.0 (06.08.2015)
  **   Improve some minimal issues in DIO
  **   Correct bug #279 of the RTOS
