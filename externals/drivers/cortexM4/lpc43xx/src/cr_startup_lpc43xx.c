@@ -52,6 +52,8 @@ extern "C" {
 extern "C" {
 #endif
 
+#define __USE_CMSIS
+
 //*****************************************************************************
 #if defined (__USE_CMSIS) || defined (__USE_LPCOPEN)
 // Declaration of external SystemInit function
