@@ -19,6 +19,9 @@
  **   - Mariano Cerdeiro
  **      - add tests of template module: #308
  **
+ **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
+ **      - fix issue with lpcopne: #310
+ **
  ** CIAA Firmware 0.6.0 (06.08.2015)
  **
  **   Following persons have invest a lot of effort and time to make
