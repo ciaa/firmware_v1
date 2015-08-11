@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef _TESIS_H_
-#define _TESIS_H_
+#ifndef TESIS_H
+#define TESIS_H
 /** \brief Speech Recognition Tesis header file
  **
  ** Long description of this file
@@ -71,7 +71,6 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ssp.h" /* <= ssp header*/
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -79,22 +78,16 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief maximum value for a int16_t type */
-//#define INT16_MAX   32767
-
-/** \brief minimum value for a int16_t type */
-//#define INT16_MIN   -32768
 
 /*==================[typedef]================================================*/
-/** \brief Signed integer 16 bits */
-typedef signed short int16_t;
-
-/** \brief Signed integer 32 bits type */
-//typedef signed int int32_t;
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief
+ *
+ */
+extern void ciaaDriverSPI_DMA_Init(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

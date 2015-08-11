@@ -78,15 +78,6 @@
 
 
 /*==================[macros and definitions]=================================*/
-//#define SAMPLE_RATE 16000   /* Hz */
-//#define DATA_SIZE   16      /* bits */
-#define LPC_SSP         LPC_SSP1
-#define SSP_DATA_BITS   (SSP_BITS_8)
-#define BITRATE 2400 // in kbps
-#define WINDOWSIZE 25 // in miliseconds
-#define MEMDMASIZE  BITRATE*WINDOWSIZE/8/2  // in bytes - MAX: 4096
-#define LPC_GPDMA_SSP_TX  GPDMA_CONN_SSP1_Tx
-#define LPC_GPDMA_SSP_RX  GPDMA_CONN_SSP1_Rx
 
 /*==================[internal data declaration]==============================*/
 
@@ -121,50 +112,6 @@ static int32_t fd_uart2;
  *
  */
 static uint32_t Periodic_Task_Counter;
-
-/** \brief
- *
- */
-static SSP_ConfigFormat ssp_format;
-
-/** \brief
- *
- */
-static uint8_t dmaChSSPTx, dmaChSSPRx;
-
-/** \brief First memory buffer for window 1
- * Maximum DMA transference size: 4096 =>
- * => Two memory buffers used for each window
- */
-static uint8_t memDest1ADMA[MEMDMASIZE];
-
-/** \brief Second memory buffer for window 1
- * Maximum DMA transference size: 4096 =>
- * => Two memory buffers used for each window
- */
-static uint8_t memDest1BDMA[MEMDMASIZE];
-
-/** \brief First memory buffer for window 2
- * Maximum DMA transference size: 4096 =>
- * => Two memory buffers used for each window
- */
-static uint8_t memDest2ADMA[MEMDMASIZE];
-
-/** \brief Second memory buffer for window 2
- * Maximum DMA transference size: 4096 =>
- * => Two memory buffers used for each window
- */
-static uint8_t memDest2BDMA[MEMDMASIZE];
-
-/** \brief
- *
- */
-static uint8_t currentDMA;
-
-/** \brief Dummy transmission data used to generate the SSP transmission
- *
- */
-static uint8_t memDMATx;
 
 /*==================[external data definition]===============================*/
 
@@ -250,144 +197,14 @@ TASK(InitTask)
    /* Activates the SerialEchoTask task */
    ActivateTask(SerialEchoTask);
 
-
-   /* SSP DMA Read and Write: fixed on 8bits */
-
-   /* Initialize CIAA Pins for the SSP interface */
-
-   if (LPC_SSP == LPC_SSP1) {
-      Chip_SCU_PinMuxSet(0x1, 5, (SCU_PINIO_FAST | SCU_MODE_FUNC5));  /* P1.5 => SSEL1 (not connected to microphone) */
-      Chip_SCU_PinMuxSet(0xF, 4, (SCU_PINIO_FAST | SCU_MODE_FUNC0));  /* PF.4 => SCK1 */
-
-   	  Chip_SCU_PinMuxSet(0x1, 4, (SCU_MODE_INACT | SCU_MODE_INBUFF_EN | SCU_MODE_ZIF_DIS | SCU_MODE_FUNC5)); /* P1.4 => MOSI1 (not connected to microphone) */
-   	  Chip_SCU_PinMuxSet(0x1, 3, (SCU_MODE_INACT | SCU_MODE_INBUFF_EN | SCU_MODE_ZIF_DIS | SCU_MODE_FUNC5)); /* P1.3 => MISO1 */
-   }
-   else {
-      while(1){}
-   }
-
-
-   /* Initialize the SSP interface */
-
-   Chip_SSP_Init(LPC_SSP);
-   Chip_SSP_SetBitRate(LPC_SSP, BITRATE*1000);
-
-   /* Configure SSP Format */
-   ssp_format.frameFormat = SSP_FRAMEFORMAT_SPI;
-   ssp_format.bits = SSP_DATA_BITS;
-   ssp_format.clockMode = SSP_CLOCK_MODE3;
-   Chip_SSP_SetFormat(LPC_SSP, ssp_format.bits, ssp_format.frameFormat, ssp_format.clockMode);
-
-   Chip_SSP_Enable(LPC_SSP);
-
-   /* Initialize GPDMA controller */
-   Chip_GPDMA_Init(LPC_GPDMA);
-
-   /* Setting GPDMA interrupt */
-   NVIC_DisableIRQ(DMA_IRQn);
-   NVIC_SetPriority(DMA_IRQn, ((0x01 << 3) | 0x01));
-   NVIC_EnableIRQ(DMA_IRQn);
-
-   /* Set the SSP in master mode */
-   Chip_SSP_SetMaster(LPC_SSP, 1);
-
-   /* Get a free GPDMA channel for one DMA connection for transmission */
-   dmaChSSPTx = Chip_GPDMA_GetFreeChannel(LPC_GPDMA, LPC_GPDMA_SSP_TX);
-
-   /* Get a free GPDMA channel for one DMA connection for reception */
-   dmaChSSPRx = Chip_GPDMA_GetFreeChannel(LPC_GPDMA, LPC_GPDMA_SSP_RX);
-
-   Chip_SSP_DMA_Enable(LPC_SSP);
-
-   /* Do a DMA transfer P2M: data SSP --> memDest2BDMA */
-   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-   				  LPC_GPDMA_SSP_RX, // source
-   				  (uint32_t) &memDest2BDMA[0], // destination
-   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
-   				  MEMDMASIZE);
-
-   /* Do a DMA transfer P2M: memDMATx --> SSP */
-   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
-   				  (uint32_t) &memDMATx, // source
-   				  LPC_GPDMA_SSP_TX, // destination
-   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA,
-   				  MEMDMASIZE);
-
-   currentDMA = 1;
+   /* Initialize and start DPA-DMA */
+   ciaaDriverSPI_DMA_Init();
 
    /* end InitTask */
    TerminateTask();
 }
 
-/** \brief DMA interrupt handler sub-routine
- *
- */
-ISR(DMA_IRQHandler)
-{
 
-   if(Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPRx) == SUCCESS){
-
-	   if (currentDMA == 1){
-
-		   /* Do a DMA transfer P2M: data SSP --> memDest1ADMA */
-		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-		   				  LPC_GPDMA_SSP_RX, // source
-		   				  (uint32_t) &memDest1ADMA[0], // destination
-		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
-		   				  MEMDMASIZE);
-
-		   currentDMA = 2;
-	   }
-	   else if (currentDMA == 2){
-
-		   /* Do a DMA transfer P2M: data SSP --> memDest1BDMA */
-		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-		   				  LPC_GPDMA_SSP_RX, // source
-		   				  (uint32_t) &memDest1BDMA[0], // destination
-		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
-		   				  MEMDMASIZE);
-
-
-		   currentDMA = 3;
-	   }
-	   else if (currentDMA == 3){
-
-		   /* Do a DMA transfer P2M: data SSP --> memDest2ADMA */
-		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-		   				  LPC_GPDMA_SSP_RX, // source
-		   				  (uint32_t) &memDest2ADMA[0], // destination
-		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
-		   				  MEMDMASIZE);
-
-
-		   currentDMA = 4;
-	   }
-	   else{ //currentDMA = 4
-
-		   /* Do a DMA transfer P2M: data SSP --> memDest2BDMA */
-		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-		   				  LPC_GPDMA_SSP_RX, // source
-		   				  (uint32_t) &memDest2BDMA[0], // destination
-		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
-		   				  MEMDMASIZE);
-
-
-		   currentDMA = 1;
-	   }
-
-   }
-   else if (Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPTx) == SUCCESS){
-
-	   /* Do a DMA transfer P2M: memDMATx --> SSP */
-	   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
-	   				  (uint32_t) &memDMATx, // source
-	   				  LPC_GPDMA_SSP_TX, // destination
-	   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA,
-	   				  MEMDMASIZE);
-
-   }
-
-}
 
 /** \brief Serial Echo Task
  *

@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef SSP_H
-#define SSP_H
+#ifndef AUDIO_DEFINITIONS_H
+#define AUDIO_DEFINITIONS_H
 /** \brief Short description of this file
  **
  ** Long description of this file
@@ -71,8 +71,6 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "chip.h"
-#include "audioDefinitions.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -80,29 +78,22 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief SSPn selection */
-#define LPC_SSP         LPC_SSP1
 
-/** \brief SPI data size */
-#define SSP_DATA_BITS   (SSP_BITS_8)
+/** \brief PCM sampling frequency in Hz */
+#define SAMPLE_RATE 16000
 
-/** \brief SPI bit ratein kbps */
-#define BITRATE 2400
+/** \brief PCM data size in bits */
+#define DATA_SIZE   16
 
-/** \brief Size of memory buffer for DMA in bytes - MAX: 4096 */
-#define MEMDMASIZE  BITRATE*WINDOWSIZE/8/2
+/** \brief Window size in miliseconds */
+#define WINDOWSIZE 25
 
-/** \brief  */
-#define LPC_GPDMA_SSP_TX  GPDMA_CONN_SSP1_Tx
-
-/** \brief  */
-#define LPC_GPDMA_SSP_RX  GPDMA_CONN_SSP1_Rx
 
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
-/*==================[external functions declaration]=========================*/
 
+/*==================[external functions declaration]=========================*/
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -111,5 +102,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef SSP_H */
+#endif /* #ifndef TEMPLATE_FILE_H */
 
