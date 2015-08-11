@@ -5,6 +5,7 @@
  **   correct bug in linker script.
  **   Update lpcopen to 2.16: #306
  **   add tests of template module: #308
+ **   fix issue with lpcopne: #310
  **
  ** CIAA Firmware 0.6.0 (06.08.2015)
  **   Improve some minimal issues in DIO
