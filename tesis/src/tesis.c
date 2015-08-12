@@ -192,13 +192,16 @@ TASK(InitTask)
 
    /* activate example tasks */
    Periodic_Task_Counter = 0;
-   SetRelAlarm(ActivatePeriodicTask, 200, 5);
+   SetRelAlarm(ActivatePeriodicTask, 200, 200);
 
    /* Activates the SerialEchoTask task */
    ActivateTask(SerialEchoTask);
 
-   /* Initialize and start DPA-DMA */
-   ciaaDriverSPI_DMA_Init();
+   /* Initialize and start SPI-DMA */
+   SPI_DMA_Start();
+
+   /* Initialize PDM2PCM data */
+   PDM2PCM_Init();
 
    /* end InitTask */
    TerminateTask();

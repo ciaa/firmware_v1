@@ -87,7 +87,8 @@ extern "C" {
 /** \brief
  *
  */
-extern void ciaaDriverSPI_DMA_Init(void);
+extern void SPI_DMA_Start(void);
+extern void PDM2PCM_Init(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

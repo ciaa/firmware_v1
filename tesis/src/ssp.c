@@ -76,9 +76,6 @@
 
 /*==================[internal data declaration]==============================*/
 
-/*==================[internal functions declaration]=========================*/
-
-/*==================[internal data definition]===============================*/
 /** \brief
  *
  */
@@ -123,13 +120,18 @@ static uint8_t currentDMA;
  */
 static uint8_t memDMATx;
 
+
+/*==================[internal functions declaration]=========================*/
+
+/*==================[internal data definition]===============================*/
+
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
 
-extern void ciaaDriverSPI_DMA_Init(void)
+extern void SPI_DMA_Start(void)
 {
    /* SSP DMA Read and Write: fixed on 8bits */
 
@@ -207,7 +209,6 @@ ISR(DMA_IRQHandler)
    if(Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPRx) == SUCCESS){
 
 	   if (currentDMA == 1){
-
 		   /* Do a DMA transfer P2M: data SSP --> memDest1ADMA */
 		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
 		   				  LPC_GPDMA_SSP_RX, // source
@@ -242,7 +243,7 @@ ISR(DMA_IRQHandler)
 		   currentDMA = 4;
 	   }
 	   else{ //currentDMA = 4
-
+PDM2PCM(memDest2ADMA); //---------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>> provisorio
 		   /* Do a DMA transfer P2M: data SSP --> memDest2BDMA */
 		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
 		   				  LPC_GPDMA_SSP_RX, // source

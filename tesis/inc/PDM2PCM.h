@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef AUDIO_DEFINITIONS_H
-#define AUDIO_DEFINITIONS_H
+#ifndef PDM2PCM_H
+#define PDM2PCM_H
 /** \brief Short description of this file
  **
  ** Long description of this file
@@ -71,6 +71,8 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "audioDefinitions.h"
+#include "ssp.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -79,21 +81,28 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 
-/** \brief PCM sampling frequency in Hz */
-#define SAMPLE_RATE 16000
+/** \brief CIC filter decimation factor */
+#define DECIM_FACT_CIC 16
+//#define DECIM_FACT_CIC 8
 
-/** \brief PCM data size in bits - MAX: 16 */
-#define DATA_SIZE   16
+/** \brief FIR filter decimation factor */
+#define DECIM_FACT_FIR 4
+//#define DECIM_FACT_FIR 8
 
-/** \brief Window size in miliseconds */
-#define WINDOWSIZE 25
+/** \brief Size of memory buffer for DMA in bytes - MAX: 4096 */
+#define MEMCICSIZE  MEMDMASIZE/(DECIM_FACT_CIC/8)
+
+/** \brief Number of bytes to shif the CIC filter result */
+#define SHIFT_RES  (DATA_SIZE - 16 + 5)
 
 
 /*==================[typedef]================================================*/
 
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

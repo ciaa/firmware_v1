@@ -87,10 +87,11 @@ extern "C" {
 #define SSP_DATA_BITS   (SSP_BITS_8)
 
 /** \brief SPI bit ratein kbps */
-#define BITRATE 2400
+//#define BITRATE 2400
+#define BITRATE 1024
 
 /** \brief Size of memory buffer for DMA in bytes - MAX: 4096 */
-#define MEMDMASIZE  BITRATE*WINDOWSIZE/8/2
+#define MEMDMASIZE  (BITRATE*WINDOWSIZE/8/2)
 
 /** \brief  */
 #define LPC_GPDMA_SSP_TX  GPDMA_CONN_SSP1_Tx
@@ -102,7 +103,7 @@ extern "C" {
 
 /*==================[external data declaration]==============================*/
 /*==================[external functions declaration]=========================*/
-
+extern void PDM2PCM(uint8_t *PDMbuff); //------------------------------------------------>>>>>>>>>>>provisorio
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
