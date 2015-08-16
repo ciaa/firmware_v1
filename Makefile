@@ -870,3 +870,20 @@ doc: doxygen
 	@echo This rule is still not implemented see: https://github.com/ciaa/Firmware/issues/10
 	@exit 1
 
+###############################################################################
+# report: generates a report for the development team to understand the error
+report:
+	@echo '***** Generating a report to ask for support *****'
+	@echo -'***** git status > report.log *****' > report.log
+	git status >> report.log
+	@echo '***** git log -1 *****' >> report.log
+	git log -1 >> report.log
+	@echo '***** cat Makefile.mine *****' >> report.log
+	cat Makefile.mine >> report.log
+	@echo '***** make info *****' >> report.log
+	make info >> report.log
+	@echo '***** make all *****' 2>%1 >> report.log
+	make all 2>%1 >> report.log
+	@echo 'If you need help you can write to ciaa-firmware@googlegroups.com attaching the report file report.log.'
+	@echo 'Before asking for support please search for similar issues in the archive of ciaa-firmware@googlegroups.com.'
+
