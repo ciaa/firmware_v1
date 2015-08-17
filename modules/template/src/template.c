@@ -1,16 +1,19 @@
 /* Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * All rights reserved.
  *
  *    or
  *
  * Copyright 2014, Your Name <youremail@domain.com>
+ * All rights reserved.
  *
  *    or
  *
  * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -66,7 +69,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "Template_File.h"
+#include "template.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -84,12 +87,14 @@
 extern int16_t Template_Sum16bits(int16_t const a, int16_t const b)
 {
     int16_t ret;
-    if (((int32_t)((int32_t)a+(int32_t)b)) > (int32_t)INT16_MAX) {
+    int32_t tmp = (int32_t)a + (int32_t)b;
+
+    if (tmp > (int32_t)INT16_MAX) {
         ret = INT16_MAX;
-    } else if (((int32_t)((int32_t)a+(int32_t)b)) < (int32_t)INT16_MIN) {
+    } else if (tmp < (int32_t)INT16_MIN) {
         ret = INT16_MIN;
     } else {
-        ret = a + b;
+        ret = (int16_t)tmp;
     }
 
     return ret;

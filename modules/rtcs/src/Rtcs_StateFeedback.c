@@ -33,9 +33,9 @@
  *
  */
 
-/** \brief State Space Controller
+/** \brief State Feedback Controller
  **
- ** Implements State Space Controller
+ ** Implements State Feedback Controller
  **
  **/
 
@@ -57,7 +57,6 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "Rtcs_Port.h"
 #include "Rtcs_StateFeedback.h"
 
 /*==================[macros and definitions]=================================*/
@@ -70,65 +69,93 @@
  ** Calculates the error for regulator system
  **
  **/
-static void RegulatorError (void);
+static void RegulatorError (Rtcs_statefeedback_data_t *data);
 
-/** \brief Error calculation for regulator system
+/** \brief Error calculation for servo system
  **
  ** Calculates the error for servo system
  **
  **/
-static void ServoError (void);
+static void ServoError (Rtcs_statefeedback_data_t *data);
 
 /** \brief Error calculation for full system
  **
  ** Calculates the error for complete system
  **
  **/
-static void FullControlError (void);
+static void FullControlError (Rtcs_statefeedback_data_t *data);
 
 /** \brief Full Order State Observer
  **
  ** Estimates complete state vector
  **
  **/
-static void FullObserver (void);
+static void FullObserver (Rtcs_statefeedback_data_t *data);
 
 /** \brief Reduced Order State Observer
  **
  ** Estimates reduced state vector
  **
  **/
-static void ReducedObserver (void);
+static void ReducedObserver (Rtcs_statefeedback_data_t *data);
+
+/** \brief Update observer internal data
+ **
+ ** Updates observer internal state
+ **
+ **/
+static void UpdateObserverData (Rtcs_statefeedback_data_t *data);
 
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-static void RegulatorError (void)
+static void RegulatorError (Rtcs_statefeedback_data_t *data)
 {
 }
 
-static void ServoError (void)
+static void ServoError (Rtcs_statefeedback_data_t *data)
 {
 }
 
-static void FullControlError (void)
+static void FullControlError (Rtcs_statefeedback_data_t *data)
 {
 }
 
-static void FullObserver (void)
+static void FullObserver (Rtcs_statefeedback_data_t *data)
 {
 }
 
-static void ReducedObserver (void)
+static void ReducedObserver (Rtcs_statefeedback_data_t *data)
+{
+}
+
+static void UpdateObserverData (Rtcs_statefeedback_data_t *data)
 {
 }
 
 /*==================[external functions definition]==========================*/
 extern void Rtcs_StateFeedbackRun(void *data)
 {
-}
+   /* Store data pointer in a correct type pointer */
+   Rtcs_statefeedback_data_t *statefeedback_data = (Rtcs_statefeedback_data_t *) data;
+
+   /* Stimate the state of the dynamic system from measurements of its outputs */
+   statefeedback_data->ObserverFunc(statefeedback_data);
+
+   /* Calculate the difference betwen the desired state and the actual state */
+   statefeedback_data->ErrorFunc(statefeedback_data);
+
+   /* Calculate control efforts */
+   Rtcs_Ext_MatrixMul_float(&statefeedback_data->e_vector, &statefeedback_data->k_matrix, &statefeedback_data->u_vector);
+
+   /* Send control efforts to the actuators */
+   statefeedback_data->ControllerSendFunc(statefeedback_data->u, statefeedback_data->u_size );
+
+   /* Update internal data */
+   statefeedback_data->DataUpdateFunc(statefeedback_data);
+} /* end Rtcs_StateFeedbackRun */
 
 extern void Rtcs_StateFeedbackFirstRun(void *data)
 {

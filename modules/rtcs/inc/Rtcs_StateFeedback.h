@@ -72,6 +72,7 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "Rtcs_Port.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -88,7 +89,7 @@ typedef enum {REGULATOR, SERVO, FULL_CONTROL} system_type_t;
 typedef enum {REDUCED, FULL} observer_type_t;
 
 /** \brief State Space Controller type */
-typedef struct
+typedef struct Rtcs_statefeedback_data_type
 {
    uint32_t period_in_ms;
    uint32_t r_size;
@@ -96,18 +97,30 @@ typedef struct
    uint32_t e_size;
    uint32_t u_size;
    uint32_t y_size;
-   float *r_vector;
-   float *x_vector;
-   float *e_vector;
-   float *u_vector;
-   float *y_vector;
-   float *k_matrix;
-   float *ao_matrix;
-   float *bo_matrix;
-   float *l_matrix;
+   float *r;
+   float *x;
+   float *xo;
+   float *e;
+   float *u;
+   float *y;
+   float *k;
+   float *a_obsvr;
+   float *b_obsvr;
+   float *l;
+   Rtcs_ext_matrix_t r_vector;
+   Rtcs_ext_matrix_t x_vector;
+   Rtcs_ext_matrix_t xo_vector;
+   Rtcs_ext_matrix_t e_vector;
+   Rtcs_ext_matrix_t u_vector;
+   Rtcs_ext_matrix_t y_vector;
+   Rtcs_ext_matrix_t k_matrix;
+   Rtcs_ext_matrix_t a_obsvr_matrix;
+   Rtcs_ext_matrix_t b_obsvr_matrix;
+   Rtcs_ext_matrix_t l_matrix;
    void (*ControllerSendFunc) (float *, uint16_t);
-   void (*ErrorFunc) (void *data);
-   void (*ObserverFunc) (void *data);
+   void (*ErrorFunc) (struct Rtcs_statefeedback_data_type *data);
+   void (*ObserverFunc) (struct Rtcs_statefeedback_data_type *data);
+   void (*DataUpdateFunc) (struct Rtcs_statefeedback_data_type *data);
    system_type_t system;
    observer_type_t observer;
 }Rtcs_statefeedback_data_t;

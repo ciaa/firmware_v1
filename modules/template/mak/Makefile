@@ -3,6 +3,19 @@
 # Copyright 2014, ACSE & CADIEEL
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
+# All rights reserved.
+#
+#    or
+#
+# Copyright 2014, Your Name <youremail@domain.com>
+# All rights reserved.
+#
+#    or
+#
+# Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
+#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+#    CADIEEL: http://www.cadieel.org.ar
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -35,6 +48,8 @@
 ###############################################################################
 # library
 LIBS 				     += template
+# version
+template_VERSION     = 0.1.0
 # library path
 template_PATH 		   = $(ROOT_DIR)$(DS)modules$(DS)template
 # library source path

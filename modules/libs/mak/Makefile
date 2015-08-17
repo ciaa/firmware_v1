@@ -38,6 +38,8 @@ libs_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)libs
 # library source path
 libs_SRC_PATH 	= $(libs_PATH)$(DS)src
 # library include path
-libs_INC_PATH 	= $(libs_PATH)$(DS)inc
+libs_INC_PATH 	= $(libs_PATH)$(DS)inc                             \
+                 $(libs_PATH)$(DS)inc$(DS)$(ARCH)                 \
+                 $(libs_PATH)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)  \
 # library source files
 libs_SRC_FILES 	= $(wildcard $(libs_SRC_PATH)$(DS)*.c)

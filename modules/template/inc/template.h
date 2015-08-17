@@ -1,16 +1,19 @@
 /* Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * All rights reserved.
  *
  *    or
  *
  * Copyright 2014, Your Name <youremail@domain.com>
+ * All rights reserved.
  *
  *    or
  *
  * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -97,7 +100,7 @@ typedef signed int int32_t;
  ** INT16_MAX is lower than the limit in 15 bits returns
  ** INT16_MIN
  **
- ** \param[in] 	  a first parameter to be added
+ ** \param[in]    a first parameter to be added
  ** \param[in]    b second parameter ot be added
  ** \return E_OK  returns addition of a+b
  **/
