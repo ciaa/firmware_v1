@@ -77,26 +77,17 @@
 
 /*==================[internal data declaration]==============================*/
 
-/** \brief Holding Register Input
+/** \brief File descriptor for digital output ports
  *
- * Holding Register Inputs Variable
- * Accessed through:
- * - 0x03 Read Holding Register
- * - 0x17 Read/Write multiple Register
+ * Device path /dev/dio/out/0
  */
-static uint16_t hr_ciaaInputs;
+static int32_t fd_out;
 
-/** \brief Holding Register Output
+/** \brief File descriptor for digital inputs ports
  *
- * Holding Register Output Variable
- * Accessed through:
- * - 0x03 Read Holding Register
- * - 0x06 Write single Register
- * - 0x10 Write multiple Register
- * - 0x17 Read/Write multiple Register
+ * Device path /dev/dio/in/0
  */
-static uint16_t hr_ciaaOutputs;
-
+static int32_t fd_in;
 
 /*==================[internal functions declaration]=========================*/
 static uint16_t cmd0x03ReadHoldingReg(
@@ -144,8 +135,12 @@ static uint16_t cmd0x03ReadHoldingReg(
 {
    /* used to indicate total of registers reads */
    int8_t ret = 0;
+   /* used to store input or outputs byte */
+   uint16_t hrValue;
+
    /* used to indicate quantity of registers processed */
    uint16_t quantityRegProcessed;
+
    /* loop to read all registers indicated */
    do
    {
@@ -154,13 +149,17 @@ static uint16_t cmd0x03ReadHoldingReg(
       {
          /* read inputs of CIAA */
          case CIAA_MODBUS_ADDRESS_INPUTS:
-            ciaaModbus_writeInt(buf, hr_ciaaInputs);
+            hrValue = 0;
+            ciaaPOSIX_read(fd_in, &hrValue, 1);
+            ciaaModbus_writeInt(buf, hrValue);
             quantityRegProcessed = 1;
             break;
 
          /* read outputs of CIAA */
          case CIAA_MODBUS_ADDRESS_OUTPUS:
-            ciaaModbus_writeInt(buf, hr_ciaaOutputs);
+            hrValue = 0;
+            ciaaPOSIX_read(fd_out, &hrValue, 1);
+            ciaaModbus_writeInt(buf, hrValue);
             quantityRegProcessed = 1;
             break;
 
@@ -205,6 +204,8 @@ static void cmd0x10WriteMultipleReg(
       uint8_t * buf
       )
 {
+   /* used to store input or outputs byte */
+   uint16_t hrValue;
    /* used to indicate quantity of registers processed */
    uint16_t quantityRegProcessed;
 
@@ -222,7 +223,8 @@ static void cmd0x10WriteMultipleReg(
 
          /* write outputs */
          case CIAA_MODBUS_ADDRESS_OUTPUS:
-            hr_ciaaOutputs = ciaaModbus_readInt(buf);
+            hrValue = ciaaModbus_readInt(buf);
+            ciaaPOSIX_write(fd_out, &hrValue, 1);
             quantityRegProcessed = 1;
             break;
 
@@ -314,6 +316,12 @@ TASK(InitTask)
 
    /* init the ciaa kernel */
    ciaak_start();
+
+   /* open CIAA digital outputs */
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+
+   /* open CIAA digital inputs */
+   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDWR);
 
    fdSerialPort = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR | O_NONBLOCK);
 

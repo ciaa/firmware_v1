@@ -88,6 +88,18 @@ static int32_t hModbusMaster;
 static int32_t hModbusAscii;
 static int32_t hModbusGateway;
 
+/** \brief File descriptor for digital output ports
+ *
+ * Device path /dev/dio/out/0
+ */
+static int32_t fd_out;
+
+/** \brief File descriptor for digital inputs ports
+ *
+ * Device path /dev/dio/in/0
+ */
+static int32_t fd_in;
+
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -149,7 +161,13 @@ TASK(InitTask)
    /* init the ciaa kernel */
    ciaak_start();
 
-   fdSerialPort = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR | O_NONBLOCK);
+   /* open CIAA digital outputs */
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+
+   /* open CIAA digital inputs */
+   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDWR);
+
+   fdSerialPort = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR | O_NONBLOCK);
 
    /* Open Modbus Master */
    hModbusMaster = ciaaModbus_masterOpen();
@@ -174,7 +192,7 @@ TASK(InitTask)
 
    SetRelAlarm(ActivateModbusTask, 5, CIAA_MODBUS_TIME_BASE);
 
-   SetRelAlarm(AlarmCallBackPollingSlave, 10, 500);
+   SetRelAlarm(AlarmCallBackPollingSlave, 10, 100);
 
    /* end InitTask */
    TerminateTask();
@@ -237,6 +255,9 @@ TASK(PollingSlave)
 
             if (CIAA_MODBUS_E_NO_ERROR == ret)
             {
+               /* write outputs */
+               ciaaPOSIX_write(fd_out, &hrValue, 1);
+
                /* set next state */
                stateModMast = CIAA_BLINKING_MOD_MAST_STATE_WRITING;
             }
@@ -244,6 +265,11 @@ TASK(PollingSlave)
 
          /* writing inputs in to outputs of CIAA slave modbus */
          case CIAA_BLINKING_MOD_MAST_STATE_WRITING:
+            /* read inputs */
+            hrValue = 0;
+            ciaaPOSIX_read(fd_in, &hrValue, 1);
+
+            /* write in to ciaa slave */
             ret = ciaaModbus_masterCmd0x10WriteMultipleRegisters(
                   hModbusMaster,
                   CIAA_MODBUS_ADDRESS_OUTPUS,
