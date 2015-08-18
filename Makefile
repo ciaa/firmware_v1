@@ -878,8 +878,8 @@ report:
 	git status >> report.log
 	@echo '***** git log -1 *****' >> report.log
 	git log -1 >> report.log
-	@echo '***** cat Makefile.mine *****' >> report.log
-	cat Makefile.mine >> report.log
+	@echo '***** make version *****' >> report.log
+	make version >> report.log
 	@echo '***** make info *****' >> report.log
 	make info >> report.log
 	@echo '***** make all *****' 2>%1 >> report.log
