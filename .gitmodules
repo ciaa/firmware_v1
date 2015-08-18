@@ -3,4 +3,4 @@
 	url = https://github.com/ciaa/firmware.modules.rtos.git
 [submodule "modules/modbus"]
 	path = modules/modbus
-	url = https://github.com/gmuro/firmware.modules.modbus.git
+	url = https://github.com/ciaa/firmware.modules.modbus.git
