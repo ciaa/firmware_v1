@@ -4,6 +4,11 @@ Build in Travis: [![Build Status](https://travis-ci.org/ciaa/Firmware.svg?branch
 
 Build in Drone.: [![Build Status](https://drone.io/github.com/ciaa/Firmware/status.png)](https://drone.io/github.com/ciaa/Firmware/latest)
 
+Coverity Status: <a href="https://scan.coverity.com/projects/ciaa-firmware">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/6097/badge.svg"/>
+</a>
+
 
 This is the root directory of the CIAA Firmware Project
 
