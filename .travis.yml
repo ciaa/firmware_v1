@@ -8,6 +8,9 @@ script:
    - export BOARD=ciaa_sim_ia64
    - make generate
    - make
+   - export PROJECT_PATH=examples/blinking_modbus
+   - make all
+   
 
 env:
   global:
