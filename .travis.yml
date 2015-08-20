@@ -24,6 +24,6 @@ addons:
       name: "ciaa/Firmware"
       description: "Build submitted via Travis CI"
     notification_email: mcerdeiro@gmail.com
-    build_command_prepend: "export BOARD=ciaa_sim_ia64; make clean; make generate"
+    build_command_prepend: "export BOARD=ciaa_sim_ia64; export PROJECT_PATH=examples/blinking_modbus; make clean; make generate"
     build_command:   "make"
     branch_pattern: coverity_scan
