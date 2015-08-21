@@ -323,9 +323,9 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
       {
          case ciaaPOSIX_IOCTL_STARTTX:
             /* Disable interupts for transmiter */
-            UART_HAL_SetIntMode(port->base, kUartIntTxDataRegEmpty, false);
+            //UART_HAL_SetIntMode(port->base, kUartIntTxDataRegEmpty, false);
             /* this one calls write */
-            ciaaDriverUart_txConfirmation(device);
+           // ciaaDriverUart_txConfirmation(device);
             /* Enable interupts for transmiter */
             UART_HAL_SetIntMode(port->base, kUartIntTxDataRegEmpty, true);
             ret = 0;
@@ -408,7 +408,7 @@ extern ssize_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
       (device == ciaaDriverUartConst.devices[1]) ||
       (device == ciaaDriverUartConst.devices[2]) )
    {
-      while (UART_HAL_GetStatusFlag(port->base, kUartTxDataRegEmpty) && (ret < size))
+      if (UART_HAL_GetStatusFlag(port->base, kUartTxDataRegEmpty) && (ret < size))
       {
          UART_HAL_Putchar(port->base, buffer[ret]);
          ret++;
@@ -472,7 +472,7 @@ ISR(UART1_IRQHandler)
 
 ISR(UART2_IRQHandler)
 {
-
+	while(1);
 }
 
 /*==================[interrupt handlers]=====================================*/
