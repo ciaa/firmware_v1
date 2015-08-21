@@ -69,7 +69,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "PDM2PCM.h"
+#include "speechrec_pdm2pcm.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -104,9 +104,77 @@ static int32_t OldDelta1, OldDelta2, OldDelta3, OldDelta4, OldSigma5;
  */
 static int16_t memCICout[MEMCICSIZE];
 
+/** \brief Q15 FIR decimator 1 structure
+ *
+ */
+static arm_fir_decimate_instance_q15 S1;
+
+/** \brief Q15 FIR decimator 2 structure
+ *
+ */
+static arm_fir_decimate_instance_q15 S2;
+
+/** \brief FIR decimator 1 state buffer
+ *
+ */
+static int16_t StateBuff1[NCOEFFS1 + MEMCICSIZE - 1];
+
+/** \brief FIR decimator 2 state buffer
+ *
+ */
+static int16_t StateBuff2[NCOEFFS2 + MEMFIR1SIZE - 1];
+
+/** \brief Memory buffer for FIR decimator 1
+ */
+static int16_t memFIR1out[MEMFIR1SIZE];
+
+///** \brief PCM memory buffer for window 1
+// * One PCM buffer corresponds to two PDM memory buffers, because of DMA transference size limitations
+// * Equivalent to two consecutive memFIR2out buffers, each of size MEMFIR2SIZE
+// */
+//extern int16_t memPCM1out[MEMPCMSIZE];
+//
+///** \brief PCM memory buffer for window 2
+// * One PCM buffer corresponds to two PDM memory buffers, because of DMA transference size limitations
+// * Equivalent to two consecutive memFIR2out buffers, each of size MEMFIR2SIZE
+// */
+//extern int16_t memPCM2out[MEMPCMSIZE];
+
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+
+/** \brief Coefficients for FIR filter decimator 1
+ * Low-pass FIR equiripple
+ * Order: 31
+ * fs: 64 KHz
+ * fpass: 12 KHz
+ * fstop: 16 KHz
+ * pass band: 0 dB
+ * stop band: -38 dB
+ */
+static int16_t FIR1coeffs[NCOEFFS1] = {
+       96,    309,   -120,   -357,    -46,    548,    328,   -668,   -817,
+      621,   1571,   -210,  -2801,  -1173,   6070,  13215,  13215,   6070,
+    -1173,  -2801,   -210,   1571,    621,   -817,   -668,    328,    548,
+      -46,   -357,   -120,    309,     96
+};
+
+/** \brief Coeficients for FIR filter decimator 2
+ * Low-pass FIR equiripple
+ * Order: 31
+ * fs: 32 KHz
+ * fpass: 7 KHz
+ * fstop: 8 KHz
+ * pass band: +/-1 dB
+ * stop band: -24 dB
+ */
+static int16_t FIR2coeffs[NCOEFFS2] = {
+     -628,    996,    820,   -117,   -612,    235,    952,    -44,  -1263,
+     -219,   1751,    756,  -2640,  -2124,   5563,  14005,  14005,   5563,
+    -2124,  -2640,    756,   1751,   -219,  -1263,    -44,    952,    235,
+     -612,   -117,    820,    996,   -628
+};
 
 /*==================[external data definition]===============================*/
 
@@ -182,10 +250,49 @@ Since the operation is 5 stage divided by 16 decimation this field can grow up t
 }
 
 
+static void FIR_decimator(int16_t *PCMbuff)
+{
+	arm_status ret;
+
+	ret = arm_fir_decimate_init_q15(	&S1,
+								NCOEFFS1,
+								(uint8_t) DECIM_FACT_FIR1,
+								FIR1coeffs,
+								StateBuff1,
+								(uint32_t) MEMCICSIZE);
+
+	if (ret == ARM_MATH_LENGTH_ERROR)
+		while(1){}
+
+	ret = arm_fir_decimate_init_q15(	&S2,
+								NCOEFFS2,
+								(uint8_t) DECIM_FACT_FIR2,
+								FIR2coeffs,
+								StateBuff2,
+								(uint32_t) MEMFIR1SIZE);
+
+	if (ret == ARM_MATH_LENGTH_ERROR)
+		while(1){}
+
+	arm_fir_decimate_q15	(	&S1,
+								memCICout,
+								memFIR1out,
+								(uint32_t) MEMCICSIZE);
+
+	arm_fir_decimate_q15	(	&S2,
+								memFIR1out,
+								PCMbuff,
+								(uint32_t) MEMFIR1SIZE);
+}
+
+
 /*==================[external functions definition]==========================*/
 
 extern void PDM2PCM_Init(void)
 {
+
+   check_freqs();
+
    Sigma1 = 0;
    Sigma2 = 0;
    Sigma3 = 0;
@@ -203,14 +310,12 @@ extern void PDM2PCM_Init(void)
    OldSigma5 = 0;
 }
 
-//extern void PDM2PCM(uint8_t *PDMbuff, int16_t *PCMbuff)
-extern void PDM2PCM(uint8_t *PDMbuff)
+extern void PDM2PCM(uint8_t *PDMbuff, int16_t *PCMbuff) // cuando llamo a esta funcion tengo que asegurarme de pasar el inicio o la mitad de memPCM1out o memPCM2out
 {
-	check_freqs();
 
 	CIC_filter(PDMbuff);
 
-	// llamada a cmsis FIR decimator
+	FIR_decimator(PCMbuff);
 
 }
 

@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef TESIS_H
-#define TESIS_H
+#ifndef SPEECHREC_TESIS_H
+#define SPEECHREC_TESIS_H
 /** \brief Speech Recognition Tesis header file
  **
  ** Long description of this file
@@ -87,7 +87,8 @@ extern "C" {
 /** \brief
  *
  */
-extern void SPI_DMA_Start(void);
+//extern void SPI_DMA_Start(void);
+extern void SPI_DMA_Start(int32_t);
 extern void PDM2PCM_Init(void);
 
 /*==================[cplusplus]==============================================*/

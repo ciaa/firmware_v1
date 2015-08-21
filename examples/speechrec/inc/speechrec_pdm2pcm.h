@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef AUDIO_DEFINITIONS_H
-#define AUDIO_DEFINITIONS_H
+#ifndef SPEECHREC_PDM2PCM_H
+#define SPEECHREC_PDM2PCM_H
 /** \brief Short description of this file
  **
  ** Long description of this file
@@ -71,6 +71,9 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "speechrec_audioDefinitions.h"
+#include "speechrec_ssp.h"
+#include "arm_math_modif.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -79,21 +82,49 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 
-/** \brief PCM sampling frequency in Hz */
-#define SAMPLE_RATE 16000
+/** \brief CIC filter decimation factor */
+#define DECIM_FACT_CIC 16
+//#define DECIM_FACT_CIC 8
 
-/** \brief PCM data size in bits - MAX: 16 */
-#define DATA_SIZE   16
+/** \brief FIR filter 1 decimation factor */
+#define DECIM_FACT_FIR1 2
+//#define DECIM_FACT_FIR1 4
 
-/** \brief Window size in miliseconds */
-#define WINDOWSIZE 25
+/** \brief FIR filter 2 decimation factor */
+#define DECIM_FACT_FIR2 2
+//#define DECIM_FACT_FIR2 4
 
+/** \brief Total FIR filters decimation factor */
+#define DECIM_FACT_FIR (DECIM_FACT_FIR1*DECIM_FACT_FIR2)
+
+/** \brief Size of memory buffer for CIC filter output */
+#define MEMCICSIZE  (MEMDMASIZE/(DECIM_FACT_CIC/8))
+
+/** \brief Number of bytes to shif the CIC filter result */
+#define SHIFT_RES  (DATA_SIZE - 16 + 5)
+
+/** \brief Size of memory buffer for FIR filter with decimation output */
+#define MEMFIR1SIZE (MEMCICSIZE/DECIM_FACT_FIR1)
+
+/** \brief Size of memory buffer for FIR filter with decimation output */
+#define MEMFIR2SIZE (MEMFIR1SIZE/DECIM_FACT_FIR2)
+
+/** \brief Size of memory buffer for FIR filter with decimation output */
+#define MEMPCMSIZE (MEMFIR2SIZE*2)
+
+/** \brief Number of coefficients for FIR filter decimator 1 = order + 1 */
+#define NCOEFFS1 32
+
+/** \brief Number of coefficients for FIR filter decimator 2 = order + 1 */
+#define NCOEFFS2 32
 
 /*==================[typedef]================================================*/
+
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef SSP_H
-#define SSP_H
+#ifndef SPEECHREC_SSP_H
+#define SPEECHREC_SSP_H
 /** \brief Short description of this file
  **
  ** Long description of this file
@@ -72,7 +72,8 @@
 
 /*==================[inclusions]=============================================*/
 #include "chip.h"
-#include "audioDefinitions.h"
+#include "speechrec_audioDefinitions.h"
+//#include "speechrec_pdm2pcm.h" //------------------------------------------------------------------------------------>>>>>>>>>>>provisorio
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -102,8 +103,12 @@ extern "C" {
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
+//extern int16_t* memPCM1out; //------------------------------------------------------------------>>>>>>>>>>>provisorio
+//extern int16_t* memPCM2out; //------------------------------------------------------------------>>>>>>>>>>>provisorio
+
+
 /*==================[external functions declaration]=========================*/
-extern void PDM2PCM(uint8_t *PDMbuff); //------------------------------------------------>>>>>>>>>>>provisorio
+extern void PDM2PCM(uint8_t *PDMbuff, int16_t *PCMbuff); //------------------------------------------------>>>>>>>>>>>provisorio
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

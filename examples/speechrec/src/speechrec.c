@@ -74,7 +74,7 @@
 #include "ciaaPOSIX_stdio.h"  /* <= device handler header */
 #include "ciaaPOSIX_string.h" /* <= string header */
 #include "ciaak.h"            /* <= ciaa kernel header */
-#include "tesis.h"         	  /* <= own header */
+#include "speechrec.h"         	  /* <= own header */
 
 
 /*==================[macros and definitions]=================================*/
@@ -185,22 +185,24 @@ TASK(InitTask)
    fd_uart2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
 
    /* change baud rate for uart usb */
-   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);
+//   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);
+   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_460800);
 
    /* change FIFO TRIGGER LEVEL for uart usb */
    ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL, (void *)ciaaFIFO_TRIGGER_LEVEL3);
 
    /* activate example tasks */
    Periodic_Task_Counter = 0;
-   SetRelAlarm(ActivatePeriodicTask, 200, 200);
+   SetRelAlarm(ActivatePeriodicTask, 200, 1000);
 
    /* Activates the SerialEchoTask task */
    ActivateTask(SerialEchoTask);
 
    /* Initialize and start SPI-DMA */
-   SPI_DMA_Start();
+   //SPI_DMA_Start();
+   SPI_DMA_Start(fd_uart1);
 
-   /* Initialize PDM2PCM data */
+   /* Initialize PDM2PCM */
    PDM2PCM_Init();
 
    /* end InitTask */

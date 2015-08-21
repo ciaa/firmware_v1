@@ -70,7 +70,8 @@
 
 /*==================[inclusions]=============================================*/
 #include "os.h"
-#include "ssp.h"
+#include "speechrec_ssp.h"
+#include "ciaaPOSIX_stdio.h"  /* <= device handler header */
 
 /*==================[macros and definitions]=================================*/
 
@@ -120,7 +121,19 @@ static uint8_t currentDMA;
  */
 static uint8_t memDMATx;
 
+/** \brief PCM memory buffer for window 1
+ * One PCM buffer corresponds to two PDM memory buffers, because of DMA transference size limitations
+ * Equivalent to two consecutive memFIR2out buffers, each of size MEMFIR2SIZE
+ */
+static int16_t memPCM1out[400]; //--------------------------------------------------------------------------------->>>>>>>>>>>provisorio
 
+/** \brief PCM memory buffer for window 2
+ * One PCM buffer corresponds to two PDM memory buffers, because of DMA transference size limitations
+ * Equivalent to two consecutive memFIR2out buffers, each of size MEMFIR2SIZE
+ */
+static int16_t memPCM2out[400]; //--------------------------------------------------------------------------------->>>>>>>>>>>provisorio
+
+static int32_t fd_uart1ssp; //---------------------------------------------------------------------------------->>>>>>>>>>>provisorio
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
@@ -131,8 +144,10 @@ static uint8_t memDMATx;
 
 /*==================[external functions definition]==========================*/
 
-extern void SPI_DMA_Start(void)
+//extern void SPI_DMA_Start(void)
+extern void SPI_DMA_Start(int32_t fd_uart1tesis)
 {
+	fd_uart1ssp = fd_uart1tesis; //---------------------------------------------------------------------------------->>>>>>>>>>>provisorio
    /* SSP DMA Read and Write: fixed on 8bits */
 
    /* Initialize CIAA Pins for the SSP interface */
@@ -217,6 +232,8 @@ ISR(DMA_IRQHandler)
 		   				  MEMDMASIZE);
 
 		   currentDMA = 2;
+//PDM2PCM(memDest2ADMA, &memPCM2out[0]); //---------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>> provisorio
+//ciaaPOSIX_write(fd_uart1ssp, (void const *) &memPCM2out[0], 4);
 	   }
 	   else if (currentDMA == 2){
 
@@ -229,6 +246,8 @@ ISR(DMA_IRQHandler)
 
 
 		   currentDMA = 3;
+//PDM2PCM(memDest2BDMA, &memPCM2out[400/2]); //---------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>> provisorio
+//ciaaPOSIX_write(fd_uart1ssp, (void const *) &memPCM2out[400/2], 4);
 	   }
 	   else if (currentDMA == 3){
 
@@ -239,11 +258,13 @@ ISR(DMA_IRQHandler)
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
 		   				  MEMDMASIZE);
 
-
 		   currentDMA = 4;
+
+//PDM2PCM(memDest1ADMA, &memPCM1out[0]); //---------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>> provisorio
+//ciaaPOSIX_write(fd_uart1ssp, (void const *) &memPCM1out[0], 4);
 	   }
 	   else{ //currentDMA = 4
-PDM2PCM(memDest2ADMA); //---------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>> provisorio
+
 		   /* Do a DMA transfer P2M: data SSP --> memDest2BDMA */
 		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
 		   				  LPC_GPDMA_SSP_RX, // source
@@ -251,8 +272,9 @@ PDM2PCM(memDest2ADMA); //---------------------------------->>>>>>>>>>>>>>>>>>>>>
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
 		   				  MEMDMASIZE);
 
-
 		   currentDMA = 1;
+//PDM2PCM(memDest1BDMA, &memPCM1out[400/2]); //---------------------------------->>>>>>>>>>>>>>>>>>>>>>>>>>>>> provisorio
+//ciaaPOSIX_write(fd_uart1ssp, (void const *) &memPCM1out[400/2], 4);
 	   }
 
    }
