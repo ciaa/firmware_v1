@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
