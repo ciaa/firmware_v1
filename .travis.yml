@@ -10,7 +10,7 @@ script:
    - make
    - export PROJECT_PATH=examples/blinking_modbus
    - make all
-   
+
 
 env:
   global:
