@@ -86,7 +86,7 @@ extern "C" {
 #define ciaaPOSIX_O_RDONLY             0x0000
 
 /** \brief Open to write only */
-#define O_WRONLY            0x0001
+#define ciaaPOSIX_O_WRONLY             0x0001
 
 /** \brief Open to read write */
 #define O_RDWR              0x0002
@@ -154,7 +154,7 @@ extern void ciaaPOSIX_init(void);
  ** \param[in] path  path of the device to be opened
  ** \param[in] oflag may take one of the following values:
  **               ciaaPOSIX_O_RDONLY: opens files to read only
- **               O_WRONLY: opens files to write only
+ **               ciaaPOSIX_O_WRONLY: opens files to write only
  **               O_RDWR: opens file to read and write
  ** \return -1 if failed, a non negative integer representing the file
  **         descriptor if success.

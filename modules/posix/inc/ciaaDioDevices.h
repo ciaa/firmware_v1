@@ -87,7 +87,7 @@ extern void ciaaDioDevices_init(void);
  ** \param[in] path path of the device to be opened
  ** \param[in] oflag may take one of the following values:
  **               ciaaPOSIX_O_RDONLY: opens files to read only
- **               O_WRONLY: opens files to write only
+ **               ciaaPOSIX_O_WRONLY: opens files to write only
  **               O_RDWR: opens file to read and write
  ** \return a negative value if failed, a positive value if success.
  **/

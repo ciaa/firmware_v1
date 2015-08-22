@@ -225,7 +225,7 @@ TASK(InitTask)
    ciaaPOSIX_ioctl(fd_adc, ciaaPOSIX_IOCTL_SET_CHANNEL, ciaaCHANNEL_3);
 
    /* open CIAA DAC */
-   fd_dac = ciaaPOSIX_open("/dev/serial/aio/out/0", O_WRONLY);
+   fd_dac = ciaaPOSIX_open("/dev/serial/aio/out/0", ciaaPOSIX_O_WRONLY);
 
    /* Activates the ModbusSlave task */
    ActivateTask(ModbusSlave);
