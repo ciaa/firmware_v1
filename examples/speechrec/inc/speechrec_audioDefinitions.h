@@ -80,13 +80,13 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /** \brief PCM sampling frequency in Hz */
-#define SAMPLE_RATE 16000
+#define speechrecSAMPLE_RATE 16000
 
 /** \brief PCM data size in bits - MAX: 16 */
-#define DATA_SIZE   16
+#define speechrecDATA_SIZE   16
 
 /** \brief Window size in miliseconds */
-#define WINDOWSIZE 25
+#define speechrecWINDOWSIZE 25
 
 
 /*==================[typedef]================================================*/
