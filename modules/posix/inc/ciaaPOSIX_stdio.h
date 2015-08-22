@@ -92,7 +92,7 @@ extern "C" {
 #define ciaaPOSIX_O_RDWR               0x0002
 
 /** \brief Non blocking interface */
-#define O_NONBLOCK          0x0004
+#define ciaaPOSIX_O_NONBLOCK           0x0004
 
 /** \brief set channel for analogic input/output
  **

@@ -323,7 +323,7 @@ TASK(InitTask)
    /* open CIAA digital inputs */
    fd_in = ciaaPOSIX_open("/dev/dio/in/0", ciaaPOSIX_O_RDWR);
 
-   fdSerialPort = ciaaPOSIX_open("/dev/serial/uart/0", ciaaPOSIX_O_RDWR | O_NONBLOCK);
+   fdSerialPort = ciaaPOSIX_open("/dev/serial/uart/0", ciaaPOSIX_O_RDWR | ciaaPOSIX_O_NONBLOCK);
 
    /* Open Modbus Slave */
    hModbusSlave = ciaaModbus_slaveOpen(
