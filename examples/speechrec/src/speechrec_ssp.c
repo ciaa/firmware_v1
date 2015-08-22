@@ -216,57 +216,57 @@ ISR(DMA_IRQHandler)
 
    if(Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPRx) == SUCCESS){
 
-	   if (currentDMA == 1){
-		   /* Do a DMA transfer P2M: data SSP --> memDest1BDMA */
-		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
+      if (currentDMA == 1){
+         /* Do a DMA transfer P2M: data SSP --> memDest1BDMA */
+         Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
 				   	   	  speechrecGPDMA_SSPn_RX, /* source */
 		   				  (uint32_t) &memDest1BDMA[0], /* destination */
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
 		   				  speechrecMEMDMASIZE);
 
-		   currentDMA = 2;
-	   }
-	   else if (currentDMA == 2){
+         currentDMA = 2;
+      }
+      else if (currentDMA == 2){
 
-		   /* Do a DMA transfer P2M: data SSP --> memDest2ADMA */
-		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
+         /* Do a DMA transfer P2M: data SSP --> memDest2ADMA */
+         Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
 				   	   	  speechrecGPDMA_SSPn_RX, // source
 		   				  (uint32_t) &memDest2ADMA[0], /* destination */
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
 		   				  speechrecMEMDMASIZE);
 
 
-		   currentDMA = 3;
-	   }
-	   else if (currentDMA == 3){
+         currentDMA = 3;
+      }
+      else if (currentDMA == 3){
 
-		   /* Do a DMA transfer P2M: data SSP --> memDest2BDMA */
-		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
+         /* Do a DMA transfer P2M: data SSP --> memDest2BDMA */
+         Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
 				   	   	  speechrecGPDMA_SSPn_RX, /* source */
 		   				  (uint32_t) &memDest2BDMA[0], /* destination */
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
 		   				  speechrecMEMDMASIZE);
 
-		   currentDMA = 4;
+         currentDMA = 4;
 
-	   }
-	   else{ /* currentDMA = 4 */
+      }
+      else{ /* currentDMA = 4 */
 
-		   /* Do a DMA transfer P2M: data SSP --> memDest1ADMA */
-		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
+         /* Do a DMA transfer P2M: data SSP --> memDest1ADMA */
+         Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
 				   	   	  speechrecGPDMA_SSPn_RX, /* source */
 		   				  (uint32_t) &memDest1ADMA[0], /* destination */
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
 		   				  speechrecMEMDMASIZE);
 
-		   currentDMA = 1;
-	   }
+         currentDMA = 1;
+      }
 
    }
    else if (Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPTx) == SUCCESS){
 
-	   /* Do a DMA transfer P2M: memDMATx --> SSP */
-	   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
+      /* Do a DMA transfer P2M: memDMATx --> SSP */
+      Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
 	   				  (uint32_t) &memDMATx, /* source */
 	   				  speechrecGPDMA_SSPn_TX, /* destination */
 	   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA,

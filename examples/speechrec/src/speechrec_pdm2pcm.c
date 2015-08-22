@@ -167,29 +167,30 @@ static const int16_t FIR2coeffs[speechrecNCOEFFS2] = {
 /* Check if the frequencies related MACROS make sense */
 static void check_freqs()
 {
-	if((speechrecBITRATE/speechrecDECIM_FACT_CIC/speechrecDECIM_FACT_FIR) != (speechrecSAMPLE_RATE/1000))
-	{
-		while(1){} //indicar error
-	}
+   if((speechrecBITRATE/speechrecDECIM_FACT_CIC/speechrecDECIM_FACT_FIR) != (speechrecSAMPLE_RATE/1000))
+   {
+      while(1){} //indicar error
+   }
 }
 
 /* Extraction of each bit from the received PDM data in the buffer */
 static int8_t GetPDMbit(uint8_t *PDMbuff,uint8_t word, uint8_t bit)
 {
-	uint16_t current_word;
-	int8_t current_bit;
+   uint16_t current_word;
+   int8_t current_bit;
 
-	current_word = PDMbuff[word*(speechrecDECIM_FACT_CIC/8)];
+   current_word = PDMbuff[word*(speechrecDECIM_FACT_CIC/8)];
 
-	if (speechrecDECIM_FACT_CIC == 16)
-		current_word |= PDMbuff[word*(speechrecDECIM_FACT_CIC/8) + 1] << 8;
+   if (speechrecDECIM_FACT_CIC == 16){
+      current_word |= PDMbuff[word*(speechrecDECIM_FACT_CIC/8) + 1] << 8;
+   }
 
-	current_word >>= bit;
-	current_bit = current_word & 0x1;
-	current_bit = current_bit * 2;
-	current_bit = current_bit - 1;
+   current_word >>= bit;
+   current_bit = current_word & 0x1;
+   current_bit = current_bit * 2;
+   current_bit = current_bit - 1;
 
-	return current_bit;
+   return current_bit;
 
 }
 
@@ -236,37 +237,37 @@ static void CIC_filter(uint8_t *PDMbuff)
 /* FIR filter with decimator*/
 static void FIR_decimator(int16_t *PCMbuff)
 {
-	arm_status ret;
+   arm_status ret;
 
-	ret = arm_fir_decimate_init_q15(	&S1,
+   ret = arm_fir_decimate_init_q15(&S1,
 								speechrecNCOEFFS1,
 								(uint8_t) speechrecDECIM_FACT_FIR1,
 								(q15_t *) FIR1coeffs,
 								StateBuff1,
 								(uint32_t) speechrecMEMCICSIZE);
 
-	if (ret == ARM_MATH_LENGTH_ERROR)
-		while(1){}
+   if (ret == ARM_MATH_LENGTH_ERROR)
+      while(1){}
 
-	ret = arm_fir_decimate_init_q15(	&S2,
+   ret = arm_fir_decimate_init_q15(&S2,
 								speechrecNCOEFFS2,
 								(uint8_t) speechrecDECIM_FACT_FIR2,
 								(q15_t *) FIR2coeffs,
 								StateBuff2,
 								(uint32_t) speechrecMEMFIR1SIZE);
 
-	if (ret == ARM_MATH_LENGTH_ERROR)
-		while(1){}
+   if (ret == ARM_MATH_LENGTH_ERROR)
+      while(1){}
 
-	arm_fir_decimate_q15	(	&S1,
-								memCICout,
-								memFIR1out,
-								(uint32_t) speechrecMEMCICSIZE);
+   arm_fir_decimate_q15(&S1,
+						memCICout,
+						memFIR1out,
+						(uint32_t) speechrecMEMCICSIZE);
 
-	arm_fir_decimate_q15	(	&S2,
-								memFIR1out,
-								PCMbuff,
-								(uint32_t) speechrecMEMFIR1SIZE);
+   arm_fir_decimate_q15(&S2,
+						memFIR1out,
+						PCMbuff,
+						(uint32_t) speechrecMEMFIR1SIZE);
 }
 
 
@@ -286,9 +287,9 @@ extern void speechrec_pdm2pcm_init(void)
 extern void speechrec_pdm2pcm(uint8_t *PDMbuff, int16_t *PCMbuff) // cuando llamo a esta funcion tengo que asegurarme de pasar el inicio o la mitad de memPCM1out o memPCM2out
 {
 
-	CIC_filter(PDMbuff);
+   CIC_filter(PDMbuff);
 
-	FIR_decimator(PCMbuff);
+   FIR_decimator(PCMbuff);
 
 }
 
