@@ -89,7 +89,7 @@ extern "C" {
 #define ciaaPOSIX_O_WRONLY             0x0001
 
 /** \brief Open to read write */
-#define O_RDWR              0x0002
+#define ciaaPOSIX_O_RDWR               0x0002
 
 /** \brief Non blocking interface */
 #define O_NONBLOCK          0x0004
@@ -155,7 +155,7 @@ extern void ciaaPOSIX_init(void);
  ** \param[in] oflag may take one of the following values:
  **               ciaaPOSIX_O_RDONLY: opens files to read only
  **               ciaaPOSIX_O_WRONLY: opens files to write only
- **               O_RDWR: opens file to read and write
+ **               ciaaPOSIX_O_RDWR: opens file to read and write
  ** \return -1 if failed, a non negative integer representing the file
  **         descriptor if success.
  **

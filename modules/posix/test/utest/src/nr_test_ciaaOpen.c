@@ -121,7 +121,7 @@ void testOpenInvalidFileDescriptor(void) {
     TEST_ASSERT_TRUE(-1==fd);
 
     /* try to open an invalid device as write only */
-    fd = ciaaPOSIX_open(invalid_device, O_RDWR);
+    fd = ciaaPOSIX_open(invalid_device, ciaaPOSIX_O_RDWR);
     TEST_ASSERT_TRUE(-1==fd);
 }
 

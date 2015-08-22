@@ -90,7 +90,7 @@ extern "C" {
  ** \param[in] oflag may take one of the following values:
  **               ciaaPOSIX_O_RDONLY: opens files to read only
  **               ciaaPOSIX_O_WRONLY: opens files to write only
- **               O_RDWR: opens file to read and write
+ **               ciaaPOSIX_O_RDWR: opens file to read and write
  ** \return NULL if an error occurs, in other case the address of the opened
  **         device.
  **/

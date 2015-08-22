@@ -100,7 +100,7 @@ TASK(InitTask)
    ciaak_start();
 
    /* open UART connected to USB bridge (FT2232) */
-   fd_uart = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+   fd_uart = ciaaPOSIX_open("/dev/serial/uart/1", ciaaPOSIX_O_RDWR);
 
    /* change baud rate for uart usb */
    ciaaPOSIX_ioctl(fd_uart, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);

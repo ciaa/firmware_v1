@@ -162,12 +162,12 @@ TASK(InitTask)
    ciaak_start();
 
    /* open CIAA digital outputs */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 
    /* open CIAA digital inputs */
-   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDWR);
+   fd_in = ciaaPOSIX_open("/dev/dio/in/0", ciaaPOSIX_O_RDWR);
 
-   fdSerialPort = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR | O_NONBLOCK);
+   fdSerialPort = ciaaPOSIX_open("/dev/serial/uart/0", ciaaPOSIX_O_RDWR | O_NONBLOCK);
 
    /* Open Modbus Master */
    hModbusMaster = ciaaModbus_masterOpen();

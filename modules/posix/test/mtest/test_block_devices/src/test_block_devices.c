@@ -199,7 +199,7 @@ TASK(InitTask)
    ASSERT_SEQ(0);
 
    /* open a block device */
-   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
+   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", ciaaPOSIX_O_RDWR);
    ASSERT_MSG(-1 < filedes1, "ciaaPOSIX_open returns an invalid handler");
 
    ASSERT_SEQ(1);
@@ -272,7 +272,7 @@ TASK(InitTask)
    ASSERT_SEQ(9);
 
    /* open a block device */
-   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
+   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", ciaaPOSIX_O_RDWR);
    ASSERT_MSG(-1 < filedes1, "ciaaPOSIX_open returns an invalid handler");
 
    /* read a block */
@@ -300,7 +300,7 @@ TASK(InitTask)
    ASSERT_MSG(0 == ret, "ciaaPOSIX_close devices returns error");
 
    /* open a block device */
-   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
+   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", ciaaPOSIX_O_RDWR);
    ASSERT_MSG(-1 < filedes1, "ciaaPOSIX_open returns an invalid handler");
 
    /* read a block */

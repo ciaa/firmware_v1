@@ -173,13 +173,13 @@ TASK(InitTask)
    fd_in = ciaaPOSIX_open("/dev/dio/in/0", ciaaPOSIX_O_RDONLY);
 
    /* open CIAA digital outputs */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 
    /* open UART connected to USB bridge (FT2232) */
-   fd_uart1 = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+   fd_uart1 = ciaaPOSIX_open("/dev/serial/uart/1", ciaaPOSIX_O_RDWR);
 
    /* open UART connected to RS232 connector */
-   fd_uart2 = ciaaPOSIX_open("/dev/serial/uart/2", O_RDWR);
+   fd_uart2 = ciaaPOSIX_open("/dev/serial/uart/2", ciaaPOSIX_O_RDWR);
 
    /* change baud rate for uart usb */
    ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);
