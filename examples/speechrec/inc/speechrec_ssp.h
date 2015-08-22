@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef SPEECHREC_PDM2PCM_INTERNAL_H
-#define SPEECHREC_PDM2PCM_INTERNAL_H
+#ifndef SPEECHREC_SSP_H
+#define SPEECHREC_SSP_H
 /** \brief Short description of this file
  **
  ** Long description of this file
@@ -71,9 +71,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "chip.h"
-#include "speechrec_pdm2pcm.h"
-#include "arm_math_modif.h"
+#include "speechrec_audioDefinitions.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -81,25 +79,45 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief SPI bit ratein kbps */
+#define BITRATE 1024
 
-/** \brief Total FIR filters decimation factor */
-#define DECIM_FACT_FIR (DECIM_FACT_FIR1*DECIM_FACT_FIR2)
-
-/** \brief Number of bytes to shif the CIC filter result */
-#define SHIFT_RES  (DATA_SIZE - 16 + 5)
-
-/** \brief Number of coefficients for FIR filter decimator 1 = order + 1 */
-#define NCOEFFS1 32
-
-/** \brief Number of coefficients for FIR filter decimator 2 = order + 1 */
-#define NCOEFFS2 32
+/** \brief Size of memory buffer for DMA in bytes - MAX: 4096 */
+#define MEMDMASIZE  (BITRATE*WINDOWSIZE/8/2)
 
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
-/*==================[external functions declaration]=========================*/
+/** \brief First memory buffer for window 1
+ * Maximum DMA transference size: 4096 =>
+ * => Two memory buffers used for each window
+ */
+extern uint8_t memDest1ADMA[MEMDMASIZE];
 
+/** \brief Second memory buffer for window 1
+ * Maximum DMA transference size: 4096 =>
+ * => Two memory buffers used for each window
+ */
+extern uint8_t memDest1BDMA[MEMDMASIZE];
+
+/** \brief First memory buffer for window 2
+ * Maximum DMA transference size: 4096 =>
+ * => Two memory buffers used for each window
+ */
+extern uint8_t memDest2ADMA[MEMDMASIZE];
+
+/** \brief Second memory buffer for window 2
+ * Maximum DMA transference size: 4096 =>
+ * => Two memory buffers used for each window
+ */
+extern uint8_t memDest2BDMA[MEMDMASIZE];
+
+/*==================[external functions declaration]=========================*/
+/** \brief Initialize and start SPI transference with DMA
+ **
+ **/
+extern void speechrec_spi_dma_start(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -108,5 +126,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef SPEECHREC_PDM2PCM_INTERNAL_H */
+#endif /* #ifndef SPEECHREC_SSP_H */
 

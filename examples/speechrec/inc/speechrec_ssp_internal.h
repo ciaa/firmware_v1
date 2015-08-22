@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef SPEECHREC_SSP_H
-#define SPEECHREC_SSP_H
+#ifndef SPEECHREC_SSP_INTERNAL_H
+#define SPEECHREC_SSP_INTERNAL_H
 /** \brief Short description of this file
  **
  ** Long description of this file
@@ -72,8 +72,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "chip.h"
-#include "speechrec_audioDefinitions.h"
-//#include "speechrec_pdm2pcm.h" //------------------------------------------------------------------------------------>>>>>>>>>>>provisorio
+#include "speechrec_ssp.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -82,17 +81,10 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 /** \brief SSPn selection */
-#define LPC_SSP         LPC_SSP1
+#define SPEECHREC_SSPn         LPC_SSP1
 
 /** \brief SPI data size */
 #define SSP_DATA_BITS   (SSP_BITS_8)
-
-/** \brief SPI bit ratein kbps */
-//#define BITRATE 2400
-#define BITRATE 1024
-
-/** \brief Size of memory buffer for DMA in bytes - MAX: 4096 */
-#define MEMDMASIZE  (BITRATE*WINDOWSIZE/8/2)
 
 /** \brief  */
 #define LPC_GPDMA_SSP_TX  GPDMA_CONN_SSP1_Tx
@@ -103,12 +95,8 @@ extern "C" {
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
-//extern int16_t* memPCM1out; //------------------------------------------------------------------>>>>>>>>>>>provisorio
-//extern int16_t* memPCM2out; //------------------------------------------------------------------>>>>>>>>>>>provisorio
-
 
 /*==================[external functions declaration]=========================*/
-extern void PDM2PCM(uint8_t *PDMbuff, int16_t *PCMbuff); //------------------------------------------------>>>>>>>>>>>provisorio
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -117,5 +105,5 @@ extern void PDM2PCM(uint8_t *PDMbuff, int16_t *PCMbuff); //---------------------
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef SSP_H */
+#endif /* #ifndef SPEECHREC_SSP_INTERNAL_H */
 

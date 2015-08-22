@@ -74,12 +74,24 @@
 #include "ciaaPOSIX_stdio.h"  /* <= device handler header */
 #include "ciaaPOSIX_string.h" /* <= string header */
 #include "ciaak.h"            /* <= ciaa kernel header */
-#include "speechrec.h"         	  /* <= own header */
+#include "speechrec.h"        /* <= own header */
 
 
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
+
+/** \brief PCM memory buffer for window 1
+ * One PCM buffer corresponds to two PDM memory buffers, because of DMA transference size limitations
+ * Equivalent to two consecutive memFIR2out buffers, each of size MEMFIR2SIZE
+ */
+static int16_t memPCM1out[MEMPCMSIZE];
+
+/** \brief PCM memory buffer for window 2
+ * One PCM buffer corresponds to two PDM memory buffers, because of DMA transference size limitations
+ * Equivalent to two consecutive memFIR2out buffers, each of size MEMFIR2SIZE
+ */
+static int16_t memPCM2out[MEMPCMSIZE];
 
 /*==================[internal functions declaration]=========================*/
 
@@ -199,11 +211,10 @@ TASK(InitTask)
    ActivateTask(SerialEchoTask);
 
    /* Initialize and start SPI-DMA */
-   //SPI_DMA_Start();
-   SPI_DMA_Start(fd_uart1);
+   speechrec_spi_dma_start();
 
    /* Initialize PDM2PCM */
-   PDM2PCM_Init();
+   speechrec_pdm2pcm_init();
 
    /* end InitTask */
    TerminateTask();

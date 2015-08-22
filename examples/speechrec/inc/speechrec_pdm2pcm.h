@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef SPEECHREC_PDM2PCM_INTERNAL_H
-#define SPEECHREC_PDM2PCM_INTERNAL_H
+#ifndef SPEECHREC_PDM2PCM_H
+#define SPEECHREC_PDM2PCM_H
 /** \brief Short description of this file
  **
  ** Long description of this file
@@ -71,9 +71,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "chip.h"
-#include "speechrec_pdm2pcm.h"
-#include "arm_math_modif.h"
+#include "speechrec_ssp.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -82,24 +80,45 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 
-/** \brief Total FIR filters decimation factor */
-#define DECIM_FACT_FIR (DECIM_FACT_FIR1*DECIM_FACT_FIR2)
+/** \brief CIC filter decimation factor */
+#define DECIM_FACT_CIC 16
+//#define DECIM_FACT_CIC 8
 
-/** \brief Number of bytes to shif the CIC filter result */
-#define SHIFT_RES  (DATA_SIZE - 16 + 5)
+/** \brief FIR filter 1 decimation factor */
+#define DECIM_FACT_FIR1 2
+//#define DECIM_FACT_FIR1 4
 
-/** \brief Number of coefficients for FIR filter decimator 1 = order + 1 */
-#define NCOEFFS1 32
+/** \brief FIR filter 2 decimation factor */
+#define DECIM_FACT_FIR2 2
+//#define DECIM_FACT_FIR2 4
 
-/** \brief Number of coefficients for FIR filter decimator 2 = order + 1 */
-#define NCOEFFS2 32
+/** \brief Size of memory buffer for CIC filter output */
+#define MEMCICSIZE  (MEMDMASIZE/(DECIM_FACT_CIC/8))
+
+/** \brief Size of memory buffer for FIR filter with decimation output */
+#define MEMFIR1SIZE (MEMCICSIZE/DECIM_FACT_FIR1)
+
+/** \brief Size of memory buffer for FIR filter with decimation output */
+#define MEMFIR2SIZE (MEMFIR1SIZE/DECIM_FACT_FIR2)
+
+/** \brief Size of memory buffer for FIR filter with decimation output */
+#define MEMPCMSIZE (MEMFIR2SIZE*2)
+
 
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief Initialization function
+ **
+ **/
+extern void speechrec_pdm2pcm_init(void);
 
+/** \brief Perform a PDM to PCM conversion
+ ** Cuando llamo a esta funcion tengo que asegurarme de pasar el inicio o la mitad del buffer PCM que corresponda (memPCM1out o memPCM2out)
+ **/
+extern void speechrec_pdm2pcm(uint8_t *, int16_t *);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -108,5 +127,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef SPEECHREC_PDM2PCM_INTERNAL_H */
+#endif /* #ifndef SPEECHREC_PDM2PCM_H */
 

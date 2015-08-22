@@ -69,7 +69,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "speechrec_pdm2pcm.h"
+#include "speechrec_pdm2pcm_internal.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -128,18 +128,6 @@ static int16_t StateBuff2[NCOEFFS2 + MEMFIR1SIZE - 1];
  */
 static int16_t memFIR1out[MEMFIR1SIZE];
 
-///** \brief PCM memory buffer for window 1
-// * One PCM buffer corresponds to two PDM memory buffers, because of DMA transference size limitations
-// * Equivalent to two consecutive memFIR2out buffers, each of size MEMFIR2SIZE
-// */
-//extern int16_t memPCM1out[MEMPCMSIZE];
-//
-///** \brief PCM memory buffer for window 2
-// * One PCM buffer corresponds to two PDM memory buffers, because of DMA transference size limitations
-// * Equivalent to two consecutive memFIR2out buffers, each of size MEMFIR2SIZE
-// */
-//extern int16_t memPCM2out[MEMPCMSIZE];
-
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
@@ -180,6 +168,7 @@ static int16_t FIR2coeffs[NCOEFFS2] = {
 
 /*==================[internal functions definition]==========================*/
 
+/* Check if the frequencies related MACROS make sense */
 static void check_freqs()
 {
 	if((BITRATE/DECIM_FACT_CIC/DECIM_FACT_FIR) != (SAMPLE_RATE/1000))
@@ -213,39 +202,38 @@ static void CIC_filter(uint8_t *PDMbuff)
 {
    uint16_t i,j;
 
-for(j=0;j<MEMCICSIZE;j++)
+   for(j=0;j<MEMCICSIZE;j++)
+   {
+      OldSigma5 = Sigma5;
+      OldDelta1 = Delta1;
+      OldDelta2 = Delta2;
+      OldDelta3 = Delta3;
+      OldDelta4 = Delta4;
 
-{
-	OldSigma5 = Sigma5;
-	OldDelta1 = Delta1;
-	OldDelta2 = Delta2;
-	OldDelta3 = Delta3;
-	OldDelta4 = Delta4;
+      //Sigma operations for the PDM data from Microphone
+      for(i=0; i<DECIM_FACT_CIC; i++)
+      {
+         Sigma1 += GetPDMbit(PDMbuff,j,i);
+         Sigma1 += 1;
+         Sigma2 += Sigma1;
+         Sigma3 += Sigma2;
+         Sigma4 += Sigma3;
+         Sigma5 += Sigma4;
+      }
 
-	//Sigma operations for the PDM data from Microphone
-		for(i=0; i<DECIM_FACT_CIC; i++){
-		   Sigma1 += GetPDMbit(PDMbuff,j,i);
-		   Sigma1 += 1;
-		   Sigma2 += Sigma1;
-		   Sigma3 += Sigma2;
-		   Sigma4 += Sigma3;
-		   Sigma5 += Sigma4;
-		}
+      //Delta operations for the PDM data from Microphone
+      Delta1 = Sigma5 - OldSigma5;
+      Delta2 = Delta1 - OldDelta1;
+      Delta3 = Delta2 - OldDelta2;
+      Delta4 = Delta3 - OldDelta3;
+      Result = Delta4 - OldDelta4;
 
-	//Delta operations for the PDM data from Microphone
-	Delta1 = Sigma5 - OldSigma5;
-	Delta2 = Delta1 - OldDelta1;
-	Delta3 = Delta2 - OldDelta2;
-	Delta4 = Delta3 - OldDelta3;
-	Result = Delta4 - OldDelta4;
+      /* Framed data from microphone to be sent for FIR decimation is stored in Result.
+      since the operation is 5 stage divided by 16 decimation this field can grow up to
+      21 bits. */
+      memCICout[j] = (int16_t) (Result>>SHIFT_RES);
 
-/* Framed data from microphone to be sent for FIR decimation is stored in Result.
-Since the operation is 5 stage divided by 16 decimation this field can grow up to
-21 bits. */
-	memCICout[j] = (int16_t) (Result>>SHIFT_RES);
-
-
-	}
+      }
 
 }
 
@@ -288,29 +276,12 @@ static void FIR_decimator(int16_t *PCMbuff)
 
 /*==================[external functions definition]==========================*/
 
-extern void PDM2PCM_Init(void)
+extern void speechrec_pdm2pcm_init(void)
 {
-
    check_freqs();
-
-   Sigma1 = 0;
-   Sigma2 = 0;
-   Sigma3 = 0;
-   Sigma4 = 0;
-   Sigma5 = 0;
-   Delta1 = 0;
-   Delta2 = 0;
-   Delta3 = 0;
-   Delta4 = 0;
-   Result = 0;
-   OldDelta1 = 0;
-   OldDelta2 = 0;
-   OldDelta3 = 0;
-   OldDelta4 = 0;
-   OldSigma5 = 0;
 }
 
-extern void PDM2PCM(uint8_t *PDMbuff, int16_t *PCMbuff) // cuando llamo a esta funcion tengo que asegurarme de pasar el inicio o la mitad de memPCM1out o memPCM2out
+extern void speechrec_pdm2pcm(uint8_t *PDMbuff, int16_t *PCMbuff) // cuando llamo a esta funcion tengo que asegurarme de pasar el inicio o la mitad de memPCM1out o memPCM2out
 {
 
 	CIC_filter(PDMbuff);

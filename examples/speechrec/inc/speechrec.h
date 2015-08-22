@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef SPEECHREC_TESIS_H
-#define SPEECHREC_TESIS_H
+#ifndef SPEECHREC_H
+#define SPEECHREC_H
 /** \brief Speech Recognition Tesis header file
  **
  ** Long description of this file
@@ -71,6 +71,8 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "speechrec_ssp.h"
+#include "speechrec_pdm2pcm.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -84,12 +86,6 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief
- *
- */
-//extern void SPI_DMA_Start(void);
-extern void SPI_DMA_Start(int32_t);
-extern void PDM2PCM_Init(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -98,5 +94,5 @@ extern void PDM2PCM_Init(void);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _TESIS_H_ */
+#endif /* #ifndef SPEECHREC_H_ */
 
