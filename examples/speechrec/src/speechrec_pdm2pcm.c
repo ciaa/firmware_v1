@@ -69,33 +69,33 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "speechrec_pdm2pcm_internal.h"
+#include "speechrec_pdm2pcm_internal.h"	/* <= PDM to PCM interface internal header */
 
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
 
-/** \brief
+/** \brief Sigma variables declaration for the CIC filter
  *
  */
 static int32_t Sigma1, Sigma2, Sigma3, Sigma4, Sigma5;
 
-/** \brief
+/** \brief Delta variables declaration for the CIC filter
  *
  */
 static int32_t Delta1, Delta2, Delta3, Delta4;
 
-/** \brief
+/** \brief Result variable for the CIC filter
  *
  */
 static int32_t Result;
 
-/** \brief
+/** \brief Old variables declaration for the CIC filter
  *
  */
 static int32_t OldDelta1, OldDelta2, OldDelta3, OldDelta4, OldSigma5;
 
-/** \brief
+/** \brief Output memory buffer of the CIC filter
  *
  */
 static int16_t memCICout[speechrecMEMCICSIZE];
@@ -137,7 +137,7 @@ static int16_t memFIR1out[speechrecMEMFIR1SIZE];
  * pass band: 0 dB
  * stop band: -38 dB
  */
-static int16_t FIR1coeffs[speechrecNCOEFFS1] = {
+static const int16_t FIR1coeffs[speechrecNCOEFFS1] = {
        96,    309,   -120,   -357,    -46,    548,    328,   -668,   -817,
       621,   1571,   -210,  -2801,  -1173,   6070,  13215,  13215,   6070,
     -1173,  -2801,   -210,   1571,    621,   -817,   -668,    328,    548,
@@ -153,7 +153,7 @@ static int16_t FIR1coeffs[speechrecNCOEFFS1] = {
  * pass band: +/-1 dB
  * stop band: -24 dB
  */
-static int16_t FIR2coeffs[speechrecNCOEFFS2] = {
+static const int16_t FIR2coeffs[speechrecNCOEFFS2] = {
      -628,    996,    820,   -117,   -612,    235,    952,    -44,  -1263,
      -219,   1751,    756,  -2640,  -2124,   5563,  14005,  14005,   5563,
     -2124,  -2640,    756,   1751,   -219,  -1263,    -44,    952,    235,
@@ -206,7 +206,7 @@ static void CIC_filter(uint8_t *PDMbuff)
       OldDelta3 = Delta3;
       OldDelta4 = Delta4;
 
-      //Sigma operations for the PDM data from Microphone
+      /* Sigma operations for the PDM data from Microphone */
       for(i=0; i<speechrecDECIM_FACT_CIC; i++)
       {
          Sigma1 += GetPDMbit(PDMbuff,j,i);
@@ -217,7 +217,7 @@ static void CIC_filter(uint8_t *PDMbuff)
          Sigma5 += Sigma4;
       }
 
-      //Delta operations for the PDM data from Microphone
+      /* Delta operations for the PDM data from Microphone */
       Delta1 = Sigma5 - OldSigma5;
       Delta2 = Delta1 - OldDelta1;
       Delta3 = Delta2 - OldDelta2;
@@ -233,7 +233,7 @@ static void CIC_filter(uint8_t *PDMbuff)
 
 }
 
-
+/* FIR filter with decimator*/
 static void FIR_decimator(int16_t *PCMbuff)
 {
 	arm_status ret;
@@ -241,7 +241,7 @@ static void FIR_decimator(int16_t *PCMbuff)
 	ret = arm_fir_decimate_init_q15(	&S1,
 								speechrecNCOEFFS1,
 								(uint8_t) speechrecDECIM_FACT_FIR1,
-								FIR1coeffs,
+								(q15_t *) FIR1coeffs,
 								StateBuff1,
 								(uint32_t) speechrecMEMCICSIZE);
 
@@ -251,7 +251,7 @@ static void FIR_decimator(int16_t *PCMbuff)
 	ret = arm_fir_decimate_init_q15(	&S2,
 								speechrecNCOEFFS2,
 								(uint8_t) speechrecDECIM_FACT_FIR2,
-								FIR2coeffs,
+								(q15_t *) FIR2coeffs,
 								StateBuff2,
 								(uint32_t) speechrecMEMFIR1SIZE);
 
@@ -272,11 +272,17 @@ static void FIR_decimator(int16_t *PCMbuff)
 
 /*==================[external functions definition]==========================*/
 
+/* \brief Initialization function
+ *
+ */
 extern void speechrec_pdm2pcm_init(void)
 {
    check_freqs();
 }
 
+/* \brief Perform a PDM to PCM conversion
+ * Cuando llamo a esta funcion tengo que asegurarme de pasar el inicio o la mitad del buffer PCM que corresponda (memPCM1out o memPCM2out)
+ */
 extern void speechrec_pdm2pcm(uint8_t *PDMbuff, int16_t *PCMbuff) // cuando llamo a esta funcion tengo que asegurarme de pasar el inicio o la mitad de memPCM1out o memPCM2out
 {
 

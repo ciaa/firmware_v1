@@ -69,25 +69,30 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "os.h"
-#include "speechrec_ssp_internal.h"
+#include "os.h"						/* <= operating system header */
+#include "speechrec_ssp_internal.h"	/* <= ssp internal header */
 
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
 
-/** \brief
+/** \brief SSP configuration format variable
  *
  */
 static SSP_ConfigFormat ssp_format;
 
-/** \brief
+/** \brief GPDMA channel number for transmision
  *
  */
-static uint8_t dmaChSSPTx, dmaChSSPRx;
+static uint8_t dmaChSSPTx;
 
-/** \brief
+/** \brief GPDMA channel number for reception
  *
+ */
+static uint8_t dmaChSSPRx;
+
+/** \brief Current memory buffer indicator
+ * Indicates which memory buffer is currently being written by the DMA
  */
 static uint8_t currentDMA;
 
@@ -131,6 +136,9 @@ uint8_t memDest2BDMA[speechrecMEMDMASIZE];
 
 /*==================[external functions definition]==========================*/
 
+/** \brief Initialize and start SPI transference with DMA
+ *
+ */
 extern void speechrec_spi_dma_start(void)
 {
    /* SSP DMA Read and Write: fixed on 8bits */
@@ -181,17 +189,17 @@ extern void speechrec_spi_dma_start(void)
 
    Chip_SSP_DMA_Enable(speechrecSSPn);
 
-   /* Do a DMA transfer P2M: data SSP --> memDest2BDMA */
+   /* Do a DMA transfer P2M: data SSP --> memDest1ADMA */
    Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-		   	   	  speechrecGPDMA_SSPn_RX, // source
-				  (uint32_t) &memDest2BDMA[0], // destination
+		   	   	  speechrecGPDMA_SSPn_RX, /* source */
+				  (uint32_t) &memDest1ADMA[0], /* destination */
 				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
 				  speechrecMEMDMASIZE);
 
    /* Do a DMA transfer P2M: memDMATx --> SSP */
    Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
-				  (uint32_t) &memDMATx, // source
-				  speechrecGPDMA_SSPn_TX, // destination
+				  (uint32_t) &memDMATx, /* source */
+				  speechrecGPDMA_SSPn_TX, /* destination */
 				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA,
 				  speechrecMEMDMASIZE);
 
@@ -209,10 +217,10 @@ ISR(DMA_IRQHandler)
    if(Chip_GPDMA_Interrupt(LPC_GPDMA, dmaChSSPRx) == SUCCESS){
 
 	   if (currentDMA == 1){
-		   /* Do a DMA transfer P2M: data SSP --> memDest1ADMA */
+		   /* Do a DMA transfer P2M: data SSP --> memDest1BDMA */
 		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-				   	   	  speechrecGPDMA_SSPn_RX, // source
-		   				  (uint32_t) &memDest1ADMA[0], // destination
+				   	   	  speechrecGPDMA_SSPn_RX, /* source */
+		   				  (uint32_t) &memDest1BDMA[0], /* destination */
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
 		   				  speechrecMEMDMASIZE);
 
@@ -220,10 +228,10 @@ ISR(DMA_IRQHandler)
 	   }
 	   else if (currentDMA == 2){
 
-		   /* Do a DMA transfer P2M: data SSP --> memDest1BDMA */
+		   /* Do a DMA transfer P2M: data SSP --> memDest2ADMA */
 		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
 				   	   	  speechrecGPDMA_SSPn_RX, // source
-		   				  (uint32_t) &memDest1BDMA[0], // destination
+		   				  (uint32_t) &memDest2ADMA[0], /* destination */
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
 		   				  speechrecMEMDMASIZE);
 
@@ -232,22 +240,22 @@ ISR(DMA_IRQHandler)
 	   }
 	   else if (currentDMA == 3){
 
-		   /* Do a DMA transfer P2M: data SSP --> memDest2ADMA */
+		   /* Do a DMA transfer P2M: data SSP --> memDest2BDMA */
 		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-				   	   	  speechrecGPDMA_SSPn_RX, // source
-		   				  (uint32_t) &memDest2ADMA[0], // destination
+				   	   	  speechrecGPDMA_SSPn_RX, /* source */
+		   				  (uint32_t) &memDest2BDMA[0], /* destination */
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
 		   				  speechrecMEMDMASIZE);
 
 		   currentDMA = 4;
 
 	   }
-	   else{ //currentDMA = 4
+	   else{ /* currentDMA = 4 */
 
-		   /* Do a DMA transfer P2M: data SSP --> memDest2BDMA */
+		   /* Do a DMA transfer P2M: data SSP --> memDest1ADMA */
 		   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-				   	   	  speechrecGPDMA_SSPn_RX, // source
-		   				  (uint32_t) &memDest2BDMA[0], // destination
+				   	   	  speechrecGPDMA_SSPn_RX, /* source */
+		   				  (uint32_t) &memDest1ADMA[0], /* destination */
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
 		   				  speechrecMEMDMASIZE);
 
@@ -259,8 +267,8 @@ ISR(DMA_IRQHandler)
 
 	   /* Do a DMA transfer P2M: memDMATx --> SSP */
 	   Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
-	   				  (uint32_t) &memDMATx, // source
-	   				  speechrecGPDMA_SSPn_TX, // destination
+	   				  (uint32_t) &memDMATx, /* source */
+	   				  speechrecGPDMA_SSPn_TX, /* destination */
 	   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA,
 	   				  speechrecMEMDMASIZE);
 

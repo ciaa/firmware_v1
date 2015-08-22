@@ -71,8 +71,8 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "speechrec_ssp.h"
-#include "speechrec_pdm2pcm.h"
+#include "speechrec_ssp.h"		/* <= SSP header */
+#include "speechrec_pdm2pcm.h"	/* <= PDM to PCM interface header */
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

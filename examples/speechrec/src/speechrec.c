@@ -210,11 +210,11 @@ TASK(InitTask)
    /* Activates the SerialEchoTask task */
    ActivateTask(SerialEchoTask);
 
-   /* Initialize and start SPI-DMA */
-   speechrec_spi_dma_start();
-
    /* Initialize PDM2PCM */
    speechrec_pdm2pcm_init();
+
+   /* Initialize and start SPI-DMA */
+   speechrec_spi_dma_start();
 
    /* end InitTask */
    TerminateTask();

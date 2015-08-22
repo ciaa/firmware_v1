@@ -71,7 +71,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "speechrec_audioDefinitions.h"
+#include "speechrec_audioDefinitions.h"	/* <= Audio processing definitions header */
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -79,7 +79,7 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief SPI bit ratein kbps */
+/** \brief SPI bit rate in kbps */
 #define speechrecBITRATE 1024
 
 /** \brief Size of memory buffer for DMA in bytes - MAX: 4096 */
