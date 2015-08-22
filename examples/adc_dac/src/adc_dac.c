@@ -150,7 +150,7 @@ TASK(InitTask)
    ciaak_start();
 
    /* open CIAA ADC */
-   fd_adc = ciaaPOSIX_open("/dev/serial/aio/in/0", O_RDONLY);
+   fd_adc = ciaaPOSIX_open("/dev/serial/aio/in/0", ciaaPOSIX_O_RDONLY);
    ciaaPOSIX_ioctl(fd_adc, ciaaPOSIX_IOCTL_SET_SAMPLE_RATE, 100000);
    ciaaPOSIX_ioctl(fd_adc, ciaaPOSIX_IOCTL_SET_CHANNEL, ciaaCHANNEL_3);
 

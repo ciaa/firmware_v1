@@ -113,7 +113,7 @@ void testOpenInvalidFileDescriptor(void) {
     void stub_malloc_StubWithCallback(doNothing);
 
     /* try to open an invalid device as read only */
-    fd = ciaaPOSIX_open(invalid_device, O_RDONLY);
+    fd = ciaaPOSIX_open(invalid_device, ciaaPOSIX_O_RDONLY);
     TEST_ASSERT_TRUE(-1==fd);
 
     /* try to open an invalid device as write only */
@@ -138,11 +138,11 @@ void testOpen(void) {
     bufferptr = (void*)buffer;
 
     stub_malloc_IgnoreAndReturn(bufferptr);
-    ciaaUART_open_ExpectAndReturn(valid_device, O_RDONLY, 1);
+    ciaaUART_open_ExpectAndReturn(valid_device, ciaaPOSIX_O_RDONLY, 1);
 
 
     /* try to open a valid device */
-    fd = ciaaPOSIX_open(valid_device, O_RDONLY);
+    fd = ciaaPOSIX_open(valid_device, ciaaPOSIX_O_RDONLY);
     TEST_ASSERT_TRUE(fd>0);
 
     /* close the device */

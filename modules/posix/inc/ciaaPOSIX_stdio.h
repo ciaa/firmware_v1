@@ -53,11 +53,13 @@
  * MaCe         Mariano Cerdeiro
  * PaRi         Pablo Ridolfi
  * JuCe         Juan Cecconi
+ * GMuro        Gustavo Muro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150822 v0.0.4 GMuro Add prefix ciaaPOSIX_ to open flags
  * 20150221 v0.0.3 MaCe separeate ioctl macros in multiple files
  * 20140528 v0.0.2 MaCe implement printf
  * 20140420 v0.0.1 EzEs initial version
@@ -81,7 +83,7 @@ extern "C" {
 #define ciaaPOSIX_stdio_MAXFILDES      20
 
 /** \brief Open for read only */
-#define O_RDONLY            0x0000
+#define ciaaPOSIX_O_RDONLY             0x0000
 
 /** \brief Open to write only */
 #define O_WRONLY            0x0001
@@ -151,7 +153,7 @@ extern void ciaaPOSIX_init(void);
  **
  ** \param[in] path  path of the device to be opened
  ** \param[in] oflag may take one of the following values:
- **               O_RDONLY: opens files to read only
+ **               ciaaPOSIX_O_RDONLY: opens files to read only
  **               O_WRONLY: opens files to write only
  **               O_RDWR: opens file to read and write
  ** \return -1 if failed, a non negative integer representing the file
