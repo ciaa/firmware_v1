@@ -71,7 +71,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "speechrec_ssp.h"	/* <= SSP header */
+#include "speechrec_audioDefinitions.h"	/* <= Audio processing definitions header */
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

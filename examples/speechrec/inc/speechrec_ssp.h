@@ -79,11 +79,6 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief SPI bit rate in kbps */
-#define speechrecBITRATE 1024
-
-/** \brief Size of memory buffer for DMA in bytes - MAX: 4096 */
-#define speechrecMEMDMASIZE  (speechrecBITRATE*speechrecWINDOWSIZE/8/2)
 
 /*==================[typedef]================================================*/
 
