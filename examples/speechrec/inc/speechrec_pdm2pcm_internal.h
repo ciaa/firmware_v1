@@ -71,7 +71,6 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "chip.h"
 #include "speechrec_pdm2pcm.h"	/* <= PDM to PCM interface header */
 #include "arm_math_modif.h"		/* <= CMSIS-DSPlib header*/
 
