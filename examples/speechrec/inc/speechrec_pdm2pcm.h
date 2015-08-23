@@ -72,6 +72,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "speechrec_audioDefinitions.h"	/* <= Audio processing definitions header */
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
