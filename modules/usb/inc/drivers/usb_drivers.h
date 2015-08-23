@@ -6,6 +6,13 @@
 *
 * @{ */
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/* Inclusions */
 #include <stdint.h>
 #include "usb.h"
 
@@ -80,6 +87,11 @@ int usb_drivers_remove(
       uint16_t            id,
       usb_driver_handle_t handle
 );
+
+
+#ifdef __cplusplus
+}
+#endif
 
 /**  @} USB_DRIVERS */
 #endif /* USB_DRIVERS_H */

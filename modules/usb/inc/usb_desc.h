@@ -1,6 +1,13 @@
 #ifndef USB_DESC_H
 #define USB_DESC_H
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/* Inclusions */
 #include <stdint.h>
 
 /** @TODO comment this file and see what can be done about structure packing. */
@@ -72,5 +79,10 @@ int usb_goto_next_desc(
       usb_stddesc_t   ep_type,
       uint8_t         ep_size
 );
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* USB_DESC_H */

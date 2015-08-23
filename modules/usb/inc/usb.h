@@ -20,6 +20,13 @@
 *
 * @{ */
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/* Inclusions */
 #include <stdint.h>
 #include "usb_std.h"
 
@@ -368,6 +375,11 @@ typedef struct _usb_driver_t
 #endif
 #if (USB_MAX_HUBS == 0) && (USB_MAX_DEVICES > 1)
 # error "Cannot support more than one device without HUB support."
+#endif
+
+
+#ifdef __cplusplus
+}
 #endif
 
 /**  @} USB */

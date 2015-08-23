@@ -24,6 +24,13 @@
 *
 * @{ */
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/* Inclusions */
 #include <stdint.h>
 #include "usb.h"
 
@@ -182,6 +189,10 @@ int usb_device_parse_ifacedesc(
 
 int usb_device_parse_epdesc( usb_pipe_t* ppipe, const uint8_t* buffer );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 /**  @} USBD */
 #endif  /* USBD_H */

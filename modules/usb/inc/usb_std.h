@@ -8,6 +8,13 @@
 *
 * @{ */
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/* Inclusions */
 #include <stdint.h>
 
 
@@ -120,6 +127,11 @@ typedef enum _usb_class_t
    USB_CLASS_VENDOR_SPECIFI = 0xFF, /**< (Both) Vendor Specific.             */
 } usb_class_t;
 
+
+
+#ifdef __cplusplus
+}
+#endif
 
 /**  @} USBD */
 #endif  /* USB_STD_H */

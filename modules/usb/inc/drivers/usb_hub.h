@@ -6,6 +6,13 @@
 *
 * @{ */
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/* Inclusions */
 #include <stdint.h>
 #include "usb.h"
 
@@ -118,6 +125,10 @@ int usb_hub_end_reset( usb_hub_t* phub, uint8_t port );
  */
 usb_speed_t usb_hub_get_speed( usb_hub_t* phub, uint8_t port );
 
+
+#ifdef __cplusplus
+}
+#endif
 
 /**  @} USB_HUB */
 #endif /* USB_HUB_H */

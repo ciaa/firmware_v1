@@ -6,8 +6,14 @@
 *
 * @{ */
 
-#include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/* Inclusions */
+#include <stdint.h>
 #include "usb.h"
 
 
@@ -211,6 +217,10 @@ size_t hid_read(int fd, void *buf, size_t count);
 
 int hid_write(int fd, const void *buf, size_t count);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 /**  @} USB_HID */
 #endif /* USB_HID_H */

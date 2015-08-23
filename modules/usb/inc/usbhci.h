@@ -19,6 +19,13 @@
 *
 * @{ */
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/* Inclusions */
 #include <stdint.h>
 #include "usb.h"
 #include "usb_std.h"
@@ -163,6 +170,10 @@ void _usb_host_on_connection( uint8_t corenum );
 void _usb_host_on_disconnection( uint8_t corenum );
 /** @} HCD Callbacks */
 
+
+#ifdef __cplusplus
+}
+#endif
 
 /**  @} USBHCI */
 #endif  /* USBHCI_H */
