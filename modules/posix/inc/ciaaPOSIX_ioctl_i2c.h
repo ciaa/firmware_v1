@@ -68,23 +68,23 @@ extern "C" {
  **
  ** This ioctl command is used to set the baudrate for any i2c device.
  ** Possible values for arg are:
- **   ciaaCLOCKRATE_100000
- **   ciaaCLOCKRATE_400000
+ **   ciaaPOSIX_IOCTL_CLOCKRATE_100000
+ **   ciaaPOSIX_IOCTL_CLOCKRATE_400000
  **
  ** Returned value for ioctl is the actual baud rate, or 0 if no rate can be found.
  **/
-#define ciaaPOSIX_IOCTL_SET_CLOCKRATE            (51)
+#define ciaaPOSIX_IOCTL_SET_CLOCKRATE                (51)
 
 /** \brief clockrate macros for i2c devices
  **/
-#define ciaaPOSIX_IOCTL_CLOCKRATE_100000	( 100000U )
-#define ciaaPOSIX_IOCTL_CLOCKRATE_400000	( 400000U )
+#define ciaaPOSIX_IOCTL_CLOCKRATE_100000             ( 100000U )
+#define ciaaPOSIX_IOCTL_CLOCKRATE_400000             ( 400000U )
 
 /** \brief I2C slave device address setting
  **
  ** Returned value for ioctl is the actual slave device address, or 0 if no rate can be found.
  **/
-#define ciaaPOSIX_IOCTL_SET_SLAVEADD           			(54)
+#define ciaaPOSIX_IOCTL_SET_SLAVEADD                 (54)
 
 /** \brief I2C slave device address width setting
  **
@@ -94,39 +94,39 @@ extern "C" {
  **
  ** Returned value for ioctl is the actual address width, or 0 if no rate can be found.
  **/
-#define ciaaPOSIX_IOCTL_SET_SLAVEADDWIDTH          		(52)
+#define ciaaPOSIX_IOCTL_SET_SLAVEADDWIDTH            (52)
 
-/** \brief baudrate macros for I2C devices
+/** \brief I2C slave device address width macros for I2C devices
  **/
-#define ciaaPOSIX_IOCTL_SET_SLAVEADDWIDTH_7bits			(7)
+#define ciaaPOSIX_IOCTL_SET_SLAVEADDWIDTH_7bits      (7)
 
 /** \brief I2C slave device register address setting
  **
  ** Returned value for ioctl is the actual slave device address, or 0 if no rate can be found.
  **/
-#define ciaaPOSIX_IOCTL_SET_REGISTERADD           		(55)
+#define ciaaPOSIX_IOCTL_SET_REGISTERADD              (55)
 
 /** \brief I2C slave device register address width setting
  **
  ** This ioctl command is used to set the width of the register address for any I2C device.
  ** Possible values for arg are:
- **   ciaaREGISTERADDWIDTH_0bits
- **   ciaaREGISTERADDWIDTH_8bits
- **   ciaaREGISTERADDWIDTH_16bits
- **   ciaaREGISTERADDWIDTH_24bits
- **   ciaaREGISTERADDWIDTH_32bits
+ **   ciaaPOSIX_IOCTL_REGISTERADDWIDTH_0bits
+ **   ciaaPOSIX_IOCTL_REGISTERADDWIDTH_8bits
+ **   ciaaPOSIX_IOCTL_REGISTERADDWIDTH_16bits
+ **   ciaaPOSIX_IOCTL_REGISTERADDWIDTH_24bits
+ **   ciaaPOSIX_IOCTL_REGISTERADDWIDTH_32bits
  **
  ** Returned value for ioctl is the actual register address, or 0 if no rate can be found.
  **/
-#define ciaaPOSIX_IOCTL_SET_REGISTERADDWIDTH        		(56)
+#define ciaaPOSIX_IOCTL_SET_REGISTERADDWIDTH         (56)
 
-/** \brief baudrate macros for I2C devices
+/** \brief I2C slave device register address width macros for I2C devices
  **/
-#define ciaaREGISTERADDWIDTH_0bits				(0)
-#define ciaaREGISTERADDWIDTH_8bits				(1)
-#define ciaaREGISTERADDWIDTH_16bits				(2)
-#define ciaaREGISTERADDWIDTH_24bits				(3)
-#define ciaaREGISTERADDWIDTH_32bits				(4)
+#define ciaaPOSIX_IOCTL_REGISTERADDWIDTH_0bits       (0)
+#define ciaaPOSIX_IOCTL_REGISTERADDWIDTH_8bits       (1)
+#define ciaaPOSIX_IOCTL_REGISTERADDWIDTH_16bits      (2)
+#define ciaaPOSIX_IOCTL_REGISTERADDWIDTH_24bits      (3)
+#define ciaaPOSIX_IOCTL_REGISTERADDWIDTH_32bits      (4)
 
 /*==================[typedef]================================================*/
 
