@@ -91,16 +91,16 @@ extern "C" {
 #define SPEECHREC_DECIM_FACT_FIR2 2
 
 /** \brief Size of memory buffer for CIC filter output */
-#define SPEECHREC_MEMCICSIZE  (SPEECHREC_MEMDMASIZE/(SPEECHREC_DECIM_FACT_CIC/8))
+#define SPEECHREC_MEMCICSIZE  ((SPEECHREC_MEMDMASIZE)/((SPEECHREC_DECIM_FACT_CIC)/8))
 
 /** \brief Size of memory buffer for FIR filter with decimation output */
-#define SPEECHREC_MEMFIR1SIZE (SPEECHREC_MEMCICSIZE/SPEECHREC_DECIM_FACT_FIR1)
+#define SPEECHREC_MEMFIR1SIZE ((SPEECHREC_MEMCICSIZE)/(SPEECHREC_DECIM_FACT_FIR1))
 
 /** \brief Size of memory buffer for FIR filter with decimation output */
-#define SPEECHREC_MEMFIR2SIZE (SPEECHREC_MEMFIR1SIZE/SPEECHREC_DECIM_FACT_FIR2)
+#define SPEECHREC_MEMFIR2SIZE ((SPEECHREC_MEMFIR1SIZE)/(SPEECHREC_DECIM_FACT_FIR2))
 
 /** \brief Size of memory buffer for FIR filter with decimation output */
-#define SPEECHREC_MEMPCMSIZE (SPEECHREC_MEMFIR2SIZE*2)
+#define SPEECHREC_MEMPCMSIZE ((SPEECHREC_MEMFIR2SIZE)*2)
 
 
 /*==================[typedef]================================================*/

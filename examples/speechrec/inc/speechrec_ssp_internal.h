@@ -81,16 +81,16 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 /** \brief SSPn selection */
-#define SPEECHREC_SSPn         LPC_SSP1
+#define SPEECHREC_SSPn         (LPC_SSP1)
 
 /** \brief SPI data size */
 #define SPEECHREC_SSP_DATA_BITS   (SSP_BITS_8)
 
 /** \brief  */
-#define SPEECHREC_GPDMA_SSPn_TX  GPDMA_CONN_SSP1_Tx
+#define SPEECHREC_GPDMA_SSPn_TX  (GPDMA_CONN_SSP1_Tx)
 
 /** \brief  */
-#define SPEECHREC_GPDMA_SSPn_RX  GPDMA_CONN_SSP1_Rx
+#define SPEECHREC_GPDMA_SSPn_RX  (GPDMA_CONN_SSP1_Rx)
 
 /*==================[typedef]================================================*/
 

@@ -92,7 +92,7 @@ extern "C" {
 #define SPEECHREC_BITRATE 1024
 
 /** \brief Size of memory buffer for DMA in bytes - MAX: 4096 */
-#define SPEECHREC_MEMDMASIZE  (SPEECHREC_BITRATE*SPEECHREC_WINDOWSIZE/8/2)
+#define SPEECHREC_MEMDMASIZE  ((SPEECHREC_BITRATE)*(SPEECHREC_WINDOWSIZE)/8/2)
 
 /*==================[typedef]================================================*/
 

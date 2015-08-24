@@ -82,10 +82,10 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /** \brief Total FIR filters decimation factor */
-#define SPEECHREC_DECIM_FACT_FIR (SPEECHREC_DECIM_FACT_FIR1*SPEECHREC_DECIM_FACT_FIR2)
+#define SPEECHREC_DECIM_FACT_FIR ((SPEECHREC_DECIM_FACT_FIR1)*(SPEECHREC_DECIM_FACT_FIR2))
 
 /** \brief Number of bytes to shif the CIC filter result */
-#define SPEECHREC_SHIFT_RES  (SPEECHREC_DATA_SIZE - 16 + 5)
+#define SPEECHREC_SHIFT_RES  ((SPEECHREC_DATA_SIZE) - 16 + 5)
 
 /** \brief Number of coefficients for FIR filter decimator 1 = order + 1 */
 #define SPEECHREC_NCOEFFS1 32
