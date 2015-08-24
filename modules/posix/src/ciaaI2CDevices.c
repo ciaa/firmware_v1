@@ -148,62 +148,61 @@ extern void ciaaI2CDevices_addDriver(ciaaDevices_deviceType * driver)
    /* check if more drivers can be added */
    if (ciaaI2CDevices_MAXDEVICES > ciaaI2CDevices.position) {
 
-	 /* get position for next device */
-	 position = ciaaI2CDevices.position;
+   /* get position for next device */
+   position = ciaaI2CDevices.position;
 
-	 /* increment position for next device */
-	 ciaaI2CDevices.position++;
+   /* increment position for next device */
+   ciaaI2CDevices.position++;
 
-	 /* exit critical section */
-	 /* not needed, only 1 task running */
+   /* exit critical section */
+   /* not needed, only 1 task running */
 
-	 /* add driver */
-	 ciaaI2CDevices.devstr[position].device = driver;
+   /* add driver */
+   ciaaI2CDevices.devstr[position].device = driver;
 
-	 /* configure rx and tx buffers */
-	 ciaaLibs_circBufInit(&ciaaI2CDevices.devstr[position].rxBuf, ciaak_malloc(256), 256);
-	 ciaaLibs_circBufInit(&ciaaI2CDevices.devstr[position].txBuf, ciaak_malloc(256), 256);
+   /* configure rx and tx buffers */
+   ciaaLibs_circBufInit(&ciaaI2CDevices.devstr[position].rxBuf, ciaak_malloc(256), 256);
+   ciaaLibs_circBufInit(&ciaaI2CDevices.devstr[position].txBuf, ciaak_malloc(256), 256);
 
-	 /* initial flags */
-	 ciaaI2CDevices.devstr[position].flags = 0;
+   /* initial flags */
+   ciaaI2CDevices.devstr[position].flags = 0;
 
-	 /* allocate memory for new device */
-	 //		newDevice = (ciaaDevices_deviceGroupType*) ciaak_malloc(sizeof(ciaaDevices_deviceGroupType));
-	 newDevice = (ciaaDevices_deviceType*) ciaak_malloc(sizeof(ciaaDevices_deviceType));
+   /* allocate memory for new device */
+   newDevice = (ciaaDevices_deviceType*) ciaak_malloc(sizeof(ciaaDevices_deviceType));
 
-	 /* set functions for this device */
-	 newDevice->open = ciaaI2CDevices_open;
-	 newDevice->close = ciaaI2CDevices_close;
-	 newDevice->ioctl = ciaaI2CDevices_ioctl;
-	 newDevice->read = ciaaI2CDevices_read;
-	 newDevice->write = ciaaI2CDevices_write;
+   /* set functions for this device */
+   newDevice->open = ciaaI2CDevices_open;
+   newDevice->close = ciaaI2CDevices_close;
+   newDevice->ioctl = ciaaI2CDevices_ioctl;
+   newDevice->read = ciaaI2CDevices_read;
+   newDevice->write = ciaaI2CDevices_write;
 
-	 /* store layers information information */
-	 newDevice->layer = (void *) &ciaaI2CDevices.devstr[position];
-	 newDevice->loLayer = (void *) driver;
+   /* store layers information information */
+   newDevice->layer = (void *) &ciaaI2CDevices.devstr[position];
+   newDevice->loLayer = (void *) driver;
 
-	 /* store newDevice layer information in the lower layer */
-	 driver->upLayer = newDevice;
+   /* store newDevice layer information in the lower layer */
+   driver->upLayer = newDevice;
 
-	 /* create path string for this device */
-	 length = ciaaPOSIX_strlen(driver->path);
-	 length += ciaaPOSIX_strlen(ciaaI2CDevices_prefix);
-	 length += 2; /* for the / and the termination null */
+   /* create path string for this device */
+   length = ciaaPOSIX_strlen(driver->path);
+   length += ciaaPOSIX_strlen(ciaaI2CDevices_prefix);
+   length += 2; /* for the / and the termination null */
 
-	 /* create path for the new device */
-	 newDeviceName = (char *) ciaak_malloc(length);
+   /* create path for the new device */
+   newDeviceName = (char *) ciaak_malloc(length);
 
-	 /* start a new string */
-	 *newDeviceName = 0;
+   /* start a new string */
+   *newDeviceName = 0;
 
-	 /* add prefix, / and the device name */
-	 ciaaPOSIX_strcat(newDeviceName, ciaaI2CDevices_prefix);
-	 ciaaPOSIX_strcat(newDeviceName, "/");
-	 ciaaPOSIX_strcat(newDeviceName, driver->path);
-	 /* add path to device structure */
-	 newDevice->path = newDeviceName;
+   /* add prefix, / and the device name */
+   ciaaPOSIX_strcat(newDeviceName, ciaaI2CDevices_prefix);
+   ciaaPOSIX_strcat(newDeviceName, "/");
+   ciaaPOSIX_strcat(newDeviceName, driver->path);
+   /* add path to device structure */
+   newDevice->path = newDeviceName;
 
-	 /* add device */
+   /* add device */
 #if 0
 	 ciaaDevices_addDeviceGroup(newDevice);
 #endif
@@ -219,7 +218,7 @@ extern void ciaaI2CDevices_addDriver(ciaaDevices_deviceType * driver)
 extern ciaaDevices_deviceType * ciaaI2CDevices_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
    ciaaI2CDevices_deviceType * I2CDevice =
-	 (ciaaI2CDevices_deviceType*) device->layer;
+    (ciaaI2CDevices_deviceType*) device->layer;
 
    /* I2C devices does not support that the drivers update the device */
    /* the returned device shall be the same as passed */

@@ -1,7 +1,4 @@
-/* Copyright 2015, Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi (UTN-FRBA)
- * Copyright 2014, Juan Cecconi
- * Copyright 2015, Sebastian Bedin para SUR Emprendimientos Tecnologicos S.R.L. / CONAE
+/* Copyright 2015, Sebastian Bedin para SUR Emprendimientos Tecnologicos S.R.L. / CONAE
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -50,13 +47,13 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
+ * SeBe         Sebastian Bedin
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150221 v0.0.1 MaCe initial version
+ * 20150615 v0.0.1 SeBe initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -80,8 +77,8 @@ extern "C" {
 
 /** \brief clockrate macros for i2c devices
  **/
-#define ciaaCLOCKRATE_100000	( 100000U )
-#define ciaaCLOCKRATE_400000	( 400000U )
+#define ciaaPOSIX_IOCTL_CLOCKRATE_100000	( 100000U )
+#define ciaaPOSIX_IOCTL_CLOCKRATE_400000	( 400000U )
 
 /** \brief I2C slave device address setting
  **
@@ -145,3 +142,4 @@ extern "C" {
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef CIAAPOSIX_IOCTL_BUSI2C */
+
