@@ -93,6 +93,11 @@ extern "C" {
 /** \brief Number of coefficients for FIR filter decimator 2 = order + 1 */
 #define SPEECHREC_NCOEFFS2 32
 
+/** \brief Check if the frequencies related MACROS make sense */
+#if ((SPEECHREC_BITRATE/SPEECHREC_DECIM_FACT_CIC/SPEECHREC_DECIM_FACT_FIR) != (SPEECHREC_SAMPLE_RATE/1000))
+#error ... Error: check rates and decimation factor macros
+#endif
+
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/

@@ -164,15 +164,6 @@ static const int16_t FIR2coeffs[SPEECHREC_NCOEFFS2] = {
 
 /*==================[internal functions definition]==========================*/
 
-/* Check if the frequencies related MACROS make sense */
-static void check_freqs()
-{
-   if((SPEECHREC_BITRATE/SPEECHREC_DECIM_FACT_CIC/SPEECHREC_DECIM_FACT_FIR) != (SPEECHREC_SAMPLE_RATE/1000))
-   {
-      while(1){} //indicar error
-   }
-}
-
 /* Extraction of each bit from the received PDM data in the buffer */
 static int8_t GetPDMbit(uint8_t *PDMbuff,uint8_t word, uint8_t bit)
 {
@@ -278,7 +269,7 @@ static void FIR_decimator(int16_t *PCMbuff)
  */
 extern void speechrec_pdm2pcm_init(void)
 {
-   check_freqs();
+
 }
 
 /* \brief Perform a PDM to PCM conversion
