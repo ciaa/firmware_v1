@@ -82,25 +82,25 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /** \brief CIC filter decimation factor */
-#define speechrecDECIM_FACT_CIC 16
+#define SPEECHREC_DECIM_FACT_CIC 16
 
 /** \brief FIR filter 1 decimation factor */
-#define speechrecDECIM_FACT_FIR1 2
+#define SPEECHREC_DECIM_FACT_FIR1 2
 
 /** \brief FIR filter 2 decimation factor */
-#define speechrecDECIM_FACT_FIR2 2
+#define SPEECHREC_DECIM_FACT_FIR2 2
 
 /** \brief Size of memory buffer for CIC filter output */
-#define speechrecMEMCICSIZE  (speechrecMEMDMASIZE/(speechrecDECIM_FACT_CIC/8))
+#define SPEECHREC_MEMCICSIZE  (SPEECHREC_MEMDMASIZE/(SPEECHREC_DECIM_FACT_CIC/8))
 
 /** \brief Size of memory buffer for FIR filter with decimation output */
-#define speechrecMEMFIR1SIZE (speechrecMEMCICSIZE/speechrecDECIM_FACT_FIR1)
+#define SPEECHREC_MEMFIR1SIZE (SPEECHREC_MEMCICSIZE/SPEECHREC_DECIM_FACT_FIR1)
 
 /** \brief Size of memory buffer for FIR filter with decimation output */
-#define speechrecMEMFIR2SIZE (speechrecMEMFIR1SIZE/speechrecDECIM_FACT_FIR2)
+#define SPEECHREC_MEMFIR2SIZE (SPEECHREC_MEMFIR1SIZE/SPEECHREC_DECIM_FACT_FIR2)
 
 /** \brief Size of memory buffer for FIR filter with decimation output */
-#define speechrecMEMPCMSIZE (speechrecMEMFIR2SIZE*2)
+#define SPEECHREC_MEMPCMSIZE (SPEECHREC_MEMFIR2SIZE*2)
 
 
 /*==================[typedef]================================================*/

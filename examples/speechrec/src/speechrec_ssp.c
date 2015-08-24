@@ -112,25 +112,25 @@ static uint8_t memDMATx;
  * Maximum DMA transference size: 4096 =>
  * => Two memory buffers used for each window
  */
-uint8_t memDest1ADMA[speechrecMEMDMASIZE];
+uint8_t memDest1ADMA[SPEECHREC_MEMDMASIZE];
 
 /** \brief Second memory buffer for window 1
  * Maximum DMA transference size: 4096 =>
  * => Two memory buffers used for each window
  */
-uint8_t memDest1BDMA[speechrecMEMDMASIZE];
+uint8_t memDest1BDMA[SPEECHREC_MEMDMASIZE];
 
 /** \brief First memory buffer for window 2
  * Maximum DMA transference size: 4096 =>
  * => Two memory buffers used for each window
  */
-uint8_t memDest2ADMA[speechrecMEMDMASIZE];
+uint8_t memDest2ADMA[SPEECHREC_MEMDMASIZE];
 
 /** \brief Second memory buffer for window 2
  * Maximum DMA transference size: 4096 =>
  * => Two memory buffers used for each window
  */
-uint8_t memDest2BDMA[speechrecMEMDMASIZE];
+uint8_t memDest2BDMA[SPEECHREC_MEMDMASIZE];
 
 /*==================[internal functions definition]==========================*/
 
@@ -145,7 +145,7 @@ extern void speechrec_spi_dma_start(void)
 
    /* Initialize CIAA Pins for the SSP interface */
 
-   if (speechrecSSPn == LPC_SSP1) {
+   if (SPEECHREC_SSPn == LPC_SSP1) {
       Chip_SCU_PinMuxSet(0x1, 5, (SCU_PINIO_FAST | SCU_MODE_FUNC5));  /* P1.5 => SSEL1 (not connected to microphone) */
       Chip_SCU_PinMuxSet(0xF, 4, (SCU_PINIO_FAST | SCU_MODE_FUNC0));  /* PF.4 => SCK1 */
 
@@ -159,16 +159,16 @@ extern void speechrec_spi_dma_start(void)
 
    /* Initialize the SSP interface */
 
-   Chip_SSP_Init(speechrecSSPn);
-   Chip_SSP_SetBitRate(speechrecSSPn, speechrecBITRATE*1000);
+   Chip_SSP_Init(SPEECHREC_SSPn);
+   Chip_SSP_SetBitRate(SPEECHREC_SSPn, SPEECHREC_BITRATE*1000);
 
    /* Configure SSP Format */
    ssp_format.frameFormat = SSP_FRAMEFORMAT_SPI;
-   ssp_format.bits = speechrecSSP_DATA_BITS;
+   ssp_format.bits = SPEECHREC_SSP_DATA_BITS;
    ssp_format.clockMode = SSP_CLOCK_MODE3;
-   Chip_SSP_SetFormat(speechrecSSPn, ssp_format.bits, ssp_format.frameFormat, ssp_format.clockMode);
+   Chip_SSP_SetFormat(SPEECHREC_SSPn, ssp_format.bits, ssp_format.frameFormat, ssp_format.clockMode);
 
-   Chip_SSP_Enable(speechrecSSPn);
+   Chip_SSP_Enable(SPEECHREC_SSPn);
 
    /* Initialize GPDMA controller */
    Chip_GPDMA_Init(LPC_GPDMA);
@@ -179,29 +179,29 @@ extern void speechrec_spi_dma_start(void)
    NVIC_EnableIRQ(DMA_IRQn);
 
    /* Set the SSP in master mode */
-   Chip_SSP_SetMaster(speechrecSSPn, 1);
+   Chip_SSP_SetMaster(SPEECHREC_SSPn, 1);
 
    /* Get a free GPDMA channel for one DMA connection for transmission */
-   dmaChSSPTx = Chip_GPDMA_GetFreeChannel(LPC_GPDMA, speechrecGPDMA_SSPn_TX);
+   dmaChSSPTx = Chip_GPDMA_GetFreeChannel(LPC_GPDMA, SPEECHREC_GPDMA_SSPn_TX);
 
    /* Get a free GPDMA channel for one DMA connection for reception */
-   dmaChSSPRx = Chip_GPDMA_GetFreeChannel(LPC_GPDMA, speechrecGPDMA_SSPn_RX);
+   dmaChSSPRx = Chip_GPDMA_GetFreeChannel(LPC_GPDMA, SPEECHREC_GPDMA_SSPn_RX);
 
-   Chip_SSP_DMA_Enable(speechrecSSPn);
+   Chip_SSP_DMA_Enable(SPEECHREC_SSPn);
 
    /* Do a DMA transfer P2M: data SSP --> memDest1ADMA */
    Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-		   	   	  speechrecGPDMA_SSPn_RX, /* source */
+		   	   	  SPEECHREC_GPDMA_SSPn_RX, /* source */
 				  (uint32_t) &memDest1ADMA[0], /* destination */
 				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
-				  speechrecMEMDMASIZE);
+				  SPEECHREC_MEMDMASIZE);
 
    /* Do a DMA transfer P2M: memDMATx --> SSP */
    Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
 				  (uint32_t) &memDMATx, /* source */
-				  speechrecGPDMA_SSPn_TX, /* destination */
+				  SPEECHREC_GPDMA_SSPn_TX, /* destination */
 				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA,
-				  speechrecMEMDMASIZE);
+				  SPEECHREC_MEMDMASIZE);
 
    currentDMA = 1;
 }
@@ -219,10 +219,10 @@ ISR(DMA_IRQHandler)
       if (currentDMA == 1){
          /* Do a DMA transfer P2M: data SSP --> memDest1BDMA */
          Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-				   	   	  speechrecGPDMA_SSPn_RX, /* source */
+				   	   	  SPEECHREC_GPDMA_SSPn_RX, /* source */
 		   				  (uint32_t) &memDest1BDMA[0], /* destination */
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
-		   				  speechrecMEMDMASIZE);
+		   				  SPEECHREC_MEMDMASIZE);
 
          currentDMA = 2;
       }
@@ -230,10 +230,10 @@ ISR(DMA_IRQHandler)
 
          /* Do a DMA transfer P2M: data SSP --> memDest2ADMA */
          Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-				   	   	  speechrecGPDMA_SSPn_RX, // source
+				   	   	  SPEECHREC_GPDMA_SSPn_RX, // source
 		   				  (uint32_t) &memDest2ADMA[0], /* destination */
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
-		   				  speechrecMEMDMASIZE);
+		   				  SPEECHREC_MEMDMASIZE);
 
 
          currentDMA = 3;
@@ -242,10 +242,10 @@ ISR(DMA_IRQHandler)
 
          /* Do a DMA transfer P2M: data SSP --> memDest2BDMA */
          Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-				   	   	  speechrecGPDMA_SSPn_RX, /* source */
+				   	   	  SPEECHREC_GPDMA_SSPn_RX, /* source */
 		   				  (uint32_t) &memDest2BDMA[0], /* destination */
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
-		   				  speechrecMEMDMASIZE);
+		   				  SPEECHREC_MEMDMASIZE);
 
          currentDMA = 4;
 
@@ -254,10 +254,10 @@ ISR(DMA_IRQHandler)
 
          /* Do a DMA transfer P2M: data SSP --> memDest1ADMA */
          Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPRx,
-				   	   	  speechrecGPDMA_SSPn_RX, /* source */
+				   	   	  SPEECHREC_GPDMA_SSPn_RX, /* source */
 		   				  (uint32_t) &memDest1ADMA[0], /* destination */
 		   				  GPDMA_TRANSFERTYPE_P2M_CONTROLLER_DMA,
-		   				  speechrecMEMDMASIZE);
+		   				  SPEECHREC_MEMDMASIZE);
 
          currentDMA = 1;
       }
@@ -268,9 +268,9 @@ ISR(DMA_IRQHandler)
       /* Do a DMA transfer P2M: memDMATx --> SSP */
       Chip_GPDMA_Transfer(LPC_GPDMA, dmaChSSPTx,
 	   				  (uint32_t) &memDMATx, /* source */
-	   				  speechrecGPDMA_SSPn_TX, /* destination */
+	   				  SPEECHREC_GPDMA_SSPn_TX, /* destination */
 	   				  GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA,
-	   				  speechrecMEMDMASIZE);
+	   				  SPEECHREC_MEMDMASIZE);
 
    }
 

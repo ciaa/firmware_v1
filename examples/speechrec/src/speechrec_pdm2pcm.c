@@ -98,7 +98,7 @@ static int32_t OldDelta1, OldDelta2, OldDelta3, OldDelta4, OldSigma5;
 /** \brief Output memory buffer of the CIC filter
  *
  */
-static int16_t memCICout[speechrecMEMCICSIZE];
+static int16_t memCICout[SPEECHREC_MEMCICSIZE];
 
 /** \brief Q15 FIR decimator 1 structure
  *
@@ -113,16 +113,16 @@ static arm_fir_decimate_instance_q15 S2;
 /** \brief FIR decimator 1 state buffer
  *
  */
-static int16_t StateBuff1[speechrecNCOEFFS1 + speechrecMEMCICSIZE - 1];
+static int16_t StateBuff1[SPEECHREC_NCOEFFS1 + SPEECHREC_MEMCICSIZE - 1];
 
 /** \brief FIR decimator 2 state buffer
  *
  */
-static int16_t StateBuff2[speechrecNCOEFFS2 + speechrecMEMFIR1SIZE - 1];
+static int16_t StateBuff2[SPEECHREC_NCOEFFS2 + SPEECHREC_MEMFIR1SIZE - 1];
 
 /** \brief Memory buffer for FIR decimator 1
  */
-static int16_t memFIR1out[speechrecMEMFIR1SIZE];
+static int16_t memFIR1out[SPEECHREC_MEMFIR1SIZE];
 
 /*==================[internal functions declaration]=========================*/
 
@@ -137,7 +137,7 @@ static int16_t memFIR1out[speechrecMEMFIR1SIZE];
  * pass band: 0 dB
  * stop band: -38 dB
  */
-static const int16_t FIR1coeffs[speechrecNCOEFFS1] = {
+static const int16_t FIR1coeffs[SPEECHREC_NCOEFFS1] = {
        96,    309,   -120,   -357,    -46,    548,    328,   -668,   -817,
       621,   1571,   -210,  -2801,  -1173,   6070,  13215,  13215,   6070,
     -1173,  -2801,   -210,   1571,    621,   -817,   -668,    328,    548,
@@ -153,7 +153,7 @@ static const int16_t FIR1coeffs[speechrecNCOEFFS1] = {
  * pass band: +/-1 dB
  * stop band: -24 dB
  */
-static const int16_t FIR2coeffs[speechrecNCOEFFS2] = {
+static const int16_t FIR2coeffs[SPEECHREC_NCOEFFS2] = {
      -628,    996,    820,   -117,   -612,    235,    952,    -44,  -1263,
      -219,   1751,    756,  -2640,  -2124,   5563,  14005,  14005,   5563,
     -2124,  -2640,    756,   1751,   -219,  -1263,    -44,    952,    235,
@@ -167,7 +167,7 @@ static const int16_t FIR2coeffs[speechrecNCOEFFS2] = {
 /* Check if the frequencies related MACROS make sense */
 static void check_freqs()
 {
-   if((speechrecBITRATE/speechrecDECIM_FACT_CIC/speechrecDECIM_FACT_FIR) != (speechrecSAMPLE_RATE/1000))
+   if((SPEECHREC_BITRATE/SPEECHREC_DECIM_FACT_CIC/SPEECHREC_DECIM_FACT_FIR) != (SPEECHREC_SAMPLE_RATE/1000))
    {
       while(1){} //indicar error
    }
@@ -179,10 +179,10 @@ static int8_t GetPDMbit(uint8_t *PDMbuff,uint8_t word, uint8_t bit)
    uint16_t current_word;
    int8_t current_bit;
 
-   current_word = PDMbuff[word*(speechrecDECIM_FACT_CIC/8)];
+   current_word = PDMbuff[word*(SPEECHREC_DECIM_FACT_CIC/8)];
 
-   if (speechrecDECIM_FACT_CIC == 16){
-      current_word |= PDMbuff[word*(speechrecDECIM_FACT_CIC/8) + 1] << 8;
+   if (SPEECHREC_DECIM_FACT_CIC == 16){
+      current_word |= PDMbuff[word*(SPEECHREC_DECIM_FACT_CIC/8) + 1] << 8;
    }
 
    current_word >>= bit;
@@ -199,7 +199,7 @@ static void CIC_filter(uint8_t *PDMbuff)
 {
    uint16_t i,j;
 
-   for(j=0;j<speechrecMEMCICSIZE;j++)
+   for(j=0;j<SPEECHREC_MEMCICSIZE;j++)
    {
       OldSigma5 = Sigma5;
       OldDelta1 = Delta1;
@@ -208,7 +208,7 @@ static void CIC_filter(uint8_t *PDMbuff)
       OldDelta4 = Delta4;
 
       /* Sigma operations for the PDM data from Microphone */
-      for(i=0; i<speechrecDECIM_FACT_CIC; i++)
+      for(i=0; i<SPEECHREC_DECIM_FACT_CIC; i++)
       {
          Sigma1 += GetPDMbit(PDMbuff,j,i);
          Sigma1 += 1;
@@ -228,7 +228,7 @@ static void CIC_filter(uint8_t *PDMbuff)
       /* Framed data from microphone to be sent for FIR decimation is stored in Result.
       since the operation is 5 stage divided by 16 decimation this field can grow up to
       21 bits. */
-      memCICout[j] = (int16_t) (Result>>speechrecSHIFT_RES);
+      memCICout[j] = (int16_t) (Result>>SPEECHREC_SHIFT_RES);
 
       }
 
@@ -240,21 +240,21 @@ static void FIR_decimator(int16_t *PCMbuff)
    arm_status ret;
 
    ret = arm_fir_decimate_init_q15(&S1,
-								speechrecNCOEFFS1,
-								(uint8_t) speechrecDECIM_FACT_FIR1,
+								SPEECHREC_NCOEFFS1,
+								(uint8_t) SPEECHREC_DECIM_FACT_FIR1,
 								(q15_t *) FIR1coeffs,
 								StateBuff1,
-								(uint32_t) speechrecMEMCICSIZE);
+								(uint32_t) SPEECHREC_MEMCICSIZE);
 
    if (ret == ARM_MATH_LENGTH_ERROR)
       while(1){}
 
    ret = arm_fir_decimate_init_q15(&S2,
-								speechrecNCOEFFS2,
-								(uint8_t) speechrecDECIM_FACT_FIR2,
+								SPEECHREC_NCOEFFS2,
+								(uint8_t) SPEECHREC_DECIM_FACT_FIR2,
 								(q15_t *) FIR2coeffs,
 								StateBuff2,
-								(uint32_t) speechrecMEMFIR1SIZE);
+								(uint32_t) SPEECHREC_MEMFIR1SIZE);
 
    if (ret == ARM_MATH_LENGTH_ERROR)
       while(1){}
@@ -262,12 +262,12 @@ static void FIR_decimator(int16_t *PCMbuff)
    arm_fir_decimate_q15(&S1,
 						memCICout,
 						memFIR1out,
-						(uint32_t) speechrecMEMCICSIZE);
+						(uint32_t) SPEECHREC_MEMCICSIZE);
 
    arm_fir_decimate_q15(&S2,
 						memFIR1out,
 						PCMbuff,
-						(uint32_t) speechrecMEMFIR1SIZE);
+						(uint32_t) SPEECHREC_MEMFIR1SIZE);
 }
 
 

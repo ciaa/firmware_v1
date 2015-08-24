@@ -80,19 +80,19 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /** \brief PCM sampling frequency in Hz */
-#define speechrecSAMPLE_RATE 16000
+#define SPEECHREC_SAMPLE_RATE 16000
 
 /** \brief PCM data size in bits - MAX: 16 */
-#define speechrecDATA_SIZE   16
+#define SPEECHREC_DATA_SIZE   16
 
 /** \brief Window size in miliseconds */
-#define speechrecWINDOWSIZE 25
+#define SPEECHREC_WINDOWSIZE 25
 
 /** \brief SPI bit rate in kbps */
-#define speechrecBITRATE 1024
+#define SPEECHREC_BITRATE 1024
 
 /** \brief Size of memory buffer for DMA in bytes - MAX: 4096 */
-#define speechrecMEMDMASIZE  (speechrecBITRATE*speechrecWINDOWSIZE/8/2)
+#define SPEECHREC_MEMDMASIZE  (SPEECHREC_BITRATE*SPEECHREC_WINDOWSIZE/8/2)
 
 /*==================[typedef]================================================*/
 

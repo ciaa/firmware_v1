@@ -89,25 +89,25 @@ extern "C" {
  * Maximum DMA transference size: 4096 =>
  * => Two memory buffers used for each window
  */
-extern uint8_t memDest1ADMA[speechrecMEMDMASIZE];
+extern uint8_t memDest1ADMA[SPEECHREC_MEMDMASIZE];
 
 /** \brief Second memory buffer for window 1
  * Maximum DMA transference size: 4096 =>
  * => Two memory buffers used for each window
  */
-extern uint8_t memDest1BDMA[speechrecMEMDMASIZE];
+extern uint8_t memDest1BDMA[SPEECHREC_MEMDMASIZE];
 
 /** \brief First memory buffer for window 2
  * Maximum DMA transference size: 4096 =>
  * => Two memory buffers used for each window
  */
-extern uint8_t memDest2ADMA[speechrecMEMDMASIZE];
+extern uint8_t memDest2ADMA[SPEECHREC_MEMDMASIZE];
 
 /** \brief Second memory buffer for window 2
  * Maximum DMA transference size: 4096 =>
  * => Two memory buffers used for each window
  */
-extern uint8_t memDest2BDMA[speechrecMEMDMASIZE];
+extern uint8_t memDest2BDMA[SPEECHREC_MEMDMASIZE];
 
 /*==================[external functions declaration]=========================*/
 /** \brief Initialize and start SPI transference with DMA

@@ -85,13 +85,13 @@
  * One PCM buffer corresponds to two PDM memory buffers, because of DMA transference size limitations
  * Equivalent to two consecutive memFIR2out buffers, each of size MEMFIR2SIZE
  */
-static int16_t memPCM1out[speechrecMEMPCMSIZE];
+static int16_t memPCM1out[SPEECHREC_MEMPCMSIZE];
 
 /** \brief PCM memory buffer for window 2
  * One PCM buffer corresponds to two PDM memory buffers, because of DMA transference size limitations
  * Equivalent to two consecutive memFIR2out buffers, each of size MEMFIR2SIZE
  */
-static int16_t memPCM2out[speechrecMEMPCMSIZE];
+static int16_t memPCM2out[SPEECHREC_MEMPCMSIZE];
 
 /*==================[internal functions declaration]=========================*/
 
