@@ -68,7 +68,7 @@
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
-} ciaaDriverConstType;
+} ciaaDriverI2CConstType;
 
 #define ciaaDriverI2C_RX_BUFFER_SIZE       (16)
 #define ciaaDriverI2C_TX_BUFFER_SIZE       (16)
@@ -122,7 +122,7 @@ static ciaaDevices_deviceType * const ciaaI2CDevices[] = {
    &ciaaDriverI2C_device1
 };
 
-static ciaaDriverConstType const ciaaDriverI2CConst = {
+static ciaaDriverI2CConstType const ciaaDriverI2CConst = {
    ciaaI2CDevices,
    1
 };
