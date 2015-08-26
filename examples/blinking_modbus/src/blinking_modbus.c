@@ -208,7 +208,7 @@ static void cmd0x10WriteMultipleReg(
    /* used to store holding register value */
    uint16_t hrValue;
    /* used to indicate quantity of registers processed */
-   uint16_t quantityRegProcessed;
+   int16_t quantityRegProcessed;
    /* used to store input or outputs byte */
    uint8_t inOutValue;
 
