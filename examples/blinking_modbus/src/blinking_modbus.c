@@ -133,13 +133,14 @@ static uint16_t cmd0x03ReadHoldingReg(
        uint8_t * buf
        )
 {
-   /* used to indicate total of registers reads */
-   int8_t ret = 0;
-   /* used to store input or outputs byte */
+   /* used to store holding register value */
    uint16_t hrValue;
-
    /* used to indicate quantity of registers processed */
    uint16_t quantityRegProcessed;
+/* used to indicate total of registers reads */
+   int8_t ret = 0;
+/* used to store input or outputs byte */
+   uint8_t inOutValue;
 
    /* loop to read all registers indicated */
    do
@@ -149,16 +150,16 @@ static uint16_t cmd0x03ReadHoldingReg(
       {
          /* read inputs of CIAA */
          case CIAA_MODBUS_ADDRESS_INPUTS:
-            hrValue = 0;
-            ciaaPOSIX_read(fd_in, &hrValue, 1);
+            ciaaPOSIX_read(fd_in, &inOutValue, 1);
+            hrValue = inOutValue;
             ciaaModbus_writeInt(buf, hrValue);
             quantityRegProcessed = 1;
             break;
 
          /* read outputs of CIAA */
          case CIAA_MODBUS_ADDRESS_OUTPUS:
-            hrValue = 0;
-            ciaaPOSIX_read(fd_out, &hrValue, 1);
+            ciaaPOSIX_read(fd_out, &inOutValue, 1);
+            hrValue = inOutValue;
             ciaaModbus_writeInt(buf, hrValue);
             quantityRegProcessed = 1;
             break;
@@ -204,10 +205,12 @@ static void cmd0x10WriteMultipleReg(
       uint8_t * buf
       )
 {
-   /* used to store input or outputs byte */
+   /* used to store holding register value */
    uint16_t hrValue;
    /* used to indicate quantity of registers processed */
    uint16_t quantityRegProcessed;
+   /* used to store input or outputs byte */
+   uint8_t inOutValue;
 
    /* loop to write all registers indicated */
    do
@@ -224,7 +227,8 @@ static void cmd0x10WriteMultipleReg(
          /* write outputs */
          case CIAA_MODBUS_ADDRESS_OUTPUS:
             hrValue = ciaaModbus_readInt(buf);
-            ciaaPOSIX_write(fd_out, &hrValue, 1);
+            inOutValue = hrValue & 0xFF;
+            ciaaPOSIX_write(fd_out, &inOutValue, 1);
             quantityRegProcessed = 1;
             break;
 
