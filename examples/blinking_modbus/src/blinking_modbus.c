@@ -136,7 +136,7 @@ static uint16_t cmd0x03ReadHoldingReg(
    /* used to store holding register value */
    uint16_t hrValue;
    /* used to indicate quantity of registers processed */
-   uint16_t quantityRegProcessed;
+   int16_t quantityRegProcessed;
 /* used to indicate total of registers reads */
    int8_t ret = 0;
 /* used to store input or outputs byte */
