@@ -32,7 +32,7 @@
 
 /** \brief CIAA slave test source file
  **
- ** This is a main file for ciaa tester
+ ** This is a main file for ciaa testslave
  ** UART PC: Modbus ASCII Slave
  ** UART RS485: Modbus ASCII Slave
  ** This Board: Gateway and Modbus Slave
@@ -43,7 +43,7 @@
  ** @{ */
 /** \addtogroup Continuous Integration
  ** @{ */
-/** \addtogroup CIAA Tester source file
+/** \addtogroup CIAA testslave source file
  ** @{ */
 
 /*
@@ -67,7 +67,7 @@
 #include "testslave.h"
 
 /*==================[macros and definitions]=================================*/
-#define CIAA_TESTER_MODBUS_ID     1
+#define CIAA_TESTED_MODBUS_ID     2
 
 #define CIAA_MODBUS_ADDRESS_INPUTS  0X0000
 #define CIAA_MODBUS_ADDRESS_OUTPUS  0X0001
@@ -333,7 +333,7 @@ TASK(InitTask)
    /* Open Modbus Slave */
    hModbusSlave = ciaaModbus_slaveOpen(
          &callbacksStruct,
-         CIAA_TESTER_MODBUS_ID);
+         CIAA_TESTED_MODBUS_ID);
 
    /* Open Transport Modbus Ascii (UART PC) */
    hModbusAsciiUartPC = ciaaModbus_transportOpen(
