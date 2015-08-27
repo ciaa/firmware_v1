@@ -70,64 +70,49 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+static int32_t hModbusAsciiUartPC;
+static int32_t hModbusGateway;
+static int32_t hModbusMaster;
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-/** \brief Main function
- *
- * This is the main entry point of the software.
- *
- * \returns 0
- *
- * \remarks This function never returns. Return value is only to avoid compiler
- *          warnings or errors.
- */
-int main(void)
-{
-   /* Starts the operating system in the Application Mode 1 */
-   StartOS(AppMode1);
 
-   /* StartOs shall never returns, but to avoid compiler warnings or errors
-    * 0 is returned */
-   return 0;
-}
-
-/** \brief Error Hook function
- *
- * This fucntion is called from the os if an os interface (API) returns an
- * error. Is for debugging proposes. If called this function triggers a
- * ShutdownOs which ends in a while(1).
- *
- * The values:
- *    OSErrorGetServiceId
- *    OSErrorGetParam1
- *    OSErrorGetParam2
- *    OSErrorGetParam3
- *    OSErrorGetRet
- *
- * will provide you the interface, the input parameters and the returned value.
- * For more details see the OSEK specification:
- * http://portal.osek-vdx.org/files/pdf/specs/os223.pdf
+/** \brief Init Modbus communication
  *
  */
-void ErrorHook(void)
+extern void modbusComm_init(void)
 {
-   ciaaPOSIX_printf("ErrorHook was called\n");
-   ciaaPOSIX_printf("Service: %d, P1: %d, P2: %d, P3: %d, RET: %d\n", OSErrorGetServiceId(), OSErrorGetParam1(), OSErrorGetParam2(), OSErrorGetParam3(), OSErrorGetRet());
-   ShutdownOS(0);
-}
+   int32_t fdUartPC;
 
-/** \brief Initial task
- *
- * This task is started automatically in the application mode 1.
- */
-TASK(InitTask)
-{
    /* init the ciaa kernel */
    ciaak_start();
+
+   /* open serial port connected to ioboard */
+   fdUartPC = ciaaPOSIX_open("/dev/serial/uart/0", ciaaPOSIX_O_RDWR | ciaaPOSIX_O_NONBLOCK);
+
+   /* Open Modbus Master */
+   hModbusMaster = ciaaModbus_masterOpen();
+
+   /* Open Transport Modbus Ascii (UART PC) */
+   hModbusAsciiUartPC = ciaaModbus_transportOpen(
+         fdUartPC,
+         CIAAMODBUS_TRANSPORT_MODE_ASCII_MASTER);
+
+   /* Open Gateway Modbus */
+   hModbusGateway = ciaaModbus_gatewayOpen();
+
+   /* Add Modbus Master to gateway */
+   ciaaModbus_gatewayAddMaster(
+         hModbusGateway,
+         hModbusMaster);
+
+   /* Add Modbus Transport to gateway */
+   ciaaModbus_gatewayAddTransport(
+         hModbusGateway,
+         hModbusAsciiUartPC);
 
    /* end InitTask */
    TerminateTask();
