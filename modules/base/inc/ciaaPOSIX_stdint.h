@@ -65,7 +65,8 @@
 #if (x86 == ARCH)
 #include "stdint.h"
 #elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) )
+        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) || \
+        ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) ) )
 #include "stdint.h"
 #elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
 #include "stdint.h"
