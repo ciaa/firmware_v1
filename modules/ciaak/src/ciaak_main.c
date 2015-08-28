@@ -93,14 +93,8 @@ void ciaak_start(void)
    ciaaSerialDevices_init();
    ciaaBlockDevices_init();
 
-   /* init drivers */
-   ciaaDriverUart_init();
-   ciaaDriverFlash_init();
-
    /* ciaaDioDevices_init(); */
    ciaaDriverDio_init();
-
-   ciaaDriverAio_init();
 }
 
 void *ciaak_malloc(size_t size)
@@ -124,4 +118,3 @@ void *ciaak_malloc(size_t size)
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
