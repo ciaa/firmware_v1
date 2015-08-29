@@ -13,14 +13,8 @@ or clone using:
 
 <b>git clone <i>--recursive</i> https://github.com/ciaa/Firmware.git</b>
 
- This includes following directories:
+<h2>Project Information</h2>
 
-* doc           -> contains the project documentation.
-* examples      -> contains examples of how to use CIAA Firmware.
-* externals     -> contains extenral of this project, software not developed by CIAA but used within. This externals may have different license, please take this into account.
-* modules       -> contains the CIAA Firmware software.
-* README        -> aftear reading this file and before reading the documentation (Doc dir) you may want to take a look here.
-
-Report tickets to: https://github.com/ciaa/firmware/issues
-
-Official page of the project: http://www.proyecto-ciaa.com.ar
+ * Project page: http://www.proyecto-ciaa.com.ar
+ * Support is provided over the Google Group [CIAA-Firmware](https://groups.google.com/forum/#!forum/ciaa-firmware). Before asking for support check our wiki page for help.
+ * If you found a bug please report it to: https://github.com/ciaa/firmware/issues. Also bugs found in submodules like rtos and modbus shall be reported to the master project.
