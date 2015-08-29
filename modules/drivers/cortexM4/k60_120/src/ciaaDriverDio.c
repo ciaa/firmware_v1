@@ -54,6 +54,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150829 v0.0.5 AP   Bug fixed in pinout definition for DOUT7
  * 20150803 v0.0.4 EsVo verify device received in open function
  * 20150801 v0.0.3 EsVo migration to KSDK 1.2 and remove of drivers files
  * 20150329 v0.0.2 AP   first operational version using KSDK 1.0
@@ -101,7 +102,7 @@ static ciaaDriverDio_pinType const ciaaGPIOoutputPins[CIAA_GPIO_OUTPUTS_NUMBER] 
       {PORTB, 16u, PTB, kSimClockGatePortB}, {PORTB,  6u, PTB, kSimClockGatePortB},
       {PORTB,  7u, PTB, kSimClockGatePortB}, {PORTB, 17u, PTB, kSimClockGatePortB},
       {PORTC, 15u, PTC, kSimClockGatePortC}, {PORTC, 14u, PTC, kSimClockGatePortC},
-      {PORTC, 13u, PTC, kSimClockGatePortC}, {PORTC, 13u, PTC, kSimClockGatePortC}
+      {PORTC, 13u, PTC, kSimClockGatePortC}, {PORTC, 12u, PTC, kSimClockGatePortC}
 };
 
 /*==================[internal functions declaration]=========================*/
