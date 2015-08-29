@@ -74,7 +74,7 @@ extern "C" {
 #define CIAA_MODBUS_TOTAL_MASTERS            1
 
 /** \brief Total slaves available */
-#define CIAA_MODBUS_TOTAL_SLAVES             1
+#define CIAA_MODBUS_TOTAL_SLAVES             0
 
 /** \brief Total transport available */
 #define CIAA_MODBUS_TOTAL_TRANSPORT_ASCII    1
