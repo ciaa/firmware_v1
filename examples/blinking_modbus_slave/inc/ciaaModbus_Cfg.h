@@ -85,15 +85,6 @@ extern "C" {
 /** \brief Total transport available */
 #define CIAA_MODBUS_TOTAL_TRANSPORT_TCP      0
 
-/** \brief Total masters by gateways */
-#define CIAA_MODBUS_TOTAL_MASTERS_GW         0
-
-/** \brief Total slaves by gateways */
-#define CIAA_MODBUS_TOTAL_SLAVES_GW          1
-
-/** \brief Total transports by gateways */
-#define CIAA_MODBUS_TOTAL_TRANSPORT_GW       1
-
 /** \brief Time between calls (milliseconds) */
 #define CIAA_MODBUS_TIME_BASE                5
 
