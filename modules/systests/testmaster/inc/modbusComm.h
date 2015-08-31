@@ -71,6 +71,11 @@
  */
 extern void modbusComm_init(void);
 
+/** \brief Init Modbus communication
+ *
+ */
+extern void modbusComm_task(void);
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
