@@ -103,7 +103,7 @@ static int32_t fd_out;
  */
 int main(void)
 {
-   /* Start Cortex-M0 slave core.
+   /* First, start Cortex-M0 slave core.
       Do not forget to create and download an image for this core!
       In Makefile.mine:
          ARCH     ?= cortexM0
@@ -113,7 +113,7 @@ int main(void)
          BOARD    ?= edu_ciaa_nxp
          -- or --
          BOARD    ?= ciaa_nxp
-      Also select the project you want to run in the M0 core:
+      Select the project you want to run in the M0 core:
          PROJECT  ?= examples$(DS)blinking
 
       Then build and download:
@@ -122,7 +122,17 @@ int main(void)
          $ make
          $ make download
 
-      Next, use cortexM4 as ARCH, build and download this example.
+      Next, in Makefile.mine go back to:
+         ARCH     ?= cortexM4
+      Select this project:
+         PROJECT  ?= examples$(DS)blinking_multicore
+      Build and download:
+         $ make clean
+         $ make generate
+         $ make
+         $ make download
+
+      Enjoy :-)
    */
    CIAA_START_SLAVE_CORE(0);
 
