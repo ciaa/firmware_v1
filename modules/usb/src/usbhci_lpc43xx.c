@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "chip.h"
 #include "usb.h"
 #include "usbd.h"
 #include "usbhci.h"
@@ -210,7 +211,6 @@ int usbhci_pipe_configure( usb_pipe_t* ppipe, uint8_t addr, usb_speed_t speed )
          0, /** @TODO this two don't seem to be supported in the LPC library... should I leave them at 0? */
          &_pipe_handle[ppipe->handle].handle );
 
-   status = USB_STATUS_PIPE_CFG;
    if (status == HCD_STATUS_OK)
    {
       /* Once configuration is done, set status as open again. */
