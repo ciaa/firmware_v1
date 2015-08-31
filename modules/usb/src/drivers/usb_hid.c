@@ -13,6 +13,10 @@
 static hid_stack_t hid_stack; /* Maybe this shouldn't be static or at least not here like this... */
 
 
+static int _hid_validate_first_ep   (const uint8_t** pbuffer, uint8_t* plen );
+static int _hid_validate_optional_ep(const uint8_t** pbuffer, uint8_t* plen );
+
+
 int hid_probe( const uint8_t* buffer, uint8_t length )
 {
 /**
@@ -230,7 +234,7 @@ int hid_dev_deinit( uint8_t index )
 int16_t hid_get_free_dev( void )
 {
    int16_t i;
-   for (i = 0; i < HID_MAX_DEVICES && ret == -1; ++i)
+   for (i = 0; i < HID_MAX_DEVICES; ++i)
    {
       /* Iterate until a free device is found. */
       if (hid_stack.devices[i].status & HID_STATUS_FREE)
@@ -535,7 +539,7 @@ int hid_open_dev( const char* str_num, int flags, hid_protocol_t protocol )
       {
          /* Matching device was found, mark it as open and return its index. */
          pdev->status |= HID_STATUS_OPEN;
-         ret = index;
+         ret = index-1; /* -1 because of for loop's post increment. */
       }
    }
    return ret;
@@ -661,30 +665,32 @@ int hid_write(int fd, const void *buf, size_t count)
  * Buffer should be pointed to somewhere \b before  the  endpoint's  descriptor.
  * Remember that this endpoint must be an interrupt IN one.
  */
-int _hid_validate_first_ep(const uint8_t* buffer, uint8_t length )
+int _hid_validate_first_ep(const uint8_t** pbuffer, uint8_t* plen )
 {
    int            status;
    usb_desc_ep_t* pep_desc;
 
-   usb_assert(buffer != NULL);
+   usb_assert(pbuffer  != NULL);
+   usb_assert(*pbuffer != NULL);
+   usb_assert(plen     != NULL);
 
    if (usb_goto_next_desc(
-         &buffer,
-         &length,
+         pbuffer,
+         plen,
          USB_STDDESC_ENDPOINT,
          USB_STDDESC_EP_SIZE ))
    {
       /* No endpoint descriptor found in buffer. */
       status = USB_STATUS_DRIVER_FAIL;
    }
-   else if (length < USB_STDDESC_EP_SIZE)
+   else if (*plen < USB_STDDESC_EP_SIZE)
    {
       /* Endpoint descriptor found but buffer isn't long enough. */
       status = USB_STATUS_DRIVER_FAIL;
    }
    else
    {
-      pep_desc = (usb_desc_ep_t*) buffer;
+      pep_desc = (usb_desc_ep_t*) (*pbuffer);
 
       if (!(pep_desc->bEndpointAddress & USB_DIR_MASK))
       {

@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include "drivers/usb_drivers.h"
-#include "usb_hub.h"
+#include "drivers/usb_hub.h"
 
 
 int usb_hub_update( usb_hub_t* phub )
