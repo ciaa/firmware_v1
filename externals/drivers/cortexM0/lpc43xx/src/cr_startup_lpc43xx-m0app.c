@@ -74,92 +74,10 @@ __attribute__ ((weak)) extern void __valid_user_code_checksum();
 //
 //*****************************************************************************
      void ResetISR(void);
-#if defined (__USE_LPCOPEN)
 WEAK void NMI_Handler(void);
 WEAK void HardFault_Handler(void);
 WEAK void SVC_Handler(void);
-WEAK void PendSV_Handler(void);
-// Note - Systick Peripheral not implemented on LPC43xx M0app cpu
-WEAK void IntDefaultHandler(void);
-#else
-WEAK void M0_NMI_Handler(void);
-WEAK void M0_HardFault_Handler (void);
-WEAK void M0_SVC_Handler(void);
-WEAK void M0_PendSV_Handler(void);
-// Note - Systick Peripheral not implemented on LPC43xx M0app cpu
-WEAK void M0_IntDefaultHandler(void);
-#endif
 
-//*****************************************************************************
-//
-// Forward declaration of the specific IRQ handlers. These are aliased
-// to the IntDefaultHandler, which is a 'forever' loop. When the application
-// defines a handler (with the same name), this will automatically take
-// precedence over these weak definitions
-//
-//*****************************************************************************
-#if defined (__USE_LPCOPEN)
-void RTC_IRQHandler(void) ALIAS(IntDefaultHandler);
-void MX_CORE_IRQHandler(void) ALIAS(IntDefaultHandler);
-void DMA_IRQHandler(void) ALIAS(IntDefaultHandler);
-void FLASHEEPROM_IRQHandler(void) ALIAS(IntDefaultHandler);
-void ETH_IRQHandler(void) ALIAS(IntDefaultHandler);
-void SDIO_IRQHandler(void) ALIAS(IntDefaultHandler);
-void LCD_IRQHandler(void) ALIAS(IntDefaultHandler);
-void USB0_IRQHandler(void) ALIAS(IntDefaultHandler);
-void USB1_IRQHandler(void) ALIAS(IntDefaultHandler);
-void SCT_IRQHandler(void) ALIAS(IntDefaultHandler);
-void RIT_IRQHandler(void) ALIAS(IntDefaultHandler);
-void TIMER0_IRQHandler(void) ALIAS(IntDefaultHandler);
-void GINT1_IRQHandler(void) ALIAS(IntDefaultHandler);
-void GPIO4_IRQHandler(void) ALIAS(IntDefaultHandler);
-void TIMER3_IRQHandler(void) ALIAS(IntDefaultHandler);
-void MCPWM_IRQHandler(void) ALIAS(IntDefaultHandler);
-void ADC0_IRQHandler(void) ALIAS(IntDefaultHandler);
-void I2C0_IRQHandler(void) ALIAS(IntDefaultHandler);
-void SGPIO_IRQHandler(void) ALIAS(IntDefaultHandler);
-void SPI_IRQHandler (void) ALIAS(IntDefaultHandler);
-void ADC1_IRQHandler(void) ALIAS(IntDefaultHandler);
-void SSP0_IRQHandler(void) ALIAS(IntDefaultHandler);
-void EVRT_IRQHandler(void) ALIAS(IntDefaultHandler);
-void UART0_IRQHandler(void) ALIAS(IntDefaultHandler);
-void UART1_IRQHandler(void) ALIAS(IntDefaultHandler);
-void UART2_IRQHandler(void) ALIAS(IntDefaultHandler);
-void UART3_IRQHandler(void) ALIAS(IntDefaultHandler);
-void I2S0_IRQHandler(void) ALIAS(IntDefaultHandler);
-void CAN0_IRQHandler(void) ALIAS(IntDefaultHandler);
-void SPIFI_ADCHS_IRQHandler(void) ALIAS(IntDefaultHandler);
-void M0SUB_IRQHandler(void) ALIAS(IntDefaultHandler);
-#else
-void M0_RTC_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_M4CORE_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_DMA_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_ETH_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_SDIO_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_LCD_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_USB0_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_USB1_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_SCT_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_RIT_OR_WWDT_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_TIMER0_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_GINT1_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_TIMER3_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_MCPWM_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_ADC0_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_I2C0_OR_I2C1_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_SGPIO_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_SPI_OR_DAC_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_ADC1_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_SSP0_OR_SSP1_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_EVENTROUTER_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_USART0_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_USART2_OR_C_CAN1_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_USART3_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_I2S0_OR_I2S1_OR_QEI_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_C_CAN0_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_SPIFI_OR_VADC_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-void M0_M0SUB_IRQHandler(void) ALIAS(M0_IntDefaultHandler);
-#endif
 //*****************************************************************************
 //
 // The entry point for the application.
@@ -321,30 +239,6 @@ __attribute__ ((section(".after_vectors")))
 void SVC_Handler(void)
 #else
 void M0_SVC_Handler(void)
-#endif
-{   while(1) { }
-}
-
-__attribute__ ((section(".after_vectors")))
-#if defined (__USE_LPCOPEN)
-void PendSV_Handler(void)
-#else
-void M0_PendSV_Handler(void)
-#endif
-{   while(1) { }
-}
-
-//*****************************************************************************
-//
-// Processor ends up here if an unexpected interrupt occurs or a specific
-// handler is not present in the application code.
-//
-//*****************************************************************************
-__attribute__ ((section(".after_vectors")))
-#if defined (__USE_LPCOPEN)
-void IntDefaultHandler(void)
-#else
-void M0_IntDefaultHandler(void)
 #endif
 {   while(1) { }
 }
