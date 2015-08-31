@@ -7,6 +7,9 @@
 *.cproject
 *.project
 .settings
+*.xml
+*.xme
+*.dtd
 
 # Own makefile or mine template
 *.mine
