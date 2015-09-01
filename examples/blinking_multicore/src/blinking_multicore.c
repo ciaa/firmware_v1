@@ -1,5 +1,5 @@
 /* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, 2015 Pablo Ridolfi
  * Copyright 2014, Juan Cecconi
  * Copyright 2014, Gustavo Muro
  *
@@ -59,6 +59,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150831 v0.0.4   PR   first multicore version
  * 20150603 v0.0.3   ErPe change uint8 type by uint8_t
  *                        in line 172
  * 20141019 v0.0.2   JuCe add printf in each task,

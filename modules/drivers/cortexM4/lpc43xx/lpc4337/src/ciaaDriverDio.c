@@ -1,4 +1,5 @@
-/* Copyright 2014-2015, Pablo Ridolfi (UTN-FRBA)
+/* Copyright 2014, 2015 Pablo Ridolfi (UTN-FRBA)
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -52,8 +53,8 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140731 v0.0.1   PR first functional version
  * 20150831 v0.0.2   PR improved version
+ * 20140731 v0.0.1   PR first functional version
  */
 
 /*==================[inclusions]=============================================*/
@@ -76,7 +77,10 @@ typedef struct  {
 
 /*==================[internal data definition]===============================*/
 
-/** \brief PORT/PIN map for managed GPIOs */
+/** \brief PORT/PIN map for managed GPIOs
+ *
+ * Define port/pin pairs for each GPIO managed by this driver
+ */
 #if (ciaa_nxp == BOARD)
 const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {2,0},{2,1},{2,2},{2,3},{3,11},{3,12},{3,13},{3,14} };
 const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {5,1},{2,6},{2,5},{2,4},{5,12},{5,13},{5,14},{1,8} };
@@ -268,22 +272,23 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
 
    if(device == ciaaDioDevices[0])
    {
+      /* accessing to inputs */
+      /* amount of bytes necessary to store all input states */
       count = ciaaDriverDio_InputCount / 8;
       if( (ciaaDriverDio_InputCount % 8) != 0)
       {
          count += 1;
       }
-
+      /* if user provides enough space ... */
       if(size >= count)
       {
+         /* read and store all inputs in user buffer */
          for(i=0; i<count; i++)
          {
             buffer[i] = 0;
          }
-
          i = 0;
          j = 0;
-
          while (i < ciaaDriverDio_InputCount)
          {
             buffer[j] |= ciaa_lpc4337_readInput(i) << (i - 8 * j);
@@ -293,28 +298,28 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
                j++;
             }
          }
-
          ret = count;
       }
    }
    else if(device == ciaaDioDevices[1])
    {
+      /* accessing to outputs */
+      /* amount of bytes necessary to store all output states */
       count = ciaaDriverDio_OutputCount / 8;
       if( (ciaaDriverDio_OutputCount % 8) != 0)
       {
          count += 1;
       }
-
+      /* if user provides enough space ... */
       if(size >= count)
       {
+         /* read and store all outputs in user buffer */
          for(i=0; i<count; i++)
          {
             buffer[i] = 0;
          }
-
          i = 0;
          j = 0;
-
          while (i < ciaaDriverDio_OutputCount)
          {
             buffer[j] |= ciaa_lpc4337_readOutput(i) << (i - 8 * j);
@@ -324,7 +329,6 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
                j++;
             }
          }
-
          ret = count;
       }
    }
@@ -349,8 +353,10 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
       }
       else if(device == ciaaDioDevices[1])
       {
+         /* Write outputs */
          int32_t i, j;
 
+         /* set outputs according to bits defined in user buffer */
          for(i = 0, j = 0; (i < ciaaDriverDio_OutputCount) && (j < size); i++)
          {
             ciaa_lpc4337_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
@@ -359,12 +365,10 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
                j++;
             }
          }
-
          if(ciaaDriverDio_OutputCount % 8 != 0)
          {
             j++;
          }
-
          ret = j;
       }
       else
@@ -379,6 +383,7 @@ void ciaaDriverDio_init(void)
 {
    uint8_t loopi;
 
+   /* low level GPIO peripheral initialization */
    ciaa_lpc4337_gpio_init();
 
    /* add dio driver to the list of devices */
@@ -388,8 +393,7 @@ void ciaaDriverDio_init(void)
    }
 }
 
-
-/*==================[interrupt hanlders]=====================================*/
+/*==================[interrupt handlers]=====================================*/
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -1,7 +1,8 @@
 /* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, 2015 Pablo Ridolfi
  * Copyright 2014, Juan Cecconi
  * Copyright 2014, Gustavo Muro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -51,13 +52,13 @@
 /*
  * Initials     Name
  * ---------------------------
- *
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20150831 v0.0.1 PR   Initial version.
  */
 
 /*==================[inclusions]=============================================*/

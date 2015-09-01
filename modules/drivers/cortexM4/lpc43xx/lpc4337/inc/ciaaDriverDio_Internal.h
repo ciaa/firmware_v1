@@ -1,5 +1,6 @@
 /* Copyright 2014, Mariano Cerdeiro
  * Copyright 2015, Pablo Ridolfi
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -53,8 +54,8 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140528 v0.0.1 initials initial version
- * 20150831 v0.0.2 driver improved
+ * 20150831 v0.0.2 PR driver improved
+ * 20140528 v0.0.1 PR initial version
  */
 
 /*==================[inclusions]=============================================*/
