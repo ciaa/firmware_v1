@@ -1,4 +1,4 @@
-/* Copyright 2014, Pablo Ridolfi (UTN-FRBA)
+/* Copyright 2014-2015, Pablo Ridolfi (UTN-FRBA)
  *
  * This file is part of CIAA Firmware.
  *
@@ -53,6 +53,7 @@
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20140731 v0.0.1   PR first functional version
+ * 20150831 v0.0.2   PR improved version
  */
 
 /*==================[inclusions]=============================================*/
@@ -74,6 +75,22 @@ typedef struct  {
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+
+/** \brief PORT/PIN map for managed GPIOs */
+#if (ciaa_nxp == BOARD)
+const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {2,0},{2,1},{2,2},{2,3},{3,11},{3,12},{3,13},{3,14} };
+const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {5,1},{2,6},{2,5},{2,4},{5,12},{5,13},{5,14},{1,8} };
+#elif (edu_ciaa_nxp == BOARD)
+const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {0,4},{0,8},{0,9},{1,9} };
+const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {5,0},{5,1},{5,2},{0,14},{1,11},{1,12} };
+#endif
+
+/** \brief Managed input count */
+const ssize_t ciaaDriverDio_InputCount = sizeof(ciaaDriverDio_Inputs) / sizeof(ciaaDriverDio_dioType);
+
+/** \brief Managed output count */
+const ssize_t ciaaDriverDio_OutputCount = sizeof(ciaaDriverDio_Outputs) / sizeof(ciaaDriverDio_dioType);
+
 /** \brief Device for DIO 0 */
 static ciaaDevices_deviceType ciaaDriverDio_in0 = {
    "in/0",                          /** <= driver name */
@@ -84,7 +101,7 @@ static ciaaDevices_deviceType ciaaDriverDio_in0 = {
    ciaaDriverDio_ioctl,            /** <= ioctl function */
    NULL,                           /** <= seek function is not provided */
    NULL,                           /** <= upper layer */
-   (void*)&ciaaDriverDio_dio0,     /** <= layer */
+   NULL,                           /** <= layer */
    NULL                            /** <= NULL no lower layer */
 };
 
@@ -98,7 +115,7 @@ static ciaaDevices_deviceType ciaaDriverDio_out0 = {
    ciaaDriverDio_ioctl,            /** <= ioctl function */
    NULL,                           /** <= seek function is not provided */
    NULL,                           /** <= upper layer */
-   (void*)&ciaaDriverDio_dio1,     /** <= layer */
+   NULL,                           /** <= layer */
    NULL                            /** <= NULL no lower layer */
 };
 
@@ -113,15 +130,10 @@ static ciaaDriverConstType const ciaaDriverDioConst = {
 };
 
 /*==================[external data definition]===============================*/
-/** \brief Dio 0 */
-ciaaDriverDio_dioType ciaaDriverDio_dio0;
-
-/** \brief Dio 1 */
-ciaaDriverDio_dioType ciaaDriverDio_dio1;
 
 /*==================[internal functions definition]==========================*/
 
-void ciaa_lpc4337_gpio_init(void)
+static void ciaa_lpc4337_gpio_init(void)
 {
    Chip_GPIO_Init(LPC_GPIO_PORT);
 
@@ -140,23 +152,22 @@ void ciaa_lpc4337_gpio_init(void)
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 3, 0xF<<11, 0);
 
    /* MOSFETs */
-   Chip_SCU_PinMux(4,8,MD_PUP,FUNC4);  /* GPIO5[12] */
-   Chip_SCU_PinMux(4,9,MD_PUP,FUNC4);  /* GPIO5[13] */
-   Chip_SCU_PinMux(4,10,MD_PUP,FUNC4); /* GPIO5[14] */
-   Chip_SCU_PinMux(1,5,MD_PUP,FUNC0);  /* GPIO1[8]  */
-
+   Chip_SCU_PinMux(4,8,MD_PUP|MD_EZI,FUNC4);  /* GPIO5[12] */
+   Chip_SCU_PinMux(4,9,MD_PUP|MD_EZI,FUNC4);  /* GPIO5[13] */
+   Chip_SCU_PinMux(4,10,MD_PUP|MD_EZI,FUNC4); /* GPIO5[14] */
+   Chip_SCU_PinMux(1,5,MD_PUP|MD_EZI,FUNC0);  /* GPIO1[8]  */
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14),1);
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 1,(1<<8),1);
-
-
-   Chip_GPIO_SetValue(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14));
-   Chip_GPIO_SetValue(LPC_GPIO_PORT, 1,(1<<8));
+   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14));
+   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1,(1<<8));
 
    /* Relays */
+   Chip_SCU_PinMux(4,4,MD_PUP|MD_EZI,FUNC0); /* GPIO2[4] */
+   Chip_SCU_PinMux(4,5,MD_PUP|MD_EZI,FUNC0); /* GPIO2[5] */
+   Chip_SCU_PinMux(4,6,MD_PUP|MD_EZI,FUNC0); /* GPIO2[6] */
+   Chip_SCU_PinMux(2,1,MD_PUP|MD_EZI,FUNC4); /* GPIO5[1] */
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6),1);
-   Chip_SCU_PinMux(2,1,MD_PUP,FUNC4);
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<1),1);
-
    Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6));
    Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5,(1<<1));
 
@@ -174,12 +185,12 @@ void ciaa_lpc4337_gpio_init(void)
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 1,(1<<9),0);
 
    /* LEDs */
-   Chip_SCU_PinMux(2,0,MD_PUP,FUNC4);  /* GPIO5[0], LED0R */
-   Chip_SCU_PinMux(2,1,MD_PUP,FUNC4);  /* GPIO5[1], LED0G */
-   Chip_SCU_PinMux(2,2,MD_PUP,FUNC4);  /* GPIO5[2], LED0B */
-   Chip_SCU_PinMux(2,10,MD_PUP,FUNC0); /* GPIO0[14], LED1 */
-   Chip_SCU_PinMux(2,11,MD_PUP,FUNC0); /* GPIO1[11], LED2 */
-   Chip_SCU_PinMux(2,12,MD_PUP,FUNC0); /* GPIO1[12], LED3 */
+   Chip_SCU_PinMux(2,0,MD_PUP|MD_EZI,FUNC4);  /* GPIO5[0], LED0R */
+   Chip_SCU_PinMux(2,1,MD_PUP|MD_EZI,FUNC4);  /* GPIO5[1], LED0G */
+   Chip_SCU_PinMux(2,2,MD_PUP|MD_EZI,FUNC4);  /* GPIO5[2], LED0B */
+   Chip_SCU_PinMux(2,10,MD_PUP|MD_EZI,FUNC0); /* GPIO0[14], LED1 */
+   Chip_SCU_PinMux(2,11,MD_PUP|MD_EZI,FUNC0); /* GPIO1[11], LED2 */
+   Chip_SCU_PinMux(2,12,MD_PUP|MD_EZI,FUNC0); /* GPIO1[12], LED3 */
 
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<0)|(1<<1)|(1<<2),1);
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 0,(1<<14),1);
@@ -194,159 +205,43 @@ void ciaa_lpc4337_gpio_init(void)
 #endif
 }
 
-void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
+static void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
 {
-#if (BOARD == ciaa_nxp)
-   switch(outputNumber)
+   if (outputNumber < ciaaDriverDio_OutputCount)
    {
-      case 0:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 2, 1<<4);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2, 1<<4);
-         }
-         break;
-      case 1:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 2, 1<<5);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2, 1<<5);
-         }
-         break;
-      case 2:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 2, 1<<6);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2, 1<<6);
-         }
-         break;
-      case 3:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<1);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<1);
-         }
-         break;
-      case 4:
-         if(value)
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<12);
-         }
-         else
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<12);
-         }
-         break;
-      case 5:
-         if(value)
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<13);
-         }
-         else
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<13);
-         }
-         break;
-      case 6:
-         if(value)
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<14);
-         }
-         else
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<14);
-         }
-         break;
-      case 7:
-         if(value)
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1, 1<<8);
-         }
-         else
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 1, 1<<8);
-         }
-         break;
-      default:
-         break;
+      Chip_GPIO_SetPinState(LPC_GPIO_PORT,
+         ciaaDriverDio_Outputs[outputNumber].port,
+         ciaaDriverDio_Outputs[outputNumber].pin,
+         value != 0 ? 1 : 0);
    }
-#elif(BOARD == edu_ciaa_nxp)
-   switch(outputNumber)
+}
+
+static int ciaa_lpc4337_readInput(uint32_t inputNumber)
+{
+   int rv = -1;
+
+   if (inputNumber < ciaaDriverDio_InputCount)
    {
-      case 0:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<0);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<0);
-         }
-         break;
-      case 1:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<1);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<1);
-         }
-         break;
-      case 2:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<2);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<2);
-         }
-         break;
-      case 3:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 0, 1<<14);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 0, 1<<14);
-         }
-         break;
-      case 4:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 1, 1<<11);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1, 1<<11);
-         }
-         break;
-      case 5:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 1, 1<<12);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1, 1<<12);
-         }
-         break;
+      rv = Chip_GPIO_GetPinState(LPC_GPIO_PORT,
+         ciaaDriverDio_Inputs[inputNumber].port,
+         ciaaDriverDio_Inputs[inputNumber].pin);
    }
-#endif
+
+   return rv;
+}
+
+static int ciaa_lpc4337_readOutput(uint32_t outputNumber)
+{
+   int rv = -1;
+
+   if (outputNumber < ciaaDriverDio_OutputCount)
+   {
+      rv = Chip_GPIO_GetPinState(LPC_GPIO_PORT,
+         ciaaDriverDio_Outputs[outputNumber].port,
+         ciaaDriverDio_Outputs[outputNumber].pin);
+   }
+
+   return rv;
 }
 
 /*==================[external functions definition]==========================*/
@@ -369,37 +264,74 @@ extern int32_t ciaaDriverDio_ioctl(ciaaDevices_deviceType const * const device, 
 extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, uint8_t * buffer, size_t size)
 {
    ssize_t ret = -1;
+   int i, j, count;
 
-   /* Can't store read result in buffer. At least 1 byte required. */
-   if(size != 0)
+   if(device == ciaaDioDevices[0])
    {
-      if(device == ciaaDioDevices[0])
+      count = ciaaDriverDio_InputCount / 8;
+      if( (ciaaDriverDio_InputCount % 8) != 0)
       {
-#if(BOARD == ciaa_nxp)
-         buffer[0] = ~((uint8_t) ((Chip_GPIO_ReadValue(LPC_GPIO_PORT,3) & (0x0F<<11))>>7)
-                              | (Chip_GPIO_ReadValue(LPC_GPIO_PORT,2) & 0x0F));
-#elif(BOARD == edu_ciaa_nxp)
-         buffer[0]  = Chip_GPIO_GetPinState(LPC_GPIO_PORT, 0, 4) ? 0 : 1;
-         buffer[0] |= Chip_GPIO_GetPinState(LPC_GPIO_PORT, 0, 8) ? 0 : 2;
-         buffer[0] |= Chip_GPIO_GetPinState(LPC_GPIO_PORT, 0, 9) ? 0 : 4;
-         buffer[0] |= Chip_GPIO_GetPinState(LPC_GPIO_PORT, 1, 9) ? 0 : 8;
-#endif
+         count += 1;
+      }
 
-         /* 1 byte read */
-         ret = 1;
-      }
-      else if(device == ciaaDioDevices[1])
+      if(size >= count)
       {
-         /* read actual output state from layer data */
-         buffer[0] = (uint8_t)*((ciaaDriverDio_dioType *)device->layer);
+         for(i=0; i<count; i++)
+         {
+            buffer[i] = 0;
+         }
 
-         ret = 1;
+         i = 0;
+         j = 0;
+
+         while (i < ciaaDriverDio_InputCount)
+         {
+            buffer[j] |= ciaa_lpc4337_readInput(i) << (i - 8 * j);
+            i++;
+            if((i % 8)==0)
+            {
+               j++;
+            }
+         }
+
+         ret = count;
       }
-      else
+   }
+   else if(device == ciaaDioDevices[1])
+   {
+      count = ciaaDriverDio_OutputCount / 8;
+      if( (ciaaDriverDio_OutputCount % 8) != 0)
       {
-         /* Invalid device */
-         ret = -1;
+         count += 1;
       }
+
+      if(size >= count)
+      {
+         for(i=0; i<count; i++)
+         {
+            buffer[i] = 0;
+         }
+
+         i = 0;
+         j = 0;
+
+         while (i < ciaaDriverDio_OutputCount)
+         {
+            buffer[j] |= ciaa_lpc4337_readOutput(i) << (i - 8 * j);
+            i++;
+            if((i % 8)==0)
+            {
+               j++;
+            }
+         }
+
+         ret = count;
+      }
+   }
+   else
+   {
+      /* Invalid device */
+      ret = -1;
    }
    return ret;
 }
@@ -417,18 +349,23 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
       }
       else if(device == ciaaDioDevices[1])
       {
-         int32_t i;
+         int32_t i, j;
 
-         for(i = 0; i < 8; i++)
+         for(i = 0, j = 0; (i < ciaaDriverDio_OutputCount) && (j < size); i++)
          {
-            ciaa_lpc4337_writeOutput(i, buffer[0] & (1 << i));
+            ciaa_lpc4337_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
+            if( (i > 0) && ((i % 8) == 0) )
+            {
+               j++;
+            }
          }
 
-         /* save actual output state in layer data */
-         *((ciaaDriverDio_dioType *)device->layer) = buffer[0];
+         if(ciaaDriverDio_OutputCount % 8 != 0)
+         {
+            j++;
+         }
 
-         /* 1 byte written */
-         ret = 1;
+         ret = j;
       }
       else
       {
@@ -448,8 +385,6 @@ void ciaaDriverDio_init(void)
    for(loopi = 0; loopi < ciaaDriverDioConst.countOfDevices; loopi++) {
       /* add each device */
       ciaaDioDevices_addDriver(ciaaDriverDioConst.devices[loopi]);
-      /* init layer data for each device */
-      *((ciaaDriverDio_dioType *)ciaaDriverDioConst.devices[loopi]->layer) = 0;
    }
 }
 
@@ -460,4 +395,3 @@ void ciaaDriverDio_init(void)
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
