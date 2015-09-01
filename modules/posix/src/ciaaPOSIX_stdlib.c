@@ -1,6 +1,8 @@
 /* Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * Copyright 2015, Pablo Ridolfi
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -45,13 +47,15 @@
 
 /*
  * Initials     Name
- * ---------------------------
+ * ----------------------------
  * DiFe         Diego Fernandez
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150831 v0.0.2 PR   chunk address aligned for Cortex-M0
  * 20140524 v0.0.1 DiFe initial version
  */
 
