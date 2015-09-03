@@ -446,6 +446,8 @@ typedef enum _sim_clock_gate_name
     kSimClockGateFlexbus0  = FSL_SIM_SCGC_BIT(7U, 0U),
     kSimClockGateDma0      = FSL_SIM_SCGC_BIT(7U, 1U),
     kSimClockGateMpu0      = FSL_SIM_SCGC_BIT(7U, 2U),
+    kSimClockGateAdc2      = FSL_SIM_SCGC_BIT(6U, 28U),
+    kSimClockGateAdc3      = FSL_SIM_SCGC_BIT(3U, 28U),
 #if (defined(DOXYGEN_OUTPUT) && (DOXYGEN_OUTPUT))
 } sim_clock_gate_name_k63f12_t;
 #else
