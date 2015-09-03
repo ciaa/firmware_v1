@@ -656,12 +656,22 @@ typedef struct {
 /** Peripheral ADC1 base pointer */
 #define ADC1                                     ((ADC_Type *)ADC1_BASE)
 #define ADC1_BASE_PTR                            (ADC1)
+/** Peripheral ADC2 base address */
+#define ADC2_BASE                                (0x4003C000u)
+/** Peripheral ADC2 base pointer */
+#define ADC2                                     ((ADC_Type *)ADC2_BASE)
+#define ADC2_BASE_PTR                            (ADC2)
+/** Peripheral ADC3 base address */
+#define ADC3_BASE                                (0x400BC000)
+/** Peripheral ADC3 base pointer */
+#define ADC3                                     ((ADC_Type *)ADC3_BASE)
+#define ADC3_BASE_PTR                            (ADC3)
 /** Array initializer of ADC peripheral base addresses */
-#define ADC_BASE_ADDRS                           { ADC0_BASE, ADC1_BASE }
+#define ADC_BASE_ADDRS                           { ADC0_BASE, ADC1_BASE, ADC2_BASE , ADC3_BASE}
 /** Array initializer of ADC peripheral base pointers */
-#define ADC_BASE_PTRS                            { ADC0, ADC1 }
+#define ADC_BASE_PTRS                            { ADC0, ADC1, ADC2 , ADC3}
 /** Interrupt vectors for the ADC peripheral type */
-#define ADC_IRQS                                 { ADC0_IRQn, ADC1_IRQn }
+#define ADC_IRQS                                 { ADC0_IRQn, ADC1_IRQn, ADC2_IRQn , ADC3_IRQn}
 
 /* ----------------------------------------------------------------------------
    -- ADC - Register accessor macros
@@ -730,12 +740,72 @@ typedef struct {
 #define ADC1_CLM2                                ADC_CLM2_REG(ADC1)
 #define ADC1_CLM1                                ADC_CLM1_REG(ADC1)
 #define ADC1_CLM0                                ADC_CLM0_REG(ADC1)
+/* ADC2 */
+#define ADC2_SC1A                                ADC_SC1_REG(ADC2,0)
+#define ADC2_SC1B                                ADC_SC1_REG(ADC2,1)
+#define ADC2_CFG1                                ADC_CFG1_REG(ADC2)
+#define ADC2_CFG2                                ADC_CFG2_REG(ADC2)
+#define ADC2_RA                                  ADC_R_REG(ADC2,0)
+#define ADC2_RB                                  ADC_R_REG(ADC2,1)
+#define ADC2_CV1                                 ADC_CV1_REG(ADC2)
+#define ADC2_CV2                                 ADC_CV2_REG(ADC2)
+#define ADC2_SC2                                 ADC_SC2_REG(ADC2)
+#define ADC2_SC3                                 ADC_SC3_REG(ADC2)
+#define ADC2_OFS                                 ADC_OFS_REG(ADC2)
+#define ADC2_PG                                  ADC_PG_REG(ADC2)
+#define ADC2_MG                                  ADC_MG_REG(ADC2)
+#define ADC2_CLPD                                ADC_CLPD_REG(ADC2)
+#define ADC2_CLPS                                ADC_CLPS_REG(ADC2)
+#define ADC2_CLP4                                ADC_CLP4_REG(ADC2)
+#define ADC2_CLP3                                ADC_CLP3_REG(ADC2)
+#define ADC2_CLP2                                ADC_CLP2_REG(ADC2)
+#define ADC2_CLP1                                ADC_CLP1_REG(ADC2)
+#define ADC2_CLP0                                ADC_CLP0_REG(ADC2)
+#define ADC2_CLMD                                ADC_CLMD_REG(ADC2)
+#define ADC2_CLMS                                ADC_CLMS_REG(ADC2)
+#define ADC2_CLM4                                ADC_CLM4_REG(ADC2)
+#define ADC2_CLM3                                ADC_CLM3_REG(ADC2)
+#define ADC2_CLM2                                ADC_CLM2_REG(ADC2)
+#define ADC2_CLM1                                ADC_CLM1_REG(ADC2)
+#define ADC2_CLM0                                ADC_CLM0_REG(ADC2)
+/* ADC3 */
+#define ADC3_SC1A                                ADC_SC1_REG(ADC3,0)
+#define ADC3_SC1B                                ADC_SC1_REG(ADC3,1)
+#define ADC3_CFG1                                ADC_CFG1_REG(ADC3)
+#define ADC3_CFG2                                ADC_CFG2_REG(ADC3)
+#define ADC3_RA                                  ADC_R_REG(ADC3,0)
+#define ADC3_RB                                  ADC_R_REG(ADC3,1)
+#define ADC3_CV1                                 ADC_CV1_REG(ADC3)
+#define ADC3_CV2                                 ADC_CV2_REG(ADC3)
+#define ADC3_SC2                                 ADC_SC2_REG(ADC3)
+#define ADC3_SC3                                 ADC_SC3_REG(ADC3)
+#define ADC3_OFS                                 ADC_OFS_REG(ADC3)
+#define ADC3_PG                                  ADC_PG_REG(ADC3)
+#define ADC3_MG                                  ADC_MG_REG(ADC3)
+#define ADC3_CLPD                                ADC_CLPD_REG(ADC3)
+#define ADC3_CLPS                                ADC_CLPS_REG(ADC3)
+#define ADC3_CLP4                                ADC_CLP4_REG(ADC3)
+#define ADC3_CLP3                                ADC_CLP3_REG(ADC3)
+#define ADC3_CLP2                                ADC_CLP2_REG(ADC3)
+#define ADC3_CLP1                                ADC_CLP1_REG(ADC3)
+#define ADC3_CLP0                                ADC_CLP0_REG(ADC3)
+#define ADC3_CLMD                                ADC_CLMD_REG(ADC3)
+#define ADC3_CLMS                                ADC_CLMS_REG(ADC3)
+#define ADC3_CLM4                                ADC_CLM4_REG(ADC3)
+#define ADC3_CLM3                                ADC_CLM3_REG(ADC3)
+#define ADC3_CLM2                                ADC_CLM2_REG(ADC3)
+#define ADC3_CLM1                                ADC_CLM1_REG(ADC3)
+#define ADC3_CLM0                                ADC_CLM0_REG(ADC3)
 
 /* ADC - Register array accessors */
 #define ADC0_SC1(index)                          ADC_SC1_REG(ADC0,index)
 #define ADC1_SC1(index)                          ADC_SC1_REG(ADC1,index)
+#define ADC2_SC1(index)                          ADC_SC1_REG(ADC2,index)
+#define ADC3_SC1(index)                          ADC_SC1_REG(ADC3,index)
 #define ADC0_R(index)                            ADC_R_REG(ADC0,index)
 #define ADC1_R(index)                            ADC_R_REG(ADC1,index)
+#define ADC2_R(index)                            ADC_R_REG(ADC2,index)
+#define ADC3_R(index)                            ADC_R_REG(ADC3,index)
 
 /*!
  * @}
@@ -10320,7 +10390,7 @@ typedef struct {
 /** Array initializer of I2C peripheral base pointers */
 #define I2C_BASE_PTRS                            { I2C0, I2C1, I2C2 }
 /** Interrupt vectors for the I2C peripheral type */
-#define I2C_IRQS                                 { I2C0_IRQn, I2C1_IRQn, I2C2_IRQn }
+#define I2C_IRQS                                 { I2C0_IRQn, I2C1_IRQn }
 
 /* ----------------------------------------------------------------------------
    -- I2C - Register accessor macros
