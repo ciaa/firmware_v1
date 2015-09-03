@@ -433,6 +433,15 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	ruby externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)auto$(DS)generate_test_runner.rb $< $(RUNNERS_OUT_DIR)$(DS)$(notdir $@) modules$(DS)tools$(DS)ceedling$(DS)project.yml
 
 ###################### ENDS UNIT TEST PART OF MAKE FILE #######################
+
+###############################################################################
+# rule to generate OILs files
+%.oil: %.oil.pre
+    @echo " PRE OIL $^"
+    $(CC) -E -x c++ -DBOARD=$(BOARD) -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) $^ | grep -v "^#.*" > $@
+
+###############################################################################
+
 # Rule to compile
 %.o : %.c
 	@echo ' '
@@ -800,6 +809,8 @@ clean:
 	@rm -rf $(OUT_DIR)$(DS)coverage$(DS)*
 	@echo Removing object files
 	@rm -rf $(OBJ_DIR)$(DS)*
+	@echo Removing oil files
+	@rm -rf $(OIL_FILES)
 
 clean_rtostests:
 	@echo Removing RTOS Test generated project files
