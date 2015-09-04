@@ -73,6 +73,9 @@ extern "C" {
 #elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
         ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) )
 #include "stddef.h"
+#elif ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) )
+#include "stddef.h"
+#include "sys/types.h"
 #elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
 #include "stdint.h"
 #else
@@ -104,4 +107,3 @@ extern "C" {
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef CIAAPOSIX_STDDEF_H */
-

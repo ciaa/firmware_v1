@@ -1,6 +1,8 @@
 /* Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * Copyright 2015, Pablo Ridolfi
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -45,13 +47,15 @@
 
 /*
  * Initials     Name
- * ---------------------------
+ * ----------------------------
  * DiFe         Diego Fernandez
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150831 v0.0.2 PR   chunk address aligned for Cortex-M0
  * 20140524 v0.0.1 DiFe initial version
  */
 
@@ -101,7 +105,12 @@ static void ciaaPOSIX_chunk_partition(ciaaPOSIX_chunk_header *chunk_header, uint
 {
    // if there is at least one byte after the partition
    if (chunk_header->size > size + sizeof(ciaaPOSIX_chunk_header)) {
-       ciaaPOSIX_chunk_header *next_chunk_header = (ciaaPOSIX_chunk_header *)(((char *)chunk_header) + size + sizeof(ciaaPOSIX_chunk_header));
+      ciaaPOSIX_chunk_header *next_chunk_header = (ciaaPOSIX_chunk_header *)(((char *)chunk_header) + size + sizeof(ciaaPOSIX_chunk_header));
+#if (cortexM0 == ARCH)
+       /* Cortex-M0 doesn't support unaligned memory access */
+       /* Align chunk to 32-bits address */
+       next_chunk_header = (ciaaPOSIX_chunk_header *)(((int)next_chunk_header+3) & ~3);
+#endif
        next_chunk_header->next = chunk_header->next;
        chunk_header->next = next_chunk_header;
        next_chunk_header->size = chunk_header->size - size - sizeof(ciaaPOSIX_chunk_header);
