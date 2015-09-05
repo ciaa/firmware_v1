@@ -2,6 +2,7 @@
 #
 # Copyright 2014, 2015, Mariano Cerdeiro
 # Copyright 2014, 2015, Juan Cecconi (Numetron, UTN-FRBA)
+# Copyright 2014, 2015, Esteban Volentini (LabMicro, UNT)
 # All rights reserved
 #
 # This file is part of CIAA Firmware.
@@ -495,8 +496,8 @@ $(PROJECT_NAME) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	$(POST_BUILD)
 
 # debug rule
-debug : $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
-	$(GDB) $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
+debug : $(BIN_DIR)$(DS)$(PROJECT_NAME).axf
+	$(GDB) $(BIN_DIR)$(DS)$(PROJECT_NAME).axf
 
 ###############################################################################
 # rtos OSEK generation
@@ -565,16 +566,22 @@ else
 ifeq ($(OPENOCD_CFG),)
 	@echo ERROR: Your CPU: $(CPU) may not be supported...
 else
+ifeq ($(words $(MAKE_ARGS)),0)
+# command line: make erase
 	@echo ===============================================================================
 	@echo Starting OpenOCD and erasing all...
 	@echo "(after downloading a new firmware please do a hardware reset!)"
 	@echo ' '
-ifeq ($(words $(MAKE_ARGS)),0)
-# command line: make erase
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector 0 0 last" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND)" -c "shutdown"
 else
 ifeq ($(words $(MAKE_ARGS)),1)
-# command line: make erase [FLASH|QSPI]
+ifeq ($(CPUTYPE),k60_120)
+	@echo 'Not supported on Kinetis processors'
+else
+	@echo ===============================================================================
+	@echo Starting OpenOCD and erasing all...
+	@echo "(after downloading a new firmware please do a hardware reset!)"
+	@echo ' '
 ifeq ($(word 1, $(MAKE_ARGS)),FLASH)
 	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
 else
@@ -584,6 +591,7 @@ else
 	@echo 'Error...unknown memory type'
 endif
 endif
+endif
 else
 	@echo 'Error...unknown arguments'
 endif
@@ -591,7 +599,6 @@ endif
 endif
 endif
 endif
-
 ###############################################################################
 # Download to target, syntax download [file]
 download:
@@ -611,13 +618,13 @@ else
 	@echo ' '
 ifeq ($(words $(MAKECMDGOALS)),1)
 # command line: make download
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image $(FLASH_WRITE_FLAGS) $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 else
 ifeq ($(words $(MAKECMDGOALS)),2)
 # command line: make download [File]
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image $(FLASH_WRITE_FLAGS) $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 else
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_$(word 3,$(MAKECMDGOALS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image $(FLASH_WRITE_FLAGS) $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_$(word 3,$(MAKECMDGOALS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 endif
 endif
 endif

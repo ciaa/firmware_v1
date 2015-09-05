@@ -2,6 +2,7 @@
 #
 # Copyright 2014, Mariano Cerdeiro
 # Copyright 2014, 2015, Juan Cecconi
+# Copyright 2015, Esteban Volentini (LabMicro, UNT)
 #
 # This file is part of CIAA Firmware.
 #
@@ -42,3 +43,7 @@ TARGET_DOWNLOAD_QSPI_BASE_ADDR = 0x14000000
 TARGET_DOWNLOAD_QSPI_BANK = 1
 # The file type to be flashed, must be specified explicitly. ex.: bin
 TARGET_DOWNLOAD_EXTENSION = bin
+# Flash write command options
+FLASH_WRITE_FLAGS = erase unlock
+# Flash erase comand
+FLASH_ERASE_COMMAND = flash erase_sector 0 0 last
