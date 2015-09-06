@@ -2,9 +2,11 @@
 #
 # Copyright 2014, Mariano Cerdeiro
 # Copyright 2014, 2015, Juan Cecconi (UTN-FRBA)
+# Copyright 2015, Esteban Volentini (LabMicro, UNT)
 # Copyright 2014, ACSE & CADIEEL
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
+# All rights reserved
 #
 # This file is part of CIAA Firmware.
 #
@@ -55,3 +57,5 @@ POST_BUILD += arm-none-eabi-objcopy -v -O binary $(LD_TARGET) $(TARGET_NAME).bin
 # define linker extension
 LD_EXTENSION                = axf
 
+# gdb Flag
+GDB_FLAGS 		   = $(LD_TARGET) -ex "target remote localhost:3333"
