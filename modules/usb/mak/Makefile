@@ -33,15 +33,15 @@
 #
 ###############################################################################
 # library
-LIBS           += usb
+LIBS            += usb
 # version
-usb_VERSION     = 0.1.0
+usb_VERSION      = 0.1.0
 # library path
-usb_PATH        = $(ROOT_DIR)$(DS)modules$(DS)usb
+usb_PATH         = $(ROOT_DIR)$(DS)modules$(DS)usb
 # library source path
-usb_SRC_PATH    = $(usb_PATH)$(DS)src
+usb_SRC_PATH     = $(usb_PATH)$(DS)src
 # library include path
-usb_INC_PATH    = $(usb_PATH)$(DS)inc
+usb_INC_PATH     = $(usb_PATH)$(DS)inc
 # library source files
-usb_SRC_FILES   = $(wildcard $(usb_SRC_PATH)$(DS)*.c)
-usb_SRC_FILES  += $(wildcard $(usb_SRC_PATH)$(DS)drivers$(DS)*.c)
+usb_SRC_FILES    = $(wildcard $(usb_SRC_PATH)$(DS)*.c)
+usb_SRC_FILES   += $(wildcard $(usb_SRC_PATH)$(DS)drivers$(DS)*.c)

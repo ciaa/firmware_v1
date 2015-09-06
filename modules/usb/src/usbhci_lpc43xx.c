@@ -12,7 +12,7 @@
 
 /**
  * @brief Hardware pipes.
- * This is defined and declared here because it is hardware-dependent, placing
+ * This is defined and declared here because it is  hardware-dependent,  placing
  * it in the header file would make no sense for other hw controllers.
  */
 struct _usbhci_pipe_t
@@ -206,7 +206,7 @@ int usbhci_pipe_configure( usb_pipe_t* ppipe, uint8_t addr, usb_speed_t speed )
          _to_lpc_dir(ppipe->dir),
          ppipe->mps,
          ppipe->interval,
-         1, /** @TODO Mult, for ISO @ HS with more than one transaction per uframe */
+         1, /** @TODO Mult, for ISO @ HS with >1 transaction per uframe */
          0, /** @TODO see below */
          0, /** @TODO this two don't seem to be supported in the LPC library... should I leave them at 0? */
          &_pipe_handle[ppipe->handle].handle );

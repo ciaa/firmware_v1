@@ -23,7 +23,9 @@ int usb_init( usb_stack_t* pstack )
    pstack->ticks     = 0;
 
    for (i = 0; i < USB_MAX_DEVICES; ++i)
+   {
       usb_device_init(pstack, i);
+   }
 
    return USB_STATUS_OK;
 }
@@ -66,15 +68,15 @@ int usb_run( usb_stack_t* pstack )
    {
       case USB_HOST_STATE_IDLE:
          /*
-          * Do nothing until a device is connected to the  USB  hardware,  it
-          * could be either a regular device or a HUB, the root HUB  in  this
+          * Do nothing until a device is  connected  to  the  USB  hardware,  it
+          * could be either a regular device or a HUB,  the  root  HUB  in  this
           * case.
           */
          if (usbhci_is_connected())
          {
             /*
-             * This new address must always be 0 for the first device and it
-             * can never fail, thus, an assert here is OK.
+             * This new address must always be 0 for the first device and it can
+             * never fail, thus, an assert here is OK.
              */
             addr = usb_stack_new_addr(pstack);
             usb_assert(addr == 0);
@@ -110,8 +112,8 @@ int usb_run( usb_stack_t* pstack )
             break;
          }
          /*
-          * Otherwise, loop through  all  active  devices,  update  them  and
-          * handle HUBs (HUBs are the only devices owned by the stack).
+          * Otherwise, loop through all active devices, update them  and  handle
+          * HUBs (HUBs are the only devices owned by the stack).
           */
          status = usb_stack_update_devices(pstack);
          if (status != USB_STATUS_OK)
@@ -197,10 +199,10 @@ int usb_ctrlirp(
    }
 
    /*
-    * Check whether the  control  endpoint  is  available.  This  is  necessary
-    * because a device has only ONE control endpoint but all of its  interfaces
+    * Check whether the  control  endpoint  is  available.   This  is  necessary
+    * because a device has only ONE control endpoint but all of  its  interfaces
     * share it.
-    * Keep in mind each interface will most likely be handled  by  a  different
+    * Keep in mind each interface will most likely be  handled  by  a  different
     * driver and each of them will probably be running concurrently.
     */
    if (usb_device_lock(pstack, USB_ID_TO_DEV(device_id)) != USB_STATUS_OK)
@@ -330,7 +332,7 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
     * @TODO: write this function!
     *
     * Remember to release downstream devices if this is a HUB!
-    * Don't forget to skip i=0 'cause that's the root HUB/device, it should pop
+    * Don't forget to skip i=0 'cause that's the root HUB/device, it should  pop
     * up with the assertion in anycase though.
     *
     * Something like:
@@ -421,7 +423,7 @@ void usb_device_attach(
       usb_stack_t*  pstack,
 #if (USB_MAX_HUBS > 0)
       uint8_t       parent_hub,
-      uint8_t       parent_port
+      uint8_t       parent_port,
 #endif
       usb_device_t* pdevice
 )
@@ -522,16 +524,15 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 
       case USB_DEV_STATE_POWERED:
          /*
-          * Drive USB reset for 10~20 ms, but only if the host  is  currently
-          * not resetting or communicating to another device on address 0.
-          * If device's index is 0, then it's the root HUB or device,  it  is
-          * accessed directly through the hardware.  Otherwise,  we  need  to
-          * find to which port in which HUB it is connected to  in  order  to
-          * reset it.
-          * Also, notify the stack that someone  will  begin  an  enumeration
-          * process, this mean address 0 will be in use by  this  device  for
-          * the time being. Any other devices' reset and  addressing  process
-          * pending will have to wait until this one completes.
+          * Drive USB reset for 10~20 ms, but only if the host is currently  not
+          * resetting or communicating to another device on address 0.
+          * If device's index is 0, then it's the root  HUB  or  device,  it  is
+          * accessed directly through the hardware.  Otherwise, we need to  find
+          * to which port in which HUB it is connected to in order to reset it.
+          * Also, notify the  stack  that  someone  will  begin  an  enumeration
+          * process, this mean address 0 will be in use by this device  for  the
+          * time being.  Any other devices' reset and addressing process pending
+          * will have to wait until this one completes.
           */
          if (pstack->status & USB_STACK_STATUS_ZERO_ADDR)
             break; /* Wait until address 0 is freed. */
@@ -555,10 +556,9 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 #endif
          {
             /*
-             * Hardware reset, 10~20 ms delay is handled internally.   Since
-             * this is is the root device, it  is  not  a  problem  if  this
-             * method  blocks  internally  because  there  is  nothing  else
-             * connected to the stack.
+             * Hardware reset, 10~20 ms delay is handled internally.  Since this
+             * is the root device, it is not a problem  if  this  method  blocks
+             * internally because there is nothing else connected to the  stack.
              */
             usbhci_reset();
             pdevice->state = USB_DEV_STATE_DEFAULT;
@@ -568,7 +568,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 #if (USB_MAX_HUBS > 0)
       case USB_DEV_STATE_RESET:
          /*
-          * Release reset on USB bus, only for HUBs. For the root device it's
+          * Release reset on USB bus, only for HUBs.  For the root  device  it's
           * handled in one go in the previous state.
           */
          phub = pstack->hubs[pdevice->parent_hub];
@@ -583,9 +583,9 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 
       case USB_DEV_STATE_DEFAULT:
          /*
-          * Get the device's speed and create the 0  address  control  pipes,
-          * then configure its  new  address  and  release  the  zero-address
-          * communication bit so the host can setup other devices.
+          * Get the device's speed and create the 0 address control pipes,  then
+          * configure its new address and release the zero-address communication
+          * bit so the host can setup other devices.
           */
 #if (USB_MAX_HUBS > 0)
          if (index > 0)
@@ -604,8 +604,8 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          }
 
          /*
-          * Once the reset and speed reading is done, talking  with  the  HUB
-          * is no longer needed for this device.
+          * Once the reset and speed reading is done, talking with the HUB is no
+          * longer needed for this device.
           * Next, allocate the default control pipe and lock it.
           */
          ppipe->type     = USB_CTRL;
@@ -618,8 +618,8 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          ppipe->handle = (uint8_t) status;
 
          /*
-          * Locking the default control pipe should never fail at this point,
-          * this is because the device interfaces have yet to be assigned  to
+          * Locking the default control pipe should never fail  at  this  point,
+          * this is because the device interfaces have yet  to  be  assigned  to
           * drivers.
           */
          status = usb_device_lock(pstack, index);
@@ -672,7 +672,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 
       case USB_DEV_STATE_CONFIGURING_PIPES:
          /*
-          * New address has been set, reconfigure default  pipes  to  it  and
+          * New address has been  set,  reconfigure  default  pipes  to  it  and
           * request the configuration descriptor.
           * Also, release lock on stack to allow other devices to enumerate.
           */
@@ -768,8 +768,8 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 
       case USB_DEV_STATE_UNLOCKING:
          /*
-          * This state is needed  to  delay  the  unlocking  of  the  default
-          * control endpoint.
+          * This state is needed to delay the unlocking of the  default  control
+          * endpoint.
           */
          pdevice->ticks_delay = pstack->ticks + 500;
          pdevice->state = USB_DEV_STATE_WAITING_DELAY;
@@ -778,8 +778,8 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 
       case USB_DEV_STATE_UNLOCKING2:
          /*
-          * This state is only needed to unlock the default endpoint once the
-          * stack is done with the enumeration process.
+          * This state is only needed to unlock the default endpoint once the stack
+          * is done with the enumeration process.
           */
          usb_device_unlock(pstack, index);
          pdevice->state = USB_DEV_STATE_CONFIGURED;
@@ -795,6 +795,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 
       default:
          pdevice->state = USB_DEV_STATE_DISCONNECTED;
+         break;
    }
 
    return USB_STATUS_OK;
@@ -832,8 +833,8 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
    for (i = 0; i < pdevice->n_interfaces; ++i)
    {
       /*
-       * Find the next descriptor before parsing  so  we  can  pass  down  the
-       * actual entire interface plus endpoints and such descriptors.
+       * Find the next descriptor before parsing so we can pass down the  actual
+       * entire interface plus endpoints and such descriptors.
        */
       next_buff = buff;
       len = next_len;
@@ -917,9 +918,9 @@ int usb_device_parse_ifacedesc(
    if (driver_idx < 0)
    {
       /*
-       * If a driver couldn't be found, skip the rest  of  the  initialization
-       * process. However, the interface will still be listed  and  accessible
-       * through the USB stack, this way the user can get information about it
+       * If a driver couldn't be found, skip  the  rest  of  the  initialization
+       * process.  However, the interface will still be  listed  and  accessible
+       * through the USB stack, this way the user can get information  about  it
        * and find out why it wasn't assigned a driver.
        */
       piface->driver_handle = (usb_driver_handle_t) USB_IFACE_NO_DRIVER;
@@ -948,9 +949,9 @@ int usb_device_parse_ifacedesc(
    for (ep = 0; ep < piface->n_endpoints; ++ep)
    {
       /*
-       * First,  advance  buffer  till  next  endpoint  descriptor,  this   is
-       * important because other descriptors might be in between endpoint ones
-       * and that is only known by the driver.
+       * First, advance buffer till next endpoint descriptor, this is  important
+       * because other descriptors might be in between endpoint ones and that is
+       * only known by the driver.
        */
       if (usb_goto_next_desc(
                pbuff,
@@ -1051,7 +1052,7 @@ int usb_stack_handle_hubs( usb_stack_t* pstack )
    usb_assert(pstack != NULL);
 
    /*
-    * Loop through each HUB, update it and  check  its  status  and  ports  for
+    * Loop through each HUB, update it  and  check  its  status  and  ports  for
     * [dis]connections and other device-related events.
     */
    for (i = 0; i < pstack->n_hubs; ++i)

@@ -112,8 +112,8 @@ int usb_drivers_remove(
 
 /******************************************************************************/
 /**
- * @brief Validate device's product and vendor ID against those targeted by the
- * driver. If either target is USB_FORCE_PROBING_ID, then the corresponding ID
+ * @brief Validate device's product and vendor ID against those targeted by  the
+ * driver.  If either target is USB_FORCE_PROBING_ID, then the corresponding  ID
  * will not be validated and will pass regardless of its actual value.
  *
  * @param pdevice Pointer to USB device.
