@@ -1,4 +1,4 @@
-/* Copyright 2014, Alejandro Permingeat
+/* Copyright 2014, 2015 Alejandro Permingeat, Esteban Volentini
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -64,8 +64,47 @@
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_string.h"
 #include "os.h"
+#include "fsl_adc16_hal.h"
+#include "fsl_uart_hal.h"
+#include "fsl_port_hal.h"
+#include "fsl_sim_hal.h"
 
 /*==================[macros and definitions]=================================*/
+
+#define CIAA_AIO_INPUTS_PIN_NUMBER	8
+#define CIAA_AIO_OUTPUTS_PIN_NUMBER	1
+#define ADC_DEFAULT_CONFIG (adc16_converter_config_t) { \
+         .lowPowerEnable = true,\
+         .clkDividerMode = kAdc16ClkDividerOf8,\
+         .longSampleTimeEnable = true,\
+         .resolution = kAdc16ResolutionBitOfSingleEndAs16,\
+         .clkSrc = kAdc16ClkSrcOfAsynClk,\
+         .asyncClkEnable = true,\
+         .highSpeedEnable = false,\
+         .longSampleCycleMode = kAdc16LongSampleCycleOf24,\
+         .hwTriggerEnable = false,\
+         .refVoltSrc = kAdc16RefVoltSrcOfVref,\
+         .continuousConvEnable = false\
+}
+
+
+/** \brief Pin port resource descriptor Type */
+typedef struct ciaaDriverAio_pinStruct {
+   PORT_Type * port;                      /** <= i/o port base address */
+   uint32_t pin;                          /** <= pin number of i/o port */
+   port_mux_t mux;                        /** <= function multiplexor value */
+   sim_clock_gate_name_t gate;            /** <= Port clock gate name */
+   void * aio_base;                   /** <= Analog input / output base (could be ADCx or DACx) */
+   int32_t channel;
+} ciaaDriverAio_pinType;
+
+/** \brief ADC port resource descriptor Type */
+typedef struct ciaaDriverAdc_portStruct {
+   ADC_Type * base;                      /** <= ADC port base address */
+   uint32_t instance;                     /** <= ADC DAC port instance */
+   IRQn_Type irq;                         /** <= ADC DAC port interrupt */
+   sim_clock_gate_name_t gate;            /** <= ADC DAC clock gate name */
+} ciaaDriverAdc_portType;
 
 /** \brief Pointer to Devices */
 typedef struct  {
@@ -78,6 +117,10 @@ typedef uint8_t ContextType;
 #define AIO_FIFO_SIZE       (16)
 
 typedef struct {
+    ADC_Type * base;                      /** <= ADC port base address */
+    uint32_t instance;                     /** <= ADC DAC port instance */
+    IRQn_Type irq;                         /** <= ADC DAC port interrupt */
+    sim_clock_gate_name_t gate;            /** <= ADC DAC clock gate name */
 } ciaaDriverAdcControlType;
 
 typedef struct {
@@ -92,19 +135,42 @@ typedef struct {
    int32_t channel;                     /** <= current channel */
    uint8_t cnt;                         /** <= count */
    uint8_t hwbuf[AIO_FIFO_SIZE];        /** <= buffer */
+   adc16_converter_config_t config;
    ciaaDriverAdcDacControlType adc_dac; /** <= ADC & DAC control */
 } ciaaDriverAioControlType;
 
 /*==================[internal data declaration]==============================*/
+static ciaaDriverAio_pinType const ciaaAIOinputPins[CIAA_AIO_INPUTS_PIN_NUMBER] = {
+      {PORTA,  26u, kPortPinDisabled, kSimClockGatePortA, ADC2, 15u}, {PORTA,  27u, kPortPinDisabled, kSimClockGatePortA, ADC2, 14u},
+      {PORTA,  28u, kPortPinDisabled, kSimClockGatePortA, ADC2, 13u}, {PORTA,  29u, kPortPinDisabled, kSimClockGatePortA, ADC2, 13u},
+      {PORTB,   2u, kPortPinDisabled, kSimClockGatePortB, ADC0, 12u}, {PORTB,   3u, kPortPinDisabled, kSimClockGatePortB, ADC0, 13u},
+      {PORTB,   4u, kPortPinDisabled, kSimClockGatePortB, ADC1,  9u}, {PORTB,   5u, kPortPinDisabled, kSimClockGatePortB, ADC1, 10u}
+};
+
+static ciaaDriverAdcControlType const ciaaDriverAdc_port0 = {
+    ADC2, 0u, ADC2_IRQn, kSimClockGateAdc2
+};
+
+static ciaaDriverAdcControlType const ciaaDriverAdc_port1 = {
+    ADC1, 1u, ADC1_IRQn, kSimClockGateAdc1
+};
+
+static ciaaDriverAdcControlType const ciaaDriverAdc_port2 = {
+    ADC0, 2u, ADC0_IRQn, kSimClockGateAdc0
+};
+
+static ciaaDriverDacControlType const ciaaDriverDac_port0 /*= {
+   DAC0, 0u, DAC0_IRQn, kSimClockGateDac0
+}*/;
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
 
 /** \brief Buffers */
-ciaaDriverAioControlType aioControl[3];
+    ciaaDriverAioControlType aioControl[4];
 
-/** \brief Device for ADC 0 */
+/** \brief Device for ADC 2 */
 static ciaaDevices_deviceType ciaaDriverAio_in0 = {
    "aio/in/0",                     /** <= driver name */
    ciaaDriverAio_open,             /** <= open function */
@@ -114,8 +180,8 @@ static ciaaDevices_deviceType ciaaDriverAio_in0 = {
    ciaaDriverAio_ioctl,            /** <= ioctl function */
    NULL,                           /** <= seek function is not provided */
    NULL,                           /** <= upper layer */
-   &(aioControl[0]),               /** <= layer */
-   NULL                            /** <= NULL no lower layer */
+   (void*)&(aioControl[0]),        /** <= layer */
+   (void*)&(ciaaDriverAdc_port0)   /** <= NULL no lower layer */
 };
 
 /** \brief Device for ADC 1 */
@@ -128,8 +194,22 @@ static ciaaDevices_deviceType ciaaDriverAio_in1 = {
    ciaaDriverAio_ioctl,            /** <= ioctl function */
    NULL,                           /** <= seek function is not provided */
    NULL,                           /** <= upper layer */
-   &(aioControl[1]),               /** <= layer */
-   NULL                            /** <= NULL no lower layer */
+   (void*)&(aioControl[1]),        /** <= layer */
+   (void*)&(ciaaDriverAdc_port1)   /** <= NULL no lower layer */
+};
+
+/** \brief Device for ADC 0 */
+static ciaaDevices_deviceType ciaaDriverAio_in2 = {
+   "aio/in/2",                     /** <= driver name */
+   ciaaDriverAio_open,             /** <= open function */
+   ciaaDriverAio_close,            /** <= close function */
+   ciaaDriverAio_read,             /** <= read function */
+   ciaaDriverAio_write,            /** <= write function */
+   ciaaDriverAio_ioctl,            /** <= ioctl function */
+   NULL,                           /** <= seek function is not provided */
+   NULL,                           /** <= upper layer */
+   (void*)&(aioControl[2]),        /** <= layer */
+   (void*)&(ciaaDriverAdc_port2)   /** <= NULL no lower layer */
 };
 
 /** \brief Device for DAC 0 */
@@ -142,19 +222,20 @@ static ciaaDevices_deviceType ciaaDriverAio_out0 = {
    ciaaDriverAio_ioctl,            /** <= ioctl function */
    NULL,                           /** <= seek function is not provided */
    NULL,                           /** <= upper layer */
-   &(aioControl[2]),               /** <= layer */
-   NULL                            /** <= NULL no lower layer */
+   (void*)&(aioControl[3]),        /** <= layer */
+   (void*)&(ciaaDriverDac_port0),  /** <= NULL no lower layer */
 };
 
 static ciaaDevices_deviceType * const ciaaAioDevices[] = {
    &ciaaDriverAio_in0,
    &ciaaDriverAio_in1,
+   &ciaaDriverAio_in2,
    &ciaaDriverAio_out0
 };
 
 static ciaaDriverConstType const ciaaDriverAioConst = {
    ciaaAioDevices,
-   3
+   4
 };
 
 /*==================[external data definition]===============================*/
@@ -181,11 +262,6 @@ static void ciaaDriverAio_adcIRQHandler(ciaaDevices_deviceType const * const dev
 
 static void ciaaDriverAio_dacIRQHandler(ciaaDevices_deviceType const * const device)
 {
- }
-
-void ciaa_lpc4337_aio_init(void)
-{
-
 }
 
 
@@ -193,12 +269,77 @@ void ciaa_lpc4337_aio_init(void)
 extern ciaaDevices_deviceType * ciaaDriverAio_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-   if ((device != &ciaaDriverAio_in0) && (device != &ciaaDriverAio_in1) &&
+      ciaaDriverAdcDacControlType * adc_dac;
+      ciaaDriverAdcControlType * adcCTRLtype;
+      ciaaDriverAioControlType * aio;
+      ciaaDriverDacControlType * dacCTRLtype;
+      uint8_t index;
+
+   if ((device != &ciaaDriverAio_in0) && (device != &ciaaDriverAio_in1) && (device != &ciaaDriverAio_in2)&&
        (device != &ciaaDriverAio_out0))
    {
       device == NULL;
    }
+   else
+   {
+      adc_dac = device->loLayer;
+      aio = device->layer;
+      if ((device != &ciaaDriverAio_in0) || (device != &ciaaDriverAio_in1)|| (device != &ciaaDriverAio_in2))
+	  {
+         adcCTRLtype = &(adc_dac->adc);
+         for(index = 0; index < CIAA_AIO_INPUTS_PIN_NUMBER; index++)
+         {
+            if(adcCTRLtype->base == ciaaAIOinputPins[index].aio_base)
+            {
+                /*Initialize all aio pins for current ADC*/
 
+                /* Enable clock for PORTs */
+                SIM_HAL_EnableClock(SIM, ciaaAIOinputPins[index].gate);
+
+                /*Select Mux Mode*/
+                PORT_HAL_SetMuxMode(ciaaAIOinputPins[index].port, ciaaAIOinputPins[index].pin, ciaaAIOinputPins[index].mux);
+            }
+         }
+
+         /*Initialize the ADC module*/
+         /* Enable clock for ADC. */
+         SIM_HAL_EnableClock(SIM,adcCTRLtype->gate);
+
+         /* Reset all the register to a known state. */
+         ADC16_HAL_Init(adcCTRLtype->base);
+
+         /* Prepare configuration for current ADC. */
+         aio->config.lowPowerEnable = true;
+         aio->config.clkDividerMode = kAdc16ClkDividerOf8;
+         aio->config.longSampleTimeEnable = true;
+         aio->config.resolution = kAdc16ResolutionBitOfSingleEndAs16;
+         aio->config.clkSrc = kAdc16ClkSrcOfAsynClk;
+         aio->config.asyncClkEnable = true;
+         aio->config.highSpeedEnable = false;
+         aio->config.longSampleCycleMode = kAdc16LongSampleCycleOf24;
+         aio->config.hwTriggerEnable = false;
+         aio->config.refVoltSrc = kAdc16RefVoltSrcOfVref;
+         aio->config.continuousConvEnable = false;
+     #if FSL_FEATURE_ADC16_HAS_DMA
+         aio->config.dmaEnable = false;
+     #endif /* FSL_FEATURE_ADC16_HAS_DMA */
+
+         /*Apply the ADC prepared configuration*/
+         ADC16_HAL_ConfigConverter(adcCTRLtype->base, &(aio->config));
+
+         /*Initialize channel*/
+         aio->channel=0;
+
+         /*Initialize buffer*/
+         aio->cnt=0;
+
+       }
+	   else
+	   {
+		   //DAC
+	   }
+
+   }
    return device;
 }
 
@@ -231,7 +372,13 @@ extern ssize_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, 
 
 void ciaaDriverAio_init(void)
 {
+	   uint8_t loopi;
 
+	   /* add adc/dac driver to the list of devices */
+	   for(loopi = 0; loopi < ciaaDriverAioConst.countOfDevices; loopi++) {
+	      /* add each device */
+	      ciaaSerialDevices_addDriver(ciaaDriverAioConst.devices[loopi]);
+	   }
 }
 
 
@@ -245,6 +392,11 @@ ISR(ADC0_IRQHandler)
 ISR(ADC1_IRQHandler)
 {
    ciaaDriverAio_adcIRQHandler(&ciaaDriverAio_in1);
+}
+
+ISR(ADC2_IRQHandler)
+{
+   ciaaDriverAio_adcIRQHandler(&ciaaDriverAio_in2);
 }
 
 ISR(DMA_IRQHandler)
