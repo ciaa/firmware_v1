@@ -1,4 +1,4 @@
-/* Copyright 2015, Gustavo Muro
+/* Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -41,7 +41,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Continuous Integration
+/** \addtogroup Modbus CIAA Modbus
  ** @{ */
 
 /*
@@ -54,7 +54,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
-  * 20150827 v0.0.1   GMuro first functional version
+ * 20141108 v0.0.1 GMuro   initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -77,7 +77,7 @@ extern "C" {
 #define CIAA_MODBUS_TOTAL_SLAVES             1
 
 /** \brief Total transport available */
-#define CIAA_MODBUS_TOTAL_TRANSPORT_ASCII    2
+#define CIAA_MODBUS_TOTAL_TRANSPORT_ASCII    1
 
 /** \brief Total transport available */
 #define CIAA_MODBUS_TOTAL_TRANSPORT_RTU      0

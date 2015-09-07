@@ -1,4 +1,4 @@
-/* Copyright 2014, Gustavo Muro
+/* Copyright 2015, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -41,7 +41,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Modbus CIAA Modbus
+/** \addtogroup Continuous Integration
  ** @{ */
 
 /*
@@ -54,7 +54,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141108 v0.0.1 GMuro   initial version
+  * 20150827 v0.0.1   GMuro first functional version
  */
 
 /*==================[inclusions]=============================================*/
@@ -74,7 +74,7 @@ extern "C" {
 #define CIAA_MODBUS_TOTAL_MASTERS            1
 
 /** \brief Total slaves available */
-#define CIAA_MODBUS_TOTAL_SLAVES             1
+#define CIAA_MODBUS_TOTAL_SLAVES             0
 
 /** \brief Total transport available */
 #define CIAA_MODBUS_TOTAL_TRANSPORT_ASCII    1
@@ -85,17 +85,8 @@ extern "C" {
 /** \brief Total transport available */
 #define CIAA_MODBUS_TOTAL_TRANSPORT_TCP      0
 
-/** \brief Total masters by gateways */
-#define CIAA_MODBUS_TOTAL_MASTERS_GW         1
-
-/** \brief Total slaves by gateways */
-#define CIAA_MODBUS_TOTAL_SLAVES_GW          0
-
-/** \brief Total transports by gateways */
-#define CIAA_MODBUS_TOTAL_TRANSPORT_GW       1
-
 /** \brief Time between calls (milliseconds) */
-#define CIAA_MODBUS_TIME_BASE                10
+#define CIAA_MODBUS_TIME_BASE                5
 
 /*==================[typedef]================================================*/
 

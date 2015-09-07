@@ -80,15 +80,9 @@ static int32_t hModbusMaster;
 
 /*==================[external functions definition]==========================*/
 
-/** \brief Init Modbus communication
- *
- */
 extern void modbusComm_init(void)
 {
    int32_t fdUartPC;
-
-   /* init the ciaa kernel */
-   ciaak_start();
 
    /* open serial port connected to ioboard */
    fdUartPC = ciaaPOSIX_open("/dev/serial/uart/0", ciaaPOSIX_O_RDWR | ciaaPOSIX_O_NONBLOCK);
@@ -113,9 +107,11 @@ extern void modbusComm_init(void)
    ciaaModbus_gatewayAddTransport(
          hModbusGateway,
          hModbusAsciiUartPC);
+}
 
-   /* end InitTask */
-   TerminateTask();
+extern void modbusComm_task(void)
+{
+   ciaaModbus_gatewayMainTask(hModbusGateway);
 }
 
 /** @} doxygen end group definition */

@@ -62,6 +62,7 @@
 #include "ciaaModbus.h"
 #include "ciaak.h"
 #include "testmaster.h"
+#include "modbusComm.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -129,9 +130,24 @@ TASK(InitTask)
    /* init the ciaa kernel */
    ciaak_start();
 
+   /* init modbus communication */
+   modbusComm_init();
+
    /* end InitTask */
    TerminateTask();
 }
+
+/** \brief Modbus Task
+ *
+ * This task is activated by the Alarm ActivateModbusTask.
+ */
+TASK(ModbusMaster)
+{
+   modbusComm_task();
+
+   TerminateTask();
+}
+
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
