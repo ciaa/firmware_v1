@@ -90,9 +90,10 @@ typedef struct
 /** \brief Initializes a modbus transport structure.
  **
  ** \param modbus Modbus structure to initialize.
+ ** \param dev Device path.
  ** \return 0 on success. Non-zero on error.
  **/
-int32_t UPDT_modbusInit(modbusTransportType *modbus);
+int32_t modbusTransportInit(modbusTransportType *modbus, const char *dev);
 
 /** \brief Clears a modbus structure.
  **
@@ -100,7 +101,7 @@ int32_t UPDT_modbusInit(modbusTransportType *modbus);
  **
  ** \param modbus The modbus structure to clear.
  **/
-void UPDT_modbusClear(modbusTransportType *modbus);
+void modbusTransportClear(modbusTransportType *modbus);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }

@@ -91,6 +91,13 @@ static ciaaLibs_CircBufType output_cb;
 static size_t buffer_size;
 
 /*==================[internal functions declaration]=========================*/
+/** \brief Calculates the next power of two for a given number.
+ **
+ ** Given an integer this function calculates the next bigger integer which
+ ** is a power of two. e.g., for 120 it is 128, and for 3000 it is 4096.
+ ** \param v Integer which next power of two needs to be calculated.
+ ** \return The next power of two.
+ **/
 static uint32_t nextPowerOfTwo(uint32_t v)
 {
     --v;
@@ -240,12 +247,12 @@ static void cmd0x10WriteMultipleReg(
    }
 }
 /*==================[external functions definition]==========================*/
-int32_t UPDT_modbusInit(modbusTransportType *modbus)
+int32_t modbusTransportInit(modbusTransportType *modbus, const char *dev)
 {
    ciaaPOSIX_assert(NULL != modbus);
 
    /* open serial port */
-   modbus->fd = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR | O_NONBLOCK);
+   modbus->fd = ciaaPOSIX_open(dev, O_RDWR | O_NONBLOCK);
 
    /* Open Modbus Slave */
    hModbusSlave = ciaaModbus_slaveOpen(
@@ -285,7 +292,7 @@ int32_t UPDT_modbusInit(modbusTransportType *modbus)
 
    return 0;
 }
-void UPDT_modbusClear(modbusTransportType *modbus)
+void modbusTransportClear(modbusTransportType *modbus)
 {
    ciaaPOSIX_assert(NULL != modbus);
    ciaaPOSIX_assert(0 <= modbus->fd);
