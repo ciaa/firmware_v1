@@ -1,8 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, 2015 Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
- * All rights reserved.
+/* Copyright 2015, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -34,45 +30,63 @@
  *
  */
 
-#ifndef _BLINKING_H_
-#define _BLINKING_H_
-/** \brief Blinking example header file
- **
- ** This is a mini example of the CIAA Firmware
+/** \brief This file implements the test of the Devices
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Examples CIAA Firmware Examples
+/** \addtogroup Template Template to start a new module
  ** @{ */
-/** \addtogroup Blinking Blinking example header file
+/** \addtogroup UnitTests Unit Tests
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * PR           Pablo Ridolfi
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150831 v0.0.1 PR   Initial version.
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
+#include "unity.h"
+#include "ciaaPOSIX_stdint.h"
 
-/*==================[macros]=================================================*/
+/*==================[macros and definitions]=================================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[internal data definition]===============================*/
+
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+/** \brief set Up function
+ **
+ ** This function is called before each test case is executed
+ **
+ **/
+void setUp(void) {
+}
+
+/** \brief tear Down function
+ **
+ ** This function is called after each test case is executed
+ **
+ **/
+void tearDown(void) {
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _BLINKING_H_ */

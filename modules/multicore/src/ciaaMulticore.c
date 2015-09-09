@@ -1,7 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, 2015 Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
+/* Copyright 2015, Pablo Ridolfi <pridolfi@proyecto-ciaa.com.ar>
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,19 +31,15 @@
  *
  */
 
-#ifndef _BLINKING_H_
-#define _BLINKING_H_
-/** \brief Blinking example header file
- **
- ** This is a mini example of the CIAA Firmware
- **
- **/
+ /** \brief Multicore module main source file.
+  **
+  ** With this module you will be able to design multicore applications if
+  ** your current ARCH/CPU/CPUTYPE is supported.
+  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Examples CIAA Firmware Examples
- ** @{ */
-/** \addtogroup Blinking Blinking example header file
+/** \addtogroup Multicore Multicore module
  ** @{ */
 
 /*
@@ -58,21 +51,47 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150831 v0.0.1 PR   Initial version.
+ * 20150908 v0.0.1 PR   Initial version.
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaMulticore.h"
 
-/*==================[macros]=================================================*/
+#if( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) && (lpc4337 == CPU) )
+#include "cr_start_m0.h"
+#else
+#error Multicore is not supported by the current ARCH/CPUTYPE/CPU
+#endif
 
-/*==================[typedef]================================================*/
+/*==================[macros and definitions]=================================*/
 
-/*==================[external data declaration]==============================*/
+#define CIAA_MULTICORE_CORE_1_IMAGE ((uint8_t *)0x1B000000)
 
-/*==================[external functions declaration]=========================*/
+/*==================[internal data declaration]==============================*/
 
-/** @} doxygen end group definition */
+/*==================[internal functions declaration]=========================*/
+
+/*==================[internal data definition]===============================*/
+
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+
+extern int ciaaMulticore_boot(ciaaMulticore_cores_e core)
+{
+   int rv = -1;
+
+   if( CIAA_MULTICORE_CORE_1 == core )
+   {
+      cr_start_m0(SLAVE_M0APP, CIAA_MULTICORE_CORE_1_IMAGE);
+      rv = 0;
+   }
+
+   return rv;
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _BLINKING_H_ */
