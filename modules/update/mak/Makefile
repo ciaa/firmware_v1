@@ -31,25 +31,15 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-
 # library
-LIBS 				+= update_common
+LIBS 				+= update
+# version
+update_VERSION  = 0.1.0
 # library path
-update_common_PATH 		= $(ROOT_DIR)$(DS)modules$(DS)update$(DS)common
+update_PATH 		= $(ROOT_DIR)$(DS)modules$(DS)update
 # library source path
-update_common_SRC_PATH 		= $(update_common_PATH)$(DS)src
+update_SRC_PATH 	= $(update_PATH)$(DS)src
 # library include path
-update_common_INC_PATH 		= $(update_common_PATH)$(DS)inc
+update_INC_PATH 	= $(update_PATH)$(DS)inc
 # library source files
-update_common_SRC_FILES 	= $(wildcard $(update_common_SRC_PATH)$(DS)*.c)
-
-# library
-LIBS 				+= update_slave
-# library path
-update_slave_PATH 		= $(ROOT_DIR)$(DS)modules$(DS)update$(DS)slave
-# library source path
-update_slave_SRC_PATH 		= $(update_slave_PATH)$(DS)src
-# library include path
-update_slave_INC_PATH 		= $(update_slave_PATH)$(DS)inc
-# library source files
-update_slave_SRC_FILES 		= $(wildcard $(update_slave_SRC_PATH)$(DS)*.c)
+update_SRC_FILES 	= $(wildcard $(update_SRC_PATH)$(DS)*.c)

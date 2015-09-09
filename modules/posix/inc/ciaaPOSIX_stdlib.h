@@ -72,7 +72,7 @@ extern "C" {
 /*==================[macros]=================================================*/
 #ifndef NULL
 /*@-namechecks@*/
-#define NULL 	((void*)0)
+#define NULL ((void*)0)
 /*@=namechecks@*/
 #endif
 

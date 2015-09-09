@@ -2,6 +2,72 @@
  **
  ** Authors and their contributions to CIAA Firmware:
  **
+ ** CIAA Firmware 0.6.1 (10.08.2015)
+ **
+ **   Following persons have invest a lot of effort and time to make
+ **   CIAA Firmware become true. We hope you enjoy it. :)
+ **
+ **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):
+ **      - fix ADC driver for EDU-CIAA-NXP: #305
+ **
+ **   - Juan Cecconi (jcecconi@numetron.com.ar):
+ **      - correct bug in linker script.
+ **
+ **   - Martin Ribelotta:
+ **      - Update lpcopen to 2.16: #306
+ **
+ **   - Mariano Cerdeiro
+ **      - add tests of template module: #308
+ **
+ **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
+ **      - fix issue with lpcopne: #310
+ **
+ ** CIAA Firmware 0.6.0 (06.08.2015)
+ **
+ **   Following persons have invest a lot of effort and time to make
+ **   CIAA Firmware become true. We hope you enjoy it. :)
+ **
+ **   - Mariano Cerdeiro (mcerdeiro@gmail.com):
+ **      - Correct DIO Devices bug, #301
+ **      - Correct DS bug in Makefile, #285
+ **      - Improve template module, #275
+ **      - Correct RTOS Bug, #279
+ **
+ **   - Juan Cecconi (jcecconi@numetron.com.ar):
+ **      - Improve RTOS Tests to run in RAM, #157
+ **
+ **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
+ **      - Add Os_Cfg.h to unit test to be able tu run, #279
+ **      - Add modbus_utest.oil to generate osek in the unit test, #282
+ **      - Add posix_utest.oil to generate osek in the unit test, #282
+ **
+ ** CIAA Firmware 0.5.0 (06.06.2015)
+ **
+ **   Following persons have invest a lot of effort and time to make
+ **   CIAA Firmware become true. We hope you enjoy it. :)
+ **
+ **   - Juan Cecconi (jcecconi@numetron.com.ar):
+ **      - Improve Continuous Integration script (make ci)
+ **      - Add first tests for PLC files (modules/plc/test/...)
+ **      - Improve openocd downloads scripting
+ **
+ **   - Mariano Cerdeiro (mcerdeiro@gmail.com):
+ **      - Add first tests for PLC files (modules/plc/test/...)
+ **      - Improve unit test environment to perform tests of files including multiples "_"
+ **
+ **   - Eric Pernia (ericpernia@gmail.com)
+ **      - Add support for IDE4PLC (to use the CIAA Firmware as a PLC)
+ **
+ **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):
+ **
+ **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
+ **      - Fix minimal error in modbus
+ **
+ ** CIAA Firmware 0.4.1 (14.04.2015)
+ **
+ **   - Mariano Cerdeiro (mcerdeiro@gmail.com)
+ **      - Fix minimal error on the root makefile
+ **
  ** CIAA Firmware 0.4.0 (10.04.2015)
  **
  **   Following persons have invest a lot of effort and time to make
@@ -18,7 +84,7 @@
  **   - Esteban Volentini (evolentini@gmail.com):
  **      - Implement Block Driver simulation for windows/linux
  **
- **   - Alejandro Permingeat:
+ **   - Alejandro Permingeat (apermingeat@gmail.com):
  **      - Port of the firmware to CIAA-FLS
  **
  **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):

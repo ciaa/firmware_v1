@@ -315,24 +315,41 @@ extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, 
             NVIC_DisableIRQ(pAioControl->adc_dac.adc.interrupt);
             Chip_ADC_Int_SetChannelCmd(pAioControl->adc_dac.adc.handler, pAioControl->channel, DISABLE);
             Chip_ADC_EnableChannel(pAioControl->adc_dac.adc.handler, pAioControl->channel, DISABLE);
+
+            ret = 0;
             switch((int32_t)param)
             {
-                case ciaaCHANNEL_0:
-                    pAioControl->channel = ADC_CH1;
-                    ret = 0;
-                    break;
-                case ciaaCHANNEL_1:
-                    pAioControl->channel = ADC_CH2;
-                    ret = 0;
-                    break;
-                case ciaaCHANNEL_2:
-                    pAioControl->channel = ADC_CH3;
-                    ret = 0;
-                    break;
-                case ciaaCHANNEL_3:
-                    pAioControl->channel = ADC_CH4;
-                    ret = 0;
-                    break;
+               case ciaaCHANNEL_0:
+#if(BOARD==ciaa_nxp)
+                  pAioControl->channel = ADC_CH1;
+#elif(BOARD==edu_ciaa_nxp)
+                  ret = -1;
+#endif
+                  break;
+               case ciaaCHANNEL_1:
+#if(BOARD==ciaa_nxp)
+                  pAioControl->channel = ADC_CH2;
+#elif(BOARD==edu_ciaa_nxp)
+                  pAioControl->channel = ADC_CH1;
+#endif
+                  break;
+               case ciaaCHANNEL_2:
+#if(BOARD==ciaa_nxp)
+                  pAioControl->channel = ADC_CH3;
+#elif(BOARD==edu_ciaa_nxp)
+                  pAioControl->channel = ADC_CH2;
+#endif
+                  break;
+               case ciaaCHANNEL_3:
+#if(BOARD==ciaa_nxp)
+                  pAioControl->channel = ADC_CH4;
+#elif(BOARD==edu_ciaa_nxp)
+                  pAioControl->channel = ADC_CH3;
+#endif
+                  break;
+               default:
+                  ret = -1;
+                  break;
             }
             if (ret == 0)
             {

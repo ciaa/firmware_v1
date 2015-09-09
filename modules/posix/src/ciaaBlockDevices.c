@@ -214,7 +214,7 @@ extern ciaaDevices_deviceType * ciaaBlockDevices_open(char const * path,
 
 extern int32_t ciaaBlockDevices_close(ciaaDevices_deviceType const * const device)
 {
-   ciaaBlockDevices_deviceType * blockDevice = 
+   ciaaBlockDevices_deviceType * blockDevice =
       (ciaaBlockDevices_deviceType *) device->layer;
 
    return blockDevice->device->close((ciaaDevices_deviceType *)device->loLayer);
@@ -222,7 +222,7 @@ extern int32_t ciaaBlockDevices_close(ciaaDevices_deviceType const * const devic
 
 extern off_t ciaaBlockDevices_lseek(ciaaDevices_deviceType const * const device, off_t const offset, uint8_t const whence)
 {
-   ciaaBlockDevices_deviceType * blockDevice = 
+   ciaaBlockDevices_deviceType * blockDevice =
       (ciaaBlockDevices_deviceType *) device->layer;
 
    return blockDevice->device->lseek((ciaaDevices_deviceType *)device->loLayer, offset, whence);
@@ -230,7 +230,7 @@ extern off_t ciaaBlockDevices_lseek(ciaaDevices_deviceType const * const device,
 
 extern int32_t ciaaBlockDevices_ioctl(ciaaDevices_deviceType const * const device, int32_t request, void* param)
 {
-   ciaaBlockDevices_deviceType * blockDevice = 
+   ciaaBlockDevices_deviceType * blockDevice =
       (ciaaBlockDevices_deviceType *) device->layer;
    int32_t ret = 0;
 

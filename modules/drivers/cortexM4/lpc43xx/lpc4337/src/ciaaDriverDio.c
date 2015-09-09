@@ -127,14 +127,14 @@ void ciaa_lpc4337_gpio_init(void)
 
 #if (BOARD == ciaa_nxp)
    /* Inputs */
-   Chip_SCU_PinMux(4,0,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[0]  */
-   Chip_SCU_PinMux(4,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[1]  */
-   Chip_SCU_PinMux(4,2,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[2]  */
-   Chip_SCU_PinMux(4,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO2[3]  */
-   Chip_SCU_PinMux(7,3,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO3[11] */
-   Chip_SCU_PinMux(7,4,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO3[12] */
-   Chip_SCU_PinMux(7,5,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO3[13] */
-   Chip_SCU_PinMux(7,6,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO3[14] */
+   Chip_SCU_PinMux(4,0,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO2[0]  */
+   Chip_SCU_PinMux(4,1,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO2[1]  */
+   Chip_SCU_PinMux(4,2,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO2[2]  */
+   Chip_SCU_PinMux(4,3,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO2[3]  */
+   Chip_SCU_PinMux(7,3,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO3[11] */
+   Chip_SCU_PinMux(7,4,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO3[12] */
+   Chip_SCU_PinMux(7,5,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO3[13] */
+   Chip_SCU_PinMux(7,6,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO3[14] */
 
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,0xF, 0);
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 3, 0xF<<11, 0);
@@ -161,8 +161,8 @@ void ciaa_lpc4337_gpio_init(void)
    Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5,(1<<1));
 
    /* LV-TTL GPIOs (not used yet) */
-   Chip_SCU_PinMux(6,1,MD_PUP|MD_EZI|MD_ZI,FUNC0);	/* GPIO0/P6_1/GPIO3[0] */
-   Chip_SCU_PinMux(2,5,MD_PUP|MD_EZI|MD_ZI,FUNC4);	/* GPIO1/P2_5/GPIO5[5] */
+   Chip_SCU_PinMux(6,1,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO0/P6_1/GPIO3[0] */
+   Chip_SCU_PinMux(2,5,MD_PUP|MD_EZI|MD_ZI,FUNC4); /* GPIO1/P2_5/GPIO5[5] */
 #elif (BOARD == edu_ciaa_nxp)
    /* Switches */
    Chip_SCU_PinMux(1,0,MD_PUP|MD_EZI|MD_ZI,FUNC0); /* GPIO0[4], SW1 */

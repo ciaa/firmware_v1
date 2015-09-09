@@ -53,11 +53,14 @@
  * PR           Pablo Ridolfi
  * JuCe         Juan Cecconi
  * GMuro        Gustavo Muro
+ * ErPe         Eric Pernia
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150603 v0.0.3   ErPe change uint8 type by uint8_t
+ *                        in line 172
  * 20141019 v0.0.2   JuCe add printf in each task,
  *                        remove trailing spaces
  * 20140731 v0.0.1   PR   first functional version
@@ -147,7 +150,7 @@ TASK(InitTask)
    ciaaPOSIX_printf("Init Task...\n");
 
    /* open CIAA digital outputs */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 
    /* activate periodic task:
     *  - for the first time after 350 ticks (350 ms)
@@ -167,7 +170,7 @@ TASK(InitTask)
  */
 TASK(PeriodicTask)
 {
-   uint8 outputs;
+   uint8_t outputs;
 
    /* write blinking message */
    ciaaPOSIX_printf("Blinking\n");

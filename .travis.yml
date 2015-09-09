@@ -1,0 +1,29 @@
+# This file is to run the CI in https://travis-ci.org/profile/ciaa
+language: php
+
+php:
+   - 5.4
+
+script:
+   - export BOARD=ciaa_sim_ia64
+   - make generate
+   - make
+   - export PROJECT_PATH=examples/blinking_modbus_slave
+   - make all
+
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "RqoXwGZmn7l6F302lqtxk0dvCK4dZlcGoZEUoIiH+loJtKGzFDhtChlLnQbE7WQ+tWuzP64mxKCS8fHVqBV7p3YSkKt0IwopOeWY+7nCFqpa/LGhmcFx9jVwiHu/2BdpOaMXhhtHGqKc2ni6GqfWxUM3it25MkYxkBVVc/hVKXhgoR7Cai37l5XXr0cm7ggocVR2UDCI9c+5IbqTRYu7efjTOerf7pDWBnpNHfcU4MQiQaFww/7n18ri44QgagO7OVdOlzodisjCmaSS75UpWLuDLsddERw/SvEvjD5cYLaOIU/2EitFKH382vA9lVuFbJU+Lf5V6U1G7yIBFrBoB43VQ3DNPk09KRbjd3TN2n+A1/zNp6AugVuhZY2KppNNjKlWvFCFsQBb61FAGdaxQkDJpOAgToOJSHtfu+bEepGJ2cy+xNievwM+geOIMm3HdYwv28uPGlDhMVLvnQMN7MHUUTOSgxp0cpQ9uAjDWTZQMv+fCYYudxb/AaHKm4hL3TvCQboGDZ9Xt14AVKNmaD/m2h5WV85dK0bQkLeUFwlrXNCbJL9E/j1jzHvarlO3/hg7GjUWU5DTDd8dQHFLXIUf4QsSjc/emrCBdiltggTGINWXkUF2MsnS0bEoCDBgDj/8aZ+h9/8AocDFyUecwsr950kOm8wZP13Yb5TzYYs="
+
+addons:
+  coverity_scan:
+    project:
+      name: "ciaa/Firmware"
+      description: "Build submitted via Travis CI"
+    notification_email: mcerdeiro@gmail.com
+    build_command_prepend: "export BOARD=ciaa_sim_ia64; export PROJECT_PATH=examples/blinking_modbus_slave; make clean; make generate"
+    build_command:   "make"
+    branch_pattern: coverity_scan
