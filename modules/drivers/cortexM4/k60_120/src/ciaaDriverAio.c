@@ -257,7 +257,16 @@ static void ciaaDriverAio_txConfirmation(ciaaDevices_deviceType const * const de
 
 static void ciaaDriverAio_adcIRQHandler(ciaaDevices_deviceType const * const device)
 {
+    uint32_t readValue;
+    ciaaDriverAdcControlType * adc = device->layer;
 
+    /*This must be improved*/
+    readValue = ADC16_HAL_GetChnConvValue(adc->port.base, 0);
+    adc->hwbuf[0] = (uint8_t)readValue;
+    adc->hwbuf[1] = (uint8_t)(readValue>>8);
+    adc->cnt = 2;
+
+    ciaaDriverAio_rxIndication(device, adc->cnt);
 }
 
 static void ciaaDriverAio_dacIRQHandler(ciaaDevices_deviceType const * const device)
@@ -325,11 +334,11 @@ extern ciaaDevices_deviceType * ciaaDriverAio_open(char const * path,
          /*Apply the ADC prepared configuration*/
          ADC16_HAL_ConfigConverter(adc->port.base, &(adc->config));
 
-         /*Initialize channel*/
-         adc->channel=0;
+         /*Initialize channel with the first available channel for current ADC configuration*/
+         adc->channel = adc->port.pin[0].channel;
 
          /*Initialize buffer*/
-         adc->cnt=0;
+         adc->cnt = 0;
 
        }
 	   else
@@ -350,16 +359,97 @@ extern int32_t ciaaDriverAio_close(ciaaDevices_deviceType const * const device)
 
 extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
-   int32_t ret = -1;
+    ciaaDriverAdcControlType * adc;
+    uint32_t freq;
+    uint32_t value;
+    int32_t ret = -1;
+    adc16_chn_config_t configPtr;
+    uint32_t chnGroup;
 
-   return ret;
+    adc = device->layer;
+
+    /* Inputs */
+    if ((device == ciaaDriverAioConst.devices[0]) ||
+        (device == ciaaDriverAioConst.devices[1]) ||
+        (device == ciaaDriverAioConst.devices[2]))
+    {
+       switch(request)
+       {
+          case ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT:
+             if((bool)(intptr_t)param == false)
+             {
+                /*Disable ADC  interrupt*/
+                 NVIC_DisableIRQ(adc->port.irq);
+             }
+             else
+             {
+                 adc->config.hwTriggerEnable = true;
+
+                /*Prepare ADC low level configuration*/
+                chnGroup = 0;
+                configPtr.chnIdx = adc->channel;
+                configPtr.convCompletedIntEnable = true;
+                configPtr.diffConvEnable = false;
+
+                /*Enable ADC  interrupt*/
+                NVIC_EnableIRQ(adc->port.irq);
+
+                /*Start ADC convertion*/
+                ADC16_HAL_ConfigChn(ADC2, chnGroup, &configPtr);
+
+             }
+             break;
+       }
+    }
+    /* Outputs */
+    if ((device == ciaaDriverAioConst.devices[3]))
+    {
+    }
+
+    return ret;
 }
 
 extern ssize_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, uint8_t * const buffer, size_t const size)
 {
-   ssize_t ret = -1;
+    uint8_t i;
+    ciaaDriverAdcControlType * adc;
+    ssize_t ret = -1;
 
-   return ret;
+    adc = device->layer;
+
+    if(size != 0)
+    {
+       if((device == ciaaDriverAioConst.devices[0]) ||
+          (device == ciaaDriverAioConst.devices[1]) ||
+          (device == ciaaDriverAioConst.devices[2]) )
+       {
+          if(size > adc->cnt)
+          {
+             /* buffer has enough space */
+             ret = adc->cnt;
+             adc->cnt = 0;
+          }
+          else
+          {
+             /* buffer hasn't enough space */
+             ret = size;
+             adc->cnt -= size;
+          }
+          for(i = 0; i < ret; i++)
+          {
+             buffer[i] = adc->hwbuf[i];
+          }
+          if(adc->cnt != 0)
+          {
+             /* We removed data from the buffer, it is time to reorder it */
+             for(i = 0; i < adc->cnt ; i++)
+             {
+                adc->hwbuf[i] =  adc->hwbuf[i + ret];
+             }
+          }
+        }
+    }
+    return ret;
 }
 
 extern ssize_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
@@ -392,7 +482,7 @@ void ciaaDriverAio_init(void)
 
 /*==================[interrupt hanlders]=====================================*/
 
-ISR(ADC0_IRQHandler)
+ISR(ADC2_IRQHandler)
 {
    ciaaDriverAio_adcIRQHandler(&ciaaDriverAio_in0);
 }
@@ -402,7 +492,7 @@ ISR(ADC1_IRQHandler)
    ciaaDriverAio_adcIRQHandler(&ciaaDriverAio_in1);
 }
 
-ISR(ADC2_IRQHandler)
+ISR(ADC0_IRQHandler)
 {
    ciaaDriverAio_adcIRQHandler(&ciaaDriverAio_in2);
 }
