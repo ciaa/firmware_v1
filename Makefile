@@ -809,8 +809,6 @@ clean:
 	@rm -rf $(OUT_DIR)$(DS)coverage$(DS)*
 	@echo Removing object files
 	@rm -rf $(OBJ_DIR)$(DS)*
-	@echo Removing oil files
-	@rm -rf $(OIL_FILES)
 
 clean_rtostests:
 	@echo Removing RTOS Test generated project files
