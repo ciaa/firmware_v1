@@ -1,7 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, 2015 Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
+/* Copyright 2015, Pablo Ridolfi <pridolfi@proyecto-ciaa.com.ar>
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,19 +31,16 @@
  *
  */
 
-#ifndef _BLINKING_H_
-#define _BLINKING_H_
-/** \brief Blinking example header file
+#ifndef MULTICORE_H
+#define MULTICORE_H
+/** \brief Multicore module main header file.
  **
- ** This is a mini example of the CIAA Firmware
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Examples CIAA Firmware Examples
- ** @{ */
-/** \addtogroup Blinking Blinking example header file
+/** \addtogroup Multicore Multicore module
  ** @{ */
 
 /*
@@ -58,21 +52,43 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150831 v0.0.1 PR   Initial version.
+ * 20150908 v0.0.1 PR   Initial version.
  */
 
 /*==================[inclusions]=============================================*/
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
 
+/** \brief List of available cores
+ */
+typedef enum
+{
+   CIAA_MULTICORE_CORE_0,  /**< current (master) core */
+   CIAA_MULTICORE_CORE_1   /**< first slave core available */
+}ciaaMulticore_cores_e;
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
 
-/** @} doxygen end group definition */
+/** \brief Start a slave core
+ *  \param core: Core to start, only \CIAA_MULTICORE_CORE_1 is supported
+ *  \return 0 if success, -1 in case of error
+ */
+int ciaaMulticore_boot(ciaaMulticore_cores_e core);
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _BLINKING_H_ */
+#endif /* #ifndef MULTICORE_H */

@@ -72,6 +72,7 @@
 #include "ciaaPOSIX_stdio.h"    /* <= device handler header */
 #include "ciaaPOSIX_string.h"   /* <= string header */
 #include "ciaak.h"              /* <= ciaa kernel header */
+#include "ciaaMulticore.h"      /* <= multicore lib header */
 #include "blinking_multicore.h" /* <= own header */
 
 /*==================[macros and definitions]=================================*/
@@ -135,7 +136,7 @@ int main(void)
 
       Enjoy :-)
    */
-   CIAA_START_SLAVE_CORE(0);
+   ciaaMulticore_boot(CIAA_MULTICORE_CORE_1);
 
    /* Starts the operating system in the Application Mode 1 */
    /* This example has only one Application Mode */
