@@ -29,11 +29,7 @@
  * this code.
  */
 
- #if defined(NO_BOARD_LIB)
- #include "chip.h"
- #else
- #include "board.h"
- #endif
+#include "chip.h"
 
 /*****************************************************************************
  * Private types/enumerations/variables
@@ -43,10 +39,8 @@
  * Public types/enumerations/variables
  ****************************************************************************/
 
-#if defined(NO_BOARD_LIB)
 const uint32_t ExtRateIn = 0;
 const uint32_t OscRateIn = 12000000;
-#endif
 
 /*****************************************************************************
  * Private functions
