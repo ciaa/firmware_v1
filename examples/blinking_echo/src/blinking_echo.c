@@ -230,9 +230,9 @@ TASK(SerialEchoTask)
       }
 
       /* blink output 5 with each loop */
-      //ciaaPOSIX_read(fd_out, &outputs, 1);
-      //outputs ^= 0x04;
-      //ciaaPOSIX_write(fd_out, &outputs, 1);
+      ciaaPOSIX_read(fd_out, &outputs, 1);
+      outputs ^= 0x20;
+      ciaaPOSIX_write(fd_out, &outputs, 1);
    }
 }
 
@@ -260,11 +260,11 @@ TASK(PeriodicTask)
    ciaaPOSIX_read(fd_out, &outputs, 1);
 
    /* update outputs with inputs */
-   outputs &= 0x0C;
-   outputs |= inputs & 0x03;
+   outputs &= 0xF0;
+   outputs |= inputs & 0x0F;
 
    /* blink */
-   outputs ^= 0x08;
+   outputs ^= 0x10;
 
    /* write */
    ciaaPOSIX_write(fd_out, &outputs, 1);

@@ -45,15 +45,12 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
- * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150803 v0.0.3 EsVo assert open driver result is not null
- * 20150801 v0.0.2 EsVo correct bug in open function
- * 20140525 v0.0.1 MaCe initials initial version
+ * 20140525 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -180,15 +177,14 @@ extern void ciaaDioDevices_addDriver(ciaaDevices_deviceType * driver)
 }
 
 extern ciaaDevices_deviceType * ciaaDioDevices_open(char const * path,
-      ciaaDevices_deviceType * device, uint8_t const oflag)
+      ciaaDevices_deviceType * device,
+      uint8_t const oflag)
 {
-   ciaaDioDevices_deviceType * dioDevice =
-      (ciaaDioDevices_deviceType*) device->layer;
+   ciaaDevices_deviceType * drv = (ciaaDevices_deviceType*) device->loLayer;
 
-   ciaaPOSIX_assert(
-         dioDevice->device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag)
-         == device->loLayer);
-   ciaaPOSIX_assert(device->loLayer != NULL);
+   /* serial devices does not support that the drivers update the device */
+   /* the returned device shall be the same as passed */
+   ciaaPOSIX_assert(drv->open(path, drv, oflag) == drv);
 
    return device;
 }

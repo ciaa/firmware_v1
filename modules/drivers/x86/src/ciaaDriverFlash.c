@@ -51,18 +51,20 @@
 /*
  * Initials     Name
  * ---------------------------
- * EsVo         Esteban Volentini
+ * DC           Daniel Cohen
+ * EV           Esteban Volentini
+ * MG           Matias Giori
  * FS           Franco Salinas
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150803 v0.0.5 EsVo verify device received in open function
  * 20150327 v0.0.4 FS   renamed seek to lseek
  * 20150327 v0.0.3 FS   bugs fixed
- * 20150201 v0.0.2 EsVo first operating version
- * 20141006 v0.0.1 EsVo first initial version
+ * 20150201 v0.0.2 EV   first operating version
+ * 20141006 v0.0.1 EV   first initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -193,31 +195,23 @@ extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevi
 {
    ciaaDriverFlash_flashType * flash = device->layer;
 
-   if (device != &ciaaDriverFlash_device)
+   flash->storage = fopen(flash->filename,"r+b");
+   flash->position = 0;
+   if (flash->storage == NULL)
    {
-      device = NULL;
-   }
-   else
-   {
-      flash->storage = fopen(flash->filename,"r+b");
-      flash->position = 0;
+      perror("Flash emulation file not exists: ");
+      flash->storage = fopen(flash->filename,"w+b");
       if (flash->storage == NULL)
       {
-         perror("Flash emulation file not exists: ");
-         flash->storage = fopen(flash->filename,"w+b");
-         if (flash->storage == NULL)
-         {
-            perror("Error creating flash emulation file: ");
-            device = NULL;
-         }
-         else
-         {
-            ciaaDriverFlash_blockErase(0, CIAADRVFLASH_BLOCK_CANT - 1);
-            rewind( flash->storage );
-         }
+         perror("Error creating flash emulation file: ");
+         device = NULL;
+      }
+      else
+      {
+         ciaaDriverFlash_blockErase(0, CIAADRVFLASH_BLOCK_CANT - 1);
+         rewind( flash->storage );
       }
    }
-
    return device;
 }
 

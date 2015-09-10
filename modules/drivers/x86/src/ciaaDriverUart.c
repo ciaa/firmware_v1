@@ -53,7 +53,6 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150803 v0.0.4 EsVo verify device received in open function
  * 20141121 v0.0.3 EsVo add host uart support
  * 20141116 v0.0.2 EsVo add uart emulation via sockets
  * 20140528 v0.0.1 MaCe initial version
@@ -436,20 +435,15 @@ ciaaDevices_deviceType * ciaaDriverUart_serverOpen(ciaaDevices_deviceType * devi
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-   if ((device != &ciaaDriverUart_device0) && (device != &ciaaDriverUart_device1))
-   {
-      device = NULL;
-   }
-
 #ifdef CIAADRVUART_ENABLE_TRANSMITION
-   if (NULL != device)
+   if (0 != device)
    {
       device = ciaaDriverUart_serialOpen(device);
    }
 #endif /* CIAADRVUART_ENABLE_TRANSMITION */
 
 #ifdef CIAADRVUART_ENABLE_EMULATION
-   if (NULL != device) {
+   if (0 != device) {
       device = ciaaDriverUart_serverOpen(device);
    }
 #endif /* CIAADRVUART_ENABLE_EMULATION */

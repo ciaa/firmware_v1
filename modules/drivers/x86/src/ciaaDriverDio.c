@@ -47,14 +47,12 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
- * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150803 v0.0.2 EsVo verify device received in open function
- * 20140528 v0.0.1 MaCe initials initial version
+ * 20140528 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -62,7 +60,6 @@
 #include "ciaaDriverDio_Internal.h"
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_string.h"
-#include "ciaaPOSIX_stdio.h"
 
 /*==================[macros and definitions]=================================*/
 /** \brief Pointer to Devices */
@@ -127,11 +124,6 @@ ciaaDriverDio_dioType ciaaDriverDio_dio1;
 extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-   if ((device != &ciaaDriverDio_device0) && (device != &ciaaDriverDio_device1))
-   {
-      device = NULL;
-   }
-
    return device;
 }
 
