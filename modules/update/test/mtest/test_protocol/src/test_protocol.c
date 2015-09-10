@@ -71,14 +71,25 @@
 #include "ciaaPOSIX_assert.h" /* <= ciaaPOSIX_assert header */
 #include "ciaaPOSIX_stdio.h"  /* <= device handler header */
 #include "ciaak.h"            /* <= ciaa kernel header */
-#include "UPDT_master.h"
-#include "UPDT_packer.h"
 #include "UPDT_services.h"
 #include "test_protocol_loopback.h"
-#include "test_protocol_parser.h"
 
 /*==================[macros and definitions]=================================*/
 #define DATA_SIZE 1024
+
+typedef struct {
+   uint32_t reserved1;
+   uint32_t firmware_version;
+   uint32_t bootloader_flags;
+   uint32_t bootloader_version;
+   uint32_t reserved2;
+   uint32_t application_version;
+   uint32_t vendor_id;
+   uint32_t model_id;
+   uint64_t unique_id;
+   uint32_t data_size;
+} test_updt_configType;
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -87,25 +98,8 @@
 /* binary image to transmit */
 static uint8_t input[DATA_SIZE];
 
-/* segments to transmit */
-static test_update_parserSegmentType segments[] =
-{
-   {0x0000, 0x00F8, NULL},
-   {0x00F8, 0x0050, NULL},
-   {0x0150, 0x0068, NULL},
-   {0x0210, 0x0008, NULL},
-   {0x0218, 0x0010, NULL},
-   {0x0228, 0x0100, NULL},
-   {0x0360, 0x00A0, NULL}
-};
-
-/* master side */
-static uint8_t master_buffer[UPDT_PROTOCOL_PAYLOAD_MAX_SIZE];
-static UPDT_packerType packer;
-static UPDT_masterType master;
+/* master side*/
 static test_update_loopbackType master_transport;
-static test_update_parserType parser;
-
 /* slave side */
 static test_update_loopbackType slave_transport;
 static int32_t slave_fd = -1;
@@ -114,25 +108,109 @@ static int32_t slave_fd = -1;
 
 /*==================[internal functions definition]==========================*/
 
-static uint32_t generateSegments()
+void test_updt_configFormat(test_updt_configType *type, uint8_t *config_buffer,size_t data_size)
 {
-   uint32_t i, j;
+   ciaaPOSIX_assert(data_size == 32);
+   /*Set of the field "reserved1" in the buffer*/
+   config_buffer[0] = type->reserved1;
+   /*Set of the field "firmware_version" in the buffer*/
+   config_buffer[1] = (type->firmware_version) >> 16;
+   config_buffer[2] = (type->firmware_version) >> 8;
+   config_buffer[3] = type->firmware_version;
+   /*Set of the field "bootloader_flags" in the buffer*/
+   config_buffer[4] = type->bootloader_flags;
+   /*Set of the field "bootloader_version" in the buffer*/
+   config_buffer[5] = (type->bootloader_version) >> 16;
+   config_buffer[6] = (type->bootloader_version) >> 8;
+   config_buffer[7] = type->bootloader_version;
+   /*Set of the field "reserved2" in the buffer*/
+   config_buffer[8] = type->reserved2;
+   /*Set of the field "application_version" in the buffer*/
+   config_buffer[9] = (type->application_version) >> 16;
+   config_buffer[10] = (type->application_version) >> 8;
+   config_buffer[11] = type->application_version;
+   /*Set of the field "vendor_id" in the buffer*/
+   config_buffer[12] = type->vendor_id;
+   /*Set of the field "model_id" in the buffer*/
+   config_buffer[13] = (type->model_id) >> 16;
+   config_buffer[14] = (type->model_id) >> 8;
+   config_buffer[15] = type->model_id;
+   /*Set of the field "unique_id" in the buffer*/
+   config_buffer[16] = (type->unique_id) >> 56;
+   config_buffer[17] = (type->unique_id) >> 48;
+   config_buffer[18] = (type->unique_id) >> 40;
+   config_buffer[19] = (type->unique_id) >> 32;
+   config_buffer[20] = (type->unique_id) >> 24;
+   config_buffer[21] = (type->unique_id) >> 16;
+   config_buffer[22] = (type->unique_id) >> 8;
+   config_buffer[23] = type->unique_id;
+   /*Set of the field "data_size" in the buffer*/
+   config_buffer[24] = (type->data_size) >> 24;
+   config_buffer[25] = (type->data_size) >> 16;
+   config_buffer[26] = (type->data_size) >> 8;
+   config_buffer[27] = type->data_size;
+}
 
-   /* generate sizes */
-   for(i = 0; i < sizeof(segments) / sizeof(segments[0]); ++i)
-   {
-      ciaaPOSIX_assert(segments[i].address < sizeof(input));
 
-      segments[i].data = &input[segments[i].address];
+void test_update_value (test_updt_configType *values)
+{
+   values->reserved1 = 0;
+   values->firmware_version = 2 << 16;
+   values->firmware_version |= 3 << 8;
+   values->firmware_version |= 4;
+   values->bootloader_flags = 6;
+   values->bootloader_version = 8 << 16;
+   values->bootloader_version |= 9 << 8;
+   values->bootloader_version |= 10;
+   values->reserved2 = 0;
+   values->application_version = 12 << 16;
+   values->application_version |= 13 <<8;
+   values->application_version |= 14;
+   values->vendor_id = 15;
+   values->model_id = 16 << 16;
+   values->model_id |= 17 << 8;
+   values->model_id |= 18;
+   values->unique_id = 20ll << 56;
+   values->unique_id |= 21ll << 48;
+   values->unique_id |= 22ll << 40;
+   values->unique_id |= 23ll << 32;
+   values->unique_id |= 24ll << 24;
+   values->unique_id |= 25ll << 16;
+   values->unique_id |= 26ll << 8;
+   values->unique_id |= 27ll;
+   values->data_size = 28 << 24;
+   values->data_size |= 29 << 16;
+   values->data_size |= 30 << 8;
+   values->data_size |= 31;
+}
 
-      /* assign each byte its byte number from the beginning of the
-       * segment */
-      for(j = 0; j < segments[i].size; ++j)
-      {
-         segments[i].data[j] = j;
-      }
-   }
-   return sizeof(segments) / sizeof(segments[0]);
+void makeHandshakeOk (test_updt_configType *type,uint8_t *vector)
+{
+   UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_INF,1,32);
+   test_update_value (type);
+   test_updt_configFormat (type,vector+4,32);
+}
+
+uint32_t testHandshakeOk (test_updt_configType *type,uint8_t *vector)
+{
+   ciaaPOSIX_assert (UPDT_PROTOCOL_PACKET_ACK == UPDT_protocolGetPacketType(vector));
+   ciaaPOSIX_assert (2 == UPDT_protocolGetSequenceNumber(vector));
+   return 0;
+}
+
+
+void makeHandshakeOkNextSN (test_updt_configType *type, uint8_t *vector)
+{
+   UPDT_protocolSetHeader (vector, UPDT_PROTOCOL_PACKET_INF,2,32);
+   test_update_value (type);
+   test_updt_configFormat (type,vector+4,32);
+}
+
+uint32_t testHandshakeOkNextSN(test_updt_configType *type, uint8_t *vector)
+{
+   ciaaPOSIX_assert (UPDT_PROTOCOL_PACKET_ACK == UPDT_protocolGetPacketType(vector));
+   ciaaPOSIX_assert (3==UPDT_protocolGetSequenceNumber(vector));
+   return 0;
 }
 /*==================[external functions definition]==========================*/
 /** \brief Main function
@@ -216,28 +294,23 @@ TASK(InitTask)
 TASK(MasterTask)
 {
    int32_t ret;
-   ssize_t bytes_packed;
-   ssize_t bytes_sent;
-   uint32_t total_segments = 0;
-
+   uint8_t vector[36];
+   test_updt_configType type;
    ciaaPOSIX_printf("Master Task\n");
-
-   /* initialize data to send */
-   total_segments = generateSegments();
-
-   /* initialize the data parser */
-   test_update_parserInit(&parser, segments, total_segments);
-
-   /* initialize the master */
-   ret = UPDT_masterInit(&master, (UPDT_ITransportType *) &master_transport);
-   ciaaPOSIX_assert(0 == ret);
-
-   /* initialize the packer */
-   ret = UPDT_packerInit(&packer, (UPDT_parserType *) &parser, master_buffer, UPDT_PROTOCOL_PAYLOAD_MAX_SIZE);
-   ciaaPOSIX_assert(0 == ret);
 
    /** \todo Handshake */
 
+   /*initialize data for send*/
+   makeHandshakeOk (&type, vector);
+   /*send data*/
+   ciaaPOSIX_assert (UPDT_protocolSend((UPDT_ITransportType *) &master_transport, vector, 32) == UPDT_PROTOCOL_ERROR_NONE);
+   /*received answer*/
+   ciaaPOSIX_assert (UPDT_protocolRecv((UPDT_ITransportType *) &master_transport, vector,32) == UPDT_PROTOCOL_ERROR_NONE);
+   /*testing SN and packet type of answer*/
+   ciaaPOSIX_assert(testHandshakeOk (&type,vector)==0);
+
+
+   #if(0)
    do
    {
       /* request a block of packed data */
@@ -252,23 +325,10 @@ TASK(MasterTask)
 
    /* it finishes when we send a block of data smaller than the others */
    } while(bytes_sent == UPDT_PROTOCOL_PAYLOAD_MAX_SIZE);
+   #endif
 
-   if(bytes_sent == -1)
-   {
-      ciaaPOSIX_printf("transmission error\n");
-   }
-   else
-   {
-      ciaaPOSIX_printf("transmission successful\n");
-   }
 
    /** \todo send signature */
-
-   /* clear the structure packer */
-   UPDT_packerClear(&packer);
-
-   /* clear the master structure */
-   UPDT_masterClear(&master);
 
    TerminateTask();
 }
