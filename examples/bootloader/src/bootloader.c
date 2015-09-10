@@ -173,7 +173,7 @@ TASK(BootloaderTask)
    ciaaPOSIX_assert(0 == modbusTransportInit(&modbus, "/dev/serial/uart/0"));
 
    /* open UART connected to USB bridge (FT2232) */
-   fd_flash = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
+   fd_flash = ciaaPOSIX_open("/dev/block/fd/0", ciaaPOSIX_O_RDWR);
 
    error = UPDT_servicesStart((UPDT_ITransportType *) &modbus, fd_flash);
    switch(error)

@@ -252,7 +252,7 @@ int32_t modbusTransportInit(modbusTransportType *modbus, const char *dev)
    ciaaPOSIX_assert(NULL != modbus);
 
    /* open serial port */
-   modbus->fd = ciaaPOSIX_open(dev, O_RDWR | O_NONBLOCK);
+   modbus->fd = ciaaPOSIX_open(dev, ciaaPOSIX_O_RDWR | ciaaPOSIX_O_NONBLOCK);
 
    /* Open Modbus Slave */
    hModbusSlave = ciaaModbus_slaveOpen(
