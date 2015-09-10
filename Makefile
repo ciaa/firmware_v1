@@ -437,8 +437,8 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 ###############################################################################
 # rule to generate OILs files
 %.oil: %.oil.pre
-    @echo " PRE OIL $^"
-    $(CC) -E -x c++ -DBOARD=$(BOARD) -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) $^ | grep -v "^#.*" > $@
+	@echo " PRE OIL $^"
+	$(CC) -E -x c++ -DBOARD=$(BOARD) -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) $^ | grep -v "^#.*" > $@
 
 ###############################################################################
 
