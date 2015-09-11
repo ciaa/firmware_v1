@@ -220,29 +220,29 @@ static void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
    }
 }
 
-static int ciaa_lpc4337_readInput(uint32_t inputNumber)
+static int32_t ciaa_lpc4337_readInput(uint32_t inputNumber)
 {
-   int rv = -1;
+   int32_t rv = -1;
 
    if (inputNumber < ciaaDriverDio_InputCount)
    {
       rv = Chip_GPIO_GetPinState(LPC_GPIO_PORT,
          ciaaDriverDio_Inputs[inputNumber].port,
-         ciaaDriverDio_Inputs[inputNumber].pin);
+         ciaaDriverDio_Inputs[inputNumber].pin) ? 1 : 0;
    }
 
    return rv;
 }
 
-static int ciaa_lpc4337_readOutput(uint32_t outputNumber)
+static int32_t ciaa_lpc4337_readOutput(uint32_t outputNumber)
 {
-   int rv = -1;
+   int32_t rv = -1;
 
    if (outputNumber < ciaaDriverDio_OutputCount)
    {
       rv = Chip_GPIO_GetPinState(LPC_GPIO_PORT,
          ciaaDriverDio_Outputs[outputNumber].port,
-         ciaaDriverDio_Outputs[outputNumber].pin);
+         ciaaDriverDio_Outputs[outputNumber].pin) ? 1 : 0;
    }
 
    return rv;
@@ -268,7 +268,7 @@ extern int32_t ciaaDriverDio_ioctl(ciaaDevices_deviceType const * const device, 
 extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, uint8_t * buffer, size_t size)
 {
    ssize_t ret = -1;
-   int i, j, count;
+   int32_t i, j, count;
 
    if(device == ciaaDioDevices[0])
    {
@@ -287,13 +287,10 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
          {
             buffer[i] = 0;
          }
-         i = 0;
-         j = 0;
-         while (i < ciaaDriverDio_InputCount)
+         for(i = 0, j = 0; i < ciaaDriverDio_InputCount; i++)
          {
             buffer[j] |= ciaa_lpc4337_readInput(i) << (i - 8 * j);
-            i++;
-            if((i % 8)==0)
+            if((i > 0) && ((i % 8)==0))
             {
                j++;
             }
@@ -318,13 +315,10 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
          {
             buffer[i] = 0;
          }
-         i = 0;
-         j = 0;
-         while (i < ciaaDriverDio_OutputCount)
+         for(i = j = 0; i < ciaaDriverDio_OutputCount; i++)
          {
             buffer[j] |= ciaa_lpc4337_readOutput(i) << (i - 8 * j);
-            i++;
-            if((i % 8)==0)
+            if((i > 0) && ((i % 8)==0))
             {
                j++;
             }
