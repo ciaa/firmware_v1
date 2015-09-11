@@ -283,10 +283,7 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
       if(size >= count)
       {
          /* read and store all inputs in user buffer */
-         for(i=0; i<count; i++)
-         {
-            buffer[i] = 0;
-         }
+         ciaaPOSIX_memset(buffer, 0, count);
          for(i = 0, j = 0; i < ciaaDriverDio_InputCount; i++)
          {
             buffer[j] |= ciaa_lpc4337_readInput(i) << (i - 8 * j);
@@ -311,10 +308,7 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
       if(size >= count)
       {
          /* read and store all outputs in user buffer */
-         for(i=0; i<count; i++)
-         {
-            buffer[i] = 0;
-         }
+         ciaaPOSIX_memset(buffer, 0, count);
          for(i = 0, j = 0; i < ciaaDriverDio_OutputCount; i++)
          {
             buffer[j] |= ciaa_lpc4337_readOutput(i) << (i - 8 * j);
