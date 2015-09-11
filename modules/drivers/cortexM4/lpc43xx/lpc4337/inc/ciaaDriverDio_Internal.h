@@ -1,4 +1,6 @@
 /* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2015, Pablo Ridolfi
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -46,13 +48,14 @@
 /*
  * Initials     Name
  * ---------------------------
- *
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140528 v0.0.1 initials initial version
+ * 20150831 v0.0.2 PR driver improved
+ * 20140528 v0.0.1 PR initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -67,14 +70,13 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 /** \brief Dio Type */
-typedef uint32_t ciaaDriverDio_dioType;
+typedef struct
+{
+   uint32_t port;
+   uint32_t pin;
+}ciaaDriverDio_dioType;
 
 /*==================[external data declaration]==============================*/
-/** \brief Dio 0 */
-extern ciaaDriverDio_dioType ciaaDriverDio_dio0;
-
-/** \brief Dio 1 */
-extern ciaaDriverDio_dioType ciaaDriverDio_dio1;
 
 /*==================[external functions declaration]=========================*/
 
@@ -87,4 +89,3 @@ extern ciaaDriverDio_dioType ciaaDriverDio_dio1;
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef _CIAADRIVERDIO_INTERNAL_H_ */
-
