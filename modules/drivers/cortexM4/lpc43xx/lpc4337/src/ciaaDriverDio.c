@@ -315,7 +315,7 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
          {
             buffer[i] = 0;
          }
-         for(i = j = 0; i < ciaaDriverDio_OutputCount; i++)
+         for(i = 0, j = 0; i < ciaaDriverDio_OutputCount; i++)
          {
             buffer[j] |= ciaa_lpc4337_readOutput(i) << (i - 8 * j);
             if((i > 0) && ((i % 8)==0))
