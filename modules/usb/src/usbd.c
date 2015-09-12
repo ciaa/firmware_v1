@@ -149,29 +149,24 @@ int usb_irp(
 )
 {
    /* Validate input parameters. */
-   if (pstack == NULL || buffer == NULL)
+   if (  pstack == NULL ||
+         buffer == NULL ||
+         USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1 ||
+         USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1 ||
+         pipe > USB_MAX_ENDPOINTS-1 ||
+         len == 0 )
    {
       return USB_STATUS_INV_PARAM;
    }
-   if (USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1)
+   else
    {
-      return USB_STATUS_INV_PARAM;
-   }
-   if (USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1)
-   {
-      return USB_STATUS_INV_PARAM;
-   }
-   if (pipe > USB_MAX_ENDPOINTS-1 || len == 0)
-   {
-      return USB_STATUS_INV_PARAM;
-   }
-
-   return usbhci_xfer_start(
+      return usbhci_xfer_start(
             &pstack->devices[USB_ID_TO_DEV(device_id)].
                interfaces[USB_ID_TO_IFACE(device_id)].
                endpoints[pipe],
             buffer,
             len );
+   }
 }
 
 int usb_ctrlirp(
@@ -185,15 +180,10 @@ int usb_ctrlirp(
    usb_device_t* pdevice;
 
    /* Validate input parameters. */
-   if (pstack == NULL || pstdreq == NULL)
-   {
-      return USB_STATUS_INV_PARAM;
-   }
-   if (USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1)
-   {
-      return USB_STATUS_INV_PARAM;
-   }
-   if (USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1)
+   if (  pstack  == NULL ||
+         pstdreq == NULL ||
+         USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1 ||
+         USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1 )
    {
       return USB_STATUS_INV_PARAM;
    }
@@ -223,10 +213,17 @@ int usb_ctrlirp(
       }
       else
       {
-         /* Device available, start control transaction. */
+         /* Fill the request buffer with the data in USB-endianness order. */
+         USB_STDREQ_SET_bmRequestType(pdevice->stdreq, pstdreq->bmRequestType);
+         USB_STDREQ_SET_bRequest(     pdevice->stdreq, pstdreq->bRequest);
+         USB_STDREQ_SET_wValue(       pdevice->stdreq, pstdreq->wValue);
+         USB_STDREQ_SET_wIndex(       pdevice->stdreq, pstdreq->wIndex);
+         USB_STDREQ_SET_wLength(      pdevice->stdreq, pstdreq->wLength);
+
+         /* Device available, start control transfer. */
          status = usbhci_ctrlxfer_start(
                &pdevice->default_ep,
-               pstdreq,
+               pdevice->stdreq,
                buffer );
       }
    }
@@ -238,21 +235,19 @@ int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe )
    int status;
 
    /* Validate input parameters. */
-   if (pstack == NULL)
-   {
-      return USB_STATUS_INV_PARAM;
-   }
-   if (USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1)
-   {
-      return USB_STATUS_INV_PARAM;
-   }
-   if (USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1)
+   if (  pstack == NULL ||
+         USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1 ||
+         USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1 )
    {
       return USB_STATUS_INV_PARAM;
    }
 
    if (pipe == USB_CTRL_PIPE_TOKEN)
    {
+      /*
+       * Control pipes need to be handled separately because there's only one per
+       * device, instead of one per interface.
+       */
       status = usbhci_xfer_status(
             &pstack->devices[USB_ID_TO_DEV(device_id)].default_ep );
       if (status != USB_STATUS_XFER_WAIT)
@@ -441,6 +436,7 @@ void usb_device_attach(
 }
 
 #if (USB_MAX_HUBS > 0)
+/** @FIXME: this function will be either re-written or replaced. */
 int usb_device_find(
       usb_stack_t* pstack,
       uint8_t      hub_index,
@@ -482,7 +478,8 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
    usb_hub_t*    phub;
 #endif
    usb_pipe_t*   ppipe;
-   usb_stdreq_t* pstdreq;
+   uint8_t*      pstdreq;
+   uint16_t      aux;
    int           status;
 
    usb_assert(pstack != NULL);
@@ -493,7 +490,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
    usb_assert(pdevice->parent_port < USB_MAX_HUB_PORTS);
 #endif
    ppipe   = &pdevice->default_ep;
-   pstdreq = &pdevice->stdreq;
+   pstdreq =  pdevice->stdreq;
 
    switch (pdevice->state)
    {
@@ -630,14 +627,15 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
             usb_assert(0); /** @TODO: handle error */
 
          /* Once the default pipe has been configured, get device's MPS. */
-         pstdreq->bmRequestType = USB_STDREQ_REQTYPE(
+         USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
                USB_DIR_IN,
                USB_STDREQ_TYPE_STD,
-               USB_STDREQ_RECIP_DEV );
-         pstdreq->bRequest      = USB_STDREQ_GET_DESCRIPTOR;
-         pstdreq->wValue        = USB_STDDESC_DEVICE << 8;
-         pstdreq->wIndex        = 0;
-         pstdreq->wLength       = 8;
+               USB_STDREQ_RECIP_DEV )
+         );
+         USB_STDREQ_SET_bRequest(pstdreq, USB_STDREQ_GET_DESCRIPTOR);
+         USB_STDREQ_SET_wValue(  pstdreq, USB_STDDESC_DEVICE << 8);
+         USB_STDREQ_SET_wIndex(  pstdreq, 0);
+         USB_STDREQ_SET_wLength( pstdreq, 8);
 
          usbhci_ctrlxfer_start(ppipe, pstdreq, pdevice->xfer_buffer);
          pdevice->state = USB_DEV_STATE_WAITING_ACK;
@@ -646,7 +644,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 
       case USB_DEV_STATE_ADDRESS:
          /* Get MPS and reset device once again. */
-         ppipe->mps = ((usb_desc_dev_t*)(pdevice->xfer_buffer))->bMaxPacketSize0;
+         ppipe->mps = USB_STDDESC_DEV_GET_bMaxPacketSize0(pdevice->xfer_buffer);
          usbhci_reset();
 
          /* Reconfigure default pipes to MPS and set a new address. */
@@ -656,14 +654,15 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          if (status)
             usb_assert(0); /** @TODO: handle error */
 
-         pstdreq->bmRequestType = USB_STDREQ_REQTYPE(
+         USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
                USB_DIR_OUT,
                USB_STDREQ_TYPE_STD,
-               USB_STDREQ_RECIP_DEV );
-         pstdreq->bRequest      = USB_STDREQ_SET_ADDRESS;
-         pstdreq->wValue        = index + 1;
-         pstdreq->wIndex        = 0;
-         pstdreq->wLength       = 0;
+               USB_STDREQ_RECIP_DEV )
+         );
+         USB_STDREQ_SET_bRequest(pstdreq, USB_STDREQ_SET_ADDRESS);
+         USB_STDREQ_SET_wValue(  pstdreq, index + 1);
+         USB_STDREQ_SET_wIndex(  pstdreq, 0);
+         USB_STDREQ_SET_wLength( pstdreq, 0);
 
          usbhci_ctrlxfer_start(ppipe, pstdreq, NULL);
          pdevice->state = USB_DEV_STATE_WAITING_ACK;
@@ -673,7 +672,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
       case USB_DEV_STATE_CONFIGURING_PIPES:
          /*
           * New address has been  set,  reconfigure  default  pipes  to  it  and
-          * request the configuration descriptor.
+          * request the device descriptor.
           * Also, release lock on stack to allow other devices to enumerate.
           */
          pstack->status &= ~USB_STACK_STATUS_ZERO_ADDR;
@@ -683,14 +682,15 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          if (status)
             usb_assert(0); /** @TODO: handle error */
 
-         pstdreq->bmRequestType = USB_STDREQ_REQTYPE(
+         USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
                USB_DIR_IN,
                USB_STDREQ_TYPE_STD,
-               USB_STDREQ_RECIP_DEV );
-         pstdreq->bRequest      = USB_STDREQ_GET_DESCRIPTOR;
-         pstdreq->wValue        = USB_STDDESC_DEVICE << 8;
-         pstdreq->wIndex        = 0;
-         pstdreq->wLength       = 18;
+               USB_STDREQ_RECIP_DEV )
+         );
+         USB_STDREQ_SET_bRequest(pstdreq, USB_STDREQ_GET_DESCRIPTOR);
+         USB_STDREQ_SET_wValue(  pstdreq, USB_STDDESC_DEVICE << 8);
+         USB_STDREQ_SET_wIndex(  pstdreq,  0);
+         USB_STDREQ_SET_wLength( pstdreq, 18);
 
          usbhci_ctrlxfer_start(ppipe, pstdreq, pdevice->xfer_buffer);
          pdevice->state = USB_DEV_STATE_WAITING_ACK;
@@ -699,17 +699,18 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 
       case USB_DEV_STATE_DEV_DESC:
          /* Parse the device descriptor and request the configuration one. */
-         pdevice->vendor_ID  = ((usb_desc_dev_t*)pdevice->xfer_buffer)->idVendor;
-         pdevice->product_ID = ((usb_desc_dev_t*)pdevice->xfer_buffer)->idProduct;
+         pdevice->vendor_ID  = USB_STDDESC_DEV_GET_idVendor(pdevice->xfer_buffer);
+         pdevice->product_ID = USB_STDDESC_DEV_GET_idProduct(pdevice->xfer_buffer);
 
-         pstdreq->bmRequestType = USB_STDREQ_REQTYPE(
+         USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
                USB_DIR_IN,
                USB_STDREQ_TYPE_STD,
-               USB_STDREQ_RECIP_DEV );
-         pstdreq->bRequest      = USB_STDREQ_GET_DESCRIPTOR;
-         pstdreq->wValue        = USB_STDDESC_CONFIGURATION << 8;
-         pstdreq->wIndex        = 0;
-         pstdreq->wLength       = 9;
+               USB_STDREQ_RECIP_DEV )
+         );
+         USB_STDREQ_SET_bRequest(pstdreq, USB_STDREQ_GET_DESCRIPTOR);
+         USB_STDREQ_SET_wValue(  pstdreq, USB_STDDESC_CONFIGURATION << 8);
+         USB_STDREQ_SET_wIndex(  pstdreq, 0);
+         USB_STDREQ_SET_wLength( pstdreq, 9);
 
          usbhci_ctrlxfer_start(ppipe, pstdreq, pdevice->xfer_buffer);
          pdevice->state = USB_DEV_STATE_WAITING_ACK;
@@ -718,11 +719,12 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 
       case USB_DEV_STATE_CFG_DESC_9:
          /* Get the configuration descriptor length and request it again. */
-         if (((usb_desc_cfg_t*)pdevice->xfer_buffer)->wTotalLength > 256)
+         if (USB_STDDESC_CFG_GET_wTotalLength(pdevice->xfer_buffer) > 256)
             usb_assert(0); /** @TODO: handle error */
 
-         pstdreq->wLength = ((usb_desc_cfg_t*)pdevice->xfer_buffer)->wTotalLength;
-         pdevice->xfer_length = pstdreq->wLength;
+         aux = USB_STDDESC_CFG_GET_wTotalLength(pdevice->xfer_buffer);
+         USB_STDREQ_SET_wLength(pstdreq, aux);
+         pdevice->xfer_length = aux;
 
          usbhci_ctrlxfer_start(ppipe, pstdreq, pdevice->xfer_buffer);
          pdevice->state = USB_DEV_STATE_WAITING_ACK;
@@ -736,14 +738,15 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
             usb_assert(0); /** @TODO: handle error */
 
          /* Once that's done, set the configuration on the device. */
-         pstdreq->bmRequestType = USB_STDREQ_REQTYPE(
+         USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
                USB_DIR_OUT,
                USB_STDREQ_TYPE_STD,
-               USB_STDREQ_RECIP_DEV );
-         pstdreq->bRequest      = USB_STDREQ_SET_CONFIGURATION;
-         pstdreq->wValue        = pdevice->cfg_value;
-         pstdreq->wIndex        = 0;
-         pstdreq->wLength       = 0;
+               USB_STDREQ_RECIP_DEV )
+         );
+         USB_STDREQ_SET_bRequest(pstdreq, USB_STDREQ_SET_CONFIGURATION);
+         USB_STDREQ_SET_wValue(  pstdreq, pdevice->cfg_value);
+         USB_STDREQ_SET_wIndex(  pstdreq, 0);
+         USB_STDREQ_SET_wLength( pstdreq, 0);
 
          usbhci_ctrlxfer_start(ppipe, pstdreq, NULL);
          pdevice->state = USB_DEV_STATE_WAITING_ACK;
@@ -752,14 +755,15 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          break;
 
       case USB_DEV_STATE_TEST:
-         pstdreq->bmRequestType = USB_STDREQ_REQTYPE(
+         USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
                USB_DIR_IN,
                USB_STDREQ_TYPE_STD,
-               USB_STDREQ_RECIP_INTERFACE );
-         pstdreq->bRequest      = USB_STDREQ_GET_DESCRIPTOR;
-         pstdreq->wValue        = (0x22 << 8);
-         pstdreq->wIndex        = 0;
-         pstdreq->wLength       = 40;
+               USB_STDREQ_RECIP_INTERFACE )
+         );
+         USB_STDREQ_SET_bRequest(pstdreq, USB_STDREQ_GET_DESCRIPTOR);
+         USB_STDREQ_SET_wValue(  pstdreq, 0x22 << 8);
+         USB_STDREQ_SET_wIndex(  pstdreq,  0);
+         USB_STDREQ_SET_wLength( pstdreq, 40);
 
          usbhci_ctrlxfer_start(ppipe, pstdreq, pdevice->xfer_buffer);
          pdevice->state = USB_DEV_STATE_WAITING_ACK;
@@ -820,12 +824,12 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
    usb_assert(len > USB_STDDESC_CFG_SIZE);
 
    /* Get the number of interfaces. */
-   pdevice->n_interfaces = ((usb_desc_cfg_t*)buff)->bNumInterfaces;
+   pdevice->n_interfaces = USB_STDDESC_CFG_GET_bNumInterfaces(buff);
    if (pdevice->n_interfaces > USB_MAX_INTERFACES)
       usb_assert(0); /** @TODO: handle error */
 
    /* Get the configuration value. */
-   pdevice->cfg_value = ((usb_desc_cfg_t*)buff)->bConfigurationValue;
+   pdevice->cfg_value = USB_STDDESC_CFG_GET_bConfigurationValue(buff);
 
    buff += USB_STDDESC_CFG_SIZE;
    len  -= USB_STDDESC_CFG_SIZE;
@@ -880,7 +884,6 @@ int usb_device_parse_ifacedesc(
 {
    usb_interface_t*  piface;
    usb_device_t*     pdevice;
-   usb_desc_iface_t* piface_desc;
    uint8_t           ep;
    int               driver_idx;
    int               ret;
@@ -898,107 +901,109 @@ int usb_device_parse_ifacedesc(
    len         = *plen;
    pdevice     = &pstack->devices[USB_ID_TO_DEV(id)];
    piface      = &pdevice->interfaces[USB_ID_TO_IFACE(id)];
-   piface_desc = (usb_desc_iface_t*) buff;
 
    if (*plen < USB_STDDESC_IFACE_SIZE)
-      return USB_STATUS_INV_PARAM;
-   if (piface_desc->bDescriptorType != USB_STDDESC_INTERFACE)
-      return USB_STATUS_INV_DESC;
-
-   piface->n_endpoints = piface_desc->bNumEndpoints;
-   if (piface->n_endpoints > USB_MAX_ENDPOINTS)
-      return USB_STATUS_EP_AVAIL;
-
-   piface->class    = piface_desc->bInterfaceClass;
-   piface->subclass = piface_desc->bInterfaceSubClass;
-   piface->protocol = piface_desc->bInterfaceProtocol;
-
-   /* Check whether there's a suitable driver for the given interface. */
-   driver_idx = usb_drivers_probe(pdevice, 0, buff, len);
-   if (driver_idx < 0)
    {
-      /*
-       * If a driver couldn't be found, skip  the  rest  of  the  initialization
-       * process.  However, the interface will still be  listed  and  accessible
-       * through the USB stack, this way the user can get information  about  it
-       * and find out why it wasn't assigned a driver.
-       */
-      piface->driver_handle = (usb_driver_handle_t) USB_IFACE_NO_DRIVER;
-      return USB_STATUS_OK;
+      /* Validate buffers minimum length. */
+      ret = USB_STATUS_INV_PARAM;
    }
-
-   /* Assign driver to interface. */
-   usb_assert(driver_idx < USB_MAX_DRIVERS);
-   piface->driver_handle = (usb_driver_handle_t) driver_idx;
-
-// /*
-//  * Allocate  endpoints  but  don't  initialize  them  until  all  are  done,
-//  * otherwise, you might start  parsing  descriptors  to  discover  the  last
-//  * endpoint could not be allocated.
-//  */
-// for (ep = 0; ep < piface->n_endpoints; ++ep)
-// {
-//    ret = usbhci_pipe_alloc(piface->endpoints[ep].type);
-//    if (ret < 0)
-//       usb_assert(0); /** @TODO: handle error */
-//    usb_assert(ret < USB_MAX_ENDPOINTS);
-//    piface->endpoints[ep].handle = (uint8_t) ret;
-// }
-
-   /* Endpoints pipes allocated, go ahead and parse descriptors. */
-   for (ep = 0; ep < piface->n_endpoints; ++ep)
+   else if(USB_STDDESC_IFACE_GET_bDescriptorType(buff) != USB_STDDESC_INTERFACE)
    {
-      /*
-       * First, advance buffer till next endpoint descriptor, this is  important
-       * because other descriptors might be in between endpoint ones and that is
-       * only known by the driver.
-       */
-      if (usb_goto_next_desc(
-               pbuff,
-               plen,
-               USB_STDDESC_ENDPOINT,
-               USB_STDDESC_EP_SIZE) )
-         usb_assert(0); /** @TODO: handle error */
-
-      /* Get endpoint info and initialize it. */
-      usb_device_parse_epdesc(&piface->endpoints[ep], *pbuff);
-
-      /* Allocate physical endpoint to it ... */
-      ret = usbhci_pipe_alloc(piface->endpoints[ep].type);
-      if (ret < 0)
-         usb_assert(0); /** @TODO: handle error */
-      //usb_assert(ret < USB_MAX_ENDPOINTS);
-      piface->endpoints[ep].handle = (uint8_t) ret;
-
-      /* ... and configure it. */
-      if (usbhci_pipe_configure(
-            &piface->endpoints[ep],
-            pdevice->addr,
-            pdevice->speed) )
-         usb_assert(0); /** @TODO: handle error */
+      /* Validate interface's descriptor type. */
+      ret = USB_STATUS_INV_DESC;
    }
+   else if (USB_STDDESC_IFACE_GET_bNumEndpoints(buff) > USB_MAX_ENDPOINTS)
+   {
+      /* Validate maximum number of endpoints. */
+      ret = USB_STATUS_EP_AVAIL;
+   }
+   else
+   {
+      /* Everything's alright so far, go ahead and copy base data over. */
+      piface->n_endpoints = USB_STDDESC_IFACE_GET_bNumEndpoints(buff);
+      piface->class       = USB_STDDESC_IFACE_GET_bInterfaceClass(buff);
+      piface->subclass    = USB_STDDESC_IFACE_GET_bInterfaceSubClass(buff);
+      piface->protocol    = USB_STDDESC_IFACE_GET_bInterfaceProtocol(buff);
 
-   /* Finally, register interface with driver. */
-   ret = usb_drivers_assign(pstack, id, buff, len, driver_idx);
-   if (ret)
-      usb_assert(0); /** @TODO: handle error */
+      /* Check whether there's a suitable driver for the given interface. */
+      driver_idx = usb_drivers_probe(pdevice, 0, buff, len);
+      if (driver_idx < 0)
+      {
+         /*
+          * If a driver couldn't be found, skip the rest of  the  initialization
+          * process.  However, the interface will still be listed and accessible
+          * through the USB stack, this way the user can get  information  about
+          * it and find out why it wasn't assigned a driver.
+          */
+         piface->driver_handle = (usb_driver_handle_t) USB_IFACE_NO_DRIVER;
+         ret = USB_STATUS_OK;
+      }
+      else
+      {
+         /* Driver found, assign it to interface. */
+         usb_assert(driver_idx < USB_MAX_DRIVERS);
+         piface->driver_handle = (usb_driver_handle_t) driver_idx;
 
-   return USB_STATUS_OK;
+         /* Endpoints pipes allocated, go ahead and parse descriptors. */
+         for (ep = 0; ep < piface->n_endpoints; ++ep)
+         {
+            /*
+             * First, advance buffer till  next  endpoint  descriptor,  this  is
+             * important because other descriptors might be in between  endpoint
+             * ones and that is only known by the driver.
+             */
+            if (usb_goto_next_desc(
+                     pbuff,
+                     plen,
+                     USB_STDDESC_ENDPOINT,
+                     USB_STDDESC_EP_SIZE) )
+            {
+               usb_assert(0); /** @TODO: handle error */
+            }
+
+            /* Get endpoint info and initialize it. */
+            usb_device_parse_epdesc(&piface->endpoints[ep], *pbuff);
+
+            /* Allocate physical endpoint to it ... */
+            ret = usbhci_pipe_alloc(piface->endpoints[ep].type);
+            if (ret < 0)
+            {
+               usb_assert(0); /** @TODO: handle error */
+            }
+            //usb_assert(ret < USB_MAX_ENDPOINTS);
+            piface->endpoints[ep].handle = (uint8_t) ret;
+
+            /* ... and configure it. */
+            if (usbhci_pipe_configure(
+                  &piface->endpoints[ep],
+                  pdevice->addr,
+                  pdevice->speed) )
+            {
+               usb_assert(0); /** @TODO: handle error */
+            }
+         }
+
+         /* Finally, register interface with driver. */
+         ret = usb_drivers_assign(pstack, id, buff, len, driver_idx);
+         if (ret)
+         {
+            usb_assert(0); /** @TODO: handle error */
+         }
+      }
+   }
+   return ret;
 }
 
 int usb_device_parse_epdesc( usb_pipe_t* ppipe, const uint8_t* buffer )
 {
-   usb_desc_ep_t* pep;
-
    usb_assert(ppipe  != NULL);
    usb_assert(buffer != NULL);
 
-   pep = (usb_desc_ep_t*)buffer;
-   ppipe->number   = pep->bEndpointAddress & 0x7F;
-   ppipe->type     = pep->bmAttributes & USB_STDDESC_EP_ATTR_TYPE_MASK;
-   ppipe->dir      = (pep->bEndpointAddress & 0x80) ? USB_DIR_IN : USB_DIR_OUT;
-   ppipe->mps      = pep->wMaxPacketSize & 0x7FF;
-   ppipe->interval = pep->bInterval;
+   ppipe->number   = USB_STDDESC_EP_GET_bEndpointAddress(buffer) & 0x7F;
+   ppipe->type     = USB_STDDESC_EP_GET_bmAttributes(buffer) & USB_STDDESC_EP_ATTR_TYPE_MASK;
+   ppipe->dir      =(USB_STDDESC_EP_GET_bEndpointAddress(buffer) & 0x80) ? USB_DIR_IN : USB_DIR_OUT;
+   ppipe->mps      = USB_STDDESC_EP_GET_wMaxPacketSize(buffer) & 0x7FF;
+   ppipe->interval = USB_STDDESC_EP_GET_bInterval(buffer);
 
    return USB_STATUS_OK;
 }

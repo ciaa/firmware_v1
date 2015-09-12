@@ -18,14 +18,16 @@ extern "C" {
 #include <stdint.h>
 
 
+/** @FIXME: remove the packed attribute and handle this with macros! */
 typedef struct _usb_stdreq_t
 {
-   uint8_t  bmRequestType;  /**< Characteristics of request.                 */
-   uint8_t  bRequest;       /**< Specific request (see usb_stdreq_cmd_t).    */
    uint16_t wValue;         /**< Word-sized request-specific parameter.      */
    uint16_t wIndex;         /**< Word-sized request-specific parameter.      */
    uint16_t wLength;        /**< Number of bytes to transfer in Data Stage.  */
-} __attribute__ ((__packed__)) usb_stdreq_t;
+   uint8_t  bmRequestType;  /**< Characteristics of request.                 */
+   uint8_t  bRequest;       /**< Specific request (see usb_stdreq_cmd_t).    */
+} usb_stdreq_t;
+#define USB_STDREQ_SIZE             8
 
 #define USB_STDREQ_DIR              0x80
 #define USB_STDREQ_DIR_S            7
@@ -47,6 +49,23 @@ typedef struct _usb_stdreq_t
       ((  (DIR) << USB_STDREQ_DIR_S  ) & USB_STDREQ_DIR  ) | \
       (( (TYPE) << USB_STDREQ_TYPE_S ) & USB_STDREQ_TYPE ) | \
       (((RECIP) << USB_STDREQ_RECIP_S) & USB_STDREQ_RECIP) )
+
+#define USB_STDREQ_SET_bmRequestType(buf, b)  (buf[0] = (b))
+#define USB_STDREQ_SET_bRequest(buf, b)       (buf[1] = (b))
+#define USB_STDREQ_SET_wValue(buf, w)         (*((uint16_t*)((buf)+2)) = USB_ARCH_ENDIANNESS16(w))
+#define USB_STDREQ_SET_wIndex(buf, w)         (*((uint16_t*)((buf)+4)) = USB_ARCH_ENDIANNESS16(w))
+#define USB_STDREQ_SET_wLength(buf, w)        (*((uint16_t*)((buf)+6)) = USB_ARCH_ENDIANNESS16(w))
+
+#define USB_STDREQ_GET_bmRquestType(buf) \
+   ((uint8_t ) (buf)[0])
+#define USB_STDREQ_GET_bRquest(buf) \
+   ((uint8_t ) (buf)[1])
+#define USB_STDREQ_GET_wValue(buf) \
+   USB_ARCH_ENDIANNESS16((uint16_t) (((buf)[3] << 8) | (buf)[2]))
+#define USB_STDREQ_GET_wIndex(buf) \
+   USB_ARCH_ENDIANNESS16((uint16_t) (((buf)[5] << 8) | (buf)[4]))
+#define USB_STDREQ_GET_wLength(buf) \
+   USB_ARCH_ENDIANNESS16((uint16_t) (((buf)[7] << 8) | (buf)[6]))
 
 /** @brief USB standard request commands. */
 typedef enum _usb_stdreq_cmd_t

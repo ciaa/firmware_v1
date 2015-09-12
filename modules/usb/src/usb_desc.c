@@ -31,6 +31,7 @@ int usb_goto_next_desc(
    len     -= desc_len;
    while (len >= ep_size && ret == -1)
    {
+      /* Get length from first byte. */
       desc_len = buff[0];
       if ((desc_len == ep_size) &&
             (buff[1] == ep_type))

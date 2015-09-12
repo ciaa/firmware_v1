@@ -32,6 +32,33 @@ extern "C" {
 
 
 /**
+ * @TODO Rename the following test macro  accordingly  to  what's  used  in  the
+ * toolchain (USE_BIG_ENDIAN).
+ */
+#ifdef USE_BIG_ENDIAN
+/**
+ * @brief Macro for converting a 32bit word from USB to machine  and  vice-versa
+ * endianness.
+ * @warning Remember USB bus transfers are little-endian.
+ */
+# define USB_ARCH_ENDIANNESS32(x) ((((x) & 0xFF000000) >> 24) | \
+                                   (((x) & 0x00FF0000) >>  8) | \
+                                   (((x) & 0x0000FF00) <<  8) | \
+                                   (((x) & 0x000000FF) << 24))
+/**
+ * @brief Macro for converting a 16bit word from USB to machine  and  vice-versa
+ * endianness.
+ * @warning Remember USB bus transfers are little-endian.
+ */
+# define USB_ARCH_ENDIANNESS16(x) ((((x) & 0xFF00) >> 8) | \
+                                   (((x) & 0x00FF) << 8))
+#else
+# define USB_ARCH_ENDIANNESS32(x)    (x)
+# define USB_ARCH_ENDIANNESS16(x)    (x)
+#endif
+
+
+/**
 * @name Constants
 * @{ */
 
@@ -225,8 +252,11 @@ typedef enum _usb_dev_state_t
  * 'opened' devices have been claimed by  user  code  and  cannot  be  otherwise
  * claimed by someone else.
  *
- * @warning A single endpoint is used for control pipes, it will be reconfigured
- * as needed for every IN or OUT transaction.
+ * A single endpoint is used for control  pipes,  it  will  be  reconfigured  as
+ * needed for every IN or OUT transaction.
+ *
+ * @warning The standard request buffer (stdreq) stores members data in the  USB
+ * bus's byte ordering, that is, little-endian.
  *
  * @warning Control pipe's buffer can become quite  large  on  devices  with  an
  * extensive configuration descriptor, as it  is  now  this  will  affect  *all*
@@ -241,21 +271,21 @@ typedef enum _usb_dev_state_t
 typedef struct _usb_device_t
 {
    uint32_t        status;         /**< Device status, see description.       */
-   usb_dev_state_t state;          /**< Device's current state.               */
-   usb_dev_state_t next_state;     /**< Device's state after a delay.         */
-   usb_speed_t     speed;          /**< Speed (LS, FS or HS).                 */
-   uint8_t         addr;           /**< Device's address.                     */
-   usb_pipe_t      default_ep;     /**< Default control pipes (endpoint 0).   */
-   usb_stdreq_t    stdreq;         /**< Standard requests.                    */
-   uint8_t         xfer_buffer[USB_XFER_BUFFER_LEN]; /**< Control buffer.     */
-   usb_interface_t interfaces[USB_MAX_INTERFACES]; /**< Array of interfaces.  */
    uint16_t        vendor_ID;      /**< Vendor ID.                            */
    uint16_t        product_ID;     /**< Product ID.                           */
    uint16_t        ticks_delay;    /**< Delay this number of ticks count.     */
+   usb_dev_state_t state;          /**< Device's current state.               */
+   usb_dev_state_t next_state;     /**< Device's state after a delay.         */
+   usb_speed_t     speed;          /**< Speed (LS, FS or HS).                 */
+   usb_pipe_t      default_ep;     /**< Default control pipes (endpoint 0).   */
+   usb_interface_t interfaces[USB_MAX_INTERFACES]; /**< Array of interfaces.  */
+   uint8_t         xfer_buffer[USB_XFER_BUFFER_LEN]; /**< Control buffer.     */
+   uint8_t         stdreq[USB_STDREQ_SIZE]; /**< Standard request buffer.     */
 #if (USB_MAX_HUBS > 0)
    uint8_t         parent_hub;     /**< Index of upstream HUB.                */
    uint8_t         parent_port;    /**< Index of upstream HUB.                */
 #endif
+   uint8_t         addr;           /**< Device's address.                     */
    uint8_t         n_interfaces;   /**< Number of interfaces.                 */
    uint8_t         cfg_value;      /**< Configuration value.                  */
    uint8_t         xfer_length;    /**< Control buffer's length.              */
@@ -295,9 +325,9 @@ typedef enum _usb_host_state_t
 typedef struct _usb_stack_t
 {
    uint32_t         status;     /**< Stack status, see description.          */
+   uint16_t         ticks;      /**< 1-millisecond ticks count.              */
    usb_host_state_t state;      /**< Stack's current state.                  */
    usb_device_t     devices[USB_MAX_DEVICES];  /**< Array of devices.        */
-   uint16_t         ticks;      /**< 1-millisecond ticks count.              */
 #if (USB_MAX_HUBS > 0)
    usb_hub_t        hubs[USB_MAX_HUBS];        /**< Array of HUBs.           */
    uint8_t          n_hubs;     /**< Number of connected HUBs.               */

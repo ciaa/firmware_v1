@@ -117,16 +117,17 @@ int usbhci_xfer_start(
  * ones with a standarized structure, that is, that  use  message  pipes.  Their
  * status should still be checked with the same usbhci_xfer_status() method.
  *
- * @param ppipe   Pointer to pipe structure.
- * @param pstdreq Standard request structure filled with intended request.
- * @param buffer  External buffer with enough storage space for length bytes.
- * @param length  Buffer's length.
- * @todo Replace  return info with retvals
+ * @param  ppipe   Pointer to pipe structure.
+ * @param  stdreq  Buffer filled with intended standard request.
+ * @param  buffer  External buffer with enough storage space for length bytes.
+ * @param  length  Buffer's length.
+ *
+ * @todo Replace return info with retvals
  */
 int usbhci_ctrlxfer_start(
-   usb_pipe_t*         ppipe,
-   const usb_stdreq_t* pstdreq,
-   uint8_t*            buffer
+   usb_pipe_t*    ppipe,
+   const uint8_t* stdreq,
+   uint8_t*       buffer
 );
 
 /**

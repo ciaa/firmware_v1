@@ -47,19 +47,41 @@ typedef enum _hid_dev_state_t
    HID_STATE_RUNNING,  /**< TODO */
 } hid_state_t;
 
-/** @brief HID descriptor. */
+/**
+ * @brief HID descriptor.
+ *
+ * Structure fields have been reordered to account for byte alignment.
+ *
+ * @warning This is \b not the complete descriptor because  it  has  a  variable
+ * number of members depending on the value of wDescriptorLength.
+ */
 typedef struct _hid_desc_hid_t
 {
+   uint16_t bcdHID;               /**< HID Class specification release.       */
+   uint16_t wDescriptorLength;    /**< Total size of the Report descriptor.   */
    uint8_t  bLength;              /**< Total size of HID descriptor.          */
    uint8_t  bDescriptorType;      /**< Type of HID descriptor.                */
-   uint16_t bcdHID;               /**< HID Class specification release.       */
    uint8_t  bCountryCode;         /**< Country code, see _hid_ctrycode_t.     */
    uint8_t  bNumDescriptors;      /**< Number of class descriptors.           */
    uint8_t  bClassDescriptorType; /**< Type of class descriptor.              */
-   uint16_t wDescriptorLength;    /**< Total size of the Report descriptor.   */
-   /* Optional descriptors type/length pairs start from here onwards. */
-} __attribute__ ((__packed__)) hid_desc_hid_t;
+} hid_desc_hid_t;
 #define HID_DESC_HID_SIZE  9
+
+#define HID_DESC_HID_GET_bLength(x) \
+   ((uint8_t ) (x)[0])
+#define HID_DESC_HID_GET_bDescriptorType(x) \
+   ((uint8_t ) (x)[1])
+#define HID_DESC_HID_GET_bcdHID(x) \
+   USB_ARCH_ENDIANNESS16((uint16_t) (((x)[3] << 8) | (x)[2]))
+#define HID_DESC_HID_GET_bCountryCode(x) \
+   ((uint8_t ) (x)[4])
+#define HID_DESC_HID_GET_bNumDescriptors(x) \
+   ((uint8_t ) (x)[5])
+#define HID_DESC_HID_GET_bClassDescriptorType(x) \
+   ((uint8_t ) (x)[6])
+#define HID_DESC_HID_GET_wDescriptorLength(x) \
+   USB_ARCH_ENDIANNESS16((uint16_t) (((x)[8] << 8) | (x)[7]))
+
 
 /** @brief HID standard request types. */
 enum

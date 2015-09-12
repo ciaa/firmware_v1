@@ -240,23 +240,21 @@ int usbhci_xfer_start(
 }
 
 int usbhci_ctrlxfer_start(
-   usb_pipe_t*         ppipe,
-   const usb_stdreq_t* pstdreq,
-   uint8_t*            buffer
+   usb_pipe_t*    ppipe,
+   const uint8_t* stdreq,
+   uint8_t*       buffer
 )
 {
-   int ret;
+   int      ret;
 
-   usb_assert(ppipe   != NULL);
-   usb_assert(pstdreq != NULL);
-   usb_assert(buffer  != NULL || (buffer == NULL && pstdreq->wLength == 0));
+   usb_assert(ppipe  != NULL);
+   usb_assert(stdreq != NULL);
+   usb_assert(buffer != NULL ||
+             (buffer == NULL && USB_STDREQ_GET_wLength(stdreq) == 0));
    usb_assert(ppipe->handle < HCD_MAX_ENDPOINT);
 
    ret = USB_STATUS_XFER_ERR;
-   if (!HcdControlTransfer(
-         _pipe_handle[ppipe->handle].handle,
-         (const uint8_t*)pstdreq,
-         buffer) )
+   if (!HcdControlTransfer(_pipe_handle[ppipe->handle].handle, stdreq, buffer))
    {
       ret = USB_STATUS_OK;
    }
