@@ -147,7 +147,7 @@ static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const dev
 
 static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const device);
 
-//void ciaaDriverUart_interruptHandler(ciaaDevices_deviceType * device);
+void ciaaDriverUart_interruptHandler(ciaaDevices_deviceType * device);
 
 /*==================[internal data definition]===============================*/
 static ciaaDriverUart_portType const ciaaDriverUart_port0 = {
@@ -193,30 +193,28 @@ static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const d
    ciaaSerialDevices_txConfirmation(device->upLayer, 1 );
 }
 
-/*
 void ciaaDriverUart_interruptHandler(ciaaDevices_deviceType * device)
 {
-   ciaaDriverUart_uartType * uart = device->layer;
-   ciaaDriverUart_portType const * port = device->loLayer;
+	ciaaDriverUart_uartType * uart = device->layer;
+	ciaaDriverUart_portType const * port = device->loLayer;
 
-   if (UART_HAL_GetStatusFlag(port->base, kUartRxDataRegFull) && UART_HAL_GetIntMode(port->base, kUartIntRxDataRegFull))
-   {
-      do
-      {
-         UART_HAL_Getchar(port->base, &uart->buffer.data[uart->buffer.size]);
-         uart->buffer.size++;
-      } while((UART_HAL_GetStatusFlag(port->base, kUartRxDataRegFull)) &&
-             (uart->buffer.size < UART_RX_FIFO_SIZE));
+	if (UART_HAL_GetStatusFlag(port->base, kUartRxDataRegFull) && UART_HAL_GetIntMode(port->base, kUartIntRxDataRegFull))
+	{
+	  do
+	  {
+		 UART_HAL_Getchar(port->base, &uart->buffer.data[uart->buffer.size]);
+		 uart->buffer.size++;
+	  } while((UART_HAL_GetStatusFlag(port->base, kUartRxDataRegFull)) &&
+			 (uart->buffer.size < UART_RX_FIFO_SIZE));
 
-      ciaaDriverUart_rxIndication(device, uart->buffer.size);
-   }
-   if (UART_HAL_GetStatusFlag(port->base, kUartTxDataRegEmpty) && UART_HAL_GetIntMode(port->base, kUartIntTxDataRegEmpty))
-   {
-      // receive the data and forward to upper layer
-      ciaaDriverUart_txConfirmation(device);
-   }
+	  ciaaDriverUart_rxIndication(device, uart->buffer.size);
+	}
+	if (UART_HAL_GetStatusFlag(port->base, kUartTxDataRegEmpty) && UART_HAL_GetIntMode(port->base, kUartIntTxDataRegEmpty))
+	{
+	  /* receive the data and forward to upper layer */
+	  ciaaDriverUart_txConfirmation(device);
+	}
 }
-*/
 
 /** \brief Initialize configuration variables and hardware port  */
 void ciaaDriverUart_configInit(ciaaDevices_deviceType * device, uint8_t index)
@@ -240,9 +238,9 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevic
    uint32_t uartSourceClock;
 
    if ((device != &ciaaDriverUart_device0) && (device != &ciaaDriverUart_device1) &&
-       (device != &ciaaDriverUart_device0))
+       (device != &ciaaDriverUart_device2))
    {
-      device == NULL;
+      device = NULL;
    }
    else
    {
@@ -441,38 +439,17 @@ void ciaaDriverUart_init(void)
 
 ISR(UART0_IRQHandler)
 {
-
-}
-
-ISR(UART1_IRQHandler)
-{
-   //ciaaDriverUart_interruptHandler(&ciaaDriverUart_device1);
-   //ciaaDevices_deviceType * device = &ciaaDriverUart_device1;
-
-   ciaaDriverUart_uartType * uart = ciaaDriverUart_device1.layer;
-   ciaaDriverUart_portType const * port = ciaaDriverUart_device1.loLayer;
-
-   if (UART_HAL_GetStatusFlag(port->base, kUartRxDataRegFull) && UART_HAL_GetIntMode(port->base, kUartIntRxDataRegFull))
-   {
-      do
-      {
-         UART_HAL_Getchar(port->base, &uart->buffer.data[uart->buffer.size]);
-         uart->buffer.size++;
-      } while((UART_HAL_GetStatusFlag(port->base, kUartRxDataRegFull)) &&
-             (uart->buffer.size < UART_RX_FIFO_SIZE));
-
-      ciaaDriverUart_rxIndication(&ciaaDriverUart_device1, uart->buffer.size);
-   }
-   if (UART_HAL_GetStatusFlag(port->base, kUartTxDataRegEmpty) && UART_HAL_GetIntMode(port->base, kUartIntTxDataRegEmpty))
-   {
-      /* receive the data and forward to upper layer */
-      ciaaDriverUart_txConfirmation(&ciaaDriverUart_device1);
-   }
+	ciaaDriverUart_interruptHandler(&ciaaDriverUart_device0);
 }
 
 ISR(UART2_IRQHandler)
 {
-	while(1);
+	ciaaDriverUart_interruptHandler(&ciaaDriverUart_device2);
+}
+
+ISR(UART3_IRQHandler)
+{
+	ciaaDriverUart_interruptHandler(&ciaaDriverUart_device1);
 }
 
 /*==================[interrupt handlers]=====================================*/
@@ -480,4 +457,3 @@ ISR(UART2_IRQHandler)
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
