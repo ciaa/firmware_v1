@@ -1,4 +1,5 @@
-/* Copyright 2014, 2015 Mariano Cerdeiro, Esteban Volentini
+/* Copyright 2014 Mariano Cerdeiro
+/* Copyright 2014, 2015 Esteban Volentini
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -48,12 +49,13 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
- * EsVo			 Esteban Volentini
+ * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150913 v0.0.5 EsVo change isr to avoid dual copy of received data
  * 20150803 v0.0.4 EsVo verify device received in open function
  * 20150801 v0.0.3 EsVo migration to KSDK 1.2 and remove of drivers files
  * 20150403 v0.0.2 EsVo first operational version
@@ -143,25 +145,29 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
 };
 
 /*==================[internal functions declaration]=========================*/
-static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte);
 
-static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const device);
+/** \brief Generic interupt service routine for all devices */
+static void ciaaDriverUart_interruptHandler(ciaaDevices_deviceType * device);
 
-void ciaaDriverUart_interruptHandler(ciaaDevices_deviceType * device);
+/** \brief Initialize configuration uart  */
+void ciaaDriverUart_configInit(ciaaDevices_deviceType * device, uint8_t index);
 
 /*==================[internal data definition]===============================*/
+/** \brief Uart 0 Port resources definition */
 static ciaaDriverUart_portType const ciaaDriverUart_port0 = {
    UART3, 3, UART3_RX_TX_IRQn, kSimClockGateUart3,
    { PORTB, 10u, kPortMuxAlt3, kSimClockGatePortB },
    { PORTB, 11u, kPortMuxAlt3, kSimClockGatePortB }
 };
 
+/** \brief Uart 1 Port resources definition */
 static ciaaDriverUart_portType const ciaaDriverUart_port1 = {
    UART5, 5, UART5_RX_TX_IRQn, kSimClockGateUart5,
    { PORTE, 9u, kPortMuxAlt3, kSimClockGatePortE },
    { PORTE, 8u, kPortMuxAlt3, kSimClockGatePortE }
 };
 
+/** \brief Uart 2 Port resources definition */
 static ciaaDriverUart_portType const ciaaDriverUart_port2 = {
    UART0, 0, UART0_RX_TX_IRQn, kSimClockGateUart0,
    { PORTD, 6u, kPortMuxAlt3, kSimClockGatePortD },
@@ -181,47 +187,31 @@ ciaaDriverUart_uartType ciaaDriverUart_uart2;
 
 
 /*==================[internal functions definition]==========================*/
-static void ciaaDriverUart_rxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
-{
-   /* receive the data and forward to upper layer */
-   ciaaSerialDevices_rxIndication(device->upLayer, nbyte);
-}
-
-static void ciaaDriverUart_txConfirmation(ciaaDevices_deviceType const * const device)
-{
-   /* receive the data and forward to upper layer */
-   ciaaSerialDevices_txConfirmation(device->upLayer, 1 );
-}
 
 void ciaaDriverUart_interruptHandler(ciaaDevices_deviceType * device)
 {
-	ciaaDriverUart_uartType * uart = device->layer;
-	ciaaDriverUart_portType const * port = device->loLayer;
+   ciaaDriverUart_portType const * port = device->loLayer;
+   uint8_t size;
 
-	if (UART_HAL_GetStatusFlag(port->base, kUartRxDataRegFull) && UART_HAL_GetIntMode(port->base, kUartIntRxDataRegFull))
-	{
-	  do
-	  {
-		 UART_HAL_Getchar(port->base, &uart->buffer.data[uart->buffer.size]);
-		 uart->buffer.size++;
-	  } while((UART_HAL_GetStatusFlag(port->base, kUartRxDataRegFull)) &&
-			 (uart->buffer.size < UART_RX_FIFO_SIZE));
-
-	  ciaaDriverUart_rxIndication(device, uart->buffer.size);
-	}
-	if (UART_HAL_GetStatusFlag(port->base, kUartTxDataRegEmpty) && UART_HAL_GetIntMode(port->base, kUartIntTxDataRegEmpty))
-	{
-	  /* receive the data and forward to upper layer */
-	  ciaaDriverUart_txConfirmation(device);
-	}
+   if (UART_HAL_GetStatusFlag(port->base, kUartRxDataRegFull) && UART_HAL_GetIntMode(port->base, kUartIntRxDataRegFull))
+   {
+      /* determine amount data avaiable in fifo */
+      size = UART_HAL_GetRxDatawordCountInFifo(port->base);
+      /* indicate to device to receive data avaiable */
+      ciaaSerialDevices_rxIndication(device->upLayer, size);
+   }
+   if (UART_HAL_GetStatusFlag(port->base, kUartTxDataRegEmpty) && UART_HAL_GetIntMode(port->base, kUartIntTxDataRegEmpty))
+   {
+      /* indicate to device to send more data */
+      ciaaSerialDevices_txConfirmation(device->upLayer, 1);
+   }
 }
 
-/** \brief Initialize configuration variables and hardware port  */
 void ciaaDriverUart_configInit(ciaaDevices_deviceType * device, uint8_t index)
 {
    ciaaDriverUart_uartType * uart = device->layer;
 
-	uart->instance = index;
+   uart->instance = index;
 
    uart->config.baudRate = 115200;
    uart->config.bitCountPerChar = kUart8BitsPerChar;
@@ -320,10 +310,6 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
       switch(request)
       {
          case ciaaPOSIX_IOCTL_STARTTX:
-            /* Disable interupts for transmiter */
-            //UART_HAL_SetIntMode(port->base, kUartIntTxDataRegEmpty, false);
-            /* this one calls write */
-           // ciaaDriverUart_txConfirmation(device);
             /* Enable interupts for transmiter */
             UART_HAL_SetIntMode(port->base, kUartIntTxDataRegEmpty, true);
             ret = 0;
@@ -333,7 +319,7 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
             /* UART clock source is either system or bus clock depending on instance */
             uartSourceClock = CLOCK_SYS_GetUartFreq(port->instance);
 
-           /* Configure baud reate */
+            /* Configure baud reate */
             uart->config.baudRate = 115200;
             ret = UART_HAL_SetBaudRate(port->base, uartSourceClock, uart->config.baudRate);
             break;
@@ -358,9 +344,8 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
 
 extern ssize_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t * const buffer, size_t const size)
 {
-   ciaaDriverUart_uartType * uart = device->layer;
+   ciaaDriverUart_portType const * port = device->loLayer;
    ssize_t ret = -1;
-   uint8_t i;
 
    if(size != 0)
    {
@@ -368,29 +353,10 @@ extern ssize_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
          (device == ciaaDriverUartConst.devices[1]) ||
          (device == ciaaDriverUartConst.devices[2]) )
       {
-         if(size > uart->buffer.size)
-         {
-            /* buffer has enough space */
-            ret = uart->buffer.size;
-            uart->buffer.size = 0;
-         }
-         else
-         {
-            /* buffer hasn't enough space */
-            ret = size;
-            uart->buffer.size -= size;
-         }
-         for(i = 0; i < ret; i++)
-         {
-            buffer[i] = uart->buffer.data[i];
-         }
-         if(uart->buffer.size != 0)
-         {
-            /* We removed data from the buffer, it is time to reorder it */
-            for(i = 0; i < uart->buffer.size ; i++)
-            {
-               uart->buffer.data[i] = uart->buffer.data[i + ret];
-            }
+         ret = 0;
+         while((UART_HAL_GetStatusFlag(port->base, kUartRxDataRegFull)) && (ret < size)) {
+            UART_HAL_Getchar(port->base, &buffer[ret]);
+            ret++;
          }
       }
    }
@@ -439,17 +405,17 @@ void ciaaDriverUart_init(void)
 
 ISR(UART0_IRQHandler)
 {
-	ciaaDriverUart_interruptHandler(&ciaaDriverUart_device0);
+   ciaaDriverUart_interruptHandler(&ciaaDriverUart_device0);
 }
 
 ISR(UART2_IRQHandler)
 {
-	ciaaDriverUart_interruptHandler(&ciaaDriverUart_device2);
+   ciaaDriverUart_interruptHandler(&ciaaDriverUart_device2);
 }
 
 ISR(UART3_IRQHandler)
 {
-	ciaaDriverUart_interruptHandler(&ciaaDriverUart_device1);
+   ciaaDriverUart_interruptHandler(&ciaaDriverUart_device1);
 }
 
 /*==================[interrupt handlers]=====================================*/

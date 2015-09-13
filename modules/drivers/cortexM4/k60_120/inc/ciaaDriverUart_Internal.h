@@ -1,4 +1,6 @@
-/* Copyright 2014, 2015 Mariano Cerdeiro, Esteban Volentini
+/* Copyright 2014 Mariano Cerdeiro
+ * Copyright 2014, 2015 Esteban Volentini
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -53,6 +55,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150913 v0.0.3 EsVo elimintation of reception buffer
  * 20150801 v0.0.2 EsVo first operational version
  * 20140913 v0.0.1 MaCe first stub version
  */
@@ -91,12 +94,6 @@ typedef struct ciaaDriverUart_portStruct {
    ciaaDriverUart_pinType tx;             /** <= i/o pin to tx function */
 } ciaaDriverUart_portType;
 
-/** \brief Uart reception buffer Type */
-typedef struct ciaaDriverUart_bufferStruct {
-   uint8_t data[UART_RX_FIFO_SIZE];
-   uint8_t size;
-} ciaaDriverUart_bufferType;
-
 /** \brief Uart driver state Type */
 typedef struct {
    uint32_t instance;                     /** <= uart instance diver */
@@ -109,7 +106,6 @@ typedef struct {
       uart_stop_bit_count_t stopBitCount;
 #endif
    } config;
-   ciaaDriverUart_bufferType buffer;
 } ciaaDriverUart_uartType;
 
 /*==================[external data declaration]==============================*/
