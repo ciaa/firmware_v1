@@ -280,22 +280,18 @@ extern ciaaDevices_deviceType * ciaaDriverAio_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
       ciaaDriverAdcControlType * adc;
-      ciaaDriverDacControlType * dacCtrl;
-      ciaaDriverAioControlType * aio;
-      ciaaDriverAioControlType * dac;
       uint8_t index;
 
    if ((device != &ciaaDriverAio_in0) && (device != &ciaaDriverAio_in1) && (device != &ciaaDriverAio_in2)&&
        (device != &ciaaDriverAio_out0))
    {
-      device == NULL;
+      device = NULL;
    }
    else
    {
-      aio = device->layer;
       if ((device != &ciaaDriverAio_in0) || (device != &ciaaDriverAio_in1)|| (device != &ciaaDriverAio_in2))
 	  {
-         adc = &(aio->adc);
+         adc = device->layer;
          for(index = 0; index < adc->port.pins_cnt; index++)
          {
             /*Initialize all aio pins for current ADC*/
@@ -360,8 +356,6 @@ extern int32_t ciaaDriverAio_close(ciaaDevices_deviceType const * const device)
 extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
     ciaaDriverAdcControlType * adc;
-    uint32_t freq;
-    uint32_t value;
     int32_t ret = -1;
     adc16_chn_config_t configPtr;
     uint32_t chnGroup;
