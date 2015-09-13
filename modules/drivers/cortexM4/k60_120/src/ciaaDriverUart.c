@@ -1,5 +1,5 @@
 /* Copyright 2014 Mariano Cerdeiro
-/* Copyright 2014, 2015 Esteban Volentini
+ * Copyright 2014, 2015 Esteban Volentini
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -73,7 +73,6 @@
 #include "fsl_clock_manager.h"
 #include "fsl_mcg_hal.h"
 
-
 /*==================[macros and definitions]=================================*/
 /** \brief Pointer to Devices */
 typedef struct  {
@@ -82,14 +81,61 @@ typedef struct  {
 } ciaaDriverConstType;
 
 /*==================[internal data declaration]==============================*/
-/** \brief Uart Port 0 */
+/** \brief Port resources definitions for UART 0 */
 static ciaaDriverUart_portType const ciaaDriverUart_port0;
 
-/** \brief Uart Port 1 */
+/** \brief Port resources definitions for UART 1 */
 static ciaaDriverUart_portType const ciaaDriverUart_port1;
 
-/** \brief Uart Port 2 */
+/** \brief Port resources definitions for UART 2 */
 static ciaaDriverUart_portType const ciaaDriverUart_port2;
+
+/** \brief Port settings for UART 0 */
+ciaaDriverUart_uartType ciaaDriverUart_uart0;
+
+/** \brief Port settings for UART 1 */
+ciaaDriverUart_uartType ciaaDriverUart_uart1;
+
+/** \brief Port settings for UART 2 */
+ciaaDriverUart_uartType ciaaDriverUart_uart2;
+
+/** \brief Device status for UART 0 */
+static ciaaDevices_deviceType ciaaDriverUart_device0;
+
+/** \brief Device status for UART 1 */
+static ciaaDevices_deviceType ciaaDriverUart_device1;
+
+/** \brief Device status for UART 2 */
+static ciaaDevices_deviceType ciaaDriverUart_device2;
+
+/*==================[internal functions declaration]=========================*/
+/** \brief Generic interrupt service routine for all devices */
+static void ciaaDriverUart_interruptHandler(ciaaDevices_deviceType * device);
+
+/** \brief Initialize port settings for device  */
+void ciaaDriverUart_configInit(ciaaDevices_deviceType * device, uint8_t index);
+
+/*==================[internal data definition]===============================*/
+/** \brief Port resources definitions for UART 0 */
+static ciaaDriverUart_portType const ciaaDriverUart_port0 = {
+   UART3, 3, UART3_RX_TX_IRQn, kSimClockGateUart3,
+   { PORTB, 10u, kPortMuxAlt3, kSimClockGatePortB },
+   { PORTB, 11u, kPortMuxAlt3, kSimClockGatePortB }
+};
+
+/** \brief Port resources definitions for UART 1 */
+static ciaaDriverUart_portType const ciaaDriverUart_port1 = {
+   UART5, 5, UART5_RX_TX_IRQn, kSimClockGateUart5,
+   { PORTE, 9u, kPortMuxAlt3, kSimClockGatePortE },
+   { PORTE, 8u, kPortMuxAlt3, kSimClockGatePortE }
+};
+
+/** \brief Port resources definitions for UART 2 */
+static ciaaDriverUart_portType const ciaaDriverUart_port2 = {
+   UART0, 0, UART0_RX_TX_IRQn, kSimClockGateUart0,
+   { PORTD, 6u, kPortMuxAlt3, kSimClockGatePortD },
+   { PORTD, 7u, kPortMuxAlt3, kSimClockGatePortD }
+};
 
 /** \brief Device status for UART 0 */
 static ciaaDevices_deviceType ciaaDriverUart_device0 = {
@@ -133,6 +179,7 @@ static ciaaDevices_deviceType ciaaDriverUart_device2 = {
    (void*)&ciaaDriverUart_port2     /** <= NULL no lower layer */
 };
 
+/*==================[external data definition]===============================*/
 static ciaaDevices_deviceType * const ciaaUartDevices[] = {
    &ciaaDriverUart_device0,
    &ciaaDriverUart_device1,
@@ -144,50 +191,7 @@ static ciaaDriverConstType const ciaaDriverUartConst = {
    3
 };
 
-/*==================[internal functions declaration]=========================*/
-
-/** \brief Generic interupt service routine for all devices */
-static void ciaaDriverUart_interruptHandler(ciaaDevices_deviceType * device);
-
-/** \brief Initialize configuration uart  */
-void ciaaDriverUart_configInit(ciaaDevices_deviceType * device, uint8_t index);
-
-/*==================[internal data definition]===============================*/
-/** \brief Uart 0 Port resources definition */
-static ciaaDriverUart_portType const ciaaDriverUart_port0 = {
-   UART3, 3, UART3_RX_TX_IRQn, kSimClockGateUart3,
-   { PORTB, 10u, kPortMuxAlt3, kSimClockGatePortB },
-   { PORTB, 11u, kPortMuxAlt3, kSimClockGatePortB }
-};
-
-/** \brief Uart 1 Port resources definition */
-static ciaaDriverUart_portType const ciaaDriverUart_port1 = {
-   UART5, 5, UART5_RX_TX_IRQn, kSimClockGateUart5,
-   { PORTE, 9u, kPortMuxAlt3, kSimClockGatePortE },
-   { PORTE, 8u, kPortMuxAlt3, kSimClockGatePortE }
-};
-
-/** \brief Uart 2 Port resources definition */
-static ciaaDriverUart_portType const ciaaDriverUart_port2 = {
-   UART0, 0, UART0_RX_TX_IRQn, kSimClockGateUart0,
-   { PORTD, 6u, kPortMuxAlt3, kSimClockGatePortD },
-   { PORTD, 7u, kPortMuxAlt3, kSimClockGatePortD }
-};
-
-/** \brief Uart 0 */
-ciaaDriverUart_uartType ciaaDriverUart_uart0;
-
-/** \brief Uart 1 */
-ciaaDriverUart_uartType ciaaDriverUart_uart1;
-
-/** \brief Uart 2 */
-ciaaDriverUart_uartType ciaaDriverUart_uart2;
-
-/*==================[external data definition]===============================*/
-
-
 /*==================[internal functions definition]==========================*/
-
 void ciaaDriverUart_interruptHandler(ciaaDevices_deviceType * device)
 {
    ciaaDriverUart_portType const * port = device->loLayer;
@@ -220,6 +224,7 @@ void ciaaDriverUart_configInit(ciaaDevices_deviceType * device, uint8_t index)
    uart->config.stopBitCount = kUartOneStopBit;
 #endif
 }
+
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
