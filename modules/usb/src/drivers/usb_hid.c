@@ -29,12 +29,13 @@ int hid_probe( const uint8_t* buffer, uint8_t length )
    int               status;
    uint8_t           numep;
 
+   usb_assert(buffer != NULL);
+
    /*
     * First, validate the input parameters. Buffer can't be NULL but length  has
     * to be long enough to hold, at  least,  the  interface,  HID  and  endpoint
     * descriptors. This doesn't account for HIDs with the optional ep. though.
     */
-   usb_assert(buffer != NULL);
    if (length < (USB_STDDESC_IFACE_SIZE
             + USB_STDDESC_EP_SIZE
             + HID_DESC_HID_SIZE) )
@@ -476,6 +477,7 @@ int hid_update_device( uint8_t index )
          pdev->state   = HID_STATE_IDLE;
          pdev->status |= HID_STATUS_ENTRY;
          status = USB_STATUS_OK;
+         break;
    }
 
    return status;
@@ -621,27 +623,29 @@ size_t hid_read(int fd, void *buf, size_t count)
    int        status;
 
    /* Validate input parameters. */
-   if (buf == NULL)
+   if (  buf == NULL ||
+         fd < 0 ||
+         fd > HID_MAX_DEVICES-1 )
    {
       return -1;
-   }
-   if (fd < 0 || fd > HID_MAX_DEVICES-1)
-   {
-      return -1;
-   }
-   if (count == 0)
-   {
-      return 0; /* Check this! */
    }
 
-   pdev = &hid_stack.devices[fd];
-   if (!(status = usb_irp(pdev->pstack, pdev->id, 0, (uint8_t*) buf, count)))
+   if (count > 0)
    {
-      /* Wait for transfer to complete. */
-      do
+      pdev = &hid_stack.devices[fd];
+      if (!(status = usb_irp(pdev->pstack, pdev->id, 0, (uint8_t*) buf, count)))
       {
-         status = usb_irp_status(pdev->pstack, pdev->id, 0);
-      } while (status == USB_STATUS_XFER_WAIT);
+         /* Wait for transfer to complete. */
+         do
+         {
+            status = usb_irp_status(pdev->pstack, pdev->id, 0);
+         } while (status == USB_STATUS_XFER_WAIT);
+      }
+   }
+   else
+   {
+      /* If count is 0 then there's nothing to do, just return. */
+      status = USB_STATUS_OK;
    }
    /** @TODO should return number of bytes actually transfered. */
    return (status == USB_STATUS_OK) ? count : -1;
@@ -649,10 +653,13 @@ size_t hid_read(int fd, void *buf, size_t count)
 
 int hid_write(int fd, const void *buf, size_t count)
 {
-   if (buf == NULL)
+   if (  buf == NULL ||
+         fd < 0 ||
+         d > HID_MAX_DEVICES-1 )
+   {
       return -1;
-   if (fd < 0 || fd > HID_MAX_DEVICES-1)
-      return -1;
+   }
+
    if (count == 0)
       return 0; /* Check this! */
    return 0;
