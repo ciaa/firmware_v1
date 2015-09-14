@@ -192,7 +192,7 @@ TASK(InitTask)
 #if (cortexM0 == ARCH)
    SetRelAlarm(ActivatePeriodicTask, 0, 250);
 #elif (cortexM4 == ARCH)
-   SetRelAlarm(ActivatePeriodicTask, 250, 250);
+   SetRelAlarm(ActivatePeriodicTask, 0, 125);
 #endif
 
    /* terminate task */
