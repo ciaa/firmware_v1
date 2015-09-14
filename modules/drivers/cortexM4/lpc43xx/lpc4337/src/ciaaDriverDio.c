@@ -138,6 +138,8 @@ static ciaaDriverConstType const ciaaDriverDioConst = {
 
 /*==================[internal functions definition]==========================*/
 
+/** \brief perform low level gpio initialization for LPC4337
+ */
 static void ciaa_lpc4337_gpio_init(void)
 {
    Chip_GPIO_Init(LPC_GPIO_PORT);
@@ -210,6 +212,10 @@ static void ciaa_lpc4337_gpio_init(void)
 #endif
 }
 
+/** \brief write managed output
+ *  \param[in] outputNumber number of output to set (0 to ciaaDriverDio_OutputCount)
+ *  \param[in] value new state for output (true or false)
+ */
 static void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
 {
    if (outputNumber < ciaaDriverDio_OutputCount)
@@ -221,6 +227,10 @@ static void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
    }
 }
 
+/** \brief read managed input
+ *  \param[in] inputNumber number of output to read (0 to ciaaDriverDio_InputCount)
+ *  \return 1 if gpio is high, 0 if it's low, -1 if incorrect pin number
+ */
 static int32_t ciaa_lpc4337_readInput(uint32_t inputNumber)
 {
    int32_t rv = -1;
@@ -235,6 +245,10 @@ static int32_t ciaa_lpc4337_readInput(uint32_t inputNumber)
    return rv;
 }
 
+/** \brief read managed output
+ *  \param[in] outputNumber number of output to read (0 to ciaaDriverDio_OutputCount)
+ *  \return 1 if gpio is high, 0 if it's low, -1 if incorrect pin number
+ */
 static int32_t ciaa_lpc4337_readOutput(uint32_t outputNumber)
 {
    int32_t rv = -1;
@@ -249,6 +263,13 @@ static int32_t ciaa_lpc4337_readOutput(uint32_t outputNumber)
    return rv;
 }
 
+/** \brief pack bit states in byte buffer
+ *  \param[in] number of pins to read (normally ciaaDriverDio_OutputCount or ciaaDriverDio_InputCount)
+ *  \param[out] buffer user buffer
+ *  \param[in] size user buffer size
+ *  \param[in] readFunction function used to read pins (normally ciaa_lpc4337_readOutput or ciaa_lpc4337_readInput)
+ *  \return number bytes required in buffer to store bits
+ */
 static int32_t ciaa_lpc4337_readPins(int32_t pinCount, uint8_t * buffer, size_t size, int32_t (*readFunction)(uint32_t))
 {
    int32_t count, i, j;
