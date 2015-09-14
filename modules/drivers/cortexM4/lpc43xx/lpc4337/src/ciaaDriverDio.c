@@ -65,6 +65,13 @@
 #include "chip.h"
 
 /*==================[macros and definitions]=================================*/
+
+/** \brief Managed input count */
+#define ciaaDriverDio_InputCount (sizeof(ciaaDriverDio_Inputs) / sizeof(ciaaDriverDio_dioType))
+
+/** \brief Managed output count */
+#define ciaaDriverDio_OutputCount (sizeof(ciaaDriverDio_Outputs) / sizeof(ciaaDriverDio_dioType))
+
 /** \brief Pointer to Devices */
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
@@ -88,12 +95,6 @@ const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {5,1},{2,6},{2,5},{2,4}
 const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {0,4},{0,8},{0,9},{1,9} };
 const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {5,0},{5,1},{5,2},{0,14},{1,11},{1,12} };
 #endif
-
-/** \brief Managed input count */
-const ssize_t ciaaDriverDio_InputCount = sizeof(ciaaDriverDio_Inputs) / sizeof(ciaaDriverDio_dioType);
-
-/** \brief Managed output count */
-const ssize_t ciaaDriverDio_OutputCount = sizeof(ciaaDriverDio_Outputs) / sizeof(ciaaDriverDio_dioType);
 
 /** \brief Device for DIO 0 */
 static ciaaDevices_deviceType ciaaDriverDio_in0 = {
