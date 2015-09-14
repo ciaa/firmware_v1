@@ -55,21 +55,36 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaMulticore.h"
 
-#if( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) && (lpc4337 == CPU) )
-#include "cr_start_m0.h"
+#if( (lpc43xx == CPUTYPE) && (lpc4337 == CPU) )
+   #include "chip.h"
 #else
-#error Multicore is not supported by the current ARCH/CPUTYPE/CPU
+   #error Multicore is not supported by the current ARCH/CPUTYPE/CPU
 #endif
+
+#ifdef CORE_M4
+   #include "cr_start_m0.h"
+#endif
+
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stddef.h"
+#include "ciaaMulticore.h"
+#include "ciaaLibs_CircBuf.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
 
 #define CIAA_MULTICORE_CORE_1_IMAGE ((uint8_t *)0x1B000000)
 
+#define CIAA_MULTICORE_IPC_QUEUE_ADDR ((void *)0x20008000)
+
+#define CIAA_MULTICORE_IPC_QUEUE_LEN (1024)
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
+
+static ciaaLibs_CircBufType * ipc_queue = (ciaaLibs_CircBufType *)(CIAA_MULTICORE_IPC_QUEUE_ADDR);
 
 /*==================[internal data definition]===============================*/
 
@@ -79,17 +94,86 @@
 
 /*==================[external functions definition]==========================*/
 
-extern int ciaaMulticore_boot(ciaaMulticore_cores_e core)
+extern int32_t ciaaMulticore_init(void)
 {
-   int rv = -1;
+   int32_t rv = -1;
+#if(cortexM4 == ARCH)
+   /* Init IPC queue */
+   ciaaLibs_circBufInit(ipc_queue,
+      CIAA_MULTICORE_IPC_QUEUE_ADDR + sizeof(ciaaLibs_CircBufType),
+      CIAA_MULTICORE_IPC_QUEUE_LEN);
 
-   if( CIAA_MULTICORE_CORE_1 == core )
+   NVIC_EnableIRQ(M0APP_IRQn);
+
+   /* Start slave core */
+   cr_start_m0(SLAVE_M0APP, CIAA_MULTICORE_CORE_1_IMAGE);
+
+   rv = 0;
+#elif(cortexM0 == ARCH)
+   NVIC_EnableIRQ(M4_IRQn);
+   rv = 0;
+#endif
+   return rv;
+}
+
+extern int32_t ciaaMulticore_sendMessage(ciaaMulticore_cores_e dest, uint32_t data0, uint32_t data1)
+{
+   int32_t rv = -1;
+
+   ciaaMulticore_ipcMsg_t msg;
+
+   msg.id.cpuid = dest;
+   msg.id.pid = 0;
+   msg.data0 = data0;
+   msg.data1 = data1;
+
+   rv = ciaaLibs_circBufPut(ipc_queue, &msg, sizeof(ciaaMulticore_ipcMsg_t));
+
+   if(rv > 0)
    {
-      cr_start_m0(SLAVE_M0APP, CIAA_MULTICORE_CORE_1_IMAGE);
-      rv = 0;
+      __DSB();
+      __SEV();
+   }
+   return rv;
+}
+
+extern int32_t ciaaMulticore_recvMessage(uint32_t * data0, uint32_t * data1)
+{
+   int32_t rv = -1;
+   ciaaMulticore_ipcMsg_t msg;
+
+   while(ciaaLibs_circBufEmpty(ipc_queue))
+   {
+      __WFI();
    }
 
+   rv = ciaaLibs_circBufGet(ipc_queue, &msg, sizeof(ciaaMulticore_ipcMsg_t));
+
+#if(cortexM4 == ARCH)
+   if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_0))
+#elif(cortexM0 == ARCH)
+   if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_1))
+#else
+   if(0)
+#endif
+   {
+      *data0 = msg.data0;
+      *data1 = msg.data1;
+   }
+   else
+   {
+      rv = -1;
+   }
    return rv;
+}
+
+ISR(Multicore_IRQHandler)
+{
+#if(cortexM4 == ARCH)
+   Chip_CREG_ClearM0APPEvent();
+#elif(cortexM0 == ARCH)
+   Chip_CREG_ClearM4Event();
+#endif
 }
 
 /** @} doxygen end group definition */

@@ -115,8 +115,8 @@ int main(void)
          BOARD    ?= edu_ciaa_nxp
          -- or --
          BOARD    ?= ciaa_nxp
-      Select the project you want to run in the M0 core:
-         PROJECT  ?= examples$(DS)blinking
+      Select the project blinking_multicore:
+         PROJECT  ?= examples$(DS)blinking_multicore
 
       Then build and download:
          $ make clean
@@ -126,8 +126,6 @@ int main(void)
 
       Next, in Makefile.mine go back to:
          ARCH     ?= cortexM4
-      Select this project:
-         PROJECT  ?= examples$(DS)blinking_multicore
       Build and download:
          $ make clean
          $ make generate
@@ -136,7 +134,7 @@ int main(void)
 
       Enjoy :-)
    */
-   ciaaMulticore_boot(CIAA_MULTICORE_CORE_1);
+   ciaaMulticore_init();
 
    /* Starts the operating system in the Application Mode 1 */
    /* This example has only one Application Mode */
@@ -191,7 +189,11 @@ TASK(InitTask)
     *  - for the first time after 350 ticks (350 ms)
     *  - and then every 250 ticks (250 ms)
     */
-   SetRelAlarm(ActivatePeriodicTask, 0, 333);
+#if (cortexM0 == ARCH)
+   SetRelAlarm(ActivatePeriodicTask, 0, 250);
+#elif (cortexM4 == ARCH)
+   SetRelAlarm(ActivatePeriodicTask, 250, 250);
+#endif
 
    /* terminate task */
    TerminateTask();
@@ -212,7 +214,11 @@ TASK(PeriodicTask)
 
    /* blink output */
    ciaaPOSIX_read(fd_out, &outputs, 1);
+#if(cortexM0 == ARCH)
    outputs ^= 0x10;
+#elif(cortexM4 == ARCH)
+   outputs ^= 0x20;
+#endif
    ciaaPOSIX_write(fd_out, &outputs, 1);
 
    /* terminate task */

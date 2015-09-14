@@ -57,6 +57,8 @@
 
 /*==================[inclusions]=============================================*/
 
+#include "ciaaPOSIX_stdlib.h"
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -74,15 +76,24 @@ typedef enum
    CIAA_MULTICORE_CORE_1   /**< first slave core available */
 }ciaaMulticore_cores_e;
 
+typedef struct
+{
+      struct
+      {
+         uint32_t cpuid;
+         uint32_t pid;
+      }id;
+      uint32_t data0;
+      uint32_t data1;
+}ciaaMulticore_ipcMsg_t;
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
 
-/** \brief Start a slave core
- *  \param core: Core to start, only \CIAA_MULTICORE_CORE_1 is supported
- *  \return 0 if success, -1 in case of error
+/** \brief Start multicore operations
  */
-int ciaaMulticore_boot(ciaaMulticore_cores_e core);
+int32_t ciaaMulticore_init(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
