@@ -170,9 +170,9 @@ extern int32_t ciaaMulticore_recvMessage(uint32_t * data0, uint32_t * data1)
 ISR(Multicore_IRQHandler)
 {
 #if(cortexM4 == ARCH)
-   Chip_CREG_ClearM0APPEvent();
+   LPC_CREG->M0APPTXEVENT = 0; 	/* ACK */
 #elif(cortexM0 == ARCH)
-   Chip_CREG_ClearM4Event();
+   LPC_CREG->M4TXEVENT = 0; 	/* ACK */
 #endif
 }
 
