@@ -275,51 +275,53 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
    {
       /* accessing to inputs */
       /* amount of bytes necessary to store all input states */
-      count = ciaaDriverDio_InputCount / 8;
-      if( (ciaaDriverDio_InputCount % 8) != 0)
+      count = ciaaDriverDio_InputCount >> 3; /* ciaaDriverDio_InputCount / 8 */
+      if( (ciaaDriverDio_InputCount & 0x07) != 0) /* (ciaaDriverDio_InputCount % 8) != 0 */
       {
          count += 1;
       }
-      /* if user provides enough space ... */
-      if(size >= count)
+      /* adjust gpios to read according to provided buffer length */
+      if(count > size)
       {
-         /* read and store all inputs in user buffer */
-         ciaaPOSIX_memset(buffer, 0, count);
-         for(i = 0, j = 0; i < ciaaDriverDio_InputCount; i++)
-         {
-            buffer[j] |= ciaa_lpc4337_readInput(i) << (i - 8 * j);
-            if((i > 0) && ((i % 8)==0))
-            {
-               j++;
-            }
-         }
-         ret = count;
+         count = size;
       }
+      /* read and store all inputs in user buffer */
+      ciaaPOSIX_memset(buffer, 0, count);
+      for(i = 0, j = 0; (i < ciaaDriverDio_InputCount) && (j < count); i++)
+      {
+         buffer[j] |= ciaa_lpc4337_readInput(i) << (i - 8 * j);
+         if((i > 0) && ((i & 0x07)==0))
+         {
+            j++;
+         }
+      }
+      ret = count;
    }
    else if(device == ciaaDioDevices[1])
    {
       /* accessing to outputs */
       /* amount of bytes necessary to store all output states */
-      count = ciaaDriverDio_OutputCount / 8;
-      if( (ciaaDriverDio_OutputCount % 8) != 0)
+      count = ciaaDriverDio_OutputCount >> 3;
+      if( (ciaaDriverDio_OutputCount & 0x07) != 0)
       {
          count += 1;
       }
-      /* if user provides enough space ... */
-      if(size >= count)
+      /* adjust gpios to read according to provided buffer length */
+      if(count > size)
       {
-         /* read and store all outputs in user buffer */
-         ciaaPOSIX_memset(buffer, 0, count);
-         for(i = 0, j = 0; i < ciaaDriverDio_OutputCount; i++)
-         {
-            buffer[j] |= ciaa_lpc4337_readOutput(i) << (i - 8 * j);
-            if((i > 0) && ((i % 8)==0))
-            {
-               j++;
-            }
-         }
-         ret = count;
+         count = size;
       }
+      /* read and store all outputs in user buffer */
+      ciaaPOSIX_memset(buffer, 0, count);
+      for(i = 0, j = 0; (i < ciaaDriverDio_OutputCount) && (j < count); i++)
+      {
+         buffer[j] |= ciaa_lpc4337_readOutput(i) << (i - 8 * j);
+         if((i > 0) && ((i & 0x07)==0))
+         {
+            j++;
+         }
+      }
+      ret = count;
    }
    else
    {
@@ -349,12 +351,12 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
          for(i = 0, j = 0; (i < ciaaDriverDio_OutputCount) && (j < size); i++)
          {
             ciaa_lpc4337_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
-            if( (i > 0) && ((i % 8) == 0) )
+            if( (i > 0) && ((i & 0x07) == 0) )
             {
                j++;
             }
          }
-         if(ciaaDriverDio_OutputCount % 8 != 0)
+         if((ciaaDriverDio_OutputCount & 0x07) != 0)
          {
             j++;
          }
