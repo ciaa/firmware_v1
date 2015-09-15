@@ -179,15 +179,15 @@ TASK(InitTask)
    /* init CIAA kernel and devices */
    ciaak_start();
 
-#if (cortexM0 == ARCH)
-   /* activate periodic task:
-    *  - for the first time after 350 ticks (350 ms)
-    *  - and then every 250 ticks (250 ms)
-    */
-   SetRelAlarm(ActivatePeriodicTask, 350, 250);
-#elif (cortexM4 == ARCH)
    /* open CIAA digital outputs */
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
+
+#if (cortexM0 == ARCH)
+   /* Only M0 core: activate periodic task:
+    *  - for the first time after 350 ticks (350 ms)
+    *  - and then every 500 ticks (500 ms)
+    */
+   SetRelAlarm(ActivatePeriodicTask, 350, 500);
 #endif
 
    /* terminate task */
@@ -202,22 +202,44 @@ TASK(InitTask)
  */
 TASK(PeriodicTask)
 {
+   uint8_t outputs;
+
+   /* read outputs */
+   ciaaPOSIX_read(fd_out, &outputs, 1);
+
 #if(cortexM0 == ARCH)
+   /* set another output to indicate message sending */
+   outputs |= 0x10;
+   /* turn off in 10ms */
+   SetRelAlarm(ActivateLEDOff, 10, 0);
+
    /* FIXME: This function shall not be available in application. It will be replaced by
     * ActivateTask(PeriodicTask);
     */
    ciaaMulticore_sendMessage(CIAA_MULTICORE_CORE_0, CIAA_MULTICORE_CMD_ACTIVATETASK, PeriodicTask);
 #elif(cortexM4 == ARCH)
-   uint8_t outputs;
-
    /* blink output */
-   ciaaPOSIX_read(fd_out, &outputs, 1);
    outputs ^= 0x20;
-   ciaaPOSIX_write(fd_out, &outputs, 1);
 #endif
+
+   /* write outputs */
+   ciaaPOSIX_write(fd_out, &outputs, 1);
+
    /* terminate task */
    TerminateTask();
 }
+
+#if(cortexM0 == ARCH)
+/* only in M0 core: turn off message indicator after 10ms */
+TASK(LEDOff)
+{
+   uint8_t outputs;
+   ciaaPOSIX_read(fd_out, &outputs, 1);
+   outputs &= ~0x10;
+   ciaaPOSIX_write(fd_out, &outputs, 1);
+   TerminateTask();
+}
+#endif
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

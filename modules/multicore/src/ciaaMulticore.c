@@ -189,6 +189,7 @@ ISR(Multicore_IRQHandler)
          {
             ActivateTask(msg.data1);
          }
+         ciaaLibs_circBufClean(ipc_queue);
       }
    }
 }

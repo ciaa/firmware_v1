@@ -83,10 +83,27 @@ OSEK OSEK {
       EVENT = POSIXE;
    }
 
+   TASK LEDOff {
+      PRIORITY = 2;
+      ACTIVATION = 1;
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = NON;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+   }
+
    ALARM ActivatePeriodicTask {
       COUNTER = HardwareCounter;
       ACTION = ACTIVATETASK {
          TASK = PeriodicTask;
+      }
+   }
+
+   ALARM ActivateLEDOff {
+      COUNTER = HardwareCounter;
+      ACTION = ACTIVATETASK {
+         TASK = LEDOff;
       }
    }
 
