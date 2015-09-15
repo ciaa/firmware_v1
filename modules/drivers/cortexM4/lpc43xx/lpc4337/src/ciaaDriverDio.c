@@ -65,6 +65,13 @@
 #include "chip.h"
 
 /*==================[macros and definitions]=================================*/
+
+/** \brief Managed input count */
+#define ciaaDriverDio_InputCount (sizeof(ciaaDriverDio_Inputs) / sizeof(ciaaDriverDio_dioType))
+
+/** \brief Managed output count */
+#define ciaaDriverDio_OutputCount (sizeof(ciaaDriverDio_Outputs) / sizeof(ciaaDriverDio_dioType))
+
 /** \brief Pointer to Devices */
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
@@ -88,12 +95,6 @@ const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {5,1},{2,6},{2,5},{2,4}
 const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {0,4},{0,8},{0,9},{1,9} };
 const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {5,0},{5,1},{5,2},{0,14},{1,11},{1,12} };
 #endif
-
-/** \brief Managed input count */
-const ssize_t ciaaDriverDio_InputCount = sizeof(ciaaDriverDio_Inputs) / sizeof(ciaaDriverDio_dioType);
-
-/** \brief Managed output count */
-const ssize_t ciaaDriverDio_OutputCount = sizeof(ciaaDriverDio_Outputs) / sizeof(ciaaDriverDio_dioType);
 
 /** \brief Device for DIO 0 */
 static ciaaDevices_deviceType ciaaDriverDio_in0 = {
@@ -137,6 +138,8 @@ static ciaaDriverConstType const ciaaDriverDioConst = {
 
 /*==================[internal functions definition]==========================*/
 
+/** \brief perform low level gpio initialization for LPC4337
+ */
 static void ciaa_lpc4337_gpio_init(void)
 {
    Chip_GPIO_Init(LPC_GPIO_PORT);
@@ -209,6 +212,10 @@ static void ciaa_lpc4337_gpio_init(void)
 #endif
 }
 
+/** \brief write managed output
+ *  \param[in] outputNumber number of output to set (0 to ciaaDriverDio_OutputCount)
+ *  \param[in] value new state for output (true or false)
+ */
 static void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
 {
    if (outputNumber < ciaaDriverDio_OutputCount)
@@ -220,32 +227,74 @@ static void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
    }
 }
 
-static int ciaa_lpc4337_readInput(uint32_t inputNumber)
+/** \brief read managed input
+ *  \param[in] inputNumber number of output to read (0 to ciaaDriverDio_InputCount)
+ *  \return 1 if gpio is high, 0 if it's low, -1 if incorrect pin number
+ */
+static int32_t ciaa_lpc4337_readInput(uint32_t inputNumber)
 {
-   int rv = -1;
+   int32_t rv = -1;
 
    if (inputNumber < ciaaDriverDio_InputCount)
    {
       rv = Chip_GPIO_GetPinState(LPC_GPIO_PORT,
          ciaaDriverDio_Inputs[inputNumber].port,
-         ciaaDriverDio_Inputs[inputNumber].pin);
+         ciaaDriverDio_Inputs[inputNumber].pin) ? 1 : 0;
    }
 
    return rv;
 }
 
-static int ciaa_lpc4337_readOutput(uint32_t outputNumber)
+/** \brief read managed output
+ *  \param[in] outputNumber number of output to read (0 to ciaaDriverDio_OutputCount)
+ *  \return 1 if gpio is high, 0 if it's low, -1 if incorrect pin number
+ */
+static int32_t ciaa_lpc4337_readOutput(uint32_t outputNumber)
 {
-   int rv = -1;
+   int32_t rv = -1;
 
    if (outputNumber < ciaaDriverDio_OutputCount)
    {
       rv = Chip_GPIO_GetPinState(LPC_GPIO_PORT,
          ciaaDriverDio_Outputs[outputNumber].port,
-         ciaaDriverDio_Outputs[outputNumber].pin);
+         ciaaDriverDio_Outputs[outputNumber].pin) ? 1 : 0;
    }
 
    return rv;
+}
+
+/** \brief pack bit states in byte buffer
+ *  \param[in] number of pins to read (normally ciaaDriverDio_OutputCount or ciaaDriverDio_InputCount)
+ *  \param[out] buffer user buffer
+ *  \param[in] size user buffer size
+ *  \param[in] readFunction function used to read pins (normally ciaa_lpc4337_readOutput or ciaa_lpc4337_readInput)
+ *  \return number bytes required in buffer to store bits
+ */
+static int32_t ciaa_lpc4337_readPins(int32_t pinCount, uint8_t * buffer, size_t size, int32_t (*readFunction)(uint32_t))
+{
+   int32_t count, i, j;
+   /* amount of bytes necessary to store all input states */
+   count = pinCount >> 3; /* ciaaDriverDio_InputCount / 8 */
+   if( (pinCount & 0x07) != 0) /* (ciaaDriverDio_InputCount % 8) != 0 */
+   {
+      count += 1;
+   }
+   /* adjust gpios to read according to provided buffer length */
+   if(count > size)
+   {
+      count = size;
+   }
+   /* read and store all inputs in user buffer */
+   ciaaPOSIX_memset(buffer, 0, count);
+   for(i = 0, j = 0; (i < pinCount) && (j < count); i++)
+   {
+      buffer[j] |= readFunction(i) << (i - 8 * j);
+      if((i > 0) && ((i & 0x07)==0))
+      {
+         j++;
+      }
+   }
+   return count;
 }
 
 /*==================[external functions definition]==========================*/
@@ -268,69 +317,16 @@ extern int32_t ciaaDriverDio_ioctl(ciaaDevices_deviceType const * const device, 
 extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, uint8_t * buffer, size_t size)
 {
    ssize_t ret = -1;
-   int i, j, count;
 
    if(device == ciaaDioDevices[0])
    {
       /* accessing to inputs */
-      /* amount of bytes necessary to store all input states */
-      count = ciaaDriverDio_InputCount / 8;
-      if( (ciaaDriverDio_InputCount % 8) != 0)
-      {
-         count += 1;
-      }
-      /* if user provides enough space ... */
-      if(size >= count)
-      {
-         /* read and store all inputs in user buffer */
-         for(i=0; i<count; i++)
-         {
-            buffer[i] = 0;
-         }
-         i = 0;
-         j = 0;
-         while (i < ciaaDriverDio_InputCount)
-         {
-            buffer[j] |= ciaa_lpc4337_readInput(i) << (i - 8 * j);
-            i++;
-            if((i % 8)==0)
-            {
-               j++;
-            }
-         }
-         ret = count;
-      }
+      ret = ciaa_lpc4337_readPins(ciaaDriverDio_InputCount, buffer, size, ciaa_lpc4337_readInput);
    }
    else if(device == ciaaDioDevices[1])
    {
       /* accessing to outputs */
-      /* amount of bytes necessary to store all output states */
-      count = ciaaDriverDio_OutputCount / 8;
-      if( (ciaaDriverDio_OutputCount % 8) != 0)
-      {
-         count += 1;
-      }
-      /* if user provides enough space ... */
-      if(size >= count)
-      {
-         /* read and store all outputs in user buffer */
-         for(i=0; i<count; i++)
-         {
-            buffer[i] = 0;
-         }
-         i = 0;
-         j = 0;
-         while (i < ciaaDriverDio_OutputCount)
-         {
-            buffer[j] |= ciaa_lpc4337_readOutput(i) << (i - 8 * j);
-            i++;
-            if((i % 8)==0)
-            {
-               j++;
-            }
-         }
-         ret = count;
-      }
+      ret = ciaa_lpc4337_readPins(ciaaDriverDio_OutputCount, buffer, size, ciaa_lpc4337_readOutput);
    }
    else
    {
@@ -360,12 +356,12 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
          for(i = 0, j = 0; (i < ciaaDriverDio_OutputCount) && (j < size); i++)
          {
             ciaa_lpc4337_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
-            if( (i > 0) && ((i % 8) == 0) )
+            if( (i > 0) && ((i & 0x07) == 0) )
             {
                j++;
             }
          }
-         if(ciaaDriverDio_OutputCount % 8 != 0)
+         if((ciaaDriverDio_OutputCount & 0x07) != 0)
          {
             j++;
          }
