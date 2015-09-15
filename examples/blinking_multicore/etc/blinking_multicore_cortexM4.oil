@@ -83,21 +83,6 @@ OSEK OSEK {
       EVENT = POSIXE;
    }
 
-   ALARM ActivatePeriodicTask {
-      COUNTER = HardwareCounter;
-      ACTION = ACTIVATETASK {
-         TASK = PeriodicTask;
-      }
-   }
-
-   COUNTER HardwareCounter {
-      MAXALLOWEDVALUE = 1000;
-      TICKSPERBASE = 1;
-      MINCYCLE = 1;
-      TYPE = HARDWARE;
-      COUNTER = HWCOUNTER0;
-   };
-
    ISR Multicore_IRQHandler {
       CATEGORY = 2;
       PRIORITY = 0;

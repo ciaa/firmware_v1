@@ -76,6 +76,7 @@ typedef enum
    CIAA_MULTICORE_CORE_1   /**< first slave core available */
 }ciaaMulticore_cores_e;
 
+/** \brief message struct */
 typedef struct
 {
       struct
@@ -87,6 +88,13 @@ typedef struct
       uint32_t data1;
 }ciaaMulticore_ipcMsg_t;
 
+/** \brief available inter-core commands */
+typedef enum
+{
+   CIAA_MULTICORE_CMD_ACTIVATETASK = 0x123,
+   CIAA_MULTICORE_CMD_SETEVENT = 0x456
+}ciaaMulticore_ipcCmd_t;
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
@@ -94,6 +102,23 @@ typedef struct
 /** \brief Start multicore operations
  */
 int32_t ciaaMulticore_init(void);
+
+/** \brief Send message to inter-core queue and irq to other cores
+ *
+ * @param dest  destination core (see ciaaMulticore_cores_e)
+ * @param data0 1st data word to send
+ * @param data1 2nd data word to send
+ * @return != 0 on success, -1 on error
+ */
+int32_t ciaaMulticore_sendMessage(ciaaMulticore_cores_e dest, uint32_t data0, uint32_t data1);
+
+/** \brief Receive message from inter-core queue
+ *
+ * @param data0 1st word received
+ * @param data1 2nd word received
+ * @return != 0 on success, -1 on error
+ */
+int32_t ciaaMulticore_recvMessage(uint32_t * data0, uint32_t * data1);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

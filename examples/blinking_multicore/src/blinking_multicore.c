@@ -179,20 +179,15 @@ TASK(InitTask)
    /* init CIAA kernel and devices */
    ciaak_start();
 
-   /* print message (only on x86) */
-   ciaaPOSIX_printf("Init Task...\n");
-
-   /* open CIAA digital outputs */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
-
+#if (cortexM0 == ARCH)
    /* activate periodic task:
     *  - for the first time after 350 ticks (350 ms)
     *  - and then every 250 ticks (250 ms)
     */
-#if (cortexM0 == ARCH)
-   SetRelAlarm(ActivatePeriodicTask, 0, 250);
+   SetRelAlarm(ActivatePeriodicTask, 350, 250);
 #elif (cortexM4 == ARCH)
-   SetRelAlarm(ActivatePeriodicTask, 0, 125);
+   /* open CIAA digital outputs */
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 #endif
 
    /* terminate task */
@@ -207,20 +202,19 @@ TASK(InitTask)
  */
 TASK(PeriodicTask)
 {
+#if(cortexM0 == ARCH)
+   /* FIXME: This function shall not be available in application. It will be replaced by
+    * ActivateTask(PeriodicTask);
+    */
+   ciaaMulticore_sendMessage(CIAA_MULTICORE_CORE_0, CIAA_MULTICORE_CMD_ACTIVATETASK, PeriodicTask);
+#elif(cortexM4 == ARCH)
    uint8_t outputs;
-
-   /* write blinking message */
-   ciaaPOSIX_printf("Blinking\n");
 
    /* blink output */
    ciaaPOSIX_read(fd_out, &outputs, 1);
-#if(cortexM0 == ARCH)
-   outputs ^= 0x10;
-#elif(cortexM4 == ARCH)
    outputs ^= 0x20;
-#endif
    ciaaPOSIX_write(fd_out, &outputs, 1);
-
+#endif
    /* terminate task */
    TerminateTask();
 }

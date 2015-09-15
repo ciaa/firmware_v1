@@ -142,27 +142,25 @@ extern int32_t ciaaMulticore_recvMessage(uint32_t * data0, uint32_t * data1)
    int32_t rv = -1;
    ciaaMulticore_ipcMsg_t msg;
 
-   while(ciaaLibs_circBufEmpty(ipc_queue))
+   if(!ciaaLibs_circBufEmpty(ipc_queue))
    {
-      __WFI();
-   }
-
-   rv = ciaaLibs_circBufGet(ipc_queue, &msg, sizeof(ciaaMulticore_ipcMsg_t));
+      rv = ciaaLibs_circBufGet(ipc_queue, &msg, sizeof(ciaaMulticore_ipcMsg_t));
 
 #if(cortexM4 == ARCH)
-   if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_0))
+      if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_0))
 #elif(cortexM0 == ARCH)
-   if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_1))
+      if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_1))
 #else
-   if(0)
+      if(0)
 #endif
-   {
-      *data0 = msg.data0;
-      *data1 = msg.data1;
-   }
-   else
-   {
-      rv = -1;
+      {
+         *data0 = msg.data0;
+         *data1 = msg.data1;
+      }
+      else
+      {
+         rv = -1;
+      }
    }
    return rv;
 }
@@ -174,6 +172,25 @@ ISR(Multicore_IRQHandler)
 #elif(cortexM0 == ARCH)
    LPC_CREG->M4TXEVENT = 0; 	/* ACK */
 #endif
+   if(!ciaaLibs_circBufEmpty(ipc_queue))
+   {
+      static ciaaMulticore_ipcMsg_t msg;
+      static int32_t rv;
+
+      rv = ciaaLibs_circBufGet(ipc_queue, &msg, sizeof(ciaaMulticore_ipcMsg_t));
+
+#if(cortexM4 == ARCH)
+      if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_0))
+#elif(cortexM0 == ARCH)
+      if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_1))
+#endif
+      {
+         if(msg.data0 == CIAA_MULTICORE_CMD_ACTIVATETASK)
+         {
+            ActivateTask(msg.data1);
+         }
+      }
+   }
 }
 
 /** @} doxygen end group definition */
