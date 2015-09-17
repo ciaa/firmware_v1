@@ -2,6 +2,7 @@
  * Copyright 2015, Esteban Volentini
  * Copyright 2015, Matias Giori
  * Copyright 2015, Franco Salinas
+ * Copyright 2015, Pablo Alcorta
  *
  * This file is part of CIAA Firmware.
  *
@@ -57,6 +58,7 @@
  * EV           Esteban Volentini
  * MG           Matias Giori
  * FS           Franco Salinas
+ * PA           Pablo Alcorta
  */
 
 /*
@@ -100,10 +102,10 @@ static uint8_t input[DATA_SIZE];
 
 /* master side*/
 static test_update_loopbackType master_transport;
+static payload_size=248;
 /* slave side */
 static test_update_loopbackType slave_transport;
 static int32_t slave_fd = -1;
-
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -184,6 +186,14 @@ void test_update_value (test_updt_configType *values)
    values->data_size |= 31;
 }
 
+void testUpdtValueData (uint8_t *vector, uint32_t paySize)
+{
+   for (uint8_t i=0;i<paySize;i++)
+   {
+      vector[i]=ciaaPOSIX_rand();
+   }
+}
+
 void makeHandshakeOk (test_updt_configType *type,uint8_t *vector)
 {
    UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_INF,1,32);
@@ -212,6 +222,20 @@ uint32_t testHandshakeOkNextSN(test_updt_configType *type, uint8_t *vector)
    ciaaPOSIX_assert (3==UPDT_protocolGetSequenceNumber(vector));
    return 0;
 }
+
+void makeDataOk (test_updt_configType *type, uint8_t *vector)
+{
+   UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_DAT,3,32);
+   test_update_value_Data (vector+4,size);
+}
+
+uint32_t testDataOk()
+{
+   ciaaPOSIX_assert (UPDT_PROTOCOL_PACKET_ACK == UPDT_protocolGetPacketType(vector));
+   ciaaPOSIX_assert (4==UPDT_protocolGetSequenceNumber(vector));
+   return 0;
+}
+
 /*==================[external functions definition]==========================*/
 /** \brief Main function
  *
@@ -300,15 +324,23 @@ TASK(MasterTask)
 
    /** \todo Handshake */
 
-   /*initialize data for send*/
+   /*initialize handshake packet for send*/
    makeHandshakeOk (&type, vector);
-   /*send data*/
+   /*send Handshake packet*/
    ciaaPOSIX_assert (UPDT_protocolSend((UPDT_ITransportType *) &master_transport, vector, 32) == UPDT_PROTOCOL_ERROR_NONE);
    /*received answer*/
    ciaaPOSIX_assert (UPDT_protocolRecv((UPDT_ITransportType *) &master_transport, vector,32) == UPDT_PROTOCOL_ERROR_NONE);
-   /*testing SN and packet type of answer*/
+   /*testing SN and package type of answer*/
    ciaaPOSIX_assert(testHandshakeOk (&type,vector)==0);
 
+   /*initialize data packet for send*/
+   makeDataOk (&type,vector);
+   /*send data packet*/
+   ciaaPOSIX_assert (UPDT_protocolSend((UPDT_ITransportType *) &master_transport, vector, payloadSize) == UPDT_PROTOCOL_ERROR_NONE);
+   /*received answer*/
+   ciaaPOSIX_assert (UPDT_protocolRecv((UPDT_ITransportType *) &master_transport, vector,payloadSize) == UPDT_PROTOCOL_ERROR_NONE);
+   /*testing SN and package type of answer*/
+   ciaaPOSIX_assert (testDataOk(&type,vector)==0);
 
    #if(0)
    do
