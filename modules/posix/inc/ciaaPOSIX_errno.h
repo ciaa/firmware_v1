@@ -64,8 +64,8 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#define	EAGAIN 1	        /* No more processes */
-#define EWOULDBLOCK EAGAIN	/* Operation would block */
+#define EAGAIN 1             /* No more processes */
+#define EWOULDBLOCK EAGAIN   /* Operation would block */
 
 /*==================[typedef]================================================*/
 

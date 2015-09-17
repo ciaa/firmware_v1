@@ -1,0 +1,136 @@
+/* Copyright 2015, Gustavo Muro                                              */
+/*                                                                           */
+/* This file is part of CIAA Firmware.                                       */
+/*                                                                           */
+/* Redistribution and use in source and binary forms, with or without        */
+/* modification, are permitted provided that the following conditions are    */
+/* met:                                                                      */
+/*                                                                           */
+/* 1. Redistributions of source code must retain the above copyright notice, */
+/*    this list of conditions and the following disclaimer.                  */
+/*                                                                           */
+/* 2. Redistributions in binary form must reproduce the above copyright      */
+/*    notice, this list of conditions and the following disclaimer in the    */
+/*    documentation and/or other materials provided with the distribution.   */
+/*                                                                           */
+/* 3. Neither the name of the copyright holder nor the names of its          */
+/*    contributors may be used to endorse or promote products derived from   */
+/*    this software without specific prior written permission.               */
+/*                                                                           */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS       */
+/* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED */
+/* TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A           */
+/* PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER */
+/* OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,  */
+/* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,       */
+/* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR        */
+/* PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    */
+/* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING      */
+/* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS        */
+/* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.              */
+/*                                                                           */
+/*****************************************************************************/
+/*  Blinking Modbus example OIL configuration file                           */
+/*                                                                           */
+/*  This file describes the current OSEK configuration.                      */
+/*  References:                                                              */
+/*  - OSEK OS standard: http://portal.osek-vdx.org/files/pdf/specs/os223.pdf */
+/*  - OSEK OIL standard: http://portal.osek-vdx.org/files/pdf/specs/oil25.pdf*/
+/*****************************************************************************/
+OSEK OSEK {
+
+OS	ExampleOS {
+    STATUS = EXTENDED;
+    ERRORHOOK = TRUE;
+    PRETASKHOOK = FALSE;
+    POSTTASKHOOK = FALSE;
+    STARTUPHOOK = FALSE;
+    SHUTDOWNHOOK = FALSE;
+    USERESSCHEDULER = FALSE;
+    MEMMAP = FALSE;
+};
+
+TASK InitTask {
+    PRIORITY = 1;
+    ACTIVATION = 1;
+    AUTOSTART = TRUE {
+        APPMODE = AppMode1;
+    }
+    STACK = 512;
+    TYPE = BASIC;
+    SCHEDULE = NON;
+    RESOURCE = POSIXR;
+    RESOURCE = MODBUSR;
+}
+
+TASK ModbusSlave {
+    PRIORITY = 1;
+    ACTIVATION = 1;
+    STACK = 512;
+    TYPE = EXTENDED;
+    SCHEDULE = FULL;
+    RESOURCE = POSIXR;
+    RESOURCE = MODBUSR;
+    EVENT = POSIXE;
+}
+
+ALARM ActivateModbusTask {
+    COUNTER = SoftwareCounter;
+    ACTION = ACTIVATETASK {
+        TASK = ModbusSlave;
+    }
+}
+
+RESOURCE = POSIXR;
+RESOURCE = MODBUSR;
+
+EVENT = POSIXE;
+
+APPMODE = AppMode1;
+
+COUNTER HardwareCounter {
+   MAXALLOWEDVALUE = 100;
+   TICKSPERBASE = 1;
+   MINCYCLE = 1;
+   TYPE = HARDWARE;
+   COUNTER = HWCOUNTER0;
+};
+
+COUNTER SoftwareCounter {
+   MAXALLOWEDVALUE = 1000;
+   TICKSPERBASE = 1;
+   MINCYCLE = 1;
+   TYPE = SOFTWARE;
+};
+
+ALARM IncrementSWCounter {
+   COUNTER = HardwareCounter;
+   ACTION = INCREMENT {
+      COUNTER = SoftwareCounter;
+   };
+   AUTOSTART = TRUE {
+      APPMODE = AppMode1;
+      ALARMTIME = 1;
+      CYCLETIME = 1;
+   };
+};
+
+ISR UART0_IRQHandler {
+   INTERRUPT = UART0;
+   CATEGORY = 2;
+   PRIORITY = 0;
+};
+
+ISR UART2_IRQHandler {
+   INTERRUPT = UART2;
+   CATEGORY = 2;
+   PRIORITY = 0;
+};
+
+ISR UART3_IRQHandler {
+   INTERRUPT = UART3;
+   CATEGORY = 2;
+   PRIORITY = 0;
+};
+
+};

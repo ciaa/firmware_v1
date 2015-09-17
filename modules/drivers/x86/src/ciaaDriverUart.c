@@ -60,7 +60,6 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverUart_Internal.h"
-
 #ifdef CIAADRVUART_ENABLE_FUNCIONALITY
    #include <pthread.h>
    #include <fcntl.h>
@@ -302,7 +301,7 @@ void ciaaDriverUart_serverInit(ciaaDevices_deviceType * device, uint8_t index)
 static void * ciaaDriverUart_serverHandler(ciaaDevices_deviceType const * const device)
 {
    ciaaDriverUart_uartType * uart = device->layer;
-	struct sockaddr_in clientAddress;
+   struct sockaddr_in clientAddress;
    socklen_t addressSize = sizeof(clientAddress);
    int clientSocket = 0;
    int result = 0;

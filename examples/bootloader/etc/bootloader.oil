@@ -55,6 +55,7 @@ OSEK OSEK {
    };
 
    RESOURCE = POSIXR;
+   RESOURCE = MODBUSR;
 
    EVENT = POSIXE;
 
@@ -92,12 +93,49 @@ OSEK OSEK {
       EVENT = POSIXE;
    }
 
+   TASK ModbusSlave {
+       PRIORITY = 1;
+       ACTIVATION = 1;
+       STACK = 512;
+       TYPE = EXTENDED;
+       SCHEDULE = FULL;
+       RESOURCE = POSIXR;
+       RESOURCE = MODBUSR;
+       EVENT = POSIXE;
+   }
+
    ALARM ActivatePeriodicTask {
       COUNTER = HardwareCounter;
       ACTION = ACTIVATETASK {
          TASK = PeriodicTask;
       }
    }
+
+   ALARM ActivateModbusTask {
+       COUNTER = SoftwareCounter;
+       ACTION = ACTIVATETASK {
+           TASK = ModbusSlave;
+       }
+   }
+
+   COUNTER SoftwareCounter {
+      MAXALLOWEDVALUE = 1000;
+      TICKSPERBASE = 1;
+      MINCYCLE = 1;
+      TYPE = SOFTWARE;
+   };
+
+   ALARM IncrementSWCounter {
+      COUNTER = HardwareCounter;
+      ACTION = INCREMENT {
+         COUNTER = SoftwareCounter;
+      };
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+         ALARMTIME = 1;
+         CYCLETIME = 1;
+      };
+   };
 
    COUNTER HardwareCounter {
       MAXALLOWEDVALUE = 1000;

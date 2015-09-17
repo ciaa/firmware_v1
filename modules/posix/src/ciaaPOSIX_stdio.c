@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -159,7 +160,7 @@ extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag)
             if (NULL != rewriteDevice)
             {
                /* open device successfull */
-               ciaaPOSIX_stdio_fildes[loopi].device = rewriteDevice;
+               ciaaPOSIX_stdio_fildes[ret].device = rewriteDevice;
             }
             else
             {

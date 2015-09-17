@@ -111,6 +111,12 @@ CPUTYPE        ?= ia32
 CPU            ?= none
 COMPILER       ?= gcc
 BOARD          ?= none
+# export defined vars to the environment
+export ARCH
+export CPUTYPE
+export CPU
+export COMPILER
+export BOARD
 
 DS             ?= /
 # Project
@@ -130,6 +136,7 @@ RTOSTESTS_DEBUG_CTESTS ?= 0
 RTOSTESTS_CLEAN_GENERATE ?= 1
 RTOSTESTS_CTEST ?=
 RTOSTESTS_SUBTEST ?=
+RTOSTESTS_FLASH_ONCE ?= 1
 
 # dependencies options
 #
@@ -141,6 +148,10 @@ MAKE_DEPENDENCIES ?= 1
 WIN_TOOL_PATH        ?=
 LINUX_TOOLS_PATH     ?= $(DS)opt$(DS)ciaa_tools
 kconfig              ?= $(LINUX_TOOLS_PATH)$(DS)kconfig$(DS)kconfig-qtconf
+
+###############################################################################
+# CIAA Firmware version information
+CIAA_FIRMWARE_VER     = 0.6.1
 
 ###############################################################################
 # get OS
@@ -157,7 +168,7 @@ define cyg2win
 `cygpath -w $(1)`
 endef
 define cp4c
-$(call cyg2win,$(1))
+$(if $(findstring tst_,$(MAKECMDGOALS)),$(1),$(call cyg2win,$(1)))
 endef
 # Libraries group linker parameters
 START_GROUP       = -Xlinker --start-group
@@ -289,10 +300,18 @@ ifeq ($(findstring tst_, $(MAKECMDGOALS)),tst_)
 tst_mod = $(firstword $(filter-out tst,$(subst _, ,$(MAKECMDGOALS))))
 
 # get file to be tested (if present) and store it in tst_file
+# this shall be done multiple times, one time for each possible _, no 3 _ are supported in the test file name
 tst_file := $(word 2,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS))))
 ifneq ($(word 3,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))),)
 tst_file := $(join $(tst_file),_$(word 3,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))))
 endif
+ifneq ($(word 4,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))),)
+tst_file := $(join $(tst_file),_$(word 4,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))))
+endif
+ifneq ($(word 5,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))),)
+tst_file := $(join $(tst_file),_$(word 5,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))))
+endif
+
 # if tst_file is all the variable shall be reset and all tests shall be executed
 ifeq ($(tst_file),all)
 tst_file :=
@@ -350,7 +369,7 @@ tst_link: $(UNITY_OBJ)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking Test
-	gcc $(addprefix $(OBJ_DIR)$(DS),$(UNITY_OBJ)) -lgcov -o out/bin/$(tst_file).bin
+	gcc $(addprefix $(OBJ_DIR)$(DS),$(UNITY_OBJ)) -lgcov -o out$(DS)bin$(DS)$(tst_file).bin
 
 # rule for tst_<mod>_<file>
 tst_$(tst_mod)_$(tst_file): $(RUNNERS_OUT_DIR)$(DS)$(notdir $(MTEST_SRC_FILES:.c=_Runner.c)) tst_link
@@ -396,7 +415,7 @@ mocks:
 	@echo ' '
 	@echo ===============================================================================
 	@$(MULTILINE_ECHO) "Creating Mocks for: \n $(foreach mock, $(FILES_TO_MOCK),     $(mock)\n)"
-	ruby externals/ceedling/vendor/cmock/lib/cmock.rb -omodules/tools/ceedling/project.yml $(FILES_TO_MOCK)
+	ruby externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)lib$(DS)cmock.rb -omodules$(DS)tools$(DS)ceedling$(DS)project.yml $(FILES_TO_MOCK)
 
 ###############################################################################
 # rule to inform about all available tests
@@ -490,7 +509,7 @@ generate : $(OIL_FILES)
 # doxygen
 doxygen:
 	@echo running doxygen
-	doxygen modules/tools/doxygen/doxygen.cnf
+	doxygen modules$(DS)tools$(DS)doxygen$(DS)doxygen.cnf
 
 ###############################################################################
 # openocd
@@ -516,11 +535,28 @@ endif
 endif
 
 ###############################################################################
-# Download to target, syntax download [file]
-download:
+# gdb
+include modules$(DS)tools$(DS)gdb$(DS)mak$(DS)Makefile
+gdb:
+# if CPU is not entered shows an error
+ifeq ($(CPU),)
+	@echo ERROR: The CPU variable of your makefile is empty.
+else
+	@echo ===============================================================================
+	@echo Starting GDB...
+	@echo ' '
+	$(GDB_BIN) $(GDB_FLAGS)
+endif
+
+MAKE_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+# ...and turn them into do-nothing targets
+$(eval $(MAKE_ARGS):;@:)
+###############################################################################
+# openocd, erase [FLASH|QSPI]
+erase:
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
-	@echo ERROR: You can not download to target in Windows nor Linux
+	@echo ERROR: You can not start openocd in Windows nor Linux
 else
 # if CPU is not entered shows an error
 ifeq ($(CPU),)
@@ -530,15 +566,59 @@ ifeq ($(OPENOCD_CFG),)
 	@echo ERROR: Your CPU: $(CPU) may not be supported...
 else
 	@echo ===============================================================================
-	@echo Starting GDB...be sure to run 'make openocd' in another console previously
+	@echo Starting OpenOCD and erasing all...
+	@echo "(after downloading a new firmware please do a hardware reset!)"
 	@echo ' '
-#if there is an argument, it should be the FW file, if not We have to use the target file
-ifeq ($(words $(MAKECMDGOALS)),1)
-#	@echo 1$(filter-out $@,$(MAKECMDGOALS))2
-	$(GDB) $(GDB_DOWNLOAD_TO_TARGET) $(LD_TARGET)
+ifeq ($(words $(MAKE_ARGS)),0)
+# command line: make erase
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector 0 0 last" -c "shutdown"
 else
-#	@echo 3$(filter-out $@,$(MAKECMDGOALS))4
-	$(GDB) $(GDB_DOWNLOAD_TO_TARGET) $(filter-out $@,$(MAKECMDGOALS))
+ifeq ($(words $(MAKE_ARGS)),1)
+# command line: make erase [FLASH|QSPI]
+ifeq ($(word 1, $(MAKE_ARGS)),FLASH)
+	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
+else
+ifeq ($(word 1, $(MAKE_ARGS)),QSPI)
+	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector $(TARGET_DOWNLOAD_QSPI_BANK) 0 last" -c "shutdown"
+else
+	@echo 'Error...unknown memory type'
+endif
+endif
+else
+	@echo 'Error...unknown arguments'
+endif
+endif
+endif
+endif
+endif
+
+###############################################################################
+# Download to target, syntax download [file]
+download:
+# if windows or posix shows an error
+ifeq ($(ARCH),x86)
+	@echo ERROR: You can not start openocd in Windows nor Linux
+else
+# if CPU is not entered shows an error
+ifeq ($(CPU),)
+	@echo ERROR: The CPU variable of your makefile is empty.
+else
+ifeq ($(OPENOCD_CFG),)
+	@echo ERROR: Your CPU: $(CPU) may not be supported...
+else
+	@echo ===============================================================================
+	@echo Starting OpenOCD and downloading...
+	@echo ' '
+ifeq ($(words $(MAKECMDGOALS)),1)
+# command line: make download
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+else
+ifeq ($(words $(MAKECMDGOALS)),2)
+# command line: make download [File]
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+else
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_$(word 3,$(MAKECMDGOALS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+endif
 endif
 endif
 endif
@@ -546,8 +626,31 @@ endif
 
 ###############################################################################
 # version
+ifeq ($(MAKECMDGOALS),version)
+include $(foreach module, $(ALL_MODS), modules$(DS)$(module)$(DS)mak$(DS)Makefile)
+endif
 version:
+	@echo CIAA Firmware version: $(CIAA_FIRMWARE_VER)
 	@$(MULTILINE_ECHO) " $(foreach mod, $(ALL_MODS), $(mod): $($(mod)_VERSION)\n)"
+
+###############################################################################
+# performs a firmware release
+release:
+	@echo If you continue you will lost:
+	@echo "   * Ignored files from repo"
+	@echo "   * not commited changes"
+	@echo "   * the file ../Firmware.zip will be overwritten"
+	@echo "   * the file ../Firmware.tar.gz will be overwritten"
+	@echo
+	@read -p "you may want to press CTRL-C to cancel or any other key to continue... " y
+	@echo Cleaning
+	git clean -xdf
+	@echo Removing ../Firmware.zip
+	rm -f ..$(DS)Firmware.zip
+	@echo Generating ../Firmware.zip
+	zip -r ..$(DS)Firmware.zip . -x *.git*
+	@echo -f Removing ..$(DS)Firmware.tar.gz
+	tar -zcvf ..$(DS)Firmware.tar.gz --exclude "*.git*" .
 
 ###############################################################################
 # help
@@ -560,6 +663,7 @@ help:
 	@echo info_\<mod\>..........: same as info but reporting information of a library
 	@echo info_ext_\<mod\>......: same as info_\<mod\> but for an external library
 	@echo version.............: dislpays the version of each module
+	@echo "release.............: performs a firmware release (do not use it)"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               FreeOSEK (CIAA RTOS based on OSEK Standard)                   |"
 	@echo "+-----------------------------------------------------------------------------+"
@@ -579,8 +683,10 @@ help:
 	@echo "|               Debugging / Running / Programming                             |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "run.................: execute the binary file (Win/Posix only)"
+	@echo gdb.................: starts gdb for $(ARCH)
 	@echo openocd.............: starts openocd for $(ARCH)
-	@echo download [file].....: download firmware file to the target
+	@echo "download [file] [FLASH|QSPI].: download FW file to the target"
+	@echo "erase [FLASH|QSPI]..: erase all the flash"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Bulding                                                       |"
 	@echo "+-----------------------------------------------------------------------------+"
@@ -641,7 +747,7 @@ info:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo Project Path.......: $(PROJECT_PATH)
 	@echo Project Name.......: $(PROJECT_NAME)
-	@echo ARCH/CPUTYPE/CPU...: $(ARCH)/$(CPUTYPE)/$(CPU)
+	@echo BOARD/ARCH/CPUTYPE/CPU...: $(BOARD)/$(ARCH)/$(CPUTYPE)/$(CPU)
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
 	@echo libraris with srcs.: $(LIBS_WITH_SRC)
@@ -652,9 +758,10 @@ info:
 	@echo Includes...........: $(INCLUDE)
 	@echo use make info_\<mod\>: to get information of a specific module. eg: make info_posix
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo "|               All available modules                                         |"
+	@echo "|               CIAA Firmware Info                                            |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo modules............: $(ALL_MODS)
+	@echo CIAA Firmware ver..: $(CIAA_FIRMWARE_VER)
+	@echo Available modules..: $(ALL_MODS)
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Compiler Info                                                 |"
 	@echo "+-----------------------------------------------------------------------------+"
@@ -732,10 +839,12 @@ else
 endif
 ###############################################################################
 # Run all FreeOSEK Tests
+include modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)mak$(DS)Makefile
 rtostests:
 	mkdir -p $(OUT_DIR)$(DS)doc$(DS)ctest
 	@echo GDB:$(GDB) $(GFLAGS) > $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo CLEAN_GENERATE:$(RTOSTESTS_CLEAN_GENERATE) >> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo FLASH_ONCE:$(RTOSTESTS_FLASH_ONCE) >> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo BINDIR:$(BIN_DIR)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo DEBUG_CTESTS:$(RTOSTESTS_DEBUG_CTESTS)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo DIR:$(DS)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
@@ -749,7 +858,6 @@ rtostests:
 	@echo TESTCASES:$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)cfg$(DS)testcases.cfg>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf $(RTOSTESTS_CTEST) $(RTOSTESTS_SUBTEST)
 
-
 ###############################################################################
 # run continuous integration
 ci:
@@ -761,4 +869,21 @@ doc: doxygen
 	@echo Generating CIAA Firmware documentation
 	@echo This rule is still not implemented see: https://github.com/ciaa/Firmware/issues/10
 	@exit 1
+
+###############################################################################
+# report: generates a report for the development team to understand the error
+report:
+	@echo '***** Generating a report to ask for support *****'
+	@echo -'***** git status > report.log *****' > report.log
+	git status >> report.log
+	@echo '***** git log -1 *****' >> report.log
+	git log -1 >> report.log
+	@echo '***** make version *****' >> report.log
+	make version >> report.log
+	@echo '***** make info *****' >> report.log
+	make info >> report.log
+	@echo '***** make all *****' 2>%1 >> report.log
+	make all 2>%1 >> report.log
+	@echo 'If you need help you can write to ciaa-firmware@googlegroups.com attaching the report file report.log.'
+	@echo 'Before asking for support please search for similar issues in the archive of ciaa-firmware@googlegroups.com.'
 
