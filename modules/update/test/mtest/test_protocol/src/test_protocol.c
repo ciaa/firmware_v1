@@ -94,6 +94,8 @@ typedef struct {
 
 /*==================[internal data declaration]==============================*/
 
+uint8_t i;
+
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
@@ -102,7 +104,7 @@ static uint8_t input[DATA_SIZE];
 
 /* master side*/
 static test_update_loopbackType master_transport;
-static payload_size=248;
+static uint8_t payload_size=248;
 /* slave side */
 static test_update_loopbackType slave_transport;
 static int32_t slave_fd = -1;
@@ -188,7 +190,7 @@ void test_update_value (test_updt_configType *values)
 
 void testUpdtValueData (uint8_t *vector, uint32_t paySize)
 {
-   for (uint8_t i=0;i<paySize;i++)
+   for (i=0;i<paySize;i++)
    {
       vector[i]=ciaaPOSIX_rand();
    }
@@ -223,13 +225,13 @@ uint32_t testHandshakeOkNextSN(test_updt_configType *type, uint8_t *vector)
    return 0;
 }
 
-void makeDataOk (test_updt_configType *type, uint8_t *vector)
+void makeDataOk (test_updt_configType *type, uint8_t *vector, uint8_t payload_size)
 {
    UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_DAT,3,32);
-   test_update_value_Data (vector+4,size);
+   testUpdtValueData (vector+4,payload_size);
 }
 
-uint32_t testDataOk()
+uint32_t testDataOk(uint8_t *vector)
 {
    ciaaPOSIX_assert (UPDT_PROTOCOL_PACKET_ACK == UPDT_protocolGetPacketType(vector));
    ciaaPOSIX_assert (4==UPDT_protocolGetSequenceNumber(vector));
@@ -334,13 +336,13 @@ TASK(MasterTask)
    ciaaPOSIX_assert(testHandshakeOk (&type,vector)==0);
 
    /*initialize data packet for send*/
-   makeDataOk (&type,vector);
+   makeDataOk (&type,vector, payload_size);
    /*send data packet*/
-   ciaaPOSIX_assert (UPDT_protocolSend((UPDT_ITransportType *) &master_transport, vector, payloadSize) == UPDT_PROTOCOL_ERROR_NONE);
+   ciaaPOSIX_assert (UPDT_protocolSend((UPDT_ITransportType *) &master_transport, vector, payload_size) == UPDT_PROTOCOL_ERROR_NONE);
    /*received answer*/
-   ciaaPOSIX_assert (UPDT_protocolRecv((UPDT_ITransportType *) &master_transport, vector,payloadSize) == UPDT_PROTOCOL_ERROR_NONE);
+   ciaaPOSIX_assert (UPDT_protocolRecv((UPDT_ITransportType *) &master_transport, vector,payload_size) == UPDT_PROTOCOL_ERROR_NONE);
    /*testing SN and package type of answer*/
-   ciaaPOSIX_assert (testDataOk(&type,vector)==0);
+   ciaaPOSIX_assert (testDataOk(vector)==0);
 
    #if(0)
    do
