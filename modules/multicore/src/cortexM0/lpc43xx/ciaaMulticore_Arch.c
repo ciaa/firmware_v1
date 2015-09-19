@@ -31,7 +31,7 @@
  *
  */
 
- /** \brief Multicore module main source file.
+ /** \brief Multicore module main source file for Cortex-M0 core of LPC43xx CPUs
   **
   ** With this module you will be able to design multicore applications if
   ** your current ARCH/CPU/CPUTYPE is supported.
@@ -62,10 +62,6 @@
    #error Multicore is not supported by the current ARCH/CPUTYPE/CPU
 #endif
 
-#ifdef CORE_M4
-   #include "cr_start_m0.h"
-#endif
-
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_stddef.h"
 #include "ciaaMulticore.h"
@@ -94,85 +90,16 @@ static ciaaLibs_CircBufType * ipc_queue = (ciaaLibs_CircBufType *)(CIAA_MULTICOR
 
 /*==================[external functions definition]==========================*/
 
-extern int32_t ciaaMulticore_init(void)
+extern int32_t ciaaMulticore_init_Arch(void)
 {
-   int32_t rv = -1;
-#if(cortexM4 == ARCH)
-   /* Init IPC queue */
-   ciaaLibs_circBufInit(ipc_queue,
-      CIAA_MULTICORE_IPC_QUEUE_ADDR + sizeof(ciaaLibs_CircBufType),
-      CIAA_MULTICORE_IPC_QUEUE_LEN);
-
-   NVIC_EnableIRQ(M0APP_IRQn);
-
-   /* Start slave core */
-   cr_start_m0(SLAVE_M0APP, CIAA_MULTICORE_CORE_1_IMAGE);
-
-   rv = 0;
-#elif(cortexM0 == ARCH)
    NVIC_EnableIRQ(M4_IRQn);
-   rv = 0;
-#endif
-   return rv;
-}
-
-extern int32_t ciaaMulticore_sendMessage(ciaaMulticore_cores_e dest, uint32_t data0, uint32_t data1)
-{
-   int32_t rv = -1;
-
-   ciaaMulticore_ipcMsg_t msg;
-
-   msg.id.cpuid = dest;
-   msg.id.pid = 0;
-   msg.data0 = data0;
-   msg.data1 = data1;
-
-   rv = ciaaLibs_circBufPut(ipc_queue, &msg, sizeof(ciaaMulticore_ipcMsg_t));
-
-   if(rv > 0)
-   {
-      /* esto es arch dependent, reemplazar por ciaaMulticore_sendSignal_Arch */
-      __DSB();
-      __SEV();
-   }
-   return rv;
-}
-
-extern int32_t ciaaMulticore_recvMessage(uint32_t * data0, uint32_t * data1)
-{
-   int32_t rv = -1;
-   ciaaMulticore_ipcMsg_t msg;
-
-   if(!ciaaLibs_circBufEmpty(ipc_queue))
-   {
-      rv = ciaaLibs_circBufGet(ipc_queue, &msg, sizeof(ciaaMulticore_ipcMsg_t));
-
-#if(cortexM4 == ARCH)
-      if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_0))
-#elif(cortexM0 == ARCH)
-      if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_1))
-#else
-      if(0)
-#endif
-      {
-         *data0 = msg.data0;
-         *data1 = msg.data1;
-      }
-      else
-      {
-         rv = -1;
-      }
-   }
-   return rv;
+   return 0;
 }
 
 ISR(Multicore_IRQHandler)
 {
-#if(cortexM4 == ARCH)
-   LPC_CREG->M0APPTXEVENT = 0; 	/* ACK */
-#elif(cortexM0 == ARCH)
    LPC_CREG->M4TXEVENT = 0; 	/* ACK */
-#endif
+
    if(!ciaaLibs_circBufEmpty(ipc_queue))
    {
       static ciaaMulticore_ipcMsg_t msg;
@@ -180,11 +107,7 @@ ISR(Multicore_IRQHandler)
 
       rv = ciaaLibs_circBufGet(ipc_queue, &msg, sizeof(ciaaMulticore_ipcMsg_t));
 
-#if(cortexM4 == ARCH)
-      if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_0))
-#elif(cortexM0 == ARCH)
       if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_1))
-#endif
       {
          if(msg.data0 == CIAA_MULTICORE_CMD_ACTIVATETASK)
          {
