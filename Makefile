@@ -549,6 +549,10 @@ endif
 endif
 ###############################################################################
 # openocd, erase [FLASH|QSPI]
+# Take make arguments into MAKE_ARGS variable
+MAKE_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+# ...and turn them into do-nothing targets
+$(eval $(MAKE_ARGS):;@:)
 erase:
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
