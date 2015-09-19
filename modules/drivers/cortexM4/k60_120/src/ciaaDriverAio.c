@@ -1,4 +1,5 @@
-/* Copyright 2014, 2015 Alejandro Permingeat, Esteban Volentini
+/* Copyright 2014, 2015 Alejandro Permingeat,
+ * Copyright 2015 Esteban Volentini
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -54,11 +55,13 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150913 v0.0.3 AP   ADC reading implementation through interruption
  * 20150803 v0.0.2 EsVo verify device received in open function
  * 20150329 v0.0.1 AP   first stub version
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaDriverAio_Internal.h"
 #include "ciaaDriverAio.h"
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_stdlib.h"
@@ -71,70 +74,11 @@
 
 /*==================[macros and definitions]=================================*/
 
-#define CIAA_AIO_INPUTS_PIN_NUMBER	8
-#define CIAA_AIO_OUTPUTS_PIN_NUMBER	1
-
-#define CIAA_AIO_INPUTS_CHANNELS_PER_ADC    4
-
-/** \brief Pin port resource descriptor Type */
-typedef struct ciaaDriverAio_pinStruct {
-   PORT_Type * port;                      /** <= i/o port base address */
-   uint32_t pin;                          /** <= pin number of i/o port */
-   port_mux_t mux;                        /** <= function multiplexor value */
-   sim_clock_gate_name_t gate;            /** <= Port clock gate name */
-   int32_t channel;
-} ciaaDriverAio_pinType;
-
-/** \brief ADC port resource descriptor Type */
-typedef struct ciaaDriverAdc_portStruct {
-   ADC_Type * base;                      /** <= ADC port base address */
-   uint32_t instance;                     /** <= ADC port instance */
-   IRQn_Type irq;                         /** <= ADC port interrupt */
-   sim_clock_gate_name_t gate;            /** <= ADC clock gate name */
-} ciaaDriverAdc_portType;
-
 /** \brief Pointer to Devices */
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
 } ciaaDriverConstType;
-
-typedef uint8_t ContextType;
-
-#define AIO_FIFO_SIZE       (16)
-
-typedef struct {
-    ADC_Type * base;                      /** <= ADC port base address */
-    uint32_t instance;                     /** <= ADC port instance */
-    IRQn_Type irq;                         /** <= ADC port interrupt */
-    sim_clock_gate_name_t gate;            /** <= ADC clock gate name */
-    uint32_t    pins_cnt;
-    ciaaDriverAio_pinType pin[CIAA_AIO_INPUTS_CHANNELS_PER_ADC]; /** <= Max Channels per ADC */
-} ciaaDriverAdcPortType;
-
-typedef struct {
-} ciaaDriverDacPortType;
-
-typedef struct {
-   int32_t channel;                     /** <= current channel */
-   uint8_t cnt;                         /** <= count */
-   uint8_t hwbuf[AIO_FIFO_SIZE];        /** <= buffer */
-   adc16_converter_config_t config;     /** <= ADC config */
-   ciaaDriverAdcPortType port;          /** <= ADC & DAC control */
-} ciaaDriverAdcControlType;
-
-typedef struct {
-   int32_t channel;                     /** <= current channel */
-   uint8_t cnt;                         /** <= count */
-   uint8_t hwbuf[AIO_FIFO_SIZE];        /** <= buffer */
-   int32_t config;                      /** <= DAC config */
-   ciaaDriverDacPortType port;          /** <= DAC & DAC control */
-} ciaaDriverDacControlType;
-
-typedef union {
-    ciaaDriverAdcControlType adc; /** <= ADC control */
-    ciaaDriverDacControlType dac; /** <= DAC control */
-} ciaaDriverAioControlType;
 
 /*==================[internal data declaration]==============================*/
 
@@ -280,22 +224,18 @@ extern ciaaDevices_deviceType * ciaaDriverAio_open(char const * path,
       ciaaDevices_deviceType * device, uint8_t const oflag)
 {
       ciaaDriverAdcControlType * adc;
-      ciaaDriverDacControlType * dacCtrl;
-      ciaaDriverAioControlType * aio;
-      ciaaDriverAioControlType * dac;
       uint8_t index;
 
    if ((device != &ciaaDriverAio_in0) && (device != &ciaaDriverAio_in1) && (device != &ciaaDriverAio_in2)&&
        (device != &ciaaDriverAio_out0))
    {
-      device == NULL;
+      device = NULL;
    }
    else
    {
-      aio = device->layer;
       if ((device != &ciaaDriverAio_in0) || (device != &ciaaDriverAio_in1)|| (device != &ciaaDriverAio_in2))
 	  {
-         adc = &(aio->adc);
+         adc = device->layer;
          for(index = 0; index < adc->port.pins_cnt; index++)
          {
             /*Initialize all aio pins for current ADC*/
@@ -360,8 +300,6 @@ extern int32_t ciaaDriverAio_close(ciaaDevices_deviceType const * const device)
 extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
     ciaaDriverAdcControlType * adc;
-    uint32_t freq;
-    uint32_t value;
     int32_t ret = -1;
     adc16_chn_config_t configPtr;
     uint32_t chnGroup;
