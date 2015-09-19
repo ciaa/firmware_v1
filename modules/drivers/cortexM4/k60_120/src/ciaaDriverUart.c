@@ -325,7 +325,7 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
             uartSourceClock = CLOCK_SYS_GetUartFreq(port->instance);
 
             /* Configure baud reate */
-            uart->config.baudRate = 115200;
+            uart->config.baudRate = (uint32_t)param;
             ret = UART_HAL_SetBaudRate(port->base, uartSourceClock, uart->config.baudRate);
             break;
 
