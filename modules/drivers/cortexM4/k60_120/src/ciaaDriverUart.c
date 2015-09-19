@@ -408,19 +408,19 @@ void ciaaDriverUart_init(void)
    }
 }
 
-ISR(UART0_IRQHandler)
+ISR(UART3_IRQHandler)
 {
    ciaaDriverUart_interruptHandler(&ciaaDriverUart_device0);
 }
 
-ISR(UART2_IRQHandler)
-{
-   ciaaDriverUart_interruptHandler(&ciaaDriverUart_device2);
-}
-
-ISR(UART3_IRQHandler)
+ISR(UART5_IRQHandler)
 {
    ciaaDriverUart_interruptHandler(&ciaaDriverUart_device1);
+}
+
+ISR(UART0_IRQHandler)
+{
+   ciaaDriverUart_interruptHandler(&ciaaDriverUart_device2);
 }
 
 /*==================[interrupt handlers]=====================================*/
