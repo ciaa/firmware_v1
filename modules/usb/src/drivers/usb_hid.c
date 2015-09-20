@@ -1,3 +1,5 @@
+
+/*==================[inclusions]=============================================*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -10,213 +12,64 @@
 #include "drivers/usb_hid.h"
 
 
-static hid_stack_t hid_stack; /* Maybe this shouldn't be static or at least not here like this... */
+/*==================[internal data declaration]==============================*/
+static hid_stack_t hid_stack;
 
 
-static int _hid_validate_first_ep   (const uint8_t** pbuffer, uint8_t* plen );
-static int _hid_validate_optional_ep(const uint8_t** pbuffer, uint8_t* plen );
+/*==================[internal functions declaration]=========================*/
 
-
-int hid_probe( const uint8_t* buffer, uint8_t length )
-{
 /**
- * @FIXME an HID device can actually have  a  second  (optional)  interrupt  OUT
- * pipe to use by the host instead of the default control one... fix the  driver
- * to include this. This will also affect the initialization routine because the
- * report requesting will be done through this new pipe.
+ * @brief De-initialize device.
+ * @return Non-zero on error.
  */
+static int _deinit_dev( uint8_t index );
 
-   int               status;
-   uint8_t           numep;
+/**
+ * @brief Get next free HID index.
+ * @return Negative on error, HID device's internal index otherwise.
+ */
+static int16_t _get_free_dev( void );
 
-   usb_assert(buffer != NULL);
+/**
+ * @brief Update HID device's status.
+ * @return Non-zero on error... @TODO complete this!
+ */
+static int _update_dev( uint8_t index );
 
-   /*
-    * First, validate the input parameters. Buffer can't be NULL but length  has
-    * to be long enough to hold, at  least,  the  interface,  HID  and  endpoint
-    * descriptors. This doesn't account for HIDs with the optional ep. though.
-    */
-   if (length < (USB_STDDESC_IFACE_SIZE
-            + USB_STDDESC_EP_SIZE
-            + HID_DESC_HID_SIZE) )
-   {
-      return USB_STATUS_DRIVER_FAIL;
-   }
+/**
+ * @brief Open specified HID device.
+ *
+ * Pretty much the same as the POSIX upper level implementation but with the type
+ * of HID device already identified.
+ *
+ * @param str_num   Two-digit device index, as "01" in /dev/keyboard01.
+ * @param flags     Same as POSIX's _open() flags parameter.
+ * @param protocol  Target protocol, as HID_PROTO_KEYB in previous example.
+ *
+ * @return Negative on error, HID device's internal index otherwise.
+ */
+static int _open_dev( const char* str_num, int flags, hid_protocol_t protocol );
 
-   numep = USB_STDDESC_IFACE_GET_bNumEndpoints(buffer);
+/**
+ * @brief Validate first endpoint in interface's descriptor.
+ *
+ * Buffer should be pointed to somewhere \b before  the  endpoint's  descriptor.
+ * Remember that this endpoint must be an interrupt IN one.
+ */
+static int _validate_first_ep( const uint8_t** pbuffer, uint8_t* plen );
 
-   if (USB_STDDESC_IFACE_GET_bInterfaceClass(buffer) != USB_CLASS_HID)
-   {
-      /* Invalid class ID, must be an HID. */
-      status = USB_STATUS_DRIVER_FAIL;
-   }
-   else if (numep > 2 || numep < 1)
-   {
-      /* An HID must have at least one endpoint and cannot have more than two.*/
-      status = USB_STATUS_DRIVER_FAIL;
-   }
-   else
-   {
-      /* Parse the mandatory endpoint, it must be an interrupt IN one. */
-      status = _hid_validate_first_ep(&buffer, &length);
-      if (status == USB_STATUS_OK && numep == 2)
-      {
-         /* Parse the optional endpoint, it must be an interrupt OUT one.*/
-         status = _hid_validate_optional_ep(&buffer, &length);
-      }
-
-   }
-   return status;
-}
-
-int hid_assign(
-      usb_stack_t*   pstack,
-      uint16_t       id,
-      const uint8_t* buffer,
-      uint8_t        length
-)
-{
-   int               new_idx;
-   int               ret;
-   hid_dev_t*        pdev;
-   uint8_t           bLength;
-
-   usb_assert(pstack != NULL);
-   usb_assert(buffer != NULL);
-   usb_assert(length > 0);
-
-   ret = 0;
-   new_idx = hid_get_free_dev();
-   if (new_idx < 0)
-   {
-      /* No more room for HID devices... */
-      ret = -1; /** @TODO: use an actual error code. */
-   }
-
-   if (!ret)
-   {
-      pdev = &hid_stack.devices[new_idx];
-      bLength = USB_STDDESC_IFACE_GET_bLength(buffer);
-
-      /* 1) Check the buffer for the interface's descriptor length. */
-      if (bLength != USB_STDDESC_IFACE_SIZE)
-      {
-         ret = -1;
-      }
-      else if (length < USB_STDDESC_IFACE_SIZE)
-      {
-         ret = -1;
-      }
-   }
-
-   if (!ret)
-   {
-      /* 2) Get the protocol information (we already know it's an HID dev. */
-      pdev->protocol = USB_STDDESC_IFACE_GET_bInterfaceProtocol(buffer);
-
-      /* 3) Find out whether it uses an interrupt OUT endpoint for control. */
-      if (USB_STDDESC_IFACE_GET_bNumEndpoints(buffer) == 2)
-      {
-         pdev->protocol |= HID_STATUS_INTOUT;
-      }
-      else
-      {
-         pdev->protocol &= ~HID_STATUS_INTOUT;
-      }
-
-      /* 4) Right after the interface descriptor should be the HID one. */
-      buffer += bLength;
-      length -= bLength;
-      bLength = HID_DESC_HID_GET_bLength(buffer);
-      if (bLength < HID_DESC_HID_SIZE)
-      {
-         /* Validate descriptor's minimum length. */
-         ret = -1;
-      }
-      else if (length < bLength)
-      {
-         /* Validate buffer's minimum length. */
-         ret = -1;
-      }
-      /* 5) Check the number of descriptors entry, must be at least 1. */
-      else if (HID_DESC_HID_GET_bNumDescriptors(buffer) < 1)
-      {
-         ret = -1;
-      }
-      /* 6) Check class descriptor and get country code. */
-      else if (HID_DESC_HID_GET_bClassDescriptorType(buffer) != HID_DESC_TYPE_REPORT)
-      {
-         ret = -1;
-      }
-   }
-
-   if (!ret)
-   {
-      pdev->ctry_code = HID_DESC_HID_GET_bCountryCode(buffer);
-
-      /* 7) Get report's length, only supported up to 256 bytes long ATM. */
-      pdev->report_len = HID_DESC_HID_GET_wDescriptorLength(buffer);
-
-      /**
-       * @TODO there are optional class descriptors after the  mandatory  report
-       * one, this should be read and dealt with... fix this!
-       */
-
-      /*
-       * After the HID desc, there should be one [or two] endpoint  descriptors,
-       * however, this has already been checked by the probing method.
-       *
-       * Done with parsing, activate device and exit.
-       */
-
-      pdev->status  &= ~HID_STATUS_FREE;
-      pdev->pstack   =  pstack;
-      pdev->id       =  id;
-      hid_stack.n_devices++;
-   }
-
-   return ret; /** @TODO: use an actual error code. */
-}
-
-int hid_remove( usb_stack_t* pstack, uint16_t id )
-{
-   uint8_t    i;
-   int        status;
-   hid_dev_t* pdev;
-
-   /* First, search for device in driver's structure. */
-   status = 0;
-   for (i = 0; i < HID_MAX_DEVICES && !status; ++i)
-   {
-      pdev = &hid_stack.devices[i];
-      if ((pdev->pstack == pstack) && (pdev->id == id))
-      {
-         status = 1; /* Found! */
-      }
-   }
-   if (status) /* When found, remove it. */
-   {
-      status = hid_dev_deinit(i-1); /* -1 because of for's post-increment. */
-   }
-   else /* Otherwise, do nothing and return with an error. */
-   {
-      status = -1;
-   }
-   return status;
-}
+/**
+ * @brief Validate optional endpoint in interface's descriptor.
+ *
+ * Buffer should be pointed to somewhere \b before  the  endpoint's  descriptor.
+ * Remember that this endpoint must be an interrupt OUT one.
+ */
+static int _validate_optional_ep( const uint8_t** pbuffer, uint8_t* plen );
 
 
-/******************************************************************************/
-int hid_init( void )
-{
-   uint8_t i;
-   for (i = 0; i < HID_MAX_DEVICES; ++i)
-      hid_dev_deinit(i);
-   hid_stack.n_devices = 0;
-   return 0;
-}
+/*==================[internal functions definition]==========================*/
 
-int hid_dev_deinit( uint8_t index )
+static int _deinit_dev( uint8_t index )
 {
    hid_dev_t* pdev;
    usb_assert(index < HID_MAX_DEVICES);
@@ -233,7 +86,7 @@ int hid_dev_deinit( uint8_t index )
    return 0;
 }
 
-int16_t hid_get_free_dev( void )
+static int16_t _get_free_dev( void )
 {
    int16_t i;
    for (i = 0; i < HID_MAX_DEVICES; ++i)
@@ -254,21 +107,7 @@ int16_t hid_get_free_dev( void )
    return i;
 }
 
-int hid_update( void )
-{
-   uint8_t i;
-   int     status = 0;
-   for (i = 0; i < HID_MAX_DEVICES && !status; ++i)
-   {
-      if (!(hid_stack.devices[i].status & HID_STATUS_FREE))
-      {
-         status = hid_update_device(i);
-      }
-   }
-   return status;
-}
-
-int hid_update_device( uint8_t index )
+static int _update_dev( uint8_t index )
 {
    usb_stdreq_t stdreq;
    hid_dev_t*   pdev;
@@ -483,7 +322,7 @@ int hid_update_device( uint8_t index )
    return status;
 }
 
-int hid_open_dev( const char* str_num, int flags, hid_protocol_t protocol )
+static int _open_dev( const char* str_num, int flags, hid_protocol_t protocol )
 {
    long       temp;
    int        ret;
@@ -548,6 +387,305 @@ int hid_open_dev( const char* str_num, int flags, hid_protocol_t protocol )
    return ret;
 }
 
+static int _validate_first_ep(const uint8_t** pbuffer, uint8_t* plen )
+{
+   int            status;
+
+   usb_assert(pbuffer  != NULL);
+   usb_assert(*pbuffer != NULL);
+   usb_assert(plen     != NULL);
+
+   if (usb_goto_next_desc(
+         pbuffer,
+         plen,
+         USB_STDDESC_ENDPOINT,
+         USB_STDDESC_EP_SIZE ))
+   {
+      /* No endpoint descriptor found in buffer. */
+      status = USB_STATUS_DRIVER_FAIL;
+   }
+   else if (*plen < USB_STDDESC_EP_SIZE)
+   {
+      /* Endpoint descriptor found but buffer isn't long enough. */
+      status = USB_STATUS_DRIVER_FAIL;
+   }
+   else
+   {
+      if (!(USB_STDDESC_EP_GET_bEndpointAddress(*pbuffer) & USB_DIR_MASK))
+      {
+         /* Direction wasn't IN. */
+         status = USB_STATUS_DRIVER_FAIL;
+      }
+      else if ((USB_STDDESC_EP_GET_bmAttributes(*pbuffer) &
+               USB_STDDESC_EP_ATTR_TYPE_MASK) != USB_INT)
+      {
+         /* Type wasn't interrupt. */
+         status = USB_STATUS_DRIVER_FAIL;
+      }
+      else
+      {
+         status = USB_STATUS_OK;
+      }
+   }
+   return status;
+}
+
+static int _validate_optional_ep(const uint8_t** pbuffer, uint8_t* plen )
+{
+   int            status;
+
+   usb_assert(pbuffer  != NULL);
+   usb_assert(*pbuffer != NULL);
+   usb_assert(plen     != NULL);
+
+   if (usb_goto_next_desc(
+         pbuffer,
+         plen,
+         USB_STDDESC_ENDPOINT,
+         USB_STDDESC_EP_SIZE ))
+   {
+      /* No endpoint descriptor found in buffer. */
+      status = USB_STATUS_DRIVER_FAIL;
+   }
+   else if (*plen < USB_STDDESC_EP_SIZE)
+   {
+      /* Endpoint descriptor found but buffer isn't long enough. */
+      status = USB_STATUS_DRIVER_FAIL;
+   }
+   else
+   {
+      if (USB_STDDESC_EP_GET_bEndpointAddress(*pbuffer) & USB_DIR_MASK)
+      {
+         /* Direction wasn't OUT. */
+         status = USB_STATUS_DRIVER_FAIL;
+      }
+      else if ((USB_STDDESC_EP_GET_bmAttributes(*pbuffer) &
+               USB_STDDESC_EP_ATTR_TYPE_MASK) != USB_INT)
+      {
+         /* Type wasn't interrupt. */
+         status = USB_STATUS_DRIVER_FAIL;
+      }
+      else
+      {
+         status = USB_STATUS_OK;
+      }
+   }
+   return status;
+}
+
+
+/*==================[external functions definition]==========================*/
+
+int hid_probe( const uint8_t* buffer, uint8_t length )
+{
+/**
+ * @FIXME an HID device can actually have  a  second  (optional)  interrupt  OUT
+ * pipe to use by the host instead of the default control one... fix the  driver
+ * to include this. This will also affect the initialization routine because the
+ * report requesting will be done through this new pipe.
+ */
+
+   int     status;
+   uint8_t numep;
+
+   usb_assert(buffer != NULL);
+
+   /*
+    * First, validate the input parameters. Buffer can't be NULL but length  has
+    * to be long enough to hold, at  least,  the  interface,  HID  and  endpoint
+    * descriptors. This doesn't account for HIDs with the optional ep. though.
+    */
+   if (length < (USB_STDDESC_IFACE_SIZE
+            + USB_STDDESC_EP_SIZE
+            + HID_DESC_HID_SIZE) )
+   {
+      return USB_STATUS_DRIVER_FAIL;
+   }
+
+   numep = USB_STDDESC_IFACE_GET_bNumEndpoints(buffer);
+
+   if (USB_STDDESC_IFACE_GET_bInterfaceClass(buffer) != USB_CLASS_HID)
+   {
+      /* Invalid class ID, must be an HID. */
+      status = USB_STATUS_DRIVER_FAIL;
+   }
+   else if (numep > 2 || numep < 1)
+   {
+      /* An HID must have at least one endpoint and cannot have more than two.*/
+      status = USB_STATUS_DRIVER_FAIL;
+   }
+   else
+   {
+      /* Parse the mandatory endpoint, it must be an interrupt IN one. */
+      status = _validate_first_ep(&buffer, &length);
+      if (status == USB_STATUS_OK && numep == 2)
+      {
+         /* Parse the optional endpoint, it must be an interrupt OUT one.*/
+         status = _validate_optional_ep(&buffer, &length);
+      }
+
+   }
+   return status;
+}
+
+int hid_assign(
+      usb_stack_t*   pstack,
+      uint16_t       id,
+      const uint8_t* buffer,
+      uint8_t        length
+)
+{
+   int               new_idx;
+   int               ret;
+   hid_dev_t*        pdev;
+   uint8_t           bLength;
+
+   usb_assert(pstack != NULL);
+   usb_assert(buffer != NULL);
+   usb_assert(length > 0);
+
+   ret = 0;
+   new_idx = _get_free_dev();
+   if (new_idx < 0)
+   {
+      /* No more room for HID devices... */
+      ret = -1; /** @TODO: use an actual error code. */
+   }
+
+   if (!ret)
+   {
+      pdev = &hid_stack.devices[new_idx];
+      bLength = USB_STDDESC_IFACE_GET_bLength(buffer);
+
+      /* 1) Check the buffer for the interface's descriptor length. */
+      if (bLength != USB_STDDESC_IFACE_SIZE)
+      {
+         ret = -1;
+      }
+      else if (length < USB_STDDESC_IFACE_SIZE)
+      {
+         ret = -1;
+      }
+   }
+
+   if (!ret)
+   {
+      /* 2) Get the protocol information (we already know it's an HID dev. */
+      pdev->protocol = USB_STDDESC_IFACE_GET_bInterfaceProtocol(buffer);
+
+      /* 3) Find out whether it uses an interrupt OUT endpoint for control. */
+      if (USB_STDDESC_IFACE_GET_bNumEndpoints(buffer) == 2)
+      {
+         pdev->protocol |= HID_STATUS_INTOUT;
+      }
+      else
+      {
+         pdev->protocol &= ~HID_STATUS_INTOUT;
+      }
+
+      /* 4) Right after the interface descriptor should be the HID one. */
+      buffer += bLength;
+      length -= bLength;
+      bLength = HID_DESC_HID_GET_bLength(buffer);
+      if (bLength < HID_DESC_HID_SIZE)
+      {
+         /* Validate descriptor's minimum length. */
+         ret = -1;
+      }
+      else if (length < bLength)
+      {
+         /* Validate buffer's minimum length. */
+         ret = -1;
+      }
+      /* 5) Check the number of descriptors entry, must be at least 1. */
+      else if (HID_DESC_HID_GET_bNumDescriptors(buffer) < 1)
+      {
+         ret = -1;
+      }
+      /* 6) Check class descriptor and get country code. */
+      else if (HID_DESC_HID_GET_bClassDescriptorType(buffer) != HID_DESC_TYPE_REPORT)
+      {
+         ret = -1;
+      }
+   }
+
+   if (!ret)
+   {
+      pdev->ctry_code = HID_DESC_HID_GET_bCountryCode(buffer);
+
+      /* 7) Get report's length, only supported up to 256 bytes long ATM. */
+      pdev->report_len = HID_DESC_HID_GET_wDescriptorLength(buffer);
+
+      /**
+       * @TODO there are optional class descriptors after the  mandatory  report
+       * one, this should be read and dealt with... fix this!
+       */
+
+      /*
+       * After the HID desc, there should be one [or two] endpoint  descriptors,
+       * however, this has already been checked by the probing method.
+       *
+       * Done with parsing, activate device and exit.
+       */
+
+      pdev->status  &= ~HID_STATUS_FREE;
+      pdev->pstack   =  pstack;
+      pdev->id       =  id;
+      hid_stack.n_devices++;
+   }
+
+   return ret; /** @TODO: use an actual error code. */
+}
+
+int hid_remove( usb_stack_t* pstack, uint16_t id )
+{
+   uint8_t    i;
+   int        status;
+   hid_dev_t* pdev;
+
+   /* First, search for device in driver's structure. */
+   status = 0;
+   for (i = 0; i < HID_MAX_DEVICES && !status; ++i)
+   {
+      pdev = &hid_stack.devices[i];
+      if ((pdev->pstack == pstack) && (pdev->id == id))
+      {
+         status = 1; /* Found! */
+      }
+   }
+   if (status) /* When found, remove it. */
+   {
+      status = _deinit_dev(i-1); /* -1 because of for's post-increment. */
+   }
+   else /* Otherwise, do nothing and return with an error. */
+   {
+      status = -1;
+   }
+   return status;
+}
+
+int hid_init( void )
+{
+   uint8_t i;
+   for (i = 0; i < HID_MAX_DEVICES; ++i)
+      _deinit_dev(i);
+   hid_stack.n_devices = 0;
+   return 0;
+}
+
+int hid_update( void )
+{
+   uint8_t i;
+   int     status = 0;
+   for (i = 0; i < HID_MAX_DEVICES && !status; ++i)
+   {
+      if (!(hid_stack.devices[i].status & HID_STATUS_FREE))
+      {
+         status = _update_dev(i);
+      }
+   }
+   return status;
+}
 
 /* POSIX */
 
@@ -588,7 +726,7 @@ int hid_open(const char *pathname, int flags)
 
    if (!ret)
    {
-      ret = hid_open_dev(pathname+offset, flags, proto);
+      ret = _open_dev(pathname+offset, flags, proto);
    }
    return ret;
 }
@@ -611,7 +749,7 @@ int hid_close(int fd)
    {
       /* If device has an interface attached and has been opened, close it. */
       hid_stack.devices[index].status &= ~HID_STATUS_OPEN;
-      /** @TODO finish this procedure, probably call hid_dev_deinit()... */
+      /** @TODO finish this procedure, probably call _deinit_dev()... */
       ret = 0;
    }
    return ret;
@@ -663,105 +801,5 @@ int hid_write(int fd, const void *buf, size_t count)
    if (count == 0)
       return 0; /* Check this! */
    return 0;
-}
-
-
-/******************************************************************************/
-/**
- * @brief Validate first endpoint in interface's descriptor.
- *
- * Buffer should be pointed to somewhere \b before  the  endpoint's  descriptor.
- * Remember that this endpoint must be an interrupt IN one.
- */
-int _hid_validate_first_ep(const uint8_t** pbuffer, uint8_t* plen )
-{
-   int            status;
-
-   usb_assert(pbuffer  != NULL);
-   usb_assert(*pbuffer != NULL);
-   usb_assert(plen     != NULL);
-
-   if (usb_goto_next_desc(
-         pbuffer,
-         plen,
-         USB_STDDESC_ENDPOINT,
-         USB_STDDESC_EP_SIZE ))
-   {
-      /* No endpoint descriptor found in buffer. */
-      status = USB_STATUS_DRIVER_FAIL;
-   }
-   else if (*plen < USB_STDDESC_EP_SIZE)
-   {
-      /* Endpoint descriptor found but buffer isn't long enough. */
-      status = USB_STATUS_DRIVER_FAIL;
-   }
-   else
-   {
-      if (!(USB_STDDESC_EP_GET_bEndpointAddress(*pbuffer) & USB_DIR_MASK))
-      {
-         /* Direction wasn't IN. */
-         status = USB_STATUS_DRIVER_FAIL;
-      }
-      else if ((USB_STDDESC_EP_GET_bmAttributes(*pbuffer) &
-               USB_STDDESC_EP_ATTR_TYPE_MASK) != USB_INT)
-      {
-         /* Type wasn't interrupt. */
-         status = USB_STATUS_DRIVER_FAIL;
-      }
-      else
-      {
-         status = USB_STATUS_OK;
-      }
-   }
-   return status;
-}
-
-/**
- * @brief Validate optional endpoint in interface's descriptor.
- *
- * Buffer should be pointed to somewhere \b before  the  endpoint's  descriptor.
- * Remember that this endpoint must be an interrupt OUT one.
- */
-int _hid_validate_optional_ep(const uint8_t** pbuffer, uint8_t* plen )
-{
-   int            status;
-
-   usb_assert(pbuffer  != NULL);
-   usb_assert(*pbuffer != NULL);
-   usb_assert(plen     != NULL);
-
-   if (usb_goto_next_desc(
-         pbuffer,
-         plen,
-         USB_STDDESC_ENDPOINT,
-         USB_STDDESC_EP_SIZE ))
-   {
-      /* No endpoint descriptor found in buffer. */
-      status = USB_STATUS_DRIVER_FAIL;
-   }
-   else if (*plen < USB_STDDESC_EP_SIZE)
-   {
-      /* Endpoint descriptor found but buffer isn't long enough. */
-      status = USB_STATUS_DRIVER_FAIL;
-   }
-   else
-   {
-      if (USB_STDDESC_EP_GET_bEndpointAddress(*pbuffer) & USB_DIR_MASK)
-      {
-         /* Direction wasn't OUT. */
-         status = USB_STATUS_DRIVER_FAIL;
-      }
-      else if ((USB_STDDESC_EP_GET_bmAttributes(*pbuffer) &
-               USB_STDDESC_EP_ATTR_TYPE_MASK) != USB_INT)
-      {
-         /* Type wasn't interrupt. */
-         status = USB_STATUS_DRIVER_FAIL;
-      }
-      else
-      {
-         status = USB_STATUS_OK;
-      }
-   }
-   return status;
 }
 

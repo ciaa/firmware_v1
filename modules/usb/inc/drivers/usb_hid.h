@@ -7,12 +7,13 @@
 * @{ */
 
 
+/*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-/* Inclusions */
+/*==================[inclusions]=============================================*/
 #include <stdint.h>
 #include "usb.h"
 
@@ -65,6 +66,8 @@ typedef struct _hid_desc_hid_t
    uint8_t  bNumDescriptors;      /**< Number of class descriptors.           */
    uint8_t  bClassDescriptorType; /**< Type of class descriptor.              */
 } hid_desc_hid_t;
+
+/** @brief HID descriptor's size. */
 #define HID_DESC_HID_SIZE  9
 
 #define HID_DESC_HID_GET_bLength(x) \
@@ -132,7 +135,7 @@ typedef enum _hid_ctrycode_t
    HID_CTRYCODE_UK                  = 32,
    HID_CTRYCODE_US                  = 33,
    HID_CTRYCODE_YUGOSLAVIA          = 34,
-   HID_CTRYCODE_TURKISH_F           = 35
+   HID_CTRYCODE_TURKISH_F           = 35,
 } hid_ctrycode_t;
 
 
@@ -149,6 +152,17 @@ typedef struct _hid_dev_t
    uint8_t        report_len; /**< Report's length, capped at 256 bytes.      */
 } hid_dev_t;
 
+/** @brief Whether device is free or currently in use. */
+#define HID_STATUS_FREE    (1 << 0)
+/** @brief Whether device has already been initialized. */
+#define HID_STATUS_INIT    (1 << 1)
+/** @brief Whether device has been opened by user code. */
+#define HID_STATUS_OPEN    (1 << 2)
+/** @brief Whether device uses an extra interrupt OUT endpoint for control. */
+#define HID_STATUS_INTOUT  (1 << 3)
+/**< Whether entry actions are to be executed.  */
+#define HID_STATUS_ENTRY   (1 << 4)
+
 /**
  * @brief HID device's stack.
  *
@@ -156,20 +170,9 @@ typedef struct _hid_dev_t
  */
 typedef struct _hid_stack_t
 {
-   hid_dev_t devices[HID_MAX_DEVICES];
-   uint8_t   n_devices;
+   hid_dev_t devices[HID_MAX_DEVICES]; /**< HID devices state and members.    */
+   uint8_t   n_devices;     /**< Number of HID devices currently connected.   */
 } hid_stack_t;
-
-/** @brief Whether object is free or currently in use. */
-#define  HID_STATUS_FREE    (1 << 0)
-/** @brief Whether device has already been initialized. */
-#define  HID_STATUS_INIT    (1 << 1)
-/** @brief Whether device has been opened by user code. */
-#define  HID_STATUS_OPEN    (1 << 2)
-/** @brief Whether device uses an extra interrupt OUT endpoint for control. */
-#define  HID_STATUS_INTOUT  (1 << 3)
-/**< Whether entry actions are to be exec'ed.  */
-#define HID_STATUS_ENTRY   (1 << 4)
 
 
 /**
@@ -212,34 +215,53 @@ int hid_remove( usb_stack_t* pstack, uint16_t id );
 
 /******************************************************************************/
 
+/* Public interface */
+
+/**
+ * @brief Initialize HID stack.
+ * @return Non-zero on error.
+ */
 int hid_init( void );
 
-int hid_dev_deinit( uint8_t index );
-
-int16_t hid_get_free_dev( void );
-
+/**
+ * @brief Update HID stack.
+ * @return Non-zero on error.
+ */
 int hid_update( void );
 
-int hid_update_device( uint8_t index );
 
-int hid_open_dev( const char* str_num, int flags, hid_protocol_t protocol );
+/* POSIX interface */
 
-
-/* POSIX */
 /**
- * @FIXME the following POSIX interface is beign  thrown  together  for  testing
- * purposes at the moment.
+ * @brief Open HID device pointed to by the given \b pathname.
+ *
+ * @param pathname  Desired device's path.
+ * @param flags     Unused at the moment.
+ *
+ * @return Non negative integer on success.
  */
+int hid_open( const char *pathname, int flags );
 
-int hid_open(const char *pathname, int flags);
+/**
+ * @brief Close HID device \b fd previously opened with hid_open().
+ * @return Non-zero on error.
+ */
+int hid_close( int fd );
 
-int hid_close(int fd);
+/**
+ * @brief Attempt to read \b count bytes from HID device \b fd into \b buf.
+ * @return Number of bytes successfully read.
+ */
+size_t hid_read( int fd, void *buf, size_t count );
 
-size_t hid_read(int fd, void *buf, size_t count);
+/**
+ * @brief Attempt to write \b count bytes from \b buf into HID device \b fd.
+ * @return Number of bytes successfully written.
+ */
+int hid_write( int fd, const void *buf, size_t count );
 
-int hid_write(int fd, const void *buf, size_t count);
 
-
+/*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
 #endif
