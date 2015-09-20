@@ -262,9 +262,8 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevic
 #endif
 
 #if FSL_FEATURE_UART_HAS_FIFO
-   //   UART_HAL_SetTxFifoWatermark(port->base, 4);
+      /** \todo Enable FIFO UART for TX and RX view issue #348 */
       UART_HAL_SetRxFifoWatermark(port->base, 1);
-   //   UART_HAL_SetTxFifoCmd(port->base, true);
       UART_HAL_SetRxFifoCmd(port->base, true);
       UART_HAL_FlushTxFifo(port->base);
       UART_HAL_FlushRxFifo(port->base);
@@ -286,7 +285,7 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevic
 extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 {
    ciaaDriverUart_portType const * port = device->loLayer;
-   int32_t ret = -1;
+   int32_t ret = 0;
 
    UART_HAL_SetIntMode(port->base, kUartIntRxDataRegFull, false);
    UART_HAL_SetIntMode(port->base, kUartIntTxDataRegEmpty, false);
@@ -295,7 +294,6 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
    UART_HAL_DisableReceiver(port->base);
 
    NVIC_EnableIRQ(port->irq);
-   ret = 0;
 
    return ret;
 }
