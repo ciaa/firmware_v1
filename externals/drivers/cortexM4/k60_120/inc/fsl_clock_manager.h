@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2014, Freescale Semiconductor, Inc.
+ * Copyright (c) 2013 - 2015, Freescale Semiconductor, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -26,12 +26,6 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Revisions:
- *   -- KSDK_1.0.0 rev.1 (2014-09-10)
- *       - Add K60F120 family support.
- *      Author: Dar�o Bali�a, dariosb@gmail.com, Delsat Group.
- * 
  */
 
 #if !defined(__FSL_CLOCK_MANAGER_H__)
@@ -40,7 +34,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
-#include "fsl_mcg_hal.h"
+#include "fsl_device_registers.h"
 #include "fsl_sim_hal.h"
 
 /*! @addtogroup clock_manager*/
@@ -52,32 +46,101 @@
  * Definitions
  ******************************************************************************/
 
-/* system clocks definition (should be moved to other proper place) */
-#define CPU_XTAL1hz_CLK_HZ          1
-#define CPU_LPO_CLK_HZ           1000
+/* Macro to determine which clock module is used. */
+#if (defined(SCG_INSTANCE_COUNT))
+#define CLOCK_USE_SCG                /* SCG is used.      */
+#elif (defined(FSL_FEATURE_MCGLITE_MCGLITE))
+#define CLOCK_USE_MCG_LITE           /* MCG_LITE is used. */
+#else
+#define CLOCK_USE_MCG                /* MCG is used.      */
+#endif
 
-/* external clock definition (should be moved to other proper place) */
+/*! @brief The register base of SIM module. */
+extern SIM_Type * const g_simBase[];
 
-#define SDHC0_CLKIN                 0   /* kSimSDHC0_CLKIN */ 
-#define ENET_1588_CLKIN             0   /* kSimENET_1588_CLKIN */
-#define EXTAL_Clock                 0   /* kSimEXTAL_Clock */
-#define EXTAL1_Clock                0   /* kSimEXTAL1_Clock */
-#define USB_CLKIN                   0   /* kSimUSB_CLKIN */
+#if (defined(CLOCK_USE_MCG) || defined(CLOCK_USE_MCG_LITE))
+/*! @brief The register base of MCG/MCG_LITE module. */
+extern MCG_Type * const g_mcgBase[];
+#endif
 
-/* Table of base addresses for instances. */
-extern const uint32_t g_simBaseAddr[];
-extern const uint32_t g_mcgBaseAddr[];
+#if (defined(CLOCK_USE_SCG))
+/*! @brief The register base of SCG module. */
+extern const uint32_t g_scgBase[];
+#endif
+
+#if (!defined(CLOCK_USE_SCG))
+/*! @brief The register base of OSC module. */
+extern OSC_Type * const g_oscBase[];
+#endif
+
+#if (defined(PCC_INSTANCE_COUNT))
+/*! @brief The register base of PCC module. */
+extern PCC_Type * const g_pccBase[];
+#endif
+
+/*! @brief Frequency of LPO. */
+#define CPU_LPO_CLK_HZ           1000U
+
+/*! @brief Systick clock source selection. */
+typedef enum _clock_systick_src
+{
+    kClockSystickSrcExtRef = 0U, /*!< Use external reference clock.     */
+    kClockSystickSrcCore   = 1U, /*!< Use processer clock (Core clock). */
+} clock_systick_src_t;
+
+/*! @brief Clock name used to get clock frequency. */
+typedef enum _clock_names {
+
+   /* default clocks*/
+   kCoreClock,                      /*!< Core clock */
+   kSystemClock,                    /*!< System clock */
+   kPlatformClock,                  /*!< Platform clock */
+   kBusClock,                       /*!< Bus clock */
+   kFlexBusClock,                   /*!< FlexBus clock */
+   kFlashClock,                     /*!< Flash clock */
+   kFastPeripheralClock,            /*!< Flash peripheral clock */
+   kSystickClock,                   /*!< Clock for systick. */
+
+   /* other internal clocks used by peripherals*/
+   /* osc clock*/
+   kOsc32kClock,                    /*!< ERCLK32K */
+   kOsc0ErClock,                    /*!< OSC0ERCLK */
+   kOsc1ErClock,                    /*!< OSC1ERCLK */
+   kOsc0ErClockUndiv,               /*!< OSC0ERCLK_UNDIV */
+
+   kIrc48mClock,                    /*!< IRC 48M  */
+
+   /* rtc clock*/
+   kRtcoutClock,                    /*!< RTC_CLKOUT */
+
+   /* mcg clocks*/
+   kMcgFfClock,                     /*!< MCG fixed frequency clock (MCGFFCLK) */
+   kMcgFllClock,                    /*!< MCGFLLCLK */
+   kMcgPll0Clock,                   /*!< MCGPLL0CLK */
+   kMcgPll1Clock,                   /*!< MCGPLL1CLK */
+   kMcgExtPllClock,                 /*!< EXT_PLLCLK */
+   kMcgOutClock,                    /*!< MCGOUTCLK  */
+   kMcgIrClock,                     /*!< MCGIRCLK   */
+
+   /* LPO clock */
+   kLpoClock,                       /*!< LPO clock */
+
+   kClockNameCount
+
+} clock_names_t;
 
 /*!
  * @brief Error code definition for the clock manager APIs
  */
 typedef enum _clock_manager_error_code {
-    kClockManagerSuccess,                           /*!< success */
-    kClockManagerNoSuchClockName,                   /*!< cannot find the clock name */
-    kClockManagerNoSuchClockModule,                 /*!< cannot find the clock module name */
-    kClockManagerNoSuchClockSource,                 /*!< cannot find the clock source name */
-    kClockManagerNoSuchDivider,                     /*!< cannot find the divider name */
-    kClockManagerUnknown                            /*!< unknown error*/
+    kClockManagerSuccess,                 /*!< Success */
+    kClockManagerError,                   /*!< Some error occurs. */
+    kClockManagerNoSuchClockName,         /*!< Invalid name */
+    kClockManagerInvalidParam,            /*!< Invalid parameter */
+    kClockManagerErrorOutOfRange,         /*!< Configuration index out of range.               */
+    kClockManagerErrorNotificationBefore, /*!< Error occurs during send "BEFORE" notification. */
+    kClockManagerErrorNotificationAfter,  /*!< Error occurs during send "AFTER" notification.  */
+    kClockManagerErrorUnknown,            /*!< Unknown error.                                  */
 } clock_manager_error_code_t;
 
 
@@ -88,9 +151,6 @@ typedef enum _clock_manager_error_code {
 #if defined(__cplusplus)
 extern "C" {
 #endif /* __cplusplus*/
-
-/*! @name Clock Frequencies*/
-/*@{*/
 
 /*!
  * @brief Gets the clock frequency for a specific clock name.
@@ -108,334 +168,741 @@ extern "C" {
  * @return status   Error code defined in clock_manager_error_code_t
  */
 clock_manager_error_code_t CLOCK_SYS_GetFreq(clock_names_t clockName,
-                                                        uint32_t *frequency);
+                                                 uint32_t *frequency);
 
 /*!
- * @brief Sets the clock source setting.
+ * @brief Get core clock frequency.
  *
- * This function sets the settings for a specified clock source. Each clock 
- * source has its own clock selection settings. See the chip reference manual for 
- * clock source detailed settings and the sim_clock_source_names_t 
- * for clock sources.
+ * This function gets the core clock frequency.
  *
- * @param clockSource Clock source name defined in sim_clock_source_names_t
- * @param setting     Setting value
- * @return status     If the clock source doesn't exist, it returns an error.
+ * @return Current core clock frequency.
  */
-clock_manager_error_code_t CLOCK_SYS_SetSource(clock_source_names_t clockSource, 
-                                               uint8_t setting);
+uint32_t CLOCK_SYS_GetCoreClockFreq(void);
 
 /*!
- * @brief Gets the clock source setting.
+ * @brief Get system clock frequency.
  *
- * This function gets the settings for a specified clock source. Each clock
- * source has its own clock selection settings. See the reference manual for
- * clock source detailed settings and the sim_clock_source_names_t
- * for clock sources.
+ * This function gets the system clock frequency.
  *
- * @param clockSource Clock source name
- * @param setting     Current setting for the clock source
- * @return status     If the clock source doesn't exist, it returns an error.
+ * @return Current system clock frequency.
  */
-clock_manager_error_code_t CLOCK_SYS_GetSource(clock_source_names_t clockSource, 
-                                               uint8_t *setting);
+uint32_t CLOCK_SYS_GetSystemClockFreq(void);
 
 /*!
- * @brief Sets the clock divider setting.
+ * @brief Get bus clock frequency.
  *
- * This function sets the setting for a specified clock divider. See the
- * reference manual for a supported clock divider and value range and the
- * sim_clock_divider_names_t for dividers.
+ * This function gets the bus clock frequency.
  *
- * @param clockDivider Clock divider name
- * @param divider      Divider setting
- * @return status      If the clock divider doesn't exist, it  returns an error.
+ * @return Current bus clock frequency.
  */
-clock_manager_error_code_t CLOCK_SYS_SetDivider(clock_divider_names_t clockDivider, 
-                                                uint32_t setting);
+uint32_t CLOCK_SYS_GetBusClockFreq(void);
 
 /*!
- * @brief Gets the clock divider setting.
+ * @brief Get flash clock frequency.
  *
- * This function gets the setting for a specified clock divider. See the
- * reference manual for a supported clock divider and value range and the 
- * clock_divider_names_t for dividers.
+ * This function gets the flash clock frequency.
  *
- * @param clockDivider Clock divider name
- * @param divider      Divider value pointer
- * @return status      If the clock divider doesn't exist, it returns an error.
+ * @return Current flash clock frequency.
  */
-clock_manager_error_code_t CLOCK_SYS_GetDivider(clock_divider_names_t clockDivider,
-                                                uint32_t *setting);
+uint32_t CLOCK_SYS_GetFlashClockFreq(void);
 
 /*!
- * @brief Sets the clock out dividers setting.
+ * @brief Get LPO clock frequency.
  *
- * This function sets the setting for all clock out dividers at the same time.
- * See the reference manual for a supported clock divider and value range and the
- * clock_divider_names_t for clock out dividers.
+ * This function gets the LPO clock frequency.
  *
- * @param outdiv1      Outdivider1 setting
- * @param outdiv2      Outdivider2 setting
- * @param outdiv3      Outdivider3 setting
- * @param outdiv4      Outdivider4 setting
+ * @return Current clock frequency.
  */
-static inline void CLOCK_SYS_SetOutDividers(uint32_t outdiv1, uint32_t outdiv2,
-                                            uint32_t outdiv3, uint32_t outdiv4)
+static inline uint32_t CLOCK_SYS_GetLpoClockFreq(void)
 {
-    CLOCK_HAL_SetOutDividers(g_simBaseAddr[0], outdiv1, outdiv2, outdiv3, outdiv4);
+    return CPU_LPO_CLK_HZ;
 }
+
+/*!
+ * @brief Set Systick clock source SYST_CSR[CLKSOURCE].
+ *
+ * This function selects the clock source for systick, systick clock source
+ * could be external reference clock or processor clock. Please check
+ * reference manual for details.
+ *
+ * @param src Clock source for systick.
+ */
+static inline void CLOCK_SYS_SetSystickSrc(clock_systick_src_t src)
+{
+    SysTick->CTRL  = ((SysTick->CTRL & ~SysTick_CTRL_CLKSOURCE_Msk)
+                                     | ((uint32_t)src) << SysTick_CTRL_CLKSOURCE_Pos);
+}
+
+/*!
+ * @brief Get Systick clock frequency.
+ *
+ * This function gets the clock frequency for systick. Systick clock source
+ * could be external reference clock or processor clock. Please check
+ * reference manual for details.
+ *
+ * @return Clock frequency for systick.
+ */
+#if FSL_FEATURE_SYSTICK_HAS_EXT_REF
+uint32_t CLOCK_SYS_GetSystickFreq(void);
+#else
+static inline uint32_t CLOCK_SYS_GetSystickFreq(void)
+{
+    return CLOCK_SYS_GetCoreClockFreq();
+}
+#endif // FSL_FEATURE_SYSTICK_HAS_EXT_REF
+
+#if defined(__cplusplus)
+}
+#endif /* __cplusplus*/
+
+/*
+ * Include the cpu specific clock API header files.
+ */
+#if (defined(K02F12810_SERIES))
+    /* Clock System Level API header file */
+    #include "fsl_clock_MK02F12810.h"
+
+#elif (defined(K20D5_SERIES))
+
+#elif (defined(K22F12810_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MK22F12810.h"
+
+#elif (defined(K22F25612_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MK22F25612.h"
+
+
+
+#elif (defined(K22F51212_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MK22F51212.h"
+
+
+#elif (defined(K24F12_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MK24F12.h"
+
+
+#elif (defined(K24F25612_SERIES))
+
+    #include "fsl_clock_MK24F25612.h"
+
+#elif (defined(K26F18_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MK26F18.h"
+
+#elif (defined(K10D10_SERIES))
+#include "fsl_clock_MK10D10.h"
+
+#elif (defined(K20D10_SERIES))
+#include "fsl_clock_MK20D10.h"
+
+#elif (defined(K30D10_SERIES))
+#include "fsl_clock_MK30D10.h"
+
+#elif (defined(K40D10_SERIES))
+#include "fsl_clock_MK40D10.h"
+
+#elif (defined(K50D10_SERIES))
+#include "fsl_clock_MK50D10.h"
+
+#elif (defined(K51D10_SERIES))
+#include "fsl_clock_MK51D10.h"
+
+#elif (defined(K52D10_SERIES))
+#include "fsl_clock_MK52D10.h"
+
+#elif (defined(K53D10_SERIES))
+#include "fsl_clock_MK53D10.h"
+
+#elif (defined(K60D10_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MK60D10.h"
+
+#elif (defined(K60F12_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MK60F12.h"
+
+#elif (defined(K63F12_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MK63F12.h"
+
+#elif (defined(K64F12_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MK64F12.h"
+
+#elif (defined(K65F18_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MK65F18.h"
+
+#elif (defined(K66F18_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MK66F18.h"
+
+#elif (defined(K70F12_SERIES))
+
+
+#elif (defined(K70F15_SERIES))
+
+
+#elif (defined(KL02Z4_SERIES))
+/* Clock System Level API header file */
+#include "fsl_clock_MKL02Z4.h"
+#elif (defined(KL03Z4_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MKL03Z4.h"
+
+#elif (defined(KL28T7_SERIES))
+#include "fsl_clock_MKL28T7.h"
+
+#elif (defined(KL05Z4_SERIES))
+
+#elif (defined(KL13Z4_SERIES))
+
+#elif (defined(KL14Z4_SERIES))
+#include "fsl_clock_MKL14Z4.h"
+
+#elif (defined(KL15Z4_SERIES))
+#include "fsl_clock_MKL15Z4.h"
+
+#elif (defined(KL16Z4_SERIES))
+/* Clock System Level API header file */
+#include "fsl_clock_MKL16Z4.h"
+
+#elif (defined(KL23Z4_SERIES))
+
+#elif (defined(KL24Z4_SERIES))
+#include "fsl_clock_MKL24Z4.h"
+
+#elif (defined(KL25Z4_SERIES))
+/* Clock System Level API header file */
+#include "fsl_clock_MKL25Z4.h"
+
+#elif (defined (KL17Z644_SERIES))
+#include "fsl_clock_MKL17Z644.h"
+
+#elif (defined (KL27Z644_SERIES))
+#include "fsl_clock_MKL27Z644.h"
+
+#elif (defined(KL26Z4_SERIES))
+    /* Clock System Level API header file */
+    #include "fsl_clock_MKL26Z4.h"
+
+#elif (defined(KL17Z4_SERIES))
+#include "fsl_clock_MKL17Z4.h"
+
+#elif (defined(KL27Z4_SERIES))
+#include "fsl_clock_MKL27Z4.h"
+
+#elif (defined(KL33Z4_SERIES))
+#include "fsl_clock_MKL33Z4.h"
+
+#elif (defined(KL34Z4_SERIES))
+#include "fsl_clock_MKL34Z4.h"
+
+#elif (defined(KL43Z4_SERIES))
+#include "fsl_clock_MKL43Z4.h"
+
+#elif (defined(KL16Z4_SERIES))
+#include "fsl_clock_MKL16Z4.h"
+
+#elif (defined(KL26Z4_SERIES))
+#include "fsl_clock_MKL26Z4.h"
+
+#elif (defined(KL36Z4_SERIES))
+#include "fsl_clock_MKL36Z4.h"
+
+#elif (defined(KL46Z4_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MKL46Z4.h"
+
+#elif (defined(KV30F12810_SERIES))
+    /* Clock System Level API header file */
+    #include "fsl_clock_MKV30F12810.h"
+
+#elif (defined(KV31F12810_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MKV31F12810.h"
+
+#elif (defined(KV31F25612_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MKV31F25612.h"
+
+
+#elif (defined(KV31F51212_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MKV31F51212.h"
+
+#elif (defined(KV40F15_SERIES))
+
+    #include "fsl_clock_MKV40F15.h"
+
+#elif (defined(KV43F15_SERIES))
+
+    #include "fsl_clock_MKV43F15.h"
+
+#elif (defined(KV44F15_SERIES))
+
+    #include "fsl_clock_MKV44F15.h"
+
+#elif (defined(KV45F15_SERIES))
+
+    #include "fsl_clock_MKV45F15.h"
+
+#elif (defined(KV46F15_SERIES))
+
+    #include "fsl_clock_MKV46F15.h"
+
+#elif (defined(KV10Z7_SERIES))
+
+    #include "fsl_clock_MKV10Z7.h"
+    
+#elif (defined(KW01Z4_SERIES))
+
+    /* Clock System Level API header file */
+    #include "fsl_clock_MKW01Z4.h"    
+
+#elif (defined(K11DA5_SERIES))
+
+    #include "fsl_clock_MK11DA5.h"
+
+#elif (defined(K21DA5_SERIES))
+
+    #include "fsl_clock_MK21DA5.h"
+
+
+#elif (defined(KW21D5_SERIES))
+    #include "fsl_clock_MKW21D5.h"
+#elif (defined(K21FA12_SERIES))
+    #include "fsl_clock_MK21FA12.h"
+
+#elif (defined(KW22D5_SERIES))
+
+    #include "fsl_clock_MKW22D5.h"
+
+#elif (defined(KW24D5_SERIES))
+
+    #include "fsl_clock_MKW24D5.h"
+
+#else
+    #error "No valid CPU defined!"
+#endif
+
+#if (defined(CLOCK_USE_SCG)) // If SCG is used.
+
+#else
+
+/*! @brief OSC configuration for OSCERCLK. */
+typedef struct OscerConfig
+{
+    bool    enable;       /*!< OSCERCLK enable or not.              */
+    bool    enableInStop; /*!< OSCERCLK enable or not in stop mode. */
+#if FSL_FEATURE_OSC_HAS_EXT_REF_CLOCK_DIVIDER
+    uint8_t erclkDiv;     /*!< Divider for OSCERCLK.                */
+#endif
+} oscer_config_t;
+
+/*!
+ * @brief OSC Initialization Configuration Structure
+ *
+ * Defines the configuration data structure to initialize the OSC.
+ * When porting to a new board, please set the following members
+ * according to board setting:
+ * 1. freq: The external frequency.
+ * 2. hgo/range/erefs: These members should be set base on the board setting.
+ */
+typedef struct OscUserConfig
+{
+    uint32_t freq;                          /*!< External clock frequency.    */
+
+    /*------------------- Configuration for oscillator. ----------------------*/
+    bool enableCapacitor2p;                 /*!< Enable 2pF capacitor load.   */
+    bool enableCapacitor4p;                 /*!< Enable 4pF capacitor load.   */
+    bool enableCapacitor8p;                 /*!< Enable 8pF capacitor load.   */
+    bool enableCapacitor16p;                /*!< Enable 16pF capacitor load.  */
+#if !(defined(FSL_FEATURE_MCGLITE_HAS_HGO0) && (!FSL_FEATURE_MCGLITE_HAS_HGO0))
+    osc_gain_t hgo;         /*!< High gain oscillator select. */
+#endif
+#if !(defined(FSL_FEATURE_MCGLITE_HAS_RANGE0) && (!FSL_FEATURE_MCGLITE_HAS_RANGE0))
+    osc_range_t range;          /*!< Oscillator range setting.    */
+#endif
+#if defined(CLOCK_USE_MCG)
+    osc_src_t erefs;  /*!< External reference select.   */
+#else
+    osc_src_t erefs;             /*!< External reference select.   */
+#endif
+
+    /*------------------- Configuration for OSCERCLK. ------------------------*/
+    oscer_config_t oscerConfig;             /*!< Configuration for OSCERCLK.  */
+} osc_user_config_t;
+#endif
+
+/*!
+ * @brief RTC OSC Initialization Configuration Structure
+ *
+ * Defines the configuration data structure to initialize the RTC OSC.
+ * When porting to a new board, please set the following members
+ * according to board setting:
+ * 1. freq: The external frequency for RTC.
+ * 2. enableOSC: RTC could use its dedicate OSC, or override the OSC0 setting
+ *    and use OSC0, or use external input clock directly. This is different by
+ *    SOC and board setting, please set this correctly.
+ */
+typedef struct RtcOscUserConfig
+{
+    uint32_t freq;             /*!< External clock frequency.                 */
+    bool enableCapacitor2p;    /*!< Enable 2pF capacitor load.                */
+    bool enableCapacitor4p;    /*!< Enable 4pF capacitor load.                */
+    bool enableCapacitor8p;    /*!< Enable 8pF capacitor load.                */
+    bool enableCapacitor16p;   /*!< Enable 16pF capacitor load.               */
+    bool enableOsc;            /*!< Enable OSC or use external clock directly.*/
+    bool enableClockOutput;    /*!< Output clock to other peripherals or not. */
+} rtc_osc_user_config_t;
+
+#if (defined(CLOCK_USE_SCG)) // If SCG is used.
+
+#elif (defined(CLOCK_USE_MCG_LITE))
+/*! @brief MCG_LITE configure structure for mode change. */
+typedef struct McgliteConfig
+{
+    mcglite_mode_t mcglite_mode;   /*!< MCG_LITE mode.               */
+
+    bool irclkEnable;              /*!< MCGIRCLK enable.             */
+    bool irclkEnableInStop;        /*!< MCGIRCLK enable in stop mode.*/
+    mcglite_lirc_select_t ircs;    /*!< MCG_C2[IRCS].         */
+    mcglite_lirc_div_t fcrdiv;     /*!< MCG_SC[FCRDIV].              */
+    mcglite_lirc_div_t lircDiv2;   /*!< MCG_MC[LIRC_DIV2].           */
+    bool hircEnableInNotHircMode;  /*!< HIRC enable when not in HIRC mode. */
+} mcglite_config_t;
+#else
+/*! @brief MCG configure structure for mode change.
+ *
+ * When porting to a new board, please set the following members
+ * according to board setting:
+ * 1. frdiv: If FLL uses the external reference clock, please set this
+ *    value to make sure external reference clock divided by frdiv is
+ *    in the range 31.25kHz to 39.0625kHz.
+ * 2. prdiv0/vdiv0/prdiv1/vdiv1: Please set these values for PLL, the
+ *    PLL reference clock frequency after prdiv should be in the range
+ *    of FSL_FEATURE_MCG_PLL_REF_MIN to FSL_FEATURE_MCG_PLL_REF_MAX.
+ */
+typedef struct McgConfig
+{
+    mcg_modes_t mcg_mode;        /*!< MCG mode.                     */
+
+    /* ------------------ MCGIRCCLK settings ---------------------- */
+    bool irclkEnable;            /*!< MCGIRCLK enable.              */
+    bool irclkEnableInStop;      /*!< MCGIRCLK enable in stop mode. */
+    mcg_irc_mode_t ircs; /*!< MCG_C2[IRCS].        */
+    uint8_t fcrdiv;              /*!< MCG_SC[FCRDIV].               */
+
+    /* -------------------- MCG FLL settings ---------------------- */
+    uint8_t frdiv;               /*!< MCG_C1[FRDIV].                */
+    mcg_dco_range_select_t drs;  /*!< MCG_C4[DRST_DRS].             */
+    mcg_dmx32_select_t dmx32;    /*!< MCG_C4[DMX32].                */
+#if FSL_FEATURE_MCG_USE_OSCSEL
+    mcg_oscsel_select_t oscsel;  /*!< MCG_C7[OSCSEL].               */
+#endif
+
+    /* -------------------- MCG PLL settings ---------------------- */
+#if FSL_FEATURE_MCG_HAS_PLL
+    bool pll0EnableInFllMode;    /*!< PLL0 enable in FLL mode.      */
+    bool pll0EnableInStop;       /*!< PLL0 enable in stop mode.     */
+    uint8_t prdiv0;              /*!< PRDIV0.                       */
+    uint8_t vdiv0;               /*!< VDIV0.                        */
+#if FSL_FEATURE_MCG_HAS_PLL1
+    bool pll1EnableInFllMode;    /*!< PLL1 enable in FLL mode.      */
+    bool pll2EnableInStop;       /*!< PLL1 enable in stop mode.     */
+    uint8_t prdiv1;              /*!< PRDIV1.                       */
+    uint8_t vdiv1;               /*!< VDIV1.                        */
+#endif
+#if (FSL_FEATURE_MCG_HAS_PLL1 || FSL_FEATURE_MCG_HAS_EXTERNAL_PLL)
+    mcg_pll_clk_select_t pllcs;  /*!< MCG_C11[PLLCS].               */
+#endif
+#endif
+} mcg_config_t;
+#endif
+
+/*! @brief Clock configuration structure. */
+typedef struct ClockUserConfig
+{
+#if (defined(CLOCK_USE_SCG))  // If use SCG, then OSC is also controled by SCG.
+
+#else // Not use SCG.
+#if (defined(CLOCK_USE_MCG_LITE))  // USE MCG_LITE.
+    mcglite_config_t mcgliteConfig;  /*!< MCGLite configuration.  */
+#else
+    mcg_config_t     mcgConfig;      /*!< MCG configuration.      */
+#endif
+    oscer_config_t   oscerConfig;    /*!< OSCERCLK configuration. */
+#endif
+
+    sim_config_t     simConfig;      /*!< SIM configuration.      */
+} clock_manager_user_config_t;
+
+/*! @brief The clock notification type. */
+typedef enum _clock_manager_notify
+{
+    kClockManagerNotifyRecover = 0x00U,  /*!< Notify IP to recover to previous work state.      */
+    kClockManagerNotifyBefore  = 0x01U,  /*!< Notify IP that system will change clock setting.  */
+    kClockManagerNotifyAfter   = 0x02U,  /*!< Notify IP that have changed to new clock setting. */
+} clock_manager_notify_t;
+
+/*! @brief The callback type, indicates what kinds of notification this callback handles. */
+typedef enum _clock_manager_callback_type
+{
+    kClockManagerCallbackBefore      = 0x01U, /*!< Callback handles BEFORE notification.          */
+    kClockManagerCallbackAfter       = 0x02U, /*!< Callback handles AFTER notification.           */
+    kClockManagerCallbackBeforeAfter = 0x03U  /*!< Callback handles BEFORE and AFTER notification */
+} clock_manager_callback_type_t;
+
+/*! @brief Clock transition policy. */
+typedef enum ClockManagerPolicy
+{
+    kClockManagerPolicyAgreement,  /*!< Clock transfers gracefully. */
+    kClockManagerPolicyForcible    /*!< Clock transfers forcefully. */
+} clock_manager_policy_t;
+
+/*! @brief Clock notification structure passed to clock callback function. */
+typedef struct ClockNotifyStruct
+{
+    uint8_t targetClockConfigIndex;    /*!< Target clock configuration index. */
+    clock_manager_policy_t policy;     /*!< Clock transition policy.          */
+    clock_manager_notify_t notifyType; /*!< Clock notification type.          */
+} clock_notify_struct_t;
+
+/*! @brief Type of clock callback functions. */
+typedef clock_manager_error_code_t (*clock_manager_callback_t)(clock_notify_struct_t *notify,
+                                                               void* callbackData);
+
+/*! @brief Structure for callback function and its parameter. */
+typedef struct ClockManagerCallbackUserConfig
+{
+    clock_manager_callback_t      callback;      /*!< Entry of callback function.     */
+    clock_manager_callback_type_t callbackType;  /*!< Callback type.                  */
+    void* callbackData;                          /*!< Parameter of callback function. */
+} clock_manager_callback_user_config_t;
+
+/*! @brief Clock manager state structure. */
+typedef struct ClockManagerState
+{
+    clock_manager_user_config_t const **configTable;/*!< Pointer to clock configure table.*/
+    uint8_t clockConfigNum;                         /*!< Number of clock configurations.  */
+    uint8_t curConfigIndex;                         /*!< Index of current configuration.  */
+    clock_manager_callback_user_config_t **callbackConfig; /*!< Pointer to callback table. */
+    uint8_t callbackNum;                            /*!< Number of clock callbacks.       */
+    uint8_t errorCallbackIndex;                     /*!< Index of callback returns error. */
+} clock_manager_state_t;
+
+#if defined(__cplusplus)
+extern "C" {
+#endif /* __cplusplus*/
+
+/*!
+ * @name Dynamic clock setting
+ * @{
+ */
+
+/*!
+ * @brief Install pre-defined clock configurations.
+ *
+ * This function installs the pre-defined clock configuration table to
+ * clock manager.
+ *
+ * @param clockConfigsPtr    Pointer to the clock configuration table.
+ * @param configsNumber      Number of clock configurations in table.
+ * @param callbacksPtr       Pointer to the callback configuration table.
+ * @param callbacksNumber    Number of callback configurations in table.
+ *
+ * @return Error code.
+ */
+clock_manager_error_code_t CLOCK_SYS_Init(clock_manager_user_config_t const **clockConfigsPtr,
+                              uint8_t configsNumber,
+                              clock_manager_callback_user_config_t **callbacksPtr,
+                              uint8_t callbacksNumber);
+
+/*!
+ * @brief Set system clock configuration according to pre-defined structure.
+ *
+ * This function sets system to target clock configuration, before transition,
+ * clock manager will send notifications to all drivers registered to the
+ * callback table.  When graceful policy is used, if some drivers are not ready
+ * to change, clock transition will not occur, all drivers still work in
+ * previous configuration and error is returned. When forceful policy is used,
+ * all drivers should stop work and system changes to new clock configuration.
+ *
+ * @param targetConfigIndex Index of the clock configuration.
+ * @param policy            Transaction policy, graceful or forceful.
+ *
+ * @return Error code.
+ *
+ * @note If external clock is used in the target mode, please make sure it is
+ * enabled, for example, if the external oscillator is used, please setup
+ * EREFS/HGO correctly and make sure OSCINIT is set.
+ */
+clock_manager_error_code_t CLOCK_SYS_UpdateConfiguration(uint8_t targetConfigIndex,
+                                                   clock_manager_policy_t policy);
+
+/*!
+ * @brief Set system clock configuration.
+ *
+ * This funtion sets the system to target configuration, it only sets the
+ * clock modules registers for clock mode change, but not send notifications
+ * to drivers. This function is different by different SoCs.
+ *
+ * @param config Target configuration.
+ *
+ * @return Error code.
+ *
+ * @note If external clock is used in the target mode, please make sure it is
+ * enabled, for example, if the external oscillator is used, please setup
+ * EREFS/HGO correctly and make sure OSCINIT is set.
+ */
+clock_manager_error_code_t CLOCK_SYS_SetConfiguration(clock_manager_user_config_t const * config);
+
+/*!
+ * @brief Get current system clock configuration.
+ *
+ * @return Current clock configuration index.
+ */
+uint8_t CLOCK_SYS_GetCurrentConfiguration(void);
+
+/*!
+ * @brief Get the callback which returns error in last clock switch.
+ *
+ * When graceful policy is used, if some IP is not ready to change clock
+ * setting, the callback will return error and system stay in current
+ * configuration. Applications can use this function to check which
+ * IP callback returns error.
+ *
+ * @return Pointer to the callback which returns error.
+ */
+clock_manager_callback_user_config_t* CLOCK_SYS_GetErrorCallback(void);
+
+#if (defined(CLOCK_USE_SCG))
+
+#elif (defined(CLOCK_USE_MCG_LITE))
+/*!
+ * @brief Sets the MCG_Lite to some specific mode.
+ *
+ * This function sets the MCG_lite to some mode according to configuration
+ * parameter.
+ *
+ * @param targetConfig Pointer to the configure structure.
+ *
+ * @return Error code.
+ */
+mcglite_mode_error_t CLOCK_SYS_SetMcgliteMode(mcglite_config_t const *targetConfig);
+#else
+/*!
+ * @brief Set MCG to some target mode.
+ *
+ * This function sets MCG to some target mode defined by the configure
+ * structure, if cannot switch to target mode directly, this function will
+ * choose the proper path.
+ * @param  targetConfig Pointer to the target MCG mode configuration structure.
+ * @param  fllStableDelay Delay function to make sure FLL is stable.
+ * @return Error code.
+ *
+ * @note If external clock is used in the target mode, please make sure it is
+ * enabled, for example, if the external oscillator is used, please setup
+ * EREFS/HGO correctly and make sure OSCINIT is set.
+ */
+mcg_mode_error_t CLOCK_SYS_SetMcgMode(mcg_config_t const *targetConfig,
+                                   void (* fllStableDelay)(void));
+#endif
+
+/* @} */
+
+/*!
+ * @name OSC configuration
+ * @{
+ */
+
+/*!
+ * @brief Initialize OSC.
+ *
+ * This function initializes OSC according to board configuration.
+ *
+ * @param  instance Instance of the OSC.
+ * @param  config Pointer to the OSC configuration structure.
+ * @return kClockManagerSuccess on success.
+ */
+clock_manager_error_code_t CLOCK_SYS_OscInit(uint32_t instance,
+                                             osc_user_config_t *config);
+
+/*!
+ * @brief Deinitialize OSC.
+ *
+ * This function deinitializes OSC.
+ * @param  instance Instance of the OSC.
+ */
+void CLOCK_SYS_OscDeinit(uint32_t instance);
+
+/*!
+ * @brief Configure the OSCERCLK.
+ *
+ * This function configures the OSCERCLK, including whether OSCERCLK is enable
+ * or not in normal mode and stop mode.
+ *
+ * @param  instance Instance of the OSC.
+ * @param  config Pointer to the OSCERCLK configuration structure.
+ */
+void CLOCK_SYS_SetOscerConfigration(uint32_t instance, oscer_config_t const *config);
+
+/* @} */
+
+#if defined(RTC_INSTANCE_COUNT)
+/*!
+ * @name RTC OSC configuration
+ * @{
+ */
+
+/*!
+ * @brief Initialize the RTC OSC.
+ *
+ * This function initializes the RTC OSC according to board configuration.
+ *
+ * @param  instance Instance of the RTC OSC.
+ * @param  config Pointer to the configuration structure.
+ * @return kClockManagerSuccess on success.
+ */
+clock_manager_error_code_t CLOCK_SYS_RtcOscInit(uint32_t instance,
+                                                rtc_osc_user_config_t *config);
+
+/*!
+ * @brief Deinitialize RTC OSC.
+ *
+ * This function deinitializes RTC OSC.
+ * @param  instance Instance of the RTC OSC.
+ */
+void CLOCK_SYS_RtcOscDeinit(uint32_t instance);
+
+/* @} */
+#endif
 
 #if defined(__cplusplus)
 }
 #endif /* __cplusplus*/
 
 /*! @}*/
-
-/*
- * Include the cpu specific clock API header files.
- */
-#if (defined(CPU_MK02FN128VFM10) || defined(CPU_MK02FN64VFM10) || defined(CPU_MK02FN128VLF10) || \
-    defined(CPU_MK02FN64VLF10) || defined(CPU_MK02FN128VLH10) || defined(CPU_MK02FN64VLH10))
-
-    #define K02F12810_SERIES
-
-#elif (defined(CPU_MK20DX128VMP5) || defined(CPU_MK20DN128VMP5) || defined(CPU_MK20DX64VMP5) || \
-    defined(CPU_MK20DN64VMP5) || defined(CPU_MK20DX32VMP5) || defined(CPU_MK20DN32VMP5) || \
-    defined(CPU_MK20DX128VLH5) || defined(CPU_MK20DN128VLH5) || defined(CPU_MK20DX64VLH5) || \
-    defined(CPU_MK20DN64VLH5) || defined(CPU_MK20DX32VLH5) || defined(CPU_MK20DN32VLH5) || \
-    defined(CPU_MK20DX128VFM5) || defined(CPU_MK20DN128VFM5) || defined(CPU_MK20DX64VFM5) || \
-    defined(CPU_MK20DN64VFM5) || defined(CPU_MK20DX32VFM5) || defined(CPU_MK20DN32VFM5) || \
-    defined(CPU_MK20DX128VFT5) || defined(CPU_MK20DN128VFT5) || defined(CPU_MK20DX64VFT5) || \
-    defined(CPU_MK20DN64VFT5) || defined(CPU_MK20DX32VFT5) || defined(CPU_MK20DN32VFT5) || \
-    defined(CPU_MK20DX128VLF5) || defined(CPU_MK20DN128VLF5) || defined(CPU_MK20DX64VLF5) || \
-    defined(CPU_MK20DN64VLF5) || defined(CPU_MK20DX32VLF5) || defined(CPU_MK20DN32VLF5))
-
-    #define K20D5_SERIES
-
-
-#elif (defined(CPU_MK22FN128VDC10) || defined(CPU_MK22FN128VLH10) || defined(CPU_MK22FN128VLL10) || \
-    defined(CPU_MK22FN128VMP10))
-
-    #define K22F12810_SERIES
-
-    /* Clock System Level API header file */
-    #include "MK22F12810/fsl_clock_K22F12810.h"
-
-#elif (defined(CPU_MK22FN256VDC12) || defined(CPU_MK22FN256VLH12) || defined(CPU_MK22FN256VLL12) || \
-    defined(CPU_MK22FN256VMP12))
-
-    #define K22F25612_SERIES
-
-    /* Clock System Level API header file */
-    #include "MK22F25612/fsl_clock_K22F25612.h"
-
-
-
-#elif (defined(CPU_MK22FN512VDC12) || defined(CPU_MK22FN512VLH12) || defined(CPU_MK22FN512VLL12))
-
-    #define K22F51212_SERIES
-
-    /* Clock System Level API header file */
-    #include "MK22F51212/fsl_clock_K22F51212.h"
-
-
-#elif (defined(CPU_MK24FN1M0VDC12) || defined(CPU_MK24FN1M0VLQ12))
-
-    #define K24F12_SERIES
-
-    /* Clock System Level API header file */
-    #include "MK24F12/fsl_clock_K24F12.h"
-
-#elif (defined(CPU_MK24FN256VDC12))
-
-    #define K24F25612_SERIES
-
-
-#elif (defined(CPU_MK63FN1M0VLQ12) || defined(CPU_MK63FN1M0VMD12))
-
-    #define K63F12_SERIES
-
-    /* Clock System Level API header file */
-    #include "MK63F12/fsl_clock_K63F12.h"
-
-#elif (defined(CPU_MK64FX512VDC12) || defined(CPU_MK64FN1M0VDC12) || defined(CPU_MK64FX512VLL12) || \
-    defined(CPU_MK64FN1M0VLL12) || defined(CPU_MK64FX512VLQ12) || defined(CPU_MK64FN1M0VLQ12) || \
-    defined(CPU_MK64FX512VMD12) || defined(CPU_MK64FN1M0VMD12))
-
-    #define K64F12_SERIES
-
-    /* Clock System Level API header file */
-    #include "MK64F12/fsl_clock_K64F12.h"
-
-#elif (defined(CPU_MK60FX512VMD12) || defined(CPU_MK60FN1M0VMD12) || defined(CPU_MK60FX512VLQ12) || \
-	defined(CPU_MK60FN1M0VMD12R) || defined(CPU_MK60FN1M0VLQ12)	)
-
-	#define K60F12_SERIES
-
-    /* Clock System Level API header file */
-    //#include "MK60F12/fsl_clock_K60F12.h"
-	#include "fsl_clock_K60F12.h"
-
-#elif (defined(CPU_MK65FN2M0CAC18) || defined(CPU_MK65FX1M0CAC18) || defined(CPU_MK65FN2M0VMI18) || \
-    defined(CPU_MK65FX1M0VMI18))
-
-    #define K65F18_SERIES
-
-
-#elif (defined(CPU_MK66FN2M0VLQ18) || defined(CPU_MK66FX1M0VLQ18) || defined(CPU_MK66FN2M0VMD18) || \
-    defined(CPU_MK66FX1M0VMD18))
-
-    #define K66F18_SERIES
-
-
-#elif (defined(CPU_MK70FN1M0VMF12) || defined(CPU_MK70FX512VMF12) || defined(CPU_MK70FN1M0VMF15) || \
-    defined(CPU_MK70FX512VMF15) || defined(CPU_MK70FN1M0VMJ12) || defined(CPU_MK70FX512VMJ12) || \
-    defined(CPU_MK70FN1M0VMJ15) || defined(CPU_MK70FX512VMJ15))
-
-    #define K70F12_SERIES
-
-
-#elif (defined(CPU_MK70FN1M0VMF12) || defined(CPU_MK70FX512VMF12) || defined(CPU_MK70FN1M0VMF15) || \
-    defined(CPU_MK70FX512VMF15) || defined(CPU_MK70FN1M0VMJ12) || defined(CPU_MK70FX512VMJ12) || \
-    defined(CPU_MK70FN1M0VMJ15) || defined(CPU_MK70FX512VMJ15))
-
-    #define K70F15_SERIES
-
-
-#elif (defined(CPU_MKL02Z32CAF4) || defined(CPU_MKL02Z8VFG4) || defined(CPU_MKL02Z16VFG4) || \
-    defined(CPU_MKL02Z32VFG4) || defined(CPU_MKL02Z16VFK4) || defined(CPU_MKL02Z32VFK4) || \
-    defined(CPU_MKL02Z16VFM4) || defined(CPU_MKL02Z32VFM4))
-
-    #define KL02Z4_SERIES
-
-
-#elif (defined(CPU_MKL03Z32CAF4) || defined(CPU_MKL03Z8VFG4) || defined(CPU_MKL03Z16VFG4) || \
-    defined(CPU_MKL03Z32VFG4) || defined(CPU_MKL03Z8VFK4) || defined(CPU_MKL03Z16VFK4) || \
-    defined(CPU_MKL03Z32VFK4))
-
-    #define KL03Z4_SERIES
-
-
-#elif (defined(CPU_MKL05Z8VFK4) || defined(CPU_MKL05Z16VFK4) || defined(CPU_MKL05Z32VFK4) || \
-    defined(CPU_MKL05Z8VLC4) || defined(CPU_MKL05Z16VLC4) || defined(CPU_MKL05Z32VLC4) || \
-    defined(CPU_MKL05Z8VFM4) || defined(CPU_MKL05Z16VFM4) || defined(CPU_MKL05Z32VFM4) || \
-    defined(CPU_MKL05Z16VLF4) || defined(CPU_MKL05Z32VLF4))
-
-    #define KL05Z4_SERIES
-
-
-#elif (defined(CPU_MKL13Z64VFM4) || defined(CPU_MKL13Z128VFM4) || defined(CPU_MKL13Z256VFM4) || \
-    defined(CPU_MKL13Z64VFT4) || defined(CPU_MKL13Z128VFT4) || defined(CPU_MKL13Z256VFT4) || \
-    defined(CPU_MKL13Z64VLH4) || defined(CPU_MKL13Z128VLH4) || defined(CPU_MKL13Z256VLH4) || \
-    defined(CPU_MKL13Z64VMP4) || defined(CPU_MKL13Z128VMP4) || defined(CPU_MKL13Z256VMP4))
-
-    #define KL13Z4_SERIES
-
-
-#elif (defined(CPU_MKL23Z64VFM4) || defined(CPU_MKL23Z128VFM4) || defined(CPU_MKL23Z256VFM4) || \
-    defined(CPU_MKL23Z64VFT4) || defined(CPU_MKL23Z128VFT4) || defined(CPU_MKL23Z256VFT4) || \
-    defined(CPU_MKL23Z64VLH4) || defined(CPU_MKL23Z128VLH4) || defined(CPU_MKL23Z256VLH4) || \
-    defined(CPU_MKL23Z64VMP4) || defined(CPU_MKL23Z128VMP4) || defined(CPU_MKL23Z256VMP4))
-
-    #define KL23Z4_SERIES
-
-
-#elif (defined(CPU_MKL25Z32VFM4) || defined(CPU_MKL25Z64VFM4) || defined(CPU_MKL25Z128VFM4) || \
-    defined(CPU_MKL25Z32VFT4) || defined(CPU_MKL25Z64VFT4) || defined(CPU_MKL25Z128VFT4) || \
-    defined(CPU_MKL25Z32VLH4) || defined(CPU_MKL25Z64VLH4) || defined(CPU_MKL25Z128VLH4) || \
-    defined(CPU_MKL25Z32VLK4) || defined(CPU_MKL25Z64VLK4) || defined(CPU_MKL25Z128VLK4))
-
-    #define KL25Z4_SERIES
-
-    /* Clock System Level API header file */
-    #include "MKL25Z4/fsl_clock_KL25Z4.h"
-
-#elif (defined(CPU_MKL26Z32VFM4) || defined(CPU_MKL26Z64VFM4) || defined(CPU_MKL26Z128VFM4) || \
-    defined(CPU_MKL26Z32VFT4) || defined(CPU_MKL26Z64VFT4) || defined(CPU_MKL26Z128VFT4) || \
-    defined(CPU_MKL26Z32VLH4) || defined(CPU_MKL26Z64VLH4) || defined(CPU_MKL26Z128VLH4) || \
-    defined(CPU_MKL26Z256VLH4) || defined(CPU_MKL26Z256VLK4) || defined(CPU_MKL26Z128VLL4) || \
-    defined(CPU_MKL26Z256VLL4) || defined(CPU_MKL26Z128VMC4) || defined(CPU_MKL26Z256VMC4))
-
-    #define KL26Z4_SERIES
-
-
-#elif (defined(CPU_MKL33Z128VLH4) || defined(CPU_MKL33Z256VLH4) || defined(CPU_MKL33Z128VMP4) || \
-    defined(CPU_MKL33Z256VMP4))
-
-    #define KL33Z4_SERIES
-
-
-#elif (defined(CPU_MKL43Z64VLH4) || defined(CPU_MKL43Z128VLH4) || defined(CPU_MKL43Z256VLH4) || \
-    defined(CPU_MKL43Z64VMP4) || defined(CPU_MKL43Z128VMP4) || defined(CPU_MKL43Z256VMP4))
-
-    #define KL43Z4_SERIES
-
-
-#elif (defined(CPU_MKL46Z128VLH4) || defined(CPU_MKL46Z256VLH4) || defined(CPU_MKL46Z128VLL4) || \
-    defined(CPU_MKL46Z256VLL4) || defined(CPU_MKL46Z128VMC4) || defined(CPU_MKL46Z256VMC4))
-
-    #define KL46Z4_SERIES
-
-
-#elif (defined(CPU_MKV30F128VFM10) || defined(CPU_MKV30F64VFM10) || defined(CPU_MKV30F128VLF10) || \
-    defined(CPU_MKV30F64VLF10) || defined(CPU_MKV30F128VLH10) || defined(CPU_MKV30F64VLH10))
-
-    #define KV30F12810_SERIES
-
-
-#elif (defined(CPU_MKV31F128VLH10) || defined(CPU_MKV31F128VLL10))
-
-    #define KV31F12810_SERIES
-
-    /* Clock System Level API header file */
-    #include "MKV31F12810/fsl_clock_KV31F12810.h"
-
-#elif (defined(CPU_MKV31F256VLH12) || defined(CPU_MKV31F256VLL12))
-
-    #define KV31F25612_SERIES
-
-    /* Clock System Level API header file */
-    #include "MKV31F25612/fsl_clock_KV31F25612.h"
-
-
-#elif (defined(CPU_MKV31F512VLH12) || defined(CPU_MKV31F512VLL12))
-
-    #define KV31F51212_SERIES
-
-    /* Clock System Level API header file */
-    #include "MKV31F51212/fsl_clock_KV31F51212.h"
-
-#elif (defined(CPU_MKV40F128VLH15) || defined(CPU_MKV40F128VLL15) || defined(CPU_MKV40F256VLH15) || \
-    defined(CPU_MKV40F256VLL15) || defined(CPU_MKV40F64VLH15))
-
-    #define KV40F15_SERIES
-
-
-#elif (defined(CPU_MKV43F128VLH15) || defined(CPU_MKV43F128VLL15) || defined(CPU_MKV43F64VLH15))
-
-    #define KV43F15_SERIES
-
-
-#elif (defined(CPU_MKV44F128VLH15) || defined(CPU_MKV44F128VLL15) || defined(CPU_MKV44F64VLH15))
-
-    #define KV44F15_SERIES
-
-
-#elif (defined(CPU_MKV45F128VLH15) || defined(CPU_MKV45F128VLL15) || defined(CPU_MKV45F256VLH15) || \
-    defined(CPU_MKV45F256VLL15))
-
-    #define KV45F15_SERIES
-
-
-#elif (defined(CPU_MKV46F128VLH15) || defined(CPU_MKV46F128VLL15) || defined(CPU_MKV46F256VLH15) || \
-    defined(CPU_MKV46F256VLL15))
-
-    #define KV46F15_SERIES
-
-#else
-    #error "No valid CPU defined!"
-#endif
 
 #endif /* __FSL_CLOCK_MANAGER_H__*/
 /*******************************************************************************

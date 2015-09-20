@@ -28,43 +28,23 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "fsl_port_hal.h"
-
-#if FSL_FEATURE_SOC_PORT_COUNT
+#ifndef _STARTUP_H_
+#define _STARTUP_H_
 
 /*******************************************************************************
- * Code
+ * API
  ******************************************************************************/
 
-/*FUNCTION**********************************************************************
+/*!
+ * @brief Make necessary initializations for RAM.
  *
- * Function Name : PORT_HAL_SetLowGlobalPinCtrl
- * Description   : Configure low half of pin control register for the same settings,
- *                 this function operates pin 0 -15 of one specific port.
- *
- *END**************************************************************************/
-void PORT_HAL_SetLowGlobalPinCtrl(PORT_Type * base, uint16_t lowPinSelect, uint16_t config)
-{
-    uint32_t combine = lowPinSelect;
-    combine = (combine << 16) + config;
-    PORT_WR_GPCLR(base, combine);
-}
+ * - Copy initialized data from ROM to RAM.
+ * - Clear the zero-initialized data section.
+ * - Copy the vector table from ROM to RAM. This could be an option.  
+ */
+void init_data_bss(void);
 
-/*FUNCTION**********************************************************************
- *
- * Function Name : PORT_HAL_SetHighGlobalPinCtrl
- * Description   : Configure high half of pin control register for the same
- *                 settings, this function operates pin 16 -31 of one specific port.
- *
- *END**************************************************************************/
-void PORT_HAL_SetHighGlobalPinCtrl(PORT_Type * base, uint16_t highPinSelect, uint16_t config)
-{
-    uint32_t combine = highPinSelect;
-    combine = (combine << 16) + config;
-    PORT_WR_GPCHR(base, combine);
-}
-
-#endif /* FSL_FEATURE_SOC_PORT_COUNT */
+#endif /* _STARTUP_H_*/
 /*******************************************************************************
  * EOF
  ******************************************************************************/

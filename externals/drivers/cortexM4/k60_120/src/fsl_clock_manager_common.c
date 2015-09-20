@@ -28,43 +28,34 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "fsl_port_hal.h"
-
-#if FSL_FEATURE_SOC_PORT_COUNT
+#include "fsl_device_registers.h"
+#include "fsl_clock_manager.h"
 
 /*******************************************************************************
- * Code
+ * Variables
  ******************************************************************************/
 
-/*FUNCTION**********************************************************************
- *
- * Function Name : PORT_HAL_SetLowGlobalPinCtrl
- * Description   : Configure low half of pin control register for the same settings,
- *                 this function operates pin 0 -15 of one specific port.
- *
- *END**************************************************************************/
-void PORT_HAL_SetLowGlobalPinCtrl(PORT_Type * base, uint16_t lowPinSelect, uint16_t config)
-{
-    uint32_t combine = lowPinSelect;
-    combine = (combine << 16) + config;
-    PORT_WR_GPCLR(base, combine);
-}
+/*******************************************************************************
+ * Definitions
+ ******************************************************************************/
+/* Table of base addresses for instances. */
+SIM_Type * const g_simBase[] = SIM_BASE_PTRS;
+#if (defined(CLOCK_USE_MCG) || defined(CLOCK_USE_MCG_LITE))
+MCG_Type * const g_mcgBase[] = MCG_BASE_PTRS;
+#endif
 
-/*FUNCTION**********************************************************************
- *
- * Function Name : PORT_HAL_SetHighGlobalPinCtrl
- * Description   : Configure high half of pin control register for the same
- *                 settings, this function operates pin 16 -31 of one specific port.
- *
- *END**************************************************************************/
-void PORT_HAL_SetHighGlobalPinCtrl(PORT_Type * base, uint16_t highPinSelect, uint16_t config)
-{
-    uint32_t combine = highPinSelect;
-    combine = (combine << 16) + config;
-    PORT_WR_GPCHR(base, combine);
-}
+#if (defined(CLOCK_USE_SCG))
+const uint32_t g_scgBase[] = SCG_BASE_PTRS;
+#endif
 
-#endif /* FSL_FEATURE_SOC_PORT_COUNT */
+#if (!defined(CLOCK_USE_SCG))
+OSC_Type * const g_oscBase[] = OSC_BASE_PTRS; 
+#endif
+
+#if (defined(PCC_INSTANCE_COUNT))
+PCC_Type * const g_pccBase[] = PCC_BASE_PTRS; 
+#endif
+
 /*******************************************************************************
  * EOF
  ******************************************************************************/

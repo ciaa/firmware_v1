@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     core_cmFunc.h
  * @brief    CMSIS Cortex-M Core Function Access Header File
- * @version  V3.30
- * @date     17. February 2014
+ * @version  V4.00
+ * @date     28. August 2014
  *
  * @note
  *
@@ -198,7 +198,7 @@ __STATIC_INLINE void __set_PRIMASK(uint32_t priMask)
 }
 
 
-#if       (__CORTEX_M >= 0x03)
+#if       (__CORTEX_M >= 0x03) || (__CORTEX_SC >= 300)
 
 /** \brief  Enable FIQ
 
@@ -267,10 +267,10 @@ __STATIC_INLINE void __set_FAULTMASK(uint32_t faultMask)
   __regFaultMask = (faultMask & (uint32_t)1);
 }
 
-#endif /* (__CORTEX_M >= 0x03) */
+#endif /* (__CORTEX_M >= 0x03) || (__CORTEX_SC >= 300) */
 
 
-#if       (__CORTEX_M == 0x04)
+#if       (__CORTEX_M == 0x04) || (__CORTEX_M == 0x07)
 
 /** \brief  Get FPSCR
 
@@ -303,7 +303,7 @@ __STATIC_INLINE void __set_FPSCR(uint32_t fpscr)
 #endif
 }
 
-#endif /* (__CORTEX_M == 0x04) */
+#endif /* (__CORTEX_M == 0x04) || (__CORTEX_M == 0x07) */
 
 
 #elif defined ( __GNUC__ ) /*------------------ GNU Compiler ---------------------*/
@@ -564,7 +564,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __set_FAULTMASK(uint32_t
 #endif /* (__CORTEX_M >= 0x03) */
 
 
-#if       (__CORTEX_M == 0x04)
+#if       (__CORTEX_M == 0x04) || (__CORTEX_M == 0x07)
 
 /** \brief  Get FPSCR
 
@@ -604,7 +604,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __set_FPSCR(uint32_t fps
 #endif
 }
 
-#endif /* (__CORTEX_M == 0x04) */
+#endif /* (__CORTEX_M == 0x04) || (__CORTEX_M == 0x07) */
 
 
 #elif defined ( __ICCARM__ ) /*------------------ ICC Compiler -------------------*/
