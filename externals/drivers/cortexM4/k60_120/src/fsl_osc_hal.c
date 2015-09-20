@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2014, Freescale Semiconductor, Inc.
+ * Copyright (c) 2013 - 2015, Freescale Semiconductor, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -28,9 +28,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "fsl_port_hal.h"
+#include "fsl_osc_hal.h"
+#if FSL_FEATURE_SOC_OSC_COUNT
 
-#if FSL_FEATURE_SOC_PORT_COUNT
+/*******************************************************************************
+ * Definitions
+ ******************************************************************************/
 
 /*******************************************************************************
  * Code
@@ -38,33 +41,24 @@
 
 /*FUNCTION**********************************************************************
  *
- * Function Name : PORT_HAL_SetLowGlobalPinCtrl
- * Description   : Configure low half of pin control register for the same settings,
- *                 this function operates pin 0 -15 of one specific port.
- *
+ * Function Name : OSC_HAL_SetCapacitor
+ * Description   : Enable/disable the capacitor configuration for oscillator
+ * This function will enable/disable the specified capacitors configuration for  
+ * oscillator. This should be done in early system level init function call
+ * based on system configuration.
+ * 
  *END**************************************************************************/
-void PORT_HAL_SetLowGlobalPinCtrl(PORT_Type * base, uint16_t lowPinSelect, uint16_t config)
+void OSC_HAL_SetCapacitor(OSC_Type * base, uint32_t bitMask)
 {
-    uint32_t combine = lowPinSelect;
-    combine = (combine << 16) + config;
-    PORT_WR_GPCLR(base, combine);
+    OSC_WR_CR(base, (OSC_RD_CR(base)
+                    & ~(OSC_CR_SC2P_MASK |
+                        OSC_CR_SC4P_MASK |
+                        OSC_CR_SC8P_MASK |
+                        OSC_CR_SC16P_MASK))
+                    | bitMask);
 }
+#endif
 
-/*FUNCTION**********************************************************************
- *
- * Function Name : PORT_HAL_SetHighGlobalPinCtrl
- * Description   : Configure high half of pin control register for the same
- *                 settings, this function operates pin 16 -31 of one specific port.
- *
- *END**************************************************************************/
-void PORT_HAL_SetHighGlobalPinCtrl(PORT_Type * base, uint16_t highPinSelect, uint16_t config)
-{
-    uint32_t combine = highPinSelect;
-    combine = (combine << 16) + config;
-    PORT_WR_GPCHR(base, combine);
-}
-
-#endif /* FSL_FEATURE_SOC_PORT_COUNT */
 /*******************************************************************************
  * EOF
  ******************************************************************************/
