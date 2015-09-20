@@ -547,12 +547,15 @@ else
 endif
 endif
 endif
+
 ###############################################################################
-# openocd, erase [FLASH|QSPI]
 # Take make arguments into MAKE_ARGS variable
 MAKE_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 # ...and turn them into do-nothing targets
 $(eval $(MAKE_ARGS):;@:)
+
+###############################################################################
+# erase memory, syntax: erase [FLASH|QSPI]
 erase:
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
@@ -615,15 +618,15 @@ else
 	@echo ===============================================================================
 	@echo Starting OpenOCD and downloading...
 	@echo ' '
-ifeq ($(words $(MAKECMDGOALS)),1)
+ifeq ($(words $(MAKE_ARGS)),0)
 # command line: make download
 	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 else
-ifeq ($(words $(MAKECMDGOALS)),2)
+ifeq ($(words $(MAKE_ARGS)),1)
 # command line: make download [File]
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 1,$(MAKE_ARGS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 else
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_$(word 3,$(MAKECMDGOALS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 1,$(MAKE_ARGS)) $(TARGET_DOWNLOAD_$(word 2,$(MAKE_ARGS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 endif
 endif
 endif
@@ -691,7 +694,7 @@ help:
 	@echo "run.........................: execute the binary file (Win/Posix only)"
 	@echo "debug.......................: starts gdb for debug Win/Posix or target"
 	@echo "openocd.....................: starts openocd for $(ARCH)"
-	@echo "download [file] [FLASH|QSPI]: download firmware file to the target"
+	@echo "download [file] [FLASH|QSPI]: download .bin firmware file to the target"
 	@echo "erase [FLASH|QSPI]..........: erase all the flash"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Bulding                                                       |"
