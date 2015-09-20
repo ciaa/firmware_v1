@@ -46,17 +46,21 @@
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe         Mariano Cerdeiro
+ * EsVo         Esteban Volentini
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140528 v0.0.1 initials initial version
+ * 20150801 v0.0.2 EsVo definition on structur to define a pin
+ * 20140528 v0.0.1 MaCe initials initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "fsl_device_registers.h"
+#include "fsl_sim_hal.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -66,9 +70,15 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+typedef struct ciaaDriverDio_pinStruct {
+   PORT_Type * port;
+   uint32_t pin;
+   GPIO_Type * gpio;
+   sim_clock_gate_name_t gate;            /** <= Port clock gate name */
+} ciaaDriverDio_pinType;
+
 /** \brief Dio Type */
 typedef uint32_t ciaaDriverDio_dioType;
-
 /*==================[external data declaration]==============================*/
 /** \brief Dio 0 */
 extern ciaaDriverDio_dioType ciaaDriverDio_dio0;
