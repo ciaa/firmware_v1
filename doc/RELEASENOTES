@@ -1,5 +1,8 @@
 /** \page RELEASENOTES Release Notes
  **
+ ** CIAA Firmware 0.7.0-alpha (20.09.2015)
+ **   TODO
+ **
  ** CIAA Firmware 0.6.1 (10.08.2015)
  **   fix ADC driver for EDU-CIAA-NXP: #305
  **   correct bug in linker script.
