@@ -1,7 +1,11 @@
 /** \page RELEASENOTES Release Notes
  **
  ** CIAA Firmware 0.7.0-alpha (20.09.2015)
- **   TODO
+ **   Migration Freescale support to KSDK 1.2 #342
+ **   Reimplementation of FSL DIO driver using only HAL layer or KSDK #342
+ **   Implementation of FSL UART driver full operative without FIFO support #235
+ **   Change in openocd configuration to avoid problems with Kinetis security #336
+ **   Unification of debug in x86 and targets with make debug command #336
  **
  ** CIAA Firmware 0.6.1 (10.08.2015)
  **   fix ADC driver for EDU-CIAA-NXP: #305
