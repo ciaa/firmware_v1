@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 - 2014, Freescale Semiconductor, Inc.
+ * Copyright (c) 2013 - 2015, Freescale Semiconductor, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -27,8 +27,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
- 
+
 #include "fsl_gpio_hal.h"
+
+#if FSL_FEATURE_SOC_GPIO_COUNT
 
 /*******************************************************************************
  * Code
@@ -39,17 +41,17 @@
  * Description   : Set individual gpio pin to general input or output.
  *
  *END**************************************************************************/
-void GPIO_HAL_SetPinDir(uint32_t baseAddr, uint32_t pin, gpio_pin_direction_t direction)
+void GPIO_HAL_SetPinDir(GPIO_Type * base, uint32_t pin, gpio_pin_direction_t direction)
 {
-    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
+    assert(pin < 32);
 
     if (direction == kGpioDigitalOutput)
     {
-        HW_GPIO_PDDR_SET(baseAddr, 1U << pin);
+        GPIO_SET_PDDR(base, 1U << pin);
     }
     else
     {
-        HW_GPIO_PDDR_CLR(baseAddr, 1U << pin);
+        GPIO_CLR_PDDR(base, 1U << pin);
     }
 }
 
@@ -59,19 +61,61 @@ void GPIO_HAL_SetPinDir(uint32_t baseAddr, uint32_t pin, gpio_pin_direction_t di
  * Description   : Set output level of individual gpio pin to logic 1 or 0.
  *
  *END**************************************************************************/
-void GPIO_HAL_WritePinOutput(uint32_t baseAddr, uint32_t pin, uint32_t output)
+void GPIO_HAL_WritePinOutput(GPIO_Type * base, uint32_t pin, uint32_t output)
 {
-    //assert(pin < 32); Apermingeat: this assert call from Freescale KSDK must be adapted to CIAA assert
+    assert(pin < 32);
+
     if (output != 0U)
     {
-        HW_GPIO_PSOR_WR(baseAddr, 1U << pin); /* Set pin output to high level.*/
+        GPIO_WR_PSOR(base, 1U << pin); /* Set pin output to high level.*/
     }
     else
     {
-        HW_GPIO_PCOR_WR(baseAddr, 1U << pin); /* Set pin output to low level.*/
+        GPIO_WR_PCOR(base, 1U << pin); /* Set pin output to low level.*/
     }
 }
 
+#if FSL_FEATURE_GPIO_HAS_FAST_GPIO
+
+/*FUNCTION**********************************************************************
+ *
+ * Function Name : FGPIO_HAL_SetPinDir
+ * Description   : Set individual gpio pin to general input or output.
+ *
+ *END**************************************************************************/
+void FGPIO_HAL_SetPinDir(FGPIO_Type * base, uint32_t pin, gpio_pin_direction_t direction)
+{
+    if (direction == kGpioDigitalOutput)
+    {
+        FGPIO_SET_PDDR(base, 1U << pin);
+    }
+    else
+    {
+        FGPIO_CLR_PDDR(base, 1U << pin);
+    }
+}
+
+/*FUNCTION**********************************************************************
+ *
+ * Function Name : FGPIO_HAL_WritePinOutput
+ * Description   : Set output level of individual gpio pin to logic 1 or 0.
+ *
+ *END**************************************************************************/
+void FGPIO_HAL_WritePinOutput(FGPIO_Type * base, uint32_t pin, uint32_t output)
+{
+    if (output != 0U)
+    {
+        FGPIO_WR_PSOR(base, 1U << pin); /* Set pin output to high level.*/
+    }
+    else
+    {
+        FGPIO_WR_PCOR(base, 1U << pin); /* Set pin output to low level.*/
+    }
+}
+
+#endif
+
+#endif /* FSL_FEATURE_SOC_GPIO_COUNT */
 /*******************************************************************************
  * EOF
  ******************************************************************************/
