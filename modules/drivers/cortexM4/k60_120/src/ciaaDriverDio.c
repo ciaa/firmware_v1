@@ -76,22 +76,10 @@ typedef struct  {
    uint8_t countOfDevices;
 } ciaaDriverConstType;
 
-//#define CIAA_GPIO_INPUTS_NUMBER      2
-//#define CIAA_GPIO_OUTPUTS_NUMBER     4
-
-#define CIAA_GPIO_INPUTS_NUMBER        8
-#define CIAA_GPIO_OUTPUTS_NUMBER    8
+#define CIAA_GPIO_INPUTS_NUMBER         8
+#define CIAA_GPIO_OUTPUTS_NUMBER        8
 
 /*==================[internal data declaration]==============================*/
-/*
-static ciaaDriverDio_pinType const ciaaGPIOinputPins[CIAA_GPIO_INPUTS_NUMBER] = {
-      {PORTA, 19u, PTA, kSimClockGatePortA}, {PORTE, 26u, PTE, kSimClockGatePortE}
-};
-static ciaaDriverDio_pinType const ciaaGPIOoutputPins[CIAA_GPIO_OUTPUTS_NUMBER] = {
-      {PORTA, 11u, PTA, kSimClockGatePortA}, {PORTA, 28u, PTA, kSimClockGatePortA},
-      {PORTA, 29u, PTA, kSimClockGatePortA}, {PORTA, 10u, PTA, kSimClockGatePortA}
-};
-*/
 static ciaaDriverDio_pinType const ciaaGPIOinputPins[CIAA_GPIO_INPUTS_NUMBER] = {
       {PORTC,  4u, PTC, kSimClockGatePortC}, {PORTC,  5u, PTC, kSimClockGatePortC},
       {PORTC,  6u, PTC, kSimClockGatePortC}, {PORTC,  7u, PTC, kSimClockGatePortC},
@@ -110,7 +98,7 @@ static ciaaDriverDio_pinType const ciaaGPIOoutputPins[CIAA_GPIO_OUTPUTS_NUMBER] 
 /*==================[internal data definition]===============================*/
 /** \brief Device for DIO 0 */
 static ciaaDevices_deviceType ciaaDriverDio_in0 = {
-   "in/0",                          /** <= driver name */
+   "in/0",                         /** <= driver name */
    ciaaDriverDio_open,             /** <= open function */
    ciaaDriverDio_close,            /** <= close function */
    ciaaDriverDio_read,             /** <= read function */
@@ -124,7 +112,7 @@ static ciaaDevices_deviceType ciaaDriverDio_in0 = {
 
 /** \brief Device for DIO 1 */
 static ciaaDevices_deviceType ciaaDriverDio_out0 = {
-   "out/0",                          /** <= driver name */
+   "out/0",                        /** <= driver name */
    ciaaDriverDio_open,             /** <= open function */
    ciaaDriverDio_close,            /** <= close function */
    ciaaDriverDio_read,             /** <= read function */
