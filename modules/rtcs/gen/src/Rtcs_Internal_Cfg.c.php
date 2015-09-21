@@ -1,7 +1,11 @@
-/* Copyright 2015, ACSE & CADIEEL & Diego Ezequiel Vommaro
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
+/********************************************************
+ * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
+ ********************************************************/
+
+/* Copyright 2008, 2009 Mariano Cerdeiro
+ * Copyright 2014, ACSE & CADIEEL
+ *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *      CADIEEL: http://www.cadieel.org.ar
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,10 +37,9 @@
  *
  */
 
-/** \brief This file implements the public interface of the Rtcs tool
+/** \brief RTCS Generated Configuration Implementation File
  **
- ** This file implements the main functionality of the Rtcs tool
- **
+ ** \file Rtcs_Internal_Cfg.c
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
@@ -47,13 +50,13 @@
 /*
  * Initials     Name
  * ---------------------------
- * DeV          Diego Ezequiel Vommaro
+ * DeV         Diego Ezequiel Vommaro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150722 v0.0.1 DeV  initial version
+ * 20150727 v0.1.0 DeV  initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -72,32 +75,26 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern void Rtcs_Init(void)
+<?php
+/* get tasks */
+$pdefs = $config->getList("/TEMPLATE","PDEF");
+?>
+/* there are <?=count($pdefs);?> pdefs */
+<?php
+
+$count = 1;
+foreach ($pdefs as $pdef)
 {
-   uint32_t i;
-
-   /* Loading data of controllers in the corresponding structures */
-   Rtcs_InitCfg();
-
-   /* First execution of the all controllers */
-   for (i = 0; i < CONTROLLERS_LIST_SIZE; i++)
-   {
-      Rtcs_controllers_list[i]->ControllerFirstRunFunc(Rtcs_controllers_list[i]->data);
-   }
+?>
+   /* the pdef <?=$count;?> contains named <?=$pdef;?>: */
+<?php
+   print "        /* PARAM1: " . $config->getValue("/TEMPLATE/" . $pdef, "PARAM1") . " - PARAM2: " . $config->getValue("/TEMPLATE/" . $pdef, "PARAM2") . " */\n";
+   $count++;
 }
 
-extern void Rtcs_Start(void)
-{
-   /* Activation of the Rtcs tool */
-   Rtcs_active = true;
-}
-
-extern void Rtcs_Stop(void)
-{
-   /* Deactivation of the Rtcs tool*/
-   Rtcs_active = false;
-}
+?>
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+

@@ -60,7 +60,9 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "Rtcs_Port.h"
 #include "Rtcs_Internal_Cfg.h"
+#include "Rtcs.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

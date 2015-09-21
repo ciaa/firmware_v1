@@ -151,7 +151,7 @@ extern void Rtcs_StateFeedbackRun(void *data)
    Rtcs_Ext_MatrixMul_float(&statefeedback_data->e_vector, &statefeedback_data->k_matrix, &statefeedback_data->u_vector);
 
    /* Send control efforts to the actuators */
-   statefeedback_data->ControllerSendFunc(statefeedback_data->u, statefeedback_data->u_size );
+   statefeedback_data->ControllerSendFunc(statefeedback_data->u, statefeedback_data->u_size);
 
    /* Update internal data */
    statefeedback_data->DataUpdateFunc(statefeedback_data);

@@ -149,7 +149,6 @@
  *****************************************************************************/
 
 /*==================[external functions declaration]=========================*/
-extern void Rtcs_InitCfg(void);
 //#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * Please declare here all exported functions defined

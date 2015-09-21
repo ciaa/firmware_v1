@@ -1,7 +1,4 @@
-/* Copyright 2015, ACSE & CADIEEL & Diego Ezequiel Vommaro
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
+/* Copyright 2015, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,31 +30,32 @@
  *
  */
 
-/** \brief This file implements the public interface of the Rtcs tool
- **
- ** This file implements the main functionality of the Rtcs tool
+/** \brief This file implements the test of the Devices
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup RTCS RTCS Implementation
+/** \addtogroup Template Template to start a new module
+ ** @{ */
+/** \addtogroup UnitTests Unit Tests
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DeV          Diego Ezequiel Vommaro
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150722 v0.0.1 DeV  initial version
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "Rtcs_Internal.h"
+#include "unity.h"
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -72,32 +70,52 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern void Rtcs_Init(void)
-{
-   uint32_t i;
-
-   /* Loading data of controllers in the corresponding structures */
-   Rtcs_InitCfg();
-
-   /* First execution of the all controllers */
-   for (i = 0; i < CONTROLLERS_LIST_SIZE; i++)
-   {
-      Rtcs_controllers_list[i]->ControllerFirstRunFunc(Rtcs_controllers_list[i]->data);
-   }
+/** \brief set Up function
+ **
+ ** This function is called before each test case is executed
+ **
+ **/
+void setUp(void) {
 }
 
-extern void Rtcs_Start(void)
-{
-   /* Activation of the Rtcs tool */
-   Rtcs_active = true;
+/** \brief tear Down function
+ **
+ ** This function is called after each test case is executed
+ **
+ **/
+void tearDown(void) {
 }
 
-extern void Rtcs_Stop(void)
+void test_Template_Sum_01(void)
 {
-   /* Deactivation of the Rtcs tool*/
-   Rtcs_active = false;
+   int16_t sum;
+
+   sum = Template_Sum16bits(45,90);
+
+   TEST_ASSERT_EQUAL_INT16(135, sum);
 }
 
+
+void test_Template_Sum_02(void)
+{
+   int16_t sum;
+
+   sum = Template_Sum16bits(9500,32090);
+
+   TEST_ASSERT_EQUAL_INT16(32767, sum);
+}
+
+void test_Template_Sum_03(void)
+{
+   int16_t sum;
+
+   sum = Template_Sum16bits(-4500, -31000);
+
+   TEST_ASSERT_EQUAL_INT16(-32768, sum);
+}
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+
