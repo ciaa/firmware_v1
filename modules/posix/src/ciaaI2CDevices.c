@@ -224,7 +224,7 @@ extern ciaaDevices_deviceType * ciaaI2CDevices_open(char const * path, ciaaDevic
    /* the returned device shall be the same as passed */
    ciaaPOSIX_assert(I2CDevice->device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag) == device->loLayer);
 
-   if(oflag & O_NONBLOCK)
+   if(oflag & ciaaPOSIX_O_NONBLOCK)
    {
       I2CDevice->flags |= ciaaI2CDevices_NONBLOCK_MODE;
    }
