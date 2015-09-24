@@ -59,6 +59,7 @@
 #include "ciaaDevices.h"
 #include "ciaaSerialDevices.h"
 #include "ciaaBlockDevices.h"
+#include "ciaaI2CDevices.h"
 #include "ciaaDriverUart.h"
 #include "ciaaDriverI2C.h"
 #include "ciaaDriverFlash.h"

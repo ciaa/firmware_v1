@@ -121,7 +121,7 @@ extern void ciaaDevices_addDeviceGroup(ciaaDevices_deviceGroupType * device)
    if (ciaaDevices.position < (uint8_t)ciaaDevices_MAXDEVICES)
    {
       /* store the device in the list */
-      ciaaDevices.device[ciaaDevices.position] = device;
+      ciaaDevices.device[ciaaDevices.position] = (ciaaDevices_deviceType*)device;
 
       /* increment the device position */
       ciaaDevices.position++;
