@@ -276,12 +276,12 @@ extern int32_t ciaaI2CDevices_ioctl(ciaaDevices_deviceType const * const device,
          break;
 
       case ciaaPOSIX_IOCTL_SET_REGISTERADDWIDTH:
-         pI2CMaster->registerAddWidth = (uint8_t)param;
+         pI2CMaster->registerAddWidth = (uint8_t)(intptr_t)param;
          ret = (int32_t)pI2CMaster->registerAddWidth;
          break;
 
       case ciaaPOSIX_IOCTL_SET_REGISTERADD:
-         pI2CMaster->registerAdd = (uint32_t)param;
+         pI2CMaster->registerAdd = (uint32_t)(intptr_t)param;
          ret = (int32_t)pI2CMaster->registerAdd;
          break;
 
