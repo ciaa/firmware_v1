@@ -84,9 +84,15 @@ typedef struct
 
 /*==================[external data declaration]==============================*/
 extern state_t Rtcs_state;
-extern Rtcs_generic_controller_t *Rtcs_controllers_list[];
+extern Rtcs_generic_controller_t Rtcs_controllers_list[];
 
 /*==================[external functions declaration]=========================*/
+/** \brief Real-Time Control System Internal initialization
+ **
+ ** Performs the internal initialization of the Rtcs tool
+ **
+ **/
+extern void Rtcs_InitCfg(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

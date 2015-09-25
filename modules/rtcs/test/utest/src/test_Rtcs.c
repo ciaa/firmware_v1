@@ -56,6 +56,7 @@
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "Rtcs_Internal.h"
+#include "Rtcs_StateFeedback.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -67,14 +68,11 @@
 
 /*==================[external data definition]===============================*/
 state_t Rtcs_state = UNINITIALIZED;
-Rtcs_generic_controller_t *Rtcs_controllers_list[CONTROLLERS_LIST_SIZE];
+Rtcs_generic_controller_t Rtcs_controllers_list[CONTROLLERS_LIST_SIZE];
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-void doNothing(void *ptr){
-}
-
 /** \brief set Up function
  **
  ** This function is called before each test case is executed
@@ -83,9 +81,10 @@ void doNothing(void *ptr){
 void setUp(void) {
    uint32_t i;
 
+   /* Load of the first run functions of the controllers */
    for(i = 0; i<CONTROLLERS_LIST_SIZE; i++)
    {
-      Rtcs_controllers_list[i]->ControllerFirstRunFunc = doNothing;
+      Rtcs_controllers_list[i].ControllerFirstRunFunc = Rtcs_StateFeedbackFirstRun;
    }
 }
 
@@ -96,41 +95,154 @@ void setUp(void) {
  **/
 void tearDown(void) {
 
+   /* Set the state of tool */
    Rtcs_state = UNINITIALIZED;
 }
 
+/** \brief test Rtcs_Init
+ **
+ ** Correct Initialization
+ **
+ */
 void test_Rtcs_Init_01(void)
 {
    int8_t ret;
+
+   Rtcs_InitCfg_CMockIgnore();
 
    ret = Rtcs_Init();
 
    TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret);
 }
 
-
+/** \brief test Rtcs_Init
+ **
+ ** Incorrect Initialization due to a double call
+ **
+ */
 void test_Rtcs_Init_02(void)
 {
    int8_t ret;
 
+   Rtcs_InitCfg_CMockIgnore();
+
    ret = Rtcs_Init();
+
+   Rtcs_InitCfg_CMockIgnore();
 
    ret = Rtcs_Init();
 
    TEST_ASSERT_EQUAL_INT8(RTCS_STATE_ERROR, ret);
 }
 
+/** \brief test Rtcs_Init
+ **
+ ** Incorrect Initialization due to a call in "Inactive" state
+ **
+ */
 void test_Rtcs_Init_03(void)
 {
    int8_t ret;
+
+   Rtcs_InitCfg_CMockIgnore();
 
    ret = Rtcs_Init();
 
    ret = Rtcs_Stop();
 
+   Rtcs_InitCfg_CMockIgnore();
+
    ret = Rtcs_Init();
 
    TEST_ASSERT_EQUAL_INT8(RTCS_STATE_ERROR, ret);
+}
+
+/** \brief test Rtcs_Start
+ **
+ ** Correct Starting
+ **
+ */
+void test_Rtcs_Start_01(void)
+{
+   int8_t ret;
+
+   Rtcs_InitCfg_CMockIgnore();
+
+   ret = Rtcs_Init();
+
+   ret = Rtcs_Stop();
+
+   ret = Rtcs_Start();
+
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret);
+}
+
+/** \brief test Rtcs_Start
+ **
+ ** Incorrect Starting due to a call in "Unintialized" state
+ **
+ */
+void test_Rtcs_Start_02(void)
+{
+   int8_t ret;
+
+   ret = Rtcs_Start();
+
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_ERROR, ret);
+}
+
+/** \brief test Rtcs_Stop
+ **
+ ** Correct Stopping
+ **
+ */
+void test_Rtcs_Stop_01(void)
+{
+   int8_t ret;
+
+   Rtcs_InitCfg_CMockIgnore();
+
+   ret = Rtcs_Init();
+
+   ret = Rtcs_Stop();
+
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret);
+}
+
+/** \brief test Rtcs_Stop
+ **
+ ** Incorrect Stopping due to a call in "Unintialized" state
+ **
+ */
+void test_Rtcs_Stop_02(void)
+{
+   int8_t ret;
+
+   ret = Rtcs_Stop();
+
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_ERROR, ret);
+}
+
+/** \brief test Rtcs_Stop
+ **
+ ** Correct Stop after correct Start
+ **
+ */
+void test_Rtcs_Stop_03(void)
+{
+   int8_t ret;
+
+   Rtcs_InitCfg_CMockIgnore();
+
+   ret = Rtcs_Init();
+
+   ret = Rtcs_Stop();
+
+   ret = Rtcs_Start();
+
+   ret = Rtcs_Stop();
+
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret);
 }
 
 /** @} doxygen end group definition */

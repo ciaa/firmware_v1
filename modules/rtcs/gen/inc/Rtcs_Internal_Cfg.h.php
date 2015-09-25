@@ -149,7 +149,8 @@
  *****************************************************************************/
 
 /*==================[external functions declaration]=========================*/
-extern void Rtcs_InitCfg(void);
+/* La funcion Rtcs_InitCfg() esta comentada. Su declaracion ahora esta en Rtcs_Internal.h para que se cree su mock asociado*/
+//extern void Rtcs_InitCfg(void);
 //#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * Please declare here all exported functions defined

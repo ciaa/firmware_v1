@@ -93,7 +93,10 @@ foreach ($pdefs as $pdef)
 }
 
 ?>
+void Rtcs_InitCfg(void)
+{
 
+}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
