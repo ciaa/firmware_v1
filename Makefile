@@ -694,8 +694,7 @@ help:
 	@echo clean_generate......: performs make clean and make generate
 	@echo all.................: performs make clean, make generate and make
 	@echo generate_make.......: performs make generate and make
-	@echo "....................: performs make (incremental build)"
-	@echo Link2RAM............: performs make (incremental build) and links to RAM"
+	@echo "Link2RAM............: performs make (incremental build) and links to RAM"
 
 ###############################################################################
 # menuconfig
