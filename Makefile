@@ -136,7 +136,7 @@ RTOSTESTS_DEBUG_CTESTS ?= 0
 RTOSTESTS_CLEAN_GENERATE ?= 1
 RTOSTESTS_CTEST ?=
 RTOSTESTS_SUBTEST ?=
-RTOSTESTS_FLASH_ONCE ?= 1
+RTOSTESTS_RAM_EXEC ?= 0
 
 # dependencies options
 #
@@ -688,12 +688,13 @@ help:
 	@echo "download [file] [FLASH|QSPI].: download FW file to the target"
 	@echo "erase [FLASH|QSPI]..: erase all the flash"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo "|               Bulding                                                       |"
+	@echo "|               Building                                                      |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo clean...............: cleans generated, object, binary, etc. files
 	@echo clean_generate......: performs make clean and make generate
 	@echo all.................: performs make clean, make generate and make
 	@echo generate_make.......: performs make generate and make
+	@echo "Link2RAM............: performs make (incremental build) and links to RAM"
 
 ###############################################################################
 # menuconfig
@@ -826,6 +827,11 @@ generate_make: generate
 	make
 
 ###############################################################################
+# make linking to RAM
+Link2RAM:
+	make LINKER_SCRIPT=$(LINKER_SCRIPT_RAM_EXEC)
+
+###############################################################################
 # Run the bin file
 run:
 # if windows or posix shows an error
@@ -844,7 +850,7 @@ rtostests:
 	mkdir -p $(OUT_DIR)$(DS)doc$(DS)ctest
 	@echo GDB:$(GDB) $(GFLAGS) > $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo CLEAN_GENERATE:$(RTOSTESTS_CLEAN_GENERATE) >> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
-	@echo FLASH_ONCE:$(RTOSTESTS_FLASH_ONCE) >> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo RAM_EXEC:$(RTOSTESTS_RAM_EXEC) >> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo BINDIR:$(BIN_DIR)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo DEBUG_CTESTS:$(RTOSTESTS_DEBUG_CTESTS)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo DIR:$(DS)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
