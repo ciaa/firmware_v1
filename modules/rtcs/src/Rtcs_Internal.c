@@ -67,7 +67,7 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-bool Rtcs_active = false;
+state_t Rtcs_state = UNINITIALIZED;
 Rtcs_generic_controller_t *Rtcs_controllers_list[CONTROLLERS_LIST_SIZE];
 
 /*==================[internal functions definition]==========================*/

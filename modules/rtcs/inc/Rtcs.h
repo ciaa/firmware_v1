@@ -67,6 +67,11 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief Correct state macro */
+#define RTCS_STATE_OK   0
+
+/** \brief Incorrect state macro */
+#define RTCS_STATE_ERROR   -1
 
 /*==================[typedef]================================================*/
 
@@ -77,22 +82,25 @@ extern "C" {
  **
  ** Performs the initialization of the Rtcs tool
  **
+ ** \return RTCS_STATE_OK if ok, or RTCS_STATE_ERROR if error occurs
  **/
-extern void Rtcs_Init(void);
+extern int8_t Rtcs_Init(void);
 
 /** \brief Real-Time Control System boot
  **
  ** Starts the Rtcs tool
  **
+ ** \return RTCS_STATE_OK if ok, or RTCS_STATE_ERROR if error occurs
  **/
-extern void Rtcs_Start(void);
+extern int8_t Rtcs_Start(void);
 
 /** \brief Real-Time Control System halt
  **
  ** Stops the Rtcs tool
  **
+ ** \return RTCS_STATE_OK if ok, or RTCS_STATE_ERROR if error occurs
  **/
-extern void Rtcs_Stop(void);
+extern int8_t Rtcs_Stop(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

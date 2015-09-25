@@ -1,7 +1,4 @@
-/* Copyright 2015, ACSE & CADIEEL & Diego Ezequiel Vommaro
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
+/* Copyright 2015, Diego Ezequiel Vommaro
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,15 +30,15 @@
  *
  */
 
-/** \brief This file implements the public interface of the Rtcs tool
- **
- ** This file implements the main functionality of the Rtcs tool
+/** \brief This file implements the test of the Rtcs Module
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup RTCS RTCS Implementation
+/** \addtogroup RTCS RTCS Unit Test
+ ** @{ */
+/** \addtogroup UnitTests Unit Tests
  ** @{ */
 
 /*
@@ -53,10 +50,11 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150722 v0.0.1 DeV  initial version
+ * 20150925 v0.0.1 DeV  initial version
  */
 
 /*==================[inclusions]=============================================*/
+#include "unity.h"
 #include "Rtcs_Internal.h"
 
 /*==================[macros and definitions]=================================*/
@@ -68,83 +66,75 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+state_t Rtcs_state = UNINITIALIZED;
+Rtcs_generic_controller_t *Rtcs_controllers_list[CONTROLLERS_LIST_SIZE];
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern int8_t Rtcs_Init(void)
-{
-   int8_t i;
-   uint32_t ret;
-
-   if(Rtcs_state == UNINITIALIZED)
-   {
-      /* Loading data of controllers in the corresponding structures */
-      Rtcs_InitCfg();
-
-      /* First execution of the all controllers */
-      for (i = 0; i < CONTROLLERS_LIST_SIZE; i++)
-      {
-         Rtcs_controllers_list[i]->ControllerFirstRunFunc(Rtcs_controllers_list[i]->data);
-      }
-
-      /* Tool state changes to Active */
-      Rtcs_state = ACTIVE;
-
-      /* The return vale is OK */
-      ret = RTCS_STATE_OK;
-   }
-   else
-   {
-      /* The current state is incorrect */
-      ret = RTCS_STATE_ERROR;
-   }
-
-   return ret;
+void doNothing(void *ptr){
 }
 
-extern int8_t Rtcs_Start(void)
+/** \brief set Up function
+ **
+ ** This function is called before each test case is executed
+ **
+ **/
+void setUp(void) {
+   uint32_t i;
+
+   for(i = 0; i<CONTROLLERS_LIST_SIZE; i++)
+   {
+      Rtcs_controllers_list[i]->ControllerFirstRunFunc = doNothing;
+   }
+}
+
+/** \brief tear Down function
+ **
+ ** This function is called after each test case is executed
+ **
+ **/
+void tearDown(void) {
+
+   Rtcs_state = UNINITIALIZED;
+}
+
+void test_Rtcs_Init_01(void)
 {
    int8_t ret;
 
-   if(Rtcs_state == INACTIVE)
-   {
-      /* Activation of the Rtcs tool */
-      Rtcs_state = ACTIVE;
+   ret = Rtcs_Init();
 
-      /* The return value is OK */
-      ret = RTCS_STATE_OK;
-   }
-   else
-   {
-      /* The current state is incorrect */
-      ret = RTCS_STATE_ERROR;
-   }
-
-   return ret;
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret);
 }
 
-extern int8_t Rtcs_Stop(void)
+
+void test_Rtcs_Init_02(void)
 {
    int8_t ret;
-   
-   if(Rtcs_state == ACTIVE)
-   {
-      /* Deactivation of the Rtcs tool*/
-      Rtcs_state = INACTIVE;
 
-      /* The return value is OK */
-      ret = RTCS_STATE_OK;
-   }
-   else
-   {
-      /* The current state is incorrect */
-      ret = RTCS_STATE_ERROR;
-   }
+   ret = Rtcs_Init();
 
-   return ret;
+   ret = Rtcs_Init();
+
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_ERROR, ret);
 }
 
+void test_Rtcs_Init_03(void)
+{
+   int8_t ret;
+
+   ret = Rtcs_Init();
+
+   ret = Rtcs_Stop();
+
+   ret = Rtcs_Init();
+
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_ERROR, ret);
+}
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+

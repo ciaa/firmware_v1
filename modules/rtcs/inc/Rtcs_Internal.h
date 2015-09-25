@@ -63,7 +63,6 @@
 #include "Rtcs_Port.h"
 #include "Rtcs_Internal_Cfg.h"
 #include "Rtcs.h"
-
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
@@ -72,6 +71,9 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+/** \brief Tool State type */
+typedef enum {UNINITIALIZED, ACTIVE, INACTIVE} state_t;
+
 /** \brief Generic controller type */
 typedef struct
 {
@@ -81,7 +83,7 @@ typedef struct
 }Rtcs_generic_controller_t;
 
 /*==================[external data declaration]==============================*/
-extern bool Rtcs_active;
+extern state_t Rtcs_state;
 extern Rtcs_generic_controller_t *Rtcs_controllers_list[];
 
 /*==================[external functions declaration]=========================*/
