@@ -110,6 +110,8 @@ void test_Rtcs_Init_01(void)
 
    Rtcs_InitCfg_CMockIgnore();
 
+   Rtcs_StateFeedbackFirstRun_CMockIgnore();
+
    ret = Rtcs_Init();
 
    TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret);
@@ -125,6 +127,8 @@ void test_Rtcs_Init_02(void)
    int8_t ret;
 
    Rtcs_InitCfg_CMockIgnore();
+
+   Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
    ret = Rtcs_Init();
 
@@ -146,11 +150,15 @@ void test_Rtcs_Init_03(void)
 
    Rtcs_InitCfg_CMockIgnore();
 
+   Rtcs_StateFeedbackFirstRun_CMockIgnore();
+
    ret = Rtcs_Init();
 
    ret = Rtcs_Stop();
 
    Rtcs_InitCfg_CMockIgnore();
+
+   Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
    ret = Rtcs_Init();
 
@@ -167,6 +175,8 @@ void test_Rtcs_Start_01(void)
    int8_t ret;
 
    Rtcs_InitCfg_CMockIgnore();
+
+   Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
    ret = Rtcs_Init();
 
@@ -201,6 +211,8 @@ void test_Rtcs_Stop_01(void)
    int8_t ret;
 
    Rtcs_InitCfg_CMockIgnore();
+
+   Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
    ret = Rtcs_Init();
 
