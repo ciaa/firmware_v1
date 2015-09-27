@@ -72,7 +72,7 @@ extern "C" {
 #define USB_MAX_ENDPOINTS     2
 
 /** @brief Maximum number of HUBs, 0 equals no HUB support.  */
-#define USB_MAX_HUBS          0
+#define USB_MAX_HUBS          1
 
 /** @brief Maximum number of HUB ports per HUB.  */
 #define USB_MAX_HUB_PORTS     4
@@ -101,26 +101,27 @@ extern "C" {
  */
 enum _usb_status_t
 {
-   USB_STATUS_OK = 0,         /**< Success.                                  */
-   USB_STATUS_INV_PARAM,      /**< Invalid argument/parameter to function.   */
+   USB_STATUS_OK = 0,         /**< Success.                                   */
+   USB_STATUS_INV_PARAM,      /**< Invalid argument/parameter to function.    */
 
-   USB_STATUS_DEV_NOT_FOUND,  /**< Device not found in any HUB.              */
-   USB_STATUS_DRIVER_NA,      /**< No driver found for device.               */
-   USB_STATUS_EP_NA,          /**< No endpoint descriptor found.             */
-   USB_STATUS_DRIVER_FAIL,    /**< Driver could not identify device.         */
+   USB_STATUS_DEV_NOT_FOUND,  /**< Device not found in any HUB.               */
+   USB_STATUS_DRIVER_NA,      /**< No driver found for device.                */
+   USB_STATUS_EP_NA,          /**< No endpoint descriptor found.              */
+   USB_STATUS_DRIVER_FAIL,    /**< Driver could not identify device.          */
 
-   USB_STATUS_PIPE_CFG,       /**< Unable to setup pipe.                     */
-   USB_STATUS_HCD_INIT,       /**< Cannot initialize Host Controller Driver. */
+   USB_STATUS_PIPE_CFG,       /**< Unable to setup pipe.                      */
+   USB_STATUS_HCD_INIT,       /**< Cannot initialize Host Controller Driver.  */
 
-   USB_STATUS_INV_DESC,       /**< Invalid descriptor.                       */
-   USB_STATUS_EP_AVAIL,       /**< Not enough pipes available.               */
+   USB_STATUS_INV_DESC,       /**< Invalid descriptor.                        */
+   USB_STATUS_EP_AVAIL,       /**< Not enough pipes available.                */
 
    USB_STATUS_EP_STALLED,
    USB_STATUS_DEV_UNREACHABLE,
-   USB_STATUS_BUSY,           /**< Control endpoint is currently busy.       */
+   USB_STATUS_BUSY,           /**< Control endpoint is currently busy.        */
 
-   USB_STATUS_XFER_ERR,       /**< Error during transfer.                    */
-   USB_STATUS_XFER_WAIT,      /**< Transfer in progress.                     */
+   USB_STATUS_XFER_ERR,       /**< Error during transfer.                     */
+   USB_STATUS_XFER_WAIT,      /**< Transfer in progress.                      */
+   USB_STATUS_XFER_RETRY,     /**< Retry last transfer.                       */
 };
 
 
@@ -329,7 +330,7 @@ typedef struct _usb_stack_t
    usb_host_state_t state;      /**< Stack's current state.                  */
    usb_device_t     devices[USB_MAX_DEVICES];  /**< Array of devices.        */
 #if (USB_MAX_HUBS > 0)
-   usb_hub_t        hubs[USB_MAX_HUBS];        /**< Array of HUBs.           */
+   uint8_t          hubs[USB_MAX_HUBS];        /**< Array of HUB indices.    */
    uint8_t          n_hubs;     /**< Number of connected HUBs.               */
 #endif
    uint8_t          n_devices;  /**< Number of connected devices.            */
@@ -341,22 +342,24 @@ typedef struct _usb_stack_t
 * @{ */
 /** @brief Currently writing to a device on address 0. */
 #define USB_STACK_STATUS_ZERO_ADDR  (1 << 0)
+/** @brief Marks a HUB index as unused. */
+#define USB_STACK_INVALID_HUB_IDX   USB_DEV_PARENT_ROOT
 /** @} Constants */
 
 
 /** @brief USB driver callbacks structure. */
 typedef struct _usb_driver_t
 {
-   uint16_t  vendor_ID;
+   const uint16_t vendor_ID;
    /**< Only probe devices that match this vendor ID, 0xFFFF to force.      */
 
-   uint16_t  product_ID;
+   const uint16_t product_ID;
    /**< Only probe devices that match this product ID, 0xFFFF to force.     */
 
-   int (*probe)( const uint8_t* buffer, uint8_t len );
+   int (*const probe)( const uint8_t* buffer, uint8_t len );
    /**< Probing function, to determine driver compatibility with interface. */
 
-   int (*assign)(
+   int (*const assign)(
          usb_stack_t*   pstack,
          uint16_t       id,
          const uint8_t* buffer,
@@ -364,7 +367,7 @@ typedef struct _usb_driver_t
    );
    /**< Assignment function to bind driver to interface.                    */
 
-   int (*remove)( usb_stack_t* pstack, uint16_t id );
+   int (*const remove)( usb_stack_t* pstack, uint16_t id );
    /**< Remove and unbind interface from driver.                            */
 } usb_driver_t;
 

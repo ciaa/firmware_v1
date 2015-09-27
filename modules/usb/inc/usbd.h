@@ -171,7 +171,7 @@ int usb_device_find(
 int usb_stack_handle_hubs( usb_stack_t* pstack );
 #endif
 
-int usb_stack_new_addr( usb_stack_t* pstack );
+int16_t usb_stack_new_addr( usb_stack_t* pstack );
 
 int usb_stack_update_devices( usb_stack_t* pstack );
 

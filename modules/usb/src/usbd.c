@@ -8,6 +8,7 @@
 #include "usbd.h"
 
 #include "drivers/usb_drivers.h"
+#include "drivers/usb_hub.h"
 
 
 int usb_init( usb_stack_t* pstack )
@@ -26,6 +27,15 @@ int usb_init( usb_stack_t* pstack )
    {
       usb_device_init(pstack, i);
    }
+
+#if (USB_MAX_HUBS > 0)
+   usb_hub_init();
+   for (i = 0; i < USB_MAX_HUBS; ++i)
+   {
+      pstack->hubs[i] = USB_STACK_INVALID_HUB_IDX;
+   }
+   pstack->n_hubs = 0;
+#endif
 
    return USB_STATUS_OK;
 }
@@ -118,11 +128,18 @@ int usb_run( usb_stack_t* pstack )
          status = usb_stack_update_devices(pstack);
          if (status != USB_STATUS_OK)
             usb_assert(0); /** @TODO: handle error */
+
 #if (USB_MAX_HUBS > 0)
+         status = usb_hub_update();
+         if (status != USB_STATUS_OK)
+            usb_assert(0); /** @TODO: handle error */
+#endif
+
+#if 0//(USB_MAX_HUBS > 0)
          status = usb_stack_handle_hubs(pstack);
          if (status != USB_STATUS_OK)
             usb_assert(0); /** @TODO: handle error */
-#endif /* USB_MAX_HUBS > 0 */
+#endif
 
          break;
 
@@ -192,8 +209,11 @@ int usb_ctrlirp(
     * Check whether the  control  endpoint  is  available.   This  is  necessary
     * because a device has only ONE control endpoint but all of  its  interfaces
     * share it.
+    *
+    * @TODO
     * Keep in mind each interface will most likely be  handled  by  a  different
-    * driver and each of them will probably be running concurrently.
+    * driver and each of them will probably be running concurrently.  This means
+    * some sort of semaphore should be used here.
     */
    if (usb_device_lock(pstack, USB_ID_TO_DEV(device_id)) != USB_STATUS_OK)
    {
@@ -304,8 +324,8 @@ int usb_device_init( usb_stack_t* pstack, uint8_t index )
    pdevice->product_ID    = 0;
    pdevice->ticks_delay   = pstack->ticks;
 #if (USB_MAX_HUBS > 0)
-   pdevice->parent_hub    = 0;
-   pdevice->parent_port   = 0;
+   pdevice->parent_hub    = USB_DEV_PARENT_ROOT;
+   pdevice->parent_port   = USB_DEV_PARENT_ROOT;
 #endif
 
    return USB_STATUS_OK;
@@ -328,14 +348,14 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
     *
     * Remember to release downstream devices if this is a HUB!
     * Don't forget to skip i=0 'cause that's the root HUB/device, it should  pop
-    * up with the assertion in anycase though.
+    * up with the assertion in any case though.
     *
     * Something like:
     *
 #if (USB_MAX_HUBS > 0)
     usb_device_t dev_i;
 
-   for (i = 1; i < pstack.n_devices; ++i)
+   for (i = 1; i < pstack.n_devices; ++i) /* Note the i=1 to skip root. * /
    {
       dev_i = pstack.devices[i];
       usb_assert(dev_i.parent_hub < USB_MAX_DEVICES);
@@ -370,6 +390,7 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
    }
    usb_assert(pdevice->n_interfaces == 0);
 
+   /* Finish by leaving the device in its default state. */
    usb_device_init(pstack, index);
 
    pstack->n_devices--;
@@ -435,7 +456,7 @@ void usb_device_attach(
 #endif
 }
 
-#if (USB_MAX_HUBS > 0)
+#if 0 /* (USB_MAX_HUBS > 0) might not be necessary anymore, check this! */
 /** @FIXME: this function will be either re-written or replaced. */
 int usb_device_find(
       usb_stack_t* pstack,
@@ -473,7 +494,7 @@ int usb_device_find(
 int usb_device_update( usb_stack_t* pstack, uint8_t index )
 {
    usb_device_t* pdevice;
-#if (USB_MAX_HUBS > 0)
+#if 0//USB_MAX_HUBS > 0)
 /** @FIXME: when requesting a reset through a HUB I should wait for ACK on those requests. */
    usb_hub_t*    phub;
 #endif
@@ -486,8 +507,9 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
    usb_assert(index < USB_MAX_DEVICES);
    pdevice = &pstack->devices[index];
 #if (USB_MAX_HUBS > 0)
-   usb_assert(pdevice->parent_hub  < USB_MAX_HUBS);
-   usb_assert(pdevice->parent_port < USB_MAX_HUB_PORTS);
+   /* We're accessing the root device or one with a valid parent HUB index. */
+   usb_assert(index == 0 || pdevice->parent_hub  < USB_MAX_HUBS);
+   usb_assert(index == 0 || pdevice->parent_port < USB_MAX_HUB_PORTS);
 #endif
    ppipe   = &pdevice->default_ep;
    pstdreq =  pdevice->stdreq;
@@ -504,7 +526,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          break;
 
       case USB_DEV_STATE_WAITING_DELAY:
-         if (pstack->ticks == pdevice->ticks_delay)
+         if (pstack->ticks >= pdevice->ticks_delay)
             pdevice->state = pdevice->next_state;
          break;
 
@@ -531,38 +553,44 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
           * time being.  Any other devices' reset and addressing process pending
           * will have to wait until this one completes.
           */
-         if (pstack->status & USB_STACK_STATUS_ZERO_ADDR)
-            break; /* Wait until address 0 is freed. */
-/** @TODO: I need some kind of atomic operation for this, maybe a semaphore */
-         pstack->status |= USB_STACK_STATUS_ZERO_ADDR;
-#if (USB_MAX_HUBS > 0)
-         if (index > 0)
+         if (!(pstack->status & USB_STACK_STATUS_ZERO_ADDR))
          {
-            /* Start HUB port reset. */
-            phub = pstack->hubs[pdevice->parent_hub];
-            status = usb_hub_begin_reset(phub, pdevice->parent_port);
-            if (status != USB_STATUS_OK)
-               usb_assert(0); /** @TODO: handle error */
-
-            /* Hold the USB reset high for 10~20 ms. */
-            pdevice->ticks_delay = pstack->ticks + 15;
-            pdevice->state = USB_DEV_STATE_WAITING_DELAY;
-            pdevice->next_state = USB_DEV_STATE_RESET;
-         }
-         else
-#endif
-         {
+            /* Address 0 was free, otherwise we'd have to wait. */
+            pstack->status |= USB_STACK_STATUS_ZERO_ADDR;/* Mark it as in-use */
+#if 0//(USB_MAX_HUBS > 0)
             /*
-             * Hardware reset, 10~20 ms delay is handled internally.  Since this
-             * is the root device, it is not a problem  if  this  method  blocks
-             * internally because there is nothing else connected to the  stack.
+             * If index isn't 0, then we're enumerating a device through a  HUB,
+             * this means we have to use HUB commands for reseting and such.
              */
-            usbhci_reset();
-            pdevice->state = USB_DEV_STATE_DEFAULT;
+            if (index > 0)
+            {
+               /* Start HUB port reset. */
+               phub = pstack->hubs[pdevice->parent_hub];
+               status = usb_hub_begin_reset(phub, pdevice->parent_port);
+               if (status != USB_STATUS_OK)
+                  usb_assert(0); /** @TODO: handle error */
+
+               /* Hold the USB reset high for 10~20 ms. */
+               pdevice->ticks_delay = pstack->ticks + 15;
+               pdevice->state = USB_DEV_STATE_WAITING_DELAY;
+               pdevice->next_state = USB_DEV_STATE_RESET;
+            }
+            else
+#endif
+            {
+               /*
+                * Hardware reset, 10~20 ms delay is handled  internally.   Since
+                * this is the root device, it is not a problem  if  this  method
+                * blocks internally because there is nothing else  connected  to
+                * the stack.
+                */
+               usbhci_reset();
+               pdevice->state = USB_DEV_STATE_DEFAULT;
+            }
          }
          break;
 
-#if (USB_MAX_HUBS > 0)
+#if 0//(USB_MAX_HUBS > 0)
       case USB_DEV_STATE_RESET:
          /*
           * Release reset on USB bus, only for HUBs.  For the root  device  it's
@@ -584,7 +612,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
           * configure its new address and release the zero-address communication
           * bit so the host can setup other devices.
           */
-#if (USB_MAX_HUBS > 0)
+#if 0//(USB_MAX_HUBS > 0)
          if (index > 0)
          {
             /* Get speed of connected device from HUB's port. */
@@ -1010,7 +1038,7 @@ int usb_device_parse_epdesc( usb_pipe_t* ppipe, const uint8_t* buffer )
 
 
 /******************************************************************************/
-int usb_stack_new_addr( usb_stack_t* pstack )
+int16_t usb_stack_new_addr( usb_stack_t* pstack )
 {
    int addr;
    usb_assert(pstack != NULL);
@@ -1043,29 +1071,34 @@ int usb_stack_update_devices( usb_stack_t* pstack )
    return USB_STATUS_OK;
 }
 
-#if (USB_MAX_HUBS > 0)
+#if 0//(USB_MAX_HUBS > 0)
 int usb_stack_handle_hubs( usb_stack_t* pstack )
 {
 /** @TODO: finish this precedure */
-   usb_hub_t*      phub;
+   uint8_t         hub_idx;
    usb_device_t*   pdevice;
-   int             addr;  /* Need whole range for return codes. */
-   int             index; /* IDEM. */
+   int16_t         addr;  /* Need whole range for return codes. */
+   int16_t         index; /* IDEM. */
    uint8_t         i, j;
    uint8_t         port_address;
 
    usb_assert(pstack != NULL);
 
    /*
-    * Loop through each HUB, update it  and  check  its  status  and  ports  for
+    * First, update the HUB driver.  This also takes care of HUBs initialization
+    * routine, not just updating their state and status.
+    */
+   usb_hub_update(); /** @TODO check return status */
+
+   /*
+    * Second, loop  through  each  HUB  and  check  its  status  and  ports  for
     * [dis]connections and other device-related events.
     */
-   for (i = 0; i < pstack->n_hubs; ++i)
+   for (i = 0; pstack->hubs[i] != USB_STACK_INVALID_HUB_IDX && i < USB_MAX_HUBS; ++i)
    {
-      phub = &pstack->hubs[i];
-      usb_hub_update(phub);
+      hub_idx = pstack->hubs[i];
 
-      /* Loop through each HUB's ports. */
+      /* Loop through each HUB's port. */
       for (j = 0; j < phub->n_ports; ++j)
       {
          /* Ports are active when connected to a device. */
