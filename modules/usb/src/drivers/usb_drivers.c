@@ -18,9 +18,9 @@ static const usb_driver_t usb_drivers[USB_MAX_DRIVERS] =
    {   /* HUB */
       USB_FORCE_PROBING_ID,
       USB_FORCE_PROBING_ID,
-      hub_probe,
-      hub_assign,
-      hub_remove
+      usb_hub_probe,
+      usb_hub_assign,
+      usb_hub_remove
    },
 #endif
    {   /* HID */
