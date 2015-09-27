@@ -8,12 +8,11 @@
 #include "usb.h"
 #include "usbd.h"
 #include "usb_desc.h"
-
 #include "drivers/usb_hid.h"
 
 
 /*==================[internal data declaration]==============================*/
-static hid_stack_t hid_stack;
+static hid_stack_t _hid_stack;
 
 
 /*==================[internal functions declaration]=========================*/
@@ -25,13 +24,13 @@ static hid_stack_t hid_stack;
 static int _deinit_dev( uint8_t index );
 
 /**
- * @brief Get next free HID index.
+ * @brief Get next free HID index and mark it as not-free if found.
  * @return Negative on error, HID device's internal index otherwise.
  */
 static int16_t _get_free_dev( void );
 
 /**
- * @brief Update HID device's status.
+ * @brief Update HID state and status.
  * @return Non-zero on error... @TODO complete this!
  */
 static int _update_dev( uint8_t index );
@@ -53,7 +52,8 @@ static int _open_dev( const char* str_num, int flags, hid_protocol_t protocol );
 /**
  * @brief Validate first endpoint in interface's descriptor.
  *
- * Buffer should be pointed to somewhere \b before  the  endpoint's  descriptor.
+ * Buffer should be pointed to somewhere \b before  the  endpoint's  descriptor,
+ * it will be advanced to it on entry.
  * Remember that this endpoint must be an interrupt IN one.
  */
 static int _validate_first_ep( const uint8_t** pbuffer, uint8_t* plen );
@@ -61,7 +61,8 @@ static int _validate_first_ep( const uint8_t** pbuffer, uint8_t* plen );
 /**
  * @brief Validate optional endpoint in interface's descriptor.
  *
- * Buffer should be pointed to somewhere \b before  the  endpoint's  descriptor.
+ * Buffer should be pointed to somewhere \b before  the  endpoint's  descriptor,
+ * it will be advanced to it on entry.
  * Remember that this endpoint must be an interrupt OUT one.
  */
 static int _validate_optional_ep( const uint8_t** pbuffer, uint8_t* plen );
@@ -74,13 +75,12 @@ static int _deinit_dev( uint8_t index )
    hid_dev_t* pdev;
    usb_assert(index < HID_MAX_DEVICES);
 
-   pdev = &hid_stack.devices[index];
-   pdev->status     = HID_STATUS_FREE;
+   pdev = &_hid_stack.devices[index];
+   pdev->status     = HID_STATUS_FREE | HID_STATUS_ENTRY;
    pdev->pstack     = NULL;
    pdev->id         = 0xFFFF;
    pdev->protocol   = HID_PROTO_NONE;
    pdev->state      = HID_STATE_IDLE;
-   pdev->status    |= HID_STATUS_ENTRY;
    pdev->report_len = 0;
 
    return 0;
@@ -92,10 +92,10 @@ static int16_t _get_free_dev( void )
    for (i = 0; i < HID_MAX_DEVICES; ++i)
    {
       /* Iterate until a free device is found. */
-      if (hid_stack.devices[i].status & HID_STATUS_FREE)
+      if (_hid_stack.devices[i].status & HID_STATUS_FREE)
       {
          /* If it was found, mark it as not-free and return its index. */
-         hid_stack.devices[i].status &= ~HID_STATUS_FREE;
+         _hid_stack.devices[i].status &= ~HID_STATUS_FREE;
          break;
       }
    }
@@ -114,7 +114,7 @@ static int _update_dev( uint8_t index )
    int          status = USB_STATUS_OK;
 
    usb_assert(index < HID_MAX_DEVICES);
-   pdev = &hid_stack.devices[index];
+   pdev = &_hid_stack.devices[index];
 
    switch (pdev->state)
    {
@@ -125,7 +125,7 @@ static int _update_dev( uint8_t index )
           */
          if (!(pdev->status & HID_STATUS_FREE))
          {
-            pdev->state   = HID_STATE_SET_IDLE;
+            //pdev->state   = HID_STATE_SET_IDLE;
             pdev->state   = HID_STATE_INIT;
             pdev->status |= HID_STATUS_ENTRY;
          }
@@ -152,6 +152,8 @@ static int _update_dev( uint8_t index )
             );
             if (status == USB_STATUS_BUSY)
             {
+               /* This isn't an error, so notify update as OK. */
+               status = USB_STATUS_OK;
                break; /* Try again later... */
             }
             if (status != USB_STATUS_OK)
@@ -353,7 +355,7 @@ static int _open_dev( const char* str_num, int flags, hid_protocol_t protocol )
       current_num = 0;
       for (index = 0; index < HID_MAX_DEVICES && !ret; ++index)
       {
-         pdev = &hid_stack.devices[index];
+         pdev = &_hid_stack.devices[index];
          if (!(pdev->status & HID_STATUS_FREE) && (pdev->protocol == protocol))
          {
             if (current_num++ == target_num)
@@ -554,7 +556,7 @@ int hid_assign(
 
    if (!ret)
    {
-      pdev = &hid_stack.devices[new_idx];
+      pdev = &_hid_stack.devices[new_idx];
       bLength = USB_STDDESC_IFACE_GET_bLength(buffer);
 
       /* 1) Check the buffer for the interface's descriptor length. */
@@ -570,17 +572,17 @@ int hid_assign(
 
    if (!ret)
    {
-      /* 2) Get the protocol information (we already know it's an HID dev. */
+      /* 2) Get the protocol information (we already know it's an HID dev.). */
       pdev->protocol = USB_STDDESC_IFACE_GET_bInterfaceProtocol(buffer);
 
       /* 3) Find out whether it uses an interrupt OUT endpoint for control. */
       if (USB_STDDESC_IFACE_GET_bNumEndpoints(buffer) == 2)
       {
-         pdev->protocol |= HID_STATUS_INTOUT;
+         pdev->status |= HID_STATUS_INTOUT;
       }
       else
       {
-         pdev->protocol &= ~HID_STATUS_INTOUT;
+         pdev->status &= ~HID_STATUS_INTOUT;
       }
 
       /* 4) Right after the interface descriptor should be the HID one. */
@@ -613,27 +615,37 @@ int hid_assign(
    {
       pdev->ctry_code = HID_DESC_HID_GET_bCountryCode(buffer);
 
-      /* 7) Get report's length, only supported up to 256 bytes long ATM. */
+      /* 7) Get report's length, supported up to HID_BUFF_LEN bytes long ATM. */
       pdev->report_len = HID_DESC_HID_GET_wDescriptorLength(buffer);
+      if (pdev->report_len > HID_BUFF_LEN)
+      {
+         ret = -1;
+      }
+      else
+      {
+         /**
+          * @TODO there are  optional  class  descriptors  after  the  mandatory
+          * report one, this should be read and dealt with... fix this!
+          */
 
-      /**
-       * @TODO there are optional class descriptors after the  mandatory  report
-       * one, this should be read and dealt with... fix this!
-       */
-
-      /*
-       * After the HID desc, there should be one [or two] endpoint  descriptors,
-       * however, this has already been checked by the probing method.
-       *
-       * Done with parsing, activate device and exit.
-       */
-
-      pdev->status  &= ~HID_STATUS_FREE;
-      pdev->pstack   =  pstack;
-      pdev->id       =  id;
-      hid_stack.n_devices++;
+         /*
+          * After  the  HID  desc.,  there  should  be  one  [or  two]  endpoint
+          * descriptors, however, this has already been checked by  the  probing
+          * method.
+          *
+          * Done with parsing, activate device and exit. The 
+          */
+         pdev->pstack   =  pstack;
+         pdev->id       =  id;
+         _hid_stack.n_devices++;
+      }
    }
 
+   /* If there's been an error, de-initialize the device's state and status. */
+   if (ret && new_idx >= 0)
+   {
+      _deinit_dev(new_idx);
+   }
    return ret; /** @TODO: use an actual error code. */
 }
 
@@ -647,7 +659,7 @@ int hid_remove( usb_stack_t* pstack, uint16_t id )
    status = 0;
    for (i = 0; i < HID_MAX_DEVICES && !status; ++i)
    {
-      pdev = &hid_stack.devices[i];
+      pdev = &_hid_stack.devices[i];
       if ((pdev->pstack == pstack) && (pdev->id == id))
       {
          status = 1; /* Found! */
@@ -669,7 +681,7 @@ int hid_init( void )
    uint8_t i;
    for (i = 0; i < HID_MAX_DEVICES; ++i)
       _deinit_dev(i);
-   hid_stack.n_devices = 0;
+   _hid_stack.n_devices = 0;
    return 0;
 }
 
@@ -679,7 +691,7 @@ int hid_update( void )
    int     status = 0;
    for (i = 0; i < HID_MAX_DEVICES && !status; ++i)
    {
-      if (!(hid_stack.devices[i].status & HID_STATUS_FREE))
+      if (!(_hid_stack.devices[i].status & HID_STATUS_FREE))
       {
          status = _update_dev(i);
       }
@@ -744,11 +756,11 @@ int hid_close(int fd)
 
    index = (uint8_t) fd;
    ret = -1;
-   if (!(hid_stack.devices[index].status & HID_STATUS_FREE) &&
-        (hid_stack.devices[index].status & HID_STATUS_OPEN) )
+   if (!(_hid_stack.devices[index].status & HID_STATUS_FREE) &&
+        (_hid_stack.devices[index].status & HID_STATUS_OPEN) )
    {
       /* If device has an interface attached and has been opened, close it. */
-      hid_stack.devices[index].status &= ~HID_STATUS_OPEN;
+      _hid_stack.devices[index].status &= ~HID_STATUS_OPEN;
       /** @TODO finish this procedure, probably call _deinit_dev()... */
       ret = 0;
    }
@@ -770,7 +782,7 @@ size_t hid_read(int fd, void *buf, size_t count)
 
    if (count > 0)
    {
-      pdev = &hid_stack.devices[fd];
+      pdev = &_hid_stack.devices[fd];
       if (!(status = usb_irp(pdev->pstack, pdev->id, 0, (uint8_t*) buf, count)))
       {
          /* Wait for transfer to complete. */
@@ -793,7 +805,7 @@ int hid_write(int fd, const void *buf, size_t count)
 {
    if (  buf == NULL ||
          fd < 0 ||
-         d > HID_MAX_DEVICES-1 )
+         fd > HID_MAX_DEVICES-1 )
    {
       return -1;
    }

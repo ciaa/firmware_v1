@@ -139,17 +139,21 @@ typedef enum _hid_ctrycode_t
 } hid_ctrycode_t;
 
 
+/** @brief HID transfers and requests' buffer maximum length. */
+#define HID_BUFF_LEN  128
+
 /** @brief Basic HID device structure. */
 typedef struct _hid_dev_t
 {
-   hid_state_t    state;      /**< Device's state.                            */
-   uint32_t       status;     /**< Object's status, see constant definitions. */
    usb_stack_t*   pstack;     /**< USB stack the device belongs to.           */
-   uint16_t       id;         /**< Device's ID within the USB stack.          */
+   hid_state_t    state;      /**< Device's state.                            */
    hid_protocol_t protocol;   /**< Device's protocol.                         */
    hid_ctrycode_t ctry_code;  /**< Country code.                              */
-   uint8_t        report[256];/**< Report's buffer, capped at 256 bytes.      */
-   uint8_t        report_len; /**< Report's length, capped at 256 bytes.      */
+   uint32_t       status;     /**< Object's status, see constant definitions. */
+   uint16_t       id;         /**< Device's ID within the USB stack.          */
+   uint8_t        report[HID_BUFF_LEN];/**< Report's buffer, capped at
+                                            HID_BUFF_LEN.                     */
+   uint8_t        report_len; /**< Report's length, capped at HID_BUFF_LEN.   */
 } hid_dev_t;
 
 /** @brief Whether device is free or currently in use. */
@@ -160,7 +164,7 @@ typedef struct _hid_dev_t
 #define HID_STATUS_OPEN    (1 << 2)
 /** @brief Whether device uses an extra interrupt OUT endpoint for control. */
 #define HID_STATUS_INTOUT  (1 << 3)
-/**< Whether entry actions are to be executed.  */
+/** @brief Whether entry actions are to be executed.  */
 #define HID_STATUS_ENTRY   (1 << 4)
 
 /**
