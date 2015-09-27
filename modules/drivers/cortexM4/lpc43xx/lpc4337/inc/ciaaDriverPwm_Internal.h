@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2015, Juan Pablo Moreno (UNCa)
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,99 +30,76 @@
  *
  */
 
-/** \brief Short description of this file
- **
- ** Long description of this file
+#ifndef _CIAADRIVERPWM_INTERNAL_H_
+#define _CIAADRIVERPWM_INTERNAL_H_
+/** \brief Internal Header file of PWM Driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup PWM PWM Drivers
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * JPM       Juan Pablo Moreno
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20150923 v0.0.1 JPM first functional version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaak.h"
-/* TODO configuration dependent includes */
-#include "ciaaDevices.h"
-#include "ciaaSerialDevices.h"
-#include "ciaaBlockDevices.h"
-#include "ciaaDriverUart.h"
-#include "ciaaDriverFlash.h"
-#include "ciaaDriverAio.h"
-#include "ciaaDriverDio.h"
-#include "ciaaDriverPwm.h"
+#include "ciaaPOSIX_stdint.h"
 
-#include "ciaaPOSIX_stdlib.h"
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*==================[macros and definitions]=================================*/
+/*==================[macros]=================================================*/
 
-/*==================[internal data declaration]==============================*/
+/*==================[typedef]================================================*/
+/** \brief PWM Type */
+typedef struct ciaaDriverPwm_portStruct {
+   uint8_t port;				/** <= PWM port number */
+   uint8_t pin;					/** <= pin number of port */
+   uint8_t  function;			/** <= function number */
+   uint8_t  ctout;			    /** <= PWM CTOUT */
 
-/*==================[internal functions declaration]=========================*/
+} ciaaDriverPwm_portType;
 
-/*==================[internal data definition]===============================*/
+typedef struct {
+	struct {
+		uint32_t frequence;		/** <= PWM frequence */
+		uint8_t  index_counter; /** <= PWM counter */
+	} config;
+} ciaaDriverPwm_pwmType;
 
-/*==================[external data definition]===============================*/
+/*==================[external data declaration]==============================*/
+/** \brief Pwm 0 */
+extern ciaaDriverPwm_pwmType ciaaDriverPwm_pwm0;
 
-/*==================[internal functions definition]==========================*/
+/** \brief Pwm 1 */
+extern ciaaDriverPwm_pwmType ciaaDriverPwm_pwm1;
 
-/*==================[external functions definition]==========================*/
-void ciaak_start(void)
-{
-   /* init stdlib */
-   /* ATTENTION: ciaaPOSIX_stdlib_init has to be done before to any call to
-    * ciaaPOSIX_malloc or ciaak_malloc */
-   ciaaPOSIX_stdlib_init();
+/** \brief Pwm 2 */
+extern ciaaDriverPwm_pwmType ciaaDriverPwm_pwm2;
+/*==================[external functions declaration]=========================*/
 
-   /* init device manager */
-   ciaaDevices_init();
-
-   /* init devices types */
-   ciaaSerialDevices_init();
-   ciaaBlockDevices_init();
-
-   /* init drivers */
-   ciaaDriverUart_init();
-   ciaaDriverFlash_init();
-
-   /* ciaaDioDevices_init(); */
-   ciaaDriverDio_init();
-   ciaaDriverAio_init();
-   ciaaDriverPwm_init();
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-void *ciaak_malloc(size_t size)
-{
-   /* try to alloc memory */
-   void* ret = ciaaPOSIX_malloc(size);
-
-   /* kernel memory shall not failed :( */
-   if (NULL == ret)
-   {
-      ciaaPOSIX_printf("Kernel out of memory :( ...\n");
-      while(1)
-      {
-         /* TODO perform an kernel panic or like */
-      }
-   }
-
-   return ret;
-}
-
+#endif
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CIAADRIVERPWM_INTERNAL_H_ */
 
