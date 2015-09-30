@@ -39,7 +39,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Multicore Multicore module
+/** \addtogroup Multicore Multicore module for Cortex-M0
  ** @{ */
 
 /*
@@ -70,21 +70,18 @@
 
 /*==================[macros and definitions]=================================*/
 
-#define CIAA_MULTICORE_CORE_1_IMAGE ((uint8_t *)0x1B000000)
-
 #define CIAA_MULTICORE_IPC_QUEUE_ADDR ((void *)0x20008000)
-
 #define CIAA_MULTICORE_IPC_QUEUE_LEN (1024)
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
-static ciaaLibs_CircBufType * ipc_queue = (ciaaLibs_CircBufType *)(CIAA_MULTICORE_IPC_QUEUE_ADDR);
-
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+
+ciaaLibs_CircBufType * ipc_queue = (ciaaLibs_CircBufType *)(CIAA_MULTICORE_IPC_QUEUE_ADDR);
 
 /*==================[internal functions definition]==========================*/
 
@@ -96,25 +93,24 @@ extern int32_t ciaaMulticore_init_Arch(void)
    return 0;
 }
 
+extern int32_t ciaaMulticore_sendSignal_Arch(void)
+{
+   __DSB();
+   __SEV();
+   return 0;
+}
+
 ISR(Multicore_IRQHandler)
 {
+   static ciaaMulticore_ipcMsg_t m;
+   static int32_t rv;
+
    LPC_CREG->M4TXEVENT = 0; 	/* ACK */
 
-   if(!ciaaLibs_circBufEmpty(ipc_queue))
+   rv = ciaaMulticore_recvMessage(&m);
+   if((rv > 0)&&(m.id.cpuid == CIAA_MULTICORE_CORE_1))
    {
-      static ciaaMulticore_ipcMsg_t msg;
-      static int32_t rv;
-
-      rv = ciaaLibs_circBufGet(ipc_queue, &msg, sizeof(ciaaMulticore_ipcMsg_t));
-
-      if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_1))
-      {
-         if(msg.data0 == CIAA_MULTICORE_CMD_ACTIVATETASK)
-         {
-            ActivateTask(msg.data1);
-         }
-         ciaaLibs_circBufClean(ipc_queue);
-      }
+      ciaaMulticore_dispatch_OSEK_API(m);
    }
 }
 

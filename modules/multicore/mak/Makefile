@@ -39,11 +39,13 @@ multicore_VERSION    = 0.1.0
 # library path
 multicore_PATH 		= $(ROOT_DIR)$(DS)modules$(DS)multicore
 # library source path
-multicore_SRC_PATH 	= $(multicore_PATH)$(DS)src
+multicore_SRC_PATH 	= $(multicore_PATH)$(DS)src \
+							  $(multicore_PATH)$(DS)src$(DS)$(ARCH)$(DS)$(CPUTYPE)			  
 # library include path
-multicore_INC_PATH 	= $(multicore_PATH)$(DS)inc
+multicore_INC_PATH 	= $(multicore_PATH)$(DS)inc \
+							  $(multicore_PATH)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)
 # library source files
-multicore_SRC_FILES 	= $(wildcard $(multicore_SRC_PATH)$(DS)*.c)
+multicore_SRC_FILES 	= $(foreach dir,$(multicore_SRC_PATH),$(wildcard $(dir)$(DS)*.c))
 
 # using external drivers
 include externals$(DS)drivers$(DS)mak$(DS)Makefile

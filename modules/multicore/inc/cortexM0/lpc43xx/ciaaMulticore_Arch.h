@@ -31,8 +31,8 @@
  *
  */
 
-#ifndef MULTICORE_H
-#define MULTICORE_H
+#ifndef MULTICORE_ARCH_H
+#define MULTICORE_ARCH_H
 /** \brief Multicore module main header file.
  **
  **
@@ -58,7 +58,6 @@
 /*==================[inclusions]=============================================*/
 
 #include "ciaaPOSIX_stdlib.h"
-#include "ciaaLibs_CircBuf.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -69,57 +68,13 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 
-/** \brief List of available cores
- */
-typedef enum
-{
-   CIAA_MULTICORE_CORE_0,  /**< current (master) core */
-   CIAA_MULTICORE_CORE_1   /**< first slave core available */
-}ciaaMulticore_cores_e;
-
-/** \brief message struct */
-typedef struct
-{
-      struct
-      {
-         uint32_t cpuid;
-         uint32_t pid;
-      }id;
-      uint32_t data0;
-      uint32_t data1;
-}ciaaMulticore_ipcMsg_t;
-
-/** \brief available inter-core commands */
-typedef enum
-{
-   CIAA_MULTICORE_CMD_ACTIVATETASK = 0x123,
-   CIAA_MULTICORE_CMD_SETEVENT = 0x456
-}ciaaMulticore_ipcCmd_t;
-
 /*==================[external data declaration]==============================*/
-
-extern ciaaLibs_CircBufType * ipc_queue;
 
 /*==================[external functions declaration]=========================*/
 
-/** \brief Start multicore operations
- *  \return 0 on success, -1 on error
- */
-int32_t ciaaMulticore_init(void);
+int32_t ciaaMulticore_init_Arch(void);
 
-/** \brief Send message to inter-core queue and irq to other cores
- *
- * @param m message to send
- * @return != 0 on success, -1 on error
- */
-int32_t ciaaMulticore_sendMessage(ciaaMulticore_ipcMsg_t m);
-
-/** \brief Receive message from inter-core queue
- *
- * @param m message received
- * @return != 0 on success, -1 on error (no msg available)
- */
-int32_t ciaaMulticore_recvMessage(ciaaMulticore_ipcMsg_t  * m);
+int32_t ciaaMulticore_sendSignal_Arch(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -128,4 +83,4 @@ int32_t ciaaMulticore_recvMessage(ciaaMulticore_ipcMsg_t  * m);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef MULTICORE_H */
+#endif /* #ifndef MULTICORE_ARCH_H */

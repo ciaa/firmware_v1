@@ -216,7 +216,15 @@ TASK(PeriodicTask)
    /* FIXME: This function shall not be available in application. It will be replaced by
     * ActivateTask(PeriodicTask);
     */
-   ciaaMulticore_sendMessage(CIAA_MULTICORE_CORE_0, CIAA_MULTICORE_CMD_ACTIVATETASK, PeriodicTask);
+   ciaaMulticore_ipcMsg_t m = {
+      .id = {
+         .cpuid = CIAA_MULTICORE_CORE_0,
+         .pid = 0
+      },
+      .data0 = CIAA_MULTICORE_CMD_ACTIVATETASK,
+      .data1 = PeriodicTask
+   };
+   ciaaMulticore_sendMessage(m);
 #elif(cortexM4 == ARCH)
    /* blink output */
    outputs ^= 0x20;

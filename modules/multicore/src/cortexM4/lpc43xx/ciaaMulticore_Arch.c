@@ -82,17 +82,17 @@
 
 /*==================[internal functions declaration]=========================*/
 
-static ciaaLibs_CircBufType * ipc_queue = (ciaaLibs_CircBufType *)(CIAA_MULTICORE_IPC_QUEUE_ADDR);
-
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+
+ciaaLibs_CircBufType * ipc_queue = (ciaaLibs_CircBufType *)(CIAA_MULTICORE_IPC_QUEUE_ADDR);
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
 
-extern int32_t ciaaMulticore_init(void)
+extern int32_t ciaaMulticore_init_Arch(void)
 {
    int32_t rv = -1;
 
@@ -114,25 +114,24 @@ extern int32_t ciaaMulticore_init(void)
    return rv;
 }
 
+extern int32_t ciaaMulticore_sendSignal_Arch(void)
+{
+   __DSB();
+   __SEV();
+   return 0;
+}
+
 ISR(Multicore_IRQHandler)
 {
-   LPC_CREG->M0APPTXEVENT = 0; 	/* ACK */
+   static ciaaMulticore_ipcMsg_t m;
+   static int32_t rv;
 
-   if(!ciaaLibs_circBufEmpty(ipc_queue))
+   LPC_CREG->M0APPTXEVENT = 0;   /* ACK */
+
+   rv = ciaaMulticore_recvMessage(&m);
+   if((rv > 0)&&(m.id.cpuid == CIAA_MULTICORE_CORE_0))
    {
-      static ciaaMulticore_ipcMsg_t msg;
-      static int32_t rv;
-
-      rv = ciaaLibs_circBufGet(ipc_queue, &msg, sizeof(ciaaMulticore_ipcMsg_t));
-
-      if((rv > 0)&&(msg.id.cpuid == CIAA_MULTICORE_CORE_0))
-      {
-         if(msg.data0 == CIAA_MULTICORE_CMD_ACTIVATETASK)
-         {
-            ActivateTask(msg.data1);
-         }
-         ciaaLibs_circBufClean(ipc_queue);
-      }
+      ciaaMulticore_dispatch_OSEK_API(m);
    }
 }
 
