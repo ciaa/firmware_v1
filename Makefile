@@ -785,8 +785,10 @@ info:
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
+ifneq ($(KEEP_BIN), 1)
 	@echo Removing bin files
 	@rm -rf $(BIN_DIR)$(DS)*
+endif
 	@echo Removing RTOS generated files
 	@rm -rf $(GEN_DIR)$(DS)*
 	@echo Removing mocks
@@ -900,13 +902,29 @@ ifeq ($(CPUTYPE),lpc43xx)
 	@echo "***************************************"
 	@echo "*** Making Cortex-M0 application... ***"
 	@echo "***************************************"
-	make ARCH=cortexM0 generate
+	make ARCH=cortexM0 clean_generate
 	make ARCH=cortexM0 TARGET_NAME=out/bin/app_m0
 	@echo "***************************************"
 	@echo "*** Making Cortex-M4 application... ***"
 	@echo "***************************************"
-	make ARCH=cortexM4 generate
+	make ARCH=cortexM4 KEEP_BIN=1 clean_generate
 	make ARCH=cortexM4 TARGET_NAME=out/bin/app_m4
+else
+	@echo '$(CPUTYPE) not supported for multicore.'
+endif
+
+###############################################################################
+# multicore download rule
+mcore_download:
+ifeq ($(CPUTYPE),lpc43xx)
+	@echo "********************************************"
+	@echo "*** Downloading Cortex-M4 application... ***"
+	@echo "********************************************"
+	make ARCH=cortexM4 TARGET_NAME=out/bin/app_m4 download
+	@echo "********************************************"
+	@echo "*** Downloading Cortex-M0 application... ***"
+	@echo "********************************************"
+	make ARCH=cortexM0 TARGET_NAME=out/bin/app_m0 download
 else
 	@echo '$(CPUTYPE) not supported for multicore.'
 endif
