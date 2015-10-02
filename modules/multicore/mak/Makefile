@@ -37,13 +37,13 @@ LIBS 				     += multicore
 # version
 multicore_VERSION    = 0.1.0
 # library path
-multicore_PATH 		= $(ROOT_DIR)$(DS)modules$(DS)multicore
+multicore_PATH       = $(ROOT_DIR)$(DS)modules$(DS)multicore
 # library source path
-multicore_SRC_PATH 	= $(multicore_PATH)$(DS)src \
-							  $(multicore_PATH)$(DS)src$(DS)$(ARCH)$(DS)$(CPUTYPE)			  
+multicore_SRC_PATH   = $(multicore_PATH)$(DS)src \
+                       $(multicore_PATH)$(DS)src$(DS)$(ARCH)$(DS)$(CPUTYPE)
 # library include path
-multicore_INC_PATH 	= $(multicore_PATH)$(DS)inc \
-							  $(multicore_PATH)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)
+multicore_INC_PATH   = $(multicore_PATH)$(DS)inc \
+                       $(multicore_PATH)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)
 # library source files
 multicore_SRC_FILES 	= $(foreach dir,$(multicore_SRC_PATH),$(wildcard $(dir)$(DS)*.c))
 

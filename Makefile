@@ -781,7 +781,7 @@ info:
 
 ###############################################################################
 # clean
-.PHONY: clean generate all run
+.PHONY: clean generate all run multicore
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
@@ -893,3 +893,21 @@ report:
 	@echo 'If you need help you can write to ciaa-firmware@googlegroups.com attaching the report file report.log.'
 	@echo 'Before asking for support please search for similar issues in the archive of ciaa-firmware@googlegroups.com.'
 
+
+###############################################################################
+# multicore rule
+multicore:
+ifeq ($(CPUTYPE),lpc43xx)
+	@echo "***************************************"
+	@echo "*** Making Cortex-M0 application... ***"
+	@echo "***************************************"
+	make generate ARCH=cortexM0
+	make ARCH=cortexM0 TARGET_NAME=out/bin/app_m0
+	@echo "***************************************"
+	@echo "*** Making Cortex-M4 application... ***"
+	@echo "***************************************"
+	make generate ARCH=cortexM4
+	make ARCH=cortexM4 TARGET_NAME=out/bin/app_m4
+else
+	@echo 'CPUTYPE not supported for multicore.'
+endif
