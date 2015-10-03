@@ -105,21 +105,21 @@ extern ciaaLibs_CircBufType * ipc_queue;
 /** \brief Start multicore operations
  *  \return 0 on success, -1 on error
  */
-int32_t ciaaMulticore_init(void);
+extern int32_t ciaaMulticore_init(void);
 
 /** \brief Send message to inter-core queue and irq to other cores
  *
  * @param m message to send
  * @return != 0 on success, -1 on error
  */
-int32_t ciaaMulticore_sendMessage(ciaaMulticore_ipcMsg_t m);
+extern int32_t ciaaMulticore_sendMessage(ciaaMulticore_ipcMsg_t m);
 
 /** \brief Receive message from inter-core queue
  *
  * @param m message received
  * @return != 0 on success, -1 on error (no msg available)
  */
-int32_t ciaaMulticore_recvMessage(ciaaMulticore_ipcMsg_t  * m);
+extern int32_t ciaaMulticore_recvMessage(ciaaMulticore_ipcMsg_t  * m);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
