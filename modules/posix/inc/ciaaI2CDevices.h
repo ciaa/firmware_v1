@@ -165,6 +165,22 @@ extern ssize_t ciaaI2CDevices_read(ciaaDevices_deviceType const * const device, 
  **/
 extern ssize_t ciaaI2CDevices_write(ciaaDevices_deviceType const * device, uint8_t const * const buf, size_t const nbyte);
 
+/** \brief Seek into a i2c device
+ **
+ ** Set the read/write position to a given offset.
+ **
+ ** \param[in] fildes   device to seek into
+ ** \param[in] offset   depending on the value of whence offset represents:
+ **                     offset from the beggining if whence is set to SEEK_SET.
+ **                     offset from the end if whence is set to SEEK_END.
+ **                     offset from the current position if whence is set to
+ **                     SEEK_CUR.
+ ** \param[in] whence   SEEK_CUR, SEEK_SET or SEEK_END
+ ** \return -1 if failed, a non negative integer representing the count of
+ **         written bytes if success
+ **/
+extern off_t ciaaI2CDevices_lseek(ciaaDevices_deviceType const * const device, off_t const offset, uint8_t const whence);
+
 /** \brief Transmit confirmation of a I2C device
  **
  ** This interface informs the I2C device that a recepction has been completed

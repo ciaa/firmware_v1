@@ -1,4 +1,5 @@
 /* Copyright 2015, Sebastian Bedin para SUR Emprendimientos Tecnologicos S.R.L. / CONAE
+ * Copyright 2015, Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -81,12 +82,20 @@ typedef struct {
 } ciaaI2CDevices_masterDataType;
 
 typedef struct {
+   /* due to a rework some elements of this struct may not be needed */
+   /* elements to review */
    ciaaDevices_deviceType const * device;
    ciaaI2CDevices_blockerType blocked;
    ciaaLibs_CircBufType rxBuf;
    ciaaLibs_CircBufType txBuf;
    ciaaI2CDevices_masterDataType masterData;
+
    uint8_t flags;
+
+   /* confirmed elements */
+   uint32_t curPos;     /* actual position on this device */
+   uint32_t maxPos;     /* maximal position on this device */ /* TODO move to Flash */
+
 } ciaaI2CDevices_deviceType;
 
 /** \brief I2C Devices Type */
@@ -136,8 +145,7 @@ extern void ciaaI2CDevices_init(void)
 
 extern void ciaaI2CDevices_addDriver(ciaaDevices_deviceType * driver)
 {
-   //	ciaaDevices_deviceGroupType * newDevice;
-   ciaaDevices_deviceType * newDevice;
+   ciaaDevices_deviceGroupType * newDevice;
    char * newDeviceName;
    uint8_t length;
    uint8_t position;
@@ -147,72 +155,67 @@ extern void ciaaI2CDevices_addDriver(ciaaDevices_deviceType * driver)
 
    /* check if more drivers can be added */
    if (ciaaI2CDevices_MAXDEVICES > ciaaI2CDevices.position) {
+      /* get position for next device */
+      position = ciaaI2CDevices.position;
 
-   /* get position for next device */
-   position = ciaaI2CDevices.position;
+      /* increment position for next device */
+      ciaaI2CDevices.position++;
 
-   /* increment position for next device */
-   ciaaI2CDevices.position++;
+      /* exit critical section */
+      /* not needed, only 1 task running */
+
+      /* add driver */
+      ciaaI2CDevices.devstr[position].device = driver;
+
+      /* configure rx and tx buffers */
+      ciaaLibs_circBufInit(&ciaaI2CDevices.devstr[position].rxBuf, ciaak_malloc(256), 256);
+      ciaaLibs_circBufInit(&ciaaI2CDevices.devstr[position].txBuf, ciaak_malloc(256), 256);
+
+      /* initial flags */
+      ciaaI2CDevices.devstr[position].flags = 0;
+
+      /* allocate memory for new device */
+      newDevice = (ciaaDevices_deviceGroupType*) ciaak_malloc(sizeof(ciaaDevices_deviceType));
+
+      /* set functions for this device */
+      newDevice->open = ciaaI2CDevices_open;
+      newDevice->close = ciaaI2CDevices_close;
+      newDevice->ioctl = ciaaI2CDevices_ioctl;
+      newDevice->read = ciaaI2CDevices_read;
+      newDevice->write = ciaaI2CDevices_write;
+
+      /* store layers information information */
+      newDevice->layer = (void *) &ciaaI2CDevices.devstr[position];
+      newDevice->loLayer = (void *) driver;
+
+      /* store newDevice layer information in the lower layer */
+      driver->upLayer = newDevice;
+
+      /* create path string for this device */
+      length = ciaaPOSIX_strlen(driver->path);
+      length += ciaaPOSIX_strlen(ciaaI2CDevices_prefix);
+      length += 2; /* for the / and the termination null */
+
+      /* create path for the new device */
+      newDeviceName = (char *) ciaak_malloc(length);
+
+      /* start a new string */
+      *newDeviceName = 0;
+
+      /* add prefix, / and the device name */
+      ciaaPOSIX_strcat(newDeviceName, ciaaI2CDevices_prefix);
+      ciaaPOSIX_strcat(newDeviceName, "/");
+      ciaaPOSIX_strcat(newDeviceName, driver->path);
+      /* add path to device structure */
+      newDevice->path = newDeviceName;
+
+      /* add device */
+      ciaaDevices_addDeviceGroup(newDevice);
+   }
 
    /* exit critical section */
    /* not needed, only 1 task running */
 
-   /* add driver */
-   ciaaI2CDevices.devstr[position].device = driver;
-
-   /* configure rx and tx buffers */
-   ciaaLibs_circBufInit(&ciaaI2CDevices.devstr[position].rxBuf, ciaak_malloc(256), 256);
-   ciaaLibs_circBufInit(&ciaaI2CDevices.devstr[position].txBuf, ciaak_malloc(256), 256);
-
-   /* initial flags */
-   ciaaI2CDevices.devstr[position].flags = 0;
-
-   /* allocate memory for new device */
-   newDevice = (ciaaDevices_deviceType*) ciaak_malloc(sizeof(ciaaDevices_deviceType));
-
-   /* set functions for this device */
-   newDevice->open = ciaaI2CDevices_open;
-   newDevice->close = ciaaI2CDevices_close;
-   newDevice->ioctl = ciaaI2CDevices_ioctl;
-   newDevice->read = ciaaI2CDevices_read;
-   newDevice->write = ciaaI2CDevices_write;
-
-   /* store layers information information */
-   newDevice->layer = (void *) &ciaaI2CDevices.devstr[position];
-   newDevice->loLayer = (void *) driver;
-
-   /* store newDevice layer information in the lower layer */
-   driver->upLayer = newDevice;
-
-   /* create path string for this device */
-   length = ciaaPOSIX_strlen(driver->path);
-   length += ciaaPOSIX_strlen(ciaaI2CDevices_prefix);
-   length += 2; /* for the / and the termination null */
-
-   /* create path for the new device */
-   newDeviceName = (char *) ciaak_malloc(length);
-
-   /* start a new string */
-   *newDeviceName = 0;
-
-   /* add prefix, / and the device name */
-   ciaaPOSIX_strcat(newDeviceName, ciaaI2CDevices_prefix);
-   ciaaPOSIX_strcat(newDeviceName, "/");
-   ciaaPOSIX_strcat(newDeviceName, driver->path);
-   /* add path to device structure */
-   newDevice->path = newDeviceName;
-
-   /* add device */
-#if 0
-	 ciaaDevices_addDeviceGroup(newDevice);
-#endif
-	 ciaaDevices_addDevice(newDevice);
-   }
-   else
-   {
-      /* exit critical section */
-      /* not needed, only 1 task running */
-   }
 }
 
 extern ciaaDevices_deviceType * ciaaI2CDevices_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
@@ -364,6 +367,44 @@ extern ssize_t ciaaI2CDevices_write(ciaaDevices_deviceType const * const device,
 
    return ret;
 }
+
+extern off_t ciaaI2CDevices_lseek(ciaaDevices_deviceType const * const device, off_t const offset, uint8_t const whence)
+{
+   off_t newPos = (off_t)-1;
+
+   ciaaI2CDevices_deviceType * I2CDevice = (ciaaI2CDevices_deviceType*) device->layer;
+
+   switch (whence) {
+      case SEEK_CUR:
+         newPos = I2CDevice->curPos += offset;
+         break;
+
+      case SEEK_SET:
+         newPos = offset;
+         break;
+
+      case SEEK_END:
+         newPos = I2CDevice->maxPos + offset;
+         break;
+
+#if CIAA_POSIX_I2C_DEBUG
+      default:
+         /* TODO */
+         newPos = (off_t)-1;
+         break;
+#endif
+   }
+
+   if ((0 <= newPos) && (I2CDevice->maxPos >= newPos))
+   {
+      /* newPos is of the type off_t which is an integer, but
+       * the position accept only possitive values. */
+      I2CDevice->curPos = (uint32_t) newPos;
+   }
+
+   return newPos;
+}
+
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
