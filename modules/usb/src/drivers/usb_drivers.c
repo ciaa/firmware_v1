@@ -1,17 +1,42 @@
+/**
+ * @addtogroup CIAA_Firmware CIAA Firmware
+ * @{
+ * @addtogroup USB USB Stack
+ * @{
+ * @addtogroup USB_DRV USB Drivers
+ * @{
+ */
+
+
+/*==================[inclusions]=============================================*/
 #include <stdio.h>
 #include <stdint.h>
+
 #include "usb.h"
 #include "usbd.h"
 #include "drivers/usb_drivers.h"
-
 #if (USB_MAX_HUBS > 0)
 #include "drivers/usb_hub.h"
 #endif
-
 #include "drivers/usb_hid.h"
 
+
+/*==================[internal functions declaration]=========================*/
+
+/**
+ * @brief Validate device's product and vendor ID against those targeted by  the
+ * driver.  If either target is USB_FORCE_PROBING_ID, then the corresponding  ID
+ * will not be validated and will pass regardless of its actual value.
+ *
+ * @param pdevice Pointer to USB device.
+ * @param index   Index of HID device in internal structure.
+ */
 static int _usb_drivers_check_ids( const usb_device_t* pdevice, uint8_t index );
 
+
+/*==================[internal data definition]===============================*/
+
+/* Array of drivers. */
 static const usb_driver_t usb_drivers[USB_MAX_DRIVERS] =
 {
 #if (USB_MAX_HUBS > 0)
@@ -31,6 +56,30 @@ static const usb_driver_t usb_drivers[USB_MAX_DRIVERS] =
       usb_hid_remove
    },
 };
+
+
+/*==================[internal functions definition]==========================*/
+
+static int _usb_drivers_check_ids( const usb_device_t* pdevice, uint8_t index )
+{
+   uint8_t vid = 0;
+   uint8_t pid = 0;
+
+   usb_assert(pdevice != NULL);
+   usb_assert(index < USB_MAX_DRIVERS);
+
+   if (usb_drivers[index].vendor_ID  == pdevice->vendor_ID)
+      vid = 1;
+   if (usb_drivers[index].product_ID == pdevice->product_ID)
+      pid = 1;
+   if (usb_drivers[index].vendor_ID  == USB_FORCE_PROBING_ID)
+      vid = 0;
+   if (usb_drivers[index].product_ID == USB_FORCE_PROBING_ID)
+      vid = 0;
+   return (vid | pid);
+}
+
+/*==================[external functions definition]==========================*/
 
 int usb_drivers_probe(
       const usb_device_t* pdevice,
@@ -109,32 +158,8 @@ int usb_drivers_remove(
    return status;
 }
 
-
-/******************************************************************************/
-/**
- * @brief Validate device's product and vendor ID against those targeted by  the
- * driver.  If either target is USB_FORCE_PROBING_ID, then the corresponding  ID
- * will not be validated and will pass regardless of its actual value.
- *
- * @param pdevice Pointer to USB device.
- * @param index   Index of HID device in internal structure.
- */
-static int _usb_drivers_check_ids( const usb_device_t* pdevice, uint8_t index )
-{
-   uint8_t vid = 0;
-   uint8_t pid = 0;
-
-   usb_assert(pdevice != NULL);
-   usb_assert(index < USB_MAX_DRIVERS);
-
-   if (usb_drivers[index].vendor_ID  == pdevice->vendor_ID)
-      vid = 1;
-   if (usb_drivers[index].product_ID == pdevice->product_ID)
-      pid = 1;
-   if (usb_drivers[index].vendor_ID  == USB_FORCE_PROBING_ID)
-      vid = 0;
-   if (usb_drivers[index].product_ID == USB_FORCE_PROBING_ID)
-      vid = 0;
-   return (vid | pid);
-}
+/** @} USB_DRV */
+/** @} USB */
+/** @} CIAA_Firmware */
+/*==================[end of file]============================================*/
 

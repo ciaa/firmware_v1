@@ -1,3 +1,13 @@
+/**
+ * @addtogroup CIAA_Firmware CIAA Firmware
+ * @{
+ * @addtogroup USB USB Stack
+ * @{
+ * @addtogroup USB_DRV USB Drivers
+ * @{
+ * @addtogroup USB_HID Human Interface Device
+ * @{
+ */
 
 /*==================[inclusions]=============================================*/
 #include <stdio.h>
@@ -9,10 +19,6 @@
 #include "usbd.h"
 #include "usb_desc.h"
 #include "drivers/usb_hid.h"
-
-
-/*==================[internal data declaration]==============================*/
-static usb_hid_stack_t _hid_stack;
 
 
 /*==================[internal functions declaration]=========================*/
@@ -66,6 +72,10 @@ static int _validate_first_ep( const uint8_t** pbuffer, uint8_t* plen );
  * Remember that this endpoint must be an interrupt OUT one.
  */
 static int _validate_optional_ep( const uint8_t** pbuffer, uint8_t* plen );
+
+
+/*==================[internal data definition]===============================*/
+static usb_hid_stack_t _hid_stack;
 
 
 /*==================[internal functions definition]==========================*/
@@ -821,4 +831,10 @@ int usb_hid_write(int fd, const void *buf, size_t count)
       return 0; /* Check this! */
    return 0;
 }
+
+/** @} USB_HID */
+/** @} USB_DRV */
+/** @} USB */
+/** @} CIAA_Firmware */
+/*==================[end of file]============================================*/
 

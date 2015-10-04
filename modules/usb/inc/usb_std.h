@@ -1,24 +1,111 @@
 #ifndef USB_STD_H
 #define USB_STD_H
+
 /**
-* @addtogroup USB_STD
-* @brief CIAA USB Standard Requests
-*
-* @par Description
-*
-* @{ */
+ * @addtogroup CIAA_Firmware CIAA Firmware
+ * @{
+ * @addtogroup USB USB Stack
+ * @{
+ * @addtogroup USB_STD Standard Request
+ * @brief USB standard requests header.
+ *
+ * @par Description
+ *
+ * @{
+ */
 
 
+/*==================[inclusions]=============================================*/
+#include <stdint.h>
+
+
+/*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-/* Inclusions */
-#include <stdint.h>
+/*==================[macros]=================================================*/
+
+/** @brief Standard USB request length. */
+#define USB_STDREQ_SIZE             8
+
+/** @brief Standard USB request direction mask. */
+#define USB_STDREQ_DIR              0x80
+/** @brief Standard USB request direction shift. */
+#define USB_STDREQ_DIR_S            7
+/** @brief Standard USB request type mask. */
+#define USB_STDREQ_TYPE             0x60
+/** @brief Standard USB request type shift. */
+#define USB_STDREQ_TYPE_S           5
+/** @brief Standard USB request recipient mask. */
+#define USB_STDREQ_RECIP            0x1F
+/** @brief Standard USB request recipient shift. */
+#define USB_STDREQ_RECIP_S          0
+
+/** @brief Standard USB request type: standard. */
+#define USB_STDREQ_TYPE_STD         0
+/** @brief Standard USB request type: class. */
+#define USB_STDREQ_TYPE_CLASS       1
+/** @brief Standard USB request type: vendor. */
+#define USB_STDREQ_TYPE_VENDOR      2
+
+/** @brief Standard USB request recipient: device. */
+#define USB_STDREQ_RECIP_DEV        0
+/** @brief Standard USB request recipient: interface. */
+#define USB_STDREQ_RECIP_INTERFACE  1
+/** @brief Standard USB request recipient: endpoint. */
+#define USB_STDREQ_RECIP_ENDPOINT   2
+/** @brief Standard USB request recipient: other. */
+#define USB_STDREQ_RECIP_OTHER      3
+
+/**
+ * @brief Assemble direction, type and recipient  into  standard  USB  request's
+ * type field structure.
+ * @param  DIR    Direction: 1 - Device to Host, 0 - Host to Device
+ * @param  TYPE   Type: see USB_STDREQ_TYPE_xx macros.
+ * @param  RECIP  Recipient: see USB_STDREQ_RECIP_xx macros.
+ */
+#define  USB_STDREQ_REQTYPE(DIR, TYPE, RECIP) ( \
+      ((  (DIR) << USB_STDREQ_DIR_S  ) & USB_STDREQ_DIR  ) | \
+      (( (TYPE) << USB_STDREQ_TYPE_S ) & USB_STDREQ_TYPE ) | \
+      (((RECIP) << USB_STDREQ_RECIP_S) & USB_STDREQ_RECIP) )
+
+/** @brief Set standard USB request bmRequestType in buffer buf to byte value b. */
+#define USB_STDREQ_SET_bmRequestType(buf, b)  (buf[0] = (b))
+/** @brief Set standard USB request bRequest in buffer buf to byte value b. */
+#define USB_STDREQ_SET_bRequest(buf, b)       (buf[1] = (b))
+/** @brief Set standard USB request wValue in buffer buf to half-word value w. */
+#define USB_STDREQ_SET_wValue(buf, w)         (*((uint16_t*)((buf)+2)) = USB_ARCH_ENDIANNESS16(w))
+/** @brief Set standard USB request wIndex in buffer buf to half-word value w. */
+#define USB_STDREQ_SET_wIndex(buf, w)         (*((uint16_t*)((buf)+4)) = USB_ARCH_ENDIANNESS16(w))
+/** @brief Set standard USB request wLength in buffer buf to half-word value w. */
+#define USB_STDREQ_SET_wLength(buf, w)        (*((uint16_t*)((buf)+6)) = USB_ARCH_ENDIANNESS16(w))
+
+/** @brief Get standard USB request's bmRequestType from buffer buf. */
+#define USB_STDREQ_GET_bmRquestType(buf) \
+   ((uint8_t ) (buf)[0])
+/** @brief Get standard USB request's bRequest from buffer buf. */
+#define USB_STDREQ_GET_bRquest(buf) \
+   ((uint8_t ) (buf)[1])
+/** @brief Get standard USB request's wValue from buffer buf. */
+#define USB_STDREQ_GET_wValue(buf) \
+   USB_ARCH_ENDIANNESS16((uint16_t) (((buf)[3] << 8) | (buf)[2]))
+/** @brief Get standard USB request's wIndex from buffer buf. */
+#define USB_STDREQ_GET_wIndex(buf) \
+   USB_ARCH_ENDIANNESS16((uint16_t) (((buf)[5] << 8) | (buf)[4]))
+/** @brief Get standard USB request's wLength from buffer buf. */
+#define USB_STDREQ_GET_wLength(buf) \
+   USB_ARCH_ENDIANNESS16((uint16_t) (((buf)[7] << 8) | (buf)[6]))
 
 
-/** @FIXME: remove the packed attribute and handle this with macros! */
+/*==================[typedef]================================================*/
+
+/**
+ * @brief Standard USB request structure.
+ *
+ * Structure fields have been reordered to account for byte alignment.
+ */
 typedef struct _usb_stdreq_t
 {
    uint16_t wValue;         /**< Word-sized request-specific parameter.      */
@@ -27,45 +114,6 @@ typedef struct _usb_stdreq_t
    uint8_t  bmRequestType;  /**< Characteristics of request.                 */
    uint8_t  bRequest;       /**< Specific request (see usb_stdreq_cmd_t).    */
 } usb_stdreq_t;
-#define USB_STDREQ_SIZE             8
-
-#define USB_STDREQ_DIR              0x80
-#define USB_STDREQ_DIR_S            7
-#define USB_STDREQ_TYPE             0x60
-#define USB_STDREQ_TYPE_S           5
-#define USB_STDREQ_RECIP            0x1F
-#define USB_STDREQ_RECIP_S          0
-
-#define USB_STDREQ_TYPE_STD         0
-#define USB_STDREQ_TYPE_CLASS       1
-#define USB_STDREQ_TYPE_VENDOR      2
-
-#define USB_STDREQ_RECIP_DEV        0
-#define USB_STDREQ_RECIP_INTERFACE  1
-#define USB_STDREQ_RECIP_ENDPOINT   2
-#define USB_STDREQ_RECIP_OTHER      3
-
-#define  USB_STDREQ_REQTYPE(DIR, TYPE, RECIP) ( \
-      ((  (DIR) << USB_STDREQ_DIR_S  ) & USB_STDREQ_DIR  ) | \
-      (( (TYPE) << USB_STDREQ_TYPE_S ) & USB_STDREQ_TYPE ) | \
-      (((RECIP) << USB_STDREQ_RECIP_S) & USB_STDREQ_RECIP) )
-
-#define USB_STDREQ_SET_bmRequestType(buf, b)  (buf[0] = (b))
-#define USB_STDREQ_SET_bRequest(buf, b)       (buf[1] = (b))
-#define USB_STDREQ_SET_wValue(buf, w)         (*((uint16_t*)((buf)+2)) = USB_ARCH_ENDIANNESS16(w))
-#define USB_STDREQ_SET_wIndex(buf, w)         (*((uint16_t*)((buf)+4)) = USB_ARCH_ENDIANNESS16(w))
-#define USB_STDREQ_SET_wLength(buf, w)        (*((uint16_t*)((buf)+6)) = USB_ARCH_ENDIANNESS16(w))
-
-#define USB_STDREQ_GET_bmRquestType(buf) \
-   ((uint8_t ) (buf)[0])
-#define USB_STDREQ_GET_bRquest(buf) \
-   ((uint8_t ) (buf)[1])
-#define USB_STDREQ_GET_wValue(buf) \
-   USB_ARCH_ENDIANNESS16((uint16_t) (((buf)[3] << 8) | (buf)[2]))
-#define USB_STDREQ_GET_wIndex(buf) \
-   USB_ARCH_ENDIANNESS16((uint16_t) (((buf)[5] << 8) | (buf)[4]))
-#define USB_STDREQ_GET_wLength(buf) \
-   USB_ARCH_ENDIANNESS16((uint16_t) (((buf)[7] << 8) | (buf)[6]))
 
 /** @brief USB standard request commands. */
 typedef enum _usb_stdreq_cmd_t
@@ -148,9 +196,13 @@ typedef enum _usb_class_t
 
 
 
+/*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
 #endif
-
-/**  @} USBD */
+/** @} USBD */
+/** @} USB */
+/** @} CIAA_Firmware */
+/*==================[end of file]============================================*/
 #endif  /* USB_STD_H */
+

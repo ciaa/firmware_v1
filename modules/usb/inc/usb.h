@@ -1,41 +1,57 @@
 #ifndef USB_H
 #define USB_H
+
 /**
-* @addtogroup USB
-* @brief CIAA USB common types and structures
-*
-* At the moment, only the most important information is stored in memory,  other
-* attributes needed will have to be requested from the device via IRPs.
-*
-* @warning
-* All devices use the  same  structure  with  fixed  number  of  interfaces  and
-* endpoints per interface.  This is not the most efficient way of  using  memory
-* since the  "biggest"  device  will  make  all  the  others  potentially  waste
-* resources.  One way to improve this would be generating the device's structure
-* with a script (like the php OSEK one) depending on what the user needs.   This
-* is also particularly important regarding  the  control  transactions  buffer's
-* size, since it  will  need  to  be  as  large  as  the  largest  configuration
-* descriptor among all devices (which can be quite so in complex devices such as
-* cellphones).
-*
-* @{ */
+ * @addtogroup CIAA_Firmware CIAA Firmware
+ * @{
+ * @addtogroup USB USB Stack
+ * @{
+ * @addtogroup USB_COMMON Common Types & Structures
+ * @{
+ * @brief USB common types and structures header
+ *
+ * At the moment, only the most important information is stored in memory, other
+ * attributes needed will have to be requested from the device via IRPs.
+ *
+ * @warning
+ * All devices use the same  structure  with  fixed  number  of  interfaces  and
+ * endpoints per interface.  This is not the most efficient way of using  memory
+ * since the "biggest"  device  will  make  all  the  others  potentially  waste
+ * resources.  One  way  to  improve  this  would  be  generating  the  device's
+ * structure with a script (like the php OSEK one) depending on  what  the  user
+ *  needs.   This  is  also  particularly  important   regarding   the   control
+ * transactions buffer's size, since it will need to be as large as the  largest
+ * configuration descriptor among all devices (which can be quite so in  complex
+ * devices such as cellphones).
+ *
+ * @{
+ */
 
 
+/*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-/* Inclusions */
+/*==================[inclusions]=============================================*/
 #include <stdint.h>
+#include "usb_cfg.h"
+#include "usb_check.h"
 #include "usb_std.h"
 
 
+/*==================[macros]=================================================*/
+
 /**
- * @TODO Rename the following test macro  accordingly  to  what's  used  in  the
- * toolchain (USE_BIG_ENDIAN).
+ * @name Endianness adaptation.
+ * @{
+ *
+ * @TODO Rename the following test macro (USE_BIG_ENDIAN) accordingly to  what's
+ * used in the toolchain.
  */
 #ifdef USE_BIG_ENDIAN
+
 /**
  * @brief Macro for converting a 32bit word from USB to machine  and  vice-versa
  * endianness.
@@ -56,26 +72,8 @@ extern "C" {
 # define USB_ARCH_ENDIANNESS32(x)    (x)
 # define USB_ARCH_ENDIANNESS16(x)    (x)
 #endif
+/** @} Endianness adaptation. */
 
-
-/**
-* @name Constants
-* @{ */
-
-/** @brief Maximum number of devices.  */
-#define USB_MAX_DEVICES       1
-
-/** @brief Maximum number of interfaces per device.  */
-#define USB_MAX_INTERFACES    1
-
-/** @brief Maximum number of endpoints per interface (besides ep. 0).  */
-#define USB_MAX_ENDPOINTS     2
-
-/** @brief Maximum number of HUBs, 0 equals no HUB support.  */
-#define USB_MAX_HUBS          1
-
-/** @brief Maximum number of HUB ports per HUB.  */
-#define USB_MAX_HUB_PORTS     4
 
 /** @brief Address mask.  */
 #define USB_ADDR_MASK         0x7F
@@ -84,16 +82,60 @@ extern "C" {
 /** @brief Direction shift.  */
 #define USB_DIR_S             7
 
-/** @brief Control transfer's buffer length.  */
+
+/** @brief Per device control transfer's buffer length.  */
 #define USB_XFER_BUFFER_LEN   256
 
+
 /**
- * @brief Use this pipe value instead of an actual one when requesting the
+ * @brief Use this pipe value instead of  an  actual  one  when  requesting  the
  * status of a control transfer.
  */
 #define  USB_CTRL_PIPE_TOKEN  ((uint8_t) -1)
 
-/** @} Constants */
+
+/** @brief Used to identify an interface with no driver associated to it. */
+#define USB_IFACE_NO_DRIVER ((usb_driver_handle_t)-1)
+
+
+/** @brief Default device's address, invalid. */
+#define USB_DEV_DEFAULT_ADDR      ((uint8_t) -1)
+
+
+/** @brief Device connected (updated in ISR). */
+#define USB_DEV_STATUS_CONNECTED  (1 << 0)
+/** @brief Device active and connected. */
+#define USB_DEV_STATUS_ACTIVE     (1 << 1)
+/** @brief Device's control endpoint opened by user code. */
+#define USB_DEV_STATUS_LOCKED     (1 << 2)
+/** @brief Root HUB/device identifier.  */
+#define USB_DEV_PARENT_ROOT       ((uint8_t) -1)
+
+
+/** @brief Currently writing to a device on address 0. */
+#define USB_STACK_STATUS_ZERO_ADDR  (1 << 0)
+/** @brief Marks a HUB index as unused. */
+#define USB_STACK_INVALID_HUB_IDX   USB_DEV_PARENT_ROOT
+
+
+/**
+ * @brief Use this driver/vendor ID when  the  driver  should  NOT  target  only
+ * devices with the specified ID.  This means a driver can be  assigned  to  any
+ * interface with the necessary requirements no matter the device's IDs.
+ */
+#define USB_FORCE_PROBING_ID  0xFFFF
+
+/** @brief Convert a device ID into its device's index. */
+#define USB_ID_TO_DEV(id)     ((uint8_t ) ((id) >> 8))
+
+/** @brief Convert a device ID into its device's interface index. */
+#define USB_ID_TO_IFACE(id)   ((uint8_t ) ((id) & 0xFF))
+
+/** @brief Convert a device and interface indices into a device ID. */
+#define USB_TO_ID(dev, iface) ((uint16_t) (((dev) << 8) | (iface)))
+
+
+/*==================[typedef]================================================*/
 
 /**
  * @brief Status codes.
@@ -187,6 +229,9 @@ typedef uint8_t usb_driver_handle_t;
  *
  * The driver bound to  the  interface  will  talk  to  the  device's  endpoints
  * directly, although this will be handled as needed internally.
+ *
+ * When the stack was unable to assign a driver to an interface, it will set the
+ * driver_handle to USB_IFACE_NO_DRIVER.
  */
 typedef struct _usb_interface_t
 {
@@ -197,9 +242,6 @@ typedef struct _usb_interface_t
    uint8_t             subclass;
    uint8_t             protocol;
 } usb_interface_t;
-
-/** @brief Used to identify an interface with no driver associated to it. */
-#define USB_IFACE_NO_DRIVER ((usb_driver_handle_t)-1)
 
 
 /**
@@ -292,22 +334,6 @@ typedef struct _usb_device_t
    uint8_t         xfer_length;    /**< Control buffer's length.              */
 } usb_device_t;
 
-/** @brief Default device's address, invalid. */
-#define USB_DEV_DEFAULT_ADDR      ((uint8_t) -1)
-
-/**
-* @name Constants
-* @{ */
-/** @brief Device connected (updated in ISR). */
-#define USB_DEV_STATUS_CONNECTED  (1 << 0)
-/** @brief Device active and connected. */
-#define USB_DEV_STATUS_ACTIVE     (1 << 1)
-/** @brief Device's control endpoint opened by user code. */
-#define USB_DEV_STATUS_LOCKED     (1 << 2)
-/** @brief Root HUB/device identifier.  */
-#define USB_DEV_PARENT_ROOT       ((uint8_t) -1)
-/** @} Constants */
-
 /**
  * @brief Host stack's possible states.
  *
@@ -337,16 +363,6 @@ typedef struct _usb_stack_t
 } usb_stack_t;
 
 
-/**
-* @name Constants
-* @{ */
-/** @brief Currently writing to a device on address 0. */
-#define USB_STACK_STATUS_ZERO_ADDR  (1 << 0)
-/** @brief Marks a HUB index as unused. */
-#define USB_STACK_INVALID_HUB_IDX   USB_DEV_PARENT_ROOT
-/** @} Constants */
-
-
 /** @brief USB driver callbacks structure. */
 typedef struct _usb_driver_t
 {
@@ -372,48 +388,14 @@ typedef struct _usb_driver_t
 } usb_driver_t;
 
 
-/**
- * @brief Use this driver/vendor ID when  the  driver  should  NOT  target  only
- * deveices with the specified ID.
- */
-#define USB_FORCE_PROBING_ID  0xFFFF
 
-/** @brief Convert a device ID into its device's index. */
-#define USB_ID_TO_DEV(id)     ((uint8_t ) ((id) >> 8))
-
-/** @brief Convert a device ID into its device's interface index. */
-#define USB_ID_TO_IFACE(id)   ((uint8_t ) ((id) & 0xFF))
-
-/** @brief Convert a device and interface indices into a device ID. */
-#define USB_TO_ID(dev, iface) ((uint16_t) (((dev) << 8) | (iface)))
-
-
-
-/* Validate constant definitions */
-#if (USB_MAX_DEVICES < 1) || (USB_MAX_DEVICES > 127)
-# error "USB_MAX_DEVICES must be greater than zero and less than 128."
-#endif
-#if (USB_MAX_INTERFACES < 1) || (USB_MAX_INTERFACES > 127)
-# error "USB_MAX_INTERFACES must be greater than zero and less than 128."
-#endif
-#if (USB_MAX_ENDPOINTS < 1)
-# error "USB_MAX_ENDPOINTS must be greater than zero."
-#endif
-#if (USB_MAX_HUBS < 0) || (USB_MAX_HUBS > 126)
-# error "USB_MAX_HUBS must be greater than or equal to zero and less than 127."
-#endif
-#if (USB_MAX_HUB_PORTS < 1) || (USB_MAX_HUB_PORTS > 126)
-/** @FIXME: fix the max. number of hub ports, I'm sure it's not 126 ! */
-# error "USB_MAX_HUB_PORTS must be greater than zero and less than 127."
-#endif
-#if (USB_MAX_HUBS == 0) && (USB_MAX_DEVICES > 1)
-# error "Cannot support more than one device without HUB support."
-#endif
-
-
+/*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
 #endif
-
-/**  @} USB */
+/** @} USB_COMMON */
+/** @} USB */
+/** @} CIAA_Firmware */
+/*==================[end of file]============================================*/
 #endif  /* USB_H */
+

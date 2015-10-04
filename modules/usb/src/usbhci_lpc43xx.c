@@ -1,3 +1,13 @@
+/**
+ * @addtogroup CIAA_Firmware CIAA Firmware
+ * @{
+ * @addtogroup USB USB Stack
+ * @{
+ * @addtogroup USBHCI Host Controller Interface
+ * @{
+ */
+
+/*==================[inclusions]=============================================*/
 #include <stdio.h>
 #include "chip.h"
 #include "usb.h"
@@ -7,8 +17,17 @@
 #include "HCD/HCD.h"
 #include "USBMode.h"
 
+
+/*==================[macros and definitions]=================================*/
 #define USB_CORENUM 0  /** FIXME: set this up and store it somewhere in the stack's structure? */
 
+/** @brief HW pipe allocated. */
+#define USBHCI_PIPE_INUSE (1 << 0)
+/** @brief HW pipe opened and configured. */
+#define USBHCI_PIPE_OPEN  (1 << 1)
+
+
+/*==================[internal data declaration]==============================*/
 
 /**
  * @brief Hardware pipes.
@@ -22,22 +41,8 @@ struct _usbhci_pipe_t
    const uint8_t  types;  /**< HW pipe supported transfer types.        */
 };
 
-/** @brief HW pipe allocated. */
-#define USBHCI_PIPE_INUSE (1 << 0)
-/** @brief HW pipe opened and configured. */
-#define USBHCI_PIPE_OPEN  (1 << 1)
 
-static struct _usbhci_pipe_t _pipe_handle[HCD_MAX_ENDPOINT] =
-{
-   {0, 0, 0x01},
-   {0, 0, 0x01},
-   {0, 0, 0x0E},
-   {0, 0, 0x0E},
-   {0, 0, 0x0E},
-   {0, 0, 0x0E},
-   {0, 0, 0x0E},
-   {0, 0, 0x0E},
-};
+/*==================[internal functions declaration]=========================*/
 
 /** @brief USB Core connection status, updated in ISRs. */
 static volatile uint8_t _connected[MAX_USB_CORE];
@@ -55,7 +60,106 @@ static HCD_TRANSFER_TYPE _to_lpc_type( usb_xfer_type_t type );
 static HCD_TRANSFER_DIR _to_lpc_dir( usb_dir_t dir );
 
 
-/******************************************************************************/
+/*==================[internal data definition]===============================*/
+
+/** @TODO implement this */
+static struct _usbhci_pipe_t _pipe_handle[HCD_MAX_ENDPOINT] =
+{
+   {0, 0, 0x01},
+   {0, 0, 0x01},
+   {0, 0, 0x0E},
+   {0, 0, 0x0E},
+   {0, 0, 0x0E},
+   {0, 0, 0x0E},
+   {0, 0, 0x0E},
+   {0, 0, 0x0E},
+};
+
+
+/*==================[internal functions definition]==========================*/
+
+static usb_speed_t _from_lpc_speed(HCD_USB_SPEED speed)
+{
+   usb_speed_t ret;
+   switch (speed)
+   {
+      case FULL_SPEED:
+         ret = USB_SPD_FS;
+         break;
+      case LOW_SPEED:
+         ret = USB_SPD_LS;
+         break;
+      case HIGH_SPEED:
+         ret = USB_SPD_HS;
+         break;
+      default:
+         ret = USB_SPD_INV;
+         break;
+   }
+   return ret;
+}
+
+static HCD_USB_SPEED _to_lpc_speed(usb_speed_t speed)
+{
+   HCD_USB_SPEED ret;
+   switch (speed)
+   {
+      case USB_SPD_HS:
+         ret = HIGH_SPEED;
+         break;
+      case USB_SPD_FS:
+         ret = FULL_SPEED;
+         break;
+      default:
+         ret = LOW_SPEED;
+         break;
+   }
+   return ret;
+}
+
+static HCD_TRANSFER_TYPE _to_lpc_type( usb_xfer_type_t type )
+{
+   HCD_TRANSFER_TYPE ret;
+   switch (type)
+   {
+      case USB_CTRL:
+         ret = CONTROL_TRANSFER;
+         break;
+      case USB_INT:
+         ret = INTERRUPT_TRANSFER;
+         break;
+      case USB_ISO:
+         ret = ISOCHRONOUS_TRANSFER;
+         break;
+      case USB_BULK:
+      default:
+         ret = BULK_TRANSFER;
+         break;
+   }
+   return ret;
+}
+
+static HCD_TRANSFER_DIR _to_lpc_dir( usb_dir_t dir )
+{
+   HCD_TRANSFER_DIR ret;
+   switch (dir)
+   {
+      case USB_DIR_TOK:
+         ret = SETUP_TRANSFER;
+         break;
+      case USB_DIR_OUT:
+         ret = OUT_TRANSFER;
+         break;
+      case USB_DIR_IN:
+      default:
+         ret = IN_TRANSFER;
+         break;
+   };
+   return ret;
+}
+
+
+/*==================[external functions definition]==========================*/
 
 int usbhci_init( void )
 {
@@ -331,86 +435,8 @@ void _usb_host_on_disconnection( uint8_t corenum )
    _connected[corenum] = 0;
 }
 
-
-/******************************************************************************/
-
-static usb_speed_t _from_lpc_speed(HCD_USB_SPEED speed)
-{
-   usb_speed_t ret;
-   switch (speed)
-   {
-      case FULL_SPEED:
-         ret = USB_SPD_FS;
-         break;
-      case LOW_SPEED:
-         ret = USB_SPD_LS;
-         break;
-      case HIGH_SPEED:
-         ret = USB_SPD_HS;
-         break;
-      default:
-         ret = USB_SPD_INV;
-         break;
-   }
-   return ret;
-}
-
-static HCD_USB_SPEED _to_lpc_speed(usb_speed_t speed)
-{
-   HCD_USB_SPEED ret;
-   switch (speed)
-   {
-      case USB_SPD_HS:
-         ret = HIGH_SPEED;
-         break;
-      case USB_SPD_FS:
-         ret = FULL_SPEED;
-         break;
-      default:
-         ret = LOW_SPEED;
-         break;
-   }
-   return ret;
-}
-
-static HCD_TRANSFER_TYPE _to_lpc_type( usb_xfer_type_t type )
-{
-   HCD_TRANSFER_TYPE ret;
-   switch (type)
-   {
-      case USB_CTRL:
-         ret = CONTROL_TRANSFER;
-         break;
-      case USB_INT:
-         ret = INTERRUPT_TRANSFER;
-         break;
-      case USB_ISO:
-         ret = ISOCHRONOUS_TRANSFER;
-         break;
-      case USB_BULK:
-      default:
-         ret = BULK_TRANSFER;
-         break;
-   }
-   return ret;
-}
-
-static HCD_TRANSFER_DIR _to_lpc_dir( usb_dir_t dir )
-{
-   HCD_TRANSFER_DIR ret;
-   switch (dir)
-   {
-      case USB_DIR_TOK:
-         ret = SETUP_TRANSFER;
-         break;
-      case USB_DIR_OUT:
-         ret = OUT_TRANSFER;
-         break;
-      case USB_DIR_IN:
-      default:
-         ret = IN_TRANSFER;
-         break;
-   };
-   return ret;
-}
+/** @} USBHCI */
+/** @} USB */
+/** @} CIAA_Firmware */
+/*==================[end of file]============================================*/
 

@@ -1,10 +1,23 @@
 #ifndef USB_HID_H
 #define USB_HID_H
+
 /**
-* @addtogroup USB_HID
-* @brief CIAA USB HID driver
-*
-* @{ */
+ * @addtogroup CIAA_Firmware CIAA Firmware
+ * @{
+ * @addtogroup USB USB Stack
+ * @{
+ * @addtogroup USB_DRV USB Drivers
+ * @{
+ * @addtogroup USB_HID Human Interface Device
+ * @brief USB HID driver header
+ *
+ * @{
+ */
+
+
+/*==================[inclusions]=============================================*/
+#include <stdint.h>
+#include "usb.h"
 
 
 /*==================[cplusplus]==============================================*/
@@ -13,13 +26,68 @@ extern "C" {
 #endif
 
 
-/*==================[inclusions]=============================================*/
-#include <stdint.h>
-#include "usb.h"
-
+/*==================[macros]=================================================*/
 
 /** @brief Number of HID devices supported by the driver. */
 #define  USB_HID_MAX_DEVICES  1
+
+
+/**
+ * @name HID descriptor
+ * @{
+ */
+
+/** @brief HID descriptor's size. */
+#define HID_DESC_HID_SIZE  9
+
+/** @brief Get HID descriptor's bLength from buffer x. */
+#define USB_HID_DESC_HID_GET_bLength(x) \
+   ((uint8_t ) (x)[0])
+/** @brief Get HID descriptor's bDescriptorType from buffer x. */
+#define USB_HID_DESC_HID_GET_bDescriptorType(x) \
+   ((uint8_t ) (x)[1])
+/** @brief Get HID descriptor's bcdHID from buffer x. */
+#define USB_HID_DESC_HID_GET_bcdHID(x) \
+   USB_ARCH_ENDIANNESS16((uint16_t) (((x)[3] << 8) | (x)[2]))
+/** @brief Get HID descriptor's bCountryCode from buffer x. */
+#define USB_HID_DESC_HID_GET_bCountryCode(x) \
+   ((uint8_t ) (x)[4])
+/** @brief Get HID descriptor's bNumDescriptors from buffer x. */
+#define USB_HID_DESC_HID_GET_bNumDescriptors(x) \
+   ((uint8_t ) (x)[5])
+/** @brief Get HID descriptor's bClassDescriptorType from buffer x. */
+#define USB_HID_DESC_HID_GET_bClassDescriptorType(x) \
+   ((uint8_t ) (x)[6])
+/** @brief Get HID descriptor's wDescriptorLength from buffer x. */
+#define USB_HID_DESC_HID_GET_wDescriptorLength(x) \
+   USB_ARCH_ENDIANNESS16((uint16_t) (((x)[8] << 8) | (x)[7]))
+
+/** @} HID descriptor */
+
+
+/**
+ * @name HID device
+ * @{
+ */
+
+/** @brief HID transfers and requests' buffer maximum length. */
+#define USB_HID_BUFF_LEN  128
+
+/** @brief Whether device is free or currently in use. */
+#define USB_HID_STATUS_FREE    (1 << 0)
+/** @brief Whether device has already been initialized. */
+#define USB_HID_STATUS_INIT    (1 << 1)
+/** @brief Whether device has been opened by user code. */
+#define USB_HID_STATUS_OPEN    (1 << 2)
+/** @brief Whether device uses an extra interrupt OUT endpoint for control. */
+#define USB_HID_STATUS_INTOUT  (1 << 3)
+/** @brief Whether entry actions are to be executed.  */
+#define USB_HID_STATUS_ENTRY   (1 << 4)
+
+/** @} HID device */
+
+
+/*==================[typedef]================================================*/
 
 
 /** @brief HID protocol number. */
@@ -49,7 +117,11 @@ typedef enum _usb_hid_state_t
 } usb_hid_state_t;
 
 /**
- * @brief HID descriptor.
+ * @name HID descriptor
+ * @{
+ */
+/**
+ * @brief HID descriptor data structure.
  *
  * Structure fields have been reordered to account for byte alignment.
  *
@@ -66,24 +138,7 @@ typedef struct _usb_hid_desc_hid_t
    uint8_t  bNumDescriptors;      /**< Number of class descriptors.           */
    uint8_t  bClassDescriptorType; /**< Type of class descriptor.              */
 } usb_hid_desc_hid_t;
-
-/** @brief HID descriptor's size. */
-#define HID_DESC_HID_SIZE  9
-
-#define USB_HID_DESC_HID_GET_bLength(x) \
-   ((uint8_t ) (x)[0])
-#define USB_HID_DESC_HID_GET_bDescriptorType(x) \
-   ((uint8_t ) (x)[1])
-#define USB_HID_DESC_HID_GET_bcdHID(x) \
-   USB_ARCH_ENDIANNESS16((uint16_t) (((x)[3] << 8) | (x)[2]))
-#define USB_HID_DESC_HID_GET_bCountryCode(x) \
-   ((uint8_t ) (x)[4])
-#define USB_HID_DESC_HID_GET_bNumDescriptors(x) \
-   ((uint8_t ) (x)[5])
-#define USB_HID_DESC_HID_GET_bClassDescriptorType(x) \
-   ((uint8_t ) (x)[6])
-#define USB_HID_DESC_HID_GET_wDescriptorLength(x) \
-   USB_ARCH_ENDIANNESS16((uint16_t) (((x)[8] << 8) | (x)[7]))
+/** @} HID descriptor */
 
 
 /** @brief HID standard request types. */
@@ -138,10 +193,10 @@ typedef enum _usb_hid_ctrycode_t
    USB_HID_CTRYCODE_TURKISH_F           = 35,
 } usb_hid_ctrycode_t;
 
-
-/** @brief HID transfers and requests' buffer maximum length. */
-#define USB_HID_BUFF_LEN  128
-
+/**
+ * @name HID device
+ * @{
+ */
 /** @brief Basic HID device structure. */
 typedef struct _usb_hid_dev_t
 {
@@ -156,17 +211,7 @@ typedef struct _usb_hid_dev_t
    uint8_t            report_len; /**< Report's length, capped at
                                        SB_HID_BUFF_LEN.                       */
 } usb_hid_dev_t;
-
-/** @brief Whether device is free or currently in use. */
-#define USB_HID_STATUS_FREE    (1 << 0)
-/** @brief Whether device has already been initialized. */
-#define USB_HID_STATUS_INIT    (1 << 1)
-/** @brief Whether device has been opened by user code. */
-#define USB_HID_STATUS_OPEN    (1 << 2)
-/** @brief Whether device uses an extra interrupt OUT endpoint for control. */
-#define USB_HID_STATUS_INTOUT  (1 << 3)
-/** @brief Whether entry actions are to be executed.  */
-#define USB_HID_STATUS_ENTRY   (1 << 4)
+/** @} HID device */
 
 /**
  * @brief HID device's stack.
@@ -179,6 +224,8 @@ typedef struct _usb_hid_stack_t
    uint8_t   n_devices;     /**< Number of HID devices currently connected.   */
 } usb_hid_stack_t;
 
+
+/*==================[external functions declaration]=========================*/
 
 /**
  * @brief Driver registration probing function.
@@ -270,6 +317,10 @@ int usb_hid_write( int fd, const void *buf, size_t count );
 #ifdef __cplusplus
 }
 #endif
+/** @} USB_HID */
+/** @} USB_DRV */
+/** @} USB */
+/** @} CIAA_Firmware */
+/*==================[end of file]============================================*/
+#endif /* USB_DESC_H */
 
-/**  @} USB_HID */
-#endif /* USB_HID_H */

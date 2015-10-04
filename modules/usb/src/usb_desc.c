@@ -1,3 +1,14 @@
+/**
+ * @addtogroup CIAA_Firmware CIAA Firmware
+ * @{
+ * @addtogroup USB USB Stack
+ * @{
+ * @addtogroup USB_DESC Standard Descriptors
+ * @{
+ */
+
+
+/*==================[inclusions]=============================================*/
 #include <stdio.h>
 #include <stdint.h>
 
@@ -6,11 +17,14 @@
 #include "usb_std.h"
 #include "usb_desc.h"
 
+
+/*==================[external functions definition]==========================*/
+
 int usb_goto_next_desc(
       const uint8_t** pbuff,
       uint8_t*        plen,
-      usb_stddesc_t   ep_type,
-      uint8_t         ep_size
+      usb_stddesc_t   desc_type,
+      uint8_t         desc_size
 )
 {
    int            ret = -1;
@@ -29,14 +43,14 @@ int usb_goto_next_desc(
    desc_len = buff[0];
    buff    += desc_len;
    len     -= desc_len;
-   while (len >= ep_size && ret == -1)
+   while (len >= desc_size && ret == -1)
    {
       /* Get length from first byte. */
       desc_len = buff[0];
-      if ((desc_len == ep_size) &&
-            (buff[1] == ep_type))
+      if ((desc_len == desc_size) &&
+            (buff[1] == desc_type))
       {
-         /* Endpoint descriptor found! */
+         /* Descriptor found! */
          *pbuff = buff;
          *plen  = (uint8_t) len;
          ret = 0;
@@ -46,4 +60,10 @@ int usb_goto_next_desc(
    }
    return ret;
 }
+
+
+/** @} USB_DESC */
+/** @} USB */
+/** @} CIAA_Firmware */
+/*==================[end of file]============================================*/
 

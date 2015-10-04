@@ -1,35 +1,44 @@
 #ifndef USBHCI_H
 #define USBHCI_H
+
 /**
-* @addtogroup USBHCI
-* @brief CIAA USB Host Controller Interface
-*
-* @par Description
-*
-* Interface between the main USB driver and the hardware  Host  Controller.  The
-* Host Controller methods are hardware dependent, so this interface is  intended
-* to provide uniform accesses.
-*
-* Device- related  method  reference  whatever  device  is  currently  connected
-* directly to the Host Controller's hardware. Other devices connected downstream
-* through HUBs will not be accessible by this interface but through that one  of
-* the  HUB  driver.  This  applies  to  usbhci_reset(),  usbhci_get_speed()  and
-* usbhci_is_connected().
-*
-*
-* @{ */
+ * @addtogroup CIAA_Firmware CIAA Firmware
+ * @{
+ * @addtogroup USB USB Stack
+ * @{
+ * @addtogroup USBHCI Host Controller Interface
+ * @brief USB Host Controller Interface header.
+ *
+ * @par Description
+ *
+ * Interface between the main USB driver and the hardware  Host  Controller.  The
+ * Host Controller methods are hardware dependent, so this interface is  intended
+ * to provide uniform accesses.
+ *
+ * Device-related  method  reference  whatever  device  is  currently  connected
+ * directly  to  the  Host  Controller's  hardware.    Other  devices  connected
+ * downstream through HUBs will not be accessible by this interface but  through
+ * that one of the HUB  driver.   This  applies  to  all  three  usbhci_reset(),
+ * usbhci_get_speed() and usbhci_is_connected().
+ *
+ *
+ * @{
+ */
 
 
+/*==================[inclusions]=============================================*/
+#include <stdint.h>
+#include "usb.h"
+#include "usb_std.h"
+
+
+/*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-/* Inclusions */
-#include <stdint.h>
-#include "usb.h"
-#include "usb_std.h"
-
+/*==================[external functions declaration]=========================*/
 
 /**
  * @brief USB hardware initialization.
@@ -149,9 +158,11 @@ int usbhci_xfer_cancel( usb_pipe_t* ppipe );
 
 
 /**
-* @name HCD Callbacks
-* @brief Methods called directly by the Host Controller Driver on interrupts.
-* @{ */
+ * @name HCD Callbacks
+ *
+ * @brief Methods called directly by the Host Controller Driver on interrupts.
+ * @{ */
+
 /**
  * @brief Callback for when a device connection is detected.
  *
@@ -169,12 +180,17 @@ void _usb_host_on_connection( uint8_t corenum );
  * this kind of events.
  */
 void _usb_host_on_disconnection( uint8_t corenum );
+
 /** @} HCD Callbacks */
 
 
+/*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
 #endif
-
-/**  @} USBHCI */
+/** @} USBHCI */
+/** @} USB */
+/** @} CIAA_Firmware */
+/*==================[end of file]============================================*/
 #endif  /* USBHCI_H */
+

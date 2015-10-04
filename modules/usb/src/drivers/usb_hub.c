@@ -1,3 +1,13 @@
+/**
+ * @addtogroup CIAA_Firmware CIAA Firmware
+ * @{
+ * @addtogroup USB USB Stack
+ * @{
+ * @addtogroup USB_DRV USB Drivers
+ * @{
+ * @addtogroup USB_HUB USB HUB
+ * @{
+ */
 
 /*==================[inclusions]=============================================*/
 #include <stdio.h>
@@ -571,4 +581,9 @@ int usb_hub_reset( usb_hub_t* phub, uint8_t port )
 }
 #endif
 
+/** @} USB_HUB */
+/** @} USB_DRV */
+/** @} USB */
+/** @} CIAA_Firmware */
+/*==================[end of file]============================================*/
 

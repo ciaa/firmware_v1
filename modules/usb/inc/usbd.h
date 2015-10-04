@@ -1,39 +1,48 @@
 #ifndef USBD_H
 #define USBD_H
+
 /**
-* @addtogroup USBD
-* @brief CIAA USB Driver
-*
-* @warning USB devices' addresses are stored starting from  0  (zero),  this  is
-* because internally they are represented by an index. This is  NOT  the  actual
-* device's address in the USB BUS, that  one  is  the  index  @b  plus  @b  one.
-* Remember that address 0 is reserved for setup and initialization.
-*
-*
-* @par Description
-*
-* USB driver abstraction layer between the USB  Host  Controller  and  the  user
-* software. Communication is handled through IRPs (I/O Request Packets)  to/from
-* a previously claimed device's interface.
-*
-* As of now, only one IRP can be requested at a time per device  interface.  You
-* should start transactions with usb_irp(), which is intentionally non-blocking,
-* and then poll usb_irp_status() waiting for  it  to  either  fail  or  complete
-* successfully.  Optionally,  you  can  cancel  an  ongoing   transaction   with
-* usb_irp_cancel() as long as it hasn't been completed yet.
-*
-* @{ */
+ * @addtogroup CIAA_Firmware CIAA Firmware
+ * @{
+ * @addtogroup USB USB Stack
+ * @{
+ * @addtogroup USBD USB Driver
+ * @brief USB Driver header.
+ *
+ * @warning USB devices' addresses are stored starting from 0  (zero),  this  is
+ * because internally they are represented by an index.  This is NOT the  actual
+ * device's address in the USB BUS, that one  is  the  index  @b  plus  @b  one.
+ * Remember that address 0 is reserved for setup and initialization.
+ *
+ *
+ * @par Description
+ *
+ * USB driver abstraction layer between the USB Host  Controller  and  the  user
+ * software. Communication is handled through IRPs (I/O Request Packets) to/from
+ * a previously claimed device's interface.
+ *
+ * As of now, only one IRP can be requested at a time per device interface.  You
+ *  should  start  transactions   with   usb_irp(),   which   is   intentionally
+ * non-blocking, and then poll usb_irp_status() waiting for it to either fail or
+ * complete successfully.  Optionally, you can  cancel  an  ongoing  transaction
+ * with usb_irp_cancel() as long as it hasn't been completed yet.
+ *
+ * @{
+ */
 
 
+/*==================[inclusions]=============================================*/
+#include <stdint.h>
+#include <usb.h>
+
+
+/*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-/* Inclusions */
-#include <stdint.h>
-#include "usb.h"
-
+/*==================[external functions declaration]=========================*/
 
 /**
  * @brief Initialize the USB driver and hardware.
@@ -195,9 +204,13 @@ int usb_device_parse_ifacedesc(
 int usb_device_parse_epdesc( usb_pipe_t* ppipe, const uint8_t* buffer );
 
 
+/*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
 #endif
-
-/**  @} USBD */
+/** @} USB_DESC */
+/** @} USB */
+/** @} CIAA_Firmware */
+/*==================[end of file]============================================*/
 #endif  /* USBD_H */
+

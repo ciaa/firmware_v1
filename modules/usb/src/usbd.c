@@ -1,3 +1,14 @@
+
+/**
+ * @addtogroup CIAA_Firmware CIAA Firmware
+ * @{
+ * @addtogroup USB USB Stack
+ * @{
+ * @addtogroup USBD USB Driver
+ * @{
+ */
+
+/*==================[inclusions]=============================================*/
 #include <stdint.h>
 #include <stdio.h>
 
@@ -10,6 +21,8 @@
 #include "drivers/usb_drivers.h"
 #include "drivers/usb_hub.h"
 
+
+/*==================[external functions definition]==========================*/
 
 int usb_init( usb_stack_t* pstack )
 {
@@ -123,7 +136,7 @@ int usb_run( usb_stack_t* pstack )
             /* Device is no longer connected, release everything. */
             status = usb_device_release(pstack, 0);
             if (status != USB_STATUS_OK)
-               usb_assert(0); /** @TODO: handle error */
+               usb_assert(0); /** @TODO handle error */
             pstack->state = USB_HOST_STATE_IDLE;
             break;
          }
@@ -133,18 +146,18 @@ int usb_run( usb_stack_t* pstack )
           */
          status = usb_stack_update_devices(pstack);
          if (status != USB_STATUS_OK)
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
 
 #if (USB_MAX_HUBS > 0)
          status = usb_hub_update();
          if (status != USB_STATUS_OK)
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
 #endif
 
 #if 0//(USB_MAX_HUBS > 0)
          status = usb_stack_handle_hubs(pstack);
          if (status != USB_STATUS_OK)
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
 #endif
 
          break;
@@ -235,7 +248,7 @@ int usb_ctrlirp(
             pdevice->speed );
       if (status)
       {
-         usb_assert(0); /** @TODO: handle error */
+         usb_assert(0); /** @TODO handle error */
       }
       else
       {
@@ -352,7 +365,7 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
    pdevice = &pstack->devices[index];
 
    /**
-    * @TODO: write this function!
+    * @TODO write this function!
     *
     * Remember to release downstream devices if this is a HUB!
     * Don't forget to skip i=0 'cause that's the root HUB/device, it should  pop
@@ -373,7 +386,7 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
 #endif
     */
 
-   /** @TODO: error check the following instructions. */
+   /** @TODO error check the following instructions. */
    for (i = 0; i < USB_MAX_INTERFACES; ++i)
    {
       piface = &pdevice->interfaces[i];
@@ -421,7 +434,7 @@ int usb_device_lock( usb_stack_t* pstack, uint8_t index )
    int ret;
    usb_assert(pstack != NULL);
    usb_assert(index < USB_MAX_DEVICES);
-/** @TODO: take into consideration multi-threaded systems here, use some kind of semaphore or something... */
+/** @TODO take into consideration multi-threaded systems here, use some kind of semaphore or something... */
    if (pstack->devices[index].status & USB_DEV_STATUS_LOCKED)
    {
       ret = USB_STATUS_BUSY;
@@ -438,7 +451,7 @@ int usb_device_unlock( usb_stack_t* pstack, uint8_t index )
 {
    usb_assert(pstack != NULL);
    usb_assert(index < USB_MAX_DEVICES);
-/** @TODO: I don't think multi-threaded systems will affect this function... check! */
+/** @TODO I don't think multi-threaded systems will affect this function... check! */
    pstack->devices[index].status &= ~USB_DEV_STATUS_LOCKED;
    return USB_STATUS_OK;
 }
@@ -529,7 +542,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          if (status == USB_STATUS_XFER_WAIT)
             break;
          if (status != USB_STATUS_OK)
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
          pdevice->state = pdevice->next_state;
          break;
 
@@ -579,7 +592,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
                phub = pstack->hubs[pdevice->parent_hub];
                status = usb_hub_begin_reset(phub, pdevice->parent_port);
                if (status != USB_STATUS_OK)
-                  usb_assert(0); /** @TODO: handle error */
+                  usb_assert(0); /** @TODO handle error */
 
                /* Hold the USB reset high for 10~20 ms. */
                pdevice->ticks_delay = pstack->ticks + 15;
@@ -612,7 +625,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          /* Stop HUB port reset. */
          status = usb_hub_end_reset(phub, pdevice->parent_port);
          if (status != USB_STATUS_OK)
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
          pdevice->state = USB_DEV_STATE_DEFAULT;
          break;
 #endif
@@ -629,7 +642,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
             /* Get speed of connected device from HUB's port. */
             phub = pstack->hubs[pdevice->parent_hub];
             if (status != USB_STATUS_OK)
-               usb_assert(0); /** @TODO: handle error */
+               usb_assert(0); /** @TODO handle error */
             pdevice->speed = usb_hub_get_speed(phub, pdevice->parent_port);
          }
          else
@@ -650,7 +663,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          ppipe->interval = 1;
          status = usbhci_pipe_alloc(USB_CTRL);
          if (status < 0)
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
          ppipe->handle = (uint8_t) status;
 
          /*
@@ -663,7 +676,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 
          status = usbhci_pipe_configure(ppipe, 0, pdevice->speed);
          if (status)
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
 
          /* Once the default pipe has been configured, get device's MPS. */
          USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
@@ -691,7 +704,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          ppipe->dir    = USB_DIR_TOK;
          status = usbhci_pipe_configure(ppipe, 0, pdevice->speed);
          if (status)
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
 
          USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
                USB_DIR_OUT,
@@ -719,7 +732,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          pdevice->addr   = index + 1;
          status = usbhci_pipe_configure(ppipe, pdevice->addr, pdevice->speed);
          if (status)
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
 
          USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
                USB_DIR_IN,
@@ -759,7 +772,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
       case USB_DEV_STATE_CFG_DESC_9:
          /* Get the configuration descriptor length and request it again. */
          if (USB_STDDESC_CFG_GET_wTotalLength(pdevice->xfer_buffer) > 256)
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
 
          aux = USB_STDDESC_CFG_GET_wTotalLength(pdevice->xfer_buffer);
          USB_STDREQ_SET_wLength(pstdreq, aux);
@@ -774,7 +787,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          /* Parse descriptors and assign each interface a driver. */
          status = usb_device_parse_cfgdesc(pstack, index);
          if (status)
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
 
          /* Once that's done, set the configuration on the device. */
          USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
@@ -865,7 +878,7 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
    /* Get the number of interfaces. */
    pdevice->n_interfaces = USB_STDDESC_CFG_GET_bNumInterfaces(buff);
    if (pdevice->n_interfaces > USB_MAX_INTERFACES)
-      usb_assert(0); /** @TODO: handle error */
+      usb_assert(0); /** @TODO handle error */
 
    /* Get the configuration value. */
    pdevice->cfg_value = USB_STDDESC_CFG_GET_bConfigurationValue(buff);
@@ -891,7 +904,7 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
          if (i+1 < pdevice->n_interfaces)
          {
             /* ... this isn't the last iface, then something's wrong. */
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
          }
          else
          {
@@ -908,7 +921,7 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
             &buff,
             &len );
       if (status)
-         usb_assert(0); /** @TODO: handle error */
+         usb_assert(0); /** @TODO handle error */
    }
 
    return USB_STATUS_OK;
@@ -997,7 +1010,7 @@ int usb_device_parse_ifacedesc(
                      USB_STDDESC_ENDPOINT,
                      USB_STDDESC_EP_SIZE) )
             {
-               usb_assert(0); /** @TODO: handle error */
+               usb_assert(0); /** @TODO handle error */
             }
 
             /* Get endpoint info and initialize it. */
@@ -1007,7 +1020,7 @@ int usb_device_parse_ifacedesc(
             ret = usbhci_pipe_alloc(piface->endpoints[ep].type);
             if (ret < 0)
             {
-               usb_assert(0); /** @TODO: handle error */
+               usb_assert(0); /** @TODO handle error */
             }
             //usb_assert(ret < USB_MAX_ENDPOINTS);
             piface->endpoints[ep].handle = (uint8_t) ret;
@@ -1018,7 +1031,7 @@ int usb_device_parse_ifacedesc(
                   pdevice->addr,
                   pdevice->speed) )
             {
-               usb_assert(0); /** @TODO: handle error */
+               usb_assert(0); /** @TODO handle error */
             }
          }
 
@@ -1026,7 +1039,7 @@ int usb_device_parse_ifacedesc(
          ret = usb_drivers_assign(pstack, id, buff, len, driver_idx);
          if (ret)
          {
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
          }
       }
    }
@@ -1074,7 +1087,7 @@ int usb_stack_update_devices( usb_stack_t* pstack )
          ++looped_devs;
          status = usb_device_update(pstack, i);
          if (status != USB_STATUS_OK)
-            usb_assert(0); /** @TODO: handle error */
+            usb_assert(0); /** @TODO handle error */
       }
       if (looped_devs >= pstack->n_devices)
          break; /* Done with active devices. */
@@ -1085,7 +1098,7 @@ int usb_stack_update_devices( usb_stack_t* pstack )
 #if 0//(USB_MAX_HUBS > 0)
 int usb_stack_handle_hubs( usb_stack_t* pstack )
 {
-/** @TODO: finish this precedure */
+/** @TODO finish this precedure */
    uint8_t         hub_idx;
    usb_device_t*   pdevice;
    int16_t         addr;  /* Need whole range for return codes. */
@@ -1120,7 +1133,7 @@ int usb_stack_handle_hubs( usb_stack_t* pstack )
                /* Device was disconnected. */
                index = usb_device_find(pstack, i, j);
                if (index < 0)
-                  usb_assert(0); /** @TODO: handle error */
+                  usb_assert(0); /** @TODO handle error */
                usb_device_release(pstack, (uint8_t) index);
                usb_hub_poweroff(phub, j); /* does this go here? Or are ports supposed to be powered on at startup and not on dev. connection? */
             }
@@ -1132,7 +1145,7 @@ int usb_stack_handle_hubs( usb_stack_t* pstack )
                /* Setup new device, will begin on next iteration. */
                addr = usb_stack_new_addr(pstack);
                if (addr <= 0)
-                  usb_assert(0); /** @TODO: handle error */
+                  usb_assert(0); /** @TODO handle error */
                usb_device_attach(pstack, &pstack->devices[addr], i, j);
                usb_hub_poweron(phub, j); /* does this go here? Or are ports supposed to be powered on at startup and not on dev. connection? */
             }
@@ -1150,5 +1163,8 @@ void usb_assert(int condition)
 }
 
 
-/******************************************************************************/
+/** @} USB_DESC */
+/** @} USB */
+/** @} CIAA_Firmware */
+/*==================[end of file]============================================*/
 
