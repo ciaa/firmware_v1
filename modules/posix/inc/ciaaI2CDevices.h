@@ -77,6 +77,7 @@ extern "C" {
  **
  **/
 typedef struct {
+   char * name;                  /** <= name of the device */
    uint32_t maxAdd;              /** <= indicates the last address which can be
                                         read or written before a warp around */
    uint32_t maxInputBuffer;      /** <= size of written bytes before waiting
@@ -90,7 +91,6 @@ typedef struct {
                                         between 0 and 127 inclusive */
    uint8_t addWidth;             /** <= size in bytes of the address length of
                                         this device */
-   char * name;                  /** <= name of the device */
 } ciaaI2CDevices_slaveType;
 
 /*==================[external data declaration]==============================*/
