@@ -363,6 +363,23 @@ typedef struct _usb_stack_t
 } usb_stack_t;
 
 
+/**
+ * @name USB driver callbacks
+ * @{
+ */
+
+/** @brief Driver probing function, see @usb_drivers_probe() for details. */
+typedef int (*usb_fcn_probe_t)(const uint8_t* buffer, uint8_t len );
+/** @brief Driver assignment function, see @usb_drivers_assign() for details. */
+typedef int (*usb_fcn_assign_t)(
+      usb_stack_t*   pstack,
+      uint16_t       id,
+      const uint8_t* buffer,
+      uint8_t        length
+);
+/** @brief Driver removal function, see @usb_drivers_remove() for details. */
+typedef int (*usb_fcn_remove_t)( usb_stack_t* pstack, uint16_t id );
+
 /** @brief USB driver callbacks structure. */
 typedef struct _usb_driver_t
 {
@@ -372,21 +389,17 @@ typedef struct _usb_driver_t
    const uint16_t product_ID;
    /**< Only probe devices that match this product ID, 0xFFFF to force.     */
 
-   int (*const probe)( const uint8_t* buffer, uint8_t len );
+   const usb_fcn_probe_t probe;
    /**< Probing function, to determine driver compatibility with interface. */
 
-   int (*const assign)(
-         usb_stack_t*   pstack,
-         uint16_t       id,
-         const uint8_t* buffer,
-         uint8_t        length
-   );
+   const usb_fcn_assign_t assign;
    /**< Assignment function to bind driver to interface.                    */
 
-   int (*const remove)( usb_stack_t* pstack, uint16_t id );
+   const usb_fcn_remove_t remove;
    /**< Remove and unbind interface from driver.                            */
 } usb_driver_t;
 
+/** @} USB driver callbacks */
 
 
 /*==================[cplusplus]==============================================*/
