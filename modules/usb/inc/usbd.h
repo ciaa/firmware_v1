@@ -119,7 +119,12 @@ int usb_irp_cancel( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe );
  * @param pstack    Pointer to USB stack structure.
  * @return Old internal tick count value.
  */
-int16_t usb_systick_inc( usb_stack_t* pstack );
+uint16_t usb_systick_inc( usb_stack_t* pstack );
+
+/**
+ * @brief Get current internal tick counter.
+ */
+uint16_t usb_systick( usb_stack_t* pstack );
 
 
 

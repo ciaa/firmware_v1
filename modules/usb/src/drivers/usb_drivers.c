@@ -26,9 +26,9 @@ static const usb_driver_t usb_drivers[USB_MAX_DRIVERS] =
    {   /* HID */
       USB_FORCE_PROBING_ID,
       USB_FORCE_PROBING_ID,
-      hid_probe,
-      hid_assign,
-      hid_remove
+      usb_hid_probe,
+      usb_hid_assign,
+      usb_hid_remove
    },
 };
 

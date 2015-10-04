@@ -11,7 +11,7 @@
 
 
 /*==================[internal data declaration]==============================*/
-static hub_stack_t _hub_stack; /* Maybe this shouldn't be static or at least not here like this... */
+static usb_hub_stack_t _hub_stack; /* Maybe this shouldn't be static or at least not here like this... */
 
 
 /*==================[internal functions declaration]=========================*/
@@ -70,10 +70,10 @@ static int _deinit_dev( uint8_t index )
    usb_assert(index < USB_MAX_HUBS);
 
    pdev = &_hub_stack.hubs[index];
-   pdev->status     = HUB_STATUS_FREE | HUB_STATUS_ENTRY;
+   pdev->status     = USB_HUB_STATUS_FREE | USB_HUB_STATUS_ENTRY;
    pdev->pstack     = NULL;
    pdev->id         = 0xFFFF;
-   pdev->state      = HUB_STATE_IDLE;
+   pdev->state      = USB_HUB_STATE_IDLE;
    pdev->buffer_len = 0;
    pdev->n_ports    = 0;
 
@@ -89,10 +89,10 @@ static int16_t _get_free_dev( void )
    for (i = 0; i < USB_MAX_HUBS; ++i)
    {
       /* Iterate until a free device is found. */
-      if (_hub_stack.hubs[i].status & HUB_STATUS_FREE)
+      if (_hub_stack.hubs[i].status & USB_HUB_STATUS_FREE)
       {
          /* If it was found, mark it as not-free and return its index. */
-         _hub_stack.hubs[i].status &= ~HUB_STATUS_FREE;
+         _hub_stack.hubs[i].status &= ~USB_HUB_STATUS_FREE;
          break;
       }
    }
@@ -115,12 +115,12 @@ static int _update_dev( uint8_t index )
 
    switch (pdev->state)
    {
-      case HUB_STATE_IDLE:
+      case USB_HUB_STATE_IDLE:
          /* Do nothing and wait for an interface to be assigned to this HUB. */
-         if (!(pdev->status & HUB_STATUS_FREE))
+         if (!(pdev->status & USB_HUB_STATUS_FREE))
          {
-            pdev->state      = HUB_STATE_GET_DESC;
-            pdev->status    |= HUB_STATUS_ENTRY;
+            pdev->state      = USB_HUB_STATE_GET_DESC;
+            pdev->status    |= USB_HUB_STATUS_ENTRY;
             /*
              * Since we might need to retry the next request (because  we  don't
              * yet know it's actual size), this signals it's the first try.
@@ -129,21 +129,21 @@ static int _update_dev( uint8_t index )
          }
          break;
 
-      case HUB_STATE_GET_DESC:
-         if (pdev->status & HUB_STATUS_ENTRY)
+      case USB_HUB_STATE_GET_DESC:
+         if (pdev->status & USB_HUB_STATUS_ENTRY)
          {
             /* Request HUB descriptor. */
             stdreq.bmRequestType = USB_STDREQ_REQTYPE(
                   USB_DIR_IN,
                   USB_STDREQ_TYPE_CLASS,
                   USB_STDREQ_RECIP_DEV );
-            stdreq.bRequest      = HUB_CLASSREQ_GET_DESCRIPTOR;
+            stdreq.bRequest      = USB_HUB_CLASSREQ_GET_DESCRIPTOR;
             stdreq.wValue        = (USB_HUB_DESC_TYPE << 8);
             stdreq.wIndex        = 0;
             if (pdev->buffer_len == 0)
             {
                /* When trying for the first time, request the default size. */
-               stdreq.wLength       = HUB_DESC_SIZE;
+               stdreq.wLength       = USB_HUB_DESC_SIZE;
             }
             else
             {
@@ -151,7 +151,7 @@ static int _update_dev( uint8_t index )
                stdreq.wLength       = pdev->buffer_len;
             }
 
-            pdev->buffer_len = HUB_DESC_SIZE;
+            pdev->buffer_len = USB_HUB_DESC_SIZE;
             status = usb_ctrlirp(
                   pdev->pstack,
                   pdev->id,
@@ -168,7 +168,7 @@ static int _update_dev( uint8_t index )
             {
                usb_assert(0); /** @TODO: handle error */
             }
-            pdev->status &= ~HUB_STATUS_ENTRY;
+            pdev->status &= ~USB_HUB_STATUS_ENTRY;
          }
          else
          {
@@ -180,13 +180,15 @@ static int _update_dev( uint8_t index )
             );
             if (status == USB_STATUS_XFER_WAIT)
             {
+               /* This isn't an error, so notify update as OK. */
+               status = USB_STATUS_OK;
                break; /* Keep waiting... */
             }
             if (status == USB_STATUS_EP_STALLED)
             {
                /* If endpoint was stalled, try again. */
-               /** @TODO this should be notified and NOT be done indefinitely*/
-               pdev->status |= HUB_STATUS_ENTRY;
+               /** @TODO this should be notified and NOT be done indefinitely */
+               pdev->status |= USB_HUB_STATUS_ENTRY;
                break;
             }
             if (status != USB_STATUS_OK)
@@ -198,8 +200,8 @@ static int _update_dev( uint8_t index )
             status = _parse_hub_desc(pdev);
             if (status == USB_STATUS_XFER_RETRY)
             {
-               /* Need to get the entire descriptor. Retry request. */
-               pdev->status  |= HUB_STATUS_ENTRY;
+               /* Descriptor was longer than expected, retry request. */
+               pdev->status  |= USB_HUB_STATUS_ENTRY;
             }
             else if (status != USB_STATUS_OK)
             {
@@ -208,18 +210,18 @@ static int _update_dev( uint8_t index )
             else
             {
                /* Advance to next state. */
-               pdev->state   = HUB_STATE_RUNNING;
-               pdev->status |= HUB_STATUS_ENTRY;
+               pdev->state   = USB_HUB_STATE_RUNNING;
+               pdev->status |= USB_HUB_STATUS_ENTRY;
             }
          }
          break;
 
-      case HUB_STATE_RUNNING:
+      case USB_HUB_STATE_RUNNING:
          break;
 
       default:
-         pdev->state   = HUB_STATE_IDLE;
-         pdev->status |= HUB_STATUS_ENTRY;
+         pdev->state   = USB_HUB_STATE_IDLE;
+         pdev->status |= USB_HUB_STATUS_ENTRY;
          status = USB_STATUS_OK;
          break;
    }
@@ -282,12 +284,12 @@ static int _parse_hub_desc( usb_hub_t* phub )
    buff = phub->buffer;
 
    /* 1) Check the descriptor's type. */
-   if (HUB_DESC_GET_bDescriptorType(buff) != USB_HUB_DESC_TYPE)
+   if (USB_HUB_DESC_GET_bDescriptorType(buff) != USB_HUB_DESC_TYPE)
    {
       ret = USB_STATUS_INV_DESC;
    }
    /* 2) Get the number of ports. */
-   else if ((phub->n_ports = HUB_DESC_GET_bNbrPorts(buff)) > USB_MAX_HUB_PORTS)
+   else if ((phub->n_ports = USB_HUB_DESC_GET_bNbrPorts(buff)) > USB_MAX_HUB_PORTS)
    {
       /** @TODO mark the HUB as unsupported, this is not an error. */
       usb_assert(0);
@@ -300,7 +302,7 @@ static int _parse_hub_desc( usb_hub_t* phub )
    else
    {
       /* 3) Calculate the actual descriptor length and verify. */
-      actual_length = HUB_DESC_REAL_SIZE(phub->n_ports);
+      actual_length = USB_HUB_DESC_REAL_SIZE(phub->n_ports);
       if (actual_length > phub->buffer_len)
       {
          /*
@@ -308,7 +310,7 @@ static int _parse_hub_desc( usb_hub_t* phub )
           * the actual length still fits  inside  the  HUB  buffer,  request  it
           * again.
           */
-         if (actual_length <= HUB_BUFF_LEN)
+         if (actual_length <= USB_HUB_BUFF_LEN)
          {
             /* Actual length will be returned as the buffer length. */
             phub->buffer_len = actual_length;
@@ -323,31 +325,31 @@ static int _parse_hub_desc( usb_hub_t* phub )
       else
       {
          /* 4) Get HUB's characteristics. */
-         wHubChars = HUB_DESC_GET_wHubCharacteristics(buff);
+         wHubChars = USB_HUB_DESC_GET_wHubCharacteristics(buff);
 
          /* Test for individual power switching. */
-         if (((wHubChars & HUB_LPSM_MASK) >> HUB_LPSM_SHIFT) == HUB_LPSM_INDIV)
-            phub->status |=  HUB_STATUS_INDIV_POWER;
+         if (((wHubChars & USB_HUB_LPSM_MASK) >> USB_HUB_LPSM_SHIFT) == USB_HUB_LPSM_INDIV)
+            phub->status |=  USB_HUB_STATUS_INDIV_POWER;
          else
-            phub->status &= ~HUB_STATUS_INDIV_POWER;
+            phub->status &= ~USB_HUB_STATUS_INDIV_POWER;
          /* Test for compound device. */
-         if (wHubChars & HUB_CDI)
-            phub->status |=  HUB_STATUS_COMPOUND_DEV;
+         if (wHubChars & USB_HUB_CDI)
+            phub->status |=  USB_HUB_STATUS_COMPOUND_DEV;
          else
-            phub->status &= ~HUB_STATUS_COMPOUND_DEV;
+            phub->status &= ~USB_HUB_STATUS_COMPOUND_DEV;
          /* Test for individual over-current reports. */
-         if (((wHubChars & HUB_OCPM_MASK) >> HUB_OCPM_SHIFT) == HUB_OCPM_INDIV)
-            phub->status |=  HUB_STATUS_INDIV_OVC;
+         if (((wHubChars & USB_HUB_OCPM_MASK) >> USB_HUB_OCPM_SHIFT) == USB_HUB_OCPM_INDIV)
+            phub->status |=  USB_HUB_STATUS_INDIV_OVC;
          else
-            phub->status &= ~HUB_STATUS_INDIV_OVC;
+            phub->status &= ~USB_HUB_STATUS_INDIV_OVC;
          /* Test for port indicators support. */
-         if (wHubChars & HUB_PIS)
-            phub->status |=  HUB_STATUS_INDICATORS;
+         if (wHubChars & USB_HUB_PIS)
+            phub->status |=  USB_HUB_STATUS_INDICATORS;
          else
-            phub->status &= ~HUB_STATUS_INDICATORS;
+            phub->status &= ~USB_HUB_STATUS_INDICATORS;
 
          /* 5) Get power-on sequence duration. */
-         phub->poweron_t = HUB_DESC_GET_bPwrOn2PwrGood(buff);
+         phub->poweron_t = USB_HUB_DESC_GET_bPwrOn2PwrGood(buff);
 #if 0 /** @TODO Request the USB host for power consumption. */
          /* 6) Request HUB's power consumption requirements from Host. */
 #endif
@@ -493,7 +495,7 @@ int usb_hub_update( void )
    int     status = 0;
    for (i = 0; i < USB_MAX_HUBS && !status; ++i)
    {
-      if (!(_hub_stack.hubs[i].status & HUB_STATUS_FREE))
+      if (!(_hub_stack.hubs[i].status & USB_HUB_STATUS_FREE))
       {
          status = _update_dev(i);
       }

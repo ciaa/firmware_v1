@@ -61,10 +61,16 @@ int usb_deinit( usb_stack_t* pstack )
    return USB_STATUS_OK;
 }
 
-int16_t usb_systick_inc( usb_stack_t* pstack )
+uint16_t usb_systick_inc( usb_stack_t* pstack )
 {
    usb_assert(pstack != NULL);
    return pstack->ticks++;
+}
+
+uint16_t usb_systick( usb_stack_t* pstack )
+{
+   usb_assert(pstack != NULL);
+   return pstack->ticks;
 }
 
 int usb_run( usb_stack_t* pstack )
@@ -272,10 +278,12 @@ int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe )
             &pstack->devices[USB_ID_TO_DEV(device_id)].default_ep );
       if (status != USB_STATUS_XFER_WAIT)
       {
+         /* Release the lock on the control pipe. This cannot fail. */
          usb_device_unlock(pstack, USB_ID_TO_DEV(device_id));
       }
       if (status == USB_STATUS_EP_STALLED)
       {
+         /* If the endpoint was stalled, cancel the rest of the transfer. */
          usbhci_xfer_cancel( /* ???? */
                &pstack->devices[USB_ID_TO_DEV(device_id)].default_ep);
       }
@@ -526,8 +534,11 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
          break;
 
       case USB_DEV_STATE_WAITING_DELAY:
-         if (pstack->ticks >= pdevice->ticks_delay)
+         if (((int32_t) pdevice->ticks_delay) - ((int32_t) pstack->ticks) <= 0)
+         {
+            /* If delay is done, go to next state. */
             pdevice->state = pdevice->next_state;
+         }
          break;
 
       case USB_DEV_STATE_DISCONNECTED:
@@ -810,8 +821,8 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 
       case USB_DEV_STATE_UNLOCKING2:
          /*
-          * This state is only needed to unlock the default endpoint once the stack
-          * is done with the enumeration process.
+          * This state is only needed to unlock the default  endpoint  once  the
+          * stack is done with the enumeration process. This cannot fail.
           */
          usb_device_unlock(pstack, index);
          pdevice->state = USB_DEV_STATE_CONFIGURED;
