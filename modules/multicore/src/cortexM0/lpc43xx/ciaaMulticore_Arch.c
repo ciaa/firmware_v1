@@ -100,7 +100,7 @@ extern int32_t ciaaMulticore_sendSignal_Arch(void)
    return 0;
 }
 
-ISR(Multicore_IRQHandler)
+ISR(M4_IRQHandler)
 {
    static ciaaMulticore_ipcMsg_t m;
    static int32_t rv;

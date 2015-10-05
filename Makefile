@@ -501,9 +501,16 @@ debug : $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
 ###############################################################################
 # rtos OSEK generation
 generate : $(OIL_FILES)
+ifdef MCORE
+	@echo "*** Generating OSEK using multicore options! ***"
+	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
+		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DMCORE=$(MCORE) \
+		-c $(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+else
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
 		-c $(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+endif
 
 ###############################################################################
 # doxygen
@@ -902,12 +909,12 @@ ifeq ($(CPUTYPE),lpc43xx)
 	@echo "***************************************"
 	@echo "*** Making Cortex-M0 application... ***"
 	@echo "***************************************"
-	make ARCH=cortexM0 clean_generate
+	make ARCH=cortexM0 MCORE=1 clean_generate
 	make ARCH=cortexM0 TARGET_NAME=out/bin/app_m0
 	@echo "***************************************"
 	@echo "*** Making Cortex-M4 application... ***"
 	@echo "***************************************"
-	make ARCH=cortexM4 KEEP_BIN=1 clean_generate
+	make ARCH=cortexM4 MCORE=0 KEEP_BIN=1 clean_generate
 	make ARCH=cortexM4 TARGET_NAME=out/bin/app_m4
 else
 	@echo '$(CPUTYPE) not supported for multicore.'

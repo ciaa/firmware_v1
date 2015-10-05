@@ -146,14 +146,14 @@ OSEK OSEK {
       CORE = 1;
    };
 
-   ISR Multicore_IRQHandler {
+   ISR M0_IRQHandler {
       CATEGORY = 2;
       PRIORITY = 0;
       INTERRUPT = M0APP;
       CORE = 0;
    }
 
-   ISR Multicore_IRQHandler {
+   ISR M4_IRQHandler {
       CATEGORY = 2;
       PRIORITY = 0;
       INTERRUPT = M4CORE;
