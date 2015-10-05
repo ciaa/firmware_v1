@@ -101,42 +101,27 @@ void tearDown(void) {
 
 /** \brief test Rtcs_Init
  **
- ** Correct Initialization
+ ** Correct Initialization and Incorrect Initialization due to a double call
  **
  */
 void test_Rtcs_Init_01(void)
 {
-   int8_t ret;
+   int8_t ret_1, ret_2;
 
    Rtcs_InitCfg_CMockIgnore();
 
    Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
-   ret = Rtcs_Init();
-
-   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret);
-}
-
-/** \brief test Rtcs_Init
- **
- ** Incorrect Initialization due to a double call
- **
- */
-void test_Rtcs_Init_02(void)
-{
-   int8_t ret;
+   ret_1 = Rtcs_Init();
 
    Rtcs_InitCfg_CMockIgnore();
 
    Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
-   ret = Rtcs_Init();
+   ret_2 = Rtcs_Init();
 
-   Rtcs_InitCfg_CMockIgnore();
-
-   ret = Rtcs_Init();
-
-   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_ERROR, ret);
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret_1);
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_ERROR, ret_2);
 }
 
 /** \brief test Rtcs_Init
@@ -144,25 +129,27 @@ void test_Rtcs_Init_02(void)
  ** Incorrect Initialization due to a call in "Inactive" state
  **
  */
-void test_Rtcs_Init_03(void)
+void test_Rtcs_Init_02(void)
 {
-   int8_t ret;
+   int8_t ret_1, ret_2, ret_3;
 
    Rtcs_InitCfg_CMockIgnore();
 
    Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
-   ret = Rtcs_Init();
+   ret_1 = Rtcs_Init();
 
-   ret = Rtcs_Stop();
+   ret_2 = Rtcs_Stop();
 
    Rtcs_InitCfg_CMockIgnore();
 
    Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
-   ret = Rtcs_Init();
+   ret_3 = Rtcs_Init();
 
-   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_ERROR, ret);
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret_1);
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret_2);
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_ERROR, ret_3);
 }
 
 /** \brief test Rtcs_Start
@@ -172,19 +159,21 @@ void test_Rtcs_Init_03(void)
  */
 void test_Rtcs_Start_01(void)
 {
-   int8_t ret;
+   int8_t ret_1, ret_2, ret_3;
 
    Rtcs_InitCfg_CMockIgnore();
 
    Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
-   ret = Rtcs_Init();
+   ret_1 = Rtcs_Init();
 
-   ret = Rtcs_Stop();
+   ret_2 = Rtcs_Stop();
 
-   ret = Rtcs_Start();
+   ret_3 = Rtcs_Start();
 
-   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret);
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret_1);
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret_2);
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret_3);
 }
 
 /** \brief test Rtcs_Start
@@ -203,22 +192,29 @@ void test_Rtcs_Start_02(void)
 
 /** \brief test Rtcs_Stop
  **
- ** Correct Stopping
+ ** Correct Stopping at the beginning, and after a call to "Start" function.
  **
  */
 void test_Rtcs_Stop_01(void)
 {
-   int8_t ret;
+   int8_t ret_1, ret_2, ret_3, ret_4;
 
    Rtcs_InitCfg_CMockIgnore();
 
    Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
-   ret = Rtcs_Init();
+   ret_1 = Rtcs_Init();
 
-   ret = Rtcs_Stop();
+   ret_2 = Rtcs_Stop();
 
-   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret);
+   ret_3 = Rtcs_Start();
+
+   ret_4 = Rtcs_Stop();
+
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret_1);
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret_2);
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret_3);
+   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret_4);
 }
 
 /** \brief test Rtcs_Stop
@@ -233,28 +229,6 @@ void test_Rtcs_Stop_02(void)
    ret = Rtcs_Stop();
 
    TEST_ASSERT_EQUAL_INT8(RTCS_STATE_ERROR, ret);
-}
-
-/** \brief test Rtcs_Stop
- **
- ** Correct Stop after correct Start
- **
- */
-void test_Rtcs_Stop_03(void)
-{
-   int8_t ret;
-
-   Rtcs_InitCfg_CMockIgnore();
-
-   ret = Rtcs_Init();
-
-   ret = Rtcs_Stop();
-
-   ret = Rtcs_Start();
-
-   ret = Rtcs_Stop();
-
-   TEST_ASSERT_EQUAL_INT8(RTCS_STATE_OK, ret);
 }
 
 /** @} doxygen end group definition */

@@ -113,7 +113,7 @@
  *****************************************************************************/
 
 /*==================[macros]=================================================*/
-#define CONTROLLERS_LIST_SIZE 10
+#define CONTROLLERS_LIST_SIZE 1
 //#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * Please define here all needed macros of your configuration that can
