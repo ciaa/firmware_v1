@@ -174,7 +174,7 @@ void ErrorHook(void)
  *
  * This task is started automatically in the application mode 1.
  */
-TASK(InitTask)
+TASK(InitTaskSlave)
 {
    /* init CIAA kernel and devices */
    ciaak_start();
@@ -182,7 +182,7 @@ TASK(InitTask)
    /* open CIAA digital outputs */
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 
-   SetRelAlarm(ActivatePeriodicTask, 0, 500);
+   SetRelAlarm(ActivatePeriodicTaskSlave, 0, 500);
 
    /* terminate task */
    TerminateTask();
@@ -194,7 +194,7 @@ TASK(InitTask)
  * ActivatePeriodicTask expires.
  *
  */
-TASK(PeriodicTask)
+TASK(PeriodicTaskSlave)
 {
    uint8_t outputs;
 
@@ -206,7 +206,7 @@ TASK(PeriodicTask)
    ciaaPOSIX_write(fd_out, &outputs, 1);
 
    /* turn off in 10ms */
-   SetRelAlarm(ActivateLEDOff, 10, 0);
+   SetRelAlarm(ActivateLEDOffSlave, 10, 0);
 
    /* FIXME: This function shall not be available in application. It will be replaced by
     * ActivateTask(PeriodicTask);
@@ -217,7 +217,7 @@ TASK(PeriodicTask)
          .pid = 0
       },
       .data0 = CIAA_MULTICORE_CMD_ACTIVATETASK,
-      .data1 = PeriodicTask
+      .data1 = PeriodicTaskMaster
    };
    ciaaMulticore_sendMessage(m);
 
@@ -225,7 +225,7 @@ TASK(PeriodicTask)
    TerminateTask();
 }
 
-TASK(LEDOff)
+TASK(LEDOffSlave)
 {
    uint8_t outputs;
    ciaaPOSIX_read(fd_out, &outputs, 1);

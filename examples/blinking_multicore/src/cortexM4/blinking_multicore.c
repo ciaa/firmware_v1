@@ -108,10 +108,6 @@ int main(void)
    /* First, start Cortex-M0 slave core.
       Do not forget to create and download an image for this core!
       In Makefile.mine:
-         ARCH     ?= cortexM0
-         CPUTYPE  ?= lpc43xx
-         CPU      ?= lpc4337
-         COMPILER ?= gcc
          BOARD    ?= edu_ciaa_nxp
          -- or --
          BOARD    ?= ciaa_nxp
@@ -119,18 +115,8 @@ int main(void)
          PROJECT  ?= examples$(DS)blinking_multicore
 
       Then build and download:
-         $ make clean
-         $ make generate
-         $ make
-         $ make download
-
-      Next, in Makefile.mine go back to:
-         ARCH     ?= cortexM4
-      Build and download:
-         $ make clean
-         $ make generate
-         $ make
-         $ make download
+         $ make mcore
+         $ make mcore_download
 
       Enjoy :-)
    */
@@ -174,7 +160,7 @@ void ErrorHook(void)
  *
  * This task is started automatically in the application mode 1.
  */
-TASK(InitTask)
+TASK(InitTaskMaster)
 {
    /* init CIAA kernel and devices */
    ciaak_start();
@@ -192,7 +178,7 @@ TASK(InitTask)
  * ActivatePeriodicTask expires.
  *
  */
-TASK(PeriodicTask)
+TASK(PeriodicTaskMaster)
 {
    uint8_t outputs;
 

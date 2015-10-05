@@ -60,7 +60,7 @@ OSEK OSEK {
 
    APPMODE = AppMode1;
 
-   TASK InitTask {
+   TASK InitTaskMaster {
       PRIORITY = 1;
       ACTIVATION = 1;
       AUTOSTART = TRUE {
@@ -71,9 +71,24 @@ OSEK OSEK {
       SCHEDULE = NON;
       RESOURCE = POSIXR;
       EVENT = POSIXE;
+      CORE = 0;
    }
 
-   TASK PeriodicTask {
+   TASK InitTaskSlave {
+      PRIORITY = 1;
+      ACTIVATION = 1;
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+      }
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = NON;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+      CORE = 1;
+   }
+
+   TASK PeriodicTaskMaster {
       PRIORITY = 2;
       ACTIVATION = 1;
       STACK = 512;
@@ -81,11 +96,56 @@ OSEK OSEK {
       SCHEDULE = NON;
       RESOURCE = POSIXR;
       EVENT = POSIXE;
+      CORE = 0;
    }
+
+   TASK LEDOffSlave {
+      PRIORITY = 2;
+      ACTIVATION = 1;
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = NON;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+      CORE = 1;
+   }
+
+   ALARM ActivatePeriodicTaskSlave {
+      COUNTER = HardwareCounter;
+      ACTION = ACTIVATETASK {
+         TASK = PeriodicTaskSlave;
+      }
+      CORE = 1;
+   }
+
+   ALARM ActivateLEDOffSlave {
+      COUNTER = HardwareCounter;
+      ACTION = ACTIVATETASK {
+         TASK = LEDOffSlave;
+      }
+      CORE = 1;
+   }
+
+   COUNTER HardwareCounter {
+      MAXALLOWEDVALUE = 1000;
+      TICKSPERBASE = 1;
+      MINCYCLE = 1;
+      TYPE = HARDWARE;
+      COUNTER = HWCOUNTER0;
+      CORE = 1;
+   };
 
    ISR Multicore_IRQHandler {
       CATEGORY = 2;
       PRIORITY = 0;
       INTERRUPT = M0APP;
+      CORE = 0;
+   }
+
+   ISR Multicore_IRQHandler {
+      CATEGORY = 2;
+      PRIORITY = 0;
+      INTERRUPT = M4CORE;
+      CORE = 1;
    }
 };
