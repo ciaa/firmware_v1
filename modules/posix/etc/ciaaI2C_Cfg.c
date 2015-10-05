@@ -106,8 +106,6 @@ ciaaI2CDevices_masterType ciaaI2CDevice_master01 = {
    {
       "eeprom",         /* name of the device */
       255,              /* max addres, addresse range from 0 to 255 */
-      16,               /* max size of input buffer */
-      10,               /* delay in ms after writing the maximal size */
       20,               /* id of the device */
       2                 /* 1 bytes for address */
    }
@@ -115,8 +113,6 @@ ciaaI2CDevices_masterType ciaaI2CDevice_master01 = {
    {
       "sensor",         /* name of the device */
       511,              /* max addres, addresse range from 0 to 511 */
-      0,                /* no limit */
-      0,                /* no delay needed */
       10,               /* id of the device */
       2                 /* 2 bytes for address */
    }
