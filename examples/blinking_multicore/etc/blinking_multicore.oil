@@ -99,6 +99,17 @@ OSEK OSEK {
       CORE = 0;
    }
 
+   TASK PeriodicTaskSlave {
+      PRIORITY = 2;
+      ACTIVATION = 1;
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = NON;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+      CORE = 1;
+   }
+
    TASK LEDOffSlave {
       PRIORITY = 2;
       ACTIVATION = 1;
