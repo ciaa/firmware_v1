@@ -207,7 +207,7 @@ TASK(EventTaskMaster)
    /* read outputs */
    ciaaPOSIX_read(fd_out, &outputs, 1);
    /* blink output */
-   outputs ^= 0x40;
+   outputs ^= 0x08;
    /* write outputs */
    ciaaPOSIX_write(fd_out, &outputs, 1);
 
