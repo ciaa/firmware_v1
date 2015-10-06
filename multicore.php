@@ -61,23 +61,60 @@
 
 /*=================[user functions]==========================================*/
 
-/**   \brief Get array of elements defined for a given core
- *    \param config Config Object
+/**   \brief Get array of elements defined for the local core
  *    \param root Root element to search into
  *    \param type Type to filter inside Root
- *    \param core Number of core to get elements
- *    \return array of elements defined for the given core
-*/
-function getListByCore($config, $root, $type, $core)
+ *    \return array of local elements
+ */
+function getLocalList($root, $type)
 {
+   global $config;
+   global $definition;
+ 
    $list = $config->getList($root,$type);
    $ret = array();
-   for ($i=0; $i < count($list); $i++)
+
+   if (isset($definition["MCORE"]))
    {
-      $current_core = $config->getValue("/OSEK/$list[$i]","CORE");
-      if ($current_core == $core)
+      $core = $definition["MCORE"];
+      for ($i=0; $i < count($list); $i++)
       {
-         array_push($ret,$list[$i]);
+         $current_core = $config->getValue("/OSEK/$list[$i]","CORE");
+         if ($current_core == $core)
+         {
+            array_push($ret,$list[$i]);
+         }
+      }
+   }
+   else
+   {
+      $ret = $list;
+   }
+   return $ret;
+}
+
+/**   \brief Get array of elements defined for the remote core
+ *    \param root Root element to search into
+ *    \param type Type to filter inside Root
+ *    \return array of remote elements
+ */
+function getRemoteList($root, $type)
+{ 
+   global $config;
+   global $definition;
+
+   $ret = array();
+   if (isset($definition["MCORE"]))
+   {
+      $list = $config->getList($root,$type);
+      $core = $definition["MCORE"];
+      for ($i=0; $i < count($list); $i++)
+      {
+         $current_core = $config->getValue("/OSEK/$list[$i]","CORE");
+         if ($current_core != $core)
+         {
+            array_push($ret,$list[$i]);
+         }
       }
    }
    return $ret;
