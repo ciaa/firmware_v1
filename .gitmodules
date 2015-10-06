@@ -4,6 +4,9 @@
 [submodule "modules/update/common"]
 	path = modules/update/common
 	url = https://github.com/ciaa/firmware.modules.update.common
+[submodule "modules/update/slave"]
+	path = modules/update/slave
+	url = https://github.com/ciaa/firmware.modules.update.slave
 [submodule "modules/modbus"]
 	path = modules/modbus
 	url = https://github.com/ciaa/firmware.modules.modbus.git
