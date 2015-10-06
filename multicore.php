@@ -70,7 +70,7 @@ function getLocalList($root, $type)
 {
    global $config;
    global $definition;
- 
+
    $list = $config->getList($root,$type);
    $ret = array();
 
@@ -99,7 +99,7 @@ function getLocalList($root, $type)
  *    \return array of remote elements
  */
 function getRemoteList($root, $type)
-{ 
+{
    global $config;
    global $definition;
 
