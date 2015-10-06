@@ -61,7 +61,7 @@
 
 /*=================[user functions]==========================================*/
 
-/**   \brief Get array of elements defined for a given core 
+/**   \brief Get array of elements defined for a given core
  *    \param config Config Object
  *    \param root Root element to search into
  *    \param type Type to filter inside Root
