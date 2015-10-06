@@ -92,8 +92,8 @@ typedef struct
 /** \brief available inter-core commands */
 typedef enum
 {
-   CIAA_MULTICORE_CMD_ACTIVATETASK = 0x123,
-   CIAA_MULTICORE_CMD_SETEVENT = 0x456
+   CIAA_MULTICORE_CMD_ACTIVATETASK = 0x100,
+   CIAA_MULTICORE_CMD_SETEVENT = 0x200
 }ciaaMulticore_ipcCmd_t;
 
 /*==================[external data declaration]==============================*/
@@ -120,6 +120,13 @@ extern int32_t ciaaMulticore_sendMessage(ciaaMulticore_ipcMsg_t m);
  * @return != 0 on success, -1 on error (no msg available)
  */
 extern int32_t ciaaMulticore_recvMessage(ciaaMulticore_ipcMsg_t  * m);
+
+/** \brief Process and dispatch a message received from a remote core
+ *
+ * @param m message to dispatch
+ * @return 0 on sucess, -1 in case of unknown message
+ */
+extern int32_t ciaaMulticore_dispatch_OSEK_API(ciaaMulticore_ipcMsg_t m);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

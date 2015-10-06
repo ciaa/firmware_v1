@@ -59,6 +59,8 @@ OSEK OSEK {
 
    EVENT = POSIXE;
 
+   EVENT = RemoteEvent;
+
    APPMODE = AppMode1;
 
    TASK InitTaskMaster {
@@ -98,6 +100,21 @@ OSEK OSEK {
       RESOURCE = POSIXR;
       EVENT = POSIXE;
       CORE = 0;
+   }
+
+   TASK EventTaskMaster {
+      PRIORITY = 2;
+      ACTIVATION = 1;
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = NON;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+      EVENT = RemoteEvent;
+      CORE = 0;
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+      }
    }
 
    TASK PeriodicTaskSlave {

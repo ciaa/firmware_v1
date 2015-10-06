@@ -190,8 +190,8 @@ TASK(PeriodicTaskSlave)
    /* write outputs */
    ciaaPOSIX_write(fd_out, &outputs, 1);
 
-   /* turn off in 10ms */
-   SetRelAlarm(ActivateLEDOffSlave, 10, 0);
+   /* turn off in 100ms */
+   SetRelAlarm(ActivateLEDOffSlave, 100, 0);
 
    /* Activate a Task in the remote core */
    ActivateTask(PeriodicTaskMaster);
@@ -200,12 +200,18 @@ TASK(PeriodicTaskSlave)
    TerminateTask();
 }
 
+/** \brief Task used to turn off the LED and also send and event
+ */
 TASK(LEDOffSlave)
 {
    uint8_t outputs;
    ciaaPOSIX_read(fd_out, &outputs, 1);
    outputs &= ~0x10;
    ciaaPOSIX_write(fd_out, &outputs, 1);
+
+   /* Set an event to the remote core */
+   SetEvent(EventTaskMaster, RemoteEvent);
+
    TerminateTask();
 }
 

@@ -132,14 +132,14 @@ extern int32_t ciaaMulticore_dispatch_OSEK_API(ciaaMulticore_ipcMsg_t m)
 {
    int32_t rv = -1;
 
-   switch(m.data0)
+   switch(m.data0 & ~0xFF)
    {
       case CIAA_MULTICORE_CMD_ACTIVATETASK:
          ActivateTask(m.data1);
          rv = 0;
          break;
       case CIAA_MULTICORE_CMD_SETEVENT:
-         SetEvent(m.data1 & 0xFF, m.data1 >> 8);
+         SetEvent(m.data0 & 0xFF, m.data1);
          rv = 0;
          break;
       default:
