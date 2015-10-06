@@ -65,6 +65,11 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+#define CIAA_I2C_ST_STNDBY                0
+#define CIAA_I2C_ST_SNG_BYTE_WRITE        1
+#define CIAA_I2C_ST_MLT_BYTE_WRITE        2
+#define CIAA_I2C_ST_READ_WRITE            3
+#define CIAA_I2C_ST_READ_READ             4
 
 /*==================[typedef]================================================*/
 /** \brief I2C Slave Structure
