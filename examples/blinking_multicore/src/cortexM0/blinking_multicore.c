@@ -108,10 +108,6 @@ int main(void)
    /* First, start Cortex-M0 slave core.
       Do not forget to create and download an image for this core!
       In Makefile.mine:
-         ARCH     ?= cortexM0
-         CPUTYPE  ?= lpc43xx
-         CPU      ?= lpc4337
-         COMPILER ?= gcc
          BOARD    ?= edu_ciaa_nxp
          -- or --
          BOARD    ?= ciaa_nxp
@@ -119,22 +115,11 @@ int main(void)
          PROJECT  ?= examples$(DS)blinking_multicore
 
       Then build and download:
-         $ make clean
-         $ make generate
-         $ make
-         $ make download
-
-      Next, in Makefile.mine go back to:
-         ARCH     ?= cortexM4
-      Build and download:
-         $ make clean
-         $ make generate
-         $ make
-         $ make download
+         $ make mcore
+         $ make mcore_download
 
       Enjoy :-)
    */
-   ciaaMulticore_init();
 
    /* Starts the operating system in the Application Mode 1 */
    /* This example has only one Application Mode */
@@ -208,18 +193,8 @@ TASK(PeriodicTaskSlave)
    /* turn off in 10ms */
    SetRelAlarm(ActivateLEDOffSlave, 10, 0);
 
-   /* FIXME: This function shall not be available in application. It will be replaced by
-    * ActivateTask(PeriodicTask);
-    */
-   ciaaMulticore_ipcMsg_t m = {
-      .id = {
-         .cpuid = CIAA_MULTICORE_CORE_0,
-         .pid = 0
-      },
-      .data0 = CIAA_MULTICORE_CMD_ACTIVATETASK,
-      .data1 = PeriodicTaskMaster
-   };
-   ciaaMulticore_sendMessage(m);
+   /* Activate a Task in the remote core */
+   ActivateTask(PeriodicTaskMaster);
 
    /* terminate task */
    TerminateTask();

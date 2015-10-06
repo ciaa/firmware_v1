@@ -34,6 +34,8 @@
 ###############################################################################
 # library
 LIBS 				     += multicore
+# compilation flags
+CFLAGS				  += -DMULTICORE
 # version
 multicore_VERSION    = 0.1.0
 # library path

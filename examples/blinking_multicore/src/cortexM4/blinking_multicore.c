@@ -120,7 +120,6 @@ int main(void)
 
       Enjoy :-)
    */
-   ciaaMulticore_init();
 
    /* Starts the operating system in the Application Mode 1 */
    /* This example has only one Application Mode */
