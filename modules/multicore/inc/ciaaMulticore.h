@@ -67,16 +67,6 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 
-/** \brief define which is the current and remote core (master always 0) */
-#if (cortexM0 == ARCH)
-#define CURRENT_CORE 1
-#define REMOTE_CORE  0
-#endif
-#if (cortexM4 == ARCH)
-#define CURRENT_CORE 0
-#define REMOTE_CORE  1
-#endif
-
 /*==================[typedef]================================================*/
 
 /** \brief List of available cores
