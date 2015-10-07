@@ -94,8 +94,6 @@ typedef struct {
 
 /*==================[internal data declaration]==============================*/
 
-uint8_t i;
-
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
@@ -108,11 +106,13 @@ static uint8_t payload_size=248;
 /* slave side */
 static test_update_loopbackType slave_transport;
 static int32_t slave_fd = -1;
+/*Sequence number*/
+static uint8_t SN=1;
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
-void test_updt_configFormat(test_updt_configType *type, uint8_t *config_buffer,size_t data_size)
+static void test_updt_configFormat(test_updt_configType *type, uint8_t *config_buffer,size_t data_size)
 {
    ciaaPOSIX_assert(data_size == 32);
    /*Set of the field "reserved1" in the buffer*/
@@ -156,7 +156,7 @@ void test_updt_configFormat(test_updt_configType *type, uint8_t *config_buffer,s
 }
 
 
-void test_update_value (test_updt_configType *values)
+static void test_update_value (test_updt_configType *values)
 {
    values->reserved1 = 0;
    values->firmware_version = 2 << 16;
@@ -188,53 +188,56 @@ void test_update_value (test_updt_configType *values)
    values->data_size |= 31;
 }
 
-void testUpdtValueData (uint8_t *vector, uint32_t paySize)
+static void testUpdtValueData (uint8_t *vector, uint32_t paySize)
 {
+   uint8_t i;
    for (i=0;i<paySize;i++)
    {
       vector[i]=ciaaPOSIX_rand();
    }
 }
 
-void makeHandshakeOk (test_updt_configType *type,uint8_t *vector)
+static void makeHandshakeOk (test_updt_configType *type,uint8_t *vector)
 {
-   UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_INF,1,32);
+   UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_INF,SN,32);
    test_update_value (type);
    test_updt_configFormat (type,vector+4,32);
+   SN=SN+1;
 }
 
-uint32_t testHandshakeOk (test_updt_configType *type,uint8_t *vector)
+static uint32_t testHandshakeOk (test_updt_configType *type,uint8_t *vector)
 {
    ciaaPOSIX_assert (UPDT_PROTOCOL_PACKET_ACK == UPDT_protocolGetPacketType(vector));
-   ciaaPOSIX_assert (2 == UPDT_protocolGetSequenceNumber(vector));
+   ciaaPOSIX_assert (SN == UPDT_protocolGetSequenceNumber(vector));
    return 0;
 }
 
 
-void makeHandshakeOkNextSN (test_updt_configType *type, uint8_t *vector)
+static void makeHandshakeOkNextSN (test_updt_configType *type, uint8_t *vector)
 {
-   UPDT_protocolSetHeader (vector, UPDT_PROTOCOL_PACKET_INF,2,32);
+   UPDT_protocolSetHeader (vector, UPDT_PROTOCOL_PACKET_INF,SN,32);
    test_update_value (type);
    test_updt_configFormat (type,vector+4,32);
+   SN=SN+1;
 }
 
-uint32_t testHandshakeOkNextSN(test_updt_configType *type, uint8_t *vector)
+static uint32_t testHandshakeOkNextSN(test_updt_configType *type, uint8_t *vector)
 {
    ciaaPOSIX_assert (UPDT_PROTOCOL_PACKET_ACK == UPDT_protocolGetPacketType(vector));
-   ciaaPOSIX_assert (3==UPDT_protocolGetSequenceNumber(vector));
+   ciaaPOSIX_assert (SN==UPDT_protocolGetSequenceNumber(vector));
    return 0;
 }
 
-void makeDataOk (test_updt_configType *type, uint8_t *vector, uint8_t payload_size)
+static void makeDataOk (test_updt_configType *type, uint8_t *vector, uint8_t payload_size)
 {
-   UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_DAT,3,32);
+   UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_DAT,SN,32);
    testUpdtValueData (vector+4,payload_size);
 }
 
-uint32_t testDataOk(uint8_t *vector)
+static uint32_t testDataOk(uint8_t *vector)
 {
    ciaaPOSIX_assert (UPDT_PROTOCOL_PACKET_ACK == UPDT_protocolGetPacketType(vector));
-   ciaaPOSIX_assert (4==UPDT_protocolGetSequenceNumber(vector));
+   ciaaPOSIX_assert (SN==UPDT_protocolGetSequenceNumber(vector));
    return 0;
 }
 
@@ -319,7 +322,6 @@ TASK(InitTask)
 /** \brief Master Task */
 TASK(MasterTask)
 {
-   int32_t ret;
    uint8_t vector[36];
    test_updt_configType type;
    ciaaPOSIX_printf("Master Task\n");
@@ -373,7 +375,7 @@ TASK(SlaveTask)
    ciaaPOSIX_printf("Slave Task\n");
 
    /* open flash device */
-   slave_fd = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
+   slave_fd = ciaaPOSIX_open("/dev/block/fd/0", ciaaPOSIX_O_RDWR);
    ciaaPOSIX_assert(0 >= slave_fd);
 
    /* start the update service */
