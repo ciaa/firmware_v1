@@ -192,29 +192,6 @@ TASK(PeriodicTaskMaster)
    TerminateTask();
 }
 
-/** \brief Event Task
- *
- * This task waits for an event raised in the remote core.
- *
- */
-TASK(EventTaskMaster)
-{
-   uint8_t outputs;
-
-   WaitEvent(RemoteEvent);
-   ClearEvent(RemoteEvent);
-
-   /* read outputs */
-   ciaaPOSIX_read(fd_out, &outputs, 1);
-   /* blink output */
-   outputs ^= 0x08;
-   /* write outputs */
-   ciaaPOSIX_write(fd_out, &outputs, 1);
-
-   /* terminate task */
-   ChainTask(EventTaskMaster);
-}
-
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

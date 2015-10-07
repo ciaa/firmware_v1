@@ -209,10 +209,30 @@ TASK(LEDOffSlave)
    outputs &= ~0x10;
    ciaaPOSIX_write(fd_out, &outputs, 1);
 
-   /* Set an event to the remote core */
-   SetEvent(EventTaskMaster, RemoteEvent);
-
    TerminateTask();
+}
+
+/** \brief Event Task
+ *
+ * This task waits for an event raised in the remote core.
+ *
+ */
+TASK(EventTaskSlave)
+{
+   uint8_t outputs;
+
+   WaitEvent(RemoteEvent);
+   ClearEvent(RemoteEvent);
+
+   /* read outputs */
+   ciaaPOSIX_read(fd_out, &outputs, 1);
+   /* blink output */
+   outputs ^= 0x08;
+   /* write outputs */
+   ciaaPOSIX_write(fd_out, &outputs, 1);
+
+   /* terminate task */
+   ChainTask(EventTaskSlave);
 }
 
 /** @} doxygen end group definition */

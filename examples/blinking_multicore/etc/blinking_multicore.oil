@@ -102,7 +102,7 @@ OSEK OSEK {
       CORE = 0;
    }
 
-   TASK EventTaskMaster {
+   TASK EventTaskSlave {
       PRIORITY = 2;
       ACTIVATION = 1;
       STACK = 512;
@@ -111,7 +111,7 @@ OSEK OSEK {
       RESOURCE = POSIXR;
       EVENT = POSIXE;
       EVENT = RemoteEvent;
-      CORE = 0;
+      CORE = 1;
       AUTOSTART = TRUE {
          APPMODE = AppMode1;
       }
@@ -140,7 +140,7 @@ OSEK OSEK {
    }
 
    ALARM ActivatePeriodicTaskSlave {
-      COUNTER = HardwareCounter;
+      COUNTER = HardwareCounterSlave;
       ACTION = ACTIVATETASK {
          TASK = PeriodicTaskSlave;
       }
@@ -148,20 +148,43 @@ OSEK OSEK {
    }
 
    ALARM ActivateLEDOffSlave {
-      COUNTER = HardwareCounter;
+      COUNTER = HardwareCounterSlave;
       ACTION = ACTIVATETASK {
          TASK = LEDOffSlave;
       }
       CORE = 1;
    }
 
-   COUNTER HardwareCounter {
+   ALARM SetRemoteEvent {
+      COUNTER = HardwareCounterMaster;
+      ACTION = SETEVENT {
+         TASK = EventTaskSlave;
+         EVENT = RemoteEvent;
+      }
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+         ALARMTIME = 0;
+         CYCLETIME = 300;
+      }
+      CORE = 0;
+   }
+
+   COUNTER HardwareCounterSlave {
       MAXALLOWEDVALUE = 1000;
       TICKSPERBASE = 1;
       MINCYCLE = 1;
       TYPE = HARDWARE;
       COUNTER = HWCOUNTER0;
       CORE = 1;
+   };
+
+   COUNTER HardwareCounterMaster {
+      MAXALLOWEDVALUE = 1000;
+      TICKSPERBASE = 1;
+      MINCYCLE = 1;
+      TYPE = HARDWARE;
+      COUNTER = HWCOUNTER0;
+      CORE = 0;
    };
 
    ISR M0_IRQHandler {
