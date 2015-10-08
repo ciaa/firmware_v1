@@ -223,10 +223,10 @@ static void testUpdtValueData (uint8_t *vector, uint32_t paySize)
 
 static void makeHandshakeOk (test_updt_configType *type,uint8_t *vector)
 {
-   UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_INF,SN,32);
+   UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_INF,SequenceNumber,32);
    test_update_value (type);
    test_updt_configFormat (type,vector+4,32);
-   SN=SN+1;
+   SequenceNumber=SequenceNumber+1;
 }
 
 static uint32_t testHandshakeOk (test_updt_configType *type,uint8_t *vector)
@@ -239,29 +239,29 @@ static uint32_t testHandshakeOk (test_updt_configType *type,uint8_t *vector)
 
 static void makeHandshakeOkNextSequenceNumber(test_updt_configType *type, uint8_t *vector)
 {
-   UPDT_protocolSetHeader (vector, UPDT_PROTOCOL_PACKET_INF,SN,32);
+   UPDT_protocolSetHeader (vector, UPDT_PROTOCOL_PACKET_INF,SequenceNumber,32);
    test_update_value (type);
    test_updt_configFormat (type,vector+4,32);
-   SN=SN+1;
+   SequenceNumber=SequenceNumber+1;
 }
 
-static uint32_t testHandshakeOkNextSN(test_updt_configType *type, uint8_t *vector)
+static uint32_t testHandshakeOkNextSequenceNumber(test_updt_configType *type, uint8_t *vector)
 {
    ciaaPOSIX_assert (UPDT_PROTOCOL_PACKET_ACK == UPDT_protocolGetPacketType(vector));
-   ciaaPOSIX_assert (SN==UPDT_protocolGetSequenceNumber(vector));
+   ciaaPOSIX_assert (SequenceNumber==UPDT_protocolGetSequenceNumber(vector));
    return 0;
 }
 
 static void makeDataOk (test_updt_configType *type, uint8_t *vector, uint8_t payload_size)
 {
-   UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_DAT,SN,32);
+   UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_DAT,SequenceNumber,32);
    testUpdtValueData (vector+4,payload_size);
 }
 
 static uint32_t testDataOk(uint8_t *vector)
 {
    ciaaPOSIX_assert (UPDT_PROTOCOL_PACKET_ACK == UPDT_protocolGetPacketType(vector));
-   ciaaPOSIX_assert (SN==UPDT_protocolGetSequenceNumber(vector));
+   ciaaPOSIX_assert (SequenceNumber==UPDT_protocolGetSequenceNumber(vector));
    return 0;
 }
 
