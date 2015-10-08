@@ -75,6 +75,7 @@
 #include "ciaak.h"            /* <= ciaa kernel header */
 #include "UPDT_services.h"
 #include "test_protocol_loopback.h"
+#include "UPDT_utils.h"
 
 /*==================[macros and definitions]=================================*/
 #define DATA_SIZE 1024
@@ -88,7 +89,8 @@ typedef struct {
    uint32_t application_version;
    uint32_t vendor_id;
    uint32_t model_id;
-   uint64_t unique_id;
+   uint32_t unique_id_L;
+   uint32_t unique_id_H;
    uint32_t data_size;
 } test_updt_configType;
 
@@ -140,14 +142,25 @@ static void test_updt_configFormat(test_updt_configType *type, uint8_t *config_b
    config_buffer[14] = (type->model_id) >> 8;
    config_buffer[15] = type->model_id;
    /*Set of the field "unique_id" in the buffer*/
-   config_buffer[16] = (type->unique_id) >> 56;
-   config_buffer[17] = (type->unique_id) >> 48;
-   config_buffer[18] = (type->unique_id) >> 40;
-   config_buffer[19] = (type->unique_id) >> 32;
-   config_buffer[20] = (type->unique_id) >> 24;
-   config_buffer[21] = (type->unique_id) >> 16;
-   config_buffer[22] = (type->unique_id) >> 8;
-   config_buffer[23] = type->unique_id;
+   #if CIAAPLATFORM_BIGENDIAN == 0
+   config_buffer[16] = (type->unique_id_L) >> 24;
+   config_buffer[17] = (type->unique_id_L) >> 16;
+   config_buffer[18] = (type->unique_id_L) >> 8;
+   config_buffer[19] =  type->unique_id_L;
+   config_buffer[20] = (type->unique_id_H) >> 24;
+   config_buffer[21] = (type->unique_id_H) >> 16;
+   config_buffer[22] = (type->unique_id_H) >> 8;
+   config_buffer[23] =  type->unique_id_H;
+   #else
+   config_buffer[16] = (type->unique_id_H) >> 24;
+   config_buffer[17] = (type->unique_id_H) >> 16;
+   config_buffer[18] = (type->unique_id_H) >> 8;
+   config_buffer[19] =  type->unique_id_H;
+   config_buffer[20] = (type->unique_id_L) >> 24;
+   config_buffer[21] = (type->unique_id_L) >> 16;
+   config_buffer[22] = (type->unique_id_L) >> 8;
+   config_buffer[23] =  type->unique_id_L;
+   #endif // CIAAPLATFORM_BIGENDIAN
    /*Set of the field "data_size" in the buffer*/
    config_buffer[24] = (type->data_size) >> 24;
    config_buffer[25] = (type->data_size) >> 16;
@@ -174,14 +187,25 @@ static void test_update_value (test_updt_configType *values)
    values->model_id = 16 << 16;
    values->model_id |= 17 << 8;
    values->model_id |= 18;
-   values->unique_id = 20ll << 56;
-   values->unique_id |= 21ll << 48;
-   values->unique_id |= 22ll << 40;
-   values->unique_id |= 23ll << 32;
-   values->unique_id |= 24ll << 24;
-   values->unique_id |= 25ll << 16;
-   values->unique_id |= 26ll << 8;
-   values->unique_id |= 27ll;
+   #if CIAAPLATFORM_BIGENDIAN == 0
+   values->unique_id_L = 20 << 24;
+   values->unique_id_L |= 21 << 16;
+   values->unique_id_L |= 22 << 8;
+   values->unique_id_L |= 23;
+   values->unique_id_H |= 24 << 24;
+   values->unique_id_H |= 25 << 16;
+   values->unique_id_H |= 26 << 8;
+   values->unique_id_H |= 27;
+   #else
+   values->unique_id_H = 24 << 24;
+   values->unique_id_H |= 25 << 16;
+   values->unique_id_H |= 26 << 8;
+   values->unique_id_H |= 27;
+   values->unique_id_L |= 20 << 24;
+   values->unique_id_L |= 21 << 16;
+   values->unique_id_L |= 22 << 8;
+   values->unique_id_L |= 23;
+   #endif // CIAAPLATFORM_BIGENDIAN
    values->data_size = 28 << 24;
    values->data_size |= 29 << 16;
    values->data_size |= 30 << 8;
