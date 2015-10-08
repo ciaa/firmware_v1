@@ -109,7 +109,7 @@ static uint8_t payload_size=248;
 static test_update_loopbackType slave_transport;
 static int32_t slave_fd = -1;
 /*Sequence number*/
-static uint8_t SN=1;
+static uint8_t SequenceNumber=1;
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -232,12 +232,12 @@ static void makeHandshakeOk (test_updt_configType *type,uint8_t *vector)
 static uint32_t testHandshakeOk (test_updt_configType *type,uint8_t *vector)
 {
    ciaaPOSIX_assert (UPDT_PROTOCOL_PACKET_ACK == UPDT_protocolGetPacketType(vector));
-   ciaaPOSIX_assert (SN == UPDT_protocolGetSequenceNumber(vector));
+   ciaaPOSIX_assert (SequenceNumber== UPDT_protocolGetSequenceNumber(vector));
    return 0;
 }
 
 
-static void makeHandshakeOkNextSN (test_updt_configType *type, uint8_t *vector)
+static void makeHandshakeOkNextSequenceNumber(test_updt_configType *type, uint8_t *vector)
 {
    UPDT_protocolSetHeader (vector, UPDT_PROTOCOL_PACKET_INF,SN,32);
    test_update_value (type);
@@ -358,7 +358,7 @@ TASK(MasterTask)
    ciaaPOSIX_assert (UPDT_protocolSend((UPDT_ITransportType *) &master_transport, vector, 32) == UPDT_PROTOCOL_ERROR_NONE);
    /*received answer*/
    ciaaPOSIX_assert (UPDT_protocolRecv((UPDT_ITransportType *) &master_transport, vector,32) == UPDT_PROTOCOL_ERROR_NONE);
-   /*testing SN and package type of answer*/
+   /*testing SequenceNumberand package type of answer*/
    ciaaPOSIX_assert(testHandshakeOk (&type,vector)==0);
 
    /*initialize data packet for send*/
@@ -367,7 +367,7 @@ TASK(MasterTask)
    ciaaPOSIX_assert (UPDT_protocolSend((UPDT_ITransportType *) &master_transport, vector, payload_size) == UPDT_PROTOCOL_ERROR_NONE);
    /*received answer*/
    ciaaPOSIX_assert (UPDT_protocolRecv((UPDT_ITransportType *) &master_transport, vector,payload_size) == UPDT_PROTOCOL_ERROR_NONE);
-   /*testing SN and package type of answer*/
+   /*testing SequenceNumberand package type of answer*/
    ciaaPOSIX_assert (testDataOk(vector)==0);
 
    #if(0)
