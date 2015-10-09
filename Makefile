@@ -500,7 +500,7 @@ $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:
 # libs with contains sources
 LIBS_WITH_SRC	= $(foreach LIB, $(LIBS), $(if $(filter %.c,$($(LIB)_SRC_FILES)),$(LIB)))
 
-$(PROJECT_NAME) : $(LIBS_WITH_SRC) $(OBJ_FILES)
+$(PROJECT_NAME) : $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
@@ -526,6 +526,11 @@ generate : $(OIL_4_GEN_DEP)
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
 		-c $(OIL_4_GEN) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+
+$(rtos_GENERATED_FILES) : $(OIL_FILES)
+	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
+		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
+		-c $(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 
 ###############################################################################
 # doxygen
