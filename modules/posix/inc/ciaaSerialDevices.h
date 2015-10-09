@@ -157,7 +157,7 @@ extern ssize_t ciaaSerialDevices_write(ciaaDevices_deviceType const * device, ui
  ** This interface informs the serial device that a recepction has been completed
  **
  ** \param[in]    TODO fildes file descriptor of the confirmation
- ** \param[in]    nbyte count of received bytes
+ ** \param[in]    nbyte count of confirmed bytes, if 0 the parameter will be ignored
  **
  ** \remarks This interface may be called from ISR context
  **/
