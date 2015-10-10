@@ -3,7 +3,14 @@ checkout:
       - git submodule sync
       - git submodule update --init
 
+machine:
+   php:
+      version: 5.4.5
+   ruby:
+      version: 1.9.3-p448
+
 test:
-   - make mocks
-   - make ci
-   - make ci
+   post:
+      - make mocks
+      - make ci
+      - make ci
