@@ -453,7 +453,7 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 %.oil : %.poil
 	@echo ' '
 	@echo ===============================================================================
-	@echo PRE OIL $^ to $(GEN_DIR)$(DS)etc$(DS)$(notdir $@)
+	@echo Generate OIL File $(GEN_DIR)$(DS)etc$(DS)$(notdir $@) from $^
 	@echo ' '
 	$(CC) -E -x c++ -Imodules$(DS)base$(DS)inc -DBOARD=$(BOARD) -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) $^ | grep -v "^#.*" > $(ETC_DIR)$(DS)$(notdir $@)
 
@@ -527,6 +527,10 @@ debug : $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
 ###############################################################################
 # rtos OSEK generation
 generate : $(OIL_4_GEN_DEP)
+	@echo ' '
+	@echo ===============================================================================
+	@echo Run RTOS Generator
+	@echo ' '
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
 		-c $(OIL_4_GEN) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
