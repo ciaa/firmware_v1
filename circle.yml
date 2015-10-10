@@ -1,0 +1,9 @@
+checkout:
+   post:
+      - git submodule sync
+      - git submodule update --init
+
+test:
+   make mocks
+   make ci
+   make ci
