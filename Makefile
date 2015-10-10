@@ -275,16 +275,8 @@ $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 endef
 
 OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(SRC_FILES)))))
-#OIL_4_GEN = $(wildcard $(ETC_DIR)$(DS)*.oil) $(OIL_FILES)
-#OIL_FILES += $(notdir $(patsubst %.poil,%.oil,$(PRE_OIL_FILES)))
 OIL_4_GEN += $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(PRE_OIL_FILES))), $(ETC_DIR)$(DS)$(OIL)) $(OIL_FILES)
 OIL_4_GEN_DEP += $(notdir $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(PRE_OIL_FILES))), $(ETC_DIR)$(DS)$(OIL))) $(OIL_FILES)
-
-
-
-mace:
-	@echo $(OIL_4_GEN)
-	@echo $(OIL_FILES)
 
 # create rule for library
 # lib.a : lib_OBJ_FILES.o
