@@ -445,7 +445,7 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 %.oil : %.poil
 	@echo ' '
 	@echo ===============================================================================
-	@echo Generate OIL File $(GEN_DIR)$(DS)etc$(DS)$(notdir $@) from $^
+	@echo Generate OIL File $(ETC_DIR)$(DS)$(notdir $@) from $^
 	@echo ' '
 	$(CC) -E -x c++ -Imodules$(DS)base$(DS)inc -DBOARD=$(BOARD) -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) $^ | grep -v "^#.*" > $(ETC_DIR)$(DS)$(notdir $@)
 
