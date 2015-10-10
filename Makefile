@@ -773,6 +773,7 @@ info:
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
 	@echo libraris with srcs.: $(LIBS_WITH_SRC)
+	@echo RTOS config........: $(PRE_OIL_FILES) $(OIL_FILES)
 #	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
 #	@echo Lib Src Files......: $(LIBS_SRC_FILES)
 #	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)
