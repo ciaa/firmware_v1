@@ -40,6 +40,7 @@
 /*  - OSEK OS standard: http://portal.osek-vdx.org/files/pdf/specs/os223.pdf */
 /*  - OSEK OIL standard: http://portal.osek-vdx.org/files/pdf/specs/oil25.pdf*/
 /*****************************************************************************/
+#include "ciaaPlatforms.h"
 
 OSEK OSEK {
 
@@ -137,13 +138,21 @@ ISR UART0_IRQHandler {
 };
 
 ISR UART2_IRQHandler {
+#if BOARD == ciaa_fsl
+   INTERRUPT = UART5;
+#else
    INTERRUPT = UART2;
+#endif
    CATEGORY = 2;
    PRIORITY = 0;
 };
 
 ISR UART3_IRQHandler {
+#if BOARD == ciaa_fsl
+   INTERRUPT = UART2;
+#else
    INTERRUPT = UART3;
+#endif
    CATEGORY = 2;
    PRIORITY = 0;
 };

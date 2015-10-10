@@ -224,6 +224,8 @@ BIN_DIR  = $(OUT_DIR)$(DS)bin
 GEN_DIR = $(OUT_DIR)$(DS)gen
 # rtos test gen dir
 RTOS_TEST_GEN_DIR = $(OUT_DIR)$(DS)rtos
+# etc dir (configuration dir)
+ETC_DIR = $(OUT_DIR)$(DS)etc
 
 # include needed project
 include $(PROJECT_PATH)$(DS)mak$(DS)Makefile
@@ -259,6 +261,8 @@ vpath %.s $(LIBS_SRC_DIRS)
 vpath %.S $(LIBS_SRC_DIRS)
 vpath %.cpp $(LIBS_SRC_DIRS)
 vpath %.o $(OBJ_DIR)
+vpath %.oil $(ETC_DIR)
+vpath %.poil $(dir $(POIL_FILES))
 
 #rule for library
 define librule
@@ -271,6 +275,8 @@ $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 endef
 
 OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(SRC_FILES)))))
+OIL_4_GEN += $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(POIL_FILES))), $(ETC_DIR)$(DS)$(OIL)) $(OIL_FILES)
+OIL_4_GEN_DEP += $(notdir $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(POIL_FILES))), $(ETC_DIR)$(DS)$(OIL))) $(OIL_FILES)
 
 # create rule for library
 # lib.a : lib_OBJ_FILES.o
@@ -433,6 +439,18 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	ruby externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)auto$(DS)generate_test_runner.rb $< $(RUNNERS_OUT_DIR)$(DS)$(notdir $@) modules$(DS)tools$(DS)ceedling$(DS)project.yml
 
 ###################### ENDS UNIT TEST PART OF MAKE FILE #######################
+
+###############################################################################
+# rule to generate OILs files
+%.oil : %.poil
+	@echo ' '
+	@echo ===============================================================================
+	@echo Generate OIL File $(ETC_DIR)$(DS)$(notdir $@) from $^
+	@echo ' '
+	$(CC) -E -x c++ -Imodules$(DS)base$(DS)inc -DBOARD=$(BOARD) -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) $^ | grep -v "^#.*" > $(ETC_DIR)$(DS)$(notdir $@)
+
+###############################################################################
+
 # Rule to compile
 %.o : %.c
 	@echo ' '
@@ -500,10 +518,14 @@ debug : $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
 
 ###############################################################################
 # rtos OSEK generation
-generate : $(OIL_FILES)
+generate : $(OIL_4_GEN_DEP)
+	@echo ' '
+	@echo ===============================================================================
+	@echo Run RTOS Generator
+	@echo ' '
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
-		-c $(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+		-c $(OIL_4_GEN) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 
 ###############################################################################
 # doxygen
@@ -752,6 +774,7 @@ info:
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
 	@echo libraris with srcs.: $(LIBS_WITH_SRC)
+	@echo RTOS config........: $(POIL_FILES) $(OIL_FILES)
 #	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
 #	@echo Lib Src Files......: $(LIBS_SRC_FILES)
 #	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)
@@ -801,6 +824,8 @@ clean:
 	@rm -rf $(OUT_DIR)$(DS)coverage$(DS)*
 	@echo Removing object files
 	@rm -rf $(OBJ_DIR)$(DS)*
+	@echo Removing oil configuration files
+	@rm -rf $(ETC_DIR)$(DS)*
 
 clean_rtostests:
 	@echo Removing RTOS Test generated project files
