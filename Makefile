@@ -262,7 +262,7 @@ vpath %.S $(LIBS_SRC_DIRS)
 vpath %.cpp $(LIBS_SRC_DIRS)
 vpath %.o $(OBJ_DIR)
 vpath %.oil $(ETC_DIR)
-vpath %.poil $(dir $(PRE_OIL_FILES))
+vpath %.poil $(dir $(POIL_FILES))
 
 #rule for library
 define librule
@@ -275,8 +275,8 @@ $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 endef
 
 OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(SRC_FILES)))))
-OIL_4_GEN += $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(PRE_OIL_FILES))), $(ETC_DIR)$(DS)$(OIL)) $(OIL_FILES)
-OIL_4_GEN_DEP += $(notdir $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(PRE_OIL_FILES))), $(ETC_DIR)$(DS)$(OIL))) $(OIL_FILES)
+OIL_4_GEN += $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(POIL_FILES))), $(ETC_DIR)$(DS)$(OIL)) $(OIL_FILES)
+OIL_4_GEN_DEP += $(notdir $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(POIL_FILES))), $(ETC_DIR)$(DS)$(OIL))) $(OIL_FILES)
 
 # create rule for library
 # lib.a : lib_OBJ_FILES.o
@@ -773,7 +773,7 @@ info:
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
 	@echo libraris with srcs.: $(LIBS_WITH_SRC)
-	@echo RTOS config........: $(PRE_OIL_FILES) $(OIL_FILES)
+	@echo RTOS config........: $(POIL_FILES) $(OIL_FILES)
 #	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
 #	@echo Lib Src Files......: $(LIBS_SRC_FILES)
 #	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)

@@ -3,6 +3,8 @@
 # Copyright 2014, ACSE & CADIEEL
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
+# Copyright 2015, Mariano Cerdeiro
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -45,7 +47,7 @@ INC_FILES            += $(PROJECT_PATH)$(DS)inc
 SRC_FILES            += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
 OIL_FILES            += $(wildcard $(PROJECT_PATH)$(DS)etc$(DS)*.oil)
-PRE_OIL_FILES        += $(if $(findstring .oil, $(OIL_FILES)),,$(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).poil)
+POIL_FILES        += $(if $(findstring .oil, $(OIL_FILES)),,$(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).poil)
 # Modules needed for this example
 MODS ?= modules$(DS)posix           \
         modules$(DS)ciaak           \
