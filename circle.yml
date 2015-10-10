@@ -19,4 +19,4 @@ general:
    artifacts:
       - "out/ci/index.html"
       - "out/coverage"
-   
+
