@@ -79,13 +79,10 @@ extern int8_t Rtcs_Init(void)
 
    if(Rtcs_state == UNINITIALIZED)
    {
-      /* Loading data of controllers in the corresponding structures */
-      Rtcs_InitCfg();
-
       /* First execution of the all controllers */
       for (i = 0; i < CONTROLLERS_LIST_SIZE; i++)
       {
-        Rtcs_controllers_list[i].ControllerFirstRunFunc(Rtcs_controllers_list[i].data);
+        Rtcs_controllers_list[i]->ControllerFirstRunFunc(Rtcs_controllers_list[i]->data);
       }
 
       /* Tool state changes to Active */

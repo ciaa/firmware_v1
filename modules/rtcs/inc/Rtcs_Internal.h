@@ -74,25 +74,10 @@ extern "C" {
 /** \brief Tool State type */
 typedef enum {UNINITIALIZED, ACTIVE, INACTIVE} state_t;
 
-/** \brief Generic controller type */
-typedef struct
-{
-   void (*ControllerFirstRunFunc) (void *);
-   uint32_t cycle_in_ms;
-   void *data;
-}Rtcs_generic_controller_t;
-
 /*==================[external data declaration]==============================*/
 extern state_t Rtcs_state;
-extern Rtcs_generic_controller_t Rtcs_controllers_list[];
 
 /*==================[external functions declaration]=========================*/
-/** \brief Real-Time Control System Internal initialization
- **
- ** Performs the internal initialization of the Rtcs tool
- **
- **/
-extern void Rtcs_InitCfg(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

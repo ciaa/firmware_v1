@@ -91,6 +91,11 @@ extern void ciaaLibs_MatrixMul(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2,
 
 }
 
+extern void ciaaLibs_MatrixByScalarMul(ciaaLibs_matrix_t *src1, void *src2, ciaaLibs_matrix_t *dst)
+{
+
+}
+
 extern void ciaaLibs_MatrixInv(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
 {
 
@@ -112,6 +117,11 @@ extern void ciaaLibs_MatrixSub_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t 
 }
 
 extern void ciaaLibs_MatrixMul_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
+{
+
+}
+
+extern void ciaaLibs_MatrixByScalarMul_float(ciaaLibs_matrix_t *src1, float *src2, ciaaLibs_matrix_t *dst)
 {
 
 }

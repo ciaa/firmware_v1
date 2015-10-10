@@ -107,6 +107,7 @@ typedef struct Rtcs_statefeedback_data_type
    float *a_obsvr;
    float *b_obsvr;
    float *l;
+   float *aux;
    Rtcs_ext_matrix_t r_vector;
    Rtcs_ext_matrix_t x_vector;
    Rtcs_ext_matrix_t xo_vector;
@@ -117,8 +118,9 @@ typedef struct Rtcs_statefeedback_data_type
    Rtcs_ext_matrix_t a_obsvr_matrix;
    Rtcs_ext_matrix_t b_obsvr_matrix;
    Rtcs_ext_matrix_t l_matrix;
+   Rtcs_ext_matrix_t aux_matrix;
    void (*ControllerSendFunc) (float *, uint16_t);
-   void (*ErrorFunc) (struct Rtcs_statefeedback_data_type *data);
+   void (*ControlEffortFunc) (struct Rtcs_statefeedback_data_type *data);
    void (*ObserverFunc) (struct Rtcs_statefeedback_data_type *data);
    void (*DataUpdateFunc) (struct Rtcs_statefeedback_data_type *data);
    system_type_t system;
@@ -153,6 +155,46 @@ extern void Rtcs_StateFeedbackFirstRun(void *data);
  ** \param[in] data structure of the controller
  **/
 extern void Rtcs_StateFeedbackWorstRun(void *data);
+
+/** \brief Control efforts calculation for regulator system
+ **
+ ** Calculates the control efforts for regulator system
+ **
+ ** \param[in] data structure of the controller
+ **/
+extern void RegulatorControlEffort (Rtcs_statefeedback_data_t *data);
+
+/** \brief Control efforts calculation for servo or full system
+ **
+ ** Calculates the contorl efforts for reference tracking contorl system
+ **
+ ** \param[in] data structure of the controller
+ **/
+extern void ControlSystemEffort (Rtcs_statefeedback_data_t *data);
+
+/** \brief Full Order State Observer
+ **
+ ** Estimates complete state vector
+ **
+ ** \param[in] data structure of the controller
+ **/
+extern void FullObserver (Rtcs_statefeedback_data_t *data);
+
+/** \brief Reduced Order State Observer
+ **
+ ** Estimates reduced state vector
+ **
+ ** \param[in] data structure of the controller
+ **/
+extern void ReducedObserver (Rtcs_statefeedback_data_t *data);
+
+/** \brief Update observer internal data
+ **
+ ** Updates observer internal state
+ **
+ ** \param[in] data structure of the controller
+ **/
+extern void UpdateObserverData (Rtcs_statefeedback_data_t *data);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

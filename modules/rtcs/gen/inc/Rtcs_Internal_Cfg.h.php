@@ -123,6 +123,14 @@
  *****************************************************************************/
 
 /*==================[typedef]================================================*/
+/** \brief Generic controller type */
+typedef struct
+{
+   void (*ControllerFirstRunFunc) (void *);
+   uint32_t cycle_in_ms;
+   void *data;
+}Rtcs_generic_controller_t;
+
 //#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * Please define here all needed types to be configured or used in
@@ -140,6 +148,7 @@
 //typedef TaskContextType* TaskContextRefType;
 
 /*==================[external data declaration]==============================*/
+extern Rtcs_generic_controller_t *Rtcs_controllers_list[];
 //#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * Please declare here all exported data defined
@@ -149,8 +158,6 @@
  *****************************************************************************/
 
 /*==================[external functions declaration]=========================*/
-/* La funcion Rtcs_InitCfg() esta comentada. Su declaracion ahora esta en Rtcs_Internal.h para que se cree su mock asociado*/
-//extern void Rtcs_InitCfg(void);
 //#error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * Please declare here all exported functions defined

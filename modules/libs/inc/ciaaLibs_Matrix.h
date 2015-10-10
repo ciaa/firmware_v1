@@ -132,6 +132,16 @@ extern void ciaaLibs_MatrixSub(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2,
  **/
 extern void ciaaLibs_MatrixMul(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 
+/** \brief Generic Multiplication of a Matrix by a Scalar
+ **
+ ** Multiplies a matrix by a scalar and stores the result in other matrix
+ **
+ ** \param[in] src1 pointer to the ciaa generic matrix
+ ** \param[in] src2 pointer to void (scalar operand)
+ ** \param[in] dst pointer to the ciaa generic matrix
+ **/
+extern void ciaaLibs_MatrixByScalarMul(ciaaLibs_matrix_t *src1, void *src2, ciaaLibs_matrix_t *dst);
+
 /** \brief Generic Inverse Matrix
  **
  ** Inverses a generic matrix and stores the result in other matrix
@@ -179,6 +189,16 @@ extern void ciaaLibs_MatrixSub_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t 
  ** \param[in] dst pointer to the ciaa float matrix
  **/
 extern void ciaaLibs_MatrixMul_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
+
+/** \brief Float Multiplication of a Matrix by a Scalar
+ **
+ ** Multiplies a matrix by a scalar and stores the result in other matrix
+ **
+ ** \param[in] src1 pointer to the ciaa generic matrix
+ ** \param[in] src2 pointer to float (scalar operand)
+ ** \param[in] dst pointer to the ciaa generic matrix
+ **/
+extern void ciaaLibs_MatrixByScalarMul_float(ciaaLibs_matrix_t *src1, float *src2, ciaaLibs_matrix_t *dst);
 
 /** \brief Float Inverse Matrix
  **

@@ -100,7 +100,7 @@ extern "C" {
  ** \param[in] src2 pointer to the ciaa generic matrix
  ** \param[in] dst pointer to the ciaa generic matrix
  **/
-#define Rtcs_Ext_MatrixSub(scr1, scr2, dst)  \
+#define Rtcs_Ext_MatrixSub(src1, src2, dst)  \
    ciaaLibs_MatrixSub((src1), (src2), (dst))
 
 /** \brief Macro for  Generic Matrix Multiplication
@@ -111,8 +111,19 @@ extern "C" {
  ** \param[in] src2 pointer to the ciaa generic matrix
  ** \param[in] dst pointer to the ciaa generic matrix
  **/
-#define Rtcs_Ext_MatrixMul(scr1, scr2, dst)  \
+#define Rtcs_Ext_MatrixMul(src1, src2, dst)  \
    ciaaLibs_MatrixMul((src1), (src2), (dst))
+
+/** \brief Macro for  Generic Multiplication of a Matrix by a Scalar
+ **
+ ** Macro that Multiplies a matrix by a scalar and stores the result in other matrix
+ **
+ ** \param[in] src1 pointer to the ciaa generic matrix
+ ** \param[in] src2 pointer to void
+ ** \param[in] dst pointer to the ciaa generic matrix
+ **/
+#define Rtcs_Ext_MatrixByScalarMul(src1, src2, dst)  \
+   ciaaLibs_MatrixByScalarMul((src1), (src2), (dst))
 
 /** \brief Macro for Generic Inverse Matrix
  **
@@ -153,7 +164,7 @@ extern "C" {
  ** \param[in] src2 pointer to the ciaa float matrix
  ** \param[in] dst pointer to the ciaa float matrix
  **/
-#define Rtcs_Ext_MatrixSub_float(src1, scr2, dst)  \
+#define Rtcs_Ext_MatrixSub_float(src1, src2, dst)  \
    ciaaLibs_MatrixSub_float((src1), (src2), (dst))
 
 /** \brief Macro for Float Matrix Multiplication
@@ -166,6 +177,17 @@ extern "C" {
  **/
 #define Rtcs_Ext_MatrixMul_float(src1, src2, dst)  \
    ciaaLibs_MatrixMul_float((src1), (src2), (dst))
+
+/** \brief Macro for floating point Multiplication of a Matrix by a Scalar
+ **
+ ** Macro that Multiplies a matrix by a scalar and stores the result in other matrix
+ **
+ ** \param[in] src1 pointer to the ciaa float matrix
+ ** \param[in] src2 pointer to float
+ ** \param[in] dst pointer to the ciaa float matrix
+ **/
+#define Rtcs_Ext_MatrixByScalarMul_float(src1, src2, dst)  \
+   ciaaLibs_MatrixByScalarMul_float((src1), (src2), (dst))
 
 /** \brief Macro for Float Inverse Matrix
  **

@@ -68,7 +68,8 @@
 
 /*==================[external data definition]===============================*/
 state_t Rtcs_state = UNINITIALIZED;
-Rtcs_generic_controller_t Rtcs_controllers_list[CONTROLLERS_LIST_SIZE];
+Rtcs_generic_controller_t *Rtcs_controllers_list[CONTROLLERS_LIST_SIZE];
+Rtcs_generic_controller_t Rtcs_controllers_data[CONTROLLERS_LIST_SIZE];
 
 /*==================[internal functions definition]==========================*/
 
@@ -81,10 +82,16 @@ Rtcs_generic_controller_t Rtcs_controllers_list[CONTROLLERS_LIST_SIZE];
 void setUp(void) {
    uint32_t i;
 
+   /* Load of the Generic Controllers pointers*/
+   for(i = 0; i<CONTROLLERS_LIST_SIZE; i++)
+   {
+      Rtcs_controllers_list[i] = &Rtcs_controllers_data[i];
+   }
+
    /* Load of the first run functions of the controllers */
    for(i = 0; i<CONTROLLERS_LIST_SIZE; i++)
    {
-      Rtcs_controllers_list[i].ControllerFirstRunFunc = Rtcs_StateFeedbackFirstRun;
+      Rtcs_controllers_list[i]->ControllerFirstRunFunc = Rtcs_StateFeedbackFirstRun;
    }
 }
 
@@ -108,13 +115,9 @@ void test_Rtcs_Init_01(void)
 {
    int8_t ret_1, ret_2;
 
-   Rtcs_InitCfg_CMockIgnore();
-
    Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
    ret_1 = Rtcs_Init();
-
-   Rtcs_InitCfg_CMockIgnore();
 
    Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
@@ -133,15 +136,11 @@ void test_Rtcs_Init_02(void)
 {
    int8_t ret_1, ret_2, ret_3;
 
-   Rtcs_InitCfg_CMockIgnore();
-
    Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
    ret_1 = Rtcs_Init();
 
    ret_2 = Rtcs_Stop();
-
-   Rtcs_InitCfg_CMockIgnore();
 
    Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
@@ -160,8 +159,6 @@ void test_Rtcs_Init_02(void)
 void test_Rtcs_Start_01(void)
 {
    int8_t ret_1, ret_2, ret_3;
-
-   Rtcs_InitCfg_CMockIgnore();
 
    Rtcs_StateFeedbackFirstRun_CMockIgnore();
 
@@ -198,8 +195,6 @@ void test_Rtcs_Start_02(void)
 void test_Rtcs_Stop_01(void)
 {
    int8_t ret_1, ret_2, ret_3, ret_4;
-
-   Rtcs_InitCfg_CMockIgnore();
 
    Rtcs_StateFeedbackFirstRun_CMockIgnore();
 

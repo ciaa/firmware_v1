@@ -71,6 +71,7 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+Rtcs_generic_controller_t *Rtcs_controllers_list[CONTROLLERS_LIST_SIZE];
 
 /*==================[internal functions definition]==========================*/
 
@@ -93,10 +94,7 @@ foreach ($pdefs as $pdef)
 }
 
 ?>
-void Rtcs_InitCfg(void)
-{
 
-}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/

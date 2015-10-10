@@ -64,96 +64,29 @@
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
-/** \brief Error calculation for regulator system
- **
- ** Calculates the error for regulator system
- **
- **/
-static void RegulatorError (Rtcs_statefeedback_data_t *data);
-
-/** \brief Error calculation for servo system
- **
- ** Calculates the error for servo system
- **
- **/
-static void ServoError (Rtcs_statefeedback_data_t *data);
-
-/** \brief Error calculation for full system
- **
- ** Calculates the error for complete system
- **
- **/
-static void FullControlError (Rtcs_statefeedback_data_t *data);
-
-/** \brief Full Order State Observer
- **
- ** Estimates complete state vector
- **
- **/
-static void FullObserver (Rtcs_statefeedback_data_t *data);
-
-/** \brief Reduced Order State Observer
- **
- ** Estimates reduced state vector
- **
- **/
-static void ReducedObserver (Rtcs_statefeedback_data_t *data);
-
-/** \brief Update observer internal data
- **
- ** Updates observer internal state
- **
- **/
-static void UpdateObserverData (Rtcs_statefeedback_data_t *data);
 
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-static void RegulatorError (Rtcs_statefeedback_data_t *data)
-{
-}
-
-static void ServoError (Rtcs_statefeedback_data_t *data)
-{
-}
-
-static void FullControlError (Rtcs_statefeedback_data_t *data)
-{
-}
-
-static void FullObserver (Rtcs_statefeedback_data_t *data)
-{
-}
-
-static void ReducedObserver (Rtcs_statefeedback_data_t *data)
-{
-}
-
-static void UpdateObserverData (Rtcs_statefeedback_data_t *data)
-{
-}
 
 /*==================[external functions definition]==========================*/
 extern void Rtcs_StateFeedbackRun(void *data)
 {
-   /* Store data pointer in a correct type pointer */
+   /* Storing of the "data" pointer in a correct type pointer */
    Rtcs_statefeedback_data_t *statefeedback_data = (Rtcs_statefeedback_data_t *) data;
 
-   /* Stimate the state of the dynamic system from measurements of its outputs */
+   /* Stimating of the state of the dynamic system from measurements of its outputs */
    statefeedback_data->ObserverFunc(statefeedback_data);
 
-   /* Calculate the difference betwen the desired state and the actual state */
-   statefeedback_data->ErrorFunc(statefeedback_data);
+   /* Calculating of control efforts */
+   statefeedback_data->ControlEffortFunc(statefeedback_data);
 
-   /* Calculate control efforts */
-   Rtcs_Ext_MatrixMul_float(&statefeedback_data->e_vector, &statefeedback_data->k_matrix, &statefeedback_data->u_vector);
-
-   /* Send control efforts to the actuators */
+   /* Sending of control efforts to the actuators */
    statefeedback_data->ControllerSendFunc(statefeedback_data->u, statefeedback_data->u_size);
 
-   /* Update internal data */
+   /* Updating of internal data */
    statefeedback_data->DataUpdateFunc(statefeedback_data);
 } /* end Rtcs_StateFeedbackRun */
 
@@ -163,6 +96,34 @@ extern void Rtcs_StateFeedbackFirstRun(void *data)
 
 extern void Rtcs_StateFeedbackWorstRun(void *data)
 {
+}
+
+extern void RegulatorControlEffort (Rtcs_statefeedback_data_t *data)
+{
+   /* Calculating of control efforts using K matrix with opposite sign*/
+   Rtcs_Ext_MatrixMul_float(&data->k_matrix, &data->x_vector, &data->u_vector);
+}
+
+extern void ControlSystemEffort (Rtcs_statefeedback_data_t *data)
+{
+   /* Calculating of the difference betwen the desired state and the actual state */
+   Rtcs_Ext_MatrixSub_float(&data->r_vector, &data->x_vector, &data->e_vector);
+
+   /* Calculating of control efforts */
+   Rtcs_Ext_MatrixMul_float(&data->k_matrix, &data->e_vector, &data->u_vector);
+}
+
+extern void FullObserver (Rtcs_statefeedback_data_t *data)
+{
+}
+
+extern void ReducedObserver (Rtcs_statefeedback_data_t *data)
+{
+}
+
+extern void UpdateObserverData (Rtcs_statefeedback_data_t *data)
+{
+   Rtcs_Ext_MatrixCpy(&data->xo_vector, &data->x_vector);
 }
 
 /** @} doxygen end group definition */
