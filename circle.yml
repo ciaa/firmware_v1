@@ -4,6 +4,6 @@ checkout:
       - git submodule update --init
 
 test:
-   make mocks
-   make ci
-   make ci
+   - make mocks
+   - make ci
+   - make ci
