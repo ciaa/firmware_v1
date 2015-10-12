@@ -435,7 +435,7 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 
 ###################### ENDS UNIT TEST PART OF MAKE FILE #######################
 # Rule to compile
-%.o: %.c
+%.o : %.c
 	@echo ' '
 	@echo ===============================================================================
 	@echo Compiling 'c' file: $<
@@ -450,21 +450,21 @@ else
 	@echo Skipping make dependencies...
 endif
 
-%.o: %.cpp
+%.o : %.cpp
 	@echo ' '
 	@echo ===============================================================================
 	@echo Compiling 'c++' file: $<
 	@echo ' '
 	$(CPP) $(CFLAGS) $(call cp4c,$<) -o $(OBJ_DIR)$(DS)$@
 
-%.o: %.s
+%.o : %.s
 	@echo ' '
 	@echo ===============================================================================
 	@echo Compiling 'asm' file: $<
 	@echo ' '
 	$(AS) $(AFLAGS) $(call cp4c,$<) -o $(OBJ_DIR)$(DS)$@
 
-%.o: %.S
+%.o : %.S
 	@echo ' '
 	@echo ===============================================================================
 	@echo Compiling 'asm' with C preprocessing file: $<
@@ -494,27 +494,14 @@ $(PROJECT_NAME) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo Post Building $(PROJECT_NAME)
 	@echo ' '
 	$(POST_BUILD)
-###############################################################################
+
 # debug rule
-debug:
-ifeq ($(ARCH),x86)
-# if Arch is x86 we use gdb defined in base configuration
-	$(GDB) $(LD_TARGET)
-else
-ifeq ($(CPU),)
-# if CPU is not entered shows an error
-  	@echo ERROR: The CPU variable of your makefile is empty.
-else
-	@echo ===============================================================================
-	@echo Starting GDB...
-	@echo ' '
-	$(GDB) $(GDB_FLAGS)
-endif
-endif
+debug : $(BIN_DIR)$(DS)$(PROJECT_NAME).axf
+	$(GDB) $(BIN_DIR)$(DS)$(PROJECT_NAME).axf
 
 ###############################################################################
 # rtos OSEK generation
-generate: $(OIL_FILES)
+generate : $(OIL_FILES)
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
 		-c $(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
@@ -667,42 +654,42 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               General Help                                                  |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo "menuconfig..................: starts the CIAA Firmware configurator"
-	@echo "info........................: general information about the make environment"
-	@echo "info_\<mod\>................: same as info but reporting information of library"
-	@echo "info_ext_\<mod\>............: same as info_\<mod\> but for an external library"
-	@echo "version.....................: dislpays the version of each module"
-	@echo "release.....................: performs a firmware release (do not use it)"
+	@echo menuconfig..........: starts the CIAA Firmware configurator
+	@echo info................: general information about the make environment
+	@echo info_\<mod\>..........: same as info but reporting information of a library
+	@echo info_ext_\<mod\>......: same as info_\<mod\> but for an external library
+	@echo version.............: dislpays the version of each module
+	@echo "release.............: performs a firmware release (do not use it)"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               FreeOSEK (CIAA RTOS based on OSEK Standard)                   |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo "generate....................: generates the ciaaRTOS"
-	@echo "rtostests...................: run FreeOSEK conformace tests"
+	@echo generate............: generates the ciaaRTOS
+	@echo rtostests...........: run FreeOSEK conformace tests
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo "mocks.......................: generate the mocks for all header files"
-	@echo "tst.........................: displays possible tests"
-	@echo "tst_\<mod\>.................: shows all unit test of a specific module"
-	@echo "tst_\<mod\>_\<unit\>........: runs the specific unit test"
-	@echo "tst_\<mod\>_all.............: runs all unit tests of a specific module"
-	@echo "results.....................: create results report"
-	@echo "ci..........................: run the continuous integration"
+	@echo mocks...............: generate the mocks for all header files
+	@echo tst.................: displays possible tests
+	@echo tst_\<mod\>...........: shows all unit test of a specific module
+	@echo tst_\<mod\>_\<unit\>....: runs the specific unit test
+	@echo tst_\<mod\>_all.......: runs all unit tests of a specific module
+	@echo results.............: create results report
+	@echo ci..................: run the continuous integration
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Debugging / Running / Programming                             |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "run.........................: execute the binary file (Win/Posix only)"
-	@echo "debug.......................: starts gdb for debug Win/Posix or target"
-	@echo "openocd.....................: starts openocd for $(ARCH)"
+	@echo debug.......................: starts gdb for debug Win/Posix or target
+	@echo openocd.....................: starts openocd for $(ARCH)
 	@echo "download [file] [FLASH|QSPI]: download .bin firmware file to the target"
 	@echo "erase [FLASH|QSPI]..........: erase all the flash"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Bulding                                                       |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo "clean.......................: cleans generated, object, binary, etc. files"
-	@echo "clean_generate..............: performs make clean and make generate"
-	@echo "all.........................: performs make clean, make generate and make"
-	@echo "generate_make...............: performs make generate and make"
+	@echo clean...............: cleans generated, object, binary, etc. files
+	@echo clean_generate......: performs make clean and make generate
+	@echo all.................: performs make clean, make generate and make
+	@echo generate_make.......: performs make generate and make
 
 ###############################################################################
 # menuconfig
@@ -895,4 +882,3 @@ report:
 	make all 2>%1 >> report.log
 	@echo 'If you need help you can write to ciaa-firmware@googlegroups.com attaching the report file report.log.'
 	@echo 'Before asking for support please search for similar issues in the archive of ciaa-firmware@googlegroups.com.'
-
