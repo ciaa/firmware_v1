@@ -2,6 +2,7 @@
 #
 # Copyright 2014, 2015, Mariano Cerdeiro
 # Copyright 2014, 2015, Juan Cecconi (Numetron, UTN-FRBA)
+# Copyright 2014, 2015, Esteban Volentini (LabMicro, UNT)
 # All rights reserved
 #
 # This file is part of CIAA Firmware.
@@ -512,9 +513,19 @@ $(PROJECT_NAME) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	$(POST_BUILD)
 
+###############################################################################
 # debug rule
-debug : $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
-	$(GDB) $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
+-include modules$(DS)tools$(DS)gdb$(DS)mak$(DS)Makefile
+debug: $(PROJECT_NAME)
+# if CPU is not entered shows an error
+ifeq ($(CPU),)
+	@echo ERROR: The CPU variable of your makefile is empty.
+else
+	@echo ===============================================================================
+	@echo Starting GDB...
+	@echo ' '
+	$(GDB) $(GDB_FLAGS)
+endif
 
 ###############################################################################
 # rtos OSEK generation
@@ -557,24 +568,13 @@ endif
 endif
 
 ###############################################################################
-# gdb
-include modules$(DS)tools$(DS)gdb$(DS)mak$(DS)Makefile
-gdb:
-# if CPU is not entered shows an error
-ifeq ($(CPU),)
-	@echo ERROR: The CPU variable of your makefile is empty.
-else
-	@echo ===============================================================================
-	@echo Starting GDB...
-	@echo ' '
-	$(GDB_BIN) $(GDB_FLAGS)
-endif
-
+# Take make arguments into MAKE_ARGS variable
 MAKE_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 # ...and turn them into do-nothing targets
 $(eval $(MAKE_ARGS):;@:)
+
 ###############################################################################
-# openocd, erase [FLASH|QSPI]
+# erase memory, syntax: erase [FLASH|QSPI]
 erase:
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
@@ -587,23 +587,30 @@ else
 ifeq ($(OPENOCD_CFG),)
 	@echo ERROR: Your CPU: $(CPU) may not be supported...
 else
+ifeq ($(words $(MAKE_ARGS)),0)
+# command line: make erase
 	@echo ===============================================================================
 	@echo Starting OpenOCD and erasing all...
 	@echo "(after downloading a new firmware please do a hardware reset!)"
 	@echo ' '
-ifeq ($(words $(MAKE_ARGS)),0)
-# command line: make erase
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector 0 0 last" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(MASS_ERASE_COMMAND)" -c "shutdown"
 else
 ifeq ($(words $(MAKE_ARGS)),1)
-# command line: make erase [FLASH|QSPI]
+ifeq ($(CPUTYPE),k60_120)
+	@echo 'Not supported on Kinetis processors'
+else
+	@echo ===============================================================================
+	@echo Starting OpenOCD and erasing all...
+	@echo "(after downloading a new firmware please do a hardware reset!)"
+	@echo ' '
 ifeq ($(word 1, $(MAKE_ARGS)),FLASH)
-	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
+	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
 else
 ifeq ($(word 1, $(MAKE_ARGS)),QSPI)
-	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector $(TARGET_DOWNLOAD_QSPI_BANK) 0 last" -c "shutdown"
+	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_QSPI_BANK) 0 last" -c "shutdown"
 else
 	@echo 'Error...unknown memory type'
+endif
 endif
 endif
 else
@@ -613,7 +620,6 @@ endif
 endif
 endif
 endif
-
 ###############################################################################
 # Download to target, syntax download [file]
 download:
@@ -631,15 +637,15 @@ else
 	@echo ===============================================================================
 	@echo Starting OpenOCD and downloading...
 	@echo ' '
-ifeq ($(words $(MAKECMDGOALS)),1)
+ifeq ($(words $(MAKE_ARGS)),0)
 # command line: make download
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 else
-ifeq ($(words $(MAKECMDGOALS)),2)
+ifeq ($(words $(MAKE_ARGS)),1)
 # command line: make download [File]
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 1,$(MAKE_ARGS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 else
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_$(word 3,$(MAKECMDGOALS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 1,$(MAKE_ARGS)) $(TARGET_DOWNLOAD_$(word 2,$(MAKE_ARGS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 endif
 endif
 endif
@@ -704,11 +710,11 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Debugging / Running / Programming                             |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo "run.................: execute the binary file (Win/Posix only)"
-	@echo gdb.................: starts gdb for $(ARCH)
-	@echo openocd.............: starts openocd for $(ARCH)
-	@echo "download [file] [FLASH|QSPI].: download FW file to the target"
-	@echo "erase [FLASH|QSPI]..: erase all the flash"
+	@echo "run.........................: execute the binary file (Win/Posix only)"
+	@echo debug.......................: starts gdb for debug Win/Posix or target
+	@echo openocd.....................: starts openocd for $(ARCH)
+	@echo "download [file] [FLASH|QSPI]: download .bin firmware file to the target"
+	@echo "erase [FLASH|QSPI]..........: erase all the flash"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Building                                                      |"
 	@echo "+-----------------------------------------------------------------------------+"
@@ -917,4 +923,3 @@ report:
 	make all 2>%1 >> report.log
 	@echo 'If you need help you can write to ciaa-firmware@googlegroups.com attaching the report file report.log.'
 	@echo 'Before asking for support please search for similar issues in the archive of ciaa-firmware@googlegroups.com.'
-
