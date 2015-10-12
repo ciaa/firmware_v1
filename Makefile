@@ -495,9 +495,19 @@ $(PROJECT_NAME) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	$(POST_BUILD)
 
+###############################################################################
 # debug rule
-debug : $(BIN_DIR)$(DS)$(PROJECT_NAME).axf
-	$(GDB) $(BIN_DIR)$(DS)$(PROJECT_NAME).axf
+-include modules$(DS)tools$(DS)gdb$(DS)mak$(DS)Makefile
+debug: $(PROJECT_NAME)
+# if CPU is not entered shows an error
+ifeq ($(CPU),)
+	@echo ERROR: The CPU variable of your makefile is empty.
+else
+	@echo ===============================================================================
+	@echo Starting GDB...
+	@echo ' '
+	$(GDB) $(GDB_FLAGS)
+endif
 
 ###############################################################################
 # rtos OSEK generation
