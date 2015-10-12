@@ -501,7 +501,7 @@ $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:
 # libs with contains sources
 LIBS_WITH_SRC	= $(foreach LIB, $(LIBS), $(if $(filter %.c,$($(LIB)_SRC_FILES)),$(LIB)))
 
-$(PROJECT_NAME) : $(LIBS_WITH_SRC) $(OBJ_FILES)
+$(PROJECT_NAME) : $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
@@ -529,7 +529,13 @@ endif
 
 ###############################################################################
 # rtos OSEK generation
-generate : $(OIL_4_GEN_DEP)
+generate : gen.intermediate
+
+# The following 2 rules are needed to avoid that the generator is called once
+# per file to be generated.
+$(rtos_GENERATED_FILES) : gen.intermediate
+.INTERMEDIATE: gen.intermediate
+gen.intermediate : $(OIL_4_GEN_DEP)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Run RTOS Generator
