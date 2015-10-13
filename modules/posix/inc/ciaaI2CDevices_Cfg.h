@@ -31,11 +31,12 @@
  *
  */
 
-#ifndef CIAAI2CDEVICES_INTERNAL_H
-#define CIAAI2CDEVICES_INTERNAL_H
-/** \brief CIAA I2C Devices Internal
+#ifndef CIAA_I2CDEVICES_CFG_H
+#define CIAA_I2CDEVICES_CFG_H
+/** \brief Configuration file of I2C Device
  **
- ** I2C Internal Device header file
+ ** This files provides the configuration of the I2C
+ ** Devices.
  **
  **/
 
@@ -53,11 +54,11 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 201550402 v0.0.1 MaCe initial version
+ * 20151013 v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaI2CDevices.h"
+#include "ciaaBase.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -65,54 +66,16 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief Bus State IDLE */
-#define CIAA_I2C_ST_IDLE                  0
-/** \brief Bus State Write Slave address during write command */
-#define CIAA_I2C_WRITE_SLVADD             1
-/** \brief Bus Sate Write address during write command */
-#define CIAA_I2C_WRITE_ADD                2
-/** \brief Bus State Write data */
-#define CIAA_I2C_WRITE_DATA               3
-/** \brief Bus State Write Slave address during read command */
-#define CIAA_I2C_READ_SLVADD              4
-/** \brief Bus Sate Write address during read command */
-#define CIAA_I2C_READ_ADD                 5
-/** \brief Bus State Read data */
-#define CIAA_I2C_READ_DATA                6
+/** \brief Enables 10 bits addressing
+ **
+ ** Enables/disables the support of 10 bits addressing of I2C. If set to
+ ** CIAA_DISABLE 10 bits slave address are not suported. If set to
+ ** CIAA_ENABLE 10 bits slave address are supported */
+#define CIAA_POSIX_I2C_10_BITS_ADDRESS    CIAA_DISABLE
 
-/** \brief Device is idle */
-#define CIAA_I2C_DEV_IDLE                 0
-/** \brief Device operation is pending */
-#define CIAA_I2C_DEV_PENDING              1
-/** \brief Device communication ongoing */
-#define CIAA_I2C_DEV_COM                  2
+#define CIAA_POSIX_I2C_BUS_COUNT          1
 
 /*==================[typedef]================================================*/
-#if (CIAA_I2C_10_BITS_ADDRESS == CIAA_ENABLE)
-typedef uint16_t I2C_SlaveAddressType;
-#else
-typedef uint8_t I2C_SlaveAddressType;
-#endif
-
-/** \brief I2C Slave Structure
- **
- ** This type is used to describe the each I2C slave device, an array of this
- ** type shall be defined by the user for each I2C bus to indicate which hw
- ** slave devices are conected in each bus indicating their IDs and
- ** capabilities.
- **
- **/
-typedef struct {
-   uint32_t maxAdd;              /** <= indicates the last address which can be
-                                        read or written before a warp around */
-   I2C_SlaveAddressType
-      slaveAddress;              /** <= id of the I2C device, allowed values are
-                                        between 0 and 127 inclusive for 7 bits */
-   uint8_t addWidth;             /** <= size in bytes of the address length of
-                                        this device, if 0 the address shall be
-                                        handled by the user */
-   char * name;                  /** <= name of the device */
-} ciaaI2CDevices_slaveType;
 
 /*==================[external data declaration]==============================*/
 
@@ -125,5 +88,5 @@ typedef struct {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAI2CDEVICES_INTERNAL_H */
+#endif /* #ifndef CIAA_I2CDEVICES_CFG_H */
 

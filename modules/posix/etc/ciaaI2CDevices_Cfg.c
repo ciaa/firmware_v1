@@ -58,6 +58,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaI2CDevices.h"
+#include "ciaaI2CDevices_Cfg.h"
 
 /*==================[macros and definitions]=================================*/
 /** \brief indicates the count of I2C buses on the system */
@@ -79,7 +80,7 @@
  ** driverName    -> name of the driver where this bus is located.
  **                  e.g.: "/dev/i2c/0"
  ** devicesCount  -> count of devices on this driver
- ** deviceStruct  -> devicesCount devices structs, one for each slave on this
+ ** deviceStruct  -> devicesCount of devices structs, one for each slave on this
  **                  bus.
  **
  ** Each deviceStruct contains:
@@ -116,11 +117,6 @@ ciaaI2CDevices_masterType ciaaI2CDevice_master01 = {
       10,               /* id of the device */
       2                 /* 2 bytes for address */
    }
-}
-
-/* TODO */
-ciaaI2CDevices_slaveType ciaaI2CDevice_slave01 = {
-   /* TODO */
 }
 
 /** This structure list all I2C buses.
