@@ -88,10 +88,31 @@ extern "C" {
 #define CIAA_I2C_DEV_COM                  2
 
 /*==================[typedef]================================================*/
+/** \brief Slave Address
+ **
+ ** Type to represent the slave address, it can be
+ ** 8 bits for 7 bits address mode and 16 bits for 10 bits
+ ** address mode depending on the configuration parameter
+ ** CIAA_I2C_10_BITS_ADDRESS.
+ **
+ **/
 #if (CIAA_I2C_10_BITS_ADDRESS == CIAA_ENABLE)
-typedef uint16_t I2C_SlaveAddressType;
+typedef uint16_t ciaaI2CDevices_slaveAddressType;
 #else
-typedef uint8_t I2C_SlaveAddressType;
+typedef uint8_t ciaaI2CDevices_slaveAddressType;
+#endif
+
+/** \brief Count of slaves
+ **
+ ** Type used to indicate the count of slaves on this bus.
+ ** It may be 8 or 16 bits depending on CIAA_I2C_10_BITS_ADDRESS
+ ** configuration parameter.
+ **
+ **/
+#if (CIAA_I2C_10_BITS_ADDRESS == CIAA_ENABLE)
+typedef uint16_t ciaaI2CDevices_countOfSlavesType;
+#else
+typedef uint8_t ciaaI2CDevices_countOfSlavesType;
 #endif
 
 /** \brief I2C Slave Structure
@@ -113,6 +134,20 @@ typedef struct {
                                         handled by the user */
    char * name;                  /** <= name of the device */
 } ciaaI2CDevices_slaveType;
+
+/** \brief Master Bus Type
+ **
+ ** Type used to describe a Master Bus.
+ **
+ **/
+typedef struct {
+   ciaaI2CDevices_slaveType *
+      slaves;           /** <= pointer to countOfSlaves slaves */
+   ciaaI2CDevices_countOfSlavesType
+      countOfSlaves;    /** <= count of slaves */
+   char * driverName;   /** <= driver name */
+
+} ciaaI2CDevices_masterBusType;
 
 /*==================[external data declaration]==============================*/
 

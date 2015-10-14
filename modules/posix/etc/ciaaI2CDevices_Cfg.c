@@ -71,38 +71,22 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-/** Add one struct of the type ciaaI2CDevices_masterType for each
- ** I2C master bus. You can choose the name you like for this structure
- ** since it has to be referenced from ciaaI2CDevices.
+/** Add one struct of the type ciaaI2CDevices_slaveType for each
+ ** I2C master bus to describe their slaves. You can choose the name you
+ ** like for this structure as far as you reference it.
  **
- ** This strcture contains the following elements:
- **
- ** driverName    -> name of the driver where this bus is located.
- **                  e.g.: "/dev/i2c/0"
- ** devicesCount  -> count of devices on this driver
- ** deviceStruct  -> devicesCount of devices structs, one for each slave on this
- **                  bus.
- **
- ** Each deviceStruct contains:
+ ** Each slaves contains:
  **
  ** deviceName    -> name of the device. e.g.: eeprom. In this case the path
  **                  to open the device will be /dev/i2c/0/eeprom
  ** maxAddr       -> last supported addres. e.g.: 255 will indicate that the
  **                  address range from 0 to 255 inclusive is supported. Gaps
  **                  are not supported.
- ** maxInputBuffer-> the input buffer of the device. After writing this amount
- **                  of bytes a delay of writeDelayMs will be performed. If
- **                  0 no max size is configured, writeDelayMs will be also
- **                  ignored.
- ** writeDelayMs  -> delay in ms after writing maxInputBuffer bytes. Set to 0
- **                  if not delay is needed.
  ** id            -> id of this device.
  ** addWidth      -> size in bytes of the address.
  **
  **/
-ciaaI2CDevices_masterType ciaaI2CDevice_master01 = {
-   "/dev/i2c/0",     /* name of the driver */
-   2,                /* count of devices in this bus */
+ciaaI2CDevices_slaveType ciaaI2CDevices_masterBus0Slaves[2] = {
    /* configuration of first device */
    {
       "eeprom",         /* name of the device */
@@ -117,6 +101,24 @@ ciaaI2CDevices_masterType ciaaI2CDevice_master01 = {
       10,               /* id of the device */
       2                 /* 2 bytes for address */
    }
+};
+
+/** Add one struct of the type ciaaI2CDevices_masterBusType for each
+ ** I2C master bus. You can choose the name you like for this structure
+ ** since it has to be referenced.
+ **
+ ** This strcture contains the following elements:
+ **
+ ** slaves        -> pointer to slaves array of lenght count of slaves.
+ ** driverName    -> name of the driver where this bus is located.
+ **                  e.g.: "/dev/i2c/0"
+ ** slavesCount  -> count of slaves on this bus
+ **
+ **/
+ciaaI2CDevices_masterBusType ciaaI2CDevice_masterBus0 = {
+   &ciaaI2CDevices_masterBus0Slaves
+   2,                /* count of devices in this bus */
+   "/dev/i2c/0",     /* name of the driver */
 }
 
 /** This structure list all I2C buses.

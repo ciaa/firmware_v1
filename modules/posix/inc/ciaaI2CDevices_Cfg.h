@@ -73,6 +73,7 @@ extern "C" {
  ** CIAA_ENABLE 10 bits slave address are supported */
 #define CIAA_POSIX_I2C_10_BITS_ADDRESS    CIAA_DISABLE
 
+
 #define CIAA_POSIX_I2C_BUS_COUNT          1
 
 /*==================[typedef]================================================*/

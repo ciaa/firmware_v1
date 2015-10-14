@@ -47,6 +47,7 @@
  * Initials     Name
  * ---------------------------
  * SeBe         Sebastian Bedin
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
