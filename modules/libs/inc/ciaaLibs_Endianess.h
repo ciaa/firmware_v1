@@ -1,7 +1,9 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- *
+/* Copyright 2015, Daniel Cohen
+ * Copyright 2015, Esteban Volentini
+ * Copyright 2015, Matias Giori
+ * Copyright 2015, Franco Salinas
+ * Copyright 2015, Pablo Alcorta
+ * 
  * This file is part of CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,37 +34,32 @@
  *
  */
 
-#ifndef CIAAPOSIX_STDLIB_H
-#define CIAAPOSIX_STDLIB_H
-/** \brief ciaa POSIX stdlib header file
- **
- ** ciaa POSIX stdlib header file
- **
+#ifndef UPDT_UTILS_H
+#define UPDT_UTILS_H
+/** \brief Flash Update Utils header file
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
- ** @{ */
-/** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DiFe         Diego Fernandez
+ * DC           Daniel Cohen
+ * EV           Esteban Volentini
+ * MG           Matias Giori
+ * FS           Franco Salinas
+ * PA		Pablo Alcorta
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140524 v0.0.1 DiFe initial version
+ * 20151013 v0.0.1  FS PA first initial version
  */
 
 /*==================[inclusions]=============================================*/
-
 #include "ciaaPOSIX_stdint.h"
-#include "ciaaPOSIX_stddef.h"
-#include "ciaaPOSIX_stdbool.h"
-#include "ciaaPOSIX_semaphore.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -70,71 +67,17 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#ifndef NULL
-/*@-namechecks@*/
-#define NULL ((void*)0)
-/*@=namechecks@*/
-#endif
 
-/** \brief Maximum integer returned by ciaaPOSIX_rand */
-#define CIAAPOSIX_RAND_MAX    32767
 /*==================[typedef]================================================*/
-
+#define UPDT_utilsHtonll UPDT_utilsNtohll
+#define UPDT_utilsHtonl UPDT_utilsNtohl
+#define UPDT_utilsHtons UPDT_utilsNtohs
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief ciaaPOSIX stdlib init
- **
- ** Performs the initialization of ciaaPOSIX stdlib
- **/
-void ciaaPOSIX_stdlib_init(void);
-
-/** \brief ciaaPOSIX malloc
- **
- ** Allocates unused space
- **
- ** \param[in] number of bytes to allocate
- **/
-void *ciaaPOSIX_malloc(size_t size);
-
-/** \brief ciaaPOSIX free
- **
- ** Frees allocated memory
- **
- ** \param[in] pointer to a previously allocated region
- **/
-void ciaaPOSIX_free(void *);
-
-/** \param ciaaPOSIX rand
- **
- ** Generates a pseudo-aleatory integer between 0 and CIAAPOSIX_RAND_MAX.
- **
- ** \return pseudo-aleatory number.
- **/
- int ciaaPOSIX_rand(void);
-
-/** \param ciaaPOSIX srand
- **
- ** Sets the seed for the pseudo-random number generator.
- **
- ** \param new seed.
- **/
- void ciaaPOSIX_srand(unsigned int seed);
-
-/** \param ciaaPOSIX min
- **
- ** compares two numbers and returns depending on the condition
- **
- ** \return the minimum value
- **/
-
-/** \param ciaaPOSIX min
- **
- ** compares two numbers and returns depending on the condition
- **
- ** \return the maximum value
- **/
-
+uint16_t UPDT_utilsNtohs(uint16_t netshort);
+uint32_t UPDT_utilsNtohl(uint32_t netlong);
+uint64_t UPDT_utilsNtohll(uint64_t netlonglong);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -142,5 +85,5 @@ void ciaaPOSIX_free(void *);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_STDLIB_H */
+#endif /* #ifndef UPDT_UTILS_H */
 

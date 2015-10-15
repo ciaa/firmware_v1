@@ -75,8 +75,7 @@
 #include "ciaak.h"            /* <= ciaa kernel header */
 #include "UPDT_services.h"
 #include "test_protocol_loopback.h"
-#include "UPDT_utils.h"
-
+#include "ciaaLibs_Endianess.h"
 /*==================[macros and definitions]=================================*/
 #define DATA_SIZE 1024
 
@@ -226,7 +225,7 @@ static void makeHandshakeOk (test_updt_configType *type,uint8_t *vector)
    UPDT_protocolSetHeader (vector,UPDT_PROTOCOL_PACKET_INF,SequenceNumber,32);
    test_update_value (type);
    test_updt_configFormat (type,vector+4,32);
-   SequenceNumber=SequenceNumber+1;
+   SequenceNumber++;
 }
 
 static uint32_t testHandshakeOk (test_updt_configType *type,uint8_t *vector)
@@ -242,7 +241,7 @@ static void makeHandshakeOkNextSequenceNumber(test_updt_configType *type, uint8_
    UPDT_protocolSetHeader (vector, UPDT_PROTOCOL_PACKET_INF,SequenceNumber,32);
    test_update_value (type);
    test_updt_configFormat (type,vector+4,32);
-   SequenceNumber=SequenceNumber+1;
+   SequenceNumber++;
 }
 
 static uint32_t testHandshakeOkNextSequenceNumber(test_updt_configType *type, uint8_t *vector)

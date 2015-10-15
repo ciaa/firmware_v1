@@ -116,6 +116,17 @@ static void ciaaPOSIX_chunk_partition(ciaaPOSIX_chunk_header *chunk_header, uint
 
 /*==================[external functions definition]==========================*/
 
+int32_t ciaaPOSIX_min(int32_t a, int32_t b)
+{
+   return (a < b) ? a : b;
+}
+
+int32_t ciaaPOSIX_max(int32_t a, int32_t b)
+{
+   return (a > b) ? a : b;
+}
+
+
 void ciaaPOSIX_stdlib_init(void)
 {
    int ciaaPOSIX_heap_available_size = CIAA_HEAP_MEM_SIZE - sizeof(ciaaPOSIX_chunk_header);
