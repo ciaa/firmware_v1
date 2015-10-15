@@ -76,6 +76,16 @@ extern void ciaaLibs_MatrixInit(ciaaLibs_matrix_t *mat, uint16_t n_rows, uint16_
 
 }
 
+extern void ciaaLibs_MatrixCpy(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
+{
+
+}
+
+extern void ciaaLibs_MatrixCat(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
+{
+
+}
+
 extern void ciaaLibs_MatrixAdd(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
 {
 

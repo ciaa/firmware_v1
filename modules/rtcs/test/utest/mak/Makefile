@@ -33,9 +33,11 @@
 ###############################################################################
 # unit test
 # unit tests include files
-rtcs_TST_INC_PATH = $(rtcs_PATH)$(DS)test$(DS)utest$(DS)inc
+rtcs_TST_INC_PATH = $(rtcs_PATH)$(DS)test$(DS)utest$(DS)inc 	 \
+                      modules$(DS)libs$(DS)inc                  \
+                      modules$(DS)posix$(DS)inc
 
 # unit tests dependencies
 rtcs_TST_MOD      =
 # extra mocks
-rtcs_TST_MOCKS    =
+rtcs_TST_MOCKS    = ciaaLibs_Matrix.c

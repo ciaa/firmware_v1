@@ -83,20 +83,22 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 /** \brief System Control type */
-typedef enum {REGULATOR, SERVO, FULL_CONTROL} system_type_t;
+typedef enum {REGULATOR, CONTROL_SYSTEM} system_type_t;
 
 /** \brief Luenberger's observer type */
-typedef enum {REDUCED, FULL} observer_type_t;
+typedef enum {NONE, REDUCED, FULL} observer_type_t;
 
 /** \brief State Space Controller type */
 typedef struct Rtcs_statefeedback_data_type
 {
+   system_type_t system;
+   observer_type_t observer;
    uint32_t period_in_ms;
-   uint32_t r_size;
-   uint32_t x_size;
-   uint32_t e_size;
-   uint32_t u_size;
-   uint32_t y_size;
+   uint16_t r_size;
+   uint16_t x_size;
+   uint16_t e_size;
+   uint16_t u_size;
+   uint16_t y_size;
    float *r;
    float *x;
    float *xo;
@@ -104,27 +106,30 @@ typedef struct Rtcs_statefeedback_data_type
    float *u;
    float *y;
    float *k;
+   float *uo;
    float *a_obsvr;
    float *b_obsvr;
    float *l;
-   float *aux;
-   Rtcs_ext_matrix_t r_vector;
-   Rtcs_ext_matrix_t x_vector;
-   Rtcs_ext_matrix_t xo_vector;
-   Rtcs_ext_matrix_t e_vector;
-   Rtcs_ext_matrix_t u_vector;
-   Rtcs_ext_matrix_t y_vector;
-   Rtcs_ext_matrix_t k_matrix;
-   Rtcs_ext_matrix_t a_obsvr_matrix;
-   Rtcs_ext_matrix_t b_obsvr_matrix;
-   Rtcs_ext_matrix_t l_matrix;
-   Rtcs_ext_matrix_t aux_matrix;
+   float *mf_obsvr;
+   float *mt_obsvr;
+   float *xo_aux;
+   Rtcs_ext_matrix_t *r_vector;
+   Rtcs_ext_matrix_t *x_vector;
+   Rtcs_ext_matrix_t *xo_vector;
+   Rtcs_ext_matrix_t *e_vector;
+   Rtcs_ext_matrix_t *u_vector;
+   Rtcs_ext_matrix_t *y_vector;
+   Rtcs_ext_matrix_t *k_matrix;
+   Rtcs_ext_matrix_t *uo_vector;
+   Rtcs_ext_matrix_t *a_obsvr_matrix;
+   Rtcs_ext_matrix_t *b_obsvr_matrix;
+   Rtcs_ext_matrix_t *l_matrix;
+   Rtcs_ext_matrix_t *mf_obsvr_matrix;
+   Rtcs_ext_matrix_t *mt_obsvr_matrix;
+   Rtcs_ext_matrix_t *xo_aux_vector;
    void (*ControllerSendFunc) (float *, uint16_t);
    void (*ControlEffortFunc) (struct Rtcs_statefeedback_data_type *data);
    void (*ObserverFunc) (struct Rtcs_statefeedback_data_type *data);
-   void (*DataUpdateFunc) (struct Rtcs_statefeedback_data_type *data);
-   system_type_t system;
-   observer_type_t observer;
 }Rtcs_statefeedback_data_t;
 
 /*==================[external data declaration]==============================*/
@@ -188,13 +193,13 @@ extern void FullObserver (Rtcs_statefeedback_data_t *data);
  **/
 extern void ReducedObserver (Rtcs_statefeedback_data_t *data);
 
-/** \brief Update observer internal data
+/** \brief None observer
  **
- ** Updates observer internal state
+ ** Copies the measured states from y_vector to x_vector
  **
  ** \param[in] data structure of the controller
  **/
-extern void UpdateObserverData (Rtcs_statefeedback_data_t *data);
+extern void NoneObserver (Rtcs_statefeedback_data_t *data);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

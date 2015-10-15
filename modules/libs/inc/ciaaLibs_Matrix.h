@@ -59,6 +59,7 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdlib.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -101,6 +102,25 @@ typedef struct
  ** \param[in] data pointer to matrix data
  **/
 extern void ciaaLibs_MatrixInit(ciaaLibs_matrix_t *mat, uint16_t n_rows, uint16_t n_columns, data_type type, void *data);
+
+/** \brief Matrix Copy
+ **
+ ** Copies a matrix to another
+ **
+ ** \param[in] mat_src Source Matrix
+ ** \param[in] mat_dst Destination Matrix
+ **/
+extern void ciaaLibs_MatrixCpy(ciaaLibs_matrix_t *mat_src, ciaaLibs_matrix_t *mat_dst);
+
+/** \brief Matrix Concatenated
+ **
+ ** Concatenates a matrix with another to a target matrix
+ **
+ ** \param[in] src1 Source Matrix
+ ** \param[in] src2 Source Matrix
+ ** \param[in] dst Destination Matrix
+ **/
+extern void ciaaLibs_MatrixCat(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 
 /** \brief Generic Matrices Addition
  **

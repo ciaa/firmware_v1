@@ -81,13 +81,34 @@ extern "C" {
 #define Rtcs_Ext_MatrixInit(mat, n_rows, n_columns, type, data)      \
    ciaaLibs_MatrixInit((mat), (n_rows), (n_columns), (type), (data))
 
+/** \brief Macro to Copy of Matrices
+ **
+ ** Macro that copies a matrix to another matrix
+ **
+ ** \param[in] src pointer to ciaa generic matrix
+ ** \param[in] dst pointer to ciaa generic matrix
+ **/
+#define Rtcs_Ext_MatrixCpy(src, dst)      \
+   ciaaLibs_MatrixCpy((src), (dst))
+
+/** \brief Macro to Concatenate Matrices
+ **
+ ** Macro that concatenates a matrix with another to a target matrix
+ **
+ ** \param[in] src1 pointer to ciaa generic matrix
+ ** \param[in] src2 pointer to ciaa generic matrix
+ ** \param[in] dst pointer to ciaa generic matrix
+ **/
+#define Rtcs_Ext_MatrixCat(src1, src2,  dst)      \
+   ciaaLibs_MatrixCat((src1), (src2), (dst))
+
 /** \brief Macro for Generic Matrices Addition
  **
  ** Macro that Adds two generic matrices and stores the result in a third matrix
  **
- ** \param[in] src1 pointer to the ciaa generic matrix
- ** \param[in] src2 pointer to the ciaa generic matrix
- ** \param[in] dst pointer to the ciaa generic matrix
+ ** \param[in] src1 pointer to ciaa generic matrix
+ ** \param[in] src2 pointer to ciaa generic matrix
+ ** \param[in] dst pointer to ciaa generic matrix
  **/
 #define Rtcs_Ext_MatrixAdd(src1, src2, dst)  \
   ciaaLibs_MatrixAdd((src1), (src2), (dst))
@@ -96,9 +117,9 @@ extern "C" {
  **
  ** Macro that Substracs two generic matrices and stores the result in a third matrix
  **
- ** \param[in] src1 pointer to the ciaa generic matrix
- ** \param[in] src2 pointer to the ciaa generic matrix
- ** \param[in] dst pointer to the ciaa generic matrix
+ ** \param[in] src1 pointer to ciaa generic matrix
+ ** \param[in] src2 pointer to ciaa generic matrix
+ ** \param[in] dst pointer to  ciaa generic matrix
  **/
 #define Rtcs_Ext_MatrixSub(src1, src2, dst)  \
    ciaaLibs_MatrixSub((src1), (src2), (dst))
@@ -107,9 +128,9 @@ extern "C" {
  **
  ** Macro that Multiplies two generic matrices and stores the result in a third matrix
  **
- ** \param[in] src1 pointer to the ciaa generic matrix
- ** \param[in] src2 pointer to the ciaa generic matrix
- ** \param[in] dst pointer to the ciaa generic matrix
+ ** \param[in] src1 pointer to ciaa generic matrix
+ ** \param[in] src2 pointer to ciaa generic matrix
+ ** \param[in] dst pointer to  ciaa generic matrix
  **/
 #define Rtcs_Ext_MatrixMul(src1, src2, dst)  \
    ciaaLibs_MatrixMul((src1), (src2), (dst))
@@ -118,9 +139,9 @@ extern "C" {
  **
  ** Macro that Multiplies a matrix by a scalar and stores the result in other matrix
  **
- ** \param[in] src1 pointer to the ciaa generic matrix
+ ** \param[in] src1 pointer to ciaa generic matrix
  ** \param[in] src2 pointer to void
- ** \param[in] dst pointer to the ciaa generic matrix
+ ** \param[in] dst pointer to ciaa generic matrix
  **/
 #define Rtcs_Ext_MatrixByScalarMul(src1, src2, dst)  \
    ciaaLibs_MatrixByScalarMul((src1), (src2), (dst))
@@ -129,8 +150,8 @@ extern "C" {
  **
  ** Macro that Inverses a generic matrix and stores the result in other matrix
  **
- ** \param[in] src pointer to the ciaa generic matrix
- ** \param[in] dst pointer to the ciaa generic matrix
+ ** \param[in] src pointer to ciaa generic matrix
+ ** \param[in] dst pointer to ciaa generic matrix
  **/
 #define Rtcs_Ext_MatrixInv(src, dst)   \
    ciaaLibs_MatrixInv(src, dst)
@@ -139,8 +160,8 @@ extern "C" {
  **
  ** Macro that Transposes a matrix
  **
- ** \param[in] src pointer to the ciaa generic matrix
- ** \param[in] dst pointer to the ciaa generic matrix
+ ** \param[in] src pointer to ciaa generic matrix
+ ** \param[in] dst pointer to ciaa generic matrix
  **/
 #define Rtcs_Ext_MatrixTran(src, dst)  \
    ciaaLibs_MatrixTran((src), (dst))
@@ -149,9 +170,9 @@ extern "C" {
  **
  ** Macro that Adds two float matrices and stores the result in a third matrix
  **
- ** \param[in] src1 pointer to the ciaa float matrix
- ** \param[in] src2 pointer to the ciaa float matrix
- ** \param[in] dst pointer to the ciaa float matrix
+ ** \param[in] src1 pointer to ciaa float matrix
+ ** \param[in] src2 pointer to ciaa float matrix
+ ** \param[in] dst pointer to ciaa float matrix
  **/
 #define Rtcs_Ext_MatrixAdd_float(src1, src2, dst)  \
    ciaaLibs_MatrixAdd_float((src1), (src2), (dst))
@@ -160,9 +181,9 @@ extern "C" {
  **
  ** Macro that Substracs two float matrices and stores the result in a third matrix
  **
- ** \param[in] src1 pointer to the ciaa float matrix
- ** \param[in] src2 pointer to the ciaa float matrix
- ** \param[in] dst pointer to the ciaa float matrix
+ ** \param[in] src1 pointer to ciaa float matrix
+ ** \param[in] src2 pointer to ciaa float matrix
+ ** \param[in] dst pointer to ciaa float matrix
  **/
 #define Rtcs_Ext_MatrixSub_float(src1, src2, dst)  \
    ciaaLibs_MatrixSub_float((src1), (src2), (dst))
@@ -171,9 +192,9 @@ extern "C" {
  **
  ** Macro that Multiplies two float matrices and stores the result in a third matrix
  **
- ** \param[in] src1 pointer to the ciaa float matrix
- ** \param[in] src2 pointer to the ciaa float matrix
- ** \param[in] dst pointer to the ciaa float matrix
+ ** \param[in] src1 pointer to ciaa float matrix
+ ** \param[in] src2 pointer to ciaa float matrix
+ ** \param[in] dst pointer to ciaa float matrix
  **/
 #define Rtcs_Ext_MatrixMul_float(src1, src2, dst)  \
    ciaaLibs_MatrixMul_float((src1), (src2), (dst))
@@ -182,7 +203,7 @@ extern "C" {
  **
  ** Macro that Multiplies a matrix by a scalar and stores the result in other matrix
  **
- ** \param[in] src1 pointer to the ciaa float matrix
+ ** \param[in] src1 pointer to ciaa float matrix
  ** \param[in] src2 pointer to float
  ** \param[in] dst pointer to the ciaa float matrix
  **/
@@ -193,8 +214,8 @@ extern "C" {
  **
  ** Macro that Inverses a float matrix and stores the result in other matrix
  **
- ** \param[in] src pointer to the ciaa float matrix
- ** \param[in] dst pointer to the ciaa float matrix
+ ** \param[in] src pointer to ciaa float matrix
+ ** \param[in] dst pointer to ciaa float matrix
  **/
 #define Rtcs_Ext_MatrixInv_float(src, dst)   \
    ciaaLibs_MatrixInv_float((src), (dst))
@@ -203,8 +224,8 @@ extern "C" {
  **
  ** Macro that Transposes a matrix
  **
- ** \param[in] src pointer to the ciaa float matrix
- ** \param[in] dst pointer to the ciaa float matrix
+ ** \param[in] src pointer to ciaa float matrix
+ ** \param[in] dst pointer to ciaa float matrix
  **/
 #define Rtcs_Ext_MatrixTran_float(src, dst)  \
    ciaaLibs_MatrixTran_float((src), (dst))
@@ -212,6 +233,7 @@ extern "C" {
 /*==================[typedef]================================================*/
 /** \brief Definition of the Rtcs matrix type */
 typedef ciaaLibs_matrix_t Rtcs_ext_matrix_t;
+typedef data_type Rtcs_ext_data_type;
 
 /*==================[external data declaration]==============================*/
 
