@@ -171,44 +171,21 @@ static void test_updt_configFormat(test_updt_configType *type, uint8_t *config_b
 static void test_update_value (test_updt_configType *values)
 {
    values->reserved1 = 0;
-   values->firmware_version = 2 << 16;
-   values->firmware_version |= 3 << 8;
-   values->firmware_version |= 4;
-   values->bootloader_flags = 6;
-   values->bootloader_version = 8 << 16;
-   values->bootloader_version |= 9 << 8;
-   values->bootloader_version |= 10;
-   values->reserved2 = 0;
-   values->application_version = 12 << 16;
-   values->application_version |= 13 <<8;
-   values->application_version |= 14;
-   values->vendor_id = 15;
-   values->model_id = 16 << 16;
-   values->model_id |= 17 << 8;
-   values->model_id |= 18;
+   values->firmware_version = 1;
+   values->bootloader_flags = 2;
+   values->bootloader_version = 3;
+   values->reserved2 = 4;
+   values->application_version = 5;
+   values->vendor_id = 6;
+   values->model_id = 7;
    #if CIAAPLATFORM_BIGENDIAN == 0
-   values->unique_id_L = 20 << 24;
-   values->unique_id_L |= 21 << 16;
-   values->unique_id_L |= 22 << 8;
-   values->unique_id_L |= 23;
-   values->unique_id_H |= 24 << 24;
-   values->unique_id_H |= 25 << 16;
-   values->unique_id_H |= 26 << 8;
-   values->unique_id_H |= 27;
+   values->unique_id_L = 8;
+   values->unique_id_H = 9;
    #else
-   values->unique_id_H = 24 << 24;
-   values->unique_id_H |= 25 << 16;
-   values->unique_id_H |= 26 << 8;
-   values->unique_id_H |= 27;
-   values->unique_id_L |= 20 << 24;
-   values->unique_id_L |= 21 << 16;
-   values->unique_id_L |= 22 << 8;
-   values->unique_id_L |= 23;
+   values->unique_id_H = 8;
+   values->unique_id_L = 9;
    #endif // CIAAPLATFORM_BIGENDIAN
-   values->data_size = 28 << 24;
-   values->data_size |= 29 << 16;
-   values->data_size |= 30 << 8;
-   values->data_size |= 31;
+   values->data_size = 10;
 }
 
 static void testUpdtValueData (uint8_t *vector, uint32_t paySize)
