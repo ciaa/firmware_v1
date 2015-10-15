@@ -74,7 +74,7 @@
 
 /*==================[internal functions definition]==========================*/
 
-uint16_t UPDT_utilsNtohs(uint16_t netshort)
+uint16_t ciaaLibs_utilsNtohs(uint16_t netshort)
 {
 #if CIAAPLATFORM_BIGENDIAN == 0
    return (netshort << 8) | (netshort >> 8);
@@ -82,18 +82,18 @@ uint16_t UPDT_utilsNtohs(uint16_t netshort)
    return n;
 #endif
 }
-uint32_t UPDT_utilsNtohl(uint32_t netlong)
+uint32_t ciaaLibs_utilsNtohl(uint32_t netlong)
 {
 #if CIAAPLATFORM_BIGENDIAN == 0
-   return (((uint32_t) UPDT_utilsNtohs(netlong)) << 16) | UPDT_utilsNtohs(netlong >> 16);
+   return (((uint32_t) ciaaLibs_utilsNtohs(netlong)) << 16) | ciaaLibs_utilsNtohs(netlong >> 16);
 #else
    return n;
 #endif // CIAAPLATFORM_BIGENDIAN
 }
-uint64_t UPDT_utilsNtohll(uint64_t netlonglong)
+uint64_t ciaaLibs_utilsNtohll(uint64_t netlonglong)
 {
 #if CIAAPLATFORM_BIGENDIAN == 0
-   return (((uint64_t) UPDT_utilsNtohl(netlonglong)) << 32) | UPDT_utilsNtohl(netlonglong >> 32);
+   return (((uint64_t) ciaaLibs_utilsNtohl(netlonglong)) << 32) | ciaaLibs_utilsNtohl(netlonglong >> 32);
 #else
    return n;
 #endif // CIAAPLATFORM_BIGENDIAN
