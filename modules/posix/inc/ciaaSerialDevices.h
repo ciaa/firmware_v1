@@ -91,9 +91,9 @@ extern void ciaaSerialDevices_init(void);
  ** \param[in] path path of the device to be opened
  ** \param[in] device device to be opened
  ** \param[in] oflag may take one of the following values:
- **               O_RDONLY: opens files to read only
- **               O_WRONLY: opens files to write only
- **               O_RDWR: opens file to read and write
+ **               ciaaPOSIX_O_RDONLY: opens files to read only
+ **               ciaaPOSIX_O_WRONLY: opens files to write only
+ **               ciaaPOSIX_O_RDWR: opens file to read and write
  ** \return NULL if an error occurs, in other case the address of the opened
  **         device.
  **/
@@ -157,7 +157,7 @@ extern ssize_t ciaaSerialDevices_write(ciaaDevices_deviceType const * device, ui
  ** This interface informs the serial device that a recepction has been completed
  **
  ** \param[in]    TODO fildes file descriptor of the confirmation
- ** \param[in]    nbyte count of received bytes
+ ** \param[in]    nbyte count of confirmed bytes, if 0 the parameter will be ignored
  **
  ** \remarks This interface may be called from ISR context
  **/

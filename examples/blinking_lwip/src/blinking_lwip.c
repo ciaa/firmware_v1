@@ -108,7 +108,7 @@ TASK(InitTask)
    ciaak_start();
 
    /* open CIAA digital outputs */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 
    /* start lwip stack */
    ciaaLWIP_start();

@@ -1,0 +1,22 @@
+checkout:
+   post:
+      - git submodule sync
+      - git submodule update --init
+
+machine:
+   php:
+      version: 5.4.5
+   ruby:
+      version: 1.9.3-p448
+
+test:
+   post:
+      - make mocks
+      - make ci
+      - make ci
+
+general:
+   artifacts:
+      - "out/ci/index.html"
+      - "out/coverage"
+

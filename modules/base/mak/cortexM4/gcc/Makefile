@@ -1,10 +1,12 @@
 ###############################################################################
 #
 # Copyright 2014, Mariano Cerdeiro
-# Copyright 2014, Juan Cecconi (UTN-FRBA)
+# Copyright 2014, 2015, Juan Cecconi (UTN-FRBA)
+# Copyright 2015, Esteban Volentini (LabMicro, UNT)
 # Copyright 2014, ACSE & CADIEEL
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
+# All rights reserved
 #
 # This file is part of CIAA Firmware.
 #
@@ -44,8 +46,9 @@ GDB = arm-none-eabi-gdb
 NM = arm-none-eabi-nm
 # COMPILER AND LINKER OPTIONS
 AFLAGS += -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
-CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -DCORE_M4 -D__CODE_RED
-LFLAGS += $(LINKSCRIPT)  -fno-builtin -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -Xlinker -Map="$(TARGET_NAME).map"
+CFLAGS += -c -Wall -ggdb3 -fdata-sections -ffunction-sections -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -DCORE_M4
+LFLAGS += $(LINKSCRIPT) -fno-builtin -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb -Wl,-Map="$(TARGET_NAME).map",-gc-sections
+#,-print-gc-sections
 
 # Optional POST BUILD
 # Generates a .bin image file
@@ -54,3 +57,5 @@ POST_BUILD += arm-none-eabi-objcopy -v -O binary $(LD_TARGET) $(TARGET_NAME).bin
 # define linker extension
 LD_EXTENSION                = axf
 
+# gdb Flag
+GDB_FLAGS 		   = $(LD_TARGET) -ex "target remote localhost:3333"

@@ -2,6 +2,7 @@
 #
 # Copyright 2014, 2015, Mariano Cerdeiro
 # Copyright 2014, 2015, Juan Cecconi (Numetron, UTN-FRBA)
+# Copyright 2014, 2015, Esteban Volentini (LabMicro, UNT)
 # All rights reserved
 #
 # This file is part of CIAA Firmware.
@@ -136,6 +137,7 @@ RTOSTESTS_DEBUG_CTESTS ?= 0
 RTOSTESTS_CLEAN_GENERATE ?= 1
 RTOSTESTS_CTEST ?=
 RTOSTESTS_SUBTEST ?=
+RTOSTESTS_RAM_EXEC ?= 0
 
 # dependencies options
 #
@@ -150,7 +152,7 @@ kconfig              ?= $(LINUX_TOOLS_PATH)$(DS)kconfig$(DS)kconfig-qtconf
 
 ###############################################################################
 # CIAA Firmware version information
-CIAA_FIRMWARE_VER     = 0.5.0
+CIAA_FIRMWARE_VER     = 0.6.1
 
 ###############################################################################
 # get OS
@@ -223,6 +225,8 @@ BIN_DIR  = $(OUT_DIR)$(DS)bin
 GEN_DIR = $(OUT_DIR)$(DS)gen
 # rtos test gen dir
 RTOS_TEST_GEN_DIR = $(OUT_DIR)$(DS)rtos
+# etc dir (configuration dir)
+ETC_DIR = $(OUT_DIR)$(DS)etc
 
 # include needed project
 include $(PROJECT_PATH)$(DS)mak$(DS)Makefile
@@ -258,6 +262,8 @@ vpath %.s $(LIBS_SRC_DIRS)
 vpath %.S $(LIBS_SRC_DIRS)
 vpath %.cpp $(LIBS_SRC_DIRS)
 vpath %.o $(OBJ_DIR)
+vpath %.oil $(ETC_DIR)
+vpath %.poil $(dir $(POIL_FILES))
 
 #rule for library
 define librule
@@ -270,6 +276,8 @@ $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 endef
 
 OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(SRC_FILES)))))
+OIL_4_GEN += $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(POIL_FILES))), $(ETC_DIR)$(DS)$(OIL)) $(OIL_FILES)
+OIL_4_GEN_DEP += $(notdir $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(POIL_FILES))), $(ETC_DIR)$(DS)$(OIL))) $(OIL_FILES)
 
 # create rule for library
 # lib.a : lib_OBJ_FILES.o
@@ -461,6 +469,18 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	ruby externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)auto$(DS)generate_test_runner.rb $< $(RUNNERS_OUT_DIR)$(DS)$(notdir $@) modules$(DS)tools$(DS)ceedling$(DS)project.yml
 
 ###################### ENDS UNIT TEST PART OF MAKE FILE #######################
+
+###############################################################################
+# rule to generate OILs files
+%.oil : %.poil
+	@echo ' '
+	@echo ===============================================================================
+	@echo Generate OIL File $(ETC_DIR)$(DS)$(notdir $@) from $^
+	@echo ' '
+	$(CC) -E -x c++ -Imodules$(DS)base$(DS)inc -DBOARD=$(BOARD) -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) $^ | grep -v "^#.*" > $(ETC_DIR)$(DS)$(notdir $@)
+
+###############################################################################
+
 # Rule to compile
 %.o : %.c
 	@echo ' '
@@ -510,7 +530,7 @@ $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:
 # libs with contains sources
 LIBS_WITH_SRC	= $(foreach LIB, $(LIBS), $(if $(filter %.c,$($(LIB)_SRC_FILES)),$(LIB)))
 
-$(PROJECT_NAME) : $(LIBS_WITH_SRC) $(OBJ_FILES)
+$(PROJECT_NAME) : $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
@@ -522,16 +542,36 @@ $(PROJECT_NAME) : $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	$(POST_BUILD)
 
+###############################################################################
 # debug rule
-debug : $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
-	$(GDB) $(BIN_DIR)$(DS)$(PROJECT_NAME).bin
+-include modules$(DS)tools$(DS)gdb$(DS)mak$(DS)Makefile
+debug: $(PROJECT_NAME)
+# if CPU is not entered shows an error
+ifeq ($(CPU),)
+	@echo ERROR: The CPU variable of your makefile is empty.
+else
+	@echo ===============================================================================
+	@echo Starting GDB...
+	@echo ' '
+	$(GDB) $(GDB_FLAGS)
+endif
 
 ###############################################################################
 # rtos OSEK generation
-generate : $(OIL_FILES)
+generate : gen.intermediate
+
+# The following 2 rules are needed to avoid that the generator is called once
+# per file to be generated.
+$(rtos_GENERATED_FILES) : gen.intermediate
+.INTERMEDIATE: gen.intermediate
+gen.intermediate : $(OIL_4_GEN_DEP)
+	@echo ' '
+	@echo ===============================================================================
+	@echo Run RTOS Generator
+	@echo ' '
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
-		-c $(OIL_FILES) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+		-c $(OIL_4_GEN) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 
 ###############################################################################
 # doxygen
@@ -562,11 +602,14 @@ endif
 endif
 endif
 
+###############################################################################
+# Take make arguments into MAKE_ARGS variable
 MAKE_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 # ...and turn them into do-nothing targets
 $(eval $(MAKE_ARGS):;@:)
+
 ###############################################################################
-# openocd, erase [FLASH|QSPI]
+# erase memory, syntax: erase [FLASH|QSPI]
 erase:
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
@@ -579,23 +622,30 @@ else
 ifeq ($(OPENOCD_CFG),)
 	@echo ERROR: Your CPU: $(CPU) may not be supported...
 else
+ifeq ($(words $(MAKE_ARGS)),0)
+# command line: make erase
 	@echo ===============================================================================
 	@echo Starting OpenOCD and erasing all...
 	@echo "(after downloading a new firmware please do a hardware reset!)"
 	@echo ' '
-ifeq ($(words $(MAKE_ARGS)),0)
-# command line: make erase
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector 0 0 last" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(MASS_ERASE_COMMAND)" -c "shutdown"
 else
 ifeq ($(words $(MAKE_ARGS)),1)
-# command line: make erase [FLASH|QSPI]
+ifeq ($(CPUTYPE),k60_120)
+	@echo 'Not supported on Kinetis processors'
+else
+	@echo ===============================================================================
+	@echo Starting OpenOCD and erasing all...
+	@echo "(after downloading a new firmware please do a hardware reset!)"
+	@echo ' '
 ifeq ($(word 1, $(MAKE_ARGS)),FLASH)
-	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
+	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
 else
 ifeq ($(word 1, $(MAKE_ARGS)),QSPI)
-	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash erase_sector $(TARGET_DOWNLOAD_QSPI_BANK) 0 last" -c "shutdown"
+	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_QSPI_BANK) 0 last" -c "shutdown"
 else
 	@echo 'Error...unknown memory type'
+endif
 endif
 endif
 else
@@ -605,7 +655,6 @@ endif
 endif
 endif
 endif
-
 ###############################################################################
 # Download to target, syntax download [file]
 download:
@@ -623,15 +672,15 @@ else
 	@echo ===============================================================================
 	@echo Starting OpenOCD and downloading...
 	@echo ' '
-ifeq ($(words $(MAKECMDGOALS)),1)
+ifeq ($(words $(MAKE_ARGS)),0)
 # command line: make download
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 else
-ifeq ($(words $(MAKECMDGOALS)),2)
+ifeq ($(words $(MAKE_ARGS)),1)
 # command line: make download [File]
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 1,$(MAKE_ARGS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 else
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "flash write_image erase unlock $(word 2,$(MAKECMDGOALS)) $(TARGET_DOWNLOAD_$(word 3,$(MAKECMDGOALS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 1,$(MAKE_ARGS)) $(TARGET_DOWNLOAD_$(word 2,$(MAKE_ARGS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 endif
 endif
 endif
@@ -696,17 +745,19 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Debugging / Running / Programming                             |"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo "run.................: execute the binary file (Win/Posix only)"
-	@echo openocd.............: starts openocd for $(ARCH)
-	@echo "download [file] [FLASH|QSPI].: download FW file to the target"
-	@echo "erase [FLASH|QSPI]..: erase all the flash"
+	@echo "run.........................: execute the binary file (Win/Posix only)"
+	@echo debug.......................: starts gdb for debug Win/Posix or target
+	@echo openocd.....................: starts openocd for $(ARCH)
+	@echo "download [file] [FLASH|QSPI]: download .bin firmware file to the target"
+	@echo "erase [FLASH|QSPI]..........: erase all the flash"
 	@echo "+-----------------------------------------------------------------------------+"
-	@echo "|               Bulding                                                       |"
+	@echo "|               Building                                                      |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo clean...............: cleans generated, object, binary, etc. files
 	@echo clean_generate......: performs make clean and make generate
 	@echo all.................: performs make clean, make generate and make
 	@echo generate_make.......: performs make generate and make
+	@echo "Link2RAM............: performs make (incremental build) and links to RAM"
 
 ###############################################################################
 # menuconfig
@@ -764,6 +815,7 @@ info:
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
 	@echo libraris with srcs.: $(LIBS_WITH_SRC)
+	@echo RTOS config........: $(POIL_FILES) $(OIL_FILES)
 #	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
 #	@echo Lib Src Files......: $(LIBS_SRC_FILES)
 #	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)
@@ -813,6 +865,8 @@ clean:
 	@rm -rf $(OUT_DIR)$(DS)coverage$(DS)*
 	@echo Removing object files
 	@rm -rf $(OBJ_DIR)$(DS)*
+	@echo Removing oil configuration files
+	@rm -rf $(ETC_DIR)$(DS)*
 
 clean_rtostests:
 	@echo Removing RTOS Test generated project files
@@ -839,6 +893,11 @@ generate_make: generate
 	make
 
 ###############################################################################
+# make linking to RAM
+Link2RAM:
+	make LINKER_SCRIPT=$(LINKER_SCRIPT_RAM_EXEC)
+
+###############################################################################
 # Run the bin file
 run:
 # if windows or posix shows an error
@@ -852,10 +911,12 @@ else
 endif
 ###############################################################################
 # Run all FreeOSEK Tests
+include modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)mak$(DS)Makefile
 rtostests:
 	mkdir -p $(OUT_DIR)$(DS)doc$(DS)ctest
 	@echo GDB:$(GDB) $(GFLAGS) > $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo CLEAN_GENERATE:$(RTOSTESTS_CLEAN_GENERATE) >> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+	@echo RAM_EXEC:$(RTOSTESTS_RAM_EXEC) >> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo BINDIR:$(BIN_DIR)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo DEBUG_CTESTS:$(RTOSTESTS_DEBUG_CTESTS)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo DIR:$(DS)>> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
@@ -869,7 +930,6 @@ rtostests:
 	@echo TESTCASES:$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)cfg$(DS)testcases.cfg>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf $(RTOSTESTS_CTEST) $(RTOSTESTS_SUBTEST)
 
-
 ###############################################################################
 # run continuous integration
 ci:
@@ -882,3 +942,19 @@ doc: doxygen
 	@echo This rule is still not implemented see: https://github.com/ciaa/Firmware/issues/10
 	@exit 1
 
+###############################################################################
+# report: generates a report for the development team to understand the error
+report:
+	@echo '***** Generating a report to ask for support *****'
+	@echo -'***** git status > report.log *****' > report.log
+	git status >> report.log
+	@echo '***** git log -1 *****' >> report.log
+	git log -1 >> report.log
+	@echo '***** make version *****' >> report.log
+	make version >> report.log
+	@echo '***** make info *****' >> report.log
+	make info >> report.log
+	@echo '***** make all *****' 2>%1 >> report.log
+	make all 2>%1 >> report.log
+	@echo 'If you need help you can write to ciaa-firmware@googlegroups.com attaching the report file report.log.'
+	@echo 'Before asking for support please search for similar issues in the archive of ciaa-firmware@googlegroups.com.'

@@ -44,17 +44,21 @@ extern "C" {
 #endif
 #endif
 
+#define WEAK __attribute__ ((weak))
+#define ALIAS(f) __attribute__ ((weak, alias (#f)))
+
 //*****************************************************************************
 #if defined (__cplusplus)
 extern "C" {
 #endif
+
+#define __USE_CMSIS
 
 //*****************************************************************************
 #if defined (__USE_CMSIS) || defined (__USE_LPCOPEN)
 // Declaration of external SystemInit function
 extern void SystemInit(void);
 #endif
-
 
 //*****************************************************************************
 //
@@ -67,12 +71,24 @@ extern void SystemInit(void);
 extern void __main(void);
 #endif
 extern int main(void);
-
+//*****************************************************************************
+//
+// External declaration for the pointer to the stack top from the Linker Script
+//
+//*****************************************************************************
+extern void _vStackTop(void);
 
 //*****************************************************************************
 #if defined (__cplusplus)
 } // extern "C"
 #endif
+//*****************************************************************************
+//
+// The vector table.
+// This relies on the linker script to place at correct location in memory.
+//
+//*****************************************************************************
+extern void (* const g_pfnVectors[])(void);
 
 //*****************************************************************************
 // Functions to carry out the initialization of RW and BSS data sections. These
@@ -106,10 +122,8 @@ void bss_init(unsigned int start, unsigned int len) {
 //*****************************************************************************
 extern unsigned int __data_section_table;
 extern unsigned int __data_section_table_end;
+extern unsigned int __bss_section_table;
 extern unsigned int __bss_section_table_end;
-
-/** \brief LPC4337 Interrupt vector */
-extern void (* const g_pfnVectors[])(void);
 
 //*****************************************************************************
 // Reset entry point for your code.
@@ -169,15 +183,9 @@ void ResetISR(void) {
 #endif  // ifndef DONT_RESET_ON_RESTART
 // *************************************************************
 
-//#if defined (__USE_LPCOPEN)
-//    SystemInit();
-//#endif
-
-    /* LPCOpen functions for clock initialization */
-    extern void Chip_SystemInit(void);
-    extern void SystemCoreClockUpdate(void);
-    Chip_SystemInit();
-    SystemCoreClockUpdate();
+#if defined (__USE_LPCOPEN)
+    SystemInit();
+#endif
 
     //
     // Copy the data sections from flash to SRAM.
@@ -261,4 +269,3 @@ void ResetISR(void) {
         ;
     }
 }
-

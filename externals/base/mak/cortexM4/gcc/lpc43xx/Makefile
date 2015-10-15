@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # Copyright 2014, 2015, Mariano Cerdeiro
-# All rights reserved.
+# Copyright 2015, Juan Cecconi (Numetron, UTN-FRBA)
 #
 # This file is part of CIAA Firmware.
 #
@@ -32,7 +32,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-LFLAGS += -nostdlib -T "externals/base/cortexM4/lpc43xx/linker/ciaa_lpc4337.ld"
+LINKER_SCRIPT ?= ciaa_lpc4337.ld
+LINKER_SCRIPT_RAM_EXEC ?= ciaa_lpc4337_RAM_Exec.ld
+LFLAGS += -nostdlib -T "externals/base/cortexM4/lpc43xx/linker/$(LINKER_SCRIPT)"
 
 # this file needs to be compiled separated and not added to a library
 SRC_FILES                  += $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)crp.c

@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2015, Mariano Cerdeiro
  *
  * This file is part of CIAA Firmware.
  *
@@ -180,9 +180,11 @@ extern ciaaDevices_deviceType * ciaaDioDevices_open(char const * path,
       ciaaDevices_deviceType * device,
       uint8_t const oflag)
 {
-   ciaaPOSIX_assert(
-         device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag)
-         == device->loLayer);
+   ciaaDevices_deviceType * drv = (ciaaDevices_deviceType*) device->loLayer;
+
+   /* serial devices does not support that the drivers update the device */
+   /* the returned device shall be the same as passed */
+   ciaaPOSIX_assert(drv->open(path, drv, oflag) == drv);
 
    return device;
 }
