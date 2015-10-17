@@ -87,6 +87,54 @@ extern "C" {
 /** \brief Device communication ongoing */
 #define CIAA_I2C_DEV_COM                  2
 
+/** \brief Indicates that in this bus the system is a master */
+#define CIAA_I2C_BUSTYPE_MASTER           0
+
+/** \brief Indicates that in this bus the system is a slave
+ **
+ ** \remarks This feature is not yet supported
+ **/
+#define CIAA_I2C_BUSTYPE_SLAVE            1
+
+/** \brief Indicates that in this bus the system is a master and a slave
+ **
+ ** This is the case of a multimaster system.
+ **
+ ** \remarks This feature is not yet supported.
+ **/
+#define CIAA_I2C_BUSTYPE_MASTERSLAVE      2
+
+#define CIAA_I2C_10_BITS_ADDRESSMASK      0x8000
+
+/** \brief Sets the slave address id
+ **
+ ** This macro shall be used to correctly set the values of the type
+ ** ciaaI2CDevices_slaveAddressType.
+ **
+ ** \param[in] address shall be on the range 8 and 119 for 7 bits addressing
+ **            withing the range 0 and 1023 for 10 bits addressing. 10 bits
+ **            addressing is only allowed if CIAA_POSIX_I2C_10_BITS_ADDRESS is
+ **            set to CIAA_ENABLE.
+ ** \param[in] ext if true the address is a 10 bits address, if false a 7 bits
+ **            address.
+ **/
+#define CIAA_I2C_SETSLAVEADDRESS(add,ext) \
+   CIAA_I2C_SETSLAVEADDRESS_ ## ext(add)
+
+/** \brief Sub macros of CIAA_I2C_SETSLAVEADDRESS
+ **
+ ** \remarks this are internal macros, do not use them.
+ **/
+#if (CIAA_I2C_10_BITS_ADDRESS == CIAA_ENABLE)
+#define CIAA_I2C_SETSLAVEADDRESS_true(add)   \
+   ((((add) & 0x3FF) << 1) | CIAA_I2C_10_BITS_ADDRESSMASK)
+#else
+#define CIAA_I2C_SETSLAVEADDRESS_true(add)   \
+   #error 10 bits address mode is not enable.
+#endif
+#define CIAA_I2C_SETSLAVEADDRESS_false(add)  \
+   (((add) & 0x7F) << 1)
+
 /*==================[typedef]================================================*/
 /** \brief Slave Address
  **
@@ -94,6 +142,13 @@ extern "C" {
  ** 8 bits for 7 bits address mode and 16 bits for 10 bits
  ** address mode depending on the configuration parameter
  ** CIAA_I2C_10_BITS_ADDRESS.
+ **
+ ** \remarks to set this value use the macro CIAA_I2C_SETSLAVEADDRESS.
+ **
+ ** \remarks in 10 bits addressing the bit 15 indicates with a 1 a 10 bit
+ **          address and with 0 a 7 bit address. In both address modes
+ **          the bit 0 is not part of the address but used to indicate
+ **          a read or write operation.
  **
  **/
 #if (CIAA_I2C_10_BITS_ADDRESS == CIAA_ENABLE)

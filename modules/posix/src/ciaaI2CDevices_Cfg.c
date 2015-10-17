@@ -91,15 +91,17 @@ ciaaI2CDevices_slaveType ciaaI2CDevices_masterBus0Slaves[2] = {
    {
       "eeprom",         /* name of the device */
       255,              /* max addres, addresse range from 0 to 255 */
-      20,               /* id of the device */
-      2                 /* 1 bytes for address */
+      CIAA_I2C_SETSLAVEADDRESS(20, false),
+                        /* id of the device */
+      2                 /* 2 bytes for address */
    }
    /* configuration of first device */
    {
       "sensor",         /* name of the device */
-      511,              /* max addres, addresse range from 0 to 511 */
-      10,               /* id of the device */
-      2                 /* 2 bytes for address */
+      15,               /* max addres, addresse range from 0 to 511 */
+      CIAA_I2C_SETSLAVEADDRESS(10, false),
+                        /* id of the device */
+      1                 /* 2 bytes for address */
    }
 };
 
@@ -117,6 +119,7 @@ ciaaI2CDevices_slaveType ciaaI2CDevices_masterBus0Slaves[2] = {
  **/
 ciaaI2CDevices_masterBusType ciaaI2CDevice_masterBus0 = {
    &ciaaI2CDevices_masterBus0Slaves
+                     /* reference to the slaves on this bus */
    2,                /* count of devices in this bus */
    "/dev/i2c/0",     /* name of the driver */
 }
