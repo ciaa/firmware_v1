@@ -59,6 +59,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaBase.h"
+#include "ciaaI2CDevices_Internal.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -72,8 +73,6 @@ extern "C" {
  ** CIAA_DISABLE 10 bits slave address are not suported. If set to
  ** CIAA_ENABLE 10 bits slave address are supported */
 #define CIAA_POSIX_I2C_10_BITS_ADDRESS    CIAA_DISABLE
-
-#define CIAA_POSIX_I2C_BUS_COUNT          1
 
 /*==================[typedef]================================================*/
 

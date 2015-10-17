@@ -130,7 +130,8 @@ extern "C" {
    ((((add) & 0x3FF) << 1) | CIAA_I2C_10_BITS_ADDRESSMASK)
 #else
 #define CIAA_I2C_SETSLAVEADDRESS_true(add)   \
-   #error 10 bits address mode is not enable.
+
+//#error 10 bits address mode is not enable.
 #endif
 #define CIAA_I2C_SETSLAVEADDRESS_false(add)  \
    (((add) & 0x7F) << 1)
@@ -181,7 +182,7 @@ typedef uint8_t ciaaI2CDevices_countOfSlavesType;
 typedef struct {
    uint32_t maxAdd;              /** <= indicates the last address which can be
                                         read or written before a warp around */
-   I2C_SlaveAddressType
+   ciaaI2CDevices_slaveAddressType
       slaveAddress;              /** <= id of the I2C device, allowed values are
                                         between 0 and 127 inclusive for 7 bits */
    uint8_t addWidth;             /** <= size in bytes of the address length of
@@ -201,8 +202,26 @@ typedef struct {
    ciaaI2CDevices_countOfSlavesType
       countOfSlaves;    /** <= count of slaves */
    char * driverName;   /** <= driver name */
-
 } ciaaI2CDevices_masterBusType;
+
+typedef struct {
+} ciaaI2CDevices_slaveBusType;
+
+typedef union {
+   ciaaI2CDevices_slaveBusType slave;
+   ciaaI2CDevices_masterBusType master;
+} ciaaI2CDevices_unionBusType;
+
+typedef struct {
+   ciaaI2CDevices_unionBusType bus;
+   uint8_t busType;
+} ciaaI2CDevices_busType;
+
+
+typedef struct {
+   ciaaI2CDevices_busType * buses;
+   uint8_t countOfBuses;
+} ciaaI2CDevices_busesType;
 
 /*==================[external data declaration]==============================*/
 

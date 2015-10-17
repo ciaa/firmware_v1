@@ -61,8 +61,6 @@
 #include "ciaaI2CDevices_Cfg.h"
 
 /*==================[macros and definitions]=================================*/
-/** \brief indicates the count of I2C buses on the system */
-#define CIAA_I2C_BUSES_COUNT           2
 
 /*==================[internal data declaration]==============================*/
 
@@ -89,19 +87,19 @@
 ciaaI2CDevices_slaveType ciaaI2CDevices_masterBus0Slaves[2] = {
    /* configuration of first device */
    {
-      "eeprom",         /* name of the device */
       255,              /* max addres, addresse range from 0 to 255 */
-      CIAA_I2C_SETSLAVEADDRESS(20, false),
+      4,//CIAA_I2C_SETSLAVEADDRESS(20, false),
                         /* id of the device */
-      2                 /* 2 bytes for address */
-   }
+      2,                /* 2 bytes for address */
+      "eeprom"          /* name of the device */
+   },
    /* configuration of first device */
    {
-      "sensor",         /* name of the device */
       15,               /* max addres, addresse range from 0 to 511 */
-      CIAA_I2C_SETSLAVEADDRESS(10, false),
+      4, //CIAA_I2C_SETSLAVEADDRESS(10, false),
                         /* id of the device */
-      1                 /* 2 bytes for address */
+      1,                /* 1 bytes for address */
+      "sensor"          /* name of the device */
    }
 };
 
@@ -117,12 +115,26 @@ ciaaI2CDevices_slaveType ciaaI2CDevices_masterBus0Slaves[2] = {
  ** slavesCount  -> count of slaves on this bus
  **
  **/
+#if 0
 ciaaI2CDevices_masterBusType ciaaI2CDevice_masterBus0 = {
-   &ciaaI2CDevices_masterBus0Slaves
+   ciaaI2CDevices_masterBus0Slaves,
                      /* reference to the slaves on this bus */
    2,                /* count of devices in this bus */
    "/dev/i2c/0",     /* name of the driver */
-}
+};
+#endif
+
+ciaaI2CDevices_busType ciaaI2CDevices_buses [] = {
+   {
+      .bus.master = {
+         ciaaI2CDevices_masterBus0Slaves,
+                           /* reference to the slaves on this bus */
+         2,                /* count of devices in this bus */
+         "/dev/i2c/0",     /* name of the driver */
+      },
+      .busType = CIAA_I2C_BUSTYPE_MASTER
+   }
+};
 
 /** This structure list all I2C buses.
  **
@@ -133,19 +145,10 @@ ciaaI2CDevices_masterBusType ciaaI2CDevice_masterBus0 = {
  ** devDesc       -> pointer to the description of all devices on the bus.
  **
  **/
-ciaaI2CBuses_Type ciaaI2CDevices = {
-   /* do not change the following line, edit the count of buses
-    * by changing the macro CIAA_I2C_BUSES_COUNT at the bigging of this file */
-   CIAA_I2C_BUSES_COUNT,            /* count of buses */
-   {
-      CIAA_I2C_MASTER_BUS,          /* this bus is a master */
-      ciaaI2CDevice_master01        /* pointer to the bus descriptor */
-   },
-   {
-      CIAA_I2C_SLAVE_BUS,           /* in this bus we are the slave */
-      ciaaI2CDevice_slave01         /* pointer to the bus descriptor */
-   }
-}
+ciaaI2CDevices_busesType ciaaI2CDevices_Cfg = {
+   ciaaI2CDevices_buses,
+   2
+};
 
 /*==================[internal functions definition]==========================*/
 

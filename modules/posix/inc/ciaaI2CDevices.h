@@ -68,23 +68,6 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief I2C Slave Structure
- **
- ** This type is used to describe the each I2C slave device, an array of this
- ** type shall be defined by the user for each I2C bus to indicate which hw
- ** slave devices are conected in each bus indicating their IDs and
- ** capabilities.
- **
- **/
-typedef struct {
-   char * name;                  /** <= name of the device */
-   uint32_t maxAdd;              /** <= indicates the last address which can be
-                                        read or written before a warp around */
-   uint8_t id;                   /** <= id of the I2C device, allowed values are
-                                        between 0 and 127 inclusive */
-   uint8_t addWidth;             /** <= size in bytes of the address length of
-                                        this device */
-} ciaaI2CDevices_slaveType;
 
 /*==================[external data declaration]==============================*/
 
