@@ -124,7 +124,7 @@ extern void Rtcs_StateFeedbackFirstRun(void *data)
    {
       Rtcs_Ext_MatrixInit(statefeedback_data->xo_vector, statefeedback_data->x_size, 1, FLOAT_32, statefeedback_data->xo);
 
-      Rtcs_Ext_MatrixInit(statefeedback_data->uo_vector, (statefeedback_data->y_size + statefeedback_data->u_size), 1, FLOAT_32, statefeedback_data->uo);     
+      Rtcs_Ext_MatrixInit(statefeedback_data->uo_vector, (statefeedback_data->y_size + statefeedback_data->u_size), 1, FLOAT_32, statefeedback_data->uo);
 
       Rtcs_Ext_MatrixInit(statefeedback_data->mf_obsvr_matrix, statefeedback_data->x_size , statefeedback_data->x_size, FLOAT_32, statefeedback_data->mf_obsvr);
 
@@ -196,7 +196,7 @@ extern void ReducedObserver (Rtcs_statefeedback_data_t *data)
 
 extern void NoneObserver (Rtcs_statefeedback_data_t *data)
 {
-   Rtcs_Ext_MatrixCpy(data->y_vector, data->x_vector); 
+   Rtcs_Ext_MatrixCpy(data->y_vector, data->x_vector);
 }
 
 /** @} doxygen end group definition */

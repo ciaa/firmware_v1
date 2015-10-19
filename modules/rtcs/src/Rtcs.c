@@ -124,7 +124,7 @@ extern int8_t Rtcs_Start(void)
 extern int8_t Rtcs_Stop(void)
 {
    int8_t ret;
-   
+
    if(Rtcs_state == ACTIVE)
    {
       /* Deactivation of the Rtcs tool*/
