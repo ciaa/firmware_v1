@@ -562,7 +562,7 @@ void test_Rtcs_StateFeedbackRun_04(void)
 
 /** \brief test Rtcs_StateFeedbackWorstRun
  **
- ** Correct run with Servo Control System, with two state variables and without observer
+ ** Correct worst run with Servo Control System, with two state variables and without observer
  **
  */
 void test_Rtcs_StateFeedbackWorstRun_01(void)

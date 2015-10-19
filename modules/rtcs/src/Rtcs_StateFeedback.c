@@ -109,7 +109,7 @@ extern void Rtcs_StateFeedbackFirstRun(void *data)
          statefeedback_data->k[i] = statefeedback_data->k[i] * (-1);
       }
    }
-   else if(statefeedback_data->system == CONTROL_SYSTEM)
+   else  /* If the system isn't Regulator type, It's Control System type */
    {
       Rtcs_Ext_MatrixInit(statefeedback_data->r_vector, statefeedback_data->x_size, 1, FLOAT_32, statefeedback_data->r);
       Rtcs_Ext_MatrixInit(statefeedback_data->e_vector, statefeedback_data->x_size, 1, FLOAT_32, statefeedback_data->e);
