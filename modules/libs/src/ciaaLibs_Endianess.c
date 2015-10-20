@@ -36,7 +36,7 @@
 
 /** \brief ciaa libs Ntoh source file
  **
- ** this file is the source of the functions Ntohs, Ntohl and Ntohll 
+ ** this file is the source of the functions Ntohs, Ntohl and Ntohll
  **
  **/
 
@@ -58,7 +58,7 @@
  * -----------------------------------------------------------
  * 20151013 v0.0.1   FS PA  initials initial version
  */
- 
+
  /*==================[inclusions]=============================================*/
 #include "ciaaLibs_Endianess.h"
 
@@ -98,6 +98,29 @@ uint64_t ciaaLibs_utilsNtohll(uint64_t netlonglong)
    return n;
 #endif // CIAAPLATFORM_BIGENDIAN
 }
+
+uint32_t ciaaLibs_setHigh(uint32_t ptr)
+{
+   uint32_t ret;
+   #if CIAAPLATFORM_BIGENDIAN == 0
+   ret = ciaaLibs_utilsNtohl(ptr+1);
+   #else
+   ret = ciaaLibs_utilsNtohl(ptr);
+   #endif // CIAAPLATFORM
+   return ret;
+}
+
+uint32_t ciaaLibs_setLow(uint32_t ptr)
+{
+   uint32_t ret;
+   #if CIAAPLATFORM_BIGENDIAN == 0
+   ret = ciaaLibs_utilsNtohl(ptr);
+   #else
+   ret = ciaaLibs_utilsNtohl(ptr+1);
+   #endif // CIAAPLATFORM
+   return ret;
+}
+
 /*==================[external functions definition]==========================*/
 
 /** @} doxygen end group definition */
@@ -105,4 +128,4 @@ uint64_t ciaaLibs_utilsNtohll(uint64_t netlonglong)
 /*==================[end of file]============================================*/
 
 
- 
+

@@ -78,6 +78,8 @@ extern "C" {
 uint16_t ciaaLibs_utilsNtohs(uint16_t netshort);
 uint32_t ciaaLibs_utilsNtohl(uint32_t netlong);
 uint64_t ciaaLibs_utilsNtohll(uint64_t netlonglong);
+uint32_t ciaaLibs_setHigh(uint32_t ptr);
+uint32_t ciaaLibs_setLow(uint32_t ptr);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
