@@ -70,25 +70,25 @@
 
 /*==================[internal functions definition]==========================*/
 
-void ciaaLibs_SetByte(uint8_t config_buffer[],uint8_t ptr, uint32_t value)
+void ciaaLibs_SetByte(uint8_t *config_buffer,uint8_t ptr, uint32_t value)
 {
    config_buffer[ptr]= value;
 }
 
-void ciaaLibs_SetUint16(uint8_t config_buffer[],uint8_t ptr, uint32_t value)
+void ciaaLibs_SetUint16(uint8_t *config_buffer,uint8_t ptr, uint32_t value)
 {
    config_buffer[ptr]=value >> 8;
    config_buffer[ptr+1]=value;
 }
 
-void ciaaLibs_SetUint24(uint8_t config_buffer[],uint8_t ptr, uint32_t value)
+void ciaaLibs_SetUint24(uint8_t *config_buffer,uint8_t ptr, uint32_t value)
 {
    config_buffer[ptr]=value >> 16;
    config_buffer[ptr+1]=value >> 8;
    config_buffer[ptr+2]=value;
 }
 
-void ciaaLibs_SetUint32(uint8_t config_buffer[],uint8_t ptr, uint32_t value)
+void ciaaLibs_SetUint32(uint8_t *config_buffer,uint8_t ptr, uint32_t value)
 {
    config_buffer[ptr]=value >> 24;
    config_buffer[ptr+1]=value >> 16;

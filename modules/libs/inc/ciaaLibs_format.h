@@ -81,7 +81,7 @@ extern "C" {
  ** \param[in] config_buffer: buffer storage
  ** \param[in] value: value stored in the buffer
  **/
-uint32_t ciaaLibs_setByte (uint8_t config_buffer,uint8_t ptr, uint32_t value);
+void ciaaLibs_SetByte (uint8_t *config_buffer,uint8_t ptr, uint32_t value);
 
 /** \brief function to set starting values of 16 bits in the buffer
  **
@@ -91,7 +91,7 @@ uint32_t ciaaLibs_setByte (uint8_t config_buffer,uint8_t ptr, uint32_t value);
  ** \param[in] config_buffer: buffer storage
  ** \param[in] value: value stored in the buffer
  **/
-uint32_t ciaaLibs_setUint16 (uint8_t config_buffer,uint8_t ptr, uint32_t value);
+void ciaaLibs_SetUint16 (uint8_t *config_buffer,uint8_t ptr, uint32_t value);
 
 /** \brief function to set starting values of 24 bits in the buffer
  **
@@ -101,7 +101,7 @@ uint32_t ciaaLibs_setUint16 (uint8_t config_buffer,uint8_t ptr, uint32_t value);
  ** \param[in] config_buffer: buffer storage
  ** \param[in] value: value stored in the buffer
  **/
-uint32_t ciaaLibs_setUint24 (uint8_t config_buffer,uint8_t ptr, uint32_t value);
+void ciaaLibs_SetUint24 (uint8_t *config_buffer,uint8_t ptr, uint32_t value);
 
 /** \brief function to set starting values of 32 bits in the buffer
  **
@@ -111,7 +111,7 @@ uint32_t ciaaLibs_setUint24 (uint8_t config_buffer,uint8_t ptr, uint32_t value);
  ** \param[in] config_buffer: buffer storage
  ** \param[in] value: value stored in the buffer
  **/
-uint32_t ciaaLibs_setUint32 (uint8_t config_buffer,uint8_t ptr, uint32_t value);
+void ciaaLibs_SetUint32 (uint8_t *config_buffer,uint8_t ptr, uint32_t value);
 
 
 /*==================[cplusplus]==============================================*/

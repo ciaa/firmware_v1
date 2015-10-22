@@ -76,6 +76,7 @@
 #include "UPDT_services.h"
 #include "test_protocol_loopback.h"
 #include "ciaaLibs_Endianess.h"
+#include "ciaaLibs_format.h"
 /*==================[macros and definitions]=================================*/
 #define DATA_SIZE 1024
 
@@ -88,8 +89,8 @@ typedef struct {
    uint32_t application_version;
    uint32_t vendor_id;
    uint32_t model_id;
-   uint32_t unique_id_L;
-   uint32_t unique_id_H;
+   uint32_t unique_id_low;
+   uint32_t unique_id_high;
    uint32_t data_size;
 } test_updt_configType;
 
@@ -98,9 +99,6 @@ typedef struct {
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-/* binary image to transmit */
-static uint8_t input[DATA_SIZE];
-
 /* master side*/
 static test_update_loopbackType master_transport;
 static uint8_t payload_size=248;
@@ -117,31 +115,31 @@ static void test_updt_configFormat(test_updt_configType *type, uint8_t *config_b
 {
    ciaaPOSIX_assert(data_size == 32);
    /*Set of the field "reserved1" in the buffer*/
-   ciaaLibs_SetByte (&config_buffer,0,(type->reserved1));
+   ciaaLibs_SetByte (config_buffer,0,(type->reserved1));
    /*Set of the field "firmware_version" in the buffer*/
-   ciaaLibs_SetUint24 (&config_buffer,1,(type->firmware_version));
+   ciaaLibs_SetUint24 (config_buffer,1,(type->firmware_version));
    /*Set of the field "bootloader_flags" in the buffer*/
-   ciaaLibs_SetByte (&config_buffer,4,(type->bootloader_flags));
+   ciaaLibs_SetByte (config_buffer,4,(type->bootloader_flags));
    /*Set of the field "bootloader_version" in the buffer*/
-   ciaaLibs_SetUint24 (&config_buffer,5,(type->bootloader_version));
+   ciaaLibs_SetUint24 (config_buffer,5,(type->bootloader_version));
    /*Set of the field "reserved2" in the buffer*/
-   ciaaLibs_SetByte (&config_buffer,8,(type->reserved2));
+   ciaaLibs_SetByte (config_buffer,8,(type->reserved2));
    /*Set of the field "application_version" in the buffer*/
-   ciaaLibs_SetUint24 (&config_buffer,9,(type->application_version));
+   ciaaLibs_SetUint24 (config_buffer,9,(type->application_version));
    /*Set of the field "vendor_id" in the buffer*/
-   ciaaLibs_SetByte (&config_buffer,12,(type->vendor_id));
+   ciaaLibs_SetByte (config_buffer,12,(type->vendor_id));
    /*Set of the field "model_id" in the buffer*/
-   ciaaLibs_SetUint24 (&config_buffer,13,(type->model_id));
+   ciaaLibs_SetUint24 (config_buffer,13,(type->model_id));
    /*Set of the field "unique_id" in the buffer*/
    #if CIAAPLATFORM_BIGENDIAN == 0
-   ciaaLibs_SetUint32 (&config_buffer,16,(type->unique_id_low));
-   ciaaLibs_SetUint32 (&config_buffer,20,(type->unique_id_high));
+   ciaaLibs_SetUint32 (config_buffer,16,(type->unique_id_low));
+   ciaaLibs_SetUint32 (config_buffer,20,(type->unique_id_high));
    #else
-   ciaaLibs_SetUint32 (&config_buffer,16,(type->unique_id_high));
-   ciaaLibs_SetUint32 (&config_buffer,20,(type->unique_id_low));
+   ciaaLibs_SetUint32 (config_buffer,16,(type->unique_id_high));
+   ciaaLibs_SetUint32 (config_buffer,20,(type->unique_id_low));
    #endif // CIAAPLATFORM_BIGENDIAN
    /*Set of the field "data_size" in the buffer*/
-   ciaaLibs_SetUint32 (&config_buffer,24,(type->data_size));
+   ciaaLibs_SetUint32 (config_buffer,24,(type->data_size));
 }
 
 
@@ -156,11 +154,11 @@ static void test_update_value (test_updt_configType *values)
    values->vendor_id = 6;
    values->model_id = 7;
    #if CIAAPLATFORM_BIGENDIAN == 0
-   values->unique_id_L = 8;
-   values->unique_id_H = 9;
+   values->unique_id_low = 8;
+   values->unique_id_high = 9;
    #else
-   values->unique_id_H = 8;
-   values->unique_id_L = 9;
+   values->unique_id_high = 8;
+   values->unique_id_low = 9;
    #endif // CIAAPLATFORM_BIGENDIAN
    values->data_size = 10;
 }
@@ -201,7 +199,7 @@ static void makeHandshakeOkNextSequenceNumber(test_updt_configType *type, uint8_
 static uint32_t testHandshakeOkNextSequenceNumber(test_updt_configType *type, uint8_t *vector)
 {
    ciaaPOSIX_assert (UPDT_PROTOCOL_PACKET_ACK == UPDT_protocolGetPacketType(vector));
-   ciaaPOSIX_assert (SequenceNumber==UPDT_protocolGetSequenceNumber(vector));
+   ciaaPOSIX_assert (SequenceNumber == UPDT_protocolGetSequenceNumber(vector));
    return 0;
 }
 
