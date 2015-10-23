@@ -93,7 +93,7 @@ const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {2,0},{2,1},{2,2},{2,3},{
 const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {5,1},{2,6},{2,5},{2,4},{5,12},{5,13},{5,14},{1,8} };
 #elif (edu_ciaa_nxp == BOARD)
 const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {0,4},{0,8},{0,9},{1,9} };
-const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {5,0},{5,1},{5,2},{0,14},{1,11},{1,12} };
+const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {5,0},{5,1},{5,2},{0,14},{1,11},{1,12}, {3,0},{3,3},{3,4} };
 #endif
 
 /** \brief Device for DIO 0 */
@@ -207,6 +207,13 @@ static void ciaa_lpc4337_gpio_init(void)
    Chip_GPIO_ClearValue(LPC_GPIO_PORT, 0,(1<<14));
    Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1,(1<<11)|(1<<12));
 
+   /* EDU-CIAA-NXP GPIOs as outputs */
+   Chip_SCU_PinMux(6,1,MD_PUP|MD_EZI,FUNC0);  /* GPIO3[0], GPIO0 */
+   Chip_SCU_PinMux(6,4,MD_PUP|MD_EZI,FUNC0);  /* GPIO3[3], GPIO1 */
+   Chip_SCU_PinMux(6,5,MD_PUP|MD_EZI,FUNC0);  /* GPIO3[4], GPIO2 */
+
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 3,(1<<0)|(1<<3)|(1<<4),1);
+   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 3,(1<<0)|(1<<3)|(1<<4));
 #else
    #error please define BOARD variable!
 #endif
@@ -288,11 +295,11 @@ static int32_t ciaa_lpc4337_readPins(int32_t pinCount, uint8_t * buffer, size_t 
    ciaaPOSIX_memset(buffer, 0, count);
    for(i = 0, j = 0; (i < pinCount) && (j < count); i++)
    {
-      buffer[j] |= readFunction(i) << (i - 8 * j);
       if((i > 0) && ((i & 0x07)==0))
       {
          j++;
       }
+      buffer[j] |= readFunction(i) << (i - 8 * j);
    }
    return count;
 }
@@ -355,11 +362,11 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
          /* set outputs according to bits defined in user buffer */
          for(i = 0, j = 0; (i < ciaaDriverDio_OutputCount) && (j < size); i++)
          {
-            ciaa_lpc4337_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
             if( (i > 0) && ((i & 0x07) == 0) )
             {
                j++;
             }
+            ciaa_lpc4337_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
          }
          if((ciaaDriverDio_OutputCount & 0x07) != 0)
          {
