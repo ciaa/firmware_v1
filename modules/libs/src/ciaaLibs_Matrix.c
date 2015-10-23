@@ -225,7 +225,7 @@ extern void ciaaLibs_MatrixMul_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t 
 
          /* Load the result in target matrix */
          *dst_ptr++ = acc;
-         
+
          /* Decrement the column loop counter */
          num_columns_src2--;
 
