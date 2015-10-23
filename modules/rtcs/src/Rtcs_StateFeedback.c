@@ -191,12 +191,12 @@ extern void ReducedObserver (Rtcs_statefeedback_data_t *data)
    Rtcs_Ext_MatrixAdd_float(data->xo_vector, data->xo_aux_vector, data->xo_vector);
    Rtcs_Ext_MatrixMul_float(data->l_matrix, data->y_vector, data->xo_aux_vector);
    Rtcs_Ext_MatrixAdd_float(data->xo_vector, data->xo_aux_vector, data->xo_vector);
-   Rtcs_Ext_MatrixCat(data->y_vector, data->xo_vector, data->x_vector);
+   Rtcs_Ext_MatrixCat_float(data->y_vector, data->xo_vector, data->x_vector);
 }
 
 extern void NoneObserver (Rtcs_statefeedback_data_t *data)
 {
-   Rtcs_Ext_MatrixCpy(data->y_vector, data->x_vector);
+   Rtcs_Ext_MatrixCpy_float(data->y_vector, data->x_vector);
 }
 
 /** @} doxygen end group definition */

@@ -73,77 +73,185 @@
 /*==================[internal functions definition]==========================*/
 extern void ciaaLibs_MatrixInit(ciaaLibs_matrix_t *mat, uint16_t n_rows, uint16_t n_columns, data_type type, void *data)
 {
+   /* Load number of rows */
+   mat->n_rows = n_rows;
 
+   /* Load number of columns */
+   mat->n_columns = n_columns;
+
+   /* Load type of data  */
+   mat->type = type;
+
+   /* Load data pointer*/
+   mat->data = data;
 }
 
 extern void ciaaLibs_MatrixCpy(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
 {
-
 }
 
 extern void ciaaLibs_MatrixCat(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
 {
-
 }
 
 extern void ciaaLibs_MatrixAdd(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
 {
-
 }
 
 extern void ciaaLibs_MatrixSub(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
 {
-
 }
 
 extern void ciaaLibs_MatrixMul(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
 {
-
 }
 
 extern void ciaaLibs_MatrixByScalarMul(ciaaLibs_matrix_t *src1, void *src2, ciaaLibs_matrix_t *dst)
 {
-
 }
 
 extern void ciaaLibs_MatrixInv(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
 {
-
 }
 
 extern void ciaaLibs_MatrixTran(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
 {
+}
 
+extern void ciaaLibs_MatrixCpy_float(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
+{
+   float *src_ptr = src->data;
+   float *dst_ptr = dst->data;
+   uint32_t num_elements = src->n_rows * src->n_columns;
+
+   /* matrix copy */
+   while(num_elements > 0u)
+   {
+      (*dst_ptr++) = (*src_ptr++);
+      num_elements--;
+   }
+}
+
+extern void ciaaLibs_MatrixCat_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
+{
+   float *src1_ptr = src1->data;
+   float *src2_ptr = src2->data;
+   float *dst_ptr = dst->data;
+   uint32_t num_elements = src1->n_rows * src1->n_columns;
+
+   /* Loop that copies the elements from first source matrix to target matrix */
+   while(num_elements > 0u)
+   {
+      (*dst_ptr++) = (*src1_ptr++);
+      num_elements--;
+   }
+
+   num_elements = src2->n_rows * src2->n_columns;
+
+   /* Loop that copies the elements from second source matrix to target matrix*/
+    while(num_elements > 0u)
+   {
+      (*dst_ptr++) = (*src2_ptr++);
+      num_elements--;
+   }
 }
 
 extern void ciaaLibs_MatrixAdd_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
 {
+   float *src1_ptr = src1->data;
+   float *src2_ptr = src2->data;
+   float *dst_ptr = dst->data;
+   uint32_t num_elements;
 
+   num_elements = src1->n_rows * src1->n_columns;
+
+   /* Loop that adds each element from each surce matrix and saves the result in target matrix*/
+   while(num_elements > 0u)
+   {
+      *dst_ptr++ = (*src1_ptr++) + (*src2_ptr++);
+      num_elements--;
+   }
 }
 
 extern void ciaaLibs_MatrixSub_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
 {
+   float *src1_ptr = src1->data;
+   float *src2_ptr = src2->data;
+   float *dst_ptr = dst->data;
+   uint32_t num_elements;
 
+   num_elements = src1->n_rows * src1->n_columns;
+
+   /* Loop that subtracts each element from each surce matrix and saves the result in target matrix*/
+   while(num_elements > 0u)
+   {
+      *dst_ptr++ = (*src1_ptr++) - (*src2_ptr++);
+      num_elements--;
+   }
 }
 
 extern void ciaaLibs_MatrixMul_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
 {
+   float *src1_ptr = src1->data;
+   float *src2_ptr = src2->data;
+   float *dst_ptr = dst->data;
+   uint32_t num_rows_src1 = src1->n_rows;
+   float *src1_aux_ptr;
+   float *src2_aux_ptr;
+   uint32_t num_columns_src1;
+   uint32_t num_columns_src2;
+   float acc;
+
+   /* Loop for each row of src1 */
+   do
+   {
+      num_columns_src2 = src2->n_columns;
+      src2_aux_ptr = src2_ptr;
+
+      /* It performs the product-dot between one row of src1 and each column of src2 */
+      do
+      {
+         src1_aux_ptr = src1_ptr;
+         num_columns_src1 = src1->n_columns;
+         acc = 0;
+
+         /* This loops performs the product-dot between one row of src1 and one column of src2 */
+         while(num_columns_src1 > 0u)
+         {
+            acc += (*src1_aux_ptr++) * (*src2_aux_ptr);
+            src2_aux_ptr += src2->n_columns;
+            num_columns_src1--;
+         }
+
+         /* Load the result in target matrix */
+         *dst_ptr++ = acc;
+         
+         /* Decrement the column loop counter */
+         num_columns_src2--;
+
+         src2_aux_ptr = src2_ptr + (src2->n_columns - num_columns_src2);
+
+      } while(num_columns_src2 > 0u);
+
+      src1_ptr += src1->n_columns;
+
+      /* Decrement the row loop counter*/
+      num_rows_src1--;
+
+   } while(num_rows_src1 > 0u);
 
 }
 
 extern void ciaaLibs_MatrixByScalarMul_float(ciaaLibs_matrix_t *src1, float *src2, ciaaLibs_matrix_t *dst)
 {
-
 }
 
 extern void ciaaLibs_MatrixInv_float(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
 {
-
 }
 
 extern void ciaaLibs_MatrixTran_float(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
 {
-
 }
 
 /*==================[external functions definition]==========================*/

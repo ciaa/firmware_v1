@@ -75,8 +75,8 @@ static void ciaaLibs_MatrixInit_stub (ciaaLibs_matrix_t *mat, uint16_t n_rows, u
 static void ciaaLibs_MatrixAdd_float_stub (ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 static void ciaaLibs_MatrixSub_float_stub (ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 static void ciaaLibs_MatrixMul_float_stub1 (ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
-static void ciaaLibs_MatrixCpy_stub (ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
-static void ciaaLibs_MatrixCat_stub (ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
+static void ciaaLibs_MatrixCpy_float_stub (ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
+static void ciaaLibs_MatrixCat_float_stub (ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 
 /*==================[internal data definition]===============================*/
 
@@ -186,7 +186,7 @@ static void ciaaLibs_MatrixMul_float_stub1 (ciaaLibs_matrix_t *src1, ciaaLibs_ma
    }
 }
 
-static void ciaaLibs_MatrixCpy_stub (ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
+static void ciaaLibs_MatrixCpy_float_stub (ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
 {
    float *src_ptr = src->data;
    float *dst_ptr = dst->data;
@@ -199,7 +199,7 @@ static void ciaaLibs_MatrixCpy_stub (ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *
    }
 }
 
-static void ciaaLibs_MatrixCat_stub (ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
+static void ciaaLibs_MatrixCat_float_stub (ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
 {
    float *src1_ptr = src1->data;
    float *src2_ptr = src2->data;
@@ -472,8 +472,8 @@ void test_Rtcs_StateFeedbackRun_01(void)
    ciaaLibs_MatrixAdd_float_StubWithCallback(ciaaLibs_MatrixAdd_float_stub);
    ciaaLibs_MatrixSub_float_StubWithCallback(ciaaLibs_MatrixSub_float_stub);
    ciaaLibs_MatrixMul_float_StubWithCallback(ciaaLibs_MatrixMul_float_stub1);
-   ciaaLibs_MatrixCpy_StubWithCallback(ciaaLibs_MatrixCpy_stub);
-   ciaaLibs_MatrixCat_StubWithCallback(ciaaLibs_MatrixCat_stub);
+   ciaaLibs_MatrixCpy_float_StubWithCallback(ciaaLibs_MatrixCpy_float_stub);
+   ciaaLibs_MatrixCat_float_StubWithCallback(ciaaLibs_MatrixCat_float_stub);
 
    Rtcs_StateFeedbackRun(&controller_1);
 
@@ -497,8 +497,8 @@ void test_Rtcs_StateFeedbackRun_02(void)
    ciaaLibs_MatrixAdd_float_StubWithCallback(ciaaLibs_MatrixAdd_float_stub);
    ciaaLibs_MatrixSub_float_StubWithCallback(ciaaLibs_MatrixSub_float_stub);
    ciaaLibs_MatrixMul_float_StubWithCallback(ciaaLibs_MatrixMul_float_stub1);
-   ciaaLibs_MatrixCpy_StubWithCallback(ciaaLibs_MatrixCpy_stub);
-   ciaaLibs_MatrixCat_StubWithCallback(ciaaLibs_MatrixCat_stub);
+   ciaaLibs_MatrixCpy_float_StubWithCallback(ciaaLibs_MatrixCpy_float_stub);
+   ciaaLibs_MatrixCat_float_StubWithCallback(ciaaLibs_MatrixCat_float_stub);
 
    Rtcs_StateFeedbackRun(&controller_2);
 
@@ -524,8 +524,8 @@ void test_Rtcs_StateFeedbackRun_03(void)
    ciaaLibs_MatrixAdd_float_StubWithCallback(ciaaLibs_MatrixAdd_float_stub);
    ciaaLibs_MatrixSub_float_StubWithCallback(ciaaLibs_MatrixSub_float_stub);
    ciaaLibs_MatrixMul_float_StubWithCallback(ciaaLibs_MatrixMul_float_stub1);
-   ciaaLibs_MatrixCpy_StubWithCallback(ciaaLibs_MatrixCpy_stub);
-   ciaaLibs_MatrixCat_StubWithCallback(ciaaLibs_MatrixCat_stub);
+   ciaaLibs_MatrixCpy_float_StubWithCallback(ciaaLibs_MatrixCpy_float_stub);
+   ciaaLibs_MatrixCat_float_StubWithCallback(ciaaLibs_MatrixCat_float_stub);
 
    Rtcs_StateFeedbackRun(&controller_3);
 
@@ -550,8 +550,8 @@ void test_Rtcs_StateFeedbackRun_04(void)
    ciaaLibs_MatrixAdd_float_StubWithCallback(ciaaLibs_MatrixAdd_float_stub);
    ciaaLibs_MatrixSub_float_StubWithCallback(ciaaLibs_MatrixSub_float_stub);
    ciaaLibs_MatrixMul_float_StubWithCallback(ciaaLibs_MatrixMul_float_stub1);
-   ciaaLibs_MatrixCpy_StubWithCallback(ciaaLibs_MatrixCpy_stub);
-   ciaaLibs_MatrixCat_StubWithCallback(ciaaLibs_MatrixCat_stub);
+   ciaaLibs_MatrixCpy_float_StubWithCallback(ciaaLibs_MatrixCpy_float_stub);
+   ciaaLibs_MatrixCat_float_StubWithCallback(ciaaLibs_MatrixCat_float_stub);
 
    Rtcs_StateFeedbackRun(&controller_4);
 
@@ -573,8 +573,8 @@ void test_Rtcs_StateFeedbackWorstRun_01(void)
    ciaaLibs_MatrixAdd_float_StubWithCallback(ciaaLibs_MatrixAdd_float_stub);
    ciaaLibs_MatrixSub_float_StubWithCallback(ciaaLibs_MatrixSub_float_stub);
    ciaaLibs_MatrixMul_float_StubWithCallback(ciaaLibs_MatrixMul_float_stub1);
-   ciaaLibs_MatrixCpy_StubWithCallback(ciaaLibs_MatrixCpy_stub);
-   ciaaLibs_MatrixCat_StubWithCallback(ciaaLibs_MatrixCat_stub);
+   ciaaLibs_MatrixCpy_float_StubWithCallback(ciaaLibs_MatrixCpy_float_stub);
+   ciaaLibs_MatrixCat_float_StubWithCallback(ciaaLibs_MatrixCat_float_stub);
 
    Rtcs_StateFeedbackWorstRun(&controller_1);
 

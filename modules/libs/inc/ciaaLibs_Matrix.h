@@ -180,6 +180,25 @@ extern void ciaaLibs_MatrixInv(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
  **/
 extern void ciaaLibs_MatrixTran(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
 
+/** \brief Float Matrix Copy
+ **
+ ** Copies a float matrix to another
+ **
+ ** \param[in] mat_src Source Matrix
+ ** \param[in] mat_dst Destination Matrix
+ **/
+extern void ciaaLibs_MatrixCpy_float(ciaaLibs_matrix_t *mat_src, ciaaLibs_matrix_t *mat_dst);
+
+/** \brief Float Matrix Concatenated
+ **
+ ** Concatenates a float matrix with another to a target float matrix
+ **
+ ** \param[in] src1 Source Matrix
+ ** \param[in] src2 Source Matrix
+ ** \param[in] dst Destination Matrix
+ **/
+
+extern void ciaaLibs_MatrixCat_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 /** \brief Float Matrices Addition
  **
  ** Adds two float matrices and stores the result in a third matrix

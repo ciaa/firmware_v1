@@ -166,6 +166,27 @@ extern "C" {
 #define Rtcs_Ext_MatrixTran(src, dst)  \
    ciaaLibs_MatrixTran((src), (dst))
 
+/** \brief Macro to Copy of float Matrices
+ **
+ ** Macro that copies a matrix to another matrix
+ **
+ ** \param[in] src pointer to ciaa float matrix
+ ** \param[in] dst pointer to ciaa float matrix
+ **/
+#define Rtcs_Ext_MatrixCpy_float(src, dst)      \
+   ciaaLibs_MatrixCpy_float((src), (dst))
+
+/** \brief Macro to Concatenate float Matrices
+ **
+ ** Macro that concatenates a matrix with another to a target matrix
+ **
+ ** \param[in] src1 pointer to ciaa float matrix
+ ** \param[in] src2 pointer to ciaa float matrix
+ ** \param[in] dst pointer to ciaa float matrix
+ **/
+#define Rtcs_Ext_MatrixCat_float(src1, src2,  dst)      \
+   ciaaLibs_MatrixCat_float((src1), (src2), (dst))
+
 /** \brief Macro for Float Matrices Addition
  **
  ** Macro that Adds two float matrices and stores the result in a third matrix
