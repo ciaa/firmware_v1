@@ -67,19 +67,27 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-
-/*==================[typedef]================================================*/
 #define ciaaLibs_utilsHtonll ciaaLibs_utilsNtohll
 #define ciaaLibs_utilsHtonl ciaaLibs_utilsNtohl
 #define ciaaLibs_utilsHtons ciaaLibs_utilsNtohs
+#if CIAAPLATFORM_BIGENDIAN == CIAA_ENABLE
+#define ciaaLibs_setHigh(ptr) ciaaLibs_utilsNtohl (*(ptr)+1)
+#else 
+ciaaLibs_utilsNtohl (*(ptr))
+#endif
+#if CIAAPLATFORM_BIGENDIAN == CIAA_ENABLE
+#define ciaaLibs_setLow(ptr) ciaaLibs_utilsNtohl (*(ptr))
+#else
+ciaaLibs_utilsNtohl (*(ptr+1))
+#endif
+/*==================[typedef]================================================*/
+
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
 uint16_t ciaaLibs_utilsNtohs(uint16_t netshort);
 uint32_t ciaaLibs_utilsNtohl(uint32_t netlong);
 uint64_t ciaaLibs_utilsNtohll(uint64_t netlonglong);
-uint32_t ciaaLibs_setHigh(uint32_t ptr);
-uint32_t ciaaLibs_setLow(uint32_t ptr);
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }

@@ -99,28 +99,6 @@ uint64_t ciaaLibs_utilsNtohll(uint64_t netlonglong)
 #endif // CIAAPLATFORM_BIGENDIAN
 }
 
-uint32_t ciaaLibs_setHigh(uint32_t ptr)
-{
-   uint32_t ret;
-   #if CIAAPLATFORM_BIGENDIAN == 0
-   ret = ciaaLibs_utilsNtohl(ptr+1);
-   #else
-   ret = ciaaLibs_utilsNtohl(ptr);
-   #endif // CIAAPLATFORM
-   return ret;
-}
-
-uint32_t ciaaLibs_setLow(uint32_t ptr)
-{
-   uint32_t ret;
-   #if CIAAPLATFORM_BIGENDIAN == 0
-   ret = ciaaLibs_utilsNtohl(ptr);
-   #else
-   ret = ciaaLibs_utilsNtohl(ptr+1);
-   #endif // CIAAPLATFORM
-   return ret;
-}
-
 /*==================[external functions definition]==========================*/
 
 /** @} doxygen end group definition */
