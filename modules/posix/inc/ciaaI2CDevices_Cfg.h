@@ -77,6 +77,8 @@ extern "C" {
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
+/* see documentation of this variable in ciaaI2CDevices_Cfg.c */
+extern const ciaaI2CDevices_busesType ciaaI2CDevices_Cfg;
 
 /*==================[external functions declaration]=========================*/
 

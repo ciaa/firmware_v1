@@ -69,26 +69,29 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-/** Add one struct of the type ciaaI2CDevices_slaveType for each
+/** \brief Array of slaves
+ **
+ ** Add one struct of the type ciaaI2CDevices_slaveType for each
  ** I2C master bus to describe their slaves. You can choose the name you
  ** like for this structure as far as you reference it.
  **
  ** Each slaves contains:
  **
- ** deviceName    -> name of the device. e.g.: eeprom. In this case the path
- **                  to open the device will be /dev/i2c/0/eeprom
  ** maxAddr       -> last supported addres. e.g.: 255 will indicate that the
  **                  address range from 0 to 255 inclusive is supported. Gaps
  **                  are not supported.
- ** id            -> id of this device.
+ ** id            -> id of this device. Allways use the macro
+ **                  CIAA_I2C_SETSLAVEADDRESS to set the addresses.
  ** addWidth      -> size in bytes of the address.
+ ** deviceName    -> name of the device. e.g.: eeprom. In this case the path
+ **                  to open the device will be /dev/i2c/0/eeprom
  **
  **/
 ciaaI2CDevices_slaveType ciaaI2CDevices_masterBus0Slaves[2] = {
    /* configuration of first device */
    {
       255,              /* max addres, addresse range from 0 to 255 */
-      4,//CIAA_I2C_SETSLAVEADDRESS(20, false),
+      CIAA_I2C_SETSLAVEADDRESS(20, false),
                         /* id of the device */
       2,                /* 2 bytes for address */
       "eeprom"          /* name of the device */
@@ -96,35 +99,41 @@ ciaaI2CDevices_slaveType ciaaI2CDevices_masterBus0Slaves[2] = {
    /* configuration of first device */
    {
       15,               /* max addres, addresse range from 0 to 511 */
-      4, //CIAA_I2C_SETSLAVEADDRESS(10, false),
+      CIAA_I2C_SETSLAVEADDRESS(10, false),
                         /* id of the device */
       1,                /* 1 bytes for address */
       "sensor"          /* name of the device */
    }
 };
 
-/** Add one struct of the type ciaaI2CDevices_masterBusType for each
- ** I2C master bus. You can choose the name you like for this structure
- ** since it has to be referenced.
+/** \brief Array of buses.
+ **
+ ** Describes the n I2C buses. n (the count of elements on the array) shall
+ ** be the same count as defined in ciaaI2CDevices_Cfg.
+ **
+ ** Each element is a struct of two elements where the first one is an union.
  **
  ** This strcture contains the following elements:
  **
- ** slaves        -> pointer to slaves array of lenght count of slaves.
- ** driverName    -> name of the driver where this bus is located.
- **                  e.g.: "/dev/i2c/0"
- ** slavesCount  -> count of slaves on this bus
+ ** bus        -> describes the bus, this element is an union and can be of
+ **               the type master or slave.
+ ** busType    -> shall indicate with CIAA_I2C_BUSTYPE_MASTER if the bus is
+ **               fullfiled as master, CIAA_I2C_BUSTYPE_SLAVE if the bus is
+ **               fullfiled as slave.
  **
+ ** *** MASTER ***
+ **
+ ** if you want to describe a master the elements are:
+ **
+ ** slaves     -> array describing the slaves.
+ ** count      -> count of slaves on the slave array.
+ ** drvier     -> name of the driver.
+ **
+ ** *** SLAVE ***
+ **
+ ** TODO: this feature is not yet supported.
  **/
-#if 0
-ciaaI2CDevices_masterBusType ciaaI2CDevice_masterBus0 = {
-   ciaaI2CDevices_masterBus0Slaves,
-                     /* reference to the slaves on this bus */
-   2,                /* count of devices in this bus */
-   "/dev/i2c/0",     /* name of the driver */
-};
-#endif
-
-ciaaI2CDevices_busType ciaaI2CDevices_buses [] = {
+ciaaI2CDevices_busType ciaaI2CDevices_buses[] = {
    {
       .bus.master = {
          ciaaI2CDevices_masterBus0Slaves,
@@ -136,18 +145,19 @@ ciaaI2CDevices_busType ciaaI2CDevices_buses [] = {
    }
 };
 
-/** This structure list all I2C buses.
+/** \brief This structure refers to the list all I2C buses.
  **
- ** For each bus the following configuration parameter shall be provided:
+ ** This structure contains:
  **
- ** busType       -> can be CIAA_I2C_MASTER_BUS if this is a master or
- **                  CIAA_I2C_SLAVE_BUS if it is a salve bus.
- ** devDesc       -> pointer to the description of all devices on the bus.
+ ** buses         -> pointer to the array of busses availables.
+ ** count         -> count of buses described on the array.
  **
+ ** \remarks Do not rename this variable, will be passed during the initialization
+ **          of the ciaa I2C Device.
  **/
-ciaaI2CDevices_busesType ciaaI2CDevices_Cfg = {
+const ciaaI2CDevices_busesType ciaaI2CDevices_Cfg = {
    ciaaI2CDevices_buses,
-   2
+   1
 };
 
 /*==================[internal functions definition]==========================*/
