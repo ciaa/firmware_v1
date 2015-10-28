@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2015, ...
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,41 +31,21 @@
  *
  */
 
-/** \brief Short description of this file
- **
- ** Long description of this file
- **
- **/
-
-/** \addtogroup CIAA_Firmware CIAA Firmware
- ** @{ */
-/** \addtogroup Template Template to start a new module
- ** @{ */
-
 /*
  * Initials     Name
  * ---------------------------
- *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaak.h"
-/* TODO configuration dependent includes */
-#include "ciaaDevices.h"
-#include "ciaaSerialDevices.h"
-#include "ciaaBlockDevices.h"
 #include "ciaaDriverUart.h"
-#include "ciaaDriverFlash.h"
-#include "ciaaDriverAio.h"
-#include "ciaaDriverDio.h"
-
 #include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stdio.h"
+#include "os.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -79,48 +60,15 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-void ciaak_start(void)
+void ciaaDriverFlash_init(void)
 {
-   /* init stdlib */
-   /* ATTENTION: ciaaPOSIX_stdlib_init has to be done before to any call to
-    * ciaaPOSIX_malloc or ciaak_malloc */
-   ciaaPOSIX_stdlib_init();
 
-   /* init device manager */
-   ciaaDevices_init();
-
-   /* init devices types */
-   ciaaSerialDevices_init();
-   ciaaBlockDevices_init();
-
-   /* init drivers */
-   ciaaDriverUart_init();
-   ciaaDriverFlash_init();
-
-   /* ciaaDioDevices_init(); */
-   ciaaDriverDio_init();
-
-   ciaaDriverAio_init();
 }
 
-void *ciaak_malloc(size_t size)
-{
-   /* try to alloc memory */
-   void* ret = ciaaPOSIX_malloc(size);
+/*==================[interrupt handlers]=====================================*/
 
-   /* kernel memory shall not failed :( */
-   if (NULL == ret)
-   {
-      ciaaPOSIX_printf("Kernel out of memory :( ...\n");
-      while(1)
-      {
-         /* TODO perform an kernel panic or like */
-      }
-   }
-
-   return ret;
-}
-
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+

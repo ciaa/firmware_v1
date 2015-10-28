@@ -903,19 +903,33 @@ report:
 	@echo 'Before asking for support please search for similar issues in the archive of ciaa-firmware@googlegroups.com.'
 
 ###############################################################################
+# multicore generate rule
+mcore_generate:
+ifeq ($(CPUTYPE),lpc43xx)
+	@echo "*******************************************"
+	@echo "*** Generating Cortex-M0 application... ***"
+	@echo "*******************************************"
+	make ARCH=cortexM0 OUT_DIR=out/cortexM0 MCORE=1 generate
+	@echo "*******************************************"
+	@echo "*** Generating Cortex-M4 application... ***"
+	@echo "*******************************************"
+	make ARCH=cortexM4 OUT_DIR=out/cortexM4 MCORE=0 generate
+else
+	@echo '$(CPUTYPE) not supported for multicore.'
+endif
+
+###############################################################################
 # multicore rule
 mcore:
 ifeq ($(CPUTYPE),lpc43xx)
 	@echo "***************************************"
 	@echo "*** Making Cortex-M0 application... ***"
 	@echo "***************************************"
-	make ARCH=cortexM0 MCORE=1 clean_generate
-	make ARCH=cortexM0 TARGET_NAME=out/bin/app_m0
+	make ARCH=cortexM0 OUT_DIR=out/cortexM0
 	@echo "***************************************"
 	@echo "*** Making Cortex-M4 application... ***"
 	@echo "***************************************"
-	make ARCH=cortexM4 MCORE=0 KEEP_BIN=1 clean_generate
-	make ARCH=cortexM4 TARGET_NAME=out/bin/app_m4
+	make ARCH=cortexM4 OUT_DIR=out/cortexM4
 else
 	@echo '$(CPUTYPE) not supported for multicore.'
 endif
@@ -927,11 +941,27 @@ ifeq ($(CPUTYPE),lpc43xx)
 	@echo "********************************************"
 	@echo "*** Downloading Cortex-M4 application... ***"
 	@echo "********************************************"
-	make ARCH=cortexM4 TARGET_NAME=out/bin/app_m4 download
+	make ARCH=cortexM4 OUT_DIR=out/cortexM4 download
 	@echo "********************************************"
 	@echo "*** Downloading Cortex-M0 application... ***"
 	@echo "********************************************"
-	make ARCH=cortexM0 TARGET_NAME=out/bin/app_m0 download
+	make ARCH=cortexM0 OUT_DIR=out/cortexM0 download
+else
+	@echo '$(CPUTYPE) not supported for multicore.'
+endif
+
+###############################################################################
+# multicore clean rule
+mcore_clean:
+ifeq ($(CPUTYPE),lpc43xx)
+	@echo "********************************************"
+	@echo "*** Cleaning Cortex-M4 application... ***"
+	@echo "********************************************"
+	make ARCH=cortexM4 OUT_DIR=out/cortexM4 clean
+	@echo "********************************************"
+	@echo "*** Cleaning Cortex-M0 application... ***"
+	@echo "********************************************"
+	make ARCH=cortexM0 OUT_DIR=out/cortexM0 clean
 else
 	@echo '$(CPUTYPE) not supported for multicore.'
 endif
