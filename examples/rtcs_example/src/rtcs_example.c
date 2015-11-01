@@ -1,7 +1,8 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
+/* Copyright 2015,Diego Ezequiel Vommaro
+ * Copyright 2015, ACSE & CADIEEL
+ *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *    CADIEEL: http://www.cadieel.org.ar
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,7 +34,7 @@
  *
  */
 
-/** \brief Blinking_echo example source file
+/** \brief Real time control system example source file
  **
  ** This is a mini example of the CIAA Firmware.
  **
@@ -43,24 +44,19 @@
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Blinking Blinking_echo example source file
+/** \addtogroup RTCS RTCS example source file
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
- * PR           Pablo Ridolfi
- * JuCe         Juan Cecconi
- * GMuro        Gustavo Muro
+ * DeV          Diego Ezequiel Vommaro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20141019 v0.0.2   JuCe add printf in each task,
- *                        remove trailing spaces
- * 20140731 v0.0.1   PR   first functional version
+ * 20151101 v0.0.1 Dev  initial version
  */
 
 /*==================[inclusions]=============================================*/

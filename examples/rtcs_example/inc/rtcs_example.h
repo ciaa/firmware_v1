@@ -1,7 +1,8 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
+/* Copyright 2015,Diego Ezequiel Vommaro
+ * Copyright 2015, ACSE & CADIEEL
+ *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *    CADIEEL: http://www.cadieel.org.ar
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,9 +34,9 @@
  *
  */
 
-#ifndef _BLINKING_H_
-#define _BLINKING_H_
-/** \brief Blinking example header file
+#ifndef RTCS_EXAMPLE_H
+#define RTCS_EXAMPLE_H
+/** \brief real time control system example header file
  **
  ** This is a mini example of the CIAA Firmware
  **
@@ -45,19 +46,19 @@
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Blinking Blinking example header file
+/** \addtogroup RTCS RTCS example header file
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * DeV          Diego Ezequiel Vommaro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20151101 v0.0.1 DeV  initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -126,5 +127,5 @@ extern void SendControlEffort_6 (float *data, uint16_t num_elements);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _BLINKING_H_ */
+#endif /* #ifndef RTCS_EXAMPLE_H */
 
