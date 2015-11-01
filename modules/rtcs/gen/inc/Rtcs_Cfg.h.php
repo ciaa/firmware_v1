@@ -2,7 +2,8 @@
  * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
  ********************************************************/
 
-/* Copyright 2015, ACSE & CADIEEL & Diego Ezequiel Vommaro
+/* Copyright 2015, Diego Ezequiel Vommaro
+ * Copyright 2015, ACSE & CADIEEL
  *    ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  * All rights reserved.
@@ -37,129 +38,109 @@
  *
  */
 
-//#error this is a remember to remove the comment on the following line
-/*****************************************************************************
- * add your copyright notice
- * Copyright <year>, <your name>
- *
- * Please do not change the license on a single file, if you want to change it
- * discuss it with the development team.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
+#ifndef RTCS_CFG_H
+#define RTCS_CFG_H
 
-//#ifndef _OS_INTERNAL_ARCH_CFG_H_
-//#define _OS_INTERNAL_ARCH_CFG_H_
-
-//#error this is a remember to remove the comment on the following line
-/*****************************************************************************
- * update the tmparch directory on the \file doxygen comment with your
- * architecture
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
-/** \brief FreeOSEK Os Generated Internal Architecture Configuration Header File
+/** \brief RTCS Generated Configuration Implementation File
  **
- ** This file content the internal generated architecture dependent
- ** configuration of FreeOSEK.
- **
- ** \file tmparch/Os_Internal_Arch_Cfg.h
- ** \arch tmparch
+ ** \file Rtcs_Cfg.h
  **/
 
-/** \addtogroup FreeOSEK
+/** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup FreeOSEK_Os
- ** @{ */
-/** \addtogroup FreeOSEK_Os_Internal
+/** \addtogroup RTCS RTCS Implementatio
  ** @{ */
 
-//#error this is a remember to remove the comment on the following line
-/*****************************************************************************
- * add your name to the developers and create for you a nick with
- * 3 or 4 letters. Please do not use any given nick.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 /*
  * Initials     Name
  * ---------------------------
- * MaCe			 Mariano Cerdeiro
+ * DeV          Diego Ezequiel Vommaro
  */
 
-//#error this is a remember to remove the comment on the following line
-/*****************************************************************************
- * add a new version to this file, add the date, your initials and the main
- * changes, only main changes shall be listed here. A detailed message log
- * is saved in svn log and on the tracker system since every svn login message
- * shalle indicate the related tracker id.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * v0.1.0 20090526 MaCe	FreeOSEK architecture template file
+ * 20151031 v0.1.0 Dev  initial version
  */
 
 /*==================[inclusions]=============================================*/
 
-//#error this is a remember to remove the comment on the following line
-/*****************************************************************************
- * add any needed include, please take into account that normaly NO INCLUDE
- * shall be included here, but in case you can do it, but discuss the reason
- * with the project manager.
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
-
 /*==================[macros]=================================================*/
-//#error this is a remember to remove the comment on the following line
-/*****************************************************************************
- * Please define here all needed macros of your configuration that can
- * be configured or are used in Osek_Internal_Arch_Cfg.c.php
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 
 /*==================[typedef]================================================*/
-//#error this is a remember to remove the comment on the following line
-/*****************************************************************************
- * Please define here all needed types to be configured or used in
- * Osek_Internal_Arch_Cfg.c.php
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
-
-/** \brief Task Context Type */
-//#error Define the TaskContextType structure and remove this error message
-//typedef struct {
-//} TaskContextType;
-
-/** \brief Task Context Type */
-//typedef TaskContextType* TaskContextRefType;
 
 /*==================[external data declaration]==============================*/
-//#error this is a remember to remove the comment on the following line
-/*****************************************************************************
- * Please declare here all exported data defined
- * Osek_Internal_Arch_Cfg.c.php
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
 
 /*==================[external functions declaration]=========================*/
-//#error this is a remember to remove the comment on the following line
-/*****************************************************************************
- * Please declare here all exported functions defined
- * Osek_Internal_Arch_Cfg.c.php
- *
- * PLEASE REMOVE THIS COMMENT
- *****************************************************************************/
+<?php
+/* get controllers */
+$controllers = $config->getList("/RTCS","StateFeedback");
+?>
+<?php
+$count = 0;
+foreach ($controllers as $controller)
+{
+?>
+/** \brief User's function that should be called every <?=$config->getValue("/RTCS/" . $controller, "PERIOD")?>ms
+ **
+ ** Public function that executes the controller of the <?=$controller;?> system
+ **/
+void Rtcs_<?=$controller;?>_<?=$config->getValue("/RTCS/" . $controller, "PERIOD")?>ms (void);
 
-/** @} doxygen end group definition */
+<?php
+$count++;
+}
+?>
+<?php
+$count = 0;
+foreach ($controllers as $controller)
+{
+?>
+<?php
+$system_type = $config->getValue("/RTCS/" . $controller, "SYSTEM_TYPE");
+if ($system_type == "CONTROL_SYSTEM"): ?>
+<?php
+$subcount = 0;
+$subcount_max = $config->getValue("/RTCS/" . $controller, "X_SIZE");
+while ($subcount < $subcount_max)
+{
+?>
+/** \brief User's funtion that loads reference data into controller data structure
+ **
+ ** Input function that loads the controller reference data of the <?=$controller;?> system
+ **
+ ** \param[in] data pointer to float data to load into controller data structure
+ **/
+extern void Rtcs_InputRefX<?=$subcount + 1;?>_<?=$controller;?> (float *data);
+
+<?php
+$subcount++;
+}
+?>
+<?php endif ?>
+<?php
+$subcount = 0;
+$subcount_max = $config->getValue("/RTCS/" . $controller, "Y_SIZE");
+while ($subcount < $subcount_max)
+{
+?>
+/** \brief User's funtion that loads output data of system into controller data structure
+ **
+ ** Input function that loads the output data of the <?=$controller;?> system
+ **
+ ** \param[in] data pointer to float data to load into controller data structure
+ **/
+extern void Rtcs_InputY<?=$subcount + 1;?>_<?=$controller;?> (float *data);
+
+<?php
+$subcount++;
+}
+?>
+<?php
+$count++;
+}?>
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-//#endif /* #ifndef _OS_INTERNAL_ARCH_CFG_H_ */
+#endif /* #ifndef RTCS_CFG_H_ */
 

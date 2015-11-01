@@ -1,4 +1,5 @@
-/* Copyright 2015, ACSE & CADIEEL & Diego Ezequiel Vommaro
+/* Copyright 2015, Diego Ezequiel Vommaro
+ * Copyright 2015, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  * All rights reserved.
@@ -60,6 +61,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_string.h"
 #include "ciaaLibs_Matrix.h"
 
 /*==================[cplusplus]==============================================*/
@@ -174,7 +176,7 @@ extern "C" {
  ** \param[in] dst pointer to ciaa float matrix
  **/
 #define Rtcs_Ext_MatrixCpy_float(src, dst)      \
-   ciaaLibs_MatrixCpy_float((src), (dst))
+   ciaaPOSIX_memcpy((dst)->data, (src)->data, sizeof(float) * ((src)->n_rows * (src)->n_columns))
 
 /** \brief Macro to Concatenate float Matrices
  **
@@ -254,7 +256,7 @@ extern "C" {
 /*==================[typedef]================================================*/
 /** \brief Definition of the Rtcs matrix type */
 typedef ciaaLibs_matrix_t Rtcs_ext_matrix_t;
-typedef data_type Rtcs_ext_data_type;
+typedef ciaaLibs_matrix_data_t Rtcs_ext_data_type;
 
 /*==================[external data declaration]==============================*/
 

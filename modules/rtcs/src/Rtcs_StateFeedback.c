@@ -1,4 +1,5 @@
-/* Copyright 2015, ACSE & CADIEEL & Diego Ezequiel Vommaro
+/* Copyright 2015, Diego Ezequiel Vommaro
+ * Copyright 2015, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  * All rights reserved.
@@ -162,13 +163,13 @@ extern void Rtcs_StateFeedbackWorstRun(void *data)
    statefeedback_data->ControllerSendFunc(statefeedback_data->u, statefeedback_data->u_size);
 } /* end Rtcs_StateFeedbackWorstRun */
 
-extern void RegulatorControlEffort (Rtcs_statefeedback_data_t *data)
+extern void Rtcs_RegulatorControlEffort (Rtcs_statefeedback_data_t *data)
 {
    /* Calculating of control efforts using K matrix with opposite sign*/
    Rtcs_Ext_MatrixMul_float(data->k_matrix, data->x_vector, data->u_vector);
 }
 
-extern void ControlSystemEffort (Rtcs_statefeedback_data_t *data)
+extern void Rtcs_ControlSystemEffort (Rtcs_statefeedback_data_t *data)
 {
    /* Calculating of the difference betwen the desired state and the actual state */
    Rtcs_Ext_MatrixSub_float(data->r_vector, data->x_vector, data->e_vector);
@@ -177,14 +178,14 @@ extern void ControlSystemEffort (Rtcs_statefeedback_data_t *data)
    Rtcs_Ext_MatrixMul_float(data->k_matrix, data->e_vector, data->u_vector);
 }
 
-extern void FullObserver (Rtcs_statefeedback_data_t *data)
+extern void Rtcs_FullObserver (Rtcs_statefeedback_data_t *data)
 {
    Rtcs_Ext_MatrixMul_float(data->mf_obsvr_matrix, data->x_vector, data->x_vector);
    Rtcs_Ext_MatrixMul_float(data->mt_obsvr_matrix, data->uo_vector, data->xo_vector);
    Rtcs_Ext_MatrixAdd_float(data->x_vector, data->xo_vector, data->x_vector);
 }
 
-extern void ReducedObserver (Rtcs_statefeedback_data_t *data)
+extern void Rtcs_ReducedObserver (Rtcs_statefeedback_data_t *data)
 {
    Rtcs_Ext_MatrixMul_float(data->mf_obsvr_matrix, data->xo_vector, data->xo_vector);
    Rtcs_Ext_MatrixMul_float(data->mt_obsvr_matrix, data->uo_vector, data->xo_aux_vector);
@@ -194,7 +195,7 @@ extern void ReducedObserver (Rtcs_statefeedback_data_t *data)
    Rtcs_Ext_MatrixCat_float(data->y_vector, data->xo_vector, data->x_vector);
 }
 
-extern void NoneObserver (Rtcs_statefeedback_data_t *data)
+extern void Rtcs_NoneObserver (Rtcs_statefeedback_data_t *data)
 {
    Rtcs_Ext_MatrixCpy_float(data->y_vector, data->x_vector);
 }

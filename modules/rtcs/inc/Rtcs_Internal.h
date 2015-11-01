@@ -1,4 +1,5 @@
-/* Copyright 2015, ACSE & CADIEEL & Diego Ezequiel Vommaro
+/* Copyright 2015, Diego Ezequiel Vommaro
+ * Copyright 2015, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  * All rights reserved.
@@ -72,10 +73,10 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 /** \brief Tool State type */
-typedef enum {UNINITIALIZED, ACTIVE, INACTIVE} state_t;
+typedef enum {UNINITIALIZED, ACTIVE, INACTIVE} Rtcs_state_t;
 
 /*==================[external data declaration]==============================*/
-extern state_t Rtcs_state;
+extern Rtcs_state_t Rtcs_state;
 
 /*==================[external functions declaration]=========================*/
 

@@ -1,16 +1,5 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
- *
- *    or
- *
- * Copyright 2014, Your Name <youremail@domain.com>
- * All rights reserved.
- *
- *    or
- *
- * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
+/* Copyright 2015, Diego Ezequiel Vommaro
+ * Copyright 2015, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  * All rights reserved.
@@ -167,7 +156,7 @@ extern void Rtcs_StateFeedbackWorstRun(void *data);
  **
  ** \param[in] data structure of the controller
  **/
-extern void RegulatorControlEffort (Rtcs_statefeedback_data_t *data);
+extern void Rtcs_RegulatorControlEffort (Rtcs_statefeedback_data_t *data);
 
 /** \brief Control efforts calculation for servo or full system
  **
@@ -175,7 +164,7 @@ extern void RegulatorControlEffort (Rtcs_statefeedback_data_t *data);
  **
  ** \param[in] data structure of the controller
  **/
-extern void ControlSystemEffort (Rtcs_statefeedback_data_t *data);
+extern void Rtcs_ControlSystemEffort (Rtcs_statefeedback_data_t *data);
 
 /** \brief Full Order State Observer
  **
@@ -183,7 +172,7 @@ extern void ControlSystemEffort (Rtcs_statefeedback_data_t *data);
  **
  ** \param[in] data structure of the controller
  **/
-extern void FullObserver (Rtcs_statefeedback_data_t *data);
+extern void Rtcs_FullObserver (Rtcs_statefeedback_data_t *data);
 
 /** \brief Reduced Order State Observer
  **
@@ -191,7 +180,7 @@ extern void FullObserver (Rtcs_statefeedback_data_t *data);
  **
  ** \param[in] data structure of the controller
  **/
-extern void ReducedObserver (Rtcs_statefeedback_data_t *data);
+extern void Rtcs_ReducedObserver (Rtcs_statefeedback_data_t *data);
 
 /** \brief None observer
  **
@@ -199,7 +188,7 @@ extern void ReducedObserver (Rtcs_statefeedback_data_t *data);
  **
  ** \param[in] data structure of the controller
  **/
-extern void NoneObserver (Rtcs_statefeedback_data_t *data);
+extern void Rtcs_NoneObserver (Rtcs_statefeedback_data_t *data);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

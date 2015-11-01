@@ -44,8 +44,7 @@ INC_FILES			   += $($(project)_PATH)$(DS)inc
 # library source files
 SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
-OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil  \
-			      $($(project)_PATH)$(DS)etc$(DS)rtcs.oilx
+OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
 
 # Modules needed for this example
 MODS ?= modules$(DS)posix           \
@@ -53,7 +52,6 @@ MODS ?= modules$(DS)posix           \
 	     modules$(DS)config          \
 	     modules$(DS)bsp             \
 	     modules$(DS)platforms       \
-	     modules$(DS)rtcs		 \
 	     modules$(DS)rtos            \
 	     modules$(DS)libs
 

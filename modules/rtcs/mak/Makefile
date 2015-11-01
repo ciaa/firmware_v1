@@ -1,6 +1,7 @@
 ###############################################################################
 #
-# Copyright 2015, ACSE & CADIEEL & Diego Ezequiel Vommaro
+# Copyright 2015, Diego Ezequiel Vommaro
+# Copyright 2015, ACSE & CADIEEL
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
 # All rights reserved.

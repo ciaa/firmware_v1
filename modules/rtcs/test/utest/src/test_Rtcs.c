@@ -1,4 +1,7 @@
 /* Copyright 2015, Diego Ezequiel Vommaro
+ * Copyright 2014, ACSE & CADIEEL
+ *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *      CADIEEL: http://www.cadieel.org.ar
  *
  * This file is part of CIAA Firmware.
  *
@@ -67,7 +70,7 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-state_t Rtcs_state = UNINITIALIZED;
+Rtcs_state_t Rtcs_state = UNINITIALIZED;
 Rtcs_generic_controller_t *Rtcs_controllers_list[CONTROLLERS_LIST_SIZE];
 Rtcs_generic_controller_t Rtcs_controllers_data[CONTROLLERS_LIST_SIZE];
 

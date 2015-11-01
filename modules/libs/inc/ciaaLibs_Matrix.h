@@ -1,4 +1,5 @@
-/* Copyright 2015, ACSE & CADIEEL & Diego Ezequiel Vommaro
+/* Copyright 2015, Diego Ezequiel Vommaro
+ * Copyright 2015, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  * All rights reserved.
@@ -77,14 +78,14 @@ typedef enum
    INT_32,
    INT_16,
    INT_8
-}data_type;
+}ciaaLibs_matrix_data_t;
 
 /** \brief Matrix data type */
 typedef struct
 {
    uint16_t n_rows;
    uint16_t n_columns;
-   data_type type;
+   ciaaLibs_matrix_data_t type;
    void *data;
 }ciaaLibs_matrix_t;
 
@@ -101,16 +102,16 @@ typedef struct
  ** \param[in] type type of data of the matrix
  ** \param[in] data pointer to matrix data
  **/
-extern void ciaaLibs_MatrixInit(ciaaLibs_matrix_t *mat, uint16_t n_rows, uint16_t n_columns, data_type type, void *data);
+extern void ciaaLibs_MatrixInit(ciaaLibs_matrix_t *mat, uint16_t n_rows, uint16_t n_columns, ciaaLibs_matrix_data_t type, void *data);
 
 /** \brief Matrix Copy
  **
  ** Copies a matrix to another
  **
- ** \param[in] mat_src Source Matrix
- ** \param[in] mat_dst Destination Matrix
+ ** \param[in] src Source Matrix
+ ** \param[in] dst Destination Matrix
  **/
-extern void ciaaLibs_MatrixCpy(ciaaLibs_matrix_t *mat_src, ciaaLibs_matrix_t *mat_dst);
+extern void ciaaLibs_MatrixCpy(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
 
 /** \brief Matrix Concatenated
  **
@@ -119,6 +120,8 @@ extern void ciaaLibs_MatrixCpy(ciaaLibs_matrix_t *mat_src, ciaaLibs_matrix_t *ma
  ** \param[in] src1 Source Matrix
  ** \param[in] src2 Source Matrix
  ** \param[in] dst Destination Matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix excepting "src1" and "src2" matrices
  **/
 extern void ciaaLibs_MatrixCat(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 
@@ -129,6 +132,8 @@ extern void ciaaLibs_MatrixCat(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2,
  ** \param[in] src1 pointer to the ciaa generic matrix
  ** \param[in] src2 pointer to the ciaa generic matrix
  ** \param[in] dst pointer to the ciaa generic matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix inlcuding "src1" and "src2" matrices
  **/
 extern void ciaaLibs_MatrixAdd(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 
@@ -139,6 +144,8 @@ extern void ciaaLibs_MatrixAdd(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2,
  ** \param[in] src1 pointer to the ciaa generic matrix
  ** \param[in] src2 pointer to the ciaa generic matrix
  ** \param[in] dst pointer to the ciaa generic matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix including "src1" or "src2" matrices
  **/
 extern void ciaaLibs_MatrixSub(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 
@@ -149,6 +156,8 @@ extern void ciaaLibs_MatrixSub(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2,
  ** \param[in] src1 pointer to the ciaa generic matrix
  ** \param[in] src2 pointer to the ciaa generic matrix
  ** \param[in] dst pointer to the ciaa generic matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix including "src1" or "src2" matrices
  **/
 extern void ciaaLibs_MatrixMul(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 
@@ -159,6 +168,8 @@ extern void ciaaLibs_MatrixMul(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2,
  ** \param[in] src1 pointer to the ciaa generic matrix
  ** \param[in] src2 pointer to void (scalar operand)
  ** \param[in] dst pointer to the ciaa generic matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix including "src1" matrix
  **/
 extern void ciaaLibs_MatrixByScalarMul(ciaaLibs_matrix_t *src1, void *src2, ciaaLibs_matrix_t *dst);
 
@@ -168,6 +179,8 @@ extern void ciaaLibs_MatrixByScalarMul(ciaaLibs_matrix_t *src1, void *src2, ciaa
  **
  ** \param[in] src pointer to the ciaa generic matrix
  ** \param[in] dst pointer to the ciaa generic matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix including "src" matrix
  **/
 extern void ciaaLibs_MatrixInv(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
 
@@ -177,6 +190,8 @@ extern void ciaaLibs_MatrixInv(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
  **
  ** \param[in] src pointer to the ciaa generic matrix
  ** \param[in] dst pointer to the ciaa generic matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix including "src" matrix if It's square
  **/
 extern void ciaaLibs_MatrixTran(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
 
@@ -187,7 +202,7 @@ extern void ciaaLibs_MatrixTran(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
  ** \param[in] mat_src Source Matrix
  ** \param[in] mat_dst Destination Matrix
  **/
-extern void ciaaLibs_MatrixCpy_float(ciaaLibs_matrix_t *mat_src, ciaaLibs_matrix_t *mat_dst);
+extern void ciaaLibs_MatrixCpy_float(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
 
 /** \brief Float Matrix Concatenated
  **
@@ -196,9 +211,11 @@ extern void ciaaLibs_MatrixCpy_float(ciaaLibs_matrix_t *mat_src, ciaaLibs_matrix
  ** \param[in] src1 Source Matrix
  ** \param[in] src2 Source Matrix
  ** \param[in] dst Destination Matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix excepting "src1" or "src2" matrices
  **/
-
 extern void ciaaLibs_MatrixCat_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
+
 /** \brief Float Matrices Addition
  **
  ** Adds two float matrices and stores the result in a third matrix
@@ -206,6 +223,8 @@ extern void ciaaLibs_MatrixCat_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t 
  ** \param[in] src1 pointer to the ciaa float matrix
  ** \param[in] src2 pointer to the ciaa float matrix
  ** \param[in] dst pointer to the ciaa float matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix including "src1" or "src2" matrices
  **/
 extern void ciaaLibs_MatrixAdd_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 
@@ -216,6 +235,8 @@ extern void ciaaLibs_MatrixAdd_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t 
  ** \param[in] src1 pointer to the ciaa float matrix
  ** \param[in] src2 pointer to the ciaa float matrix
  ** \param[in] dst pointer to the ciaa float matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix inlcuding "src1" or "src2" matrices
  **/
 extern void ciaaLibs_MatrixSub_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 
@@ -226,6 +247,8 @@ extern void ciaaLibs_MatrixSub_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t 
  ** \param[in] src1 pointer to the ciaa float matrix
  ** \param[in] src2 pointer to the ciaa float matrix
  ** \param[in] dst pointer to the ciaa float matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix including "src1" or "src2" matrices
  **/
 extern void ciaaLibs_MatrixMul_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst);
 
@@ -236,6 +259,8 @@ extern void ciaaLibs_MatrixMul_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t 
  ** \param[in] src1 pointer to the ciaa generic matrix
  ** \param[in] src2 pointer to float (scalar operand)
  ** \param[in] dst pointer to the ciaa generic matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix including "src1" matrix
  **/
 extern void ciaaLibs_MatrixByScalarMul_float(ciaaLibs_matrix_t *src1, float *src2, ciaaLibs_matrix_t *dst);
 
@@ -245,6 +270,8 @@ extern void ciaaLibs_MatrixByScalarMul_float(ciaaLibs_matrix_t *src1, float *src
  **
  ** \param[in] src pointer to the ciaa float matrix
  ** \param[in] dst pointer to the ciaa float matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix including "src" matrix
  **/
 extern void ciaaLibs_MatrixInv_float(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
 
@@ -254,6 +281,8 @@ extern void ciaaLibs_MatrixInv_float(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *
  **
  ** \param[in] src pointer to the ciaa float matrix
  ** \param[in] dst pointer to the ciaa float matrix
+ **
+ ** \remarks The input parameter "dst" can be any matrix including "src" if It's square
  **/
 extern void ciaaLibs_MatrixTran_float(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst);
 

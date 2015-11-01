@@ -1,8 +1,7 @@
 ###############################################################################
 #
-# Copyright 2015, Diego Ezequiel Vommaro
-# Copyright 2015, ACSE & CADIEEL
-#    ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+# Copyright 2014, ACSE & CADIEEL
+#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
 #
 # This file is part of CIAA Firmware.
@@ -34,13 +33,27 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# unit test
-# unit tests include files
-rtcs_TST_INC_PATH = $(rtcs_PATH)$(DS)test$(DS)utest$(DS)inc 	 \
-                      modules$(DS)libs$(DS)inc                  \
-                      modules$(DS)posix$(DS)inc
+# Project Name: used for Project Path and OSEK configuration file
+project 			 	 = rtcs_example
+# Project path
+$(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
+# source path
+$(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
+# include path
+INC_FILES			   += $($(project)_PATH)$(DS)inc
+# library source files
+SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
+# configuration for OSEK-OS
+OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil   \
+                     $($(project)_PATH)$(DS)etc$(DS)$(project).oilx
 
-# unit tests dependencies
-rtcs_TST_MOD      =
-# extra mocks
-rtcs_TST_MOCKS    = ciaaLibs_Matrix.c ciaaPOSIX_string.c
+# Modules needed for this example
+MODS ?= modules$(DS)posix           \
+	     modules$(DS)ciaak           \
+	     modules$(DS)config          \
+	     modules$(DS)bsp             \
+	     modules$(DS)platforms       \
+	     modules$(DS)rtcs		 \
+	     modules$(DS)rtos            \
+	     modules$(DS)libs
+

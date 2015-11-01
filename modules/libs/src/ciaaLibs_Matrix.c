@@ -1,4 +1,5 @@
-/* Copyright 2015, ACSE & CADIEEL & Diego Ezequiel Vommaro
+/* Copyright 2015, Diego Ezequiel Vommaro
+ * Copyright 2015, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  * All rights reserved.
@@ -58,6 +59,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_string.h"
 #include "ciaaLibs_Matrix.h"
 
 /*==================[macros and definitions]=================================*/
@@ -71,7 +73,7 @@
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-extern void ciaaLibs_MatrixInit(ciaaLibs_matrix_t *mat, uint16_t n_rows, uint16_t n_columns, data_type type, void *data)
+extern void ciaaLibs_MatrixInit(ciaaLibs_matrix_t *mat, uint16_t n_rows, uint16_t n_columns, ciaaLibs_matrix_data_t type, void *data)
 {
    /* Load number of rows */
    mat->n_rows = n_rows;
@@ -118,42 +120,16 @@ extern void ciaaLibs_MatrixTran(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
 {
 }
 
-extern void ciaaLibs_MatrixCpy_float(ciaaLibs_matrix_t *src, ciaaLibs_matrix_t *dst)
-{
-   float *src_ptr = src->data;
-   float *dst_ptr = dst->data;
-   uint32_t num_elements = src->n_rows * src->n_columns;
-
-   /* matrix copy */
-   while(num_elements > 0u)
-   {
-      (*dst_ptr++) = (*src_ptr++);
-      num_elements--;
-   }
-}
-
 extern void ciaaLibs_MatrixCat_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
 {
-   float *src1_ptr = src1->data;
-   float *src2_ptr = src2->data;
-   float *dst_ptr = dst->data;
-   uint32_t num_elements = src1->n_rows * src1->n_columns;
+   uint32_t num_elements = sizeof(float) * src1->n_rows * src1->n_columns;
+   uint32_t num_elements_2 = sizeof(float) * src2->n_rows * src2->n_columns;
 
-   /* Loop that copies the elements from first source matrix to target matrix */
-   while(num_elements > 0u)
-   {
-      (*dst_ptr++) = (*src1_ptr++);
-      num_elements--;
-   }
+   /* Copied of data from first matrix to destination matrix */
+   ciaaPOSIX_memcpy(dst->data, src1->data, num_elements);
 
-   num_elements = src2->n_rows * src2->n_columns;
-
-   /* Loop that copies the elements from second source matrix to target matrix*/
-    while(num_elements > 0u)
-   {
-      (*dst_ptr++) = (*src2_ptr++);
-      num_elements--;
-   }
+   /* Copied of data from second matrix to destination matrix*/
+   ciaaPOSIX_memcpy(dst->data + num_elements, src2->data, num_elements_2);
 }
 
 extern void ciaaLibs_MatrixAdd_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)

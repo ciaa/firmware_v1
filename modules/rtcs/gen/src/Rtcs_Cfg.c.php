@@ -2,8 +2,8 @@
  * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
  ********************************************************/
 
-/* Copyright 2008, 2009 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
+/* Copyright 2015, Diego Ezequiel Vommaro
+ * Copyright 2015, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
  *
@@ -50,18 +50,27 @@
 /*
  * Initials     Name
  * ---------------------------
- * DeV         Diego Ezequiel Vommaro
+ * DeV          Diego Ezequiel Vommaro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150727 v0.1.0 DeV  initial version
+ * 20151031 v0.1.0 DeV  initial version
  */
 
 /*==================[inclusions]=============================================*/
 #include "Rtcs_Internal.h"
-#include "Rtcs_StateFeedback.h"
+<?php
+$pdefs = $config->getList("/RTCS","INCLUDE_FILE");
+$count = 1;
+foreach ($pdefs as $pdef)
+{
+   print "#include \"" . $pdef . "\"\n";
+   $count++;
+}
+
+?>
 
 /*==================[macros and definitions]=================================*/
 
@@ -77,25 +86,70 @@
 
 /*==================[external functions definition]==========================*/
 <?php
-/* get tasks */
-$pdefs = $config->getList("/TEMPLATE","PDEF");
+/* get controllers */
+$controllers = $config->getList("/RTCS","StateFeedback");
 ?>
-/* there are <?=count($pdefs);?> pdefs */
 <?php
-
-$count = 1;
-foreach ($pdefs as $pdef)
+$count = 0;
+foreach ($controllers as $controller)
 {
 ?>
-   /* the pdef <?=$count;?> contains named <?=$pdef;?>: */
-<?php
-   print "        /* PARAM1: " . $config->getValue("/TEMPLATE/" . $pdef, "PARAM1") . " - PARAM2: " . $config->getValue("/TEMPLATE/" . $pdef, "PARAM2") . " */\n";
-   $count++;
+/* Public function that executes the controller of the <?=$controller;?> system */
+extern void Rtcs_<?=$controller;?>_<?=$config->getValue("/RTCS/" . $controller, "PERIOD")?>ms (void)
+{
+   Rtcs_StateFeedbackRun(Rtcs_controllers_list[<?=$count;?>]->data);
 }
 
+<?php
+$count++;
+}
 ?>
+<?php
+$count = 0;
+foreach ($controllers as $controller)
+{
+?>
+<?php
+$system_type = $config->getValue("/RTCS/" . $controller, "SYSTEM_TYPE");
+if ($system_type == "CONTROL_SYSTEM"): ?>
+<?php
+$subcount = 0;
+$subcount_max = $config->getValue("/RTCS/" . $controller, "X_SIZE");
+while ($subcount < $subcount_max)
+{
+?>
+/* Input function that loads the controller reference data of the <?=$controller;?> system */
+extern void Rtcs_InputRefX<?=$subcount + 1;?>_<?=$controller;?> (float *data)
+{
+   Rtcs_statefeedback_data_t *controller_ptr = Rtcs_controllers_list[<?=$count;?>]->data;
+   controller_ptr->r[<?=$subcount;?>] = *data;
+}
 
+<?php
+$subcount++;
+}
+?>
+<?php endif ?>
+<?php
+$subcount = 0;
+$subcount_max = $config->getValue("/RTCS/" . $controller, "Y_SIZE");
+while ($subcount < $subcount_max)
+{
+?>
+/* Input function that loads the output data of the <?=$controller;?> system */
+extern void Rtcs_InputY<?=$subcount + 1;?>_<?=$controller;?> (float *data)
+{
+   Rtcs_statefeedback_data_t *controller_ptr = Rtcs_controllers_list[<?=$count;?>]->data;
+   controller_ptr->y[<?=$subcount;?>] = *data;
+}
+
+<?php
+$subcount++;
+}
+?>
+<?php
+$count++;
+}?>
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

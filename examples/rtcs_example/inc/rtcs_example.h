@@ -1,8 +1,7 @@
-/* Copyright 2015,Diego Ezequiel Vommaro
- * Copyright 2015, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
+/* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
+ * Copyright 2014, Gustavo Muro
  *
  * This file is part of CIAA Firmware.
  *
@@ -34,81 +33,98 @@
  *
  */
 
-#ifndef RTCS_H
-#define RTCS_H
-/** \brief Real-Time Control System Public Interface Header File
+#ifndef _BLINKING_H_
+#define _BLINKING_H_
+/** \brief Blinking example header file
  **
- ** Real-Time Control System Public Interface Header File
+ ** This is a mini example of the CIAA Firmware
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup RTCS RTCS Implementation
+/** \addtogroup Examples CIAA Firmware Examples
+ ** @{ */
+/** \addtogroup Blinking Blinking example header file
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- * DeV          Diego Ezequiel Vommaro
+ *
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150722 v0.0.1 DeV  initial version
+ * yyyymmdd v0.0.1 initials initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "Rtcs_Cfg.h"
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*==================[macros]=================================================*/
-/** \brief Correct state macro */
-#define RTCS_STATE_OK   0
-
-/** \brief Incorrect state macro */
-#define RTCS_STATE_ERROR   -1
 
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief Real-Time Control System initialization
+/** \brief Sending of the control efforts to the actuators
  **
- ** Performs the initialization of the Rtcs tool
+ ** Sends control effort to the actuators.
  **
- ** \return RTCS_STATE_OK if ok, or RTCS_STATE_ERROR if error occurs
+ ** \param[in] data pointer to float data
+ ** \param[in] num_elements Size of float data vector
  **/
-extern int8_t Rtcs_Init(void);
+extern void SendControlEffort_1 (float *data, uint16_t num_elements);
 
-/** \brief Real-Time Control System boot
+/** \brief Sending of the control efforts to the actuators
  **
- ** Starts the Rtcs tool
+ ** Sends control effort to the actuators.
  **
- ** \return RTCS_STATE_OK if ok, or RTCS_STATE_ERROR if error occurs
+ ** \param[in] data pointer to float data
+ ** \param[in] num_elements Size of float data vector
  **/
-extern int8_t Rtcs_Start(void);
+extern void SendControlEffort_2 (float *data, uint16_t num_elements);
 
-/** \brief Real-Time Control System halt
+/** \brief Sending of the control efforts to the actuators
  **
- ** Stops the Rtcs tool
+ ** Sends control effort to the actuators.
  **
- ** \return RTCS_STATE_OK if ok, or RTCS_STATE_ERROR if error occurs
+ ** \param[in] data pointer to float data
+ ** \param[in] num_elements Size of float data vector
  **/
-extern int8_t Rtcs_Stop(void);
+extern void SendControlEffort_3 (float *data, uint16_t num_elements);
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
+/** \brief Sending of the control efforts to the actuators
+ **
+ ** Sends control effort to the actuators.
+ **
+ ** \param[in] data pointer to float data
+ ** \param[in] num_elements Size of float data vector
+ **/
+extern void SendControlEffort_4 (float *data, uint16_t num_elements);
+
+/** \brief Sending of the control efforts to the actuators
+ **
+ ** Sends control effort to the actuators.
+ **
+ ** \param[in] data pointer to float data
+ ** \param[in] num_elements Size of float data vector
+ **/
+extern void SendControlEffort_5 (float *data, uint16_t num_elements);
+
+/** \brief Sending of the control efforts to the actuators
+ **
+ ** Sends control effort to the actuators.
+ **
+ ** \param[in] data pointer to float data
+ ** \param[in] num_elements Size of float data vector
+ **/
+extern void SendControlEffort_6 (float *data, uint16_t num_elements);
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef RTCS_H */
+#endif /* #ifndef _BLINKING_H_ */
 

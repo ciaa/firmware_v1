@@ -1,0 +1,93 @@
+TEMPLATE TEMPLATE {
+   PDEF MyName1 {
+      PARAM1 = "foo";
+      PARAM2 = 300;
+   }
+
+   PDEF MyName2 {
+      PARAM1 = "foo";
+      PARAM2 = 300;
+   }
+}
+
+RTCS RTCS {
+
+   INCLUDE_FILE = Rtcs_StateFeedback.h;
+   INCLUDE_FILE = rtcs_example.h;
+
+   StateFeedback system_1 {
+      SYSTEM_TYPE = CONTROL_SYSTEM;
+      OBSERVER_TYPE = NONE;
+      PERIOD = 5;
+      X_SIZE = 2;
+      U_SIZE = 1;
+      Y_SIZE = 2;
+      K_MATRIX = 1, 2;
+      SEND_FUNCTION = SendControlEffort_1;
+   }
+
+   StateFeedback system_2 {
+      SYSTEM_TYPE = CONTROL_SYSTEM;
+      OBSERVER_TYPE = FULL;
+      PERIOD = 10;
+      X_SIZE = 3;
+      U_SIZE = 1;
+      Y_SIZE = 1;
+      K_MATRIX = 3.7366, -19.5339, 0.5943;
+      FUND_MATRIX = 0.7916, 0.0009, 0, -9.33, 0.9931, 0.099, 29.6135, -0.3902, 0.9861;
+      TRAN_MATRIX = 0, 0.2084, 0.0001, 9.3317, 0.0199, -29.6135;
+      SEND_FUNCTION = SendControlEffort_2;
+   }
+
+   StateFeedback system_3 {
+      SYSTEM_TYPE = CONTROL_SYSTEM;
+      OBSERVER_TYPE = REDUCED;
+      PERIOD = 15;
+      X_SIZE = 3;
+      U_SIZE = 1;
+      Y_SIZE = 1;
+      K_MATRIX = 3.7366, -19.5339, 0.5943;
+      L_MATRIX = 67.886, -23.3302;
+      FUND_MATRIX = 0.9324, 0.0095, -0.3694, 0.9862;
+      TRAN_MATRIX = -4.8074, 0.0001, -24.7561, 0.0199;
+      SEND_FUNCTION = SendControlEffort_3;
+   }
+
+   StateFeedback system_4 {
+      SYSTEM_TYPE = REGULATOR;
+      OBSERVER_TYPE = NONE;
+      PERIOD = 20;
+      X_SIZE = 3;
+      U_SIZE = 1;
+      Y_SIZE = 3;
+      K_MATRIX = 3.7366, -19.5339, 0.5943;
+      SEND_FUNCTION = SendControlEffort_4;
+   }
+
+   StateFeedback system_5 {
+      SYSTEM_TYPE = REGULATOR;
+      OBSERVER_TYPE = FULL;
+      PERIOD = 25;
+      X_SIZE = 3;
+      U_SIZE = 1;
+      Y_SIZE = 1;
+      K_MATRIX = 3.7366, -19.5339, 0.5943;
+      FUND_MATRIX = 0.7916, 0.0009, 0, -9.33, 0.9931, 0.099, 29.6135, -0.3902, 0.9861;
+      TRAN_MATRIX = 0, 0.2084, 0.0001, 9.3317, 0.0199, -29.6135;
+      SEND_FUNCTION = SendControlEffort_2;
+   }
+
+   StateFeedback system_6 {
+      SYSTEM_TYPE = REGULATOR;
+      OBSERVER_TYPE = REDUCED;
+      PERIOD = 30;
+      X_SIZE = 3;
+      U_SIZE = 1;
+      Y_SIZE = 1;
+      K_MATRIX = 3.7366, -19.5339, 0.5943;
+      L_MATRIX = 67.886, -23.3302;
+      FUND_MATRIX = 0.9324, 0.0095, -0.3694, 0.9862;
+      TRAN_MATRIX = -4.8074, 0.0001, -24.7561, 0.0199;
+      SEND_FUNCTION = SendControlEffort_3;
+   }
+}
