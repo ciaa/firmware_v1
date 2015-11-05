@@ -80,6 +80,20 @@
  */
 static int32_t fd_out;
 
+/** \brief Fundamental matrix data of an electric plant
+ **
+ ** RLC circuit
+ **/
+static float matrix_fund_data[] = { 0.8625, 258.9422,
+                                   -0.0009,   0.6748 };
+
+/** \brief Transition matrix data of an electric plant
+ **
+ ** RLC circuit
+ **/
+static float matrix_tran_data[] = { 0.1375,
+                                    0.0009 };
+
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -149,7 +163,10 @@ TASK(InitTask)
     *  - for the first time after 350 ticks (350 ms)
     *  - and then every 250 ticks (250 ms)
     */
-   SetRelAlarm(ActivatePeriodicTask, 350, 250);
+   //SetRelAlarm(ActivatePeriodicTask, 350, 250);
+
+   /* Simulation of an electric plant */
+
 
    /* terminate task */
    TerminateTask();
