@@ -209,10 +209,10 @@ static void ciaaLibs_MatrixCat_float_stub (ciaaLibs_matrix_t *src1, ciaaLibs_mat
    uint32_t num_elements_2 = sizeof(float) * src2->n_rows * src2->n_columns;
 
    /* Copied of data from first matrix to destination matrix */
-   ciaaPOSIX_memcpy(dst->data, src1->data, num_elements);
+   ciaaPOSIX_memcpy((void *) dst->data, (void *) src1->data, num_elements);
 
    /* Copied of data from second matrix to destination matrix*/
-   ciaaPOSIX_memcpy(dst->data + num_elements, src2->data, num_elements_2);
+   ciaaPOSIX_memcpy(((void *) dst->data) + num_elements, (void *) src2->data, num_elements_2);
 }
 
 /*==================[external functions definition]==========================*/
@@ -539,8 +539,8 @@ void test_Rtcs_StateFeedbackRun_02(void)
  */
 void test_Rtcs_StateFeedbackRun_03(void)
 {
-   float expected_xo_vector[] = {281, 281};
-   float expected_xo_aux_vector[] = {51, 51};
+   float expected_xo_vector[] = {230, 230};
+   float expected_xo_aux_vector[] = {281, 281};
    float expected_x_vector[] = {14, 281, 281};
    float expected_e_vector[] = {-14, -281, -281};
    float expected_u_vector[] = {-528};

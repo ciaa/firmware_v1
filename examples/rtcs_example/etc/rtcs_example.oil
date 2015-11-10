@@ -61,7 +61,7 @@ OSEK OSEK {
 
    APPMODE = AppMode1;
 
-   TASK InitTask {
+   TASK MainTask {
       PRIORITY = 1;
       ACTIVATION = 1;
       AUTOSTART = TRUE {
@@ -73,30 +73,4 @@ OSEK OSEK {
       RESOURCE = POSIXR;
       EVENT = POSIXE;
    }
-
-   TASK PeriodicTask {
-      PRIORITY = 2;
-      ACTIVATION = 1;
-      STACK = 512;
-      TYPE = EXTENDED;
-      SCHEDULE = NON;
-      RESOURCE = POSIXR;
-      EVENT = POSIXE;
-   }
-
-   ALARM ActivatePeriodicTask {
-      COUNTER = HardwareCounter;
-      ACTION = ACTIVATETASK {
-         TASK = PeriodicTask;
-      }
-   }
-
-   COUNTER HardwareCounter {
-      MAXALLOWEDVALUE = 1000;
-      TICKSPERBASE = 1;
-      MINCYCLE = 1;
-      TYPE = HARDWARE;
-      COUNTER = HWCOUNTER0;
-   };
-
 };

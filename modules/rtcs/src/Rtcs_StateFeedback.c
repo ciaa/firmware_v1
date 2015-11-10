@@ -191,8 +191,8 @@ extern void Rtcs_ReducedObserver (Rtcs_statefeedback_data_t *data)
    Rtcs_Ext_MatrixMul_float(data->mt_obsvr_matrix, data->uo_vector, data->xo_aux_vector);
    Rtcs_Ext_MatrixAdd_float(data->xo_vector, data->xo_aux_vector, data->xo_vector);
    Rtcs_Ext_MatrixMul_float(data->l_matrix, data->y_vector, data->xo_aux_vector);
-   Rtcs_Ext_MatrixAdd_float(data->xo_vector, data->xo_aux_vector, data->xo_vector);
-   Rtcs_Ext_MatrixCat_float(data->y_vector, data->xo_vector, data->x_vector);
+   Rtcs_Ext_MatrixAdd_float(data->xo_vector, data->xo_aux_vector, data->xo_aux_vector);
+   Rtcs_Ext_MatrixCat_float(data->y_vector, data->xo_aux_vector, data->x_vector);
 }
 
 extern void Rtcs_NoneObserver (Rtcs_statefeedback_data_t *data)

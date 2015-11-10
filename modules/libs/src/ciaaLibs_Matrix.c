@@ -126,10 +126,10 @@ extern void ciaaLibs_MatrixCat_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t 
    uint32_t num_elements_2 = sizeof(float) * src2->n_rows * src2->n_columns;
 
    /* Copied of data from first matrix to destination matrix */
-   ciaaPOSIX_memcpy(dst->data, src1->data, num_elements);
+   ciaaPOSIX_memcpy((void *) dst->data, (void *) src1->data, num_elements);
 
    /* Copied of data from second matrix to destination matrix*/
-   ciaaPOSIX_memcpy(dst->data + num_elements, src2->data, num_elements_2);
+   ciaaPOSIX_memcpy(((void *) dst->data) + num_elements, (void *) src2->data, num_elements_2);
 }
 
 extern void ciaaLibs_MatrixAdd_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t *src2, ciaaLibs_matrix_t *dst)
@@ -177,6 +177,9 @@ extern void ciaaLibs_MatrixMul_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t 
    uint32_t num_columns_src1;
    uint32_t num_columns_src2;
    float acc;
+   float aux_buffer[dst->n_rows * dst->n_columns];
+   float *aux_buffer_ptr = aux_buffer;
+   uint32_t cant_elements = dst->n_rows * dst->n_columns;
 
    /* Loop for each row of src1 */
    do
@@ -200,7 +203,7 @@ extern void ciaaLibs_MatrixMul_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t 
          }
 
          /* Load the result in target matrix */
-         *dst_ptr++ = acc;
+         *aux_buffer_ptr++ = acc;
 
          /* Decrement the column loop counter */
          num_columns_src2--;
@@ -211,11 +214,18 @@ extern void ciaaLibs_MatrixMul_float(ciaaLibs_matrix_t *src1, ciaaLibs_matrix_t 
 
       src1_ptr += src1->n_columns;
 
-      /* Decrement the row loop counter*/
+      /* Decrement the row loop counter */
       num_rows_src1--;
 
    } while(num_rows_src1 > 0u);
 
+   aux_buffer_ptr = aux_buffer;
+
+   while (cant_elements > 0u)
+   {
+      *dst_ptr++ = *aux_buffer_ptr++;
+      cant_elements--;
+   }
 }
 
 extern void ciaaLibs_MatrixByScalarMul_float(ciaaLibs_matrix_t *src1, float *src2, ciaaLibs_matrix_t *dst)

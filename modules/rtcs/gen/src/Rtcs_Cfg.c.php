@@ -97,7 +97,10 @@ foreach ($controllers as $controller)
 /* Public function that executes the controller of the <?=$controller;?> system */
 extern void Rtcs_<?=$controller;?>_<?=$config->getValue("/RTCS/" . $controller, "PERIOD")?>ms (void)
 {
-   Rtcs_StateFeedbackRun(Rtcs_controllers_list[<?=$count;?>]->data);
+   if(Rtcs_state == ACTIVE)
+   {
+      Rtcs_StateFeedbackRun(Rtcs_controllers_list[<?=$count;?>]->data);
+   }
 }
 
 <?php
@@ -147,6 +150,24 @@ extern void Rtcs_InputY<?=$subcount + 1;?>_<?=$controller;?> (float *data)
 $subcount++;
 }
 ?>
+<?php
+$count++;
+}
+?>
+<?php
+$count = 0;
+foreach ($controllers as $controller)
+{
+?>
+/* Public function that executes the "worst case" of the controller of the <?=$controller;?> system */
+extern void Rtcs_WorstCase_<?=$controller;?>_<?=$config->getValue("/RTCS/" . $controller, "PERIOD")?>ms (void)
+{
+   if(Rtcs_state == ACTIVE)
+   {
+      Rtcs_StateFeedbackWorstRun(Rtcs_controllers_list[<?=$count;?>]->data);
+   }
+}
+
 <?php
 $count++;
 }?>

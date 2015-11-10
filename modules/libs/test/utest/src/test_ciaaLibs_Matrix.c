@@ -68,6 +68,7 @@
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
+static void ciaaPOSIX_memcpy_stub (void *s1, void const *s2, size_t n);
 
 /*==================[internal data definition]===============================*/
 
@@ -87,6 +88,19 @@ ciaaLibs_matrix_t matrix_3;
 ciaaLibs_matrix_t matrix_4;
 
 /*==================[internal functions definition]==========================*/
+static void ciaaPOSIX_memcpy_stub (void *s1, void const *s2, size_t n)
+{
+   while(0 < n)
+   {
+      /* decrement counter */
+      n--;
+
+      /* copy 1 byte */
+      ((uint8_t*)s1)[n] = ((uint8_t*)s2)[n];
+   }
+
+   return s1;
+}
 
 /*==================[external functions definition]==========================*/
 /** \brief set Up function
@@ -202,24 +216,6 @@ void test_ciaaLibs_MatrixMul_float_01(void)
    TEST_ASSERT_EQUAL_FLOAT_ARRAY(matrix_3_expected_values_3, (float *) matrix_3.data, DATA_SIZE_1);
 }
 
-/** \brief test ciaaLibs_MatrixCpy_float
- **
- ** Correct copied from one matrix to another matrix
- **
- */
-void test_ciaaLibs_MatrixCpy_float_01(void)
-{
-   /* Initialization of matrices */
-   ciaaLibs_MatrixInit(&matrix_1, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_1);
-   ciaaLibs_MatrixInit(&matrix_3, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_3);
-
-   /* Copied of data from matrix_1 to matrix_3 */
-   ciaaLibs_MatrixCpy_float(&matrix_1, &matrix_3);
-
-   /* Asserting of matrix_3 with its expected value */
-   TEST_ASSERT_EQUAL_FLOAT_ARRAY(data_tst_1, (float *) matrix_3.data, DATA_SIZE_1);
-}
-
 /** \brief test ciaaLibs_MatrixCat_float
  **
  ** Correct Catting from two matrices to another matrix
@@ -231,6 +227,9 @@ void test_ciaaLibs_MatrixCat_float_01(void)
    ciaaLibs_MatrixInit(&matrix_1, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_1);
    ciaaLibs_MatrixInit(&matrix_2, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_2);
    ciaaLibs_MatrixInit(&matrix_4, ROW_SIZE_1 + ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_4);
+
+   /* Setting of behavior to ciaaLibs_MatrixInit() */
+   ciaaPOSIX_memcpy_StubWithCallback(ciaaPOSIX_memcpy_stub);
 
    /* Concatenating of matrix_1 with matrix_2 and storing in matrix_4 */
    ciaaLibs_MatrixCat_float(&matrix_1, &matrix_2, &matrix_4);
