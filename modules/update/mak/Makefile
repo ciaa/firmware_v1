@@ -33,6 +33,8 @@
 ###############################################################################
 # library
 LIBS 				+= update
+# version
+update_VERSION  = 0.1.0
 # library path
 update_PATH 		= $(ROOT_DIR)$(DS)modules$(DS)update
 # library source path

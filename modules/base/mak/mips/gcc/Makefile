@@ -41,7 +41,9 @@ GDB = mipsel-mcp-elf-gdb
 NM = mipsel-mcp-elf-nm
 # COMPILER AND LINKER OPTIONS
 AFLAGS +=
-CFLAGS += -c -O3
+# We do not recomend to use -O3, see https://github.com/ciaa/Firmware/issues/226
+# (#226) for more information.
+CFLAGS += -c -O2
 LFLAGS +=
 
 # Download firmware to the target, next command should be FW file

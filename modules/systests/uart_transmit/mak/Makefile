@@ -31,24 +31,22 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# Project Name: used for Project Path and OSEK configuration file
-project 			 	 = uart_transmit
+# Project Name: based on Project Path and used to define OSEK configuration file
+PROJECT_NAME               = $(lastword $(subst $(DS), , $(PROJECT_PATH)))
 # Project path
-$(project)_PATH   	 = $(ROOT_DIR)$(DS)modules$(DS)systests$(DS)$(project)
+# Defined $(PROJECT_PATH) in makefile.mine
 # source path
-$(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
+$(PROJECT_NAME)_SRC_PATH  += $(PROJECT_PATH)$(DS)src
 # include path
-INCLUDE			   += $($(project)_PATH)$(DS)inc
+INC_FILES            += $(PROJECT_PATH)$(DS)inc
 # library source files
-SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
+SRC_FILES            += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
-OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
+OIL_FILES            += $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).oil
 # Modules needed for this example
 MODS ?= modules$(DS)posix           \
         modules$(DS)ciaak           \
-        modules$(DS)config          \
-        modules$(DS)bsp             \
-        modules$(DS)platforms       \
+        modules$(DS)drivers	    \
         modules$(DS)rtos            \
         modules$(DS)libs
 

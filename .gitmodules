@@ -1,3 +1,6 @@
 [submodule "modules/rtos"]
 	path = modules/rtos
 	url = https://github.com/ciaa/firmware.modules.rtos.git
+[submodule "modules/modbus"]
+	path = modules/modbus
+	url = https://github.com/ciaa/firmware.modules.modbus.git

@@ -1,0 +1,85 @@
+#at ksdk directory
+cp -r platform/CMSIS/Include/* /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/
+
+find platform/drivers/ -name "system_MK60F12.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/drivers/ -name "system_MK60F12.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+rm /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/system_MK60F15.c
+
+rm /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/system_MK60F15.h 
+
+
+
+#For GPIO drivers
+
+find platform/hal/gpio/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/hal/gpio/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/drivers/gpio/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/drivers/gpio/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/hal/port/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/hal/port/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/system/clock/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/system/clock/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/hal/sim/ -maxdepth 1 -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/hal/sim/ -maxdepth 1 -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/hal/sim/MK60F12/ -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/hal/sim/MK60F12/ -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/hal/mcg/ -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/hal/mcg/ -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/system/interrupt/ -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/system/interrupt/ -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+
+
+#For UART drivers
+
+find platform/hal/uart/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/hal/uart/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/drivers/uart/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/drivers/uart/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find -type f -name "fsl_os_abstraction.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find -type f -name "fsl_os_abstraction_bm.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+
+
+#For ADC drivers
+
+find platform/hal/adc/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/hal/adc/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/drivers/adc/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/drivers/adc/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+
+#For DAC drivers
+
+find platform/hal/dac/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;
+
+find platform/hal/dac/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/drivers/dac/  -type f -name "*.c" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/src/ \;
+
+find platform/drivers/dac/  -type f -name "*.h" -exec cp {} /path/to/Firmware/externals/drivers/cortexM4/k60_120/inc/ \;

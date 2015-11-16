@@ -1,5 +1,6 @@
 /* Copyright 2014, Mariano Cerdeiro
  * Copyright 2014, Juan Cecconi
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -53,6 +54,7 @@
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20150301 v0.0.4 MaCe implement memset and memcmp
  * 20141116 v0.0.3 JuCe improve strcpy, fix strcat
  * 20140608 v0.0.2 MaCe implement strlen, strcat, strcmp and strncmp
  * 20140530 v0.0.1 JuCe initial version
@@ -81,9 +83,9 @@ extern char * ciaaPOSIX_strcpy(char * s1, char const * s2)
 {
    while(0 != *s2)
    {
-		*s1 = *s2;
-		s2++;
-		s1++;
+      *s1 = *s2;
+      s2++;
+      s1++;
    }
    *s1 = '\0';
    return s1;
@@ -239,6 +241,47 @@ extern void * ciaaPOSIX_memcpy(void * s1, void const * s2, size_t n)
    }
 
    return s1;
+}
+
+extern void * ciaaPOSIX_memset(void * s, int c, size_t n)
+{
+   while(0 < n)
+   {
+      /* decement counter */
+      n--;
+
+      /* set 1 byte */
+      ((uint8_t*)s)[n] = (uint8_t)c;
+   }
+
+   return s;
+}
+
+extern int32_t ciaaPOSIX_memcmp(const void * s1, const void * s2, size_t n)
+{
+   int32_t ret = 0;
+
+   while((0 < n) && (0 == ret))
+   {
+      /* decrement counter */
+      n--;
+
+      if (*(uint8_t*)s1 > *(uint8_t*)s2)
+      {
+         /* s1 is grater */
+         ret = 1;
+      }
+      else if (*(uint8_t*)s1 < *(uint8_t*)s2)
+      {
+         /* s2 is grater */
+         ret = -1;
+      }
+
+      /* increment pointer */
+      s1++;
+      s2++;
+   }
+   return ret;
 }
 
 /** @} doxygen end group definition */

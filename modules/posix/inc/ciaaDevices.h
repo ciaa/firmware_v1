@@ -71,13 +71,13 @@ extern "C" {
 
 /** \brief the file offset shall be set to offset bytes */
 /*@-namechecks@*/
-#define SEEK_SET                    1
+#define SEEK_SET                    0
 
 /** \brief the file offset shall be set to its current location plus offset */
-#define SEEK_CUR                    2
+#define SEEK_CUR                    1
 
 /** \brief the file offset shall be set to the size of the file plus offset */
-#define SEEK_END                    3
+#define SEEK_END                    2
 /*@=namechecks@*/
 
 /*==================[typedef]================================================*/
@@ -90,9 +90,9 @@ typedef struct ciaaDevices_deviceStruct ciaaDevices_deviceType;
  ** \param[in] path path of the device to be opened
  ** \param[in] device device to be opened
  ** \param[in] oflag may take one of the following values:
- **               O_RDONLY: opens files to read only
- **               O_WRONLY: opens files to write only
- **               O_RDWR: opens file to read and write
+ **               ciaaPOSIX_O_RDONLY: opens files to read only
+ **               ciaaPOSIX_O_WRONLY: opens files to write only
+ **               ciaaPOSIX_O_RDWR: opens file to read and write
  ** \return NULL if an error occurs, in other case the address of the opened
  **         device.
  **/
@@ -112,8 +112,8 @@ typedef ssize_t (*ciaaDevices_read)(ciaaDevices_deviceType const * const device,
 /** \brief write function type */
 typedef ssize_t (*ciaaDevices_write)(ciaaDevices_deviceType const * const device, uint8_t const * const buf, size_t const nbyte);
 
-/** \brief seek function type */
-typedef int32_t (*ciaaDevices_seek)(ciaaDevices_deviceType const * const device, int32_t const offset, uint8_t const whence);
+/** \brief lseek function type */
+typedef off_t (*ciaaDevices_lseek)(ciaaDevices_deviceType const * const device, off_t const offset, uint8_t const whence);
 
 /** \brief Device Type */
 struct ciaaDevices_deviceStruct {
@@ -123,7 +123,7 @@ struct ciaaDevices_deviceStruct {
    ciaaDevices_read read;        /** <- pointer to read function */
    ciaaDevices_write write;      /** <- pointer to write function */
    ciaaDevices_ioctl ioctl;      /** <- pointer to ioctl function */
-   ciaaDevices_seek seek;        /** <- pointer to seek function */
+   ciaaDevices_lseek lseek;      /** <- pointer to lseek function */
    void * upLayer;               /** <- pointer to be provided to the upper
                                         layer */
    void * layer;                 /** <- pointer ot be used by the layer */

@@ -31,14 +31,21 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-project 			 	 = test_stdio_stack
-# test_stdio_stack path
-test_stdio_stack_PATH   	 = $(posix_PATH)$(DS)test$(DS)mtest$(DS)$(project)
+# Project Name: based on Project Path and used to define OSEK configuration file
+PROJECT_NAME               = $(lastword $(subst $(DS), , $(PROJECT_PATH)))
+# Project path
+# Defined $(PROJECT_PATH) in makefile.mine
 # source path
-test_stdio_stack_SRC_PATH  += $(test_stdio_stack_PATH)$(DS)src
+$(PROJECT_NAME)_SRC_PATH  += $(PROJECT_PATH)$(DS)src
 # include path
-INCLUDE			   += $(test_stdio_stack_PATH)$(DS)inc
+INC_FILES            += $(PROJECT_PATH)$(DS)inc
 # library source files
-SRC_FILES 	  	   += $(wildcard $(test_stdio_stack_SRC_PATH)$(DS)*.c)
+SRC_FILES            += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
-OIL_FILES		   += $(test_stdio_stack_PATH)$(DS)etc$(DS)test_stdio_stack.oil
+OIL_FILES            += $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).oil
+# Modules needed for this example
+MODS ?= modules$(DS)posix           \
+        modules$(DS)ciaak           \
+        modules$(DS)drivers	    \
+        modules$(DS)rtos            \
+        modules$(DS)libs

@@ -33,6 +33,8 @@
 ###############################################################################
 # library
 LIBS 				  += libs
+# version
+libs_VERSION      = 0.1.0
 # library path
 libs_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)libs
 # library source path

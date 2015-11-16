@@ -117,6 +117,18 @@ static void assert_seq(int seq, char * file, int line)
    }
 }
 
+void dumpBuffer(uint8_t buffer[]) {
+   uint16_t i;
+
+   ciaaPOSIX_printf("===============================================================================\r\n");
+   for(i = 0; i < 512; i++)
+   {
+      ciaaPOSIX_printf("0x%02X ", buffer[i]);
+      if (((i + 1) & 0x0F) == 0) ciaaPOSIX_printf("\r\n");
+   }
+
+}
+
 /*==================[external functions definition]==========================*/
 int main(void)
 {
@@ -155,13 +167,13 @@ TASK(TaskA) {
    ASSERT_SEQ(0);
 
    /* open an invalid device */
-   fildes1 = ciaaPOSIX_open("/dev/serial/uart/23", O_RDWR);
+   fildes1 = ciaaPOSIX_open("/dev/serial/uart/23", ciaaPOSIX_O_RDWR);
    ASSERT_MSG(-1 == fildes1, "ciaaPOSIX_open returns a valid handler for an invalid device");
 
    ASSERT_SEQ(1);
 
    /* open a valid device */
-   fildes1 = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+   fildes1 = ciaaPOSIX_open("/dev/serial/uart/0", ciaaPOSIX_O_RDWR);
    ASSERT_MSG(0 <= fildes1, "ciaaPOSIX_open returns an invalid handler");
 
    ASSERT_SEQ(2);
@@ -179,7 +191,7 @@ TASK(TaskA) {
    ASSERT_SEQ(4);
 
    /* open a valid device */
-   fildes1 = ciaaPOSIX_open("/dev/serial/uart/0", O_RDWR);
+   fildes1 = ciaaPOSIX_open("/dev/serial/uart/0", ciaaPOSIX_O_RDWR);
    ASSERT_MSG(0 <= fildes1, "ciaaPOSIX_open returns an invalid handler");
 
    ASSERT_SEQ(5);
@@ -258,7 +270,7 @@ TASK(TaskA) {
 
    ASSERT_SEQ(17);
 
-   fildes2 = ciaaPOSIX_open("/dev/dio/0", O_RDWR);
+   fildes2 = ciaaPOSIX_open("/dev/dio/in/0", ciaaPOSIX_O_RDWR);
    ASSERT_MSG(0 <= fildes2, "ciaaPOSIX_open returns an invalid handler");
 
    TerminateTask();

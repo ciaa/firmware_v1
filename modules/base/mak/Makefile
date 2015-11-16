@@ -35,6 +35,8 @@
 ###############################################################################
 # library
 LIBS               += base
+# version
+base_VERSION		  = 0.4.1
 # library path
 base_PATH      = $(ROOT_DIR)$(DS)modules$(DS)base
 # library source path
@@ -55,4 +57,7 @@ include $(base_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(COMPILER)$(DS)Makefile
 
 # define default binary extension
 BIN_EXT             ?= bin
+
+# include external base makefile
+include externals$(DS)base$(DS)mak$(DS)Makefile
 

@@ -40,6 +40,6 @@ posix_TST_INC_PATH = $(posix_PATH)$(DS)test$(DS)utest$(DS)inc	\
 							modules$(DS)rtos$(DS)inc$(DS)$(ARCH)
 
 # unit tests dependencies
-posix_TST_MOD	    = config bsp ciaak platforms libs
+posix_TST_MOD	    = ciaak libs
 # extra mocks
 posix_TST_MOCKS		 = os.c

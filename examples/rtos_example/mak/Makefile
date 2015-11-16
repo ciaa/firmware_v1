@@ -33,18 +33,22 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# Project Name: used for Project Path and OSEK configuration file
-project 			 	 = rtos_example
+# Project Name: based on Project Path and used to define OSEK configuration file
+PROJECT_NAME               = $(lastword $(subst $(DS), , $(PROJECT_PATH)))
 # Project path
-$(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
+# Defined $(PROJECT_PATH) in makefile.mine
 # source path
-$(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
+$(PROJECT_NAME)_SRC_PATH  += $(PROJECT_PATH)$(DS)src
 # include path
-INC_FILES			   += $($(project)_PATH)$(DS)inc
+INC_FILES            += $(PROJECT_PATH)$(DS)inc
 # library source files
-SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
+SRC_FILES            += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
-OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil
+OIL_FILES            += $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).oil
 # Modules needed for this example
-MODS ?= modules$(DS)rtos
+MODS ?= modules$(DS)rtos	\
+		  modules$(DS)drivers\
+		  modules$(DS)posix  \
+		  modules$(DS)libs	\
+		  modules$(DS)ciaak
 

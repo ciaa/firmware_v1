@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -159,7 +160,7 @@ extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag)
             if (NULL != rewriteDevice)
             {
                /* open device successfull */
-               ciaaPOSIX_stdio_fildes[loopi].device = rewriteDevice;
+               ciaaPOSIX_stdio_fildes[ret].device = rewriteDevice;
             }
             else
             {
@@ -293,6 +294,27 @@ extern ssize_t ciaaPOSIX_write (int32_t fildes, void const * buf, size_t nbyte)
                ciaaPOSIX_stdio_fildes[fildes].device,
                buf,
                nbyte);
+      }
+   }
+
+   return ret;
+}
+
+extern off_t ciaaPOSIX_lseek(int32_t fildes, off_t offset, uint8_t whence)
+{
+   ssize_t ret = -1;
+
+   /* check that file descriptor is on range */
+   if ( (fildes >= 0) && (fildes < ciaaPOSIX_stdio_MAXFILDES) )
+   {
+      /* check that file descriptor is beeing used */
+      if (NULL != ciaaPOSIX_stdio_fildes[fildes].device)
+      {
+         /* call lseek function */
+         ret = ciaaPOSIX_stdio_fildes[fildes].device->lseek(
+               ciaaPOSIX_stdio_fildes[fildes].device,
+               offset,
+               whence);
       }
    }
 
