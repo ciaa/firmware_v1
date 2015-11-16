@@ -36,26 +36,24 @@
 #
 ###############################################################################
 # Project Name: used for Project Path and OSEK configuration file
-project 			 	 = rtcs_example
+PROJECT_NAME 			 	 = rtcs_example
 # Project path
-$(project)_PATH   	 = $(ROOT_DIR)$(DS)examples$(DS)$(project)
+# Defined $(PROJECT_PAD) in Makefile.mine
 # source path
-$(project)_SRC_PATH  += $($(project)_PATH)$(DS)src
+$(PROJECT_NAME)_SRC_PATH   	 += $(PROJECT_PATH)$(DS)src
 # include path
-INC_FILES			   += $($(project)_PATH)$(DS)inc
+INC_FILES			   += $(PROJECT_PATH)$(DS)inc
 # library source files
-SRC_FILES 	  	   += $(wildcard $($(project)_SRC_PATH)$(DS)*.c)
+SRC_FILES 	  	   += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
-OIL_FILES		   += $($(project)_PATH)$(DS)etc$(DS)$(project).oil   \
-                     $($(project)_PATH)$(DS)etc$(DS)$(project).oilx
+OIL_FILES		   += $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).oil   \
+                     $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).oilx
 
 # Modules needed for this example
 MODS ?= modules$(DS)posix           \
 	     modules$(DS)ciaak           \
-	     modules$(DS)config          \
-	     modules$(DS)bsp             \
-	     modules$(DS)platforms       \
-	     modules$(DS)rtcs		 \
+        modules$(DS)drivers         \
+	     modules$(DS)rtcs		      \
 	     modules$(DS)rtos            \
 	     modules$(DS)libs
 

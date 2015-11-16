@@ -280,7 +280,7 @@ TASK(MainTask)
    ciaaPOSIX_printf("Main Task...\n");
 
    /* open CIAA digital outputs */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 
    /*Real tiem control system init*/
    Rtcs_Init();
