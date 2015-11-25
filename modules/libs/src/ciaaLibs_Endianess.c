@@ -79,7 +79,7 @@ uint16_t ciaaLibs_utilsNtohs(uint16_t netshort)
 #if CIAAPLATFORM_BIGENDIAN == 0
    return (netshort << 8) | (netshort >> 8);
 #else
-   return netshot;
+   return netshort;
 #endif
 }
 uint32_t ciaaLibs_utilsNtohl(uint32_t netlong)
