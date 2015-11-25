@@ -143,6 +143,7 @@ static void test_updt_configFormat(test_updt_configType *type, uint8_t *config_b
 }
 
 
+/* I assign values to the fields oh the structure to perform a test*/
 static void test_update_value (test_updt_configType *values)
 {
    values->reserved1 = 0;
@@ -163,6 +164,7 @@ static void test_update_value (test_updt_configType *values)
    values->data_size = 10;
 }
 
+/* I assign values random to the payload to perform a test*/
 static void testUpdtValueData (uint8_t *vector, uint32_t paySize)
 {
    uint8_t i;
@@ -306,20 +308,20 @@ TASK(MasterTask)
    /*initialize handshake packet for send*/
    makeHandshakeOk (&type, vector);
    /*send Handshake packet*/
-   ciaaPOSIX_assert (UPDT_protocolSend((UPDT_ITransportType *) &master_transport, vector, 32) == UPDT_PROTOCOL_ERROR_NONE);
+   TEST_ASSERT_TRUE(UPDT_protocolSend((UPDT_ITransportType *) &master_transport, vector, 32) == UPDT_PROTOCOL_ERROR_NONE);
    /*received answer*/
-   ciaaPOSIX_assert (UPDT_protocolRecv((UPDT_ITransportType *) &master_transport, vector,32) == UPDT_PROTOCOL_ERROR_NONE);
+   TEST_ASSERT_TRUE(UPDT_protocolRecv((UPDT_ITransportType *) &master_transport, vector,32) == UPDT_PROTOCOL_ERROR_NONE);
    /*testing SequenceNumberand package type of answer*/
-   ciaaPOSIX_assert(testHandshakeOk (&type,vector)==0);
+   TEST_ASSERT_TRUE(testHandshakeOk (&type,vector)==0);
 
    /*initialize data packet for send*/
    makeDataOk (&type,vector, payload_size);
    /*send data packet*/
-   ciaaPOSIX_assert (UPDT_protocolSend((UPDT_ITransportType *) &master_transport, vector, payload_size) == UPDT_PROTOCOL_ERROR_NONE);
+   TEST_ASSERT_TRUE(UPDT_protocolSend((UPDT_ITransportType *) &master_transport, vector, payload_size) == UPDT_PROTOCOL_ERROR_NONE);
    /*received answer*/
-   ciaaPOSIX_assert (UPDT_protocolRecv((UPDT_ITransportType *) &master_transport, vector,payload_size) == UPDT_PROTOCOL_ERROR_NONE);
+   TEST_ASSERT_TRUE(UPDT_protocolRecv((UPDT_ITransportType *) &master_transport, vector,payload_size) == UPDT_PROTOCOL_ERROR_NONE);
    /*testing SequenceNumberand package type of answer*/
-   ciaaPOSIX_assert (testDataOk(vector)==0);
+   TEST_ASSERT_TRUE(testDataOk(vector)==0);
 
    #if(0)
    do

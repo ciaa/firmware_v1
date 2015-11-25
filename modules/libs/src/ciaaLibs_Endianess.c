@@ -79,7 +79,7 @@ uint16_t ciaaLibs_utilsNtohs(uint16_t netshort)
 #if CIAAPLATFORM_BIGENDIAN == 0
    return (netshort << 8) | (netshort >> 8);
 #else
-   return n;
+   return netshot;
 #endif
 }
 uint32_t ciaaLibs_utilsNtohl(uint32_t netlong)
@@ -87,7 +87,7 @@ uint32_t ciaaLibs_utilsNtohl(uint32_t netlong)
 #if CIAAPLATFORM_BIGENDIAN == 0
    return (((uint32_t) ciaaLibs_utilsNtohs(netlong)) << 16) | ciaaLibs_utilsNtohs(netlong >> 16);
 #else
-   return n;
+   return netshort;
 #endif // CIAAPLATFORM_BIGENDIAN
 }
 uint64_t ciaaLibs_utilsNtohll(uint64_t netlonglong)
@@ -95,7 +95,7 @@ uint64_t ciaaLibs_utilsNtohll(uint64_t netlonglong)
 #if CIAAPLATFORM_BIGENDIAN == 0
    return (((uint64_t) ciaaLibs_utilsNtohl(netlonglong)) << 32) | ciaaLibs_utilsNtohl(netlonglong >> 32);
 #else
-   return n;
+   return netshort;
 #endif // CIAAPLATFORM_BIGENDIAN
 }
 

@@ -70,15 +70,16 @@ extern "C" {
 #define ciaaLibs_utilsHtonll ciaaLibs_utilsNtohll
 #define ciaaLibs_utilsHtonl ciaaLibs_utilsNtohl
 #define ciaaLibs_utilsHtons ciaaLibs_utilsNtohs
+
 #if CIAAPLATFORM_BIGENDIAN == CIAA_ENABLE
 #define ciaaLibs_setHigh(ptr) ciaaLibs_utilsNtohl (*(ptr)+1)
 #else 
-ciaaLibs_utilsNtohl (*(ptr))
+#define ciaaLibs_setLow(ptr) ciaaLibs_utilsNtohl (*(ptr))
 #endif
 #if CIAAPLATFORM_BIGENDIAN == CIAA_ENABLE
 #define ciaaLibs_setLow(ptr) ciaaLibs_utilsNtohl (*(ptr))
 #else
-ciaaLibs_utilsNtohl (*(ptr+1))
+#define ciaaLibs_setHigh(ptr) ciaaLibs_utilsNtohl (*(ptr+1))
 #endif
 /*==================[typedef]================================================*/
 
