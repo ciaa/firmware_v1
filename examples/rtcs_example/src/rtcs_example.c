@@ -78,7 +78,7 @@
 #define TOTAL_POINTS (INACTIVE_POINTS + ACTIVE_POINTS)   /* <= total points of the step */
 #define KR 3.1847F            /* <= gain of the reference input */
 #define KR2 2.9755F           /* <= gain of the reference input */
-#define KR3 3.29F           /* <= gain of the reference input */
+#define KR3 2.1834F           /* <= gain of the reference input */
 
 /*==================[internal data declaration]==============================*/
 
@@ -286,15 +286,15 @@ TASK(MainTask)
    Rtcs_Init();
 
    /* matrix initialization */
-   ciaaLibs_MatrixInit(&fund_matrix, STATE_VAR_QTY, STATE_VAR_QTY, FLOAT_32, fund_matrix_data);
-   ciaaLibs_MatrixInit(&tran_matrix, STATE_VAR_QTY, INPUT_PLANT_QTY, FLOAT_32, tran_matrix_data);
-   ciaaLibs_MatrixInit(&c_matrix, OUTPUT_PLANT_QTY, STATE_VAR_QTY, FLOAT_32, c_matrix_data);
-   ciaaLibs_MatrixInit(&d_matrix, OUTPUT_PLANT_QTY, INPUT_PLANT_QTY, FLOAT_32, d_matrix_data);
-   ciaaLibs_MatrixInit(&x_vector, STATE_VAR_QTY, 1, FLOAT_32, x_vector_data);
-   ciaaLibs_MatrixInit(&x_aux_vector, STATE_VAR_QTY, 1, FLOAT_32, x_aux_vector_data);
-   ciaaLibs_MatrixInit(&y_vector, OUTPUT_PLANT_QTY, 1, FLOAT_32, y_vector_data);
-   ciaaLibs_MatrixInit(&y_aux_vector, OUTPUT_PLANT_QTY, 1, FLOAT_32, y_aux_vector_data);
-   ciaaLibs_MatrixInit(&u_vector, INPUT_PLANT_QTY, 1, FLOAT_32, u_vector_data);
+   ciaaLibs_MatrixInit(&fund_matrix, STATE_VAR_QTY, STATE_VAR_QTY, CIAA_LIBS_FLOAT_32, fund_matrix_data);
+   ciaaLibs_MatrixInit(&tran_matrix, STATE_VAR_QTY, INPUT_PLANT_QTY, CIAA_LIBS_FLOAT_32, tran_matrix_data);
+   ciaaLibs_MatrixInit(&c_matrix, OUTPUT_PLANT_QTY, STATE_VAR_QTY, CIAA_LIBS_FLOAT_32, c_matrix_data);
+   ciaaLibs_MatrixInit(&d_matrix, OUTPUT_PLANT_QTY, INPUT_PLANT_QTY, CIAA_LIBS_FLOAT_32, d_matrix_data);
+   ciaaLibs_MatrixInit(&x_vector, STATE_VAR_QTY, 1, CIAA_LIBS_FLOAT_32, x_vector_data);
+   ciaaLibs_MatrixInit(&x_aux_vector, STATE_VAR_QTY, 1, CIAA_LIBS_FLOAT_32, x_aux_vector_data);
+   ciaaLibs_MatrixInit(&y_vector, OUTPUT_PLANT_QTY, 1, CIAA_LIBS_FLOAT_32, y_vector_data);
+   ciaaLibs_MatrixInit(&y_aux_vector, OUTPUT_PLANT_QTY, 1, CIAA_LIBS_FLOAT_32, y_aux_vector_data);
+   ciaaLibs_MatrixInit(&u_vector, INPUT_PLANT_QTY, 1, CIAA_LIBS_FLOAT_32, u_vector_data);
 
    /* control efforts vector initialization */
    for(k = 0; k < INACTIVE_POINTS; k++)

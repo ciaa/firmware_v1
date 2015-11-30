@@ -68,7 +68,7 @@
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
-static void ciaaPOSIX_memcpy_stub (void *s1, void const *s2, size_t n);
+static void * ciaaPOSIX_memcpy_stub (void *s1, void const *s2, size_t n);
 
 /*==================[internal data definition]===============================*/
 
@@ -88,7 +88,7 @@ ciaaLibs_matrix_t matrix_3;
 ciaaLibs_matrix_t matrix_4;
 
 /*==================[internal functions definition]==========================*/
-static void ciaaPOSIX_memcpy_stub (void *s1, void const *s2, size_t n)
+static void * ciaaPOSIX_memcpy_stub (void *s1, void const *s2, size_t n)
 {
    while(0 < n)
    {
@@ -127,36 +127,36 @@ void tearDown(void) {
 void test_ciaaLibs_MatrixInit_01(void)
 {
    /* Initialization of matrices */
-   ciaaLibs_MatrixInit(&matrix_1, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_1);
-   ciaaLibs_MatrixInit(&matrix_2, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_2);
-   ciaaLibs_MatrixInit(&matrix_3, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_3);
-   ciaaLibs_MatrixInit(&matrix_4, ROW_SIZE_1 + ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_4);
+   ciaaLibs_MatrixInit(&matrix_1, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_1);
+   ciaaLibs_MatrixInit(&matrix_2, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_2);
+   ciaaLibs_MatrixInit(&matrix_3, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_3);
+   ciaaLibs_MatrixInit(&matrix_4, ROW_SIZE_1 + ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_4);
 
    /* ASSERTs for matrix_1 data */
    TEST_ASSERT_EQUAL_PTR((intptr_t) data_tst_1, (intptr_t) matrix_1.data);
    TEST_ASSERT_EQUAL_UINT16(ROW_SIZE_1, matrix_1.n_rows);
    TEST_ASSERT_EQUAL_UINT16(COLUMN_SIZE_1, matrix_1.n_columns);
-   TEST_ASSERT_EQUAL_UINT16(FLOAT_32, matrix_1.type);
+   TEST_ASSERT_EQUAL_UINT16(CIAA_LIBS_FLOAT_32, matrix_1.type);
    TEST_ASSERT_EQUAL_FLOAT_ARRAY(data_tst_1, (float *) matrix_1.data, DATA_SIZE_1);
 
    /* ASSERTs for matrix_2 data */
    TEST_ASSERT_EQUAL_PTR((intptr_t) data_tst_2, (intptr_t) matrix_2.data);
    TEST_ASSERT_EQUAL_UINT16(ROW_SIZE_1, matrix_2.n_rows);
    TEST_ASSERT_EQUAL_UINT16(COLUMN_SIZE_1, matrix_2.n_columns);
-   TEST_ASSERT_EQUAL_UINT16(FLOAT_32, matrix_2.type);
+   TEST_ASSERT_EQUAL_UINT16(CIAA_LIBS_FLOAT_32, matrix_2.type);
    TEST_ASSERT_EQUAL_FLOAT_ARRAY(data_tst_2, (float *) matrix_2.data, DATA_SIZE_1);
 
    /* ASSERTs for matrix_3 data */
    TEST_ASSERT_EQUAL_PTR((intptr_t) data_tst_3, (intptr_t) matrix_3.data);
    TEST_ASSERT_EQUAL_UINT16(ROW_SIZE_1, matrix_3.n_rows);
    TEST_ASSERT_EQUAL_UINT16(COLUMN_SIZE_1, matrix_3.n_columns);
-   TEST_ASSERT_EQUAL_UINT16(FLOAT_32, matrix_3.type);
+   TEST_ASSERT_EQUAL_UINT16(CIAA_LIBS_FLOAT_32, matrix_3.type);
 
    /* ASSERTs for matrix_4 data */
    TEST_ASSERT_EQUAL_PTR((intptr_t) data_tst_4, (intptr_t) matrix_4.data);
    TEST_ASSERT_EQUAL_UINT16(ROW_SIZE_1 + ROW_SIZE_1, matrix_4.n_rows);
    TEST_ASSERT_EQUAL_UINT16(COLUMN_SIZE_1, matrix_4.n_columns);
-   TEST_ASSERT_EQUAL_UINT16(FLOAT_32, matrix_4.type);
+   TEST_ASSERT_EQUAL_UINT16(CIAA_LIBS_FLOAT_32, matrix_4.type);
 }
 
 /** \brief test ciaaLibs_MatrixAdd_float
@@ -167,9 +167,9 @@ void test_ciaaLibs_MatrixInit_01(void)
 void test_ciaaLibs_MatrixAdd_float_01(void)
 {
    /* Initialization of matrices */
-   ciaaLibs_MatrixInit(&matrix_1, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_1);
-   ciaaLibs_MatrixInit(&matrix_2, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_2);
-   ciaaLibs_MatrixInit(&matrix_3, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_3);
+   ciaaLibs_MatrixInit(&matrix_1, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_1);
+   ciaaLibs_MatrixInit(&matrix_2, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_2);
+   ciaaLibs_MatrixInit(&matrix_3, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_3);
 
    /* Adding matrix_1 with matrix_2 and storing in matrix_3 */
    ciaaLibs_MatrixAdd_float(&matrix_1, &matrix_2, &matrix_3);
@@ -186,9 +186,9 @@ void test_ciaaLibs_MatrixAdd_float_01(void)
 void test_ciaaLibs_MatrixSub_float_01(void)
 {
    /* Initialization of matrices */
-   ciaaLibs_MatrixInit(&matrix_1, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_1);
-   ciaaLibs_MatrixInit(&matrix_2, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_2);
-   ciaaLibs_MatrixInit(&matrix_3, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_3);
+   ciaaLibs_MatrixInit(&matrix_1, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_1);
+   ciaaLibs_MatrixInit(&matrix_2, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_2);
+   ciaaLibs_MatrixInit(&matrix_3, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_3);
 
    /* Subtracting of matrix_1 with matrix_2 and storing in matrix_3 */
    ciaaLibs_MatrixSub_float(&matrix_1, &matrix_2, &matrix_3);
@@ -205,9 +205,9 @@ void test_ciaaLibs_MatrixSub_float_01(void)
 void test_ciaaLibs_MatrixMul_float_01(void)
 {
    /* Initialization of matrices */
-   ciaaLibs_MatrixInit(&matrix_1, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_1);
-   ciaaLibs_MatrixInit(&matrix_2, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_2);
-   ciaaLibs_MatrixInit(&matrix_3, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_3);
+   ciaaLibs_MatrixInit(&matrix_1, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_1);
+   ciaaLibs_MatrixInit(&matrix_2, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_2);
+   ciaaLibs_MatrixInit(&matrix_3, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_3);
 
    /* Multiplicating of matrix_1 with matrix_2 and storing in matrix_3 */
    ciaaLibs_MatrixMul_float(&matrix_1, &matrix_2, &matrix_3);
@@ -224,9 +224,9 @@ void test_ciaaLibs_MatrixMul_float_01(void)
 void test_ciaaLibs_MatrixCat_float_01(void)
 {
    /* Initialization of matrices */
-   ciaaLibs_MatrixInit(&matrix_1, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_1);
-   ciaaLibs_MatrixInit(&matrix_2, ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_2);
-   ciaaLibs_MatrixInit(&matrix_4, ROW_SIZE_1 + ROW_SIZE_1, COLUMN_SIZE_1, FLOAT_32, data_tst_4);
+   ciaaLibs_MatrixInit(&matrix_1, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_1);
+   ciaaLibs_MatrixInit(&matrix_2, ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_2);
+   ciaaLibs_MatrixInit(&matrix_4, ROW_SIZE_1 + ROW_SIZE_1, COLUMN_SIZE_1, CIAA_LIBS_FLOAT_32, data_tst_4);
 
    /* Setting of behavior to ciaaLibs_MatrixInit() */
    ciaaPOSIX_memcpy_StubWithCallback(ciaaPOSIX_memcpy_stub);

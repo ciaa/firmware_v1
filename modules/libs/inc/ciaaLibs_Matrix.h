@@ -73,11 +73,11 @@ extern "C" {
 /** \brief data types type */
 typedef enum
 {
-   FLOAT_64,
-   FLOAT_32,
-   INT_32,
-   INT_16,
-   INT_8
+   CIAA_LIBS_FLOAT_64,
+   CIAA_LIBS_FLOAT_32,
+   CIAA_LIBS_INT_32,
+   CIAA_LIBS_INT_16,
+   CIAA_LIBS_INT_8
 }ciaaLibs_matrix_data_t;
 
 /** \brief Matrix data type */

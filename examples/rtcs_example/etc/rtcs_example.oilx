@@ -43,7 +43,6 @@
 /********************************************************************************/
 
 RTCS RTCS {
-
    INCLUDE_FILE = Rtcs_StateFeedback.h;
    INCLUDE_FILE = rtcs_example.h;
 
@@ -73,7 +72,7 @@ RTCS RTCS {
 
    StateFeedback system_3 {
       SYSTEM_TYPE = CONTROL_SYSTEM;
-      OBSERVER_TYPE = REDUCED;
+      OBSERVER_TYPE = FULL;
       PERIOD = 1;
       X_SIZE = 2;
       U_SIZE = 1;
@@ -111,15 +110,15 @@ RTCS RTCS {
 
    StateFeedback system_6 {
       SYSTEM_TYPE = REGULATOR;
-      OBSERVER_TYPE = REDUCED;
+      OBSERVER_TYPE = FULL;
       PERIOD = 1;
       X_SIZE = 2;
       U_SIZE = 1;
       Y_SIZE = 1;
       K_MATRIX = 0.4578, 580.0;
-      L_MATRIX = 0.0046;
+      L_MATRIX = 0.0019;
       FUND_MATRIX = 0.2019;
       TRAN_MATRIX = -0.0041, 0.0005;
-      SEND_FUNCTION = SendControlEffort_3;
+      SEND_FUNCTION = SendControlEffort_6;
    }
 }

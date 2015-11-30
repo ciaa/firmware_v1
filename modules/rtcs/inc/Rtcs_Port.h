@@ -70,6 +70,12 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief Macro for Matrix data Type
+ **
+ ** Macro that initializes a matrix
+ **/
+#define FLOAT_32 CIAA_LIBS_FLOAT_32
+
 /** \brief Macro for Matrix Initialization
  **
  ** Macro that initializes a matrix
