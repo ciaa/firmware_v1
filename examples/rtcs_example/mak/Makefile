@@ -1,6 +1,10 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro
+# Copyright 2015, Diego Ezequiel Vommaro
+# Copyright 2015, ACSE & CADIEEL
+#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+#    CADIEEL: http://www.cadieel.org.ar
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -31,17 +35,25 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# library
-LIBS 				  += libs
-# version
-libs_VERSION      = 0.1.0
-# library path
-libs_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)libs
-# library source path
-libs_SRC_PATH 	= $(libs_PATH)$(DS)src
-# library include path
-libs_INC_PATH 	= $(libs_PATH)$(DS)inc                             \
-                 $(libs_PATH)$(DS)inc$(DS)$(ARCH)                 \
-                 $(libs_PATH)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)  \
+# Project Name: used for Project Path and OSEK configuration file
+PROJECT_NAME 			 	 = rtcs_example
+# Project path
+# Defined $(PROJECT_PAD) in Makefile.mine
+# source path
+$(PROJECT_NAME)_SRC_PATH   	 += $(PROJECT_PATH)$(DS)src
+# include path
+INC_FILES			   += $(PROJECT_PATH)$(DS)inc
 # library source files
-libs_SRC_FILES 	= $(wildcard $(libs_SRC_PATH)$(DS)*.c)
+SRC_FILES 	  	   += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
+# configuration for OSEK-OS
+OIL_FILES		   += $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).oil   \
+                     $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).oilx
+
+# Modules needed for this example
+MODS ?= modules$(DS)posix           \
+	     modules$(DS)ciaak           \
+        modules$(DS)drivers         \
+	     modules$(DS)rtcs		      \
+	     modules$(DS)rtos            \
+	     modules$(DS)libs
+

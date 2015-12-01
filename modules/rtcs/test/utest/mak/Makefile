@@ -1,6 +1,9 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro
+# Copyright 2015, Diego Ezequiel Vommaro
+# Copyright 2015, ACSE & CADIEEL
+#    ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+#    CADIEEL: http://www.cadieel.org.ar
 #
 # This file is part of CIAA Firmware.
 #
@@ -31,17 +34,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# library
-LIBS 				  += libs
-# version
-libs_VERSION      = 0.1.0
-# library path
-libs_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)libs
-# library source path
-libs_SRC_PATH 	= $(libs_PATH)$(DS)src
-# library include path
-libs_INC_PATH 	= $(libs_PATH)$(DS)inc                             \
-                 $(libs_PATH)$(DS)inc$(DS)$(ARCH)                 \
-                 $(libs_PATH)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)  \
-# library source files
-libs_SRC_FILES 	= $(wildcard $(libs_SRC_PATH)$(DS)*.c)
+# unit test
+# unit tests include files
+rtcs_TST_INC_PATH = $(rtcs_PATH)$(DS)test$(DS)utest$(DS)inc 	 \
+                      modules$(DS)libs$(DS)inc                  \
+                      modules$(DS)posix$(DS)inc
+
+# unit tests dependencies
+rtcs_TST_MOD      =
+# extra mocks
+rtcs_TST_MOCKS    = ciaaLibs_Matrix.c ciaaPOSIX_string.c
