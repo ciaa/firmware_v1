@@ -67,7 +67,7 @@
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
-static uint8_t UPDT_config_buffer [4];
+static uint8_t config_buffer [4];
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
@@ -75,26 +75,26 @@ static uint8_t UPDT_config_buffer [4];
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-void test_ciaaLibs_SetByte (uint8_t *config_buffer){
+void test_ciaaLibs_SetByte (){
    ciaaLibs_SetByte (config_buffer, 0,0x5);
    TEST_ASSERT_TRUE (5 == config_buffer[0]);
 }
 
-void test_ciaaLibs_SetUint16 (uint8_t *config_buffer){
-   ciaaLibs_SetUint16 (uint8_t *config_buffer, 0, 0x2425);
+void test_ciaaLibs_SetUint16 (){
+   ciaaLibs_SetUint16 (config_buffer, 0, 0x2425);
    TEST_ASSERT_TRUE (config_buffer[0] == 25);
    TEST_ASSERT_TRUE (config_buffer[1] == 24);
 }
 
 void test_ciaaLibs_SetUint24 (uint8_t *config_buffer, uint8_t ptr, uint32_t value){
-   ciaaLibs_SetUint24 (uint8_t *config_buffer, 0, 0x102425);
+   ciaaLibs_SetUint24 (config_buffer, 0, 0x102425);
    TEST_ASSERT_TRUE (config_buffer[0] == 25);
    TEST_ASSERT_TRUE (config_buffer[1] == 24);
    TEST_ASSERT_TRUE (config_buffer[2] == 10);
 }
 
 void test_ciaaLibs_SetUint32 (uint8_t *config_buffer, uint8_t ptr, uint32_t value){
-   ciaaLibs_SetUint32 (uint8_t *config_buffer, 0, 0x15102425);
+   ciaaLibs_SetUint32 (config_buffer, 0, 0x15102425);
    TEST_ASSERT_TRUE (config_buffer[0] == 25);
    TEST_ASSERT_TRUE (config_buffer[1] == 24);
    TEST_ASSERT_TRUE (config_buffer[2] == 10);
