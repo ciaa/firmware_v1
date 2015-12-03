@@ -253,8 +253,12 @@ $(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES =  $(notdir $(patsubst %.c,%.o,$
 $(foreach LIB, $(LIBS), $(eval LIBS_OBJ_FILES += $($(LIB)_OBJ_FILES)))
 # Complete Libs Source Files for debug Info
 $(foreach LIB, $(LIBS), $(eval LIBS_SRC_FILES += $($(LIB)_SRC_FILES)))
+# Complete Libs Precompiled libraries Files 
+$(foreach LIB, $(LIBS), $(eval LIBS_LIB_FILES += $($(LIB)_LIB_FILES)))
 # Complete Libs Source Dirs for vpath search (duplicates removed by sort)
 $(foreach LIB, $(LIBS), $(eval LIBS_SRC_DIRS += $(sort $(dir $($(LIB)_SRC_FILES)))))
+# Complete Libs precompiled libraries for vpath search (duplicates removed by sort)
+$(foreach LIB, $(LIBS), $(eval LIBS_LIB_DIRS += $(sort $(dir $($(LIB)_LIB_FILES)))))
 # Add the search patterns
 vpath %.c $($(PROJECT_NAME)_SRC_PATH)
 vpath %.c $(LIBS_SRC_DIRS)
@@ -264,6 +268,7 @@ vpath %.cpp $(LIBS_SRC_DIRS)
 vpath %.o $(OBJ_DIR)
 vpath %.oil $(ETC_DIR)
 vpath %.poil $(dir $(POIL_FILES))
+vpath %.a $(LIBS_LIB_DIRS)
 
 #rule for library
 define librule
@@ -500,13 +505,15 @@ $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$($(LIB)_OBJ
 $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:.o=.d))))
 # libs with contains sources
 LIBS_WITH_SRC	= $(foreach LIB, $(LIBS), $(if $(filter %.c,$($(LIB)_SRC_FILES)),$(LIB)))
+# libs with contains sources
+LIBS_PRECOMPILED = $(foreach LIB, $(LIBS), $(if $(filter %.a,$($(LIB)_LIB_FILES)),$(LIB)))
 
 $(PROJECT_NAME) : $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
 	@echo ' '
-	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) $(START_GROUP) $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) $(END_GROUP) -o $(LD_TARGET) $(LFLAGS)
+	$(CC) $(foreach obj,$(OBJ_FILES),$(OBJ_DIR)$(DS)$(obj)) $(START_GROUP) $(foreach lib, $(LIBS_WITH_SRC), $(LIB_DIR)$(DS)$(lib).a) ./externals/drivers/cortexM4/lib/libarm_cortexM4lf_math.a $(END_GROUP) -o $(LD_TARGET) $(LFLAGS)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(PROJECT_NAME)

@@ -40,4 +40,4 @@ AR = arm-none-eabi-ar
 GDB = arm-none-eabi-gdb
 NM = arm-none-eabi-nm
 # COMPILER AND LINKER OPTIONS
-#CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
+#CFLAGS += -c -Wall -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb

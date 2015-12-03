@@ -42,6 +42,8 @@ ext_drivers_PATH 	     = $(ROOT_DIR)$(DS)externals$(DS)drivers
 
 # library source path
 ext_drivers_SRC_PATH   = $(ext_drivers_PATH)$(DS)src
+# library precompiled libraries path
+ext_drivers_LIB_PATH   = $(ext_drivers_PATH)$(DS)lib
 # library include path
 ext_drivers_INC_PATH   = $(ext_drivers_PATH)$(DS)inc		    	      \
 	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)inc							      \
@@ -55,5 +57,8 @@ ext_drivers_SRC_FILES += $(wildcard $(ext_drivers_SRC_PATH)$(DS)*.c)							     
 	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c) 					\
 	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.S) 					\
 	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
+	
+# library precompiled libraries files
+ext_drivers_LIB_FILES += $(wildcard $(ext_drivers_LIB_PATH)$(DS)*.a)							      
 
 
