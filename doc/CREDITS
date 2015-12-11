@@ -10,6 +10,10 @@
  **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
  **
  **   - Mariano Cerdeiro
+ **      - Add support for the tool coverity to perform static checks
+ **      - #325 blinking_modbus is now called blinking_modbus_slave
+ **      - Improve readme
+ **      - #312 create a report make rule to provide user support
  **
  **   - Diego Ezequiel Vommaro
  **      - Implementation of RTCS Library
