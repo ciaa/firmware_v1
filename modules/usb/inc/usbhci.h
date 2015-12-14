@@ -53,9 +53,16 @@ int usbhci_init( void );
 int usbhci_deinit( void );
 
 /**
- * @brief USB reset, block until done (10 ~ 20 ms).
+ * @brief Start USB bus reset.
  */
-void usbhci_reset( void );
+void usbhci_reset_start( void );
+
+/**
+ * @brief Stop USB bus reset.
+ * @retval USB_STATUS_BUSY  Reset still in progress.
+ * @retval USB_STATUS_OK    Reset stopped and done.
+ */
+int usbhci_reset_stop( void );
 
 /**
  * @brief Get device's speed.

@@ -8,8 +8,10 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include <stdio.h>
+#include "ciaaPOSIX_stdio.h"
 #include "chip.h"
+#include "os.h"
+
 #include "usb.h"
 #include "usbd.h"
 #include "usbhci.h"
@@ -205,9 +207,14 @@ int usbhci_deinit( void )
    return 0; /** @TODO: validate previous return code */
 }
 
-void usbhci_reset( void )
+void usbhci_reset_start( void )
 {
    HcdRhPortReset(USB_CORENUM);
+}
+
+int usbhci_reset_stop( void )
+{
+   return (HcdRhPortResetDone(USB_CORENUM)) ? USB_STATUS_OK : USB_STATUS_BUSY;
 }
 
 usb_speed_t usbhci_get_speed( void )
@@ -433,6 +440,18 @@ void _usb_host_on_disconnection( uint8_t corenum )
 {
    usb_assert(corenum < MAX_USB_CORE);
    _connected[corenum] = 0;
+}
+
+/* Interrupts */
+
+ISR(USB0_IRQHandler)
+{
+   USB0_IRQHandler();
+}
+
+ISR(USB1_IRQHandler)
+{
+   USB1_IRQHandler();
 }
 
 /** @} USBHCI */
