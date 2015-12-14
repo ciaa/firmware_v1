@@ -74,10 +74,10 @@ int usb_deinit( usb_stack_t* pstack )
    return USB_STATUS_OK;
 }
 
-uint16_t usb_systick_inc( usb_stack_t* pstack )
+uint16_t usb_systick_inc( usb_stack_t* pstack, uint16_t inc )
 {
    usb_assert(pstack != NULL);
-   return pstack->ticks++;
+   return (pstack->ticks += inc);
 }
 
 uint16_t usb_systick( usb_stack_t* pstack )
@@ -603,32 +603,46 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 #endif
             {
                /*
-                * Hardware reset, 10~20 ms delay is handled  internally.   Since
-                * this is the root device, it is not a problem  if  this  method
-                * blocks internally because there is nothing else  connected  to
-                * the stack.
+                * Hardware reset, we should wait the required 10~20 ms before
+                * proceeding.
                 */
-               usbhci_reset();
-               pdevice->state = USB_DEV_STATE_DEFAULT;
+               usbhci_reset_start();
+               pdevice->ticks_delay = pstack->ticks + 15;
+               pdevice->state = USB_DEV_STATE_WAITING_DELAY;
+               pdevice->next_state = USB_DEV_STATE_RESET;
             }
          }
          break;
 
-#if 0//(USB_MAX_HUBS > 0)
       case USB_DEV_STATE_RESET:
-         /*
-          * Release reset on USB bus, only for HUBs.  For the root  device  it's
-          * handled in one go in the previous state.
-          */
-         phub = pstack->hubs[pdevice->parent_hub];
+#if 0//(USB_MAX_HUBS > 0)
+         if (index > 0)
+         {
+            /* Release reset on USB bus, only for HUBs. */
+            phub = pstack->hubs[pdevice->parent_hub];
 
-         /* Stop HUB port reset. */
-         status = usb_hub_end_reset(phub, pdevice->parent_port);
-         if (status != USB_STATUS_OK)
-            usb_assert(0); /** @TODO handle error */
-         pdevice->state = USB_DEV_STATE_DEFAULT;
-         break;
+            /* Stop HUB port reset. */
+            status = usb_hub_end_reset(phub, pdevice->parent_port);
+            if (status != USB_STATUS_OK)
+               usb_assert(0); /** @TODO handle error */
+            pdevice->state = USB_DEV_STATE_DEFAULT;
+         }
+         else
 #endif
+         {
+            if (usbhci_reset_stop() == USB_STATUS_BUSY)
+            {
+               /* Reset is still in progress, keep waiting. */
+               pdevice->ticks_delay = pstack->ticks + 5;
+               pdevice->state = USB_DEV_STATE_WAITING_DELAY;
+               pdevice->next_state = USB_DEV_STATE_RESET;
+            }
+            else
+            {
+               pdevice->state = USB_DEV_STATE_DEFAULT;
+            }
+         }
+         break;
 
       case USB_DEV_STATE_DEFAULT:
          /*
@@ -697,7 +711,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
       case USB_DEV_STATE_ADDRESS:
          /* Get MPS and reset device once again. */
          ppipe->mps = USB_STDDESC_DEV_GET_bMaxPacketSize0(pdevice->xfer_buffer);
-         usbhci_reset();
+         //usbhci_reset();
 
          /* Reconfigure default pipes to MPS and set a new address. */
          ppipe->type   = USB_CTRL;

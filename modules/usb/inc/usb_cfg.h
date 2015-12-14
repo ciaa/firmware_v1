@@ -24,6 +24,9 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 
+/** @brief Task interval in ms. */
+#define USB_TASK_TICKS       10
+
 /** @brief Maximum number of devices.  */
 #define USB_MAX_DEVICES       2
 
