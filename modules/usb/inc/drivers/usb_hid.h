@@ -17,6 +17,7 @@
 
 /*==================[inclusions]=============================================*/
 #include <stdint.h>
+#include "os.h"
 #include "usb.h"
 
 
@@ -109,11 +110,12 @@ typedef enum _usb_hid_desc_type_t
 /** @brief HID device's possible states. */
 typedef enum _usb_hid_state_t
 {
-   USB_HID_STATE_IDLE,     /**< IDLE, waiting for interface assignment.   */
-   USB_HID_STATE_SET_IDLE, /**< Send SET_IDLE request, is this necessary? */
-   USB_HID_STATE_INIT,     /**< TODO */
-   USB_HID_STATE_INIT2,    /**< TODO */
-   USB_HID_STATE_RUNNING,  /**< TODO */
+   USB_HID_STATE_IDLE,      /**< IDLE, waiting for interface assignment.   */
+   USB_HID_STATE_SET_IDLE,  /**< Send SET_IDLE request, is this necessary? */
+   USB_HID_STATE_INIT,      /**< TODO */
+   USB_HID_STATE_INIT2,     /**< TODO */
+   USB_HID_STATE_RUNNING,   /**< TODO */
+   USB_HID_STATE_WAIT_XFER, /**< TODO */
 } usb_hid_state_t;
 
 /**
@@ -204,6 +206,7 @@ typedef struct _usb_hid_dev_t
    usb_hid_state_t    state;      /**< Device's state.                        */
    usb_hid_protocol_t protocol;   /**< Device's protocol.                     */
    usb_hid_ctrycode_t ctry_code;  /**< Country code.                          */
+   TaskType           taskID;     /**< ID of user task that opened this HID.  */
    uint32_t           status;     /**< Status, see constant definitions.      */
    uint16_t           id;         /**< Device's ID within the USB stack.      */
    uint8_t            report[USB_HID_BUFF_LEN];/**< Report's buffer, capped at

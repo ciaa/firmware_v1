@@ -15,6 +15,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "os.h"
+
 #include "usb.h"
 #include "usbd.h"
 #include "usb_desc.h"
@@ -89,6 +91,7 @@ static int _deinit_dev( uint8_t index )
    pdev->status     = USB_HID_STATUS_FREE | USB_HID_STATUS_ENTRY;
    pdev->pstack     = NULL;
    pdev->id         = 0xFFFF;
+   pdev->taskID     = 255;
    pdev->protocol   = USB_HID_PROTO_NONE;
    pdev->state      = USB_HID_STATE_IDLE;
    pdev->report_len = 0;
@@ -329,6 +332,26 @@ static int _update_dev( uint8_t index )
          break;
 
       case USB_HID_STATE_RUNNING:
+         /* Waiting for user to open device and begin transfer. */
+         break;
+
+      case USB_HID_STATE_WAIT_XFER:
+         /* Waiting for transfer to complete. */
+         status = usb_irp_status(pdev->pstack, pdev->id, 0);
+         if (status == USB_STATUS_OK)
+         {
+            pdev->state = USB_HID_STATE_RUNNING;
+            SetEvent(pdev->taskID, POSIXE);
+         }
+         else if (status == USB_STATUS_XFER_WAIT)
+         {
+            /* This isn't an error, so notify update as OK. */
+            status = USB_STATUS_OK;
+         }
+         else
+         {
+            usb_assert(0); /** @TODO: handle error */
+         }
          break;
 
       default:
@@ -400,6 +423,7 @@ static int _open_dev( const char* str_num, int flags, usb_hid_protocol_t protoco
       {
          /* Matching device was found, mark it as open and return its index. */
          pdev->status |= USB_HID_STATUS_OPEN;
+         GetTaskID(&pdev->taskID);
          ret = index-1; /* -1 because of for loop's post increment. */
       }
    }
@@ -802,11 +826,12 @@ size_t usb_hid_read(int fd, void *buf, size_t count)
       pdev = &_hid_stack.devices[fd];
       if (!(status = usb_irp(pdev->pstack, pdev->id, 0, (uint8_t*) buf, count)))
       {
+         pdev->state = USB_HID_STATE_WAIT_XFER;
          /* Wait for transfer to complete. */
-         do
-         {
-            status = usb_irp_status(pdev->pstack, pdev->id, 0);
-         } while (status == USB_STATUS_XFER_WAIT);
+         CancelAlarm(ActivateUSBHIDTask);
+         WaitEvent(POSIXE);
+         ClearEvent(POSIXE);
+         SetRelAlarm(ActivateUSBHIDTask, 50, 50);
       }
    }
    else
