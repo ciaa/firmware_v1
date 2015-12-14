@@ -90,6 +90,8 @@ HCD_STATUS HcdRhPortDisable(uint8_t HostID)
 
 HCD_STATUS HcdRhPortReset(uint8_t HostID)
 {
+#if 0 /* Modified reset sequence to work with OSEK OS alarms. */
+
 	HcdDelayMS(PORT_RESET_PERIOD_MS);
 
 	USB_REG(HostID)->PORTSC1_H &= ~EHC_PORTSC_PortEnable;	/* Disable Port first */
@@ -101,7 +103,19 @@ HCD_STATUS HcdRhPortReset(uint8_t HostID)
 	/* PortEnable is always set - Deviation from EHCI */
 
 	HcdDelayMS(PORT_RESET_PERIOD_MS);
+
+#else
+
+	USB_REG(HostID)->PORTSC1_H &= ~EHC_PORTSC_PortEnable;	/* Disable Port first */
+	USB_REG(HostID)->PORTSC1_H |= EHC_PORTSC_PortReset;	/* Reset port */
+
+#endif
 	return HCD_STATUS_OK;
+}
+
+int HcdRhPortResetDone(uint8_t HostID)
+{
+	return !(USB_REG(HostID)->PORTSC1_H & EHC_PORTSC_PortReset);
 }
 
 HCD_STATUS HcdClearEndpointHalt(uint32_t PipeHandle)// FIXME not implemented

@@ -183,6 +183,14 @@ void HcdIrqHandler(uint8_t HostID);
 HCD_STATUS HcdRhPortReset(uint8_t HostID);
 
 /**
+ * @brief  Return whether USB bus reset is done.
+ *
+ * @param  HostID		: USB port number
+ * @return 0 if USB bus reset is still in progress, 1 otherwise.
+ */
+int HcdRhPortResetDone(uint8_t HostID);
+
+/**
  * @brief  Turn on 5V USB VBUS
  *
  * @param  HostID		: USB port number
