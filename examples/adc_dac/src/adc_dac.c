@@ -2,6 +2,7 @@
  * Copyright 2014, Gustavo Muro
  * Copyright 2014, Pablo Ridolfi
  * Copyright 2014, Juan Cecconi
+ * Copyright 2014, Fernando Beunza
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -54,6 +55,7 @@
  * GMuro        Gustavo Muro
  * PR           Pablo Ridolfi
  * JuCe         Juan Cecconi
+ * FB           Fernando Beunza
  *
  */
 
