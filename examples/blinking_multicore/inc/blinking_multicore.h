@@ -34,11 +34,11 @@
  *
  */
 
-#ifndef _BLINKING_H_
-#define _BLINKING_H_
-/** \brief Blinking example header file
+#ifndef BLINKING_MULTICORE_H
+#define BLINKING_MULTICORE_H
+/** \brief Blinking multicore example header file
  **
- ** This is a mini example of the CIAA Firmware
+ ** This is a mini example of the CIAA Firmware using multicore features
  **
  **/
 
@@ -46,7 +46,7 @@
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Blinking Blinking example header file
+/** \addtogroup Blinking Blinking multicore example header file
  ** @{ */
 
 /*
@@ -75,4 +75,5 @@
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _BLINKING_H_ */
+#endif /* #ifndef BLINKING_MULTICORE_H */
+
