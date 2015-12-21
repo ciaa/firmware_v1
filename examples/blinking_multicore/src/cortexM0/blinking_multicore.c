@@ -33,9 +33,9 @@
  *
  */
 
-/** \brief Blinking_echo example source file
+/** \brief Blinking multicore example source file
  **
- ** This is a mini example of the CIAA Firmware.
+ ** This is a mini example of the CIAA Firmware using multicore features.
  **
  **/
 
@@ -43,7 +43,7 @@
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup Blinking Blinking_echo example source file
+/** \addtogroup Blinking Blinking multicore example source file
  ** @{ */
 
 /*
@@ -72,7 +72,6 @@
 #include "ciaaPOSIX_stdio.h"    /* <= device handler header */
 #include "ciaaPOSIX_string.h"   /* <= string header */
 #include "ciaak.h"              /* <= ciaa kernel header */
-#include "ciaaMulticore.h"      /* <= multicore lib header */
 #include "blinking_multicore.h" /* <= own header */
 
 /*==================[macros and definitions]=================================*/
@@ -239,3 +238,4 @@ TASK(EventTaskSlave)
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+
