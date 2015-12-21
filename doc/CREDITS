@@ -2,12 +2,18 @@
  **
  ** Authors and their contributions to CIAA Firmware:
  **
- ** CIAA Firmware 1.0.0 UPA (06.12.2015)
+ ** CIAA Firmware 1.0.0 UPA (23.12.2015)
  **
  **   Following persons have invest a lot of effort and time to make
  **   CIAA Firmware become true. We hope you enjoy it. :)
  **
  **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
+ **      - #324 and #323 implement a master/slave system test with 2 CIAAs,
+ **         actually only an initial version is provided.
+ **      - #322 implement a first ioboard test.
+ **      - #327 rename blinking_modbus to blinking_modbus_slave
+ **      - #319 rename configuration files to _Cfg.h
+ **      - #318 fix wrong integer handling in modbus.
  **
  **   - Mariano Cerdeiro
  **      - Add support for the tool coverity to perform static checks
@@ -23,8 +29,10 @@
  **      - Extend the RTOS to be multicore
  **
  **   - Esteban Volentini (evolentini@gmail.com):
+ **      - #235 implement POSIX UART Drivers for FSL
  **
  **   - Juan Cecconi (jcecconi@numetron.com.ar):
+ **      - Improve rtostests to run in RAM.
  **
  ** Note: The release 0.7.0-alpha was performed based on a branch. The 0.7.0
  **       was never performed and therefore it can not be found on this list.
