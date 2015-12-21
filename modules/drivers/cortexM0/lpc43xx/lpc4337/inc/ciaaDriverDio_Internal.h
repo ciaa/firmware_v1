@@ -32,8 +32,8 @@
  *
  */
 
-#ifndef _CIAADRIVERDIO_INTERNAL_H_
-#define _CIAADRIVERDIO_INTERNAL_H_
+#ifndef CIAADRIVERDIO_INTERNAL_H
+#define CIAADRIVERDIO_INTERNAL_H
 /** \brief Internal Header file of DIO Driver
  **
  **/
@@ -88,4 +88,5 @@ typedef struct
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAADRIVERDIO_INTERNAL_H_ */
+#endif /* #ifndef CIAADRIVERDIO_INTERNAL_H */
+
