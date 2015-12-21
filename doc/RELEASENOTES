@@ -1,6 +1,6 @@
 /** \page RELEASENOTES Release Notes
  **
- ** CIAA Firmware 1.0.0 UPA (23.12.2015)
+ ** CIAA Firmware 1.0.0 Upa (23.12.2015) LTS
  **   #324 and #323 implement a master/slave system test with 2 CIAAs,
  **      actually only an initial version is provided.
  **   #322 implement a first ioboard test.
