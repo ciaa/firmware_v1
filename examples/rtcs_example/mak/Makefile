@@ -1,6 +1,10 @@
 ###############################################################################
 #
-# Copyright 2015, Juan Cecconi
+# Copyright 2015, Diego Ezequiel Vommaro
+# Copyright 2015, ACSE & CADIEEL
+#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+#    CADIEEL: http://www.cadieel.org.ar
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -31,5 +35,25 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# gdb config
-GDB_CFG				= $(GDB_PATH)$(DS)cfg$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)
+# Project Name: used for Project Path and OSEK configuration file
+PROJECT_NAME 			 	 = rtcs_example
+# Project path
+# Defined $(PROJECT_PAD) in Makefile.mine
+# source path
+$(PROJECT_NAME)_SRC_PATH   	 += $(PROJECT_PATH)$(DS)src
+# include path
+INC_FILES			   += $(PROJECT_PATH)$(DS)inc
+# library source files
+SRC_FILES 	  	   += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
+# configuration for OSEK-OS
+OIL_FILES		   += $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).oil   \
+                     $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).oilx
+
+# Modules needed for this example
+MODS ?= modules$(DS)posix           \
+	     modules$(DS)ciaak           \
+        modules$(DS)drivers         \
+	     modules$(DS)rtcs		      \
+	     modules$(DS)rtos            \
+	     modules$(DS)libs
+

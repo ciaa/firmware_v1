@@ -59,3 +59,5 @@ CONVERT_PATHS_4_COMPILER    = 0
 # define linker extension
 LD_EXTENSION                = exe
 
+# gdb Flag
+GDB_FLAGS 		   = $(LD_TARGET)

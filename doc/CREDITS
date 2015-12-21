@@ -2,6 +2,29 @@
  **
  ** Authors and their contributions to CIAA Firmware:
  **
+ ** CIAA Firmware 1.0.0 UPA (06.12.2015)
+ **
+ **   Following persons have invest a lot of effort and time to make
+ **   CIAA Firmware become true. We hope you enjoy it. :)
+ **
+ **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
+ **
+ **   - Mariano Cerdeiro
+ **
+ **   - Diego Ezequiel Vommaro
+ **      - Implementation of RTCS Library
+ **      - Implementation of matrix calculation library
+ **
+ **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):
+ **      - Extend the RTOS to be multicore
+ **
+ **   - Esteban Volentini (evolentini@gmail.com):
+ **
+ **   - Juan Cecconi (jcecconi@numetron.com.ar):
+ **
+ ** Note: The release 0.7.0-alpha was performed based on a branch. The 0.7.0
+ **       was never performed and therefore it can not be found on this list.
+ **
  ** CIAA Firmware 0.6.1 (10.08.2015)
  **
  **   Following persons have invest a lot of effort and time to make

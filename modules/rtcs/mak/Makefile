@@ -1,6 +1,10 @@
 ###############################################################################
 #
-# Copyright 2015, Juan Cecconi
+# Copyright 2015, Diego Ezequiel Vommaro
+# Copyright 2015, ACSE & CADIEEL
+#    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+#    CADIEEL: http://www.cadieel.org.ar
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -31,5 +35,21 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# gdb config
-GDB_CFG				= $(GDB_PATH)$(DS)cfg$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)
+# library
+LIBS 				     += rtcs
+# version
+rtcs_VERSION     = 0.1.0
+# library path
+rtcs_PATH 		   = $(ROOT_DIR)$(DS)modules$(DS)rtcs
+# library source path
+rtcs_SRC_PATH 	= $(rtcs_PATH)$(DS)src
+# library include path
+rtcs_INC_PATH 	= $(rtcs_PATH)$(DS)inc
+# library source files
+rtcs_SRC_FILES 	= $(wildcard $(rtcs_SRC_PATH)$(DS)*.c)
+# files to be generated
+# TODO see https://github.com/ciaa/Firmware/issues/277
+rtos_GEN_FILES += $(rtcs_PATH)$(DS)gen$(DS)src$(DS)Rtcs_Cfg.c.php	\
+   $(rtcs_PATH)$(DS)gen$(DS)src$(DS)Rtcs_Internal_Cfg.c.php	\
+	$(rtcs_PATH)$(DS)gen$(DS)inc$(DS)Rtcs_Cfg.h.php \
+   $(rtcs_PATH)$(DS)gen$(DS)inc$(DS)Rtcs_Internal_Cfg.h.php

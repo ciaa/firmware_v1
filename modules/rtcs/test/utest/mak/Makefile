@@ -1,6 +1,9 @@
 ###############################################################################
 #
-# Copyright 2015, Juan Cecconi
+# Copyright 2015, Diego Ezequiel Vommaro
+# Copyright 2015, ACSE & CADIEEL
+#    ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+#    CADIEEL: http://www.cadieel.org.ar
 #
 # This file is part of CIAA Firmware.
 #
@@ -31,14 +34,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
-# gdb path
-GDB_PATH 		   = $(ROOT_DIR)$(DS)modules$(DS)tools$(DS)gdb
+# unit test
+# unit tests include files
+rtcs_TST_INC_PATH = $(rtcs_PATH)$(DS)test$(DS)utest$(DS)inc 	 \
+                      modules$(DS)libs$(DS)inc                  \
+                      modules$(DS)posix$(DS)inc
 
-# gdb bin file
-GDB_BIN 		   = arm-none-eabi-gdb
-
-# gdb Flag
-GDB_FLAGS 		   = $(LD_TARGET) -ex "target remote localhost:3333"
-
-# gdb dependent makefile
--include $(GDB_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Makefile
+# unit tests dependencies
+rtcs_TST_MOD      =
+# extra mocks
+rtcs_TST_MOCKS    = ciaaLibs_Matrix.c ciaaPOSIX_string.c
