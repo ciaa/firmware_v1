@@ -536,6 +536,12 @@ generate : gen.intermediate
 $(rtos_GENERATED_FILES) : gen.intermediate
 .INTERMEDIATE: gen.intermediate
 gen.intermediate : $(OIL_4_GEN_DEP)
+ifdef MCORE
+	@echo "*** Generating OSEK using multicore options! ***"
+	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
+		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DMCORE=$(MCORE) \
+		-c $(OIL_FILES) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+else
 	@echo ' '
 	@echo ===============================================================================
 	@echo Run RTOS Generator
@@ -543,6 +549,7 @@ gen.intermediate : $(OIL_4_GEN_DEP)
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
 		-c $(OIL_4_GEN) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+endif
 
 ###############################################################################
 # doxygen
