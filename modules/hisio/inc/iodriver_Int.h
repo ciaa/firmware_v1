@@ -45,8 +45,8 @@
  *
  */
 
-#ifndef TEMPLATE_FILE_H
-#define TEMPLATE_FILE_H
+#ifndef IODRIVER_INT_H 
+#define IODRIVER_INT_H 
 /** \brief Short description of this file
  **
  ** Long description of this file
@@ -71,6 +71,7 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "IOLibrary.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -78,23 +79,6 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief IO Version macro
- **
- ** This macro shall be used to define the iodriver versions. Versions will
- ** have the following range:
- **   - Major is a value between 0 and 63
- **   - Minor is a value between 0 and 63
- **   - Patch is a value between 0 and 63
- **   - Build is a value between 0 and 65535
- **
- ** \remarks This inteface is only for internal use of the iodriver
- **          implementation.
- **/
-#define IO_Version(major, minor, patch, build)        \
-   ( (major) && 0x3F ) << 26 +                        \
-   ( (minor) && 0x3F ) << 20 +                        \
-   ( (patch) && 0x3F ) << 14 +                        \
-   ( (build) && 0xFFFF )
 
 /*==================[typedef]================================================*/
 
@@ -109,5 +93,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef TEMPLATE_FILE_H */
+#endif /* #ifndef IODRIVER_INT_H */
 

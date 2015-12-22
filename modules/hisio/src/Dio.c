@@ -31,86 +31,51 @@
  *
  */
 
-#ifndef IOLIBRARY_H
-#define IOLIBRARY_H
-/** \brief Short description of this file
+/** \brief IO DIO Driver source file
  **
- ** Long description of this file
+ ** This file contains is the Dio driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup HISIO HisIO Module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20151222 v0.0.1 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
+#include "iodriver_Int.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
-/** \brief Possible return values of IO_ErrorType
- **
- ** Values between 0 and 15 are reserved for the IO Library, between 16 and 63
- ** for the IO Drivers and between 64 and 127 are implementation specific.
- ** Values above 127 are reserved for future implementations.
- **
- **/
-#define IO_E_OK               0
-#define IO_E_BUSY             1
-#define IO_E_UNKOWN_MODE      2
+/*==================[internal data declaration]==============================*/
 
-/*==================[typedef]================================================*/
-typedef uint8_t IO_ErrorType;
+/*==================[internal functions declaration]=========================*/
 
-typedef uint32_t IO_SymbolicName;
+/*==================[internal data definition]===============================*/
 
-typedef uint32_t IO_SizeType;
+/*==================[external data definition]===============================*/
 
-typedef uint8_t IO_ModeType;
+/*==================[internal functions definition]==========================*/
 
-typedef uint8_t * IO_MemPtrType;
-
-/*==================[external data declaration]==============================*/
-
-/*==================[external functions declaration]=========================*/
-/** \brief
- **/
-extern IO_ErrorType IO_InitSync(IO_SymbolicName device, void * address);
-
-extern IO_ErrorType IO_DeInitSync(IO_SymbolicName device, void * address);
-
-extern IO_ErrorType IO_IoctlSync(IO_SymbolicName device, IO_ModeType mode,
-      void * address);
-
-extern IO_ErrorType IO_ReadSync(IO_SymbolicName device, IO_MemPtrType address,
-      IO_SizeType size);
-
-extern IO_ErrorType IO_WriteSync(IO_SymbolicName device, IO_MemPtrType address,
-      IO_SizeType size);
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[external functions definition]==========================*/
+extern IO_ErrorType Dio_InitSync(void * address)
+{
+   return IO_E_OK;
 }
-#endif
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef IOLIBRARY_H*/
 

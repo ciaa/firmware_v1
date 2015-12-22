@@ -31,34 +31,32 @@
  *
  */
 
-#ifndef IODRIVER_H
-#define IODRIVER_H
-/** \brief Short description of this file
+#ifndef IODRIVER_CFG_H
+#define IODRIVER_CFG_H
+/** \brief IO Driver Configuration File
  **
- ** Long description of this file
+ ** This file contains the IO Driver configuration
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup HISIO HisIO Module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20151222 v0.0.1 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "iodriver_Ext.h"
-#include "iodriver_Cfg.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -66,60 +64,12 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief Possible return values of IO_ErrorType
- **
- ** Values between 0 and 15 are reserved for the IO Library, between 16 and 63
- ** for the IO Drivers and between 64 and 127 are implementation specific.
- ** Values above 127 are reserved for future implementations.
- **
- **/
-#ifndef IO_E_OK
-#define IO_E_OK                  0
-#endif
-#ifndef IO_E_BUSY
-#define IO_E_BUSY                1
-#define
-#ifndef IO_E_UNKNOWN_MODE
-#define IO_E_UNKNOWN_MODE        2
-#endif
-#define IO_E_FCN_SUSPENDED       16
-#define IO_E_PARAM_IGNORED       17
-#define IO_E_INVALID_CHANNEL_ID  18
-#define IO_E_INVALID_VALUE       19
-#define IO_E_INVALID_SIZE        20
-#define IO_E_INVALID_POSITION    21
-#define IO_E_INVALID_NOTIF_TYPE  22
-
-/** \brief Returns the DIO Driver Version
- **
- ** \remarks This function shall be implemented as a macro, this is
- **          required on the specification.
- **/
-#define DIO_GetVersionOfDriver   IO_Version(0,0,1,0);
 
 /*==================[typedef]================================================*/
-typedef uint8_t IO_ErrorType;
-
-#if IO_PORT_SIZE == IO_PORT_SIZE_8
-typedef uint8_t IO_ValueType;
-#elif IO_PORT_SIZE == IO_PORT_SIZE_16
-typedef uint16_t IO_ValueType;
-#elif IO_PORT_SIZE == IO_PORT_SIZE_32
-typedef uint32_t IO_ValueType;
-#else
-#error Not supported IO_PORT_SIZE has been defined
-#endif
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief
- **/
-extern IO_ErrorType DIO_InitSync(void * address);
-
-extern IO_ErrorType DIO_DeInitSync(void * address);
-
-extern IO_ErrorType DIO_IoctlSync(IO_ModeType mode, void * address);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -128,5 +78,5 @@ extern IO_ErrorType DIO_IoctlSync(IO_ModeType mode, void * address);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef IODRIVER_H */
+#endif /* #ifndef IODRIVER_CFG_H */
 
