@@ -425,12 +425,41 @@ mocks:
 	ruby externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)lib$(DS)cmock.rb -omodules$(DS)tools$(DS)ceedling$(DS)project.yml $(FILES_TO_MOCK)
 
 ###############################################################################
+# rule to check trailing spaces
+code_sanity:
+	@echo ' '
+	@echo ===============================================================================
+	@echo Checking for trailing spaces
+	@./modules/tools/scripts/check_trailing_spaces.sh
+###############################################################################
+# rule to run osek oil generator tests
+osek_oil_gen_tst:
+PWD =$(shell pwd)
+SHUNIT = $(PWD)$(DS)externals$(DS)shunit$(DS)shunit2.sh
+TESTS = $(PWD)$(DS)modules$(DS)rtos$(DS)generator$(DS)tests$(DS)ftest
+FIXTURES = $(TESTS)$(DS)fixtures
+EXPECTED = $(TESTS)$(DS)expected
+TMP = $(TESTS)$(DS)tmp
+osek_oil_gen_tst: code_sanity
+	@echo ' '
+	@echo ===============================================================================
+	@echo Unit testing the module rtos_gen
+	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)rtos$(DS)generator$(DS)tests$(DS)utest$(DS)
+	@echo ' '
+	@echo ===============================================================================
+	@echo Functional testing the module rtos_gen
+	# TODO: make make dynamically call every test
+	@${TESTS}${DS}test_generator.sh $(SHUNIT) $(TESTS) $(DS)  $(FIXTURES) $(EXPECTED) $(TMP)
+	@${TESTS}${DS}test_stdoutwriter.sh $(SHUNIT) $(TESTS) $(DS)  $(FIXTURES) $(EXPECTED) $(TMP)
+
+###############################################################################
 # rule to inform about all available tests
 tst:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@$(MULTILINE_ECHO) "Following tst rules have been created:\n $(foreach TST,$(ALL_MODS),     tst_$(TST): run unit tests of $(TST)\n)"
+
 
 $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo ' '
@@ -542,7 +571,7 @@ gen.intermediate : $(OIL_4_GEN_DEP)
 	@echo ' '
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
-		-c $(OIL_4_GEN) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+		-c $(OIL_4_GEN) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 
 ###############################################################################
 # doxygen
