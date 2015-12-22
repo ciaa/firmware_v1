@@ -1,9 +1,8 @@
-<?php
-/* Copyright 2008, 2009, 2015 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
- * Copyright 2015, Carlos Pantelides
+/********************************************************
+ * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
+ ********************************************************/
+
+/* Copyright 2014 Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -36,30 +35,50 @@
  *
  */
 
-/** \brief FreeOSEK Generator caller
+/** \brief FreeOSEK Os Generated Internal Achitecture Configuration Implementation File
  **
- ** This file implements the FreeOSEK Generator caller
- **
- ** \file generator.php
- **
+ ** \file mips/Os_Internal_Arch_Cfg.c
+ ** \arch mips
  **/
 
 /** \addtogroup FreeOSEK
  ** @{ */
-/** \addtogroup Generator
+/** \addtogroup FreeOSEK_Os
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
 
+/*
+ * Initials     Name
+ * ---------------------------
+ * MaCe         Mariano Cerdeiro
+ */
+
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * v0.1.0 20141223 MaCe initial version to compile for pic32
+ */
 
 /*==================[inclusions]=============================================*/
-require_once("FileWriter.php");
-require_once("OilGenerator.php");
+#include "Os_Internal.h"
 
-/*=================[user functions]============================================*/
+/*==================[macros and definitions]=================================*/
 
+/*==================[internal data declaration]==============================*/
 
-$generator = new OilGenerator(new FileWriter());
-$generator->run($_SERVER['argv']);
+/*==================[internal functions declaration]=========================*/
 
+/*==================[internal data definition]===============================*/
+
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/*==================[end of file]============================================*/
+

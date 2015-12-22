@@ -1,10 +1,8 @@
 <?php
-/* Copyright 2008, 2009, 2015 Mariano Cerdeiro
+/* Copyright 2008, 2009 Mariano Cerdeiro
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
- * Copyright 2015, Carlos Pantelides
- * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -36,30 +34,27 @@
  *
  */
 
-/** \brief FreeOSEK Generator caller
- **
- ** This file implements the FreeOSEK Generator caller
- **
- ** \file generator.php
- **
- **/
+require_once ("config.php");
 
-/** \addtogroup FreeOSEK
- ** @{ */
-/** \addtogroup Generator
- ** @{ */
+$config->parseOilFile("example.oil");
 
+#$config->dump();
 
-/*==================[inclusions]=============================================*/
-require_once("FileWriter.php");
-require_once("OilGenerator.php");
+print "Tasks: " . $config->getCount("/OSEK","TASK") . "\n";
+print "TasksK List:\n";
 
-/*=================[user functions]============================================*/
+$tasks = $config->getList("/OSEK","TASK");
 
+$task_count=0;
 
-$generator = new OilGenerator(new FileWriter());
-$generator->run($_SERVER['argv']);
+foreach ($tasks as $task)
+{
+   print "Task " . $task_count++ . " Location " . $task . "\n";
+   $attributes = $config->getAttributes($task,"*");
+   foreach ($attributes as $attr)
+   {
+      print $attr . ": " . $config->getValue($task, $attr) . "\n";
+   }
+}
 
-
-/** @} doxygen end group definition */
-/** @} doxygen end group definition */
+?>

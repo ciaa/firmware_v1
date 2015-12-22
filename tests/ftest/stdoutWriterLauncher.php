@@ -51,13 +51,11 @@
 
 
 /*==================[inclusions]=============================================*/
-require_once("FileWriter.php");
-require_once("OilGenerator.php");
-
+require_once(dirname(__FILE__) . '/../../StdoutWriter.php');
+require_once(dirname(__FILE__) . '/../../OilGenerator.php');
 /*=================[user functions]============================================*/
 
-
-$generator = new OilGenerator(new FileWriter());
+$generator = new OilGenerator(new StdoutWriter());
 $generator->run($_SERVER['argv']);
 
 

@@ -1,9 +1,8 @@
-<?php
-/* Copyright 2008, 2009, 2015 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
- * Copyright 2015, Carlos Pantelides
+/********************************************************
+ * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
+ ********************************************************/
+
+/* Copyright 2014 Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -36,30 +35,56 @@
  *
  */
 
-/** \brief FreeOSEK Generator caller
+#ifndef _OS_INTERNAL_ARCH_CFG_H_
+#define _OS_INTERNAL_ARCH_CFG_H_
+
+/** \brief FreeOSEK Os Generated Internal Architecture Configuration Header File
  **
- ** This file implements the FreeOSEK Generator caller
+ ** This file content the internal generated architecture dependent
+ ** configuration of FreeOSEK.
  **
- ** \file generator.php
- **
+ ** \file mips/Os_Internal_Arch_Cfg.h
+ ** \arch mips
  **/
 
 /** \addtogroup FreeOSEK
  ** @{ */
-/** \addtogroup Generator
+/** \addtogroup FreeOSEK_Os
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
 
+/*
+ * Initials     Name
+ * ---------------------------
+ * MaCe         Mariano Cerdeiro
+ */
+
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * v0.1.0 20141223 MaCe initial version to compile for pic32
+ */
 
 /*==================[inclusions]=============================================*/
-require_once("FileWriter.php");
-require_once("OilGenerator.php");
 
-/*=================[user functions]============================================*/
+/*==================[macros]=================================================*/
 
+/*==================[typedef]================================================*/
+/** \brief Task Context Type */
+typedef struct {
+} TaskContextType;
 
-$generator = new OilGenerator(new FileWriter());
-$generator->run($_SERVER['argv']);
+/** \brief Task Context Type */
+typedef TaskContextType* TaskContextRefType;
 
+/*==================[external data declaration]==============================*/
+
+/*==================[external functions declaration]=========================*/
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/*==================[end of file]============================================*/
+#endif /* #ifndef _OS_INTERNAL_ARCH_CFG_H_ */
+

@@ -1,9 +1,5 @@
 <?php
-/* Copyright 2008, 2009, 2015 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
- * Copyright 2015, Carlos Pantelides
+ /* Copyright 2015, Carlos Pantelides
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -36,11 +32,11 @@
  *
  */
 
-/** \brief FreeOSEK Generator caller
+/** \brief FreeOSEK Generator
  **
- ** This file implements the FreeOSEK Generator caller
+ ** This file implements a Writer utility
  **
- ** \file generator.php
+ ** \file OutputWriter.php
  **
  **/
 
@@ -48,18 +44,39 @@
  ** @{ */
 /** \addtogroup Generator
  ** @{ */
+abstract class OutputWriter
+{
+   protected $buffering = false;
 
+   protected $log = null;
 
-/*==================[inclusions]=============================================*/
-require_once("FileWriter.php");
-require_once("OilGenerator.php");
+   abstract function close();
 
-/*=================[user functions]============================================*/
+   abstract function ob_file_callback($buffer);
 
+   public function start()
+   {
+      ob_start(array($this, 'ob_file_callback'));
+      $this->buffering = true;
+   }
 
-$generator = new OilGenerator(new FileWriter());
-$generator->run($_SERVER['argv']);
+   public function pause()
+   {
+      if($this->buffering == true)
+         ob_end_flush();
+   }
 
+   public function resume()
+   {
+      if($this->buffering == true)
+         $this->start();
+   }
+
+   public function setLog($log)
+   {
+      $this->log = $log;
+   }
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

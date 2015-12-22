@@ -38,7 +38,7 @@
  **
  ** This file implements the Configuration Class of the Generator
  **
- ** \file config.php
+ ** \file OilConfig.php
  **
  **/
 
@@ -60,32 +60,32 @@
  */
 
 /*==================[inclusions]=============================================*/
-require_once("oilParser.php");
+require_once("OilParser.php");
 
 /*==================[class definition]=======================================*/
-/** \brief configClass Configuration Class
+/** \brief OilConfig Configuration Class
  **
  ** This class implements the generation configuration class of FreeOSEK
  **
  **/
-class configClass {
+class OilConfig {
    protected $config = array();
 
-   function configClass()
+   function OilConfig()
    {
    }
 
    function parseOilFile($file)
    {
-      $parser = new oilParserClass($file);
+      $parser = new OilParser();
+      $parser->loadFile($file);
+      $parser->parse();
+      $this->config = $parser->getOil();
+   }
 
-      $tmp = $parser->getOil();
-
-      foreach ($tmp as $element)
-      {
-         $this->config[] = $element;
-      }
-
+   function setConfig($config)
+   {
+      $this->config = $config;
    }
 
    function parseAutosarFile()
@@ -94,110 +94,102 @@ class configClass {
 
    function getValue($root, $type)
    {
-      $ret = false;
       foreach ($this->config as $element)
       {
-         if ( ($element["root"] == $root) &&
-            ($element["type"] == $type) )
+         if ( ($element["root"] == $root) && ($element["type"] == $type) )
          {
-            $value = $element["value"];
-            if(strpos($value, "\"")!==false)
-            {
-               /* remove quotation marks */
-               $value = substr($value, 1, -1);
-            }
-            return $value;
+            return $element["value"];
          }
       }
-      return $ret;
+      return false;
    }
+//     DEAD CODE: waiting to be removed
+//    function getBase($db, $root)
+//    {
+//       $ret = array();
+//
+//       foreach($db as $el)
+//       {
+//          if ( $el["root"] == $root )
+//          {
+//             $ret[] = $el;
+//          }
+//       }
+//
+//       return $ret;
+//    }
 
-   function getBase($db, $root)
+   private function compare($element, $root, $type)
    {
-      $ret = array();
-
-      foreach($db as $el)
-      {
-         if ( $el["root"] == $root )
-         {
-            $ret[] = $el;
-         }
-      }
-
-      return $ret;
+      return ( $element['root']==$root &&
+         ($element['type'] == $type || $type == '*')
+      );
    }
-
 
    function getCount($root, $type)
    {
-      $ret = 0;
+      $count = 0;
 
       foreach ($this->config as $element)
       {
-         if ( ( ($element["root"] == $root) && ($element["type"] == $type) ) ||
-              ( ($element["root"] == $root) && ($type == "*") ) )
+         if ( $this->compare($element, $root, $type) )
          {
-            $ret++;
+            $count++;
          }
       }
 
-      return $ret;
+      return $count;
    }
 
    function getList($root, $type)
    {
-      $ret = array();
+      $list = array();
 
       foreach ($this->config as $element)
       {
-         if ( ( ($element["root"] == $root) && ($element["type"] == $type) ) ||
-              ( ($element["root"] == $root) && ($type == "*") ) )
+         if ( $this->compare($element, $root, $type) )
          {
-            $ret[] = $element["value"];
+            $list[] = $element["value"];
          }
       }
 
-      return $ret;
+      return $list;
    }
 
-   function listAll()
-   {
-      $ret = array();
+// DEAD CODE
+// @TODO check and erase
+//    function listAll()
+//    {
+//       return $this->listar($this->config);
+//    }
 
-      $ret = $this->listar($this->config);
-
-      return $ret;
-   }
-
-   function foo() {}
-
-   private function listar($dbase)
-   {
-      static $ret = array();
-      static $inst = -1;
-
-      $inst++;
-
-      if ($inst == 0)
-      {
-         $dbase = $this->config;
-      }
-
-      var_dump($dbase);
-
-      foreach ($dbase as $db)
-      {
-         $ret[] = $db["root"];
-         if ( $db["cont"]!=NULL)
-         {
-            $this->listar($db);
-         }
-      }
-
-      $inst--;
-
-      return $ret;
-   }
+// DEAD CODE
+// @TODO check and erase
+//    private function listar($dbase)
+//    {
+//       static $ret = array();
+//       static $inst = -1;
+//
+//       $inst++;
+//
+//       if ($inst == 0)
+//       {
+//          $dbase = $this->config;
+//       }
+//
+//       foreach ($dbase as $db)
+//       {
+//          $ret[] = $db["root"];
+//          if ( $db["cont"]!=NULL)
+//          {
+//             $this->listar($db);
+//          }
+//       }
+//
+//       $inst--;
+//
+//       return $ret;
+//    }
 
    private function getListIn($root, $dbase, $level)
    {
@@ -212,21 +204,23 @@ class configClass {
 
    }
 
-   function exist($root, $attr)
-   {
-      $attributes = $this->getAttributes($root);
-
-      foreach ($attributes as $attribute)
-      {
-         if ($attribute == $attr)
-         {
-            return true;
-         }
-      }
-
-      return false;
-
-   }
+//    DEAD CODE
+//    @TODO check and erase
+//    function exist($root, $attr)
+//    {
+//       $attributes = $this->getAttributes($root);
+//
+//       foreach ($attributes as $attribute)
+//       {
+//          if ($attribute == $attr)
+//          {
+//             return true;
+//          }
+//       }
+//
+//       return false;
+//
+//    }
 
    function getAttributes($root)
    {
@@ -251,9 +245,6 @@ class configClass {
 
 }
 
-$config = new configClass();
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/*==================[end of file]============================================*/
-?>

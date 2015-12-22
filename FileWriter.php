@@ -1,9 +1,5 @@
 <?php
-/* Copyright 2008, 2009, 2015 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
- * Copyright 2015, Carlos Pantelides
+ /* Copyright 2015, Carlos Pantelides
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -36,11 +32,11 @@
  *
  */
 
-/** \brief FreeOSEK Generator caller
+/** \brief FreeOSEK Generator
  **
- ** This file implements the FreeOSEK Generator caller
+ ** This file implements a File Writer utility
  **
- ** \file generator.php
+ ** \file FileWriter.php
  **
  **/
 
@@ -48,18 +44,56 @@
  ** @{ */
 /** \addtogroup Generator
  ** @{ */
+require_once("OutputWriter.php");
 
+class FileWriter extends OutputWriter
+{
 
-/*==================[inclusions]=============================================*/
-require_once("FileWriter.php");
-require_once("OilGenerator.php");
+   private $ob_file;
 
-/*=================[user functions]============================================*/
+   public function outputFileName($file,$baseOutDir,$directorySeparator)
+   {
+      $outfile = substr($file, 0, strlen($file)-4);
+      $outfile = substr($outfile, strpos($outfile, $directorySeparator)+strlen($directorySeparator) -1);
+      $outfile = $baseOutDir . $outfile;
+      return $outfile;
+   }
 
+   public function open($file,$baseOutDir,$directorySeparator)
+   {
+      $outfile = $this->outputFileName($file,$baseOutDir,$directorySeparator);
 
-$generator = new OilGenerator(new FileWriter());
-$generator->run($_SERVER['argv']);
+      $this->log->info("buffering ". $file . " to " . $outfile);
 
+      if(!file_exists(dirname($outfile)))
+      {
+         mkdir(dirname($outfile), 0777, TRUE);
+      }
+      if(file_exists($outfile))
+      {
+         $exists = true;
+         if(file_exists($outfile . ".old"))
+         {
+            unlink($outfile . ".old");
+         }
+         rename($outfile, $outfile . ".old");
+      }
+      $this->ob_file = fopen($outfile, "w");
+      return $outfile;
+   }
+
+   public function close()
+   {
+      $this->buffering=false;
+      ob_end_flush();
+      fclose($this->ob_file);
+   }
+
+   public function ob_file_callback($buffer)
+   {
+      fwrite($this->ob_file,$buffer);
+   }
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

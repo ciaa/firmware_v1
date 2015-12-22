@@ -3,6 +3,8 @@
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
+ * Copyright 2015, Carlos Pantelides
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -38,7 +40,7 @@
  **
  ** This file implements the Generator Oil Parser Class
  **
- ** \file oilParser.php
+ ** \file OilParser.php
  **
  **/
 
@@ -46,18 +48,6 @@
  ** @{ */
 /** \addtogroup Generator
  ** @{ */
-
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20080713 v0.1.0 MaCe       - initial version
- */
 
 /*==================[inclusions]=============================================*/
 
@@ -67,56 +57,98 @@
  ** This class implements the Oil Parser Class
  **
  **/
-class oilParserClass {
+class OilParser {
    protected $file;
    protected $lines;
    protected $line;
    protected $config = array();
+   protected $inst = 0; // must be reset before parser()
 
-   function removeComments()
+   public function removeMultiBlank($line)
    {
-      /* todo removeall comments */
+      return preg_replace("/[ \t]+/m", ' ', $line);
+   }
+
+   function normalize()
+   {
       for ($l = 0; $l < count($this->lines); $l++)
       {
+
+         $this->lines[$l] = $this->removeMultiBlank($this->lines[$l]);
+
          /* remove spaces and tabs at start and end of the line */
          $this->lines[$l] = trim($this->lines[$l]);
 
-         do
-         {
-            /* replaces multiply spaces with only one */
-            $this->lines[$l] = preg_replace('/ +/', " ", $this->lines[$l]);
-
-            /* remove multpy tabs or tabs with one space */
-            $this->lines[$l] = preg_replace('/\t/', " ", $this->lines[$l]);
-
-         }
-         while ( ( strlen($this->lines[$l]) > 1 ) &&
-                 ( strpos($this->lines[$l], "  ") !== false) );
-
          /* remove spaces sides of = */
-         $this->lines[$l] = str_replace(" = ", "=", $this->lines[$l]);
+         $this->lines[$l] = str_replace(" = ", "=", $this->lines[$l]);   // untested
 
          /* remove space before ; */
-         $this->lines[$l] = str_replace(" ;",";", $this->lines[$l]);
+         $this->lines[$l] = str_replace(" ;",";", $this->lines[$l]);     // untested
 
          /* remove ; */
-         $this->lines[$l] = str_replace(";","", $this->lines[$l]);
+         $this->lines[$l] = str_replace(";","", $this->lines[$l]);       // only one?
+      }
+      return $this->lines;
+   }
 
-         /* remove c++ comments */
-         if ( strpos($this->lines[$l],"//") !== false )
-         {
-            $tmp = split("//", $this->lines[$l]);
-            $this->lines[$l] = $tmp[0];
+   /**
+   /     state machine:
+   /    +-----------+       +-----------+
+   /    | searching +-found-> searching |
+   /    |  opening  <-found-+  closing  |
+   /    +-----------+       +-----------+
+   /    @todo: deal with two multiline comments in the same line
+   /
+   */
+
+   function removeComments()
+   {
+      $state = 'searching opening';
+
+      for ($l = 0; $l < count($this->lines); $l++)
+      {
+         if ($state == 'searching opening' ) {
+            $start = strpos($this->lines[$l], "/");
+            if ($start !== false)
+            {
+               if (substr($this->lines[$l],$start,2) == "/*")
+               {
+                  // is the closing in the same line?
+                  $end = strpos($this->lines[$l], "*/",$start);
+                  if ($end !== false)
+                  {
+                     $this->lines[$l] = substr($this->lines[$l],0,$start) . substr($this->lines[$l],$end + 2);
+                  }
+                  else
+                  {
+                     $state = 'searching closing';
+                     $this->lines[$l] = substr($this->lines[$l],0,$start);
+                  }
+               }
+               elseif (substr($this->lines[$l],$start,2) == "//")
+               {
+                  $this->lines[$l] =  substr($this->lines[$l],0,$start);
+               }
+            }
          }
-
-         /* remove c comments in a complete line*/
-         /* to do...remove complex comments */
-         if ( strpos($this->lines[$l], "/*") == 0 && strpos($this->lines[$l], "*/") == strlen($this->lines[$l])-2)
+         else // searching closing
          {
-            $this->lines[$l] = "";
+
+            $start = strpos($this->lines[$l], "*/");
+            if ($start !== false)
+            {
+               $state = 'searching opening';
+               $this->lines[$l] = substr($this->lines[$l],$start + 2);
+            }
+            else
+            {
+               $this->lines[$l] = '';
+            }
          }
       }
-   }
+      return $this->lines;
+    }
+
 
    function resetLine()
    {
@@ -130,14 +162,7 @@ class oilParserClass {
 
    function eof()
    {
-      $ret = false;
-
-      if ( $this->line == count ($this->lines) )
-      {
-         $ret = true;
-      }
-
-      return $ret;
+      return ( $this->line == count ($this->lines) );
    }
 
    function getDefinition()
@@ -176,11 +201,11 @@ class oilParserClass {
    {
       $config = array();
       $entry = array();
-      static $inst = 0;
-      $inst++;
 
-      while( ( ( $inst == 1 ) && ($this->eof() === false ) ) ||
-             ( ( $inst != 1 ) && (strpos($this->lines[$this->line],"}") === false  ) ) )
+      $this->inst++;
+
+      while( ( ( $this->inst == 1 ) && ($this->eof() === false ) ) ||
+             ( ( $this->inst != 1 ) && (strpos($this->lines[$this->line],"}") === false  ) ) )
       {
          $def = $this->getDefinition();
 
@@ -213,26 +238,41 @@ class oilParserClass {
             $this->nextLine();
          }
       }
-      if ( $inst != 1 )
+      if ( $this->inst != 1 )
       {
          $this->nextLine();
       }
 
-      $inst--;
+      $this->inst--;
    }
 
-   function oilParserClass($file)
+   /**
+   * @todo throw proper exception
+   */
+   function loadFile($file)
    {
       if (file_exists($file) == false) {
-         error('Configuration file ' . $file . ' not found.');
+         throw new Exception("Configuration file $file not found.");
       }
 
       $this->file = $file;
       $this->lines = file($file);
+   }
+   function loadArray($lines)
+   {
+      $this->lines=$lines;
+   }
+   function OilParser()
+   {
 
+   }
+   function parse()
+   {
       $entry = array();
 
       $this->removeComments();
+
+      $this->normalize();
 
       $this->resetLine();
 
@@ -255,6 +295,3 @@ class oilParserClass {
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/*==================[end of file]============================================*/
-?>
-
