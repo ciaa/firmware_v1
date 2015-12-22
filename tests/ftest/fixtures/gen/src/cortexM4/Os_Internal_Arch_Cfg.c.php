@@ -139,7 +139,7 @@ void DebugMon_Handler(void) {
 
 /*==================[external functions definition]==========================*/
 <?php
-switch ($definition["CPU"])
+switch ($definitions["CPU"])
 {
    case "mk60fx512vlq15":
       /* Interrupt sources for MK60F12.
@@ -317,13 +317,13 @@ switch ($definition["CPU"])
       break;
 
    default:
-     $this->log->error("the CPU " . $definition["CPU"] . " is not supported.");
+     $this->log->error("the CPU " . $definitions["CPU"] . " is not supported.");
       break;
 }
 
 $MAX_INT_COUNT = max(array_keys($intList))+1;
 
-if ($definition["CPU"] == "mk60fx512vlq15") : ?>
+if ($definitions["CPU"] == "mk60fx512vlq15") : ?>
 __attribute__ ((section(".isr_vector")))
 void (* const g_pfnVectors[])(void) = {
    /* System ISRs */
@@ -343,7 +343,7 @@ void (* const g_pfnVectors[])(void) = {
    0,                              /* Reserved                   */
    PendSV_Handler,                 /* The PendSV handler         */
    SysTick_Handler,                /* The SysTick handler        */
-<?php elseif ($definition["CPU"] == "lpc4337") : ?>
+<?php elseif ($definitions["CPU"] == "lpc4337") : ?>
 /** \brief LPC4337 Interrupt vector */
 __attribute__ ((section(".isr_vector")))
 void (* const g_pfnVectors[])(void) = {
@@ -365,7 +365,7 @@ void (* const g_pfnVectors[])(void) = {
    PendSV_Handler,                 /* The PendSV handler         */
    SysTick_Handler,                /* The SysTick handler        */
 <?php else :
-     $this->log->error("Not supported CPU: " . $definition["CPU"]);
+     $this->log->error("Not supported CPU: " . $definitions["CPU"]);
    endif;
 ?>
    /*** User Interruptions ***/
