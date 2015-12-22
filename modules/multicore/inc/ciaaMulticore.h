@@ -1,7 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, 2015, Mariano Cerdeiro
+/* Copyright 2015, Pablo Ridolfi <pridolfi@proyecto-ciaa.com.ar>
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,57 +31,102 @@
  *
  */
 
-#ifndef CIAAPOSIX_STDINT_H
-#define CIAAPOSIX_STDINT_H
-/** \brief POSIX stdin
+#ifndef MULTICORE_H
+#define MULTICORE_H
+/** \brief Multicore module main header file.
  **
- ** POSIX stdin header file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Multicore Multicore module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140910 v0.0.1 MaCe add support for k60_120
+ * 20150908 v0.0.1 PR   Initial version.
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPlatforms.h"
 
-#if (x86 == ARCH)
-#include "stdint.h"
-#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) || \
-        ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) ) )
-#include "stdint.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "stdint.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaLibs_CircBuf.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
 
+/** \brief List of available cores
+ */
+typedef enum
+{
+   CIAA_MULTICORE_CORE_0,  /**< current (master) core */
+   CIAA_MULTICORE_CORE_1   /**< first slave core available */
+}ciaaMulticore_cores_e;
+
+/** \brief message struct */
+typedef struct
+{
+      struct
+      {
+         uint32_t cpuid;
+         uint32_t pid;
+      }id;
+      uint32_t data0;
+      uint32_t data1;
+}ciaaMulticore_ipcMsg_t;
+
+/** \brief available inter-core commands */
+typedef enum
+{
+   CIAA_MULTICORE_CMD_ACTIVATETASK = 0x100,
+   CIAA_MULTICORE_CMD_SETEVENT = 0x200
+}ciaaMulticore_ipcCmd_t;
+
 /*==================[external data declaration]==============================*/
 
+extern ciaaLibs_CircBufType * ipc_queue;
+
 /*==================[external functions declaration]=========================*/
+
+/** \brief Start multicore operations
+ *  \return 0 on success, -1 on error
+ */
+extern int32_t ciaaMulticore_init(void);
+
+/** \brief Send message to inter-core queue and irq to other cores
+ *
+ * @param m message to send
+ * @return != 0 on success, -1 on error
+ */
+extern int32_t ciaaMulticore_sendMessage(ciaaMulticore_ipcMsg_t m);
+
+/** \brief Receive message from inter-core queue
+ *
+ * @param m message received
+ * @return != 0 on success, -1 on error (no msg available)
+ */
+extern int32_t ciaaMulticore_recvMessage(ciaaMulticore_ipcMsg_t  * m);
+
+/** \brief Process and dispatch a message received from a remote core
+ *
+ * @param m message to dispatch
+ * @return 0 on sucess, -1 in case of unknown message
+ */
+extern int32_t ciaaMulticore_dispatch_OSEK_API(ciaaMulticore_ipcMsg_t m);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -93,5 +135,4 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_STDINT_H */
-
+#endif /* #ifndef MULTICORE_H */

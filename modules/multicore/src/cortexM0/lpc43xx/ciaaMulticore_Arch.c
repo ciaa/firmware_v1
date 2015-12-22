@@ -1,7 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, 2015, Mariano Cerdeiro
+/* Copyright 2015, Pablo Ridolfi <pridolfi@proyecto-ciaa.com.ar>
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,64 +31,89 @@
  *
  */
 
-#ifndef CIAAPOSIX_STDINT_H
-#define CIAAPOSIX_STDINT_H
-/** \brief POSIX stdin
- **
- ** POSIX stdin header file
- **
- **/
+ /** \brief Multicore module main source file for Cortex-M0 core of LPC43xx CPUs
+  **
+  ** With this module you will be able to design multicore applications if
+  ** your current ARCH/CPU/CPUTYPE is supported.
+  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Multicore Multicore module for Cortex-M0
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140910 v0.0.1 MaCe add support for k60_120
+ * 20150908 v0.0.1 PR   Initial version.
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPlatforms.h"
 
-#if (x86 == ARCH)
-#include "stdint.h"
-#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) || \
-        ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) ) )
-#include "stdint.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "stdint.h"
+#if( (lpc43xx == CPUTYPE) && (lpc4337 == CPU) )
+   #include "chip.h"
 #else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
+   #error Multicore is not supported by the current ARCH/CPUTYPE/CPU
 #endif
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
-/*==================[macros]=================================================*/
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stddef.h"
+#include "ciaaMulticore.h"
+#include "ciaaLibs_CircBuf.h"
+#include "os.h"
 
-/*==================[typedef]================================================*/
+/*==================[macros and definitions]=================================*/
 
-/*==================[external data declaration]==============================*/
+#define CIAA_MULTICORE_IPC_QUEUE_ADDR ((void *)0x20008000)
+#define CIAA_MULTICORE_IPC_QUEUE_LEN (1024)
 
-/*==================[external functions declaration]=========================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[internal functions declaration]=========================*/
+
+/*==================[internal data definition]===============================*/
+
+/*==================[external data definition]===============================*/
+
+ciaaLibs_CircBufType * ipc_queue = (ciaaLibs_CircBufType *)(CIAA_MULTICORE_IPC_QUEUE_ADDR);
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+
+extern int32_t ciaaMulticore_init_Arch(void)
+{
+   NVIC_EnableIRQ(M4_IRQn);
+   return 0;
 }
-#endif
+
+extern int32_t ciaaMulticore_sendSignal_Arch(void)
+{
+   __DSB();
+   __SEV();
+   return 0;
+}
+
+ISR(M4_IRQHandler)
+{
+   static ciaaMulticore_ipcMsg_t m;
+   static int32_t rv;
+
+   LPC_CREG->M4TXEVENT = 0; 	/* ACK */
+
+   rv = ciaaMulticore_recvMessage(&m);
+   if((rv > 0)&&(m.id.cpuid == CIAA_MULTICORE_CORE_1))
+   {
+      ciaaMulticore_dispatch_OSEK_API(m);
+   }
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_STDINT_H */
-

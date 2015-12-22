@@ -1,7 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, 2015, Mariano Cerdeiro
+/* Copyright 2015, Pablo Ridolfi <pridolfi@proyecto-ciaa.com.ar>
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,50 +31,39 @@
  *
  */
 
-#ifndef CIAAPOSIX_STDINT_H
-#define CIAAPOSIX_STDINT_H
-/** \brief POSIX stdin
+#ifndef MULTICORE_ARCH_H
+#define MULTICORE_ARCH_H
+/** \brief Multicore module main header file.
  **
- ** POSIX stdin header file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Multicore Multicore module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140910 v0.0.1 MaCe add support for k60_120
+ * 20150908 v0.0.1 PR   Initial version.
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPlatforms.h"
 
-#if (x86 == ARCH)
-#include "stdint.h"
-#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) || \
-        ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) ) )
-#include "stdint.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "stdint.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
+#include "ciaaPOSIX_stdlib.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
@@ -86,6 +72,10 @@ extern "C" {
 
 /*==================[external functions declaration]=========================*/
 
+int32_t ciaaMulticore_init_Arch(void);
+
+int32_t ciaaMulticore_sendSignal_Arch(void);
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
@@ -93,5 +83,4 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_STDINT_H */
-
+#endif /* #ifndef MULTICORE_ARCH_H */
