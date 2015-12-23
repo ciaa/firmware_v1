@@ -134,6 +134,7 @@ class OilGenerator
    function processArgs($args)
    {
       $configFiles= array();
+      global $definitions;
       $definitions=array();
       $baseOutDir=array();
       $templateFiles=array();
