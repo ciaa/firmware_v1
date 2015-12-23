@@ -42,10 +42,11 @@ hisio_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)hisio
 hisio_SRC_PATH 	= $(hisio_PATH)$(DS)src
 # library include path
 hisio_INC_PATH 	= $(hisio_PATH)$(DS)inc				\
-						  out$(DS)gen$(DS)inc
+                    out$(DS)gen$(DS)inc
 # library source files
 hisio_SRC_FILES 	= $(wildcard $(hisio_SRC_PATH)$(DS)*.c)
 # files to be generated
 # TODO see https://github.com/ciaa/Firmware/issues/277
-rtos_GEN_FILES += $(hisio_PATH)$(DS)gen$(DS)inc$(DS)IODriver_Cfg.h.php
+rtos_GEN_FILES += $(hisio_PATH)$(DS)gen$(DS)inc$(DS)IODriver_Cfg.h.php	\
+						$(hisio_PATH)$(DS)gen$(DS)inc$(DS)Dio_Cfg.h.php
 

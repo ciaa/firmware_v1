@@ -31,11 +31,11 @@
  *
  */
 
-#ifndef IODRIVER_CFG_H
-#define IODRIVER_CFG_H
-/** \brief IO Driver Configuration File
+#ifndef DIO_CFG_H
+#define DIO_CFG_H
+/** \brief DIO Driver Configuration File
  **
- ** This file contains the IO Driver configuration
+ ** This file contains the DIO Driver configuration
  **
  **/
 
@@ -57,17 +57,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-<?php
-if ( $config->getCount("/DIL", "DIO") > 0) {
-   print "#include \"Dio_Cfg.h\"          /* Include Dio Driver */\n";
-}
-if ( $config->getCount("/DIL", "PWM") > 0) {
-   print "#include \"Pwm_Cfg.h\"          /* Include Pwm Driver */\n";
-}
-if ( $config->getCount("/DIL", "PWD") > 0) {
-   print "#include \"Pwd_Cfg.h\"          /* Include Pwd Driver */\n";
-}
-?>
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -75,10 +65,32 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+<?php
+$dios = $config->getList("/DIL", "DIO");
+foreach ($dios as $count=>$dio) {
+   $pins = $config->getList("/DIL/" . $dio, "PIN");
+   
+   foreach($pins as $count=>$pin) {
+      $pin_port = $config->getValue("/DIL/" . $dio . "/" . $pin, "PORT");
+      $pin_pin = $config->getValue("/DIL/" . $dio . "/" . $pin, "PIN");
+      print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " called " . $pin . " */\n";
+      print "#define " . $pin . " " . $count . "\n";
+   }
+}
+?>
 
 /*==================[typedef]================================================*/
+typedef struct {
+   uint8_t foo;
+} Dio_ConfigType;
 
 /*==================[external data declaration]==============================*/
+<?php
+foreach ($dios as $count=>$dio) {
+   print "/** \brief Configration of Dio Driver: " . $dio . " */\n";
+   print "extern Dio_ConfigType " . $dio . ";\n";
+}
+?>
 
 /*==================[external functions declaration]=========================*/
 
@@ -89,5 +101,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef IODRIVER_CFG_H */
+#endif /* #ifndef DIO_CFG_H */
 
