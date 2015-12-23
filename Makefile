@@ -699,6 +699,7 @@ version:
 ###############################################################################
 # performs a firmware release
 release:
+	@if [ `make version | grep master-0.0.0 | wc -l` -eq 1 ]; then echo "ERROR: please perform a release branch (e.g. release/1.0.x) and set the variable CIAA_FIRMWARE_VER correctly.\nERROR: Releases shall not be created based on master."; exit 1; fi
 	@echo If you continue you will lost:
 	@echo "   * Ignored files from repo"
 	@echo "   * not commited changes"
