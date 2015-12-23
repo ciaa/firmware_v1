@@ -103,21 +103,6 @@ class OilConfig {
       }
       return false;
    }
-//     DEAD CODE: waiting to be removed
-//    function getBase($db, $root)
-//    {
-//       $ret = array();
-//
-//       foreach($db as $el)
-//       {
-//          if ( $el["root"] == $root )
-//          {
-//             $ret[] = $el;
-//          }
-//       }
-//
-//       return $ret;
-//    }
 
    private function compare($element, $root, $type)
    {
@@ -141,7 +126,7 @@ class OilConfig {
       return $count;
    }
 
-   function getList($root, $type)
+   function getList($root, $type, $where = array() )
    {
       $list = array();
 
@@ -149,47 +134,16 @@ class OilConfig {
       {
          if ( $this->compare($element, $root, $type) )
          {
-            $list[] = $element["value"];
+            if (empty($where)) {
+               $list[] = $element["value"];
+            } else {
+              die();
+            }
          }
       }
 
       return $list;
    }
-
-// DEAD CODE
-// @TODO check and erase
-//    function listAll()
-//    {
-//       return $this->listar($this->config);
-//    }
-
-// DEAD CODE
-// @TODO check and erase
-//    private function listar($dbase)
-//    {
-//       static $ret = array();
-//       static $inst = -1;
-//
-//       $inst++;
-//
-//       if ($inst == 0)
-//       {
-//          $dbase = $this->config;
-//       }
-//
-//       foreach ($dbase as $db)
-//       {
-//          $ret[] = $db["root"];
-//          if ( $db["cont"]!=NULL)
-//          {
-//             $this->listar($db);
-//          }
-//       }
-//
-//       $inst--;
-//
-//       return $ret;
-//    }
 
    private function getListIn($root, $dbase, $level)
    {
@@ -203,24 +157,6 @@ class OilConfig {
       return $ret;
 
    }
-
-//    DEAD CODE
-//    @TODO check and erase
-//    function exist($root, $attr)
-//    {
-//       $attributes = $this->getAttributes($root);
-//
-//       foreach ($attributes as $attribute)
-//       {
-//          if ($attribute == $attr)
-//          {
-//             return true;
-//          }
-//       }
-//
-//       return false;
-//
-//    }
 
    function getAttributes($root)
    {

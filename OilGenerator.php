@@ -325,6 +325,7 @@ class OilGenerator
          $this->log->info("output directory: " . $baseOutDir);
       }
 
+      global $config;
       $config = new OilConfig();
       $runagain = false;
       foreach ($configFiles as $file)

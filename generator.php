@@ -55,11 +55,8 @@ require_once("FileWriter.php");
 require_once("OilGenerator.php");
 
 /*=================[user functions]============================================*/
-
-
 $generator = new OilGenerator(new FileWriter());
 $generator->run($_SERVER['argv']);
-
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
