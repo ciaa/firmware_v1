@@ -1,0 +1,203 @@
+/* Copyright 2014, Mariano Cerdeiro                                          */
+/* Copyright 2014, Pablo Ridolfi                                             */
+/* Copyright 2014, Juan Cecconi                                              */
+/* Copyright 2014, Gustavo Muro                                              */
+/*                                                                           */
+/* This file is part of CIAA Firmware.                                       */
+/*                                                                           */
+/* Redistribution and use in source and binary forms, with or without        */
+/* modification, are permitted provided that the following conditions are    */
+/* met:                                                                      */
+/*                                                                           */
+/* 1. Redistributions of source code must retain the above copyright notice, */
+/*    this list of conditions and the following disclaimer.                  */
+/*                                                                           */
+/* 2. Redistributions in binary form must reproduce the above copyright      */
+/*    notice, this list of conditions and the following disclaimer in the    */
+/*    documentation and/or other materials provided with the distribution.   */
+/*                                                                           */
+/* 3. Neither the name of the copyright holder nor the names of its          */
+/*    contributors may be used to endorse or promote products derived from   */
+/*    this software without specific prior written permission.               */
+/*                                                                           */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS       */
+/* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED */
+/* TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A           */
+/* PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER */
+/* OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,  */
+/* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,       */
+/* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR        */
+/* PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    */
+/* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING      */
+/* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS        */
+/* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.              */
+/*                                                                           */
+/*****************************************************************************/
+/*  Blinking example OIL configuration file                                  */
+/*                                                                           */
+/*  This file describes the current OSEK configuration.                      */
+/*  References:                                                              */
+/*  - OSEK OS standard: http://portal.osek-vdx.org/files/pdf/specs/os223.pdf */
+/*  - OSEK OIL standard: http://portal.osek-vdx.org/files/pdf/specs/oil25.pdf*/
+/*****************************************************************************/
+
+OSEK OSEK {
+
+   OS	ExampleOS {
+      STATUS = EXTENDED;
+      ERRORHOOK = TRUE;
+      PRETASKHOOK = FALSE;
+      POSTTASKHOOK = FALSE;
+      STARTUPHOOK = FALSE;
+      SHUTDOWNHOOK = FALSE;
+      USERESSCHEDULER = FALSE;
+      MEMMAP = FALSE;
+      MULTICORE = TRUE;
+   };
+
+   RESOURCE = POSIXR;
+
+   EVENT = POSIXE;
+
+   EVENT = RemoteEvent;
+
+   APPMODE = AppMode1;
+
+   TASK InitTaskMaster {
+      PRIORITY = 1;
+      ACTIVATION = 1;
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+      }
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = NON;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+      CORE = 0;
+   }
+
+   TASK InitTaskSlave {
+      PRIORITY = 1;
+      ACTIVATION = 1;
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+      }
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = NON;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+      CORE = 1;
+   }
+
+   TASK PeriodicTaskMaster {
+      PRIORITY = 2;
+      ACTIVATION = 1;
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = NON;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+      CORE = 0;
+   }
+
+   TASK EventTaskSlave {
+      PRIORITY = 2;
+      ACTIVATION = 1;
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = NON;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+      EVENT = RemoteEvent;
+      CORE = 1;
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+      }
+   }
+
+   TASK PeriodicTaskSlave {
+      PRIORITY = 2;
+      ACTIVATION = 1;
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = NON;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+      CORE = 1;
+   }
+
+   TASK LEDOffSlave {
+      PRIORITY = 2;
+      ACTIVATION = 1;
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = NON;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+      CORE = 1;
+   }
+
+   ALARM ActivatePeriodicTaskSlave {
+      COUNTER = HardwareCounterSlave;
+      ACTION = ACTIVATETASK {
+         TASK = PeriodicTaskSlave;
+      }
+      CORE = 1;
+   }
+
+   ALARM ActivateLEDOffSlave {
+      COUNTER = HardwareCounterSlave;
+      ACTION = ACTIVATETASK {
+         TASK = LEDOffSlave;
+      }
+      CORE = 1;
+   }
+
+   ALARM SetRemoteEvent {
+      COUNTER = HardwareCounterMaster;
+      ACTION = SETEVENT {
+         TASK = EventTaskSlave;
+         EVENT = RemoteEvent;
+      }
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+         ALARMTIME = 0;
+         CYCLETIME = 300;
+      }
+      CORE = 0;
+   }
+
+   COUNTER HardwareCounterSlave {
+      MAXALLOWEDVALUE = 1000;
+      TICKSPERBASE = 1;
+      MINCYCLE = 1;
+      TYPE = HARDWARE;
+      COUNTER = HWCOUNTER0;
+      CORE = 1;
+   };
+
+   COUNTER HardwareCounterMaster {
+      MAXALLOWEDVALUE = 1000;
+      TICKSPERBASE = 1;
+      MINCYCLE = 1;
+      TYPE = HARDWARE;
+      COUNTER = HWCOUNTER0;
+      CORE = 0;
+   };
+
+   ISR M0_IRQHandler {
+      CATEGORY = 2;
+      PRIORITY = 0;
+      INTERRUPT = M0APP;
+      CORE = 0;
+   }
+
+   ISR M4_IRQHandler {
+      CATEGORY = 2;
+      PRIORITY = 0;
+      INTERRUPT = M4CORE;
+      CORE = 1;
+   }
+};

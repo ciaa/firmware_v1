@@ -91,6 +91,8 @@ extern "C" {
 #define cortexM4              2
 /** \brief ARCH mips */
 #define mips                  3
+/** \brief ARCH cortexM0 */
+#define cortexM0              4
 
 /****** CPUTYPE macro definitions ******/
 /*** CPUTYPES for ARCH=x86 ***/
@@ -100,7 +102,7 @@ extern "C" {
 /** \brief CPUTTYPE ia64 */
 #define ia64                  2
 
-/*** CPUTYPES for ARCH=cortexM4 ***/
+/*** CPUTYPES for ARCH=cortexM4 and ARCH=cortexM0 ***/
 #define lpc43xx               1
 
 /*** CPUTYPES for ARCH=cortexM4 ***/
@@ -114,7 +116,7 @@ extern "C" {
 
 /*** CPU for ARCH=x86 CPUTYPE=ia64 ***/
 
-/*** CPU for ARCH=cortexM4 CPUTYPE=lpc43xx ***/
+/*** CPU for ARCH=cortexM4 or ARCH=cortexM0 and CPUTYPE=lpc43xx ***/
 #define lpc4337               1
 
 /*** CPU for ARCH=cortexM4 CPUTYPE=k60_120 ***/
@@ -167,6 +169,9 @@ extern "C" {
       ( ( CPUTYPE == ia32 ) || \
         ( CPUTYPE == ia64 ) ) )
 #elif ( ( ARCH == cortexM4 ) && \
+        ( CPUTYPE == lpc43xx ) && \
+        ( CPU == lpc4337 ) )
+#elif ( ( ARCH == cortexM0 ) && \
         ( CPUTYPE == lpc43xx ) && \
         ( CPU == lpc4337 ) )
 #elif ( ( ARCH == cortexM4 ) && \

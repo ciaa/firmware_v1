@@ -565,6 +565,12 @@ generate : gen.intermediate
 $(rtos_GENERATED_FILES) : gen.intermediate
 .INTERMEDIATE: gen.intermediate
 gen.intermediate : $(OIL_4_GEN_DEP)
+ifdef MCORE
+	@echo "*** Generating OSEK using multicore options! ***"
+	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
+		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DMCORE=$(MCORE) \
+		-c $(OIL_FILES) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+else
 	@echo ' '
 	@echo ===============================================================================
 	@echo Run RTOS Generator
@@ -572,6 +578,7 @@ gen.intermediate : $(OIL_4_GEN_DEP)
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
 		-c $(OIL_4_GEN) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+endif
 
 ###############################################################################
 # doxygen
@@ -846,12 +853,14 @@ info:
 
 ###############################################################################
 # clean
-.PHONY: clean generate all run
+.PHONY: clean generate all run multicore
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
+ifneq ($(KEEP_BIN), 1)
 	@echo Removing bin files
 	@rm -rf $(BIN_DIR)$(DS)*
+endif
 	@echo Removing RTOS generated files
 	@rm -rf $(GEN_DIR)$(DS)*
 	@echo Removing mocks
@@ -959,3 +968,67 @@ report:
 	make all 2>%1 >> report.log
 	@echo 'If you need help you can write to ciaa-firmware@googlegroups.com attaching the report file report.log.'
 	@echo 'Before asking for support please search for similar issues in the archive of ciaa-firmware@googlegroups.com.'
+
+###############################################################################
+# multicore generate rule
+mcore_generate:
+ifeq ($(CPUTYPE),lpc43xx)
+	@echo "*******************************************"
+	@echo "*** Generating Cortex-M0 application... ***"
+	@echo "*******************************************"
+	make ARCH=cortexM0 OUT_DIR=out/cortexM0 MCORE=1 generate
+	@echo "*******************************************"
+	@echo "*** Generating Cortex-M4 application... ***"
+	@echo "*******************************************"
+	make ARCH=cortexM4 OUT_DIR=out/cortexM4 MCORE=0 generate
+else
+	@echo '$(CPUTYPE) not supported for multicore.'
+endif
+
+###############################################################################
+# multicore rule
+mcore:
+ifeq ($(CPUTYPE),lpc43xx)
+	@echo "***************************************"
+	@echo "*** Making Cortex-M0 application... ***"
+	@echo "***************************************"
+	make ARCH=cortexM0 OUT_DIR=out/cortexM0
+	@echo "***************************************"
+	@echo "*** Making Cortex-M4 application... ***"
+	@echo "***************************************"
+	make ARCH=cortexM4 OUT_DIR=out/cortexM4
+else
+	@echo '$(CPUTYPE) not supported for multicore.'
+endif
+
+###############################################################################
+# multicore download rule
+mcore_download:
+ifeq ($(CPUTYPE),lpc43xx)
+	@echo "********************************************"
+	@echo "*** Downloading Cortex-M4 application... ***"
+	@echo "********************************************"
+	make ARCH=cortexM4 OUT_DIR=out/cortexM4 download
+	@echo "********************************************"
+	@echo "*** Downloading Cortex-M0 application... ***"
+	@echo "********************************************"
+	make ARCH=cortexM0 OUT_DIR=out/cortexM0 download
+else
+	@echo '$(CPUTYPE) not supported for multicore.'
+endif
+
+###############################################################################
+# multicore clean rule
+mcore_clean:
+ifeq ($(CPUTYPE),lpc43xx)
+	@echo "********************************************"
+	@echo "*** Cleaning Cortex-M4 application... ***"
+	@echo "********************************************"
+	make ARCH=cortexM4 OUT_DIR=out/cortexM4 clean
+	@echo "********************************************"
+	@echo "*** Cleaning Cortex-M0 application... ***"
+	@echo "********************************************"
+	make ARCH=cortexM0 OUT_DIR=out/cortexM0 clean
+else
+	@echo '$(CPUTYPE) not supported for multicore.'
+endif

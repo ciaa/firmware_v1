@@ -1,7 +1,5 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, 2015, Mariano Cerdeiro
+/* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2015, Pablo Ridolfi
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,53 +32,49 @@
  *
  */
 
-#ifndef CIAAPOSIX_STDINT_H
-#define CIAAPOSIX_STDINT_H
-/** \brief POSIX stdin
- **
- ** POSIX stdin header file
+#ifndef CIAADRIVERDIO_INTERNAL_H
+#define CIAADRIVERDIO_INTERNAL_H
+/** \brief Internal Header file of DIO Driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup DIO DIO Drivers
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * PR           Pablo Ridolfi
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20140910 v0.0.1 MaCe add support for k60_120
+ * 20150831 v0.0.2 PR driver improved
+ * 20140528 v0.0.1 PR initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPlatforms.h"
-
-#if (x86 == ARCH)
-#include "stdint.h"
-#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) || \
-        ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) ) )
-#include "stdint.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "stdint.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
+/** \brief Dio Type */
+typedef struct
+{
+   uint32_t port;
+   uint32_t pin;
+}ciaaDriverDio_dioType;
 
 /*==================[external data declaration]==============================*/
 
@@ -92,6 +86,7 @@ extern "C" {
 #endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
+/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_STDINT_H */
+#endif /* #ifndef CIAADRIVERDIO_INTERNAL_H */
 
