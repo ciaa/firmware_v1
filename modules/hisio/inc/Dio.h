@@ -31,11 +31,11 @@
  *
  */
 
-#ifndef IODRIVER_H
-#define IODRIVER_H
-/** \brief IO Drivers header file
+#ifndef DIO_H
+#define DIO_H
+/** \brief Dio Drivers header file
  **
- ** This file contains is the IO Drivers header file.
+ ** This file contains is the Dio Drivers header file.
  **
  **/
 
@@ -58,10 +58,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
-#include "IODriver_Cfg.h"
-#if (HISIO_DIO_ENABLE == HISIO_TRUE)
-#include "Dio.h"
-#endif
+#include "Dio_Arch.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -69,48 +66,69 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-/** \brief Possible return values of IO_ErrorType
+/** \brief Returns the DIO Driver Version
  **
- ** Values between 0 and 15 are reserved for the IO Library, between 16 and 63
- ** for the IO Drivers and between 64 and 127 are implementation specific.
- ** Values above 127 are reserved for future implementations.
+ ** \remarks This function shall be implemented as a macro, this is
+ **          required on the specification.
+ **/
+#define Dio_GetVersionOfDriver   IO_Version(0,0,1,0);
+
+#if (HISIO_DIO_ERRORHOOK == HISIO_DISABLE)
+/** \brief Reads a hardware pin
+ **
+ ** See description of Dio_GetSync as function declaration.
  **
  **/
-#ifndef IO_E_OK
-#define IO_E_OK                  0
-#endif
-#ifndef IO_E_BUSY
-#define IO_E_BUSY                1
-#endif
-#ifndef IO_E_UNKNOWN_MODE
-#define IO_E_UNKNOWN_MODE        2
-#endif
-#define IO_E_FCN_SUSPENDED       16
-#define IO_E_PARAM_IGNORED       17
-#define IO_E_INVALID_CHANNEL_ID  18
-#define IO_E_INVALID_VALUE       19
-#define IO_E_INVALID_SIZE        20
-#define IO_E_INVALID_POSITION    21
-#define IO_E_INVALID_NOTIF_TYPE  22
+#define Dio_SetSync              Dio_SetSync_Arch
+
+#define Dio_GetSync              Dio_GetSync_Arch
+#endif /* #if (HISIO_DIO_ERRORHOOK == HISIO_DISABLE) */
 
 /*==================[typedef]================================================*/
-typedef uint8_t IO_ErrorType;
-
-#if IO_PORT_SIZE == IO_PORT_SIZE_8
-typedef uint8_t IO_ValueType;
-#elif IO_PORT_SIZE == IO_PORT_SIZE_16
-typedef uint16_t IO_ValueType;
-#elif IO_PORT_SIZE == IO_PORT_SIZE_32
-typedef uint32_t IO_ValueType;
-#else
-#error Not supported IO_PORT_SIZE has been defined
-#endif
-
-typedef int IO_ModeType;
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief
+ **/
+extern IO_ErrorType Dio_InitSync(void * address);
+
+#if (HISIO_DIO_ERRORHOOK == HISIO_ENABLE)
+/** \brief Reads a hardware pin
+ **
+ ** This function returns the status of a pin of the hardware.
+ **
+ ** \param[in] channel indicate the channel to be read
+ ** \returns IO_LOW if the pin is in its low state and IO_HIGH if the pin is in
+ **          high state. If the pin is inverted over the configuration the
+ **          returned values are also inverted.
+ **
+ ** \remarks If errorhooks are enable this function may call it with the
+ **          error IO_E_INVALID_CHANNEL_ID if the provided channel is invalid.
+ **
+ ** \remarks This functionality is implemented as function if the errorhooks
+ **          are enable, and as macro in other case.
+ **/
+extern IO_ValueType Dio_GetSync(IO_ChannelType channel);
+
+/** \brief Writes a hardware pin
+ **
+ ** This function writes the status of a pin of the hardware.
+ **
+ ** \param[in] channel indicate the channel to be written
+ ** \param[in] value indicates the value IO_HIGH or IO_LOW to be written.
+ ** \returns nothing.
+ **
+ ** \remarks If errorhooks are enable this function may call it with the
+ **          error IO_E_INVALID_CHANNEL_ID if the provided channel is invalid
+ **          or IO_E_INVALID_VALUE if the parameter value is not set to
+ **          IO_HIGH neither to IO_LOW.
+ **
+ ** \remarks This functionality is implemented as function if the errorhooks
+ **          are enable, and as macro in other case.
+ **/
+extern void Dio_SetSync(IO_ChannelType channel, IO_ValueType value);
+#endif /* #if (HISIO_DIO_ERRORHOOK == HISIO_ENABLE) */
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -119,5 +137,5 @@ typedef int IO_ModeType;
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef IODRIVER_H */
+#endif /* #ifndef DIO_H */
 
