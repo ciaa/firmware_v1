@@ -31,11 +31,12 @@
  *
  */
 
-#ifndef IODRIVER_H
-#define IODRIVER_H
-/** \brief IO Drivers header file
+#ifndef IODRIVER_BASE_H
+#define IODRIVER_BASE_H
+/** \brief IO Drivers base header file
  **
- ** This file contains is the IO Drivers header file.
+ ** This file contains the basic declarations and definitions of
+ ** the IO Drivers.
  **
  **/
 
@@ -57,11 +58,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "IODriver_Base.h"
-#include "IODriver_Cfg.h"
-#if (HISIO_DIO_ENABLE == HISIO_TRUE)
-#include "Dio.h"
-#endif
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -69,8 +66,48 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief Possible return values of IO_ErrorType
+ **
+ ** Values between 0 and 15 are reserved for the IO Library, between 16 and 63
+ ** for the IO Drivers and between 64 and 127 are implementation specific.
+ ** Values above 127 are reserved for future implementations.
+ **
+ **/
+#ifndef IO_E_OK
+#define IO_E_OK                  0
+#endif
+#ifndef IO_E_BUSY
+#define IO_E_BUSY                1
+#endif
+#ifndef IO_E_UNKNOWN_MODE
+#define IO_E_UNKNOWN_MODE        2
+#endif
+#define IO_E_FCN_SUSPENDED       16
+#define IO_E_PARAM_IGNORED       17
+#define IO_E_INVALID_CHANNEL_ID  18
+#define IO_E_INVALID_VALUE       19
+#define IO_E_INVALID_SIZE        20
+#define IO_E_INVALID_POSITION    21
+#define IO_E_INVALID_NOTIF_TYPE  22
 
+#define IO_HIGH                  1
+#define IO_LOW                   0
 /*==================[typedef]================================================*/
+typedef uint8_t IO_ErrorType;
+
+#if IO_PORT_SIZE == IO_PORT_SIZE_8
+typedef uint8_t IO_ValueType;
+#elif IO_PORT_SIZE == IO_PORT_SIZE_16
+typedef uint16_t IO_ValueType;
+#elif IO_PORT_SIZE == IO_PORT_SIZE_32
+typedef uint32_t IO_ValueType;
+#else
+#error Not supported IO_PORT_SIZE has been defined
+#endif
+
+typedef int IO_ChannelType;
+
+typedef int IO_ModeType;
 
 /*==================[external data declaration]==============================*/
 
@@ -83,5 +120,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef IODRIVER_H */
+#endif /* #ifndef IODRIVER_BASE_H */
 

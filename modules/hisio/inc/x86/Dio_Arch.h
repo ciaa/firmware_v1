@@ -31,11 +31,11 @@
  *
  */
 
-#ifndef IODRIVER_H
-#define IODRIVER_H
-/** \brief IO Drivers header file
+#ifndef DIO_ARCH_H
+#define DIO_ARCH_H
+/** \brief Dio Architecture Drivers header file
  **
- ** This file contains is the IO Drivers header file.
+ ** This file contains is the Dio Architecture dependend Drivers header file.
  **
  **/
 
@@ -57,11 +57,6 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "IODriver_Base.h"
-#include "IODriver_Cfg.h"
-#if (HISIO_DIO_ENABLE == HISIO_TRUE)
-#include "Dio.h"
-#endif
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -69,6 +64,9 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+#define Dio_SetSync_Arch
+
+#define Dio_GetSync_Arch
 
 /*==================[typedef]================================================*/
 
@@ -83,5 +81,5 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef IODRIVER_H */
+#endif /* #ifndef DIO_ARCH_H */
 

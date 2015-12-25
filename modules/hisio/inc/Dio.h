@@ -73,6 +73,7 @@ extern "C" {
  **/
 #define Dio_GetVersionOfDriver   IO_Version(0,0,1,0);
 
+#if 0
 #if (HISIO_DIO_ERRORHOOK == HISIO_DISABLE)
 /** \brief Reads a hardware pin
  **
@@ -83,6 +84,7 @@ extern "C" {
 
 #define Dio_GetSync              Dio_GetSync_Arch
 #endif /* #if (HISIO_DIO_ERRORHOOK == HISIO_DISABLE) */
+#endif
 
 /*==================[typedef]================================================*/
 
@@ -128,6 +130,13 @@ extern IO_ValueType Dio_GetSync(IO_ChannelType channel);
  **          are enable, and as macro in other case.
  **/
 extern void Dio_SetSync(IO_ChannelType channel, IO_ValueType value);
+
+extern IO_ValueType Dio_GetPortSync(IO_ChannelType channel);
+
+extern void Dio_SetPortSync(IO_ChannelType channel, IO_ValueType value);
+
+extern void Dio_SetPortMaskedSync(IO_ChannelType channel, IO_ValueType value, IO_ValueType mask);
+
 #endif /* #if (HISIO_DIO_ERRORHOOK == HISIO_ENABLE) */
 
 /*==================[cplusplus]==============================================*/

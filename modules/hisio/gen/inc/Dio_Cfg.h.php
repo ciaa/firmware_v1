@@ -76,6 +76,14 @@ foreach ($dios as $count=>$dio) {
       print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " called " . $pin . " */\n";
       print "#define " . $pin . " " . $count . "\n";
    }
+
+   $ports = $config->getList("/DIL/" . $dio, "PORT");
+   
+   foreach($ports as $count=>$port) {
+      $port_port = $config->getValue("/DIL/" . $dio . "/" . $port, "PORT");
+      print "/** \brief Port: " . $port_port. " called " . $pin . " */\n";
+      print "#define " . $port . " " . $count . "\n";
+   }
 }
 ?>
 

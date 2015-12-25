@@ -41,8 +41,10 @@ hisio_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)hisio
 # library source path
 hisio_SRC_PATH 	= $(hisio_PATH)$(DS)src
 # library include path
-hisio_INC_PATH 	= $(hisio_PATH)$(DS)inc				\
+hisio_INC_PATH 	= $(hisio_PATH)$(DS)inc						\
+                    $(hisio_PATH)$(DS)inc$(DS)$(ARCH)		\
                     out$(DS)gen$(DS)inc
+
 # library source files
 hisio_SRC_FILES 	= $(wildcard $(hisio_SRC_PATH)$(DS)*.c)
 # files to be generated
