@@ -1,18 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * All rights reserved.
- *
- *    or
- *
- * Copyright 2014, Your Name <youremail@domain.com>
- * All rights reserved.
- *
- *    or
- *
- * Copyright 2014, ACSE & CADIEEL & Your Name <youremail@domain.com
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2015, Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -45,33 +31,34 @@
  *
  */
 
-#ifndef IODRIVER_INT_H 
-#define IODRIVER_INT_H 
-/** \brief Short description of this file
+#ifndef IODRIVER_INT_H
+#define IODRIVER_INT_H
+/** \brief IO Drivers Internal header file
  **
- ** Long description of this file
+ ** This file contains is the IO Internal Drivers header file.
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup HISIO HisIO Module
  ** @{ */
 
 /*
  * Initials     Name
  * ---------------------------
- *
+ * MaCe         Mariano Cerdeiro
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
+ * 20151222 v0.0.1 MaCe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "IOLibrary.h"
+#include "ciaaPOSIX_stdint.h"
+#include "IODriver.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -79,6 +66,25 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief Returns the DIO Driver Version
+ **
+ ** \remarks This function shall be implemented as a macro, this is
+ **          required on the specification.
+ **/
+#define Dio_GetVersionOfDriver   IO_Version(0,0,1,0);
+
+#if 0
+#if (HISIO_DIO_ERRORHOOK == HISIO_DISABLE)
+/** \brief Reads a hardware pin
+ **
+ ** See description of Dio_GetSync as function declaration.
+ **
+ **/
+#define Dio_SetSync              Dio_SetSync_Arch
+
+#define Dio_GetSync              Dio_GetSync_Arch
+#endif /* #if (HISIO_DIO_ERRORHOOK == HISIO_DISABLE) */
+#endif
 
 /*==================[typedef]================================================*/
 

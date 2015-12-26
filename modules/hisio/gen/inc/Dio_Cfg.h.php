@@ -68,8 +68,21 @@ extern "C" {
 <?php
 $dios = $config->getList("/DIL", "DIO");
 foreach ($dios as $count=>$dio) {
+   if ($count != 0) {
+      $this->error("Maximal one configuration is supported.");
+   }
+?>
+/** \brief DIO Configuration pointer
+ **
+ ** \remarks At the moment only one configuration is supported, so the
+ **          parameter is set to null pointer.
+ **
+ **/
+<?php
+   print "#define $dio  (*(uint8_t*)0)\n";
+
    $pins = $config->getList("/DIL/" . $dio, "PIN");
-   
+
    foreach($pins as $count=>$pin) {
       $pin_port = $config->getValue("/DIL/" . $dio . "/" . $pin, "PORT");
       $pin_pin = $config->getValue("/DIL/" . $dio . "/" . $pin, "PIN");
@@ -78,7 +91,7 @@ foreach ($dios as $count=>$dio) {
    }
 
    $ports = $config->getList("/DIL/" . $dio, "PORT");
-   
+
    foreach($ports as $count=>$port) {
       $port_port = $config->getValue("/DIL/" . $dio . "/" . $port, "PORT");
       print "/** \brief Port: " . $port_port. " called " . $pin . " */\n";
@@ -96,7 +109,7 @@ typedef struct {
 <?php
 foreach ($dios as $count=>$dio) {
    print "/** \brief Configration of Dio Driver: " . $dio . " */\n";
-   print "extern Dio_ConfigType " . $dio . ";\n";
+#   print "extern Dio_ConfigType " . $dio . ";\n";
 }
 ?>
 

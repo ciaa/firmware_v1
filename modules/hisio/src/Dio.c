@@ -55,7 +55,7 @@
  */
 
 /*==================[inclusions]=============================================*/
-#include "iodriver_Int.h"
+#include "IODriver_Int.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -73,6 +73,31 @@
 extern IO_ErrorType Dio_InitSync(void * address)
 {
    return IO_E_OK;
+}
+
+extern IO_ValueType Dio_GetSync(IO_ChannelType channel)
+{
+   return IO_HIGH;
+}
+
+extern void Dio_SetSync(IO_ChannelType channel, IO_ValueType value)
+{
+
+}
+
+extern IO_ValueType Dio_GetPortSync(IO_ChannelType channel)
+{
+   return 0xFF;
+}
+
+extern void Dio_SetPortSync(IO_ChannelType channel, IO_ValueType value)
+{
+
+}
+
+extern void Dio_SetPortMaskedSync(IO_ChannelType channel, IO_ValueType value, IO_ValueType mask)
+{
+
 }
 
 /** @} doxygen end group definition */
