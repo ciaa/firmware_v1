@@ -50,24 +50,6 @@
 /** \addtogroup Flash Flash Drivers
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150328 v0.0.3 FS   renamed seek to lseek
- * 20150201 v0.0.2 MaCe add seek function
- * 20141006 v0.0.1 EV   first initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaSerialDevices.h"
 

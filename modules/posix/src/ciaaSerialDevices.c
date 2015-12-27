@@ -43,19 +43,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * JuCe         Juan Cecconi
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140525 v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaSerialDevices.h"
 #include "ciaaPOSIX_stdio.h"

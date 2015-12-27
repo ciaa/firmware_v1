@@ -31,16 +31,6 @@
  *
  */
 
-/*
- * Initials     Name
- * ---------------------------
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverUart.h"
 #include "ciaaPOSIX_stdlib.h"

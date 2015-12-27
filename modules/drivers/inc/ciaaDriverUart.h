@@ -45,18 +45,6 @@
 /** \addtogroup UART UART Drivers
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140420 v0.0.1 MaCe initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaSerialDevices.h"

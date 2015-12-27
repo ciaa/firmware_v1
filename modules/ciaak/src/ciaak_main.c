@@ -41,18 +41,6 @@
 /** \addtogroup Template Template to start a new module
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- *
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaak.h"
 /* TODO configuration dependent includes */

@@ -44,18 +44,6 @@
 /** \addtogroup UnitTests Unit Tests
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * DeV          Diego Ezequiel Vommaro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150925 v0.0.1 DeV  initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "Rtcs_Internal.h"

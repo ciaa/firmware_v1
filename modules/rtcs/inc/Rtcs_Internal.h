@@ -48,18 +48,6 @@
 /** \addtogroup RTCS RTCS Implementation
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * DeV          Diego Ezequiel Vommaro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150721 v0.0.1 DeV  initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "Rtcs_Port.h"
 #include "Rtcs_Internal_Cfg.h"

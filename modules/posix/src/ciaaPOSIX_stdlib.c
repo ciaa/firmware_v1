@@ -45,20 +45,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * Initials     Name
- * ----------------------------
- * DiFe         Diego Fernandez
- * PR           Pablo Ridolfi
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150831 v0.0.2 PR   chunk address aligned for Cortex-M0
- * 20140524 v0.0.1 DiFe initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_stdint.h"

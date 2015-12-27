@@ -42,20 +42,6 @@
 /** \addtogroup PLC PLC Module
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * ErPe         Eric Pernia
- *
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140911 v0.0.1 ErPe initial version
- * 20150502 v0.0.1 ErPe rewrite for CIAA Firmware compatibility
- */
-
 /*==================[inclusions]=============================================*/
 #include "PLC_ElementaryDataTypes.h"
 #include "PLC_OperatingSystem.h"

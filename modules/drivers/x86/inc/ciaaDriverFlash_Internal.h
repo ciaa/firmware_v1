@@ -48,19 +48,6 @@
 /** \addtogroup Flash Flash Drivers
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * EsVo         Esteban Volentini
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140528 v0.0.1 EsVo initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_stdbool.h"

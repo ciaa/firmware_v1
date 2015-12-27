@@ -44,18 +44,6 @@
 /** \addtogroup PLC PLC Module
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * ErPe         Eric Pernia
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20120204 v0.0.1 ErPe initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "PLC_Registers.h"
 #include "PLC_Lib.h"
