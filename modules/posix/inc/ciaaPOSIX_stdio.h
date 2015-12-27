@@ -47,16 +47,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * EzEs         Ezequiel Esposito
- * MaCe         Mariano Cerdeiro
- * PaRi         Pablo Ridolfi
- * JuCe         Juan Cecconi
- * GMuro        Gustavo Muro
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20150822 v0.0.4 GMuro Add prefix ciaaPOSIX_ to open flags

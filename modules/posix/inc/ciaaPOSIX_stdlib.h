@@ -46,12 +46,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * DiFe         Diego Fernandez
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20140524 v0.0.1 DiFe initial version

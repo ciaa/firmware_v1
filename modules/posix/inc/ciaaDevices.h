@@ -46,12 +46,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20140422 v0.0.1 MaCe rework initial file

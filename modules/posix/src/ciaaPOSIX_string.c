@@ -44,14 +44,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * JuCe         Juan Cecconi
- * MaCe         Mariano Cerdeiro
- *
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20150301 v0.0.4 MaCe implement memset and memcmp

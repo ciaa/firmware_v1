@@ -41,14 +41,6 @@
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
- ** @{ */
-/*
- * Initials     Name
- * ---------------------------
- * EzEs         Ezequiel Esposito
- * MaCe         Mariano Cerdeiro
- */
-
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------

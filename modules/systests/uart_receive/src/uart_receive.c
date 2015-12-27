@@ -44,14 +44,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * GMuro        Gustavo Muro
- *
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20140804 v0.0.1 initials initial version

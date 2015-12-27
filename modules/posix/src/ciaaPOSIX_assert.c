@@ -42,12 +42,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20140615 v0.0.1 MaCe initial version

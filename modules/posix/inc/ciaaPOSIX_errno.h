@@ -44,12 +44,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * JuCe         Juan Cecconi
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20140904 v0.0.1 JuCe initial version

@@ -47,12 +47,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * FB           Fernando Beunza
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20140911 v0.0.1 FB initial version

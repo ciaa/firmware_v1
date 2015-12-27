@@ -49,13 +49,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * EsVo         Esteban Volentini
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20140528 v0.0.1 EsVo initial version

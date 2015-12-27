@@ -46,12 +46,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * Dev          Diego Ezequiel Vommaro
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20150801 v0.0.1 DeV  initial version

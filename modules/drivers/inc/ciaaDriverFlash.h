@@ -51,16 +51,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas
- * MaCe         Mariano Cerdeiro
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20150328 v0.0.3 FS   renamed seek to lseek

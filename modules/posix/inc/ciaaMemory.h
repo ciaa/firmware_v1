@@ -46,12 +46,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * EzEs         Ezequiel Esposito
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20140422 v0.0.2 EzEs initial version

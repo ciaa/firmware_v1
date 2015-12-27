@@ -43,13 +43,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * JuCe         Juan Cecconi
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20150311 v0.0.5 JuCe implement memcmp

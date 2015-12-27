@@ -45,12 +45,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * AP           Alejandro Permingeat
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  *

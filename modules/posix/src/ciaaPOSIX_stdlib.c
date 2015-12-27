@@ -46,13 +46,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ----------------------------
- * DiFe         Diego Fernandez
- * PR           Pablo Ridolfi
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20150831 v0.0.2 PR   chunk address aligned for Cortex-M0

@@ -44,13 +44,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * EsVo         Esteban Volentini
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20141121 v0.0.3 EsVo add host uart support

@@ -47,14 +47,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * EV           Esteban Volentini
- * FS           Franco J. Salinas Mendoza
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20150327 v0.0.3 FS   bugs fixed

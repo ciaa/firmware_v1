@@ -47,16 +47,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * GMuro        Gustavo Muro
- * PR           Pablo Ridolfi
- * JuCe         Juan Cecconi
- *
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20140805 v0.0.1   GMuro first functional version
