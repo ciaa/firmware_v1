@@ -50,15 +50,6 @@
 /** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20141125 v0.1.3 JuCe additional stack for x86 ARCH
- * 20090719 v0.1.2 MaCe rename file to Os_
- * 20090128 v0.1.1 MaCe add OSEK_MEMMAP check
- * 20080713 v0.1.0 MaCe initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "Os_Internal.h"
 

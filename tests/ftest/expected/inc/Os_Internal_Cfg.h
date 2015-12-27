@@ -54,19 +54,6 @@
 /** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20090719 v0.1.7 MaCe rename file to Os_
- * 20090331 v0.1.6 MaCe add USERESSCHEDULER evaluation
- * 20090330 v0.1.5 MaCe add NO_EVENTS macro
- * 20090327 v0.1.4 MaCe add declaration of the start task for the app. modes
- * 20090131 v0.1.3 MaCe add extern to CountersVar declaration
- * 20090130 v0.1.2 MaCe add OSEK_MEMMAP check
- * 20090128 v0.1.1 MaCe remove OSEK_ENABLE and OSEK_DISABLE macro, now defined in OpenGEN
- * 20080713 v0.1.0 MaCe initial version
- */
-/*==================[inclusions]=============================================*/
 
 /*==================[macros]=================================================*/
 /** \brief ERROR_CHECKING_STANDARD */
