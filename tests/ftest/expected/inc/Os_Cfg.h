@@ -56,12 +56,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20090719 v0.1.3 MaCe rename file to Os_

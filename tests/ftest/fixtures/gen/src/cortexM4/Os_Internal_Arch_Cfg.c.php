@@ -51,14 +51,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * PR           Pablo Ridolfi
- * Apermingeat  Alejandro Permingeat
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * v0.1.4 20150307 MaCe rework port for CIAA-FLS

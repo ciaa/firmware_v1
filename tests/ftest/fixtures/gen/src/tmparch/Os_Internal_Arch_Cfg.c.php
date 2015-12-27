@@ -75,12 +75,6 @@
  *
  * PLEASE REMOVE THIS COMMENT
  *****************************************************************************/
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
 #error this is a remember to remove the comment on the following line
 /*****************************************************************************
  * add a new version to this file, add the date, your initials and the main

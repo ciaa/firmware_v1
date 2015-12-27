@@ -51,13 +51,6 @@
  ** @{ */
 
 /*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * JuCe         Juan Cecconi
- */
-
-/*
  * modification history (new versions first)
  * -----------------------------------------------------------
  * 20141125 v0.1.3 JuCe additional stack for x86 ARCH
