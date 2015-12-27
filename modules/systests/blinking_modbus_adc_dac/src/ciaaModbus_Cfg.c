@@ -44,12 +44,6 @@
 /** \addtogroup Modbus CIAA Modbus
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140713 v0.0.1 initials initial
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaModbus_Cfg.h"
 #include "ciaaPOSIX_stdlib.h"

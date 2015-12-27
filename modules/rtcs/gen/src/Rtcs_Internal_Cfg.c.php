@@ -47,12 +47,6 @@
 /** \addtogroup RTCS RTCS Implementation
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150727 v0.1.0 DeV  initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "Rtcs_Internal.h"
 <?php

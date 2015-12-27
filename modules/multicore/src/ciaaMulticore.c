@@ -42,12 +42,6 @@
 /** \addtogroup Multicore Multicore module
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150908 v0.0.1 PR   Initial version.
- */
-
 /*==================[inclusions]=============================================*/
 
 #if( (lpc43xx == CPUTYPE) && (lpc4337 == CPU) )

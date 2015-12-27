@@ -41,12 +41,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140615 v0.0.1 MaCe initial version
- */
-
 /*==================[inclusions]=============================================*/
 
 /*==================[macros and definitions]=================================*/

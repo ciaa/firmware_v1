@@ -46,12 +46,6 @@
 /** \addtogroup CIAA Tester source file
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150827 v0.0.1   GMuro first functional version
- */
-
 /*==================[inclusions]=============================================*/
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"

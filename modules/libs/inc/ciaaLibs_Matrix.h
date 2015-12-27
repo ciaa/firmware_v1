@@ -47,12 +47,6 @@
 /** \addtogroup Libs CIAA Libraries
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150727 v0.0.1 DeV  initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdlib.h"
 

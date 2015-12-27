@@ -44,13 +44,6 @@
 /** \addtogroup DIO DIO Drivers
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150831 v0.0.2   PR improved version
- * 20140731 v0.0.1   PR first functional version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverDio.h"
 #include "ciaaDriverDio_Internal.h"

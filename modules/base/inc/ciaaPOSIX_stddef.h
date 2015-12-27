@@ -47,12 +47,6 @@
 /** \addtogroup Template Template to start a new module
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140910 v0.0.1 MaCe add support for k60_120
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPlatforms.h"

@@ -41,13 +41,6 @@
 /** \addtogroup UnitTests Unit Tests
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140612 v0.0.2 implement ciaaLibs_circBufFull and ciaaLibs_circBufEmpty
- * 20140611 v0.0.1 MaCe implement circular buffer
- */
-
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "mock_ciaaPOSIX_stdlib.h"

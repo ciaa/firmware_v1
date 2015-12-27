@@ -45,12 +45,6 @@
 /** \addtogroup UART UART Drivers
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140420 v0.0.1 MaCe initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaSerialDevices.h"

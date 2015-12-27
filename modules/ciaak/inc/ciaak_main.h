@@ -45,12 +45,6 @@
 /** \addtogroup Kernel CIAA Kernel
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_stddef.h"

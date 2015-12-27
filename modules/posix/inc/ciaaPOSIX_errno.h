@@ -43,12 +43,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140904 v0.0.1 JuCe initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 

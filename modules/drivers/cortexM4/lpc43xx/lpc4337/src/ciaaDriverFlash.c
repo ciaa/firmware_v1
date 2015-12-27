@@ -47,12 +47,6 @@
 /** \addtogroup Flash Flash Drivers
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20141006 v0.0.1  EV  first initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverFlash.h"
 

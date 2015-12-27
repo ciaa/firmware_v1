@@ -48,12 +48,6 @@
 /** \addtogroup RTCS RTCS Implementation
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150722 v0.0.1 DeV  initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "Rtcs_Port.h"
 

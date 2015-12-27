@@ -41,12 +41,6 @@
 /** \addtogroup ModuleTests Module Tests
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150522 v0.0.1 JuCe Initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaPOSIX_stdint.h"

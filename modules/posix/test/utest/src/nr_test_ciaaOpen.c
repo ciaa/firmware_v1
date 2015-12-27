@@ -46,12 +46,6 @@
 /** \addtogroup ModuleTests Module Tests
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaPOSIX_stdio.h"

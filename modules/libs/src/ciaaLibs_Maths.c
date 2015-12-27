@@ -41,12 +41,6 @@
 /** \addtogroup Template Template to start a new module
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 
 /*==================[macros and definitions]=================================*/

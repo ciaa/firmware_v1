@@ -44,12 +44,6 @@
 /** \addtogroup AIO AIO Drivers
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140911 v0.0.1   FB first functional version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverAio.h"
 #include "ciaaPOSIX_stdio.h"

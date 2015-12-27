@@ -47,12 +47,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140910 v0.0.1 MaCe add support for k60_120
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPlatforms.h"
 

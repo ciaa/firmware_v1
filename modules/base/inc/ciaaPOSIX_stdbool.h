@@ -47,12 +47,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 
 /*==================[cplusplus]==============================================*/

@@ -45,13 +45,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140422 v0.0.2 EzEs initial version
- * 20140420 v0.0.1 EzEs initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 

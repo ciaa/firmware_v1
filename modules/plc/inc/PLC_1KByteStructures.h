@@ -45,13 +45,6 @@
 /** \addtogroup PLC PLC Module
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150428 v0.0.1 ErPe & LeKo CIAA Firmware porting
- * 20120204 v0.0.1 ErPe initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "PLC_ElementaryDataTypes.h"
 

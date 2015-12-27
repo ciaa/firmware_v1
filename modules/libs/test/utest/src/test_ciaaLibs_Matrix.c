@@ -44,12 +44,6 @@
 /** \addtogroup UnitTests Unit Tests
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20151023 v0.0.1 DeV  initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaLibs_Matrix.h"

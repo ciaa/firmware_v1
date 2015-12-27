@@ -43,12 +43,6 @@
 /** \addtogroup DIO DIO Drivers
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140528 v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 

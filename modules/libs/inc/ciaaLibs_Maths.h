@@ -43,13 +43,6 @@
 /** \addtogroup Libs CIAA Libraries
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140613 v0.0.2 MaCe implement min, max, setBit and clearBit
- * 20140611 v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 
 /*==================[cplusplus]==============================================*/

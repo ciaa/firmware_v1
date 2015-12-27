@@ -43,12 +43,6 @@
 /** \addtogroup DIO DIO Drivers
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140913 v0.0.1 MaCe first stub version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverDio.h"
 #include "ciaaDriverDio_Internal.h"

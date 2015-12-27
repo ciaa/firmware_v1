@@ -44,12 +44,6 @@
 /** \addtogroup Updater CIAA Updater Service
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20141010 v0.0.1  EV  first initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaUpdate_Services.h"
 #include "ciaaUpdate_Protocol.h"

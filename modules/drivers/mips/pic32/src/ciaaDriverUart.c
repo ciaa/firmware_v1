@@ -44,11 +44,6 @@
 /** \addtogroup UART UART Drivers
  ** @{ */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverUart.h"
 #include "ciaaPOSIX_stdlib.h"
