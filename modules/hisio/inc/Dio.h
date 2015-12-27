@@ -131,6 +131,14 @@ extern IO_ValueType Dio_GetSync(IO_ChannelType channel);
  **/
 extern void Dio_SetSync(IO_ChannelType channel, IO_ValueType value);
 
+/** \brief Reads a port
+ **
+ ** This funcion reads a port status of the hardware.
+ **
+ ** \param[in] channel channel to be read
+ ** \returns returns input or output value of a port. Depening of the bus
+ **          size only the first 8, 16, 32 bits are relevant.
+ **/
 extern IO_ValueType Dio_GetPortSync(IO_ChannelType channel);
 
 extern void Dio_SetPortSync(IO_ChannelType channel, IO_ValueType value);
