@@ -828,10 +828,8 @@ size_t usb_hid_read(int fd, void *buf, size_t count)
       {
          pdev->state = USB_HID_STATE_WAIT_XFER;
          /* Wait for transfer to complete. */
-         CancelAlarm(ActivateUSBHIDTask);
          WaitEvent(POSIXE);
          ClearEvent(POSIXE);
-         SetRelAlarm(ActivateUSBHIDTask, 50, 50);
       }
    }
    else
