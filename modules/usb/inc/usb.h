@@ -235,9 +235,9 @@ typedef uint8_t usb_driver_handle_t;
  */
 typedef struct _usb_interface_t
 {
-   usb_pipe_t          endpoints[USB_MAX_ENDPOINTS]; /**< Array of endpoints.*/
-   uint16_t            n_endpoints;    /**< Number of endpoints.             */
-   usb_driver_handle_t driver_handle;  /**< Interface's driver handle.       */
+   usb_pipe_t          endpoints[USB_MAX_ENDPOINTS]; /**< Array of endpoints. */
+   uint16_t            n_endpoints;    /**< Number of endpoints.              */
+   usb_driver_handle_t driver_handle;  /**< Interface's driver handle.        */
    uint8_t             class;
    uint8_t             subclass;
    uint8_t             protocol;
@@ -257,29 +257,29 @@ typedef struct _usb_interface_t
 typedef enum _usb_dev_state_t
 {
    USB_DEV_STATE_WAITING_ACK,       /**< Waiting for a control transaction 
-                                         during enumeration to ACK.          */
-   USB_DEV_STATE_WAITING_DELAY,     /**< Waiting for a delay to expire.      */
-   USB_DEV_STATE_DISCONNECTED,      /**< No device connected.                */
-   USB_DEV_STATE_ATTACHED,          /**< Attached, waiting for power.        */
-   USB_DEV_STATE_POWERED,           /**< Powered, assert USB reset.          */
-   USB_DEV_STATE_RESET,             /**< Holding USB reset high for 10~20 ms.*/
+                                         during enumeration to ACK.           */
+   USB_DEV_STATE_WAITING_DELAY,     /**< Waiting for a delay to expire.       */
+   USB_DEV_STATE_DISCONNECTED,      /**< No device connected.                 */
+   USB_DEV_STATE_ATTACHED,          /**< Attached, waiting for power.         */
+   USB_DEV_STATE_POWERED,           /**< Powered, assert USB reset.           */
+   USB_DEV_STATE_RESET,             /**< Holding USB reset high for 10~20 ms. */
    USB_DEV_STATE_DEFAULT,           /**< Reseted, configuring pipes and new
-                                         address.                            */
-   USB_DEV_STATE_ADDRESS,           /**< Address being assigned.             */
+                                         address.                             */
+   USB_DEV_STATE_ADDRESS,           /**< Address being assigned.              */
    USB_DEV_STATE_CONFIGURING_PIPES, /**< Configure ctrl. pipe to new address
-                                         and request dev. desc.              */
-   USB_DEV_STATE_DEV_DESC,          /**< Parse dev. desc. and request config.
-                                         descriptor's first 9 bytes.         */
-   USB_DEV_STATE_CFG_DESC_9,        /**< Get cfg. desc.'s length and request
-                                         it full (up to 256 bytes).          */
-   USB_DEV_STATE_CFG_DESC,          /**< Parse cfg. desc. and request ifaces.
-                                         descriptors.                        */
+                                         and request dev. desc.               */
+   USB_DEV_STATE_DEV_DESC,          /**< Parse dev. desc. and request config. 
+                                         descriptor's first 9 bytes.          */
+   USB_DEV_STATE_CFG_DESC_LEN9,     /**< Get cfg. desc.'s length and request
+                                         it full (up to 256 bytes).           */
+   USB_DEV_STATE_CFG_DESC,          /**< Parse cfg. desc. and request ifaces. 
+                                         descriptors.                         */
    USB_DEV_STATE_UNLOCKING,         /**< */
    USB_DEV_STATE_UNLOCKING2,        /**< */
    USB_DEV_STATE_CONFIGURED,        /**< Configured, in stand by for
-                                         transactions.                       */
-   USB_DEV_STATE_SUSPENDED,         /**< Bus inactive, waiting for activity. */
-   USB_DEV_STATE_TEST,              /*   For testing purposes.               */
+                                         transactions.                        */
+   USB_DEV_STATE_SUSPENDED,         /**< Bus inactive, waiting for activity.  */
+   USB_DEV_STATE_TEST,              /*   For testing purposes.                */
 } usb_dev_state_t;
 
 /**
@@ -343,23 +343,23 @@ typedef struct _usb_device_t
  */
 typedef enum _usb_host_state_t
 {
-   USB_HOST_STATE_IDLE,      /**< Waiting for a device connection.           */
-   USB_HOST_STATE_RUNNING,   /**< At least one device connected and running. */
-   USB_HOST_STATE_SUSPENDED  /**< Bus inactive, waiting for activity.        */
+   USB_HOST_STATE_IDLE,      /**< Waiting for a device connection.            */
+   USB_HOST_STATE_RUNNING,   /**< At least one device connected and running.  */
+   USB_HOST_STATE_SUSPENDED  /**< Bus inactive, waiting for activity.         */
 } usb_host_state_t;
 
 /** @brief USB stack structure.  */
 typedef struct _usb_stack_t
 {
-   uint32_t         status;     /**< Stack status, see description.          */
-   uint16_t         ticks;      /**< 1-millisecond ticks count.              */
-   usb_host_state_t state;      /**< Stack's current state.                  */
-   usb_device_t     devices[USB_MAX_DEVICES];  /**< Array of devices.        */
+   uint32_t         status;     /**< Stack status, see description.           */
+   uint16_t         ticks;      /**< 1-millisecond ticks count.               */
+   usb_host_state_t state;      /**< Stack's current state.                   */
+   usb_device_t     devices[USB_MAX_DEVICES];  /**< Array of devices.         */
 #if (USB_MAX_HUBS > 0)
-   uint8_t          hubs[USB_MAX_HUBS];        /**< Array of HUB indices.    */
-   uint8_t          n_hubs;     /**< Number of connected HUBs.               */
+   uint8_t          hubs[USB_MAX_HUBS];        /**< Array of HUB indices.     */
+   uint8_t          n_hubs;     /**< Number of connected HUBs.                */
 #endif
-   uint8_t          n_devices;  /**< Number of connected devices.            */
+   uint8_t          n_devices;  /**< Number of connected devices.             */
 } usb_stack_t;
 
 
@@ -384,19 +384,19 @@ typedef int (*usb_fcn_remove_t)( usb_stack_t* pstack, uint16_t id );
 typedef struct _usb_driver_t
 {
    const uint16_t vendor_ID;
-   /**< Only probe devices that match this vendor ID, 0xFFFF to force.      */
+   /**< Only probe devices that match this vendor ID, 0xFFFF to force.        */
 
    const uint16_t product_ID;
-   /**< Only probe devices that match this product ID, 0xFFFF to force.     */
+   /**< Only probe devices that match this product ID, 0xFFFF to force.       */
 
    const usb_fcn_probe_t probe;
-   /**< Probing function, to determine driver compatibility with interface. */
+   /**< Probing function, to determine driver compatibility with interface.   */
 
    const usb_fcn_assign_t assign;
-   /**< Assignment function to bind driver to interface.                    */
+   /**< Assignment function to bind driver to interface.                      */
 
    const usb_fcn_remove_t remove;
-   /**< Remove and unbind interface from driver.                            */
+   /**< Remove and unbind interface from driver.                              */
 } usb_driver_t;
 
 /** @} USB driver callbacks */
