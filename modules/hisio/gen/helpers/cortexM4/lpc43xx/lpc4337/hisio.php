@@ -65,22 +65,22 @@ class Hisio extends Hisio_Base {
          "GPIO0[14]" => "P2_10",
          "GPIO0[15]" => "P1_20",
          /* port GPIO1 */
-         "GPIO0[0]" => "P1_7",
-         "GPIO0[1]" => "P1_8",
-         "GPIO0[2]" => "P1_9",
-         "GPIO0[3]" => "P1_10",
-         "GPIO0[4]" => "P1_11",
-         "GPIO0[5]" => "P1_12",
-         "GPIO0[6]" => "P1_13",
-         "GPIO0[7]" => "P1_14",
-         "GPIO0[8]" => "P1_5",
-         "GPIO0[9]" => "P1_6",
-         "GPIO0[10]" => "P2_9",
-         "GPIO0[11]" => "P2_11",
-         "GPIO0[12]" => "P2_12",
-         "GPIO0[13]" => "P2_13",
-         "GPIO0[14]" => "P3_4",
-         "GPIO0[15]" => "P3_5",
+         "GPIO1[0]" => "P1_7",
+         "GPIO1[1]" => "P1_8",
+         "GPIO1[2]" => "P1_9",
+         "GPIO1[3]" => "P1_10",
+         "GPIO1[4]" => "P1_11",
+         "GPIO1[5]" => "P1_12",
+         "GPIO1[6]" => "P1_13",
+         "GPIO1[7]" => "P1_14",
+         "GPIO1[8]" => "P1_5",
+         "GPIO1[9]" => "P1_6",
+         "GPIO1[10]" => "P2_9",
+         "GPIO1[11]" => "P2_11",
+         "GPIO1[12]" => "P2_12",
+         "GPIO1[13]" => "P2_13",
+         "GPIO1[14]" => "P3_4",
+         "GPIO1[15]" => "P3_5",
       );
       $this->addDioPins($dio_pins);
 
@@ -165,4 +165,4 @@ class Hisio extends Hisio_Base {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
+?>
