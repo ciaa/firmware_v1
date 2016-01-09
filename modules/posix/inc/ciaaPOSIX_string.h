@@ -44,22 +44,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * JuCe         Juan Cecconi
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150301 v0.0.4 MaCe implement memset and memcmp
- * 20140610 v0.0.3 MaCe implement memcpy
- * 20140608 v0.0.2 MaCe implement strlen, strcat, strcmp and strncmp
- * 20140530 v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_stddef.h"

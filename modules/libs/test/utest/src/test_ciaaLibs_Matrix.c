@@ -44,18 +44,6 @@
 /** \addtogroup UnitTests Unit Tests
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * DeV          Diego Ezequiel Vommaro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20151023 v0.0.1 DeV  initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaLibs_Matrix.h"

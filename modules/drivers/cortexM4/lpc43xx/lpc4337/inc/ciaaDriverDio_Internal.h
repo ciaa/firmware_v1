@@ -45,19 +45,6 @@
 /** \addtogroup DIO DIO Drivers
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * PR           Pablo Ridolfi
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150831 v0.0.2 PR driver improved
- * 20140528 v0.0.1 PR initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 

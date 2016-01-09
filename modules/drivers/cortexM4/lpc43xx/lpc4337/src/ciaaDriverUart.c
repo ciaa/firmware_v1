@@ -45,19 +45,6 @@
 /** \addtogroup UART UART Drivers
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * PaRi         Pablo Ridolfi
- * JuCe         Juan Cecconi
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140731 v0.0.1   PR first functional version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverUart.h"
 #include "ciaaPOSIX_stdlib.h"

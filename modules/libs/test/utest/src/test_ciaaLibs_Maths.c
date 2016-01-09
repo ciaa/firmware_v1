@@ -41,19 +41,6 @@
 /** \addtogroup ModuleTests Module Tests
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140613 v0.0.2 MaCe implement min, max, setBit and clearBit
- * 20140611 v0.0.1 MaCe implement power of two
- */
-
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaPOSIX_stdint.h"

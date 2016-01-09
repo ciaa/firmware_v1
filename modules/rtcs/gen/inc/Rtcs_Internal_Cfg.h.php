@@ -51,18 +51,6 @@
 /** \addtogroup RTCS RTCS Implementation
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * DeV          Diego Ezequiel Vommaro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20153110 v0.1.0 DeV  initial version
- */
-
 /*==================[inclusions]=============================================*/
 
 /*==================[cplusplus]==============================================*/

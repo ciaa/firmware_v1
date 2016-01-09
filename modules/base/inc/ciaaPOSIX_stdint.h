@@ -47,25 +47,14 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- *
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140910 v0.0.1 MaCe add support for k60_120
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPlatforms.h"
 
 #if (x86 == ARCH)
 #include "stdint.h"
 #elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) )
+        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) || \
+        ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) ) )
 #include "stdint.h"
 #elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
 #include "stdint.h"

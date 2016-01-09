@@ -42,23 +42,6 @@
 /** \addtogroup ModuleTests Module Tests
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * JuCe         Juan Cecconi
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150311 v0.0.5 JuCe implement memcmp
- * 20150309 v0.0.4 JuCe implement memset
- * 20141116 v0.0.3 JuCe improve strcpy
- * 20140610 v0.0.2 MaCe implement memcpy
- * 20140608 v0.0.1 MaCe implement strlen, strcat, strcmp and strncmp
- */
-
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaPOSIX_stdint.h"

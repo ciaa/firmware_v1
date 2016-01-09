@@ -152,7 +152,7 @@ kconfig              ?= $(LINUX_TOOLS_PATH)$(DS)kconfig$(DS)kconfig-qtconf
 
 ###############################################################################
 # CIAA Firmware version information
-CIAA_FIRMWARE_VER     = 1.0.0
+CIAA_FIRMWARE_VER     = master-0.0.0
 
 ###############################################################################
 # get OS
@@ -425,12 +425,41 @@ mocks:
 	ruby externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)lib$(DS)cmock.rb -omodules$(DS)tools$(DS)ceedling$(DS)project.yml $(FILES_TO_MOCK)
 
 ###############################################################################
+# rule to check trailing spaces
+code_sanity:
+	@echo ' '
+	@echo ===============================================================================
+	@echo Checking for trailing spaces
+	@./modules/tools/scripts/check_trailing_spaces.sh
+###############################################################################
+# rule to run osek oil generator tests
+osek_oil_gen_tst:
+PWD =$(shell pwd)
+SHUNIT = $(PWD)$(DS)externals$(DS)shunit$(DS)shunit2.sh
+TESTS = $(PWD)$(DS)modules$(DS)rtos$(DS)generator$(DS)tests$(DS)ftest
+FIXTURES = $(TESTS)$(DS)fixtures
+EXPECTED = $(TESTS)$(DS)expected
+TMP = $(TESTS)$(DS)tmp
+osek_oil_gen_tst: code_sanity
+	@echo ' '
+	@echo ===============================================================================
+	@echo Unit testing the module rtos_gen
+	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)rtos$(DS)generator$(DS)tests$(DS)utest$(DS)
+	@echo ' '
+	@echo ===============================================================================
+	@echo Functional testing the module rtos_gen
+	# TODO: make make dynamically call every test
+	@${TESTS}${DS}test_generator.sh $(SHUNIT) $(TESTS) $(DS)  $(FIXTURES) $(EXPECTED) $(TMP)
+	@${TESTS}${DS}test_stdoutwriter.sh $(SHUNIT) $(TESTS) $(DS)  $(FIXTURES) $(EXPECTED) $(TMP)
+
+###############################################################################
 # rule to inform about all available tests
 tst:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@$(MULTILINE_ECHO) "Following tst rules have been created:\n $(foreach TST,$(ALL_MODS),     tst_$(TST): run unit tests of $(TST)\n)"
+
 
 $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo ' '
@@ -536,13 +565,20 @@ generate : gen.intermediate
 $(rtos_GENERATED_FILES) : gen.intermediate
 .INTERMEDIATE: gen.intermediate
 gen.intermediate : $(OIL_4_GEN_DEP)
+ifdef MCORE
+	@echo "*** Generating OSEK using multicore options! ***"
+	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
+		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DMCORE=$(MCORE) \
+		-c $(OIL_FILES) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+else
 	@echo ' '
 	@echo ===============================================================================
 	@echo Run RTOS Generator
 	@echo ' '
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
-		-c $(OIL_4_GEN) -f $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+		-c $(OIL_4_GEN) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+endif
 
 ###############################################################################
 # doxygen
@@ -670,6 +706,7 @@ version:
 ###############################################################################
 # performs a firmware release
 release:
+	@if [ `make version | grep master-0.0.0 | wc -l` -eq 1 ]; then echo "ERROR: please perform a release branch (e.g. release/1.0.x) and set the variable CIAA_FIRMWARE_VER correctly.\nERROR: Releases shall not be created based on master."; exit 1; fi
 	@echo If you continue you will lost:
 	@echo "   * Ignored files from repo"
 	@echo "   * not commited changes"
@@ -816,12 +853,14 @@ info:
 
 ###############################################################################
 # clean
-.PHONY: clean generate all run
+.PHONY: clean generate all run multicore
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
+ifneq ($(KEEP_BIN), 1)
 	@echo Removing bin files
 	@rm -rf $(BIN_DIR)$(DS)*
+endif
 	@echo Removing RTOS generated files
 	@rm -rf $(GEN_DIR)$(DS)*
 	@echo Removing mocks
@@ -929,3 +968,67 @@ report:
 	make all 2>%1 >> report.log
 	@echo 'If you need help you can write to ciaa-firmware@googlegroups.com attaching the report file report.log.'
 	@echo 'Before asking for support please search for similar issues in the archive of ciaa-firmware@googlegroups.com.'
+
+###############################################################################
+# multicore generate rule
+mcore_generate:
+ifeq ($(CPUTYPE),lpc43xx)
+	@echo "*******************************************"
+	@echo "*** Generating Cortex-M0 application... ***"
+	@echo "*******************************************"
+	make ARCH=cortexM0 OUT_DIR=out/cortexM0 MCORE=1 generate
+	@echo "*******************************************"
+	@echo "*** Generating Cortex-M4 application... ***"
+	@echo "*******************************************"
+	make ARCH=cortexM4 OUT_DIR=out/cortexM4 MCORE=0 generate
+else
+	@echo '$(CPUTYPE) not supported for multicore.'
+endif
+
+###############################################################################
+# multicore rule
+mcore:
+ifeq ($(CPUTYPE),lpc43xx)
+	@echo "***************************************"
+	@echo "*** Making Cortex-M0 application... ***"
+	@echo "***************************************"
+	make ARCH=cortexM0 OUT_DIR=out/cortexM0
+	@echo "***************************************"
+	@echo "*** Making Cortex-M4 application... ***"
+	@echo "***************************************"
+	make ARCH=cortexM4 OUT_DIR=out/cortexM4
+else
+	@echo '$(CPUTYPE) not supported for multicore.'
+endif
+
+###############################################################################
+# multicore download rule
+mcore_download:
+ifeq ($(CPUTYPE),lpc43xx)
+	@echo "********************************************"
+	@echo "*** Downloading Cortex-M4 application... ***"
+	@echo "********************************************"
+	make ARCH=cortexM4 OUT_DIR=out/cortexM4 download
+	@echo "********************************************"
+	@echo "*** Downloading Cortex-M0 application... ***"
+	@echo "********************************************"
+	make ARCH=cortexM0 OUT_DIR=out/cortexM0 download
+else
+	@echo '$(CPUTYPE) not supported for multicore.'
+endif
+
+###############################################################################
+# multicore clean rule
+mcore_clean:
+ifeq ($(CPUTYPE),lpc43xx)
+	@echo "********************************************"
+	@echo "*** Cleaning Cortex-M4 application... ***"
+	@echo "********************************************"
+	make ARCH=cortexM4 OUT_DIR=out/cortexM4 clean
+	@echo "********************************************"
+	@echo "*** Cleaning Cortex-M0 application... ***"
+	@echo "********************************************"
+	make ARCH=cortexM0 OUT_DIR=out/cortexM0 clean
+else
+	@echo '$(CPUTYPE) not supported for multicore.'
+endif

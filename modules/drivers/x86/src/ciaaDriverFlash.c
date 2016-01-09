@@ -48,25 +48,6 @@
 /** \addtogroup Flash Flash Drivers
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150327 v0.0.4 FS   renamed seek to lseek
- * 20150327 v0.0.3 FS   bugs fixed
- * 20150201 v0.0.2 EV   first operating version
- * 20141006 v0.0.1 EV   first initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverFlash.h"
 #include "ciaaDriverFlash_Internal.h"

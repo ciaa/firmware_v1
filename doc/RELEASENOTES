@@ -1,5 +1,22 @@
 /** \page RELEASENOTES Release Notes
  **
+ ** CIAA Firmware 1.0.0 Upa (23.12.2015) LTS
+ **   #324 and #323 implement a master/slave system test with 2 CIAAs,
+ **      actually only an initial version is provided.
+ **   #322 implement a first ioboard test.
+ **   #327 rename blinking_modbus to blinking_modbus_slave
+ **   #319 rename configuration files to _Cfg.h
+ **   #318 fix wrong integer handling in modbus.
+ **   Add support for the tool coverity to perform static checks
+ **   #325 blinking_modbus is now called blinking_modbus_slave
+ **   Improve readme
+ **   #312 create a report make rule to provide user support
+ **   Implementation of RTCS Library
+ **   Implementation of matrix calculation library
+ **   Extend the RTOS to be multicore
+ **   #235 implement POSIX UART Drivers for FSL
+ **   Improve rtostests to run in RAM.
+ **
  ** CIAA Firmware 0.6.1 (10.08.2015)
  **   fix ADC driver for EDU-CIAA-NXP: #305
  **   correct bug in linker script.

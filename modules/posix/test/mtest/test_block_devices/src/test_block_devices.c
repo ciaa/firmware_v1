@@ -46,22 +46,6 @@
 /** \addtogroup Block Block Devices Tests
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * EV           Esteban Volentini
- * FS           Franco J. Salinas Mendoza
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150327 v0.0.3 FS   bugs fixed
- * 20150314 v0.0.2 EV   improved tests
- * 20150130 v0.0.1 MaCe Initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "os.h"                  /* <= operating system header */
 #include "ciaaPOSIX_stdio.h"     /* <= device handler header */

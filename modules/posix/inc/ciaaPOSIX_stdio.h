@@ -46,25 +46,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * EzEs         Ezequiel Esposito
- * MaCe         Mariano Cerdeiro
- * PaRi         Pablo Ridolfi
- * JuCe         Juan Cecconi
- * GMuro        Gustavo Muro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150822 v0.0.4 GMuro Add prefix ciaaPOSIX_ to open flags
- * 20150221 v0.0.3 MaCe separeate ioctl macros in multiple files
- * 20140528 v0.0.2 MaCe implement printf
- * 20140420 v0.0.1 EzEs initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDevices.h"
 #include "ciaaMemory.h"

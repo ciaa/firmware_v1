@@ -46,6 +46,7 @@ projects
 *.bak
 *.swp
 *~
+*.kate-swp
 
 # Unity runners
 *_Runner.c

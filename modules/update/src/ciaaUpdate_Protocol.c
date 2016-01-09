@@ -44,21 +44,6 @@
 /** \addtogroup Updater CIAA Updater Service
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20141010 v0.0.1  EV  first initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaUpdate_Protocol.h"
 
