@@ -1,4 +1,4 @@
-/* Copyright 2014, 2015 Mariano Cerdeiro
+/* Copyright 2014, 2015, 2016 Mariano Cerdeiro
  * Copyright 2014, Gustavo Muro
  * Copyright 2014, Pablo Ridolfi
  * Copyright 2014, Juan Cecconi
@@ -34,7 +34,7 @@
  *
  */
 
-/** \brief Blinking Modbus example source file
+/** \brief ADC DAC example source file
  **
  ** This is a mini example of the CIAA Firmware
  **
@@ -44,7 +44,7 @@
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup ADC DAC ADC & DAC example source file
+/** \addtogroup ADC_DAC ADC & DAC example source file
  ** @{ */
 
 /*
