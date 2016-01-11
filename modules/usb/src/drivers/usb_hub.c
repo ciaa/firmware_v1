@@ -20,10 +20,6 @@
 #include "drivers/usb_hub.h"
 
 
-/*==================[internal data declaration]==============================*/
-static usb_hub_stack_t _hub_stack; /* Maybe this shouldn't be static or at least not here like this... */
-
-
 /*==================[internal functions declaration]=========================*/
 
 /**
@@ -70,6 +66,28 @@ static int _validate_first_ep( const uint8_t** pbuffer, uint8_t* plen );
  */
 static int _parse_hub_desc( usb_hub_t* phub );
 
+/*
+ * State functions must follow the usb_hub_state_t enumeration order.
+ *
+ * Following functions do not assert input parameters, this is because they must
+ * not be called directly, rather through _update_dev() so there's no need.
+ */
+static int _usb_hub_state_idle( usb_hub_t* pdev );
+static int _usb_hub_state_desc_get( usb_hub_t* pdev );
+static int _usb_hub_state_desc_parse( usb_hub_t* pdev );
+static int _usb_hub_state_running( usb_hub_t* pdev );
+
+
+/*==================[internal data declaration]==============================*/
+static usb_hub_stack_t _hub_stack; /* Maybe this shouldn't be static or at least not here like this... */
+
+static usb_hub_state_fn _state_fn[] = {
+   _usb_hub_state_idle,
+   _usb_hub_state_desc_get,
+   _usb_hub_state_desc_parse,
+   _usb_hub_state_running,
+};
+
 
 /*==================[internal functions definition]==========================*/
 
@@ -80,7 +98,7 @@ static int _deinit_dev( uint8_t index )
    usb_assert(index < USB_MAX_HUBS);
 
    pdev = &_hub_stack.hubs[index];
-   pdev->status     = USB_HUB_STATUS_FREE | USB_HUB_STATUS_ENTRY;
+   pdev->status     = USB_HUB_STATUS_FREE;
    pdev->pstack     = NULL;
    pdev->id         = 0xFFFF;
    pdev->state      = USB_HUB_STATE_IDLE;
@@ -116,127 +134,10 @@ static int16_t _get_free_dev( void )
 
 static int _update_dev( uint8_t index )
 {
-   usb_stdreq_t stdreq;
-   usb_hub_t*   pdev;
-   int          status = USB_STATUS_OK;
-
+   usb_hub_t* pdev;
    usb_assert(index < USB_MAX_HUBS);
    pdev = &_hub_stack.hubs[index];
-
-   switch (pdev->state)
-   {
-      case USB_HUB_STATE_IDLE:
-         /* Do nothing and wait for an interface to be assigned to this HUB. */
-         if (!(pdev->status & USB_HUB_STATUS_FREE))
-         {
-            pdev->state      = USB_HUB_STATE_GET_DESC;
-            pdev->status    |= USB_HUB_STATUS_ENTRY;
-            /*
-             * Since we might need to retry the next request (because  we  don't
-             * yet know it's actual size), this signals it's the first try.
-             */
-            pdev->buffer_len = 0;
-         }
-         break;
-
-      case USB_HUB_STATE_GET_DESC:
-         if (pdev->status & USB_HUB_STATUS_ENTRY)
-         {
-            /* Request HUB descriptor. */
-            stdreq.bmRequestType = USB_STDREQ_REQTYPE(
-                  USB_DIR_IN,
-                  USB_STDREQ_TYPE_CLASS,
-                  USB_STDREQ_RECIP_DEV );
-            stdreq.bRequest      = USB_HUB_CLASSREQ_GET_DESCRIPTOR;
-            stdreq.wValue        = (USB_HUB_DESC_TYPE << 8);
-            stdreq.wIndex        = 0;
-            if (pdev->buffer_len == 0)
-            {
-               /* When trying for the first time, request the default size. */
-               stdreq.wLength       = USB_HUB_DESC_SIZE;
-            }
-            else
-            {
-               /* Otherwise, it's been read from the previous request. */
-               stdreq.wLength       = pdev->buffer_len;
-            }
-
-            pdev->buffer_len = USB_HUB_DESC_SIZE;
-            status = usb_ctrlirp(
-                  pdev->pstack,
-                  pdev->id,
-                  &stdreq,
-                  pdev->buffer
-            );
-            if (status == USB_STATUS_BUSY)
-            {
-               /* This isn't an error, so notify update as OK. */
-               status = USB_STATUS_OK;
-               break; /* Try again later... */
-            }
-            if (status != USB_STATUS_OK)
-            {
-               usb_assert(0); /** @TODO: handle error */
-            }
-            pdev->status &= ~USB_HUB_STATUS_ENTRY;
-         }
-         else
-         {
-            /* Waiting for Acknowledge... */
-            status = usb_irp_status(
-                  pdev->pstack,
-                  pdev->id,
-                  USB_CTRL_PIPE_TOKEN
-            );
-            if (status == USB_STATUS_XFER_WAIT)
-            {
-               /* This isn't an error, so notify update as OK. */
-               status = USB_STATUS_OK;
-               break; /* Keep waiting... */
-            }
-            if (status == USB_STATUS_EP_STALLED)
-            {
-               /* If endpoint was stalled, try again. */
-               /** @TODO this should be notified and NOT be done indefinitely */
-               pdev->status |= USB_HUB_STATUS_ENTRY;
-               break;
-            }
-            if (status != USB_STATUS_OK)
-            {
-               usb_assert(0); /** @TODO: handle error */
-            }
-
-            /* Everything's alright, parse the descriptor. */
-            status = _parse_hub_desc(pdev);
-            if (status == USB_STATUS_XFER_RETRY)
-            {
-               /* Descriptor was longer than expected, retry request. */
-               pdev->status  |= USB_HUB_STATUS_ENTRY;
-            }
-            else if (status != USB_STATUS_OK)
-            {
-               usb_assert(0); /** @TODO: handle error */
-            }
-            else
-            {
-               /* Advance to next state. */
-               pdev->state   = USB_HUB_STATE_RUNNING;
-               pdev->status |= USB_HUB_STATUS_ENTRY;
-            }
-         }
-         break;
-
-      case USB_HUB_STATE_RUNNING:
-         break;
-
-      default:
-         pdev->state   = USB_HUB_STATE_IDLE;
-         pdev->status |= USB_HUB_STATUS_ENTRY;
-         status = USB_STATUS_OK;
-         break;
-   }
-
-   return status;
+   return _state_fn[pdev->state](pdev);
 }
 
 static int _validate_first_ep(const uint8_t** pbuffer, uint8_t* plen )
@@ -369,6 +270,121 @@ static int _parse_hub_desc( usb_hub_t* phub )
 
    return ret;
 }
+
+
+static int _usb_hub_state_idle( usb_hub_t* pdev )
+{
+   if (!(pdev->status & USB_HUB_STATUS_FREE))
+   {
+      /*
+       * Since we might need to retry the next request  (because  we  don't  yet
+       * know it's actual size), this signals it is the first try.
+       */
+      pdev->buffer_len = 0;
+      pdev->state      = USB_HUB_STATE_DESC_GET;
+   }
+   return USB_STATUS_OK;
+}
+
+static int _usb_hub_state_desc_get( usb_hub_t* pdev )
+{
+   usb_stdreq_t stdreq;
+   int          status;
+
+   /* Request HUB descriptor. */
+   stdreq.bmRequestType = USB_STDREQ_REQTYPE(
+         USB_DIR_IN,
+         USB_STDREQ_TYPE_CLASS,
+         USB_STDREQ_RECIP_DEV );
+   stdreq.bRequest      = USB_HUB_CLASSREQ_GET_DESCRIPTOR;
+   stdreq.wValue        = (USB_HUB_DESC_TYPE << 8);
+   stdreq.wIndex        = 0;
+   if (pdev->buffer_len == 0)
+   {
+      /* When trying for the first time, request the default size. */
+      stdreq.wLength       = USB_HUB_DESC_SIZE;
+   }
+   else
+   {
+      /* Otherwise, it's been read from the previous request or being retried.*/
+      stdreq.wLength       = pdev->buffer_len;
+   }
+   
+   pdev->buffer_len = USB_HUB_DESC_SIZE;
+   status = usb_ctrlirp(
+         pdev->pstack,
+         pdev->id,
+         &stdreq,
+         pdev->buffer
+   );
+   if (status == USB_STATUS_BUSY)
+   {
+      /* This isn't an error, so notify update as OK. */
+      status = USB_STATUS_OK;
+   }
+   else if (status != USB_STATUS_OK)
+   {
+      usb_assert(0); /** @TODO: handle error */
+   }
+   else /* USB_STATUS_OK */
+   {
+      pdev->state = USB_HUB_STATE_DESC_PARSE;
+   }
+   return status;
+}
+
+static int _usb_hub_state_desc_parse( usb_hub_t* pdev )
+{
+   int status;
+
+   /* Waiting for Acknowledge... */
+   status = usb_irp_status(
+         pdev->pstack,
+         pdev->id,
+         USB_CTRL_PIPE_TOKEN
+   );
+   if (status == USB_STATUS_XFER_WAIT)
+   {
+      /* This isn't an error, so notify update as OK and keep waiting. */
+      status = USB_STATUS_OK;
+   }
+   else if (status == USB_STATUS_EP_STALLED)
+   {
+      /* If endpoint was stalled, try again. */
+      /** @TODO this should be notified and NOT be done indefinitely */
+      pdev->state = USB_HUB_STATE_DESC_GET;
+   }
+   else if (status != USB_STATUS_OK)
+   {
+      usb_assert(0); /** @TODO: handle error */
+   }
+   else /* USB_STATUS_OK */
+   {
+      /* Everything's alright, parse the descriptor. */
+      status = _parse_hub_desc(pdev);
+      if (status == USB_STATUS_XFER_RETRY)
+      {
+         /* Descriptor was longer than expected, retry request. */
+         pdev->state = USB_HUB_STATE_DESC_GET;
+      }
+      else if (status != USB_STATUS_OK)
+      {
+         usb_assert(0); /** @TODO: handle error */
+      }
+      else /* USB_STATUS_OK */
+      {
+         /* Advance to next state. */
+         pdev->state   = USB_HUB_STATE_RUNNING;
+      }
+   }
+   return status;
+}
+
+static int _usb_hub_state_running( usb_hub_t* pdev )
+{
+   return USB_STATUS_OK;
+}
+
 
 
 /*==================[external functions definition]==========================*/

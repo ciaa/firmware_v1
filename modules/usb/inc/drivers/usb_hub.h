@@ -197,16 +197,14 @@ extern "C" {
 #define USB_HUB_STATUS_INIT         (1 << 1)
 /** @brief Whether device has been opened by user code. */
 #define USB_HUB_STATUS_OPEN         (1 << 2)
-/** @brief Whether entry actions are to be executed.  */
-#define USB_HUB_STATUS_ENTRY        (1 << 3)
 /** @brief Whether HUB supports individual port power switching. */
-#define USB_HUB_STATUS_INDIV_POWER  (1 << 4)
+#define USB_HUB_STATUS_INDIV_POWER  (1 << 3)
 /** @brief Whether it is a compound device. */
-#define USB_HUB_STATUS_COMPOUND_DEV (1 << 5)
+#define USB_HUB_STATUS_COMPOUND_DEV (1 << 4)
 /** @brief Whether HUB reports individual port over-current protection. */
-#define USB_HUB_STATUS_INDIV_OVC    (1 << 6)
+#define USB_HUB_STATUS_INDIV_OVC    (1 << 5)
 /** @brief Whether HUB supports port indicators. */
-#define USB_HUB_STATUS_INDICATORS   (1 << 7)
+#define USB_HUB_STATUS_INDICATORS   (1 << 6)
 
 /** @} HUB device */
 
@@ -285,8 +283,8 @@ typedef enum _usb_hub_classreq_t
 /**
  * @brief USB HUB class feature selectors.
  *
- * Those with _HUB_ suffix should be sent to a HUB recipient, all the others  to
- * a port one.
+ * Those with *_C_HUB_ suffix should be sent to a HUB recipient, all the  others
+ * to a port one.
  */
 typedef enum _usb_hub_featsel_t
 {
@@ -317,7 +315,8 @@ typedef enum _usb_hub_featsel_t
 typedef enum _usb_hub_state_t
 {
    USB_HUB_STATE_IDLE,
-   USB_HUB_STATE_GET_DESC,
+   USB_HUB_STATE_DESC_GET,
+   USB_HUB_STATE_DESC_PARSE,
    USB_HUB_STATE_RUNNING,
 } usb_hub_state_t;
 
@@ -353,6 +352,10 @@ typedef struct _usb_hub_stack_t
    usb_hub_t    hubs[USB_MAX_HUBS]; /**< USB HUB devices state and members.   */
    uint8_t      n_hubs;      /**< Number of HUBs currently connected.         */
 } usb_hub_stack_t;
+
+
+/** @brief HUB driver state function type. */
+typedef int (*usb_hub_state_fn)( usb_hub_t* pdev );
 
 
 /*==================[external functions declaration]=========================*/

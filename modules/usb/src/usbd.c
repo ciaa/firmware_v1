@@ -118,7 +118,7 @@ int usb_run( usb_stack_t* pstack )
                   USB_DEV_PARENT_ROOT,
                   USB_DEV_PARENT_ROOT,
 #endif
-                  &pstack->devices[addr] );
+                  addr );
             /* ... and start running the stack. */
             pstack->state = USB_HOST_STATE_RUNNING;
          }
@@ -372,12 +372,12 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
     * Don't forget to skip i=0 'cause that's the root HUB/device, it should  pop
     * up with the assertion in any case though.
     *
-    * Something like:
-    *
-#if (USB_MAX_HUBS > 0)
+    * Something like follows...
+    */
+#if 0//(USB_MAX_HUBS > 0)
     usb_device_t dev_i;
 
-   for (i = 1; i < pstack.n_devices; ++i) /* Note the i=1 to skip root. * /
+   for (i = 1; i < pstack.n_devices; ++i) /* Note the i=1 to skip root. */
    {
       dev_i = pstack.devices[i];
       usb_assert(dev_i.parent_hub < USB_MAX_DEVICES);
@@ -385,7 +385,6 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
          usb_device_release(dev_i);
    }
 #endif
-    */
 
    /** @TODO error check the following instructions. */
    for (i = 0; i < USB_MAX_INTERFACES; ++i)
@@ -458,16 +457,18 @@ int usb_device_unlock( usb_stack_t* pstack, uint8_t index )
 }
 
 void usb_device_attach(
-      usb_stack_t*  pstack,
+      usb_stack_t* pstack,
 #if (USB_MAX_HUBS > 0)
-      uint8_t       parent_hub,
-      uint8_t       parent_port,
+      uint8_t      parent_hub,
+      uint8_t      parent_port,
 #endif
-      usb_device_t* pdevice
+      uint8_t      index
 )
 {
-   usb_assert(pstack  != NULL);
-   usb_assert(pdevice != NULL);
+   usb_device_t* pdevice;
+   usb_assert(pstack != NULL);
+   usb_assert(index <= USB_MAX_DEVICES);
+   pdevice = &pstack->devices[index];
 
    pstack->n_devices   += 1;
    pdevice->state       = USB_DEV_STATE_ATTACHED;
@@ -728,9 +729,18 @@ int16_t usb_stack_new_addr( usb_stack_t* pstack )
    int addr;
    usb_assert(pstack != NULL);
    for (addr = 0; addr < USB_MAX_DEVICES; ++addr)
+   {
       if (!usb_device_is_active(pstack, addr))
-         return addr;
-   return -1;
+      {
+         break;
+      }
+   }
+   if (addr >= USB_MAX_DEVICES)
+   {
+      /* No available address found. */
+      addr = -1;
+   }
+   return addr;
 }
 
 int usb_stack_update_devices( usb_stack_t* pstack )

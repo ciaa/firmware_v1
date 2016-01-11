@@ -168,12 +168,12 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index );
 int usb_dealloc_endpoint( usb_stack_t* pstack, usb_pipe_t* ppipe );
 
 void usb_device_attach(
-      usb_stack_t*  pstack,
+      usb_stack_t* pstack,
 #if (USB_MAX_HUBS > 0)
-      uint8_t       parent_hub,
-      uint8_t       parent_port,
+      uint8_t      parent_hub,
+      uint8_t      parent_port,
 #endif
-      usb_device_t* pdevice
+     uint8_t       index
 );
 
 #if (USB_MAX_HUBS > 0)

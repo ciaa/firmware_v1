@@ -22,7 +22,7 @@ int hid_fd = -1;
 void usb_hid_task_start( void )
 {
    /* Setup board LED outputs. */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 }
 
 void usb_hid_task_loop( void )
