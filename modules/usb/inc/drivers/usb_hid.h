@@ -110,12 +110,12 @@ typedef enum _usb_hid_desc_type_t
 /** @brief HID device's possible states. */
 typedef enum _usb_hid_state_t
 {
-   USB_HID_STATE_IDLE,      /**< IDLE, waiting for interface assignment.   */
-   USB_HID_STATE_SET_IDLE,  /**< Send SET_IDLE request, is this necessary? */
-   USB_HID_STATE_INIT,      /**< TODO */
-   USB_HID_STATE_INIT2,     /**< TODO */
-   USB_HID_STATE_RUNNING,   /**< TODO */
-   USB_HID_STATE_WAIT_XFER, /**< TODO */
+   USB_HID_STATE_IDLE,         /**< IDLE, waiting for interface assignment.   */
+   USB_HID_STATE_SET_IDLE,     /**< Send SET_IDLE request, is this necessary? */
+   USB_HID_STATE_INIT,         /**< TODO */
+   USB_HID_STATE_INIT2,        /**< TODO */
+   USB_HID_STATE_RUNNING,      /**< TODO */
+   USB_HID_STATE_WAITING_XFER, /**< TODO */
 } usb_hid_state_t;
 
 /**

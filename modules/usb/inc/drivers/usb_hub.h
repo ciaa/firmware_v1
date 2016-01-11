@@ -354,10 +354,6 @@ typedef struct _usb_hub_stack_t
 } usb_hub_stack_t;
 
 
-/** @brief HUB driver state function type. */
-typedef int (*usb_hub_state_fn)( usb_hub_t* pdev );
-
-
 /*==================[external functions declaration]=========================*/
 
 /**

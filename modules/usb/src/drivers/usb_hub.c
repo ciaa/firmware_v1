@@ -20,6 +20,12 @@
 #include "drivers/usb_hub.h"
 
 
+/*==================[internal data declaration]==============================*/
+
+/** @brief HUB driver state function type. */
+typedef int (*_state_fn_t)( usb_hub_t* pdev );
+
+
 /*==================[internal functions declaration]=========================*/
 
 /**
@@ -72,20 +78,21 @@ static int _parse_hub_desc( usb_hub_t* phub );
  * Following functions do not assert input parameters, this is because they must
  * not be called directly, rather through _update_dev() so there's no need.
  */
-static int _usb_hub_state_idle( usb_hub_t* pdev );
-static int _usb_hub_state_desc_get( usb_hub_t* pdev );
-static int _usb_hub_state_desc_parse( usb_hub_t* pdev );
-static int _usb_hub_state_running( usb_hub_t* pdev );
+static int _state_idle( usb_hub_t* pdev );
+static int _state_desc_get( usb_hub_t* pdev );
+static int _state_desc_parse( usb_hub_t* pdev );
+static int _state_running( usb_hub_t* pdev );
 
 
-/*==================[internal data declaration]==============================*/
+/*==================[internal data definition]===============================*/
 static usb_hub_stack_t _hub_stack; /* Maybe this shouldn't be static or at least not here like this... */
 
-static usb_hub_state_fn _state_fn[] = {
-   _usb_hub_state_idle,
-   _usb_hub_state_desc_get,
-   _usb_hub_state_desc_parse,
-   _usb_hub_state_running,
+static _state_fn_t _state_fn[] =
+{
+   _state_idle,
+   _state_desc_get,
+   _state_desc_parse,
+   _state_running,
 };
 
 
@@ -272,7 +279,7 @@ static int _parse_hub_desc( usb_hub_t* phub )
 }
 
 
-static int _usb_hub_state_idle( usb_hub_t* pdev )
+static int _state_idle( usb_hub_t* pdev )
 {
    if (!(pdev->status & USB_HUB_STATUS_FREE))
    {
@@ -286,7 +293,7 @@ static int _usb_hub_state_idle( usb_hub_t* pdev )
    return USB_STATUS_OK;
 }
 
-static int _usb_hub_state_desc_get( usb_hub_t* pdev )
+static int _state_desc_get( usb_hub_t* pdev )
 {
    usb_stdreq_t stdreq;
    int          status;
@@ -333,7 +340,7 @@ static int _usb_hub_state_desc_get( usb_hub_t* pdev )
    return status;
 }
 
-static int _usb_hub_state_desc_parse( usb_hub_t* pdev )
+static int _state_desc_parse( usb_hub_t* pdev )
 {
    int status;
 
@@ -380,7 +387,7 @@ static int _usb_hub_state_desc_parse( usb_hub_t* pdev )
    return status;
 }
 
-static int _usb_hub_state_running( usb_hub_t* pdev )
+static int _state_running( usb_hub_t* pdev )
 {
    return USB_STATUS_OK;
 }

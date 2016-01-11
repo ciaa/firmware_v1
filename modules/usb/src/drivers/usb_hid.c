@@ -23,6 +23,12 @@
 #include "drivers/usb_hid.h"
 
 
+/*==================[internal data declaration]==============================*/
+
+/** @brief HID driver state function type. */
+typedef int (*_state_fn_t)( usb_hid_dev_t* pdev );
+
+
 /*==================[internal functions declaration]=========================*/
 
 /**
@@ -75,9 +81,32 @@ static int _validate_first_ep( const uint8_t** pbuffer, uint8_t* plen );
  */
 static int _validate_optional_ep( const uint8_t** pbuffer, uint8_t* plen );
 
+/*
+ * State functions must follow the usb_hid_state_t enumeration order.
+ *
+ * Following functions do not assert input parameters, this is because they must
+ * not be called directly, rather through _update_dev() so there's no need.
+ */
+static int _state_idle( usb_hid_dev_t* pdev );
+static int _state_set_idle( usb_hid_dev_t* pdev );
+static int _state_set_init( usb_hid_dev_t* pdev );
+static int _state_set_init2( usb_hid_dev_t* pdev );
+static int _state_set_running( usb_hid_dev_t* pdev );
+static int _state_set_waiting_xfer( usb_hid_dev_t* pdev );
+
 
 /*==================[internal data definition]===============================*/
 static usb_hid_stack_t _hid_stack;
+
+static _state_fn_t _state_fn[] =
+{
+   _state_idle,
+   _state_set_idle,
+   _state_set_init,
+   _state_set_init2,
+   _state_set_running,
+   _state_set_waiting_xfer,
+};
 
 
 /*==================[internal functions definition]==========================*/
@@ -122,246 +151,10 @@ static int16_t _get_free_dev( void )
 
 static int _update_dev( uint8_t index )
 {
-   usb_stdreq_t stdreq;
-   usb_hid_dev_t*   pdev;
-   int          status = USB_STATUS_OK;
-
+   usb_hid_dev_t* pdev;
    usb_assert(index < USB_HID_MAX_DEVICES);
    pdev = &_hid_stack.devices[index];
-
-   switch (pdev->state)
-   {
-      case USB_HID_STATE_IDLE:
-         /*
-          * Do nothing and wait for an  interface  to  be  assigned  to  this
-          * HID device.
-          * The state will be changed by the usb_hid_assign() method.
-          */
-         if (!(pdev->status & USB_HID_STATUS_FREE))
-         {
-            //pdev->state   = USB_HID_STATE_SET_IDLE;
-            pdev->state   = USB_HID_STATE_INIT;
-            pdev->status |= USB_HID_STATUS_ENTRY;
-         }
-         break;
-
-      case USB_HID_STATE_SET_IDLE:
-         /* Set IDLE request. */
-         if (pdev->status & USB_HID_STATUS_ENTRY)
-         {
-            stdreq.bmRequestType = USB_STDREQ_REQTYPE(
-                  USB_DIR_OUT,
-                  USB_STDREQ_TYPE_CLASS,
-                  USB_STDREQ_RECIP_INTERFACE );
-            stdreq.bRequest      = USB_HID_REQ_SET_IDLE;
-            stdreq.wValue        = 0;
-            stdreq.wIndex        = USB_ID_TO_IFACE(pdev->id);
-            stdreq.wLength       = 0;
-
-            status = usb_ctrlirp(
-                  pdev->pstack,
-                  pdev->id,
-                  &stdreq,
-                  NULL
-            );
-            if (status == USB_STATUS_BUSY)
-            {
-               /* This isn't an error, so notify update as OK. */
-               status = USB_STATUS_OK;
-               break; /* Try again later... */
-            }
-            if (status != USB_STATUS_OK)
-            {
-               usb_assert(0); /** @TODO: handle error */
-            }
-            pdev->status &= ~USB_HID_STATUS_ENTRY;
-            break;
-         }
-         else
-         {
-            /* Waiting for Acknowledge... */
-            status = usb_irp_status(
-                  pdev->pstack,
-                  pdev->id,
-                  USB_CTRL_PIPE_TOKEN
-            );
-            if (status == USB_STATUS_XFER_WAIT)
-            {
-               /* This isn't an error, so notify update as OK. */
-               status = USB_STATUS_OK;
-               break; /* Keep waiting... */
-            }
-            if (status == USB_STATUS_EP_STALLED)
-            {
-               /* If endpoint was stalled, try again. */
-               pdev->status |= USB_HID_STATUS_ENTRY;
-               break;
-            }
-            if (status != USB_STATUS_OK)
-            {
-               usb_assert(0); /** @TODO: handle error */
-            }
-
-            pdev->state   = USB_HID_STATE_INIT;
-            pdev->status |= USB_HID_STATUS_ENTRY;
-            break;
-         }
-         break;
-
-      case USB_HID_STATE_INIT:
-         /* Initialization: request HID Report descriptor. */
-         if (pdev->status & USB_HID_STATUS_ENTRY)
-         {
-            stdreq.bmRequestType = USB_STDREQ_REQTYPE(
-                  USB_DIR_IN,
-                  USB_STDREQ_TYPE_STD,
-                  USB_STDREQ_RECIP_INTERFACE );
-            stdreq.bRequest      = USB_STDREQ_GET_DESCRIPTOR;
-            stdreq.wValue        = (USB_HID_DESC_TYPE_REPORT << 8);
-            stdreq.wIndex        = USB_ID_TO_IFACE(pdev->id);
-            stdreq.wLength       = pdev->report_len;
-
-            status = usb_ctrlirp(
-                  pdev->pstack,
-                  pdev->id,
-                  &stdreq,
-                  pdev->report
-            );
-            if (status == USB_STATUS_BUSY)
-            {
-               break; /* Try again later... */
-            }
-            if (status != USB_STATUS_OK)
-            {
-               usb_assert(0); /** @TODO: handle error */
-            }
-            pdev->status &= ~USB_HID_STATUS_ENTRY;
-            break;
-         }
-         else
-         {
-            /* Waiting for Acknowledge... */
-            status = usb_irp_status(
-                  pdev->pstack,
-                  pdev->id,
-                  USB_CTRL_PIPE_TOKEN
-            );
-            if (status == USB_STATUS_XFER_WAIT)
-            {
-               /* This isn't an error, so notify update as OK. */
-               status = USB_STATUS_OK;
-               break;
-            }
-            if (status == USB_STATUS_EP_STALLED)
-            {
-               /* If endpoint was stalled, try again. */
-               pdev->status |= USB_HID_STATUS_ENTRY;
-               break;
-            }
-            if (status != USB_STATUS_OK)
-            {
-               usb_assert(0); /** @TODO: handle error */
-            }
-
-            /* Report received. */
-            /** @TODO Do something with the report ... */
-            //pdev->state   = USB_HID_STATE_INIT2;
-            pdev->status |= USB_HID_STATUS_INIT;
-            pdev->state   = USB_HID_STATE_RUNNING;
-            pdev->status |= USB_HID_STATUS_ENTRY;
-            break;
-         }
-         break;
-
-      case USB_HID_STATE_INIT2:
-         if (pdev->status & USB_HID_STATUS_ENTRY)
-         {
-            /* Initialization: request HID Report descriptor. */
-            stdreq.bmRequestType = USB_STDREQ_REQTYPE(
-                  USB_DIR_IN,
-                  USB_STDREQ_TYPE_CLASS,
-                  USB_STDREQ_RECIP_INTERFACE );
-            stdreq.bRequest      = USB_HID_REQ_GET_IDLE;
-            stdreq.wValue        = 0;
-            stdreq.wIndex        = USB_ID_TO_IFACE(pdev->id);
-            stdreq.wLength       = 1;
-
-            status = usb_ctrlirp(
-                  pdev->pstack,
-                  pdev->id,
-                  &stdreq,
-                  pdev->report
-            );
-            if (status == USB_STATUS_BUSY)
-            {
-               break; /* Try again later... */
-            }
-            if (status != USB_STATUS_OK)
-            {
-               usb_assert(0); /** @TODO: handle error */
-            }
-            pdev->status &= ~USB_HID_STATUS_ENTRY;
-            break;
-         }
-         else
-         {
-            /* Waiting for Acknowledge... */
-            status = usb_irp_status(
-                  pdev->pstack,
-                  pdev->id,
-                  USB_CTRL_PIPE_TOKEN
-            );
-            if (status == USB_STATUS_XFER_WAIT)
-            {
-               /* This isn't an error, so notify update as OK. */
-               status = USB_STATUS_OK;
-               break;
-            }
-            if (status != USB_STATUS_OK)
-            {
-               usb_assert(0); /** @TODO: handle error */
-            }
-
-            /* Report received. */
-            /** @TODO Do something with the report ... */
-            pdev->status |= USB_HID_STATUS_INIT;
-            pdev->state   = USB_HID_STATE_RUNNING;
-            pdev->status |= USB_HID_STATUS_ENTRY;
-            break;
-         }
-         break;
-
-      case USB_HID_STATE_RUNNING:
-         /* Waiting for user to open device and begin transfer. */
-         break;
-
-      case USB_HID_STATE_WAIT_XFER:
-         /* Waiting for transfer to complete. */
-         status = usb_irp_status(pdev->pstack, pdev->id, 0);
-         if (status == USB_STATUS_OK)
-         {
-            pdev->state = USB_HID_STATE_RUNNING;
-            SetEvent(pdev->taskID, POSIXE);
-         }
-         else if (status == USB_STATUS_XFER_WAIT)
-         {
-            /* This isn't an error, so notify update as OK. */
-            status = USB_STATUS_OK;
-         }
-         else
-         {
-            usb_assert(0); /** @TODO: handle error */
-         }
-         break;
-
-      default:
-         pdev->state   = USB_HID_STATE_IDLE;
-         pdev->status |= USB_HID_STATUS_ENTRY;
-         status = USB_STATUS_OK;
-         break;
-   }
-
-   return status;
+   return _state_fn[pdev->state](pdev);
 }
 
 static int _open_dev( const char* str_num, int flags, usb_hid_protocol_t protocol )
@@ -512,6 +305,250 @@ static int _validate_optional_ep(const uint8_t** pbuffer, uint8_t* plen )
       {
          status = USB_STATUS_OK;
       }
+   }
+   return status;
+}
+
+static int _state_idle( usb_hid_dev_t* pdev )
+{
+   /*
+    * Do nothing and wait for an interface to be assigned to this HID device.
+    * The state will be changed by the usb_hid_assign() method.
+    */
+   if (!(pdev->status & USB_HID_STATUS_FREE))
+   {
+      //pdev->state   = USB_HID_STATE_SET_IDLE;
+      pdev->state   = USB_HID_STATE_INIT;
+      pdev->status |= USB_HID_STATUS_ENTRY;
+   }
+   return USB_STATUS_OK;
+}
+
+static int _state_set_idle( usb_hid_dev_t* pdev )
+{
+   usb_stdreq_t stdreq;
+   int          status = USB_STATUS_OK;
+
+   if (pdev->status & USB_HID_STATUS_ENTRY)
+   {
+      /* SET-IDLE request. */
+      stdreq.bmRequestType = USB_STDREQ_REQTYPE(
+            USB_DIR_OUT,
+            USB_STDREQ_TYPE_CLASS,
+            USB_STDREQ_RECIP_INTERFACE );
+      stdreq.bRequest      = USB_HID_REQ_SET_IDLE;
+      stdreq.wValue        = 0;
+      stdreq.wIndex        = USB_ID_TO_IFACE(pdev->id);
+      stdreq.wLength       = 0;
+      
+      status = usb_ctrlirp(
+            pdev->pstack,
+            pdev->id,
+            &stdreq,
+            NULL
+      );
+      if (status == USB_STATUS_BUSY)
+      {
+         /* This isn't an error, so notify update as OK and try again next time. */
+         status = USB_STATUS_OK;
+      }
+      else if (status != USB_STATUS_OK)
+      {
+         usb_assert(0); /** @TODO: handle error */
+      }
+      else /* USB_STATUS_OK */
+      {
+         pdev->status &= ~USB_HID_STATUS_ENTRY;
+      }
+   }
+   else
+   {
+      /* Waiting for Acknowledge... */
+      status = usb_irp_status(
+            pdev->pstack,
+            pdev->id,
+            USB_CTRL_PIPE_TOKEN
+      );
+      if (status == USB_STATUS_XFER_WAIT)
+      {
+         /* This isn't an error, so notify update as OK and keep waiting. */
+         status = USB_STATUS_OK;
+      }
+      else if (status == USB_STATUS_EP_STALLED)
+      {
+         /* If endpoint was stalled, try again. */
+         pdev->status |= USB_HID_STATUS_ENTRY;
+      }
+      else if (status != USB_STATUS_OK)
+      {
+         usb_assert(0); /** @TODO: handle error */
+      }
+      else /* USB_STATUS_OK */
+      {
+         pdev->state   = USB_HID_STATE_INIT;
+         pdev->status |= USB_HID_STATUS_ENTRY;
+      }
+   }
+   return status;
+}
+
+static int _state_set_init( usb_hid_dev_t* pdev )
+{
+   usb_stdreq_t stdreq;
+   int          status = USB_STATUS_OK;
+
+   /* Initialization: request HID Report descriptor. */
+   if (pdev->status & USB_HID_STATUS_ENTRY)
+   {
+      stdreq.bmRequestType = USB_STDREQ_REQTYPE(
+            USB_DIR_IN,
+            USB_STDREQ_TYPE_STD,
+            USB_STDREQ_RECIP_INTERFACE );
+      stdreq.bRequest      = USB_STDREQ_GET_DESCRIPTOR;
+      stdreq.wValue        = (USB_HID_DESC_TYPE_REPORT << 8);
+      stdreq.wIndex        = USB_ID_TO_IFACE(pdev->id);
+      stdreq.wLength       = pdev->report_len;
+   
+      status = usb_ctrlirp(
+            pdev->pstack,
+            pdev->id,
+            &stdreq,
+            pdev->report
+      );
+      if (status == USB_STATUS_BUSY)
+      {
+         status = USB_STATUS_OK;
+      }
+      else if (status != USB_STATUS_OK)
+      {
+         usb_assert(0); /** @TODO: handle error */
+      }
+      else /* USB_STATUS_OK */
+      {
+         pdev->status &= ~USB_HID_STATUS_ENTRY;
+      }
+   }
+   else
+   {
+      /* Waiting for Acknowledge... */
+      status = usb_irp_status(
+            pdev->pstack,
+            pdev->id,
+            USB_CTRL_PIPE_TOKEN
+      );
+      if (status == USB_STATUS_XFER_WAIT)
+      {
+         /* This isn't an error, so notify update as OK. */
+         status = USB_STATUS_OK;
+      }
+      else if (status == USB_STATUS_EP_STALLED)
+      {
+         /* If endpoint was stalled, try again. */
+         pdev->status |= USB_HID_STATUS_ENTRY;
+      }
+      else if (status != USB_STATUS_OK)
+      {
+         usb_assert(0); /** @TODO: handle error */
+      }
+      else /* USB_STATUS_OK */
+      {
+         /* Report received. */
+         /** @TODO Do something with the report ... */
+         pdev->status |= USB_HID_STATUS_INIT;
+         pdev->status |= USB_HID_STATUS_ENTRY;
+         pdev->state   = USB_HID_STATE_RUNNING;
+         //pdev->state   = USB_HID_STATE_INIT2;
+      }
+   }
+   return status;
+}
+
+static int _state_set_init2( usb_hid_dev_t* pdev )
+{
+#if 0 /** @TODO this requests the idle state, I don't think I need it. */
+   if (pdev->status & USB_HID_STATUS_ENTRY)
+   {
+      /* Initialization: request HID Report descriptor. */
+      stdreq.bmRequestType = USB_STDREQ_REQTYPE(
+            USB_DIR_IN,
+            USB_STDREQ_TYPE_CLASS,
+            USB_STDREQ_RECIP_INTERFACE );
+      stdreq.bRequest      = USB_HID_REQ_GET_IDLE;
+      stdreq.wValue        = 0;
+      stdreq.wIndex        = USB_ID_TO_IFACE(pdev->id);
+      stdreq.wLength       = 1;
+   
+      status = usb_ctrlirp(
+            pdev->pstack,
+            pdev->id,
+            &stdreq,
+            pdev->report
+      );
+      if (status == USB_STATUS_BUSY)
+      {
+         break; /* Try again later... */
+      }
+      if (status != USB_STATUS_OK)
+      {
+         usb_assert(0); /** @TODO: handle error */
+      }
+      pdev->status &= ~USB_HID_STATUS_ENTRY;
+      break;
+   }
+   else
+   {
+      /* Waiting for Acknowledge... */
+      status = usb_irp_status(
+            pdev->pstack,
+            pdev->id,
+            USB_CTRL_PIPE_TOKEN
+      );
+      if (status == USB_STATUS_XFER_WAIT)
+      {
+         /* This isn't an error, so notify update as OK. */
+         status = USB_STATUS_OK;
+         break;
+      }
+      if (status != USB_STATUS_OK)
+      {
+         usb_assert(0); /** @TODO: handle error */
+      }
+   
+      /* Report received. */
+      /** @TODO Do something with the report ... */
+      pdev->status |= USB_HID_STATUS_INIT;
+      pdev->state   = USB_HID_STATE_RUNNING;
+      pdev->status |= USB_HID_STATUS_ENTRY;
+      break;
+   }
+#endif
+   return USB_STATUS_OK;
+}
+
+static int _state_set_running( usb_hid_dev_t* pdev )
+{
+   /* Waiting for user to open device and begin transfer. */
+}
+
+static int _state_set_waiting_xfer( usb_hid_dev_t* pdev )
+{
+   int status;
+
+   /* Waiting for transfer to complete. */
+   status = usb_irp_status(pdev->pstack, pdev->id, 0);
+   if (status == USB_STATUS_OK)
+   {
+      pdev->state = USB_HID_STATE_RUNNING;
+      SetEvent(pdev->taskID, POSIXE);
+   }
+   else if (status == USB_STATUS_XFER_WAIT)
+   {
+      /* This isn't an error, so notify update as OK. */
+      status = USB_STATUS_OK;
+   }
+   else
+   {
+      usb_assert(0); /** @TODO: handle error */
    }
    return status;
 }
@@ -826,7 +863,7 @@ size_t usb_hid_read(int fd, void *buf, size_t count)
       pdev = &_hid_stack.devices[fd];
       if (!(status = usb_irp(pdev->pstack, pdev->id, 0, (uint8_t*) buf, count)))
       {
-         pdev->state = USB_HID_STATE_WAIT_XFER;
+         pdev->state = USB_HID_STATE_WAITING_XFER;
          /* Wait for transfer to complete. */
          WaitEvent(POSIXE);
          ClearEvent(POSIXE);

@@ -1,3 +1,14 @@
+
+/**
+ * @addtogroup CIAA_Firmware CIAA Firmware
+ * @{
+ * @addtogroup USB USB Stack
+ * @{
+ * @addtogroup USBD USB Driver
+ * @{
+ */
+
+/*==================[inclusions]=============================================*/
 #include <stdint.h>
 #include <stdio.h>
 
@@ -12,35 +23,64 @@
 #include "drivers/usb_hub.h"
 
 
-static usbd_state_fn _state_fn[] = {
-   _usbd_state_waiting_ack,
-   _usbd_state_waiting_delay,
-   _usbd_state_disconnected,
-   _usbd_state_attached,
-   _usbd_state_powered,
-   _usbd_state_reset,
-   _usbd_state_default,
-   _usbd_state_address,
-   _usbd_state_configuring_pipes,
-   _usbd_state_dev_desc,
-   _usbd_state_dev_desc_len9,
-   _usbd_state_cfg_desc,
-   _usbd_state_unlocking,
-   _usbd_state_unlocking2,
-   _usbd_state_configured,
-   _usbd_state_suspended,
+/*==================[internal data declaration]==============================*/
+
+/** @brief USBD state function type. */
+typedef int (*_state_fn_t)( usb_stack_t* pstack, uint8_t index );
+
+
+/*==================[internal functions declaration]=========================*/
+
+/*
+ * State functions must follow the usb_dev_state_t enumeration order.
+ *
+ * Following functions do not assert input parameters, this is because they must
+ * not be called directly, rather through usbd_state_run() so there's no need.
+ */
+int _state_waiting_ack( usb_stack_t* pstack, uint8_t index );
+int _state_waiting_delay( usb_stack_t* pstack, uint8_t index );
+int _state_disconnected( usb_stack_t* pstack, uint8_t index );
+int _state_attached( usb_stack_t* pstack, uint8_t index );
+int _state_powered( usb_stack_t* pstack, uint8_t index );
+int _state_reset( usb_stack_t* pstack, uint8_t index );
+int _state_default( usb_stack_t* pstack, uint8_t index );
+int _state_address( usb_stack_t* pstack, uint8_t index );
+int _state_configuring_pipes( usb_stack_t* pstack, uint8_t index );
+int _state_dev_desc( usb_stack_t* pstack, uint8_t index );
+int _state_dev_desc_len9( usb_stack_t* pstack, uint8_t index );
+int _state_cfg_desc( usb_stack_t* pstack, uint8_t index );
+int _state_unlocking( usb_stack_t* pstack, uint8_t index );
+int _state_unlocking2( usb_stack_t* pstack, uint8_t index );
+int _state_configured( usb_stack_t* pstack, uint8_t index );
+int _state_suspended( usb_stack_t* pstack, uint8_t index );
+
+
+/*==================[internal data definition]===============================*/
+
+static _state_fn_t _state_fn[] =
+{
+   _state_waiting_ack,
+   _state_waiting_delay,
+   _state_disconnected,
+   _state_attached,
+   _state_powered,
+   _state_reset,
+   _state_default,
+   _state_address,
+   _state_configuring_pipes,
+   _state_dev_desc,
+   _state_dev_desc_len9,
+   _state_cfg_desc,
+   _state_unlocking,
+   _state_unlocking2,
+   _state_configured,
+   _state_suspended,
 };
 
 
-int usbd_state_run( usb_stack_t* pstack, uint8_t index )
-{
-   usb_assert(pstack != NULL);
-   usb_assert(index < USB_MAX_DEVICES);
-   return _state_fn[pstack->devices[index].state](pstack, index);
-}
+/*==================[internal functions definition]==========================*/
 
-
-int _usbd_state_waiting_ack( usb_stack_t* pstack, uint8_t index )
+int _state_waiting_ack( usb_stack_t* pstack, uint8_t index )
 {
    usb_device_t* pdevice = &pstack->devices[index];
    usb_pipe_t*   ppipe   = &pdevice->default_ep;
@@ -62,7 +102,7 @@ int _usbd_state_waiting_ack( usb_stack_t* pstack, uint8_t index )
    return status;
 }
 
-int _usbd_state_waiting_delay( usb_stack_t* pstack, uint8_t index )
+int _state_waiting_delay( usb_stack_t* pstack, uint8_t index )
 {
    usb_device_t* pdevice = &pstack->devices[index];
 
@@ -74,13 +114,13 @@ int _usbd_state_waiting_delay( usb_stack_t* pstack, uint8_t index )
    return USB_STATUS_OK;
 }
 
-int _usbd_state_disconnected( usb_stack_t* pstack, uint8_t index )
+int _state_disconnected( usb_stack_t* pstack, uint8_t index )
 {
    /* Waiting for connection, updated via usb_device_attach(). */
    return USB_STATUS_OK;
 }
 
-int _usbd_state_attached( usb_stack_t* pstack, uint8_t index )
+int _state_attached( usb_stack_t* pstack, uint8_t index )
 {
    usb_device_t* pdevice = &pstack->devices[index];
 
@@ -92,7 +132,7 @@ int _usbd_state_attached( usb_stack_t* pstack, uint8_t index )
    return USB_STATUS_OK;
 }
 
-int _usbd_state_powered( usb_stack_t* pstack, uint8_t index )
+int _state_powered( usb_stack_t* pstack, uint8_t index )
 {
    usb_device_t* pdevice = &pstack->devices[index];
 #if (USB_MAX_HUBS > 0)
@@ -146,7 +186,7 @@ int _usbd_state_powered( usb_stack_t* pstack, uint8_t index )
    return USB_STATUS_OK;
 }
 
-int _usbd_state_reset( usb_stack_t* pstack, uint8_t index )
+int _state_reset( usb_stack_t* pstack, uint8_t index )
 {
    usb_device_t* pdevice = &pstack->devices[index];
 #if (USB_MAX_HUBS > 0)
@@ -185,7 +225,7 @@ int _usbd_state_reset( usb_stack_t* pstack, uint8_t index )
    return USB_STATUS_OK;
 }
 
-int _usbd_state_default( usb_stack_t* pstack, uint8_t index )
+int _state_default( usb_stack_t* pstack, uint8_t index )
 {
    int           status;
    usb_device_t* pdevice =  &pstack->devices[index];
@@ -262,7 +302,7 @@ int _usbd_state_default( usb_stack_t* pstack, uint8_t index )
    return status;
 }
 
-int _usbd_state_address( usb_stack_t* pstack, uint8_t index )
+int _state_address( usb_stack_t* pstack, uint8_t index )
 {
    int           status;
    usb_device_t* pdevice =  &pstack->devices[index];
@@ -297,7 +337,7 @@ int _usbd_state_address( usb_stack_t* pstack, uint8_t index )
    return status;
 }
 
-int _usbd_state_configuring_pipes( usb_stack_t* pstack, uint8_t index )
+int _state_configuring_pipes( usb_stack_t* pstack, uint8_t index )
 {
    int           status;
    usb_device_t* pdevice =  &pstack->devices[index];
@@ -333,7 +373,7 @@ int _usbd_state_configuring_pipes( usb_stack_t* pstack, uint8_t index )
    return status;
 }
 
-int _usbd_state_dev_desc( usb_stack_t* pstack, uint8_t index )
+int _state_dev_desc( usb_stack_t* pstack, uint8_t index )
 {
    int           status;
    usb_device_t* pdevice =  &pstack->devices[index];
@@ -362,7 +402,7 @@ int _usbd_state_dev_desc( usb_stack_t* pstack, uint8_t index )
    return status;
 }
 
-int _usbd_state_dev_desc_len9( usb_stack_t* pstack, uint8_t index )
+int _state_dev_desc_len9( usb_stack_t* pstack, uint8_t index )
 {
    int           status;
    uint16_t      aux;
@@ -386,7 +426,7 @@ int _usbd_state_dev_desc_len9( usb_stack_t* pstack, uint8_t index )
    return status;
 }
 
-int _usbd_state_cfg_desc( usb_stack_t* pstack, uint8_t index )
+int _state_cfg_desc( usb_stack_t* pstack, uint8_t index )
 {
    int           status;
    usb_device_t* pdevice =  &pstack->devices[index];
@@ -435,7 +475,7 @@ case USB_DEV_STATE_TEST:
    break;
 #endif
 
-int _usbd_state_unlocking( usb_stack_t* pstack, uint8_t index )
+int _state_unlocking( usb_stack_t* pstack, uint8_t index )
 {
    usb_device_t* pdevice =  &pstack->devices[index];
 
@@ -447,7 +487,7 @@ int _usbd_state_unlocking( usb_stack_t* pstack, uint8_t index )
    return USB_STATUS_OK;
 }
 
-int _usbd_state_unlocking2( usb_stack_t* pstack, uint8_t index )
+int _state_unlocking2( usb_stack_t* pstack, uint8_t index )
 {
    usb_device_t* pdevice =  &pstack->devices[index];
 
@@ -461,15 +501,30 @@ int _usbd_state_unlocking2( usb_stack_t* pstack, uint8_t index )
    return USB_STATUS_OK;
 }
 
-int _usbd_state_configured( usb_stack_t* pstack, uint8_t index )
+int _state_configured( usb_stack_t* pstack, uint8_t index )
 {
    /* Nothing to do here... ? */
    return USB_STATUS_OK;
 }
 
-int _usbd_state_suspended( usb_stack_t* pstack, uint8_t index )
+int _state_suspended( usb_stack_t* pstack, uint8_t index )
 {
    /* @TODO implement the suspended state */
    return USB_STATUS_OK;
 }
+
+
+/*==================[external functions definition]==========================*/
+
+int usbd_state_run( usb_stack_t* pstack, uint8_t index )
+{
+   usb_assert(pstack != NULL);
+   usb_assert(index < USB_MAX_DEVICES);
+   return _state_fn[pstack->devices[index].state](pstack, index);
+}
+
+/** @} USB_DESC */
+/** @} USB */
+/** @} CIAA_Firmware */
+/*==================[end of file]============================================*/
 
