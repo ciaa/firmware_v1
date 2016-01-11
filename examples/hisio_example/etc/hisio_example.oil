@@ -53,12 +53,19 @@ DIL DIL {
       ERRORHOOK = TRUE;
 
       PIN Led1 {
-         PIN = 7;
          PORT = 3;
+         PIN = 7;
          DIRECTION = OUTPUT_INIT_LOW;
          INVERTED = TRUE;
       }
 
+      PIN Led2 {
+         PORT = 4;
+         PIN = 5;
+         DIRECTION = OUTPUT_INIT_HIGH;
+         INVERTED = FALSE;
+      }
+      
       PORT DataBus {
          PORT = 2;
          DIRECTION = OUTPUT_INIT_HIGH;
