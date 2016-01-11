@@ -1,7 +1,9 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2015, 2016 Mariano Cerdeiro
  * Copyright 2014, Gustavo Muro
  * Copyright 2014, Pablo Ridolfi
  * Copyright 2014, Juan Cecconi
+ * Copyright 2014, Fernando Beunza
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,7 +35,7 @@
  *
  */
 
-/** \brief Blinking Modbus example source file
+/** \brief ADC DAC example source file
  **
  ** This is a mini example of the CIAA Firmware
  **
@@ -43,7 +45,7 @@
  ** @{ */
 /** \addtogroup Examples CIAA Firmware Examples
  ** @{ */
-/** \addtogroup ADC DAC ADC & DAC example source file
+/** \addtogroup ADC_DAC ADC & DAC example source file
  ** @{ */
 
 /*
@@ -53,6 +55,7 @@
  * GMuro        Gustavo Muro
  * PR           Pablo Ridolfi
  * JuCe         Juan Cecconi
+ * FB           Fernando Beunza
  *
  */
 
@@ -158,25 +161,36 @@ TASK(InitTask)
    fd_dac = ciaaPOSIX_open("/dev/serial/aio/out/0", ciaaPOSIX_O_WRONLY);
    ciaaPOSIX_ioctl(fd_dac, ciaaPOSIX_IOCTL_SET_SAMPLE_RATE, 100000);
 
-   /* Activates the ModbusSlave task */
-   ActivateTask(Analogic);
-
    /* end InitTask */
    TerminateTask();
 }
 
+/** \brief Read ADC values
+ *
+ * This task is activated every 1ms by the AnalogicAlarm configured in
+ * adc_dac.oil
+ */
 TASK(Analogic)
 {
-   uint16_t hr_ciaaDac;
+   int32_t count;
+   uint16_t hr_ciaaDac[128];
 
    /* Read ADC. */
-   ciaaPOSIX_read(fd_adc, &hr_ciaaDac, sizeof(hr_ciaaDac));
+   count = ciaaPOSIX_read(fd_adc, &hr_ciaaDac, sizeof(hr_ciaaDac));
 
-   /* Signal gain. */
-   hr_ciaaDac >>= 0;
+   if (count > 0)
+   {
+      int32_t i;
 
-   /* Write DAC */
-   ciaaPOSIX_write(fd_dac, &hr_ciaaDac, sizeof(hr_ciaaDac));
+      for(i = 0; i < (count/2); i++) {
+         /* signal processing. */
+         /* e.g. duplicating the singal level */
+         hr_ciaaDac[i] <<= 1;
+      }
+
+      /* Write DAC */
+      ciaaPOSIX_write(fd_dac, &hr_ciaaDac, count);
+   }
 
    /* end of Blinking */
    TerminateTask();

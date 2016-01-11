@@ -183,7 +183,7 @@ static void ciaaDriverAio_adcIRQHandler(ciaaDevices_deviceType const * const dev
    Chip_ADC_Int_SetChannelCmd(pAioControl->adc_dac.adc.handler, pAioControl->channel, DISABLE);
    Chip_ADC_ReadValue(pAioControl->adc_dac.adc.handler, pAioControl->channel, &dataADC);
 
-   if (pAioControl->cnt < AIO_FIFO_SIZE)
+   if ((pAioControl->cnt + sizeof(dataADC)) <= AIO_FIFO_SIZE)
    {
       ptr = (uint16_t *) &(pAioControl->hwbuf[pAioControl->cnt]);
       *ptr = dataADC;
