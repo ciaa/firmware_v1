@@ -43,20 +43,6 @@
 /** \addtogroup Receive Receive System Test
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * GMuro        Gustavo Muro
- *
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140804 v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
@@ -99,7 +85,7 @@ TASK(InitTask)
 
    /* open UART connected to USB bridge (FT2232) */
    /* TODO in the future this shall be received over a command over modbus */
-   fd_uart = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+   fd_uart = ciaaPOSIX_open("/dev/serial/uart/1", ciaaPOSIX_O_RDWR);
 
    /* change baud rate for uart usb */
    /* TODO in the future this shall be received over a command over modbus */

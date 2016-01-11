@@ -150,7 +150,7 @@ TASK(InitTask)
    ciaaPOSIX_printf("Init Task...\n");
 
    /* open CIAA digital outputs */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 
    /* activate periodic task:
     *  - for the first time after 350 ticks (350 ms)

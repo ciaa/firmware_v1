@@ -1,4 +1,5 @@
-/* Copyright 2014, Pablo Ridolfi (UTN-FRBA)
+/* Copyright 2014, 2015 Pablo Ridolfi (UTN-FRBA)
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -43,18 +44,6 @@
 /** \addtogroup DIO DIO Drivers
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * PR           Pablo Ridolfi
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140731 v0.0.1   PR first functional version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverDio.h"
 #include "ciaaDriverDio_Internal.h"
@@ -63,6 +52,13 @@
 #include "chip.h"
 
 /*==================[macros and definitions]=================================*/
+
+/** \brief Managed input count */
+#define ciaaDriverDio_InputCount (sizeof(ciaaDriverDio_Inputs) / sizeof(ciaaDriverDio_dioType))
+
+/** \brief Managed output count */
+#define ciaaDriverDio_OutputCount (sizeof(ciaaDriverDio_Outputs) / sizeof(ciaaDriverDio_dioType))
+
 /** \brief Pointer to Devices */
 typedef struct  {
    ciaaDevices_deviceType * const * const devices;
@@ -74,6 +70,19 @@ typedef struct  {
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+
+/** \brief PORT/PIN map for managed GPIOs
+ *
+ * Define port/pin pairs for each GPIO managed by this driver
+ */
+#if (ciaa_nxp == BOARD)
+const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {2,0},{2,1},{2,2},{2,3},{3,11},{3,12},{3,13},{3,14} };
+const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {5,1},{2,6},{2,5},{2,4},{5,12},{5,13},{5,14},{1,8} };
+#elif (edu_ciaa_nxp == BOARD)
+const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {0,4},{0,8},{0,9},{1,9} };
+const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {5,0},{5,1},{5,2},{0,14},{1,11},{1,12}, {3,0},{3,3},{3,4} };
+#endif
+
 /** \brief Device for DIO 0 */
 static ciaaDevices_deviceType ciaaDriverDio_in0 = {
    "in/0",                          /** <= driver name */
@@ -84,7 +93,7 @@ static ciaaDevices_deviceType ciaaDriverDio_in0 = {
    ciaaDriverDio_ioctl,            /** <= ioctl function */
    NULL,                           /** <= seek function is not provided */
    NULL,                           /** <= upper layer */
-   (void*)&ciaaDriverDio_dio0,     /** <= layer */
+   NULL,                           /** <= layer */
    NULL                            /** <= NULL no lower layer */
 };
 
@@ -98,7 +107,7 @@ static ciaaDevices_deviceType ciaaDriverDio_out0 = {
    ciaaDriverDio_ioctl,            /** <= ioctl function */
    NULL,                           /** <= seek function is not provided */
    NULL,                           /** <= upper layer */
-   (void*)&ciaaDriverDio_dio1,     /** <= layer */
+   NULL,                           /** <= layer */
    NULL                            /** <= NULL no lower layer */
 };
 
@@ -113,15 +122,12 @@ static ciaaDriverConstType const ciaaDriverDioConst = {
 };
 
 /*==================[external data definition]===============================*/
-/** \brief Dio 0 */
-ciaaDriverDio_dioType ciaaDriverDio_dio0;
-
-/** \brief Dio 1 */
-ciaaDriverDio_dioType ciaaDriverDio_dio1;
 
 /*==================[internal functions definition]==========================*/
 
-void ciaa_lpc4337_gpio_init(void)
+/** \brief perform low level gpio initialization for LPC4337
+ */
+static void ciaa_lpc4337_gpio_init(void)
 {
    Chip_GPIO_Init(LPC_GPIO_PORT);
 
@@ -140,23 +146,22 @@ void ciaa_lpc4337_gpio_init(void)
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 3, 0xF<<11, 0);
 
    /* MOSFETs */
-   Chip_SCU_PinMux(4,8,MD_PUP,FUNC4);  /* GPIO5[12] */
-   Chip_SCU_PinMux(4,9,MD_PUP,FUNC4);  /* GPIO5[13] */
-   Chip_SCU_PinMux(4,10,MD_PUP,FUNC4); /* GPIO5[14] */
-   Chip_SCU_PinMux(1,5,MD_PUP,FUNC0);  /* GPIO1[8]  */
-
+   Chip_SCU_PinMux(4,8,MD_PUP|MD_EZI,FUNC4);  /* GPIO5[12] */
+   Chip_SCU_PinMux(4,9,MD_PUP|MD_EZI,FUNC4);  /* GPIO5[13] */
+   Chip_SCU_PinMux(4,10,MD_PUP|MD_EZI,FUNC4); /* GPIO5[14] */
+   Chip_SCU_PinMux(1,5,MD_PUP|MD_EZI,FUNC0);  /* GPIO1[8]  */
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14),1);
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 1,(1<<8),1);
-
-
-   Chip_GPIO_SetValue(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14));
-   Chip_GPIO_SetValue(LPC_GPIO_PORT, 1,(1<<8));
+   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5,(1<<12)|(1<<13)|(1<<14));
+   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1,(1<<8));
 
    /* Relays */
+   Chip_SCU_PinMux(4,4,MD_PUP|MD_EZI,FUNC0); /* GPIO2[4] */
+   Chip_SCU_PinMux(4,5,MD_PUP|MD_EZI,FUNC0); /* GPIO2[5] */
+   Chip_SCU_PinMux(4,6,MD_PUP|MD_EZI,FUNC0); /* GPIO2[6] */
+   Chip_SCU_PinMux(2,1,MD_PUP|MD_EZI,FUNC4); /* GPIO5[1] */
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6),1);
-   Chip_SCU_PinMux(2,1,MD_PUP,FUNC4);
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<1),1);
-
    Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2,(1<<4)|(1<<5)|(1<<6));
    Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5,(1<<1));
 
@@ -174,12 +179,12 @@ void ciaa_lpc4337_gpio_init(void)
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 1,(1<<9),0);
 
    /* LEDs */
-   Chip_SCU_PinMux(2,0,MD_PUP,FUNC4);  /* GPIO5[0], LED0R */
-   Chip_SCU_PinMux(2,1,MD_PUP,FUNC4);  /* GPIO5[1], LED0G */
-   Chip_SCU_PinMux(2,2,MD_PUP,FUNC4);  /* GPIO5[2], LED0B */
-   Chip_SCU_PinMux(2,10,MD_PUP,FUNC0); /* GPIO0[14], LED1 */
-   Chip_SCU_PinMux(2,11,MD_PUP,FUNC0); /* GPIO1[11], LED2 */
-   Chip_SCU_PinMux(2,12,MD_PUP,FUNC0); /* GPIO1[12], LED3 */
+   Chip_SCU_PinMux(2,0,MD_PUP|MD_EZI,FUNC4);  /* GPIO5[0], LED0R */
+   Chip_SCU_PinMux(2,1,MD_PUP|MD_EZI,FUNC4);  /* GPIO5[1], LED0G */
+   Chip_SCU_PinMux(2,2,MD_PUP|MD_EZI,FUNC4);  /* GPIO5[2], LED0B */
+   Chip_SCU_PinMux(2,10,MD_PUP|MD_EZI,FUNC0); /* GPIO0[14], LED1 */
+   Chip_SCU_PinMux(2,11,MD_PUP|MD_EZI,FUNC0); /* GPIO1[11], LED2 */
+   Chip_SCU_PinMux(2,12,MD_PUP|MD_EZI,FUNC0); /* GPIO1[12], LED3 */
 
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 5,(1<<0)|(1<<1)|(1<<2),1);
    Chip_GPIO_SetDir(LPC_GPIO_PORT, 0,(1<<14),1);
@@ -189,164 +194,101 @@ void ciaa_lpc4337_gpio_init(void)
    Chip_GPIO_ClearValue(LPC_GPIO_PORT, 0,(1<<14));
    Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1,(1<<11)|(1<<12));
 
+   /* EDU-CIAA-NXP GPIOs as outputs */
+   Chip_SCU_PinMux(6,1,MD_PUP|MD_EZI,FUNC0);  /* GPIO3[0], GPIO0 */
+   Chip_SCU_PinMux(6,4,MD_PUP|MD_EZI,FUNC0);  /* GPIO3[3], GPIO1 */
+   Chip_SCU_PinMux(6,5,MD_PUP|MD_EZI,FUNC0);  /* GPIO3[4], GPIO2 */
+
+   Chip_GPIO_SetDir(LPC_GPIO_PORT, 3,(1<<0)|(1<<3)|(1<<4),1);
+   Chip_GPIO_ClearValue(LPC_GPIO_PORT, 3,(1<<0)|(1<<3)|(1<<4));
 #else
    #error please define BOARD variable!
 #endif
 }
 
-void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
+/** \brief write managed output
+ *  \param[in] outputNumber number of output to set (0 to ciaaDriverDio_OutputCount)
+ *  \param[in] value new state for output (true or false)
+ */
+static void ciaa_lpc4337_writeOutput(uint32_t outputNumber, uint32_t value)
 {
-#if (BOARD == ciaa_nxp)
-   switch(outputNumber)
+   if (outputNumber < ciaaDriverDio_OutputCount)
    {
-      case 0:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 2, 1<<4);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2, 1<<4);
-         }
-         break;
-      case 1:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 2, 1<<5);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2, 1<<5);
-         }
-         break;
-      case 2:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 2, 1<<6);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 2, 1<<6);
-         }
-         break;
-      case 3:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<1);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<1);
-         }
-         break;
-      case 4:
-         if(value)
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<12);
-         }
-         else
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<12);
-         }
-         break;
-      case 5:
-         if(value)
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<13);
-         }
-         else
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<13);
-         }
-         break;
-      case 6:
-         if(value)
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<14);
-         }
-         else
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<14);
-         }
-         break;
-      case 7:
-         if(value)
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1, 1<<8);
-         }
-         else
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 1, 1<<8);
-         }
-         break;
-      default:
-         break;
+      Chip_GPIO_SetPinState(LPC_GPIO_PORT,
+         ciaaDriverDio_Outputs[outputNumber].port,
+         ciaaDriverDio_Outputs[outputNumber].pin,
+         value != 0 ? 1 : 0);
    }
-#elif(BOARD == edu_ciaa_nxp)
-   switch(outputNumber)
+}
+
+/** \brief read managed input
+ *  \param[in] inputNumber number of output to read (0 to ciaaDriverDio_InputCount)
+ *  \return 1 if gpio is high, 0 if it's low, -1 if incorrect pin number
+ */
+static int32_t ciaa_lpc4337_readInput(uint32_t inputNumber)
+{
+   int32_t rv = -1;
+
+   if (inputNumber < ciaaDriverDio_InputCount)
    {
-      case 0:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<0);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<0);
-         }
-         break;
-      case 1:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<1);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<1);
-         }
-         break;
-      case 2:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 5, 1<<2);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 5, 1<<2);
-         }
-         break;
-      case 3:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 0, 1<<14);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 0, 1<<14);
-         }
-         break;
-      case 4:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 1, 1<<11);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1, 1<<11);
-         }
-         break;
-      case 5:
-         if(value)
-         {
-            Chip_GPIO_SetValue(LPC_GPIO_PORT, 1, 1<<12);
-         }
-         else
-         {
-            Chip_GPIO_ClearValue(LPC_GPIO_PORT, 1, 1<<12);
-         }
-         break;
+      rv = Chip_GPIO_GetPinState(LPC_GPIO_PORT,
+         ciaaDriverDio_Inputs[inputNumber].port,
+         ciaaDriverDio_Inputs[inputNumber].pin) ? 1 : 0;
    }
-#endif
+
+   return rv;
+}
+
+/** \brief read managed output
+ *  \param[in] outputNumber number of output to read (0 to ciaaDriverDio_OutputCount)
+ *  \return 1 if gpio is high, 0 if it's low, -1 if incorrect pin number
+ */
+static int32_t ciaa_lpc4337_readOutput(uint32_t outputNumber)
+{
+   int32_t rv = -1;
+
+   if (outputNumber < ciaaDriverDio_OutputCount)
+   {
+      rv = Chip_GPIO_GetPinState(LPC_GPIO_PORT,
+         ciaaDriverDio_Outputs[outputNumber].port,
+         ciaaDriverDio_Outputs[outputNumber].pin) ? 1 : 0;
+   }
+
+   return rv;
+}
+
+/** \brief pack bit states in byte buffer
+ *  \param[in] number of pins to read (normally ciaaDriverDio_OutputCount or ciaaDriverDio_InputCount)
+ *  \param[out] buffer user buffer
+ *  \param[in] size user buffer size
+ *  \param[in] readFunction function used to read pins (normally ciaa_lpc4337_readOutput or ciaa_lpc4337_readInput)
+ *  \return number bytes required in buffer to store bits
+ */
+static int32_t ciaa_lpc4337_readPins(int32_t pinCount, uint8_t * buffer, size_t size, int32_t (*readFunction)(uint32_t))
+{
+   int32_t count, i, j;
+   /* amount of bytes necessary to store all input states */
+   count = pinCount >> 3; /* ciaaDriverDio_InputCount / 8 */
+   if( (pinCount & 0x07) != 0) /* (ciaaDriverDio_InputCount % 8) != 0 */
+   {
+      count += 1;
+   }
+   /* adjust gpios to read according to provided buffer length */
+   if(count > size)
+   {
+      count = size;
+   }
+   /* read and store all inputs in user buffer */
+   ciaaPOSIX_memset(buffer, 0, count);
+   for(i = 0, j = 0; (i < pinCount) && (j < count); i++)
+   {
+      if((i > 0) && ((i & 0x07)==0))
+      {
+         j++;
+      }
+      buffer[j] |= readFunction(i) << (i - 8 * j);
+   }
+   return count;
 }
 
 /*==================[external functions definition]==========================*/
@@ -370,36 +312,20 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
 {
    ssize_t ret = -1;
 
-   /* Can't store read result in buffer. At least 1 byte required. */
-   if(size != 0)
+   if(device == ciaaDioDevices[0])
    {
-      if(device == ciaaDioDevices[0])
-      {
-#if(BOARD == ciaa_nxp)
-         buffer[0] = ~((uint8_t) ((Chip_GPIO_ReadValue(LPC_GPIO_PORT,3) & (0x0F<<11))>>7)
-                              | (Chip_GPIO_ReadValue(LPC_GPIO_PORT,2) & 0x0F));
-#elif(BOARD == edu_ciaa_nxp)
-         buffer[0]  = Chip_GPIO_GetPinState(LPC_GPIO_PORT, 0, 4) ? 0 : 1;
-         buffer[0] |= Chip_GPIO_GetPinState(LPC_GPIO_PORT, 0, 8) ? 0 : 2;
-         buffer[0] |= Chip_GPIO_GetPinState(LPC_GPIO_PORT, 0, 9) ? 0 : 4;
-         buffer[0] |= Chip_GPIO_GetPinState(LPC_GPIO_PORT, 1, 9) ? 0 : 8;
-#endif
-
-         /* 1 byte read */
-         ret = 1;
-      }
-      else if(device == ciaaDioDevices[1])
-      {
-         /* read actual output state from layer data */
-         buffer[0] = (uint8_t)*((ciaaDriverDio_dioType *)device->layer);
-
-         ret = 1;
-      }
-      else
-      {
-         /* Invalid device */
-         ret = -1;
-      }
+      /* accessing to inputs */
+      ret = ciaa_lpc4337_readPins(ciaaDriverDio_InputCount, buffer, size, ciaa_lpc4337_readInput);
+   }
+   else if(device == ciaaDioDevices[1])
+   {
+      /* accessing to outputs */
+      ret = ciaa_lpc4337_readPins(ciaaDriverDio_OutputCount, buffer, size, ciaa_lpc4337_readOutput);
+   }
+   else
+   {
+      /* Invalid device */
+      ret = -1;
    }
    return ret;
 }
@@ -417,18 +343,23 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
       }
       else if(device == ciaaDioDevices[1])
       {
-         int32_t i;
+         /* Write outputs */
+         int32_t i, j;
 
-         for(i = 0; i < 8; i++)
+         /* set outputs according to bits defined in user buffer */
+         for(i = 0, j = 0; (i < ciaaDriverDio_OutputCount) && (j < size); i++)
          {
-            ciaa_lpc4337_writeOutput(i, buffer[0] & (1 << i));
+            if( (i > 0) && ((i & 0x07) == 0) )
+            {
+               j++;
+            }
+            ciaa_lpc4337_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
          }
-
-         /* save actual output state in layer data */
-         *((ciaaDriverDio_dioType *)device->layer) = buffer[0];
-
-         /* 1 byte written */
-         ret = 1;
+         if((ciaaDriverDio_OutputCount & 0x07) != 0)
+         {
+            j++;
+         }
+         ret = j;
       }
       else
       {
@@ -442,22 +373,19 @@ void ciaaDriverDio_init(void)
 {
    uint8_t loopi;
 
+   /* low level GPIO peripheral initialization */
    ciaa_lpc4337_gpio_init();
 
    /* add dio driver to the list of devices */
    for(loopi = 0; loopi < ciaaDriverDioConst.countOfDevices; loopi++) {
       /* add each device */
       ciaaDioDevices_addDriver(ciaaDriverDioConst.devices[loopi]);
-      /* init layer data for each device */
-      *((ciaaDriverDio_dioType *)ciaaDriverDioConst.devices[loopi]->layer) = 0;
    }
 }
 
-
-/*==================[interrupt hanlders]=====================================*/
+/*==================[interrupt handlers]=====================================*/
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

@@ -43,19 +43,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * JuCe         Juan Cecconi
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140525 v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaSerialDevices.h"
 #include "ciaaPOSIX_stdio.h"
@@ -218,7 +205,7 @@ extern ciaaDevices_deviceType * ciaaSerialDevices_open(char const * path,
    /* the returned device shall be the same as passed */
    ciaaPOSIX_assert(serialDevice->device->open(path, (ciaaDevices_deviceType *)device->loLayer, oflag) == device->loLayer);
 
-   if(oflag & O_NONBLOCK)
+   if(oflag & ciaaPOSIX_O_NONBLOCK)
    {
       serialDevice->flags |= ciaaSerialDevices_NONBLOCK_MODE;
    }

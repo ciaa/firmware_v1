@@ -45,18 +45,6 @@
 /** \addtogroup DIO DIO Drivers
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140620 v0.0.1 MaCe initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaDioDevices.h"
@@ -78,9 +66,9 @@ extern "C" {
  ** \param[in] path path of the device to be opened
  ** \param[in] device device to be opened
  ** \param[in] oflag may take one of the following values:
- **               O_RDONLY: opens files to read only
- **               O_WRONLY: opens files to write only
- **               O_RDWR: opens file to read and write
+ **               ciaaPOSIX_O_RDONLY: opens files to read only
+ **               ciaaPOSIX_O_WRONLY: opens files to write only
+ **               ciaaPOSIX_O_RDWR: opens file to read and write
  ** \return NULL if an error occurs, in other case the address of the opened
  **         device.
  **/

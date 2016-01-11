@@ -46,22 +46,6 @@
 /** \addtogroup Blinking_Modbus Blinking Modbus example source file
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * GMuro        Gustavo Muro
- * PR           Pablo Ridolfi
- * JuCe         Juan Cecconi
- *
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140805 v0.0.1   GMuro first functional version
- */
-
 /*==================[inclusions]=============================================*/
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
@@ -214,18 +198,18 @@ TASK(InitTask)
    ciaak_start();
 
    /* open CIAA digital inputs */
-   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDONLY);
+   fd_in = ciaaPOSIX_open("/dev/dio/in/0", ciaaPOSIX_O_RDONLY);
 
    /* open CIAA digital outputs */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 
    /* open CIAA ADC */
-   fd_adc = ciaaPOSIX_open("/dev/serial/aio/in/0", O_RDONLY);
+   fd_adc = ciaaPOSIX_open("/dev/serial/aio/in/0", ciaaPOSIX_O_RDONLY);
    ciaaPOSIX_ioctl(fd_adc, ciaaPOSIX_IOCTL_SET_SAMPLE_RATE, 10000);
    ciaaPOSIX_ioctl(fd_adc, ciaaPOSIX_IOCTL_SET_CHANNEL, ciaaCHANNEL_3);
 
    /* open CIAA DAC */
-   fd_dac = ciaaPOSIX_open("/dev/serial/aio/out/0", O_WRONLY);
+   fd_dac = ciaaPOSIX_open("/dev/serial/aio/out/0", ciaaPOSIX_O_WRONLY);
 
    /* Activates the ModbusSlave task */
    ActivateTask(ModbusSlave);

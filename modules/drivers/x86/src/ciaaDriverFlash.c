@@ -48,25 +48,6 @@
 /** \addtogroup Flash Flash Drivers
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * DC           Daniel Cohen
- * EV           Esteban Volentini
- * MG           Matias Giori
- * FS           Franco Salinas
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150327 v0.0.4 FS   renamed seek to lseek
- * 20150327 v0.0.3 FS   bugs fixed
- * 20150201 v0.0.2 EV   first operating version
- * 20141006 v0.0.1 EV   first initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverFlash.h"
 #include "ciaaDriverFlash_Internal.h"
@@ -131,12 +112,14 @@ static int32_t ciaaDriverFlash_blockErase(uint32_t start, uint32_t end) {
    if ((start <= end) && (end < CIAADRVFLASH_BLOCK_CANT))
    {
       ciaaPOSIX_memset(buffer, 0xFF, CIAADRVFLASH_BLOCK_SIZE);
-      fseek(flash->storage, start * CIAADRVFLASH_BLOCK_SIZE, SEEK_SET);
-      for(index = 0; index < CIAADRVFLASH_BLOCK_CANT; index++)
+      if (0 == fseek(flash->storage, start * CIAADRVFLASH_BLOCK_SIZE, SEEK_SET))
       {
-         fwrite(buffer, CIAADRVFLASH_BLOCK_SIZE, 1, flash->storage);
+         for(index = 0; index < CIAADRVFLASH_BLOCK_CANT; index++)
+         {
+            fwrite(buffer, CIAADRVFLASH_BLOCK_SIZE, 1, flash->storage);
+         }
+         ret = 0;
       }
-      ret = 0;
    }
    return ret;
 }
@@ -267,9 +250,11 @@ extern ssize_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device,
    if(flash == &ciaaDriverFlash_flash && NULL != flash->storage)
    {
       rewind(flash->storage);
-      fseek(flash->storage, flash->position, SEEK_SET);
-      ret = fread(buffer, 1, size, flash->storage);
-      flash->position += ret;
+      if (0 == fseek(flash->storage, flash->position, SEEK_SET))
+      {
+         ret = fread(buffer, 1, size, flash->storage);
+         flash->position += ret;
+      }
    }
 
    return ret;

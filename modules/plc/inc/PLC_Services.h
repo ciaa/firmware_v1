@@ -44,18 +44,6 @@
 /** \addtogroup PLC PLC Module
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * ErPe         Eric Pernia
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140911 v0.0.1 ErPe initial version
- */
-
 /*==================[inclusions]=============================================*/
 /* PLC Services Includes */
 #include "PLC_StandardCDataTypes.h"	/* Standard C Data Types */

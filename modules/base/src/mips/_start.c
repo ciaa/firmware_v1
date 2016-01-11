@@ -42,18 +42,6 @@
 /** \addtogroup PIC32 PIC32
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20141223 v0.0.1 initial version
- */
-
 /*==================[inclusions]=============================================*/
 
 /*==================[macros and definitions]=================================*/

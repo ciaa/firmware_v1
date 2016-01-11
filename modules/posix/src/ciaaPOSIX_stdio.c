@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2015, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -39,21 +40,6 @@
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
- ** @{ */
-/*
- * Initials     Name
- * ---------------------------
- * EzEs         Ezequiel Esposito
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140528 v0.0.2 MaCe implement printf
- * 20140420 v0.0.1 EzEs initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaak.h"            /* <= ciaa kernel header */
 #include "ciaaPlatforms.h"
@@ -159,7 +145,7 @@ extern int32_t ciaaPOSIX_open(char const * path, uint8_t oflag)
             if (NULL != rewriteDevice)
             {
                /* open device successfull */
-               ciaaPOSIX_stdio_fildes[loopi].device = rewriteDevice;
+               ciaaPOSIX_stdio_fildes[ret].device = rewriteDevice;
             }
             else
             {

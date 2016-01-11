@@ -46,23 +46,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * EzEs         Ezequiel Esposito
- * MaCe         Mariano Cerdeiro
- * PaRi         Pablo Ridolfi
- * JuCe         Juan Cecconi
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150221 v0.0.3 MaCe separeate ioctl macros in multiple files
- * 20140528 v0.0.2 MaCe implement printf
- * 20140420 v0.0.1 EzEs initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDevices.h"
 #include "ciaaMemory.h"
@@ -81,16 +64,16 @@ extern "C" {
 #define ciaaPOSIX_stdio_MAXFILDES      20
 
 /** \brief Open for read only */
-#define O_RDONLY            0x0000
+#define ciaaPOSIX_O_RDONLY             0x0000
 
 /** \brief Open to write only */
-#define O_WRONLY            0x0001
+#define ciaaPOSIX_O_WRONLY             0x0001
 
 /** \brief Open to read write */
-#define O_RDWR              0x0002
+#define ciaaPOSIX_O_RDWR               0x0002
 
 /** \brief Non blocking interface */
-#define O_NONBLOCK          0x0004
+#define ciaaPOSIX_O_NONBLOCK           0x0004
 
 /** \brief set channel for analogic input/output
  **
@@ -151,9 +134,9 @@ extern void ciaaPOSIX_init(void);
  **
  ** \param[in] path  path of the device to be opened
  ** \param[in] oflag may take one of the following values:
- **               O_RDONLY: opens files to read only
- **               O_WRONLY: opens files to write only
- **               O_RDWR: opens file to read and write
+ **               ciaaPOSIX_O_RDONLY: opens files to read only
+ **               ciaaPOSIX_O_WRONLY: opens files to write only
+ **               ciaaPOSIX_O_RDWR: opens file to read and write
  ** \return -1 if failed, a non negative integer representing the file
  **         descriptor if success.
  **

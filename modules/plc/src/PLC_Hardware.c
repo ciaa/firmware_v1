@@ -43,20 +43,6 @@
 /** \addtogroup PLC PLC Module
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * ErPe         Eric Pernia
- * LeKo         Leandro Kollenberger
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150428 v0.0.1 ErPe & LeKo CIAA Firmware porting
- * 20120204 v0.0.1 ErPe initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "PLC_StandardCDataTypes.h"   /* <= Standard C Data Types */
 #include "ciaaPOSIX_stdio.h"          /* <= device handler header */
@@ -85,14 +71,14 @@ static int32_t fd_in, fd_out;
 void PLC_DIs_Init (void)
 {
    /* open CIAA digital inputs */
-   fd_in = ciaaPOSIX_open("/dev/dio/in/0", O_RDWR);
+   fd_in = ciaaPOSIX_open("/dev/dio/in/0", ciaaPOSIX_O_RDWR);
 }
 
 /** \brief This function initialize PLC Digital Outputs */
 void PLC_DOs_Init(void)
 {
    /* open CIAA digital outputs */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", O_RDWR);
+   fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 
 }
 

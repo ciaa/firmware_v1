@@ -55,22 +55,6 @@
 /** \addtogroup FreeOSEK_Os_Global
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150619 v0.1.4 MaCe fix issue #279
- * 20090719 v0.1.3 MaCe rename file to Os_
- * 20090424 v0.1.2 MaCe add counters defines
- * 20090128 v0.1.1 MaCe add MEMMAP off configuration
- * 20080810 v0.1.0 MaCe initial version
- */
-
 /*==================[inclusions]=============================================*/
 
 /*==================[macros]=================================================*/

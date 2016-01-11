@@ -56,20 +56,8 @@
 /** \addtogroup Template Template to start a new module
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- *
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
-#include "Template_File.h"
+#include "template.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -87,12 +75,14 @@
 extern int16_t Template_Sum16bits(int16_t const a, int16_t const b)
 {
     int16_t ret;
-    if (((int32_t)((int32_t)a+(int32_t)b)) > (int32_t)INT16_MAX) {
+    int32_t tmp = (int32_t)a + (int32_t)b;
+
+    if (tmp > (int32_t)INT16_MAX) {
         ret = INT16_MAX;
-    } else if (((int32_t)((int32_t)a+(int32_t)b)) < (int32_t)INT16_MIN) {
+    } else if (tmp < (int32_t)INT16_MIN) {
         ret = INT16_MIN;
     } else {
-        ret = a + b;
+        ret = (int16_t)tmp;
     }
 
     return ret;

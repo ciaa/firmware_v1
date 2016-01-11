@@ -41,21 +41,6 @@
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
- ** @{ */
-/*
- * Initials     Name
- * ---------------------------
- * EzEs         Ezequiel Esposito
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140503 v0.0.2 MaCe implement all functions
- * 20140420 v0.0.1 EzEs initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaDevices.h"
 #include "ciaaPOSIX_stdlib.h"

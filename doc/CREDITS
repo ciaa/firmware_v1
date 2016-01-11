@@ -2,6 +2,80 @@
  **
  ** Authors and their contributions to CIAA Firmware:
  **
+ ** CIAA Firmware 1.0.0 Upa (23.12.2015) LTS
+ **
+ **   Following persons have invest a lot of effort and time to make
+ **   CIAA Firmware become true. We hope you enjoy it. :)
+ **
+ **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
+ **      - #324 and #323 implement a master/slave system test with 2 CIAAs,
+ **         actually only an initial version is provided.
+ **      - #322 implement a first ioboard test.
+ **      - #327 rename blinking_modbus to blinking_modbus_slave
+ **      - #319 rename configuration files to _Cfg.h
+ **      - #318 fix wrong integer handling in modbus.
+ **
+ **   - Mariano Cerdeiro
+ **      - Add support for the tool coverity to perform static checks
+ **      - #325 blinking_modbus is now called blinking_modbus_slave
+ **      - Improve readme
+ **      - #312 create a report make rule to provide user support
+ **
+ **   - Diego Ezequiel Vommaro
+ **      - Implementation of RTCS Library
+ **      - Implementation of matrix calculation library
+ **
+ **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):
+ **      - Extend the RTOS to be multicore
+ **
+ **   - Esteban Volentini (evolentini@gmail.com):
+ **      - #235 implement POSIX UART Drivers for FSL
+ **
+ **   - Juan Cecconi (jcecconi@numetron.com.ar):
+ **      - Improve rtostests to run in RAM.
+ **
+ ** Note: The release 0.7.0-alpha was performed based on a branch. The 0.7.0
+ **       was never performed and therefore it can not be found on this list.
+ **
+ ** CIAA Firmware 0.6.1 (10.08.2015)
+ **
+ **   Following persons have invest a lot of effort and time to make
+ **   CIAA Firmware become true. We hope you enjoy it. :)
+ **
+ **   - Pablo Ridolfi (pridolfi@frba.utn.edu.ar):
+ **      - fix ADC driver for EDU-CIAA-NXP: #305
+ **
+ **   - Juan Cecconi (jcecconi@numetron.com.ar):
+ **      - correct bug in linker script.
+ **
+ **   - Martin Ribelotta:
+ **      - Update lpcopen to 2.16: #306
+ **
+ **   - Mariano Cerdeiro
+ **      - add tests of template module: #308
+ **
+ **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
+ **      - fix issue with lpcopne: #310
+ **
+ ** CIAA Firmware 0.6.0 (06.08.2015)
+ **
+ **   Following persons have invest a lot of effort and time to make
+ **   CIAA Firmware become true. We hope you enjoy it. :)
+ **
+ **   - Mariano Cerdeiro (mcerdeiro@gmail.com):
+ **      - Correct DIO Devices bug, #301
+ **      - Correct DS bug in Makefile, #285
+ **      - Improve template module, #275
+ **      - Correct RTOS Bug, #279
+ **
+ **   - Juan Cecconi (jcecconi@numetron.com.ar):
+ **      - Improve RTOS Tests to run in RAM, #157
+ **
+ **   - Gustavo Muro (gmuro@fceia.unr.edu.ar):
+ **      - Add Os_Cfg.h to unit test to be able tu run, #279
+ **      - Add modbus_utest.oil to generate osek in the unit test, #282
+ **      - Add posix_utest.oil to generate osek in the unit test, #282
+ **
  ** CIAA Firmware 0.5.0 (06.06.2015)
  **
  **   Following persons have invest a lot of effort and time to make

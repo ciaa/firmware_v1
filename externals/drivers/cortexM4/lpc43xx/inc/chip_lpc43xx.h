@@ -53,14 +53,15 @@ extern "C" {
 
 #define LPC_SCT_BASE              0x40000000
 #define LPC_GPDMA_BASE            0x40002000
+#define LPC_SPIFI_BASE            0x40003000
 #define LPC_SDMMC_BASE            0x40004000
 #define LPC_EMC_BASE              0x40005000
 #define LPC_USB0_BASE             0x40006000
 #define LPC_USB1_BASE             0x40007000
 #define LPC_LCD_BASE              0x40008000
-#define LPC_ETHERNET_BASE         0x40010000
 #define LPC_FMCA_BASE             0x4000C000
 #define LPC_FMCB_BASE             0x4000D000
+#define LPC_ETHERNET_BASE         0x40010000
 #define LPC_ATIMER_BASE           0x40040000
 #define LPC_REGFILE_BASE          0x40041000
 #define LPC_PMC_BASE              0x40042000
@@ -196,7 +197,9 @@ extern "C" {
 #include "ritimer_18xx_43xx.h"
 #include "rtc_18xx_43xx.h"
 #include "sct_18xx_43xx.h"
+#include "sct_pwm_18xx_43xx.h"
 #include "sdmmc_18xx_43xx.h"
+#include "sdio_18xx_43xx.h"
 #include "sgpio_18xx_43xx.h"
 #include "spi_18xx_43xx.h"
 #include "ssp_18xx_43xx.h"

@@ -43,18 +43,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140525 v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaDevices.h"
@@ -86,9 +74,9 @@ extern void ciaaDioDevices_init(void);
  **
  ** \param[in] path path of the device to be opened
  ** \param[in] oflag may take one of the following values:
- **               O_RDONLY: opens files to read only
- **               O_WRONLY: opens files to write only
- **               O_RDWR: opens file to read and write
+ **               ciaaPOSIX_O_RDONLY: opens files to read only
+ **               ciaaPOSIX_O_WRONLY: opens files to write only
+ **               ciaaPOSIX_O_RDWR: opens file to read and write
  ** \return a negative value if failed, a positive value if success.
  **/
 extern ciaaDevices_deviceType * ciaaDioDevices_open(char const * path,

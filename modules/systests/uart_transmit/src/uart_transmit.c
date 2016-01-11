@@ -43,19 +43,6 @@
 /** \addtogroup UartTransmit UART Transmit System Test
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * GMuro        Gustavo Muro
- *
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140804 v0.0.1 initials initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "os.h"
 #include "ciaaPOSIX_stdio.h"
@@ -100,7 +87,7 @@ TASK(InitTask)
    ciaak_start();
 
    /* open UART connected to USB bridge (FT2232) */
-   fd_uart = ciaaPOSIX_open("/dev/serial/uart/1", O_RDWR);
+   fd_uart = ciaaPOSIX_open("/dev/serial/uart/1", ciaaPOSIX_O_RDWR);
 
    /* change baud rate for uart usb */
    ciaaPOSIX_ioctl(fd_uart, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);

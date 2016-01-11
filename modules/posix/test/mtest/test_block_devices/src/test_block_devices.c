@@ -46,22 +46,6 @@
 /** \addtogroup Block Block Devices Tests
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * EV           Esteban Volentini
- * FS           Franco J. Salinas Mendoza
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20150327 v0.0.3 FS   bugs fixed
- * 20150314 v0.0.2 EV   improved tests
- * 20150130 v0.0.1 MaCe Initial version
- */
-
 /*==================[inclusions]=============================================*/
 #include "os.h"                  /* <= operating system header */
 #include "ciaaPOSIX_stdio.h"     /* <= device handler header */
@@ -199,7 +183,7 @@ TASK(InitTask)
    ASSERT_SEQ(0);
 
    /* open a block device */
-   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
+   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", ciaaPOSIX_O_RDWR);
    ASSERT_MSG(-1 < filedes1, "ciaaPOSIX_open returns an invalid handler");
 
    ASSERT_SEQ(1);
@@ -272,7 +256,7 @@ TASK(InitTask)
    ASSERT_SEQ(9);
 
    /* open a block device */
-   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
+   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", ciaaPOSIX_O_RDWR);
    ASSERT_MSG(-1 < filedes1, "ciaaPOSIX_open returns an invalid handler");
 
    /* read a block */
@@ -300,7 +284,7 @@ TASK(InitTask)
    ASSERT_MSG(0 == ret, "ciaaPOSIX_close devices returns error");
 
    /* open a block device */
-   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", O_RDWR);
+   filedes1 = ciaaPOSIX_open("/dev/block/fd/0", ciaaPOSIX_O_RDWR);
    ASSERT_MSG(-1 < filedes1, "ciaaPOSIX_open returns an invalid handler");
 
    /* read a block */

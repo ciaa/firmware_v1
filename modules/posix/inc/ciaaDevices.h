@@ -45,18 +45,6 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20140422 v0.0.1 MaCe rework initial file
- */
-
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_stddef.h"
@@ -90,9 +78,9 @@ typedef struct ciaaDevices_deviceStruct ciaaDevices_deviceType;
  ** \param[in] path path of the device to be opened
  ** \param[in] device device to be opened
  ** \param[in] oflag may take one of the following values:
- **               O_RDONLY: opens files to read only
- **               O_WRONLY: opens files to write only
- **               O_RDWR: opens file to read and write
+ **               ciaaPOSIX_O_RDONLY: opens files to read only
+ **               ciaaPOSIX_O_WRONLY: opens files to write only
+ **               ciaaPOSIX_O_RDWR: opens file to read and write
  ** \return NULL if an error occurs, in other case the address of the opened
  **         device.
  **/
