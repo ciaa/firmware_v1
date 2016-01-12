@@ -1,4 +1,5 @@
 /* Copyright 2015, Mariano Cerdeiro
+ * Copyright 2016, Juan Cecconi
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,9 +32,9 @@
  *
  */
 
-/** \brief IO DIO Driver source file
+/** \brief IO DIO Driver Arch source file
  **
- ** This file contains is the Dio driver
+ ** This file contains is the Dio driver Arch
  **
  **/
 
@@ -46,17 +47,17 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi 
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20151222 v0.0.1 MaCe initial version
+ * 20160111 v0.0.1 JuCe initial version
  */
 
 /*==================[inclusions]=============================================*/
-#include "IODriver_Int.h"
-
+#include "IODriver_Base.h"
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
@@ -70,35 +71,49 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern IO_ErrorType Dio_InitSync(void * address)
+extern IO_ErrorType Dio_InitSync_Arch(void * address)
 {
-   IO_ErrorType ret;
+   uint16_t i;
    
-   ret = Dio_InitSync_Arch(address);
-   return ret;
+   for(i=0 ; i < DIO_PINS_COUNT ; i++)
+   {
+      if(Dio_Config.Pins[i].Flags & DIO_CONFIG_PIN_DIRECTION_INPUT)
+      {
+         Chip_SCU_PinMux(Dio_Config.Pins[i].Port, Dio_Config.Pins[i].Pin, SCU_MODE_INACT | SCU_MODE_INBUFF_EN | SCU_MODE_ZIF_DIS, FUNC0);
+         //Chip_GPIO_SetDir( LPC_GPIO_PORT, gpioPort, ( 1 << gpioPin ), INPUT );
+      }
+      else if(Dio_Config.Pins[i].Flags & DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW)
+      {
+         Chip_SCU_PinMux(Dio_Config.Pins[i].Port, Dio_Config.Pins[i].Pin, SCU_MODE_INACT | SCU_MODE_ZIF_DIS, FUNC0);
+         //Chip_GPIO_SetDir( LPC_GPIO_PORT, gpioPort, ( 1 << gpioPin ), OUTPUT );
+         //Chip_GPIO_ClearValue(LPC_GPIO_PORT, gpioPort, ( 1 << gpioPin ));
+      }
+       
+   }
+   return IO_E_OK;
 }
 
-extern IO_ValueType Dio_GetSync(IO_ChannelType channel)
+extern IO_ValueType Dio_GetSync_Arch(IO_ChannelType channel)
 {
    return IO_HIGH;
 }
 
-extern void Dio_SetSync(IO_ChannelType channel, IO_ValueType value)
+extern void Dio_SetSync_Arch(IO_ChannelType channel, IO_ValueType value)
 {
 
 }
 
-extern IO_ValueType Dio_GetPortSync(IO_ChannelType channel)
+extern IO_ValueType Dio_GetPortSync_Arch(IO_ChannelType channel)
 {
    return 0xFF;
 }
 
-extern void Dio_SetPortSync(IO_ChannelType channel, IO_ValueType value)
+extern void Dio_SetPortSync_Arch(IO_ChannelType channel, IO_ValueType value)
 {
 
 }
 
-extern void Dio_SetPortMaskedSync(IO_ChannelType channel, IO_ValueType value, IO_ValueType mask)
+extern void Dio_SetPortMaskedSync_Arch(IO_ChannelType channel, IO_ValueType value, IO_ValueType mask)
 {
 
 }

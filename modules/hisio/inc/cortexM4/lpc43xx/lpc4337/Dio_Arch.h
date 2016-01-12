@@ -75,6 +75,9 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief
+ **/
+extern IO_ErrorType Dio_InitSync_Arch(void * address);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

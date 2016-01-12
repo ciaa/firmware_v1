@@ -64,6 +64,14 @@
 #include "IODriver.h"         /* <= IO Driver header files */
 #include "ciaaPOSIX_stdint.h" /* <= DataTypes */
 
+#ifndef CPU
+#error CPU shall be defined
+#endif
+#if (lpc4337 == CPU)
+#include "chip.h"
+#elif (mk60fx512vlq15 == CPU)
+#else
+#endif
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
@@ -93,7 +101,7 @@ int main(void)
 
    /* Initialize the Dio Driver. The name MyDioConfig is the
     * one given in the DIL Configuration File */
-   Dio_InitSync(&MyDioConfig);
+   Dio_InitSync(0);
 
    /* to perform a while 1 is NEVER recomended, but in this case to perform a
     * really simple example we used anyway. :( */

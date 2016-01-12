@@ -45,7 +45,10 @@
 
 class Hisio extends Hisio_Base {
 
-   init() {
+   function __construct() {
+      print "Y_constructor_finished\n" ;
+   } 
+   function init() {
       $dio_pins = array (
          /* port GPIO0 */
          "GPIO0[0]" => "P0_0",
@@ -102,7 +105,7 @@ class Hisio extends Hisio_Base {
             "P1_18",
             "P2_10",
             "P1_20"
-         )
+         ),
          "GPIO1" => array (
             "P1_7",
             "P1_8",
@@ -145,17 +148,20 @@ class Hisio extends Hisio_Base {
             "PF_8",  #UCLK
             "PF_9",  #DIR
             "PF_10", #TXD
-            "PF_11", #RXD)
+            "PF_11"  #RXD
+         ),
+         "U1" => array (
+            "Algo",  #Algo...
          )
       );
-
 
       $adc_ports = array (
          "ADC0_1" => "P4_1",
          "ADC0_0" => "P4_3",
          "ADC0_4" => "P7_4",
          "ADC0_3" => "P7_5",
-      )
+      );
+      
       $this->addAdc($adc_ports);
    }
 

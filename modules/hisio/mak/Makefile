@@ -48,11 +48,11 @@ hisio_INC_PATH 	= $(hisio_PATH)$(DS)inc                                         
                     $(GEN_DIR)$(DS)inc
 
 # library source files
-hisio_SRC_FILES 	= $(wildcard $(hisio_SRC_PATH)$(DS)*.c)
-hisio_SRC_FILES  += $(wildcard $(hisio_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c)
-hisio_SRC_FILES  += $(wildcard $(hisio_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)
-hisio_SRC_FILES  += $(wildcard $(hisio_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
-hisio_SRC_FILES  += $(wildcard $(GEN_DIR)$(DS)src$(DS)*.c)
+hisio_SRC_FILES 	= $(wildcard $(hisio_SRC_PATH)$(DS)*.c)                            \
+                    $(wildcard $(hisio_SRC_PATH)$(DS)$(ARCH)$(DS)*.c)                \
+                    $(wildcard $(hisio_SRC_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)*.c) \
+                    $(wildcard $(hisio_SRC_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.c)  \
+                    $(wildcard $(GEN_DIR)$(DS)src$(DS)*.c)
 
 # files to be generated
 # TODO see https://github.com/ciaa/Firmware/issues/277

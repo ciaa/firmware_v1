@@ -81,13 +81,38 @@ foreach ($dios as $count=>$dio) {
    }
    $pins = $config->getList("/DIL/" . $dio, "PIN");
 
-   print "const Dio_ConfigType " . $dio . " = {\n";
+   print "const Dio_ConfigType Dio_Config = {\n";
    print "{\n";
    foreach($pins as $count=>$pin) {
       $pin_port = $config->getValue("/DIL/" . $dio . "/" . $pin, "PORT");
       $pin_pin = $config->getValue("/DIL/" . $dio . "/" . $pin, "PIN");
+      $pin_direction = $config->getValue("/DIL/" . $dio . "/" . $pin, "DIRECTION");
+      switch ($pin_direction)
+      {
+         case "OUTPUT_INIT_LOW":
+            $pin_flags = "DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW";
+            break;
+         case "OUTPUT_INIT_HIGH":
+            $pin_flags = "DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH";
+            break;
+         default:
+           $this->log->error("The pin $pin hasn't a defined direction!");
+            break;
+      }
+      $pin_inverted = $config->getValue("/DIL/" . $dio . "/" . $pin, "INVERTED");
+      switch ($pin_inverted)
+      {
+         case "TRUE":
+            $pin_flags = $pin_flags . " | DIO_CONFIG_PIN_INVERTED";
+            break;
+         case "FALSE":
+            break;
+         default:
+            $this->log->error("The pin $pin hasn't a defined 'inverted' configuration!");
+            break;
+      }      
       print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " called " . $pin . " */\n";
-      print "{" . $pin_port . "," . $pin_pin . "," . "0" . "},\n";
+      print "{" . $pin_port . "," . $pin_pin . "," . $pin_flags . "},\n";
    }
    print "}\n";
    print ", 0 /* foo var */\n";   

@@ -71,6 +71,12 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+#define DIO_CONFIG_PIN_DIRECTION_UNUSED                   0x00000001UL
+#define DIO_CONFIG_PIN_DIRECTION_INPUT                    0x00000002UL
+#define DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW          0x00000004UL
+#define DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH         0x00000008UL
+#define DIO_CONFIG_PIN_INVERTED                           0x00000010UL
+
 <?php
 $dios = $config->getList("/DIL", "DIO");
 foreach ($dios as $count=>$dio) {
@@ -85,8 +91,6 @@ foreach ($dios as $count=>$dio) {
  **
  **/
 <?php
-   print "/* #define $dio  (*(uint8_t*)0) */\n";
-
    $pins = $config->getList("/DIL/" . $dio, "PIN");
 
    foreach($pins as $count=>$pin) {
@@ -129,7 +133,7 @@ typedef struct {
 <?php
 foreach ($dios as $count=>$dio) {
    print "/** \brief Configration of Dio Driver: " . $dio . " */\n";
-   print "extern const Dio_ConfigType " . $dio . ";\n";
+   print "extern const Dio_ConfigType Dio_Config;\n";
 }
 ?>
 
