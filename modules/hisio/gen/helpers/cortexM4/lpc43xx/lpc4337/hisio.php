@@ -43,13 +43,17 @@
 /** \addtogroup HISIO HisIO Module
  ** @{ */
 
+class Hisio_Base {
+}
+
 class Hisio extends Hisio_Base {
 
+   public $dio_pins;
    function __construct() {
-      print "Y_constructor_finished\n" ;
-   } 
+      $this->init();
+   }
    function init() {
-      $dio_pins = array (
+      $this->dio_pins = array (
          /* port GPIO0 */
          "GPIO0[0]" => "P0_0",
          "GPIO0[1]" => "P0_1",
@@ -84,8 +88,17 @@ class Hisio extends Hisio_Base {
          "GPIO1[13]" => "P2_13",
          "GPIO1[14]" => "P3_4",
          "GPIO1[15]" => "P3_5",
+         /* port GPIO2 */
+         "GPIO2[4]" => "P4_4",
+         "GPIO2[5]" => "P4_5",
+         "GPIO2[6]" => "P4_6",        
+         /* port GPIO5 */
+         "GPIO5[1]" => "P2_1",
+         "GPIO5[12]" => "P4_8",
+         "GPIO5[13]" => "P4_9",
+         "GPIO5[14]" => "P4_10",
       );
-      $this->addDioPins($dio_pins);
+/*      $this->addDioPins($dio_pins); */
 
       $dio_ports = array (
          "GPIO0" => array (
@@ -125,13 +138,13 @@ class Hisio extends Hisio_Base {
             "P3_5",
          )
       );
-      $this->addDioPorts($dio_ports);
+/*      $this->addDioPorts($dio_ports); */
 
       $pwm_ports = array (
          "PWM0" => "P4_0",
          "PWM1" => "P5_5"
       );
-      $this->addPwm($pwm_ports);
+ /*     $this->addPwm($pwm_ports); */
 
       $uart_ports = array (
          "U0" => array (
@@ -161,8 +174,7 @@ class Hisio extends Hisio_Base {
          "ADC0_4" => "P7_4",
          "ADC0_3" => "P7_5",
       );
-      
-      $this->addAdc($adc_ports);
+/*      $this->addAdc($adc_ports); */
    }
 
 

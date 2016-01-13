@@ -117,6 +117,8 @@ foreach ($dios as $count=>$dio) {
 typedef struct {
    uint8_t Port;
    uint8_t Pin;
+   uint8_t GPIO_Port;
+   uint8_t GPIO_Pin;   
    uint32_t Flags; /* Inverted, Direction, I/O, etc */
 } Dio_PinConfigType;
 

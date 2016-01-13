@@ -74,10 +74,14 @@
 /*==================[external data definition]==============================*/
 
 <?php
+
+require_once './modules/hisio/gen/helpers/cortexM4/lpc43xx/lpc4337/hisio.php';
+$MyHisio = new Hisio;
+
 $dios = $config->getList("/DIL", "DIO");
 foreach ($dios as $count=>$dio) {
    if ($count != 0) {
-      $this->error("Maximal one configuration is supported.");
+      $this->log->error("Maximal one configuration is supported.");
    }
    $pins = $config->getList("/DIL/" . $dio, "PIN");
 
@@ -86,6 +90,12 @@ foreach ($dios as $count=>$dio) {
    foreach($pins as $count=>$pin) {
       $pin_port = $config->getValue("/DIL/" . $dio . "/" . $pin, "PORT");
       $pin_pin = $config->getValue("/DIL/" . $dio . "/" . $pin, "PIN");
+      $GPIO = array_search("P" . $pin_port . "_" . $pin_pin, $MyHisio->dio_pins);
+      if ($GPIO == NULL) {
+         $this->log->error("PIN " . $pin . " has a 'Port-Pin' pair that doesn't match a valid GPIO.");
+      }
+      sscanf($GPIO, "GPIO%d[%d]", $GPIO_Port, $GPIO_Pin);
+
       $pin_direction = $config->getValue("/DIL/" . $dio . "/" . $pin, "DIRECTION");
       switch ($pin_direction)
       {
@@ -111,8 +121,8 @@ foreach ($dios as $count=>$dio) {
             $this->log->error("The pin $pin hasn't a defined 'inverted' configuration!");
             break;
       }      
-      print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " called " . $pin . " */\n";
-      print "{" . $pin_port . "," . $pin_pin . "," . $pin_flags . "},\n";
+      print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " , " . $GPIO . " called " . $pin . " */\n";
+      print "{" . $pin_port . "," . $pin_pin . "," . $GPIO_Port . "," . $GPIO_Pin . "," . $pin_flags . "},\n";
    }
    print "}\n";
    print ", 0 /* foo var */\n";   

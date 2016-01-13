@@ -80,12 +80,12 @@ extern IO_ErrorType Dio_InitSync(void * address)
 
 extern IO_ValueType Dio_GetSync(IO_ChannelType channel)
 {
-   return IO_HIGH;
+   return Dio_GetSync_Arch(channel);
 }
 
 extern void Dio_SetSync(IO_ChannelType channel, IO_ValueType value)
 {
-
+   Dio_SetSync_Arch(channel, value);
 }
 
 extern IO_ValueType Dio_GetPortSync(IO_ChannelType channel)

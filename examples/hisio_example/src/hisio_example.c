@@ -113,11 +113,11 @@ int main(void)
       {
          /* set the Led1 pin to HIGH, this will really set the port to 0V since
           * the pin is configured as inverted in the DIL File */
-         Dio_SetSync(Led1, IO_HIGH);
+         Dio_SetSync(MOSFET1, IO_HIGH);
       }
       else
       {
-         Dio_SetSync(Led1, IO_LOW);
+         Dio_SetSync(MOSFET1, IO_LOW);
       }
 
       /* set the DataBus port to the value 0x3F */
@@ -129,7 +129,7 @@ int main(void)
 
       /* DIO Notifications will not be supported in te first version */
 
-      for(loop = 0; loop < 0xFFFF; loop++) {
+      for(loop = 0; loop < 0x3FFFFF; loop++) {
          /* do nothing */
          /* again a good example how not to perform a dealy. this delay
           * will keep the cpu on his maximal speed and wasting energy... :( */

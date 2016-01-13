@@ -66,9 +66,6 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#define Dio_SetSync_Arch
-
-#define Dio_GetSync_Arch
 
 /*==================[typedef]================================================*/
 
@@ -78,6 +75,14 @@ extern "C" {
 /** \brief
  **/
 extern IO_ErrorType Dio_InitSync_Arch(void * address);
+
+/** \brief
+ **/
+extern void Dio_SetSync_Arch(IO_ChannelType channel, IO_ValueType value);
+
+/** \brief
+ **/
+extern IO_ValueType Dio_GetSync_Arch(IO_ChannelType channel);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
