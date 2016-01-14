@@ -45,17 +45,19 @@ hisio_INC_PATH 	= $(hisio_PATH)$(DS)inc                                         
                     $(hisio_PATH)$(DS)inc$(DS)$(ARCH)                                \
                     $(hisio_PATH)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)                 \
                     $(hisio_PATH)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)      \
-                    $(GEN_DIR)$(DS)inc
+                    $(GEN_DIR)$(DS)inc                                               \
+                    $(GEN_DIR)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)
 
 # library source files
 hisio_SRC_FILES 	= $(wildcard $(hisio_SRC_PATH)$(DS)*.c)                            \
                     $(wildcard $(hisio_SRC_PATH)$(DS)$(ARCH)$(DS)*.c)                \
                     $(wildcard $(hisio_SRC_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)*.c) \
                     $(wildcard $(hisio_SRC_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.c)  \
-                    $(wildcard $(GEN_DIR)$(DS)src$(DS)*.c)
+                    $(wildcard $(GEN_DIR)$(DS)src$(DS)*.c)                                       \
+                    $(wildcard $(GEN_DIR)$(DS)src$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.c)
 
 # files to be generated
 # TODO see https://github.com/ciaa/Firmware/issues/277
 rtos_GEN_FILES += $(hisio_PATH)$(DS)gen$(DS)inc$(DS)IODriver_Cfg.h.php	\
-						$(hisio_PATH)$(DS)gen$(DS)inc$(DS)Dio_Cfg.h.php       \
-                  $(hisio_PATH)$(DS)gen$(DS)src$(DS)Dio_Cfg.c.php
+						$(hisio_PATH)$(DS)gen$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Dio_Cfg_Arch.h.php       \
+                  $(hisio_PATH)$(DS)gen$(DS)src$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Dio_Cfg_Arch.c.php

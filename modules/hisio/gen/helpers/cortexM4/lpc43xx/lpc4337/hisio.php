@@ -55,18 +55,18 @@ class Hisio extends Hisio_Base {
    function init() {
       $this->dio_pins = array (
          /* port GPIO0 */
-         "GPIO0[0]" => "P0_0",
-         "GPIO0[1]" => "P0_1",
+         "GPIO0[0],FUNC0" => "P0_0",
+         "GPIO0[1],FUNC0" => "P0_1",
          "GPIO0[2]" => "P1_15",
          "GPIO0[3]" => "P1_16",
          "GPIO0[4]" => "P1_0",
          "GPIO0[5]" => "P6_6",
          "GPIO0[6]" => "P3_6",
          "GPIO0[7]" => "P2_7",
-         "GPIO0[8]" => "P1_1",
-         "GPIO0[9]" => "P1_2",
-         "GPIO0[10]" => "P1_3",
-         "GPIO0[11]" => "P1_4",
+         "GPIO0[8],FUNC0" => "P1_1",
+         "GPIO0[9],FUNC0" => "P1_2",
+         "GPIO0[10],FUNC0" => "P1_3",
+         "GPIO0[11],FUNC0" => "P1_4",
          "GPIO0[12]" => "P1_17",
          "GPIO0[13]" => "P1_18",
          "GPIO0[14]" => "P2_10",
@@ -89,14 +89,14 @@ class Hisio extends Hisio_Base {
          "GPIO1[14]" => "P3_4",
          "GPIO1[15]" => "P3_5",
          /* port GPIO2 */
-         "GPIO2[4]" => "P4_4",
-         "GPIO2[5]" => "P4_5",
-         "GPIO2[6]" => "P4_6",        
+         "GPIO2[4],FUNC0" => "P4_4",
+         "GPIO2[5],FUNC0" => "P4_5",
+         "GPIO2[6],FUNC0" => "P4_6",        
          /* port GPIO5 */
-         "GPIO5[1]" => "P2_1",
-         "GPIO5[12]" => "P4_8",
-         "GPIO5[13]" => "P4_9",
-         "GPIO5[14]" => "P4_10",
+         "GPIO5[1]" => "P2_1,FUNC4",
+         "GPIO5[12],FUNC4" => "P4_8",
+         "GPIO5[13],FUNC4" => "P4_9",
+         "GPIO5[14],FUNC4" => "P4_10",
       );
 /*      $this->addDioPins($dio_pins); */
 

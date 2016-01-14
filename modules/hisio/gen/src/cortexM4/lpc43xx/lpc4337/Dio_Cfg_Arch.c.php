@@ -60,6 +60,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "Dio_Cfg.h"
+#include "Dio_Cfg_Arch.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -90,11 +91,11 @@ foreach ($dios as $count=>$dio) {
    foreach($pins as $count=>$pin) {
       $pin_port = $config->getValue("/DIL/" . $dio . "/" . $pin, "PORT");
       $pin_pin = $config->getValue("/DIL/" . $dio . "/" . $pin, "PIN");
-      $GPIO = array_search("P" . $pin_port . "_" . $pin_pin, $MyHisio->dio_pins);
+      $GPIO = array_search("P" . $pin_port . "_" . $pin_pin, $MyHisio->dio_pins, FALSE);
       if ($GPIO == NULL) {
          $this->log->error("PIN " . $pin . " has a 'Port-Pin' pair that doesn't match a valid GPIO.");
       }
-      sscanf($GPIO, "GPIO%d[%d]", $GPIO_Port, $GPIO_Pin);
+      sscanf($GPIO, "GPIO%d[%d],FUNC%d", $GPIO_Port, $GPIO_Pin, $GPIO_Func);
 
       $pin_direction = $config->getValue("/DIL/" . $dio . "/" . $pin, "DIRECTION");
       switch ($pin_direction)
@@ -122,7 +123,7 @@ foreach ($dios as $count=>$dio) {
             break;
       }      
       print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " , " . $GPIO . " called " . $pin . " */\n";
-      print "{" . $pin_port . "," . $pin_pin . "," . $GPIO_Port . "," . $GPIO_Pin . "," . $pin_flags . "},\n";
+      print "{ " . $pin_port . ", " . $pin_pin . ", " . $GPIO_Port . ", " . $GPIO_Pin . ", SCU_MODE_FUNC" . $GPIO_Func . ", (" . $pin_flags . ")},\n";
    }
    print "}\n";
    print ", 0 /* foo var */\n";   
