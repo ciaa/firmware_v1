@@ -46,6 +46,7 @@ hisio_INC_PATH 	= $(hisio_PATH)$(DS)inc                                         
                     $(hisio_PATH)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)                 \
                     $(hisio_PATH)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)      \
                     $(GEN_DIR)$(DS)inc                                               \
+                    $(GEN_DIR)$(DS)inc$(DS)$(ARCH)                                   \
                     $(GEN_DIR)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)
 
 # library source files
@@ -58,6 +59,8 @@ hisio_SRC_FILES 	= $(wildcard $(hisio_SRC_PATH)$(DS)*.c)                        
 
 # files to be generated
 # TODO see https://github.com/ciaa/Firmware/issues/277
-rtos_GEN_FILES += $(hisio_PATH)$(DS)gen$(DS)inc$(DS)IODriver_Cfg.h.php	\
-						$(hisio_PATH)$(DS)gen$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Dio_Cfg_Arch.h.php       \
-                  $(hisio_PATH)$(DS)gen$(DS)src$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Dio_Cfg_Arch.c.php
+rtos_GEN_FILES += $(wildcard $(hisio_PATH)$(DS)gen$(DS)inc$(DS)*.php)	\
+                  $(wildcard $(hisio_PATH)$(DS)gen$(DS)inc$(DS)$(ARCH)$(DS)*.php)      \
+                  $(wildcard $(hisio_PATH)$(DS)gen$(DS)src$(DS)$(ARCH)$(DS)*.php)      \
+						$(wildcard $(hisio_PATH)$(DS)gen$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.php)      \
+                  $(wildcard $(hisio_PATH)$(DS)gen$(DS)src$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.php)
