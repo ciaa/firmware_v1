@@ -44,7 +44,7 @@ INC_FILES            += $(PROJECT_PATH)$(DS)inc
 # library source files
 SRC_FILES            += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
 # configuration for Drivers
-OIL_FILES            += $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).oil
+POIL_FILES            += $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).poil
 # Modules needed for this example
 MODS                 += modules$(DS)hisio
 MODS 						+= externals$(DS)drivers
