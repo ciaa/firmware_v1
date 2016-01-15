@@ -45,8 +45,7 @@ INC_FILES            += $(PROJECT_PATH)$(DS)inc
 SRC_FILES            += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
 # configuration for Drivers
 OIL_FILES            += $(wildcard $(PROJECT_PATH)$(DS)etc$(DS)*.oil)
-POIL_FILES        	+= $(wildcard $(PROJECT_PATH)$(DS)etc$(DS)*.poil)
+POIL_FILES        	+= $(if $(findstring .oil, $(OIL_FILES)),,$(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).poil)
 # Modules needed for this example
-MODS                 += modules$(DS)hisio
-MODS 						+= externals$(DS)drivers
-
+MODS                 += modules$(DS)hisio    \
+                        externals$(DS)drivers

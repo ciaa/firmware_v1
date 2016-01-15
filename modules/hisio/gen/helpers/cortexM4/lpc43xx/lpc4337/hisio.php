@@ -93,7 +93,7 @@ class Hisio extends Hisio_Base {
          "GPIO2[5],FUNC0" => "P4_5",
          "GPIO2[6],FUNC0" => "P4_6",        
          /* port GPIO5 */
-         "GPIO5[1]" => "P2_1,FUNC4",
+         "GPIO5[1],FUNC4" => "P2_1",
          "GPIO5[12],FUNC4" => "P4_8",
          "GPIO5[13],FUNC4" => "P4_9",
          "GPIO5[14],FUNC4" => "P4_10",

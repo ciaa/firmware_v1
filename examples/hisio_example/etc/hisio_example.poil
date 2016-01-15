@@ -46,6 +46,15 @@
 /*        but the CIAA-Firmware defines a litle different way to keep        */
 /*        compatibility with OIL used for OSEK.                              */
 /*****************************************************************************/
+#include "ciaaPlatforms.h"
 
 /* Include hardware definitions for used board */
-#include "edu-ciaa-nxp.oil"
+#if BOARD == ciaa_nxp
+   #include "ciaa-nxp.oil"
+#endif
+#if BOARD == edu_ciaa_nxp
+   #include "edu-ciaa-nxp.oil"
+#endif
+#if BOARD == ciaa_fsl
+   #include "ciaa-fsl.oil"
+#endif
