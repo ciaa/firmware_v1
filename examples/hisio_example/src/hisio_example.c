@@ -51,6 +51,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JMC          Juan Manuel Cruz
  */
 
 /*
@@ -64,6 +65,8 @@
 #include "IODriver.h"         /* <= IO Driver header files */
 #include "ciaaPOSIX_stdint.h" /* <= DataTypes */
 
+#define CPU lpc4337
+
 #ifndef CPU
 #error CPU shall be defined
 #endif
@@ -72,6 +75,7 @@
 #elif (mk60fx512vlq15 == CPU)
 #else
 #endif
+
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
@@ -113,20 +117,30 @@ int main(void)
       {
          /* set the Led1 pin to HIGH, this will really set the port to 0V since
           * the pin is configured as inverted in the DIL File */
-         Dio_SetSync(MOSFET1, IO_HIGH);
+         Dio_SetSync(LED1, IO_HIGH);
+         Dio_SetSync(LED2, IO_HIGH);
+         Dio_SetSync(LED3, IO_HIGH);
+         Dio_SetSync(LED0_R, IO_HIGH);
+         Dio_SetSync(LED0_G, IO_HIGH);
+         Dio_SetSync(LED0_B, IO_HIGH);
       }
       else
       {
-         Dio_SetSync(MOSFET1, IO_LOW);
+         Dio_SetSync(LED1, IO_LOW);
+         Dio_SetSync(LED2, IO_LOW);
+         Dio_SetSync(LED3, IO_LOW);
+         Dio_SetSync(LED0_R, IO_LOW);
+         Dio_SetSync(LED0_G, IO_LOW);
+         Dio_SetSync(LED0_B, IO_LOW);
       }
 
       /* set the DataBus port to the value 0x3F */
-      Dio_SetPortSync(DataBus, 0x3F);
-
+/*      Dio_SetPortSync(DataBus, 0x3F);
+*/
       /* set the DataBus port to 0xbb3F, the high part of the 16 bit por
        * is not changed due to the 0xFF mask */
-      Dio_SetPortMaskedSync(DataBus, 0x3F, 0xFF);
-
+/*      Dio_SetPortMaskedSync(DataBus, 0x3F, 0xFF);
+*/
       /* DIO Notifications will not be supported in te first version */
 
       for(loop = 0; loop < 0x3FFFFF; loop++) {
