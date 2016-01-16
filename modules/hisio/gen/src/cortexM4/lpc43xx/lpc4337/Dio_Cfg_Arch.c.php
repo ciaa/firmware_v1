@@ -123,7 +123,7 @@ foreach ($dios as $count=>$dio) {
             break;
       }      
       print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " , " . $GPIO . " called " . $pin . " */\n";
-      print "{ " . $pin_port . ", " . $pin_pin . ", " . $GPIO_Port . ", " . $GPIO_Pin . ", SCU_MODE_FUNC" . $GPIO_Func . ", (" . $pin_flags . ")},\n";
+      print "{ 0x" . $pin_port . ", 0x" . $pin_pin . ", 0x" . $GPIO_Port . ", " . $GPIO_Pin . ", SCU_MODE_FUNC" . $GPIO_Func . ", (" . $pin_flags . ")},\n";
    }
    print "}\n";
    print ", 0 /* foo var */\n";   
