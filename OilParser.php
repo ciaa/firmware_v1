@@ -173,20 +173,20 @@ class OilParser {
       if  ( strpos($tmp, "{") !== false )
       {
          $ret[2] = true;
-         $tmp = split("{",$tmp);
+         $tmp = explode("{",$tmp);
          $tmp = $tmp[0];
       }
       if ($tmp != "")
       {
          if ( strpos($tmp, "=") !== false )
          {
-            $tmp = split("=", $tmp);
+            $tmp = explode("=", $tmp);
             $ret[0] = $tmp[0];
             $ret[1] = $tmp[1];
          }
          else
          {
-            $tmp = split(" ", $tmp);
+            $tmp = explode(" ", $tmp);
             $ret[0] = $tmp[0];
             if (!empty($tmp[1]))
                $ret[1] = $tmp[1];
