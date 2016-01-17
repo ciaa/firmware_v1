@@ -11,7 +11,7 @@
 #
 # 2. Redistributions in binary form must reproduce the above copyright notice,
 #    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
+#    and${DS}or other materials provided with the distribution.
 #
 # 3. Neither the name of the copyright holder nor the names of its
 #    contributors may be used to endorse or promote products derived from this
@@ -29,17 +29,16 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-
 testNoFileOutput() {
-   OUTPUT=$(php modules/rtos/generator/tests/ftest/stdoutWriterLauncher.php  -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
+   local OUTPUT=$(php modules${DS}rtos${DS}generator${DS}tests${DS}ftest${DS}stdoutWriterLauncher.php  -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
-      -t ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
-      -h helper.php \
-      -b /gen/ \
+      -t ${FIXTURES}${DS}gen${DS}inc${DS}Os_Internal_Cfg.h.php \
+      -H modules${DS}rtos${DS}gen${DS}ginc${DS}Multicore.php \
+      -b ${DS}gen${DS} \
       -o ${TMP})
-  GOT=${TMP}
 
-  assertEquals ${TMP}${DS} $(find ${TMP}${DS} -not -name .gitignore)
+   assertEquals "${TMP}${DS}" $(find ${TMP}${DS} -not -name .gitignore)
+   rm -rf ${TMP}${DS}*
 }
 
 

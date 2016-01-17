@@ -53,7 +53,7 @@
  ** @{ */
 /** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
-
+/*==================[inclusions]=============================================*/
 
 /*==================[macros]=================================================*/
 /** \brief ERROR_CHECKING_STANDARD */
@@ -64,6 +64,9 @@
 
 /** \brief Count of task */
 #define TASKS_COUNT 2U
+
+/** \brief Remote tasks count */
+#define REMOTE_TASKS_COUNT 0U
 
 /** \brief Count of resources */
 #define RESOURCES_COUNT 1
@@ -137,6 +140,8 @@ typedef void (* CallbackType)(void);
 
 typedef uint8 TaskTotalType;
 
+typedef uint8 TaskCoreType;
+
 /** \brief Task Constant type definition
  **
  ** This structure defines all constants and constant pointers
@@ -156,6 +161,7 @@ typedef struct {
    TaskFlagsType ConstFlags;
    TaskEventsType EventsMask;
    TaskResourcesType ResourcesMask;
+   TaskCoreType TaskCore;
 } TaskConstType;
 
 /** \brief Task Variable type definition
@@ -298,6 +304,12 @@ extern uint8 ErrorHookRunning;
  ** manage all FreeOSEK tasks
  **/
 extern const TaskConstType TasksConst[TASKS_COUNT];
+
+/** \brief Remote Tasks Core Number
+ **
+ ** Contents the core number for each remote task.
+ **/
+extern const TaskCoreType RemoteTasksCore[REMOTE_TASKS_COUNT];
 
 /** \brief Tasks Variable
  **
