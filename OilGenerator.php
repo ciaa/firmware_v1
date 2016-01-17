@@ -3,7 +3,7 @@
  * Copyright 2014, ACSE & CADIEEL
  *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *      CADIEEL: http://www.cadieel.org.ar
- * Copyright 2015, Carlos Pantelides
+ * Copyright 2015, 2016 Carlos Pantelides
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -119,12 +119,13 @@ class OilGenerator
 
    function printHelp()
    {
-      print "php generator.php [-l] [-h] [--cmdline] [-Ddef[=definition]] -c <CONFIG_1> [<CONFIG_2>] -o <OUTPUTDIR> -t <GENFILE_1> [<GENFILE_2>]\n";
+      print "php generator.php [-l] [-h] [--cmdline] [-Ddef[=definition]] -c <CONFIG_1> [<CONFIG_N>] -o <OUTPUTDIR> -t <GENFILE_1> [<GENFILE_N>] [ -H <HELPER_1> [HELPER_N]]>\n";
       print "      -c   indicate the configuration input files\n";
       print "      -o   output directory\n";
       print "      -t   indicates the templates to be processed\n";
       print "      -b   relative base path (default \"/templates/\")\n";
       print "   optional parameters:\n";
+      print "      -H   load helpers\n";
       print "      -h   display this help\n";
       print "      -l   displays a short license overview\n";
       print "      -D   defines\n";
@@ -134,11 +135,12 @@ class OilGenerator
    function processArgs($args)
    {
       $configFiles= array();
-      global $definitions;
+      $definitions;
       $definitions=array();
       $baseOutDir=array();
       $templateFiles=array();
       $directorySeparator=array();
+      $helperFiles=array();
 
       foreach ($args as $arg)
       {
@@ -162,6 +164,7 @@ class OilGenerator
          case "-o":
          case "-t":
          case "-b":
+         case "-H":
             $oldarg = $arg;
             break;
          default:
@@ -175,6 +178,10 @@ class OilGenerator
             } else {
                switch($oldarg)
                {
+               case "-H":
+                  /* add a helper to load */
+                  $helperFiles[] = $arg;
+                  break;
                case "-c":
                   /* add a config file */
                   $configFiles[] = $arg;
@@ -230,10 +237,10 @@ class OilGenerator
          $directorySeparator[]="/gen/"; #TODO: use /templates/
       }
 
-      return array($this->verbose, $definitions, $configFiles, $baseOutDir[0], $templateFiles,$directorySeparator[0]);
+      return array($this->verbose, $definitions, $configFiles, $baseOutDir[0], $templateFiles,$directorySeparator[0], $helperFiles);
    }
 
-   public function checkFiles( $configFiles, $baseOutDir, $templateFiles)
+   public function checkFiles( $configFiles, $baseOutDir, $templateFiles, $helperFiles)
    {
       $ok = true;
       foreach ($configFiles as $file)
@@ -258,6 +265,15 @@ class OilGenerator
       {
          $this->log->error("Directory $baseOutDir not writeable");
          $ok = false;
+      }
+
+      foreach ($helperFiles as $file)
+      {
+         if(!file_exists($file))
+         {
+            $this->log->error("Helper $file does not exists");
+            $ok = false;
+         }
       }
       return $ok;
    }
@@ -285,12 +301,33 @@ class OilGenerator
 
    }
 
+   public function getNames($file)
+   {
+      $className=basename($file,'.php');
+      $name = lcfirst($className);
+      return array($name,$className);
+   }
+
+   public function loadHelper($file,$config,$definitions)
+   {
+
+      list($helperName,$helperClassName)=$this->getNames($file);
+
+      $this->log->info("   loading helper    : $file");
+      $this->log->info("   helper name       : $helperName");
+      $this->log->info("   helper class name : $helperClassName");
+
+      require_once($file);
+
+      $this->helper->$helperName = new $helperClassName($config,$definitions,$this->log);
+   }
+
    public function run($args)
    {
 
       $path = dirname(array_shift($args));
 
-      list($verbose, $definitions, $configFiles, $baseOutDir, $templateFiles,$directorySeparator)= $this->processArgs($args);
+      list($verbose, $definitions, $configFiles, $baseOutDir, $templateFiles,$directorySeparator, $helperFiles)= $this->processArgs($args);
 
       $this->log->setVerbose($verbose);
       if ($verbose)
@@ -302,7 +339,7 @@ class OilGenerator
          print "         All rights reserved.\n\n";
       }
 
-      if ( ! $this->checkFiles($configFiles, $baseOutDir , $templateFiles) )
+      if ( ! $this->checkFiles($configFiles, $baseOutDir , $templateFiles, $helperFiles) )
       {
          $this->log->halt("Missing files");
          exit(1);
@@ -313,26 +350,38 @@ class OilGenerator
          $count = 1;
          foreach ($configFiles as $file)
          {
-            $this->log->info("configuration file " . $count++ . ": " . $file);
+            $this->log->info("   configuration file " . $count++ . ": " . $file);
          }
 
          $this->log->info("list of templates to be processed:");
          $count = 1;
          foreach ($templateFiles as $file)
          {
-            $this->log->info("template file " . $count++ . ": " . $file);
+            $this->log->info("   template file " . $count++ . ": " . $file);
+         }
+
+         $this->log->info("list of helpers to be loaded:");
+         $count = 1;
+         foreach ($helperFiles as $file)
+         {
+            $this->log->info("   helper file " . $count++ . ": " . $file);
          }
 
          $this->log->info("output directory: " . $baseOutDir);
       }
 
-      global $config;
       $config = new OilConfig();
       $runagain = false;
       foreach ($configFiles as $file)
       {
          $this->log->info("reading " . $file);
          $config->parseOilFile($file);
+      }
+
+      foreach ($helperFiles as $file)
+      {
+         $this->log->info("loading " . $file);
+         $this->loadHelper($file,$config,$definitions);
       }
 
       foreach ($templateFiles as $file)
@@ -348,7 +397,7 @@ class OilGenerator
             require_once($file);
             $this->writer->close();
             $runagain = $this->isMak($outfile, $runagain);
-        }
+         }
       }
 
       $this->log->info($this->log->getReport());

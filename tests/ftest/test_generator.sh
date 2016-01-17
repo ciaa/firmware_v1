@@ -1,4 +1,4 @@
-# Copyright 2015, Carlos Pantelides
+# Copyright 2015, 2016 Carlos Pantelides
 # All rights reserved.
 #
 # This file is part of CIAA Firmware.
@@ -105,6 +105,22 @@ testOutputPath() {
    rm -rf ${TMP}${DS}*
 }
 
+testHelper() {
+   php modules/rtos/generator/generator.php -v -DARCH=x85 -DCPUTYPE=ia32 -DCPU=none \
+   -c ${FIXTURES}${DS}blinking.oil \
+   -t ${FIXTURES}${DS}templates${DS}template_for_helper_testing.php \
+   -b /templates/ \
+   -H ${FIXTURES}${DS}gen${DS}DummyHelper.php \
+   -o ${TMP} > /dev/null 2>&1
+
+   GOT=${TMP}
+
+   diff -w  ${EXPECTED}${DS}template_for_helper_testing  ${TMP}${DS}template_for_helper_testing > /dev/null
+   assertTrue $? || echo "ERROR: ${EXPECTED}${DS}template_for_helper_testing != ${TMP}${DS}template_for_helper_testing"
+
+   rm -rf ${TMP}${DS}*
+
+}
 
 SHUNIT=$1
 TESTS=$2

@@ -1,5 +1,5 @@
 <?php
-/* Copyright 2015, Carlos Pantelides
+/* Copyright 2015, 2016 Carlos Pantelides
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -66,7 +66,6 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
       );
    }
 
-
    /**
    * @dataProvider compareFilesProvider
    *
@@ -75,18 +74,28 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
    {
       $f1=dirname(__FILE__). "/fixtures/$f1";
       $f2=dirname(__FILE__). "/fixtures/$f2";
-      echo "checking diff $f1 $f2 for $expected\n";
       $writer = new StdoutWriter();
       $generator = new OilGenerator($writer);
       $this->assertEquals($expected, $generator->compareFiles($f1,$f2), $msg);
 
    }
 
-   public function testWarning() {
-      $writer = new FileWriter();
-      $generator = new OilGenerator($writer);
-;
+//    implement soon or delete
+//    public function testWarning() {
+//       $writer = new FileWriter();
+//       $generator = new OilGenerator($writer);
+// ;
+//
+//    }
 
+
+   public function testGetNames()
+   {
+      $generator = new OilGenerator(new StdoutWriter());
+      $this->assertEquals(
+         array("dummyHelper","DummyHelper"),
+         $generator->getNames('modules/rtos/generator/tests/ftest/fixtures/gen/DummyHelper.php')
+      );
    }
 
 }
