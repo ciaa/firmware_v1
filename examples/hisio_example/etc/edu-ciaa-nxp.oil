@@ -89,5 +89,29 @@ DIL DIL {
          INVERTED = TRUE;
       }
 
+      PIN TECLA1 {
+         PORT = 1;
+         PIN = 0;
+         DIRECTION = IO_INPUT;
+         INVERTED = FALSE;
+      }
+      PIN TECLA2 {
+         PORT = 1;
+         PIN = 1;
+         DIRECTION = IO_INPUT;
+         INVERTED = FALSE;
+      }
+      PIN TECLA3 {
+         PORT = 1;
+         PIN = 2;
+         DIRECTION = IO_INPUT;
+         INVERTED = FALSE;
+      }
+      PIN TECLA4 {
+         PORT = 1;
+         PIN = 6;
+         DIRECTION = IO_INPUT;
+         INVERTED = FALSE;
+      }
    }
 };
