@@ -135,7 +135,6 @@ class OilGenerator
    function processArgs($args)
    {
       $configFiles= array();
-      $definitions;
       $definitions=array();
       $baseOutDir=array();
       $templateFiles=array();
@@ -308,7 +307,7 @@ class OilGenerator
       return array($name,$className);
    }
 
-   public function loadHelper($file,$config,$definitions)
+   public function loadHelper($file)
    {
 
       list($helperName,$helperClassName)=$this->getNames($file);
@@ -319,7 +318,7 @@ class OilGenerator
 
       require_once($file);
 
-      $this->helper->$helperName = new $helperClassName($config,$definitions,$this->log);
+      $this->helper->$helperName = new $helperClassName($this->config,$this->definitions,$this->log);
    }
 
    public function run($args)
@@ -327,7 +326,7 @@ class OilGenerator
 
       $path = dirname(array_shift($args));
 
-      list($verbose, $definitions, $configFiles, $baseOutDir, $templateFiles,$directorySeparator, $helperFiles)= $this->processArgs($args);
+      list($verbose, $this->definitions, $configFiles, $baseOutDir, $templateFiles,$directorySeparator, $helperFiles)= $this->processArgs($args);
 
       $this->log->setVerbose($verbose);
       if ($verbose)
@@ -370,18 +369,18 @@ class OilGenerator
          $this->log->info("output directory: " . $baseOutDir);
       }
 
-      $config = new OilConfig();
+      $this->config = new OilConfig();
       $runagain = false;
       foreach ($configFiles as $file)
       {
          $this->log->info("reading " . $file);
-         $config->parseOilFile($file);
+         $this->config->parseOilFile($file);
       }
 
       foreach ($helperFiles as $file)
       {
          $this->log->info("loading " . $file);
-         $this->loadHelper($file,$config,$definitions);
+         $this->loadHelper($file);
       }
 
       foreach ($templateFiles as $file)

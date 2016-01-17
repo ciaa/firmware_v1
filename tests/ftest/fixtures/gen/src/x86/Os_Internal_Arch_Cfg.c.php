@@ -74,7 +74,7 @@ print "\n";
 InterruptType InterruptTable[INTERRUPTS_COUNT] =
 {
 <?php
-$intnames = $config->getList("/OSEK","ISR");
+$intnames = $this->config->getList("/OSEK","ISR");
 for ($loopi = 0; $loopi < 32; $loopi++)
 {
    if ($loopi<8)
@@ -104,8 +104,8 @@ for ($loopi = 0; $loopi < 32; $loopi++)
       $flag = false;
       foreach ($intnames as $int)
       {
-         $inttype = $config->getValue("/OSEK/" . $int,"INTERRUPT");
-         $intcat = $config->getValue("/OSEK/" . $int,"CATEGORY");
+         $inttype = $this->config->getValue("/OSEK/" . $int,"INTERRUPT");
+         $intcat = $this->config->getValue("/OSEK/" . $int,"CATEGORY");
          switch($inttype)
          {
             case "GPIO0":
