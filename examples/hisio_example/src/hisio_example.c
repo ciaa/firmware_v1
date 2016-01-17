@@ -65,8 +65,6 @@
 #include "IODriver.h"         /* <= IO Driver header files */
 #include "ciaaPOSIX_stdint.h" /* <= DataTypes */
 
-#define CPU lpc4337
-
 #ifndef CPU
 #error CPU shall be defined
 #endif
@@ -77,12 +75,30 @@
 #endif
 
 /*==================[macros and definitions]=================================*/
+#define  TEST_LED1   0          /* Test: alternate the LED1 to on and off    */
+#define  TEST_LEDx   1          /* Test: alternate all LEDs to on and off    */
+#define  TEST_KEY1   2          /* Test: copy the status of KEY1 on LED1     */
+
+#define  TEST		 TEST_KEY1  /* Type the mane of Test to do here          */
+
+/* set the Ledx pin to HIGH, this will really set the port to 0V since the pin
+ * is configured as inverted in the DIL File */
+#define  LED_ON      IO_LOW
+#define  LED_OFF     IO_HIGH
+#define  KEY_PUSH	 IO_LOW
+#define  KEY_PULL	 IO_HIGH
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+#define led_t	IO_ChannelType
+led_t led_array[] = {LED0_G, LED0_R, LED0_B, LED1, LED2, LED3};
+
+#define key_t	IO_ChannelType
+key_t key_array[] = {KEY1, KEY2, KEY3, KEY4};
+
 
 /*==================[external data definition]===============================*/
 
@@ -98,6 +114,9 @@
  * \remarks This function never returns. Return value is only to avoid compiler
  *          warnings or errors.
  */
+
+#if (TEST == TEST_LED1)
+/* Test: alternate the LED1 to high and low */
 int main(void)
 {
    int counter = 0;
@@ -112,35 +131,15 @@ int main(void)
    while(1) {
       counter++;
 
-      /* alternate the led to high and low */
+      /* alternate the led1 to on and off */
       if (counter & 0x1)
       {
-         /* set the Led1 pin to HIGH, this will really set the port to 0V since
-          * the pin is configured as inverted in the DIL File */
-         Dio_SetSync(LED1, IO_HIGH);
-         Dio_SetSync(LED2, IO_HIGH);
-         Dio_SetSync(LED3, IO_HIGH);
-         Dio_SetSync(LED0_R, IO_HIGH);
-         Dio_SetSync(LED0_G, IO_HIGH);
-         Dio_SetSync(LED0_B, IO_HIGH);
+         Dio_SetSync(LED1, LED_ON);
       }
       else
       {
-         Dio_SetSync(LED1, IO_LOW);
-         Dio_SetSync(LED2, IO_LOW);
-         Dio_SetSync(LED3, IO_LOW);
-         Dio_SetSync(LED0_R, IO_LOW);
-         Dio_SetSync(LED0_G, IO_LOW);
-         Dio_SetSync(LED0_B, IO_LOW);
+       	 Dio_SetSync(LED1, LED_OFF);
       }
-
-      /* set the DataBus port to the value 0x3F */
-/*      Dio_SetPortSync(DataBus, 0x3F);
-*/
-      /* set the DataBus port to 0xbb3F, the high part of the 16 bit por
-       * is not changed due to the 0xFF mask */
-/*      Dio_SetPortMaskedSync(DataBus, 0x3F, 0xFF);
-*/
       /* DIO Notifications will not be supported in te first version */
 
       for(loop = 0; loop < 0x3FFFFF; loop++) {
@@ -150,9 +149,91 @@ int main(void)
       }
    }
 
+   return 0;
+}
+#endif
+
+
+#if (TEST == TEST_LEDx)
+/* Test: alternate all LEDs to on and off */
+int main(void)
+{
+   int32_t loop;
+   uint8_t idx = 0;
+
+   /* Initialize the Dio Driver. The name MyDioConfig is the
+    * one given in the DIL Configuration File */
+   Dio_InitSync(0);
+
+   /* to perform a while 1 is NEVER recomended, but in this case to perform a
+    * really simple example we used anyway. :( */
+   while(1) {
+         /* alternate the led_array[idx] to on and off */
+         Dio_SetSync(led_array[idx], LED_OFF);
+
+         if (idx < (sizeof (led_array) / sizeof (led_t)))
+         {
+            idx++;
+         }
+         else
+         {
+        	idx = 0;
+         }
+
+         Dio_SetSync(led_array[idx], LED_ON);
+
+      /* DIO Notifications will not be supported in te first version */
+
+      for(loop = 0; loop < 0x3FFFFF; loop++) {
+         /* do nothing */
+         /* again a good example how not to perform a dealy. this delay
+          * will keep the cpu on his maximal speed and wasting energy... :( */
+     }
+   }
 
    return 0;
 }
+#endif
+
+
+#if (TEST == TEST_KEY1)
+ /* Test: copy the status of TECLA1 on LED1 */
+int main(void)
+{
+   key_t key;
+   int32_t loop;
+
+   /* Initialize the Dio Driver. The name MyDioConfig is the
+    * one given in the DIL Configuration File */
+   Dio_InitSync(0);
+
+   /* to perform a while 1 is NEVER recomended, but in this case to perform a
+    * really simple example we used anyway. :( */
+   while(1) {
+
+      /* copy the status of TECLA1 on LED1 */
+	  key = Dio_GetSync(KEY1);
+      if (key == KEY_PUSH)
+      {
+	     Dio_SetSync(LED1, LED_ON);
+      }
+      else
+      {
+	     Dio_SetSync(LED1, LED_OFF);
+      }
+
+      /* DIO Notifications will not be supported in te first version */
+
+      for(loop = 0; loop < 0x3FFFFF; loop++) {
+         /* do nothing */
+         /* again a good example how not to perform a dealy. this delay
+          * will keep the cpu on his maximal speed and wasting energy... :( */
+      }
+   }
+
+   return 0;
+}
+#endif
 
 
 /** @} doxygen end group definition */
