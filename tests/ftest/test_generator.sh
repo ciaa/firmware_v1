@@ -29,6 +29,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# comment out the ">/dev/null" redirections and "rm ..." lines when fixing broken tests
+
 testBlinkingExampleFull() {
    rm -rf ${TMP}${DS}*
 
@@ -47,27 +49,27 @@ testBlinkingExampleFull() {
 
    FILE=$(find "$GOT" -iname Os_Cfg.c)
    diff -w  ${EXPECTED}${DS}src/Os_Cfg.c                   "$FILE" > /dev/null
-   assertTrue $?
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}src/Os_Cfg.c != $FILE"
 
    FILE=$(find "$GOT" -iname Os_Internal_Arch_Cfg.c)
    diff -w  ${EXPECTED}${DS}src/x86/Os_Internal_Arch_Cfg.c "$FILE" > /dev/null
-   assertTrue $?
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}src/x86/Os_Internal_Arch_Cfg.c != $FILE"
 
    FILE=$(find "$GOT" -iname Os_Internal_Cfg.c)
    diff -w  ${EXPECTED}${DS}src/Os_Internal_Cfg.c          "$FILE" > /dev/null
-   assertTrue $?
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}src/Os_Internal_Cfg.c != $FILE"
 
    FILE=$(find "$GOT" -iname Os_Internal_Arch_Cfg.h)
    diff -w  ${EXPECTED}${DS}inc/x86/Os_Internal_Arch_Cfg.h "$FILE" > /dev/null
-   assertTrue $?
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}inc/x86/Os_Internal_Arch_Cfg.h != $FILE"
 
    FILE=$(find "$GOT" -iname Os_Cfg.h)
    diff -w  ${EXPECTED}${DS}inc/Os_Cfg.h                   "$FILE" > /dev/null
-   assertTrue $?
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}inc/Os_Cfg.h != $FILE"
 
    FILE=$(find "$GOT" -iname Os_Internal_Cfg.h)
    diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h          "$FILE" > /dev/null
-   assertTrue $?
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}inc/Os_Internal_Cfg.h != $FILE"
 
    rm -rf ${TMP}${DS}*
 }
@@ -85,7 +87,7 @@ testOneTemplate() {
 
    FILE=$(find "$GOT" -iname Os_Internal_Cfg.h)
    diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h                   "$FILE" > /dev/null
-   assertTrue $?
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}inc/Os_Internal_Cfg.h != $FILE"
 
    rm -rf ${TMP}${DS}*
 }
@@ -100,7 +102,7 @@ testOutputPath() {
    GOT=${TMP}
 
    diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h  ${TMP}${DS}inc/Os_Internal_Cfg.h > /dev/null
-   assertTrue $?
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}inc/Os_Internal_Cfg.h  ${TMP}${DS}inc/Os_Internal_Cfg.h"
 
    rm -rf ${TMP}${DS}*
 }
