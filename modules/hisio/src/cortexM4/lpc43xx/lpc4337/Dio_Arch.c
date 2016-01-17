@@ -76,6 +76,7 @@
 /*==================[external functions definition]==========================*/
 extern IO_ErrorType Dio_InitSync_Arch(void * address)
 {
+#if (DIO_PINS_COUNT != 0)
    uint16_t i;
    
    for(i=0 ; i < DIO_PINS_COUNT ; i++)
@@ -98,14 +99,16 @@ extern IO_ErrorType Dio_InitSync_Arch(void * address)
          Chip_GPIO_SetPinState(LPC_GPIO_PORT, Dio_Config.Pins[i].GPIO_Port, Dio_Config.Pins[i].GPIO_Pin, 1); /* Set it as high */
       }
    }
+#endif 
    return IO_E_OK;
 }
 
+#if (DIO_PINS_COUNT != 0)
 extern IO_ValueType Dio_GetSync_Arch(IO_ChannelType channel)
 {
    IO_ValueType value;
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)   
-   if(DIO_PINS_COUNT > channel && (Dio_Config.Pins[channel].Flags & (DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW | DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH)))
+   if(DIO_PINS_COUNT > channel && (Dio_Config.Pins[channel].Flags & DIO_CONFIG_PIN_DIRECTION_INPUT))
 #endif
    {
       value = (IO_ValueType) Chip_GPIO_GetPinState(LPC_GPIO_PORT, Dio_Config.Pins[channel].GPIO_Port, Dio_Config.Pins[channel].GPIO_Pin); /* Get this value */
@@ -116,7 +119,9 @@ extern IO_ValueType Dio_GetSync_Arch(IO_ChannelType channel)
    }
    return value;
 }
+#endif
 
+#if (DIO_PINS_COUNT != 0)
 extern void Dio_SetSync_Arch(IO_ChannelType channel, IO_ValueType value)
 {
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)   
@@ -130,6 +135,7 @@ extern void Dio_SetSync_Arch(IO_ChannelType channel, IO_ValueType value)
       Chip_GPIO_SetPinState(LPC_GPIO_PORT, Dio_Config.Pins[channel].GPIO_Port, Dio_Config.Pins[channel].GPIO_Pin, value); /* Set this value */
    }
 }
+#endif
 
 extern IO_ValueType Dio_GetPortSync_Arch(IO_ChannelType channel)
 {

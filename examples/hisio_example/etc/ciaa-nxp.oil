@@ -52,42 +52,23 @@ DIL DIL {
    DIO MyDioConfig {
       ERRORHOOK = TRUE;
 
-      PIN LED1 {
-         PORT = 2;
-         PIN = 10;
-         DIRECTION = IO_OUTPUT_INIT_LOW;
-         INVERTED = TRUE;
-      }
-      PIN LED2 {
-         PORT = 2;
-         PIN = 11;
-         DIRECTION = IO_OUTPUT_INIT_LOW;
-         INVERTED = TRUE;
-      }
-      PIN LED3 {
-         PORT = 2;
-         PIN = 12;
-         DIRECTION = IO_OUTPUT_INIT_LOW;
-         INVERTED = TRUE;
-      }
-      PIN LED0_R {
-         PORT = 2;
+      PIN OPTO1 {
+         PORT = 4;
          PIN = 0;
-         DIRECTION = IO_OUTPUT_INIT_LOW;
+         DIRECTION = IO_INPUT;
          INVERTED = TRUE;
       }
-      PIN LED0_G {
-         PORT = 2;
-         PIN = 1;
+      PIN MOSFET1 {
+         PORT = 4;
+         PIN = 8;
          DIRECTION = IO_OUTPUT_INIT_LOW;
-         INVERTED = TRUE;
+         INVERTED = FALSE;
       }
-      PIN LED0_B {
-         PORT = 2;
-         PIN = 2;
+      PIN MOSFET2 {
+         PORT = 4;
+         PIN = 9;
          DIRECTION = IO_OUTPUT_INIT_LOW;
-         INVERTED = TRUE;
+         INVERTED = FALSE;
       }
-
    }
 };

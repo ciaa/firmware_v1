@@ -74,39 +74,39 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 <?php
-$dios = $config->getList("/DIL", "DIO");
-foreach ($dios as $count=>$dio) {
-   if ($count != 0) {
-      $this->error("Maximal one configuration is supported.");
-   }
-?>
-/** \brief DIO Configuration pointer
- **
- ** \remarks At the moment only one configuration is supported, so the
- **          parameter is set to null pointer.
- **
- **/
-<?php
-   $pins = $config->getList("/DIL/" . $dio, "PIN");
-
-   foreach($pins as $count=>$pin) {
-      $pin_port = $config->getValue("/DIL/" . $dio . "/" . $pin, "PORT");
-      $pin_pin = $config->getValue("/DIL/" . $dio . "/" . $pin, "PIN");
-      print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " called " . $pin . " */\n";
-      print "#define " . $pin . " " . $count . "\n";
-   }
-   print "\n";   
+   print "\n";
+   print "/** \brief DIO Configuration\n";
+   print " **\n";
+   print " **/\n";
    print "/** \brief Dio Pins count */\n";
-   print "#define DIO_PINS_COUNT " . count($pins) . "U\n\n";
-
-   $ports = $config->getList("/DIL/" . $dio, "PORT");
-
-   foreach($ports as $count=>$port) {
-      $port_port = $config->getValue("/DIL/" . $dio . "/" . $port, "PORT");
-      print "/** \brief Port: " . $port_port. " called " . $port . " */\n";
-      print "#define " . $port . " " . $count . "\n";
+   $dios = $config->getList("/DIL", "DIO");
+   if(count($dios) == 0){
+         print "#define DIO_PINS_COUNT 0U\n\n";      
    }
-}
+   else{
+      foreach ($dios as $count=>$dio) {
+         if ($count != 0) {
+            $this->error("Maximal one configuration is supported.");
+         }
+         $pins = $config->getList("/DIL/" . $dio, "PIN");
+         print "#define DIO_PINS_COUNT " . count($pins) . "U\n\n";
+         
+         foreach($pins as $count=>$pin) {
+            $pin_port = $config->getValue("/DIL/" . $dio . "/" . $pin, "PORT");
+            $pin_pin = $config->getValue("/DIL/" . $dio . "/" . $pin, "PIN");
+            print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " called " . $pin . " */\n";
+            print "#define " . $pin . " " . $count . "\n";
+         }
+         
+         $ports = $config->getList("/DIL/" . $dio, "PORT");
+
+         foreach($ports as $count=>$port) {
+            $port_port = $config->getValue("/DIL/" . $dio . "/" . $port, "PORT");
+            print "/** \brief Port: " . $port_port. " called " . $port . " */\n";
+            print "#define " . $port . " " . $count . "\n";
+         }
+      }
+   }
 ?>
 
 /*==================[typedef]================================================*/

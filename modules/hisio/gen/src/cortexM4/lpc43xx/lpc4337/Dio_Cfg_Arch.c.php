@@ -100,10 +100,13 @@ foreach ($dios as $count=>$dio) {
       $pin_direction = $config->getValue("/DIL/" . $dio . "/" . $pin, "DIRECTION");
       switch ($pin_direction)
       {
-         case "OUTPUT_INIT_LOW":
+         case "IO_INPUT":
+            $pin_flags = "DIO_CONFIG_PIN_DIRECTION_INPUT";
+            break;         
+         case "IO_OUTPUT_INIT_LOW":
             $pin_flags = "DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW";
             break;
-         case "OUTPUT_INIT_HIGH":
+         case "IO_OUTPUT_INIT_HIGH":
             $pin_flags = "DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH";
             break;
          default:
