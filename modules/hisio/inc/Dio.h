@@ -131,6 +131,21 @@ extern IO_ValueType Dio_GetSync(IO_ChannelType channel);
  **/
 extern void Dio_SetSync(IO_ChannelType channel, IO_ValueType value);
 
+/** \brief Toggle a hardware pin
+ **
+ ** This function toggle the previous status of a pin of the hardware.
+ **
+ ** \param[in] channel indicate the channel to be written
+ ** \returns nothing.
+ **
+ ** \remarks If errorhooks are enable this function may call it with the
+ **          error IO_E_INVALID_CHANNEL_ID if the provided channel is invalid
+ **
+ ** \remarks This functionality is implemented as function if the errorhooks
+ **          are enable, and as macro in other case.
+ **/
+extern void Dio_ToggleSync(IO_ChannelType channel);
+
 /** \brief Reads a port
  **
  ** This funcion reads a port status of the hardware.
