@@ -77,27 +77,30 @@
 /*==================[macros and definitions]=================================*/
 #define  TEST_LED1   0          /* Test: alternate the LED1 to on and off    */
 #define  TEST_LEDx   1          /* Test: alternate all LEDs to on and off    */
-#define  TEST_KEY1   2          /* Test: copy the status of KEY1 on LED1     */
+#define  TEST_KEY1   2          /* Test: copy the state of KEY1 on LED1      */
+#define  TEST_KEYx   3          /* Test: copy the state of KEYs on LEDs      */
 
-#define  TEST		 TEST_KEY1  /* Type the mane of Test to do here          */
+#define  TEST		 TEST_LED1  /* Type the mane of Test to do here          */
 
 /* set the Ledx pin to HIGH, this will really set the port to 0V since the pin
  * is configured as inverted in the DIL File */
 #define  LED_ON      IO_LOW
 #define  LED_OFF     IO_HIGH
-#define  KEY_PUSH	 IO_LOW
-#define  KEY_PULL	 IO_HIGH
+#define  KEY_PUSH    IO_LOW
+#define  KEY_PULL    IO_HIGH
 
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-#define led_t	IO_ChannelType
-led_t led_array[] = {LED0_G, LED0_R, LED0_B, LED1, LED2, LED3};
+#define  led_t       IO_ValueType
+#define  led_array_t IO_ChannelType
+led_array_t led_array[] = {LED0_G, LED0_R, LED0_B, LED1, LED2, LED3};
 
-#define key_t	IO_ChannelType
-key_t key_array[] = {KEY1, KEY2, KEY3, KEY4};
+#define  key_t       IO_ValueType
+#define  key_array_t IO_ChannelType
+key_array_t key_array[] = {KEY1, KEY2, KEY3, KEY4};
 
 
 /*==================[external data definition]===============================*/
@@ -119,20 +122,20 @@ key_t key_array[] = {KEY1, KEY2, KEY3, KEY4};
 /* Test: alternate the LED1 to high and low */
 int main(void)
 {
-   int counter = 0;
    int32_t loop;
+   led_t led = 0;
 
    /* Initialize the Dio Driver. The name MyDioConfig is the
     * one given in the DIL Configuration File */
-   Dio_InitSync(0);
+   	   Dio_InitSync(0);
 
    /* to perform a while 1 is NEVER recomended, but in this case to perform a
     * really simple example we used anyway. :( */
    while(1) {
-      counter++;
 
-      /* alternate the led1 to on and off */
-      if (counter & 0x1)
+      /* get led1 state and toggle, alternate the led1 to on and off */
+      led = Dio_GetSync(LED1);
+      if (led == LED_OFF)
       {
          Dio_SetSync(LED1, LED_ON);
       }
@@ -140,6 +143,17 @@ int main(void)
       {
        	 Dio_SetSync(LED1, LED_OFF);
       }
+
+      /* toggle state of led1 */
+      Dio_ToggleSync(LED1);
+      /* get led1 state */
+      led = Dio_GetSync(LED1);
+
+      /* toggle state of led1 */
+      Dio_ToggleSync(LED1);
+      /* get led1 state */
+      led = Dio_GetSync(LED1);
+
       /* DIO Notifications will not be supported in te first version */
 
       for(loop = 0; loop < 0x3FFFFF; loop++) {
@@ -171,11 +185,8 @@ int main(void)
          /* alternate the led_array[idx] to on and off */
          Dio_SetSync(led_array[idx], LED_OFF);
 
-         if (idx < (sizeof (led_array) / sizeof (led_t)))
-         {
-            idx++;
-         }
-         else
+         idx++;
+         if (idx == (sizeof(led_array) / sizeof(led_array_t)))
          {
         	idx = 0;
          }
@@ -197,7 +208,7 @@ int main(void)
 
 
 #if (TEST == TEST_KEY1)
- /* Test: copy the status of TECLA1 on LED1 */
+/* Test: copy the state of KEY1 on LED1 */
 int main(void)
 {
    key_t key;
@@ -211,15 +222,15 @@ int main(void)
     * really simple example we used anyway. :( */
    while(1) {
 
-      /* copy the status of TECLA1 on LED1 */
-	  key = Dio_GetSync(KEY1);
+      /* copy the status of KEY1 on LED1 */
+      key = Dio_GetSync(KEY1);
       if (key == KEY_PUSH)
       {
-	     Dio_SetSync(LED1, LED_ON);
+         Dio_SetSync(LED0_R, LED_ON);
       }
       else
       {
-	     Dio_SetSync(LED1, LED_OFF);
+         Dio_SetSync(LED0_R, LED_OFF);
       }
 
       /* DIO Notifications will not be supported in te first version */
@@ -228,6 +239,51 @@ int main(void)
          /* do nothing */
          /* again a good example how not to perform a dealy. this delay
           * will keep the cpu on his maximal speed and wasting energy... :( */
+      }
+   }
+
+   return 0;
+}
+#endif
+
+
+
+#if (TEST == TEST_KEYx)
+/* Test: copy the state of KEY1 on LED1 */
+int main(void)
+{
+   key_t key;
+   int32_t loop;
+   uint8_t idx;
+
+   /* Initialize the Dio Driver. The name MyDioConfig is the
+    * one given in the DIL Configuration File */
+   Dio_InitSync(0);
+
+   /* to perform a while 1 is NEVER recomended, but in this case to perform a
+    * really simple example we used anyway. :( */
+   while(1) {
+
+      /* copy the status of key_array[idx] on led_array[idx] */
+      for (idx = 0; idx < (sizeof(key_array) / sizeof(key_array_t)); ++idx)
+      {
+         key = Dio_GetSync(key_array[idx]);
+         if (key == KEY_PUSH)
+         {
+            Dio_SetSync(led_array[idx], LED_ON);
+         }
+         else
+         {
+            Dio_SetSync(led_array[idx], LED_OFF);
+         }
+
+         /* DIO Notifications will not be supported in te first version */
+
+         for(loop = 0; loop < 0xFFFF; loop++) {
+            /* do nothing */
+            /* again a good example how not to perform a dealy. this delay
+             * will keep the cpu on his maximal speed and wasting energy... :( */
+         }
       }
    }
 

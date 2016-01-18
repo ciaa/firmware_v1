@@ -88,6 +88,11 @@ extern void Dio_SetSync(IO_ChannelType channel, IO_ValueType value)
    Dio_SetSync_Arch(channel, value);
 }
 
+extern void Dio_ToggleSync(IO_ChannelType channel)
+{
+   Dio_ToggleSync_Arch(channel);
+}
+
 extern IO_ValueType Dio_GetPortSync(IO_ChannelType channel)
 {
    return 0xFF;
