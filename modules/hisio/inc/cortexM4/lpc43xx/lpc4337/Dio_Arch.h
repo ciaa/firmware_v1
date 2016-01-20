@@ -84,6 +84,10 @@ extern void Dio_SetSync_Arch(IO_ChannelType channel, IO_ValueType value);
  **/
 extern IO_ValueType Dio_GetSync_Arch(IO_ChannelType channel);
 
+/** \brief
+ **/
+extern void Dio_ToggleSync_Arch(IO_ChannelType channel);
+
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 }
