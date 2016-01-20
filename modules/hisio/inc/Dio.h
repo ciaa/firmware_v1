@@ -48,6 +48,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JMC          Juan Manuel Cruz
  */
 
 /*
@@ -126,6 +127,8 @@ extern IO_ValueType Dio_GetSync(IO_ChannelType channel);
  **          or IO_E_INVALID_VALUE if the parameter value is not set to
  **          IO_HIGH neither to IO_LOW.
  **
+ ** \remarks This functionality has no effect on input pins.
+ **
  ** \remarks This functionality is implemented as function if the errorhooks
  **          are enable, and as macro in other case.
  **/
@@ -138,8 +141,12 @@ extern void Dio_SetSync(IO_ChannelType channel, IO_ValueType value);
  ** \param[in] channel indicate the channel to be written
  ** \returns nothing.
  **
+ ** \remarks This functionality is not part of the HIS standard.
+ **
+ ** \remarks This functionality has no effect on input pins.
+ **
  ** \remarks If errorhooks are enable this function may call it with the
- **          error IO_E_INVALID_CHANNEL_ID if the provided channel is invalid
+ **          error IO_E_INVALID_CHANNEL_ID if the provided channel is invalid.
  **
  ** \remarks This functionality is implemented as function if the errorhooks
  **          are enable, and as macro in other case.
