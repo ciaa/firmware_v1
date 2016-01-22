@@ -113,5 +113,26 @@ DIL DIL {
          DIRECTION = IO_INPUT;
          INVERTED = FALSE;
       }
+      PORT BUS0 {
+         PORT = 0;
+         SIZE = IO_PORT_SIZE_8;
+         MASK = FFFFFFFF;
+         DIRECTION = IO_INPUT;
+         INVERTED = TRUE;
+      }
+      PORT BUS1 {
+         PORT = 1;
+         SIZE = IO_PORT_SIZE_16;
+         MASK = 55555555;
+         DIRECTION = IO_OUTPUT_INIT_LOW;
+         INVERTED = FALSE;
+      }
+      PORT BUS2 {
+         PORT = 2;
+         SIZE = IO_PORT_SIZE_32;
+         MASK = AAAAAAAA;
+         DIRECTION = IO_OUTPUT_INIT_HIGH;
+         INVERTED = FALSE;
+      }
    }
 };
