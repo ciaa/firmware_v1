@@ -48,6 +48,7 @@
  * ---------------------------
  * MaCe         Mariano Cerdeiro
  * JuCe         Juan Cecconi 
+ * JMC          Juan Manuel Cruz
  */
 
 /*
@@ -84,6 +85,11 @@ extern IO_ValueType Dio_GetSync_Arch(IO_ChannelType channel)
 }
 
 extern void Dio_SetSync_Arch(IO_ChannelType channel, IO_ValueType value)
+{
+
+}
+
+extern void Dio_ToggleSync_Arch(IO_ChannelType channel, IO_ValueType value)
 {
 
 }

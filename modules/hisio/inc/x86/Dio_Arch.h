@@ -48,6 +48,8 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi
+ * JuCe         Juan Manuel Cruz
  */
 
 /*
@@ -70,6 +72,21 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief
+ **/
+extern IO_ErrorType Dio_InitSync_Arch(void * address);
+
+/** \brief
+ **/
+extern void Dio_SetSync_Arch(IO_ChannelType channel, IO_ValueType value);
+
+/** \brief
+ **/
+extern IO_ValueType Dio_GetSync_Arch(IO_ChannelType channel);
+
+/** \brief
+ **/
+extern void Dio_ToggleSync_Arch(IO_ChannelType channel);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
