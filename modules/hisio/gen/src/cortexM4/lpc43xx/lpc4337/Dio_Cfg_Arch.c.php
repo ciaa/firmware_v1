@@ -144,15 +144,15 @@ foreach ($dios as $count=>$dio) {
       {
          case "IO_PORT_SIZE_8":
             $port_size = "8";
-            $port_flags = $port_flags . "DIO_CONFIG_PORT_SIZE_8";
+            $port_flags = "DIO_CONFIG_PORT_SIZE_8";
             break;         
          case "IO_PORT_SIZE_16":
             $port_size = "16";
-            $port_flags = $port_flags . "DIO_CONFIG_PORT_SIZE_16";
+            $port_flags = "DIO_CONFIG_PORT_SIZE_16";
             break;
          case "IO_PORT_SIZE_32":
             $port_size = "32";
-            $port_flags = $port_flags . "DIO_CONFIG_PORT_SIZE_32";           
+            $port_flags = "DIO_CONFIG_PORT_SIZE_32";           
             break;
          default:
            $this->log->error("The port $port hasn't a defined size!");
@@ -162,13 +162,13 @@ foreach ($dios as $count=>$dio) {
       switch ($port_direction)
       {
          case "IO_INPUT":
-            $port_flags = " | DIO_CONFIG_PORT_DIRECTION_INPUT";
+            $port_flags = $port_flags . " | DIO_CONFIG_PORT_DIRECTION_INPUT";
             break;         
          case "IO_OUTPUT_INIT_LOW":
-            $port_flags = " | DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_LOW";
+            $port_flags = $port_flags . " | DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_LOW";
             break;
          case "IO_OUTPUT_INIT_HIGH":
-            $port_flags = " | DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_HIGH";
+            $port_flags = $port_flags . " | DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_HIGH";
             break;
          default:
            $this->log->error("The port $port hasn't a defined direction!");
