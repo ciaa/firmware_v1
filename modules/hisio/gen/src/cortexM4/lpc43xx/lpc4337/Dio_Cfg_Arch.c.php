@@ -3,6 +3,7 @@
  ********************************************************/
 
 /* Copyright 2016, Juan Cecconi
+ * Copyright 2016, Juan Manuel Cruz
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -96,7 +97,7 @@ foreach ($dios as $count=>$dio) {
       if ($GPIO == NULL) {
          $this->log->error("PIN " . $pin . " has a 'Port-Pin' pair that doesn't match a valid GPIO.");
       }
-      sscanf($GPIO, "GPIO%d[%d],FUNC%d", $GPIO_Port, $GPIO_Pin, $GPIO_Func);
+      sscanf($GPIO, "GPIO%d[%d], FUNC%d", $GPIO_Port, $GPIO_Pin, $GPIO_Func);
 
       $pin_direction = $config->getValue("/DIL/" . $dio . "/" . $pin, "DIRECTION");
       switch ($pin_direction)
@@ -129,7 +130,68 @@ foreach ($dios as $count=>$dio) {
       print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " , " . $GPIO . " called " . $pin . " */\n";
       print "{ 0x" . $pin_port . ", " . $pin_pin . ", 0x" . $GPIO_Port . ", " . $GPIO_Pin . ", SCU_MODE_FUNC" . $GPIO_Func . ", (" . $pin_flags . ")},\n";
    }
+   print "},\n";
+
+   $ports = $config->getList("/DIL/" . $dio, "PORT");
+
+   print "{\n";
+   foreach($ports as $count=>$port) {
+      $port_port = $config->getValue("/DIL/" . $dio . "/" . $port, "PORT");
+      $port_mask = $config->getValue("/DIL/" . $dio . "/" . $port, "MASK");
+
+      $port_size = $config->getValue("/DIL/" . $dio . "/" . $port, "SIZE");
+      switch ($port_size)
+      {
+         case "IO_PORT_SIZE_8":
+            $port_size = "8";
+            $port_flags = $port_flags . "DIO_CONFIG_PORT_SIZE_8";
+            break;         
+         case "IO_PORT_SIZE_16":
+            $port_size = "16";
+            $port_flags = $port_flags . "DIO_CONFIG_PORT_SIZE_16";
+            break;
+         case "IO_PORT_SIZE_32":
+            $port_size = "32";
+            $port_flags = $port_flags . "DIO_CONFIG_PORT_SIZE_32";           
+            break;
+         default:
+           $this->log->error("The port $port hasn't a defined size!");
+            break;
+      }
+      $port_direction = $config->getValue("/DIL/" . $dio . "/" . $port, "DIRECTION");
+      switch ($port_direction)
+      {
+         case "IO_INPUT":
+            $port_flags = " | DIO_CONFIG_PORT_DIRECTION_INPUT";
+            break;         
+         case "IO_OUTPUT_INIT_LOW":
+            $port_flags = " | DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_LOW";
+            break;
+         case "IO_OUTPUT_INIT_HIGH":
+            $port_flags = " | DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_HIGH";
+            break;
+         default:
+           $this->log->error("The port $port hasn't a defined direction!");
+            break;
+      }
+      $port_inverted = $config->getValue("/DIL/" . $dio . "/" . $port, "INVERTED");
+      switch ($port_inverted)
+      {
+         case "TRUE":
+            $port_flags = $port_flags . " | DIO_CONFIG_PORT_INVERTED";
+            break;
+         case "FALSE":
+            break;
+         default:
+            $this->log->error("The port $port hasn't a defined 'inverted' configuration!");
+            break;
+      } 
+      print "/** \brief Port: " . $port_port . " */\n";
+      print "{ " . $port_port . ", " . $port_size . ", 0x" . $port_mask . ", ("  . $port_flags . ")},\n";
+
+   }
    print "}\n";
+
    print ", 0 /* foo var */\n";   
    print "};\n";
 }    

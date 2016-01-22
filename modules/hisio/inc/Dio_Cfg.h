@@ -74,6 +74,15 @@ extern "C" {
 #define DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH         0x00000008UL
 #define DIO_CONFIG_PIN_INVERTED                           0x00000010UL
 
+#define DIO_CONFIG_PORT_DIRECTION_UNUSED                  0x00000001UL
+#define DIO_CONFIG_PORT_DIRECTION_INPUT                   0x00000002UL
+#define DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_LOW         0x00000004UL
+#define DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_HIGH        0x00000008UL
+#define DIO_CONFIG_PORT_INVERTED                          0x00000010UL
+#define DIO_CONFIG_PORT_SIZE_8                            0x00000020UL
+#define DIO_CONFIG_PORT_SIZE_16                           0x00000040UL
+#define DIO_CONFIG_PORT_SIZE_32                           0x00000080UL
+
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/

@@ -54,6 +54,7 @@
  * ---------------------------
  * MaCe         Mariano Cerdeiro
  * JuCe         Juan Cecconi 
+ * JMC          Juan Manuel Cruz
  */
 
 /*
@@ -82,6 +83,7 @@ extern "C" {
    $dios = $config->getList("/DIL", "DIO");
    if(count($dios) == 0){
          print "#define DIO_PINS_COUNT 0U\n\n";      
+         print "#define DIO_PORTS_COUNT 0U\n\n";      
    }
    else{
       foreach ($dios as $count=>$dio) {
@@ -90,7 +92,7 @@ extern "C" {
          }
          $pins = $config->getList("/DIL/" . $dio, "PIN");
          print "#define DIO_PINS_COUNT " . count($pins) . "U\n\n";
-         
+        
          foreach($pins as $count=>$pin) {
             $pin_port = $config->getValue("/DIL/" . $dio . "/" . $pin, "PORT");
             $pin_pin = $config->getValue("/DIL/" . $dio . "/" . $pin, "PIN");
@@ -99,9 +101,12 @@ extern "C" {
          }
          
          $ports = $config->getList("/DIL/" . $dio, "PORT");
+         print "\n";
+         print "#define DIO_PORTS_COUNT " . count($ports) . "U\n\n";
 
          foreach($ports as $count=>$port) {
             $port_port = $config->getValue("/DIL/" . $dio . "/" . $port, "PORT");
+            $port_size = $config->getValue("/DIL/" . $dio . "/" . $port, "SIZE");
             print "/** \brief Port: " . $port_port. " called " . $port . " */\n";
             print "#define " . $port . " " . $count . "\n";
          }
@@ -120,7 +125,15 @@ typedef struct {
 } Dio_PinConfigType;
 
 typedef struct {
+   uint8_t Port;
+   uint8_t Size; /* 8, 16, 32 */
+   uint32_t Mask;
+   uint32_t Flags; /* Inverted, Direction, I/O, etc */
+} Dio_PortConfigType;
+
+typedef struct {
    Dio_PinConfigType Pins[DIO_PINS_COUNT];
+   Dio_PortConfigType Ports[DIO_PORTS_COUNT];
    uint8_t foo;
 } Dio_ConfigType;
 
