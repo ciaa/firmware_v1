@@ -102,6 +102,7 @@ extern "C" {
          
          $ports = $config->getList("/DIL/" . $dio, "PORT");
          print "\n";
+         print "/** \brief Dio Ports count */\n";
          print "#define DIO_PORTS_COUNT " . count($ports) . "U\n\n";
 
          foreach($ports as $count=>$port) {
