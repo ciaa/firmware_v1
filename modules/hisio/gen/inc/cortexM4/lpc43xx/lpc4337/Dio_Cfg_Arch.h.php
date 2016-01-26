@@ -105,12 +105,32 @@ extern "C" {
          print "/** \brief Dio Ports count */\n";
          print "#define DIO_PORTS_COUNT " . count($ports) . "U\n\n";
 
+         $gpio_size = 0;
          foreach($ports as $count=>$port) {
             $port_port = $config->getValue("/DIL/" . $dio . "/" . $port, "PORT");
-            $port_size = $config->getValue("/DIL/" . $dio . "/" . $port, "SIZE");
             print "/** \brief Port: " . $port_port. " called " . $port . " */\n";
             print "#define " . $port . " " . $count . "\n";
+
+            $port_size = $config->getValue("/DIL/" . $dio . "/" . $port, "SIZE");
+            switch ($port_size) {
+               case "IO_PORT_SIZE_8":
+                  $gpio_size += 8;
+                  break;         
+               case "IO_PORT_SIZE_16":
+                  $gpio_size += 16;
+                  break;
+               case "IO_PORT_SIZE_32":
+                  $gpio_size += 32;
+                  break;
+               default:
+                 $this->log->error("The port $port hasn't a defined size!");
+                  break;
+            }
          }
+         print "\n";
+         print "/** \brief Gpio: " . $gpio_size. " pins */\n";
+         print "#define DIO_GPIOS_COUNT " . $gpio_size . "U\n";
+         print "\n";
       }
    }
 ?>
@@ -133,8 +153,15 @@ typedef struct {
 } Dio_PortConfigType;
 
 typedef struct {
+   uint8_t Port;
+   uint8_t Pin;
+   uint8_t GPIO_Func;
+} Dio_PinMuxConfigType;
+
+typedef struct {
    Dio_PinConfigType Pins[DIO_PINS_COUNT];
    Dio_PortConfigType Ports[DIO_PORTS_COUNT];
+   Dio_PinMuxConfigType Gpios[DIO_GPIOS_COUNT];
    uint8_t foo;
 } Dio_ConfigType;
 
