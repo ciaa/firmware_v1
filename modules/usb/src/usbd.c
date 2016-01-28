@@ -214,7 +214,7 @@ int usb_ctrlirp(
 )
 {
    int           status;
-   usb_device_t* pdevice;
+   usb_device_t* pdev;
 
    /* Validate input parameters. */
    if (  pstack  == NULL ||
@@ -242,11 +242,8 @@ int usb_ctrlirp(
    else
    {
       /* Reconfigure pipe accordingly. */
-      pdevice = &pstack->devices[USB_ID_TO_DEV(device_id)];
-      status = usbhci_pipe_configure(
-            &pdevice->default_ep,
-            pdevice->addr,
-            pdevice->speed );
+      pdev = &pstack->devices[USB_ID_TO_DEV(device_id)];
+      status = usbhci_pipe_configure(&pdev->default_ep,pdev->addr, pdev->speed);
       if (status)
       {
          usb_assert(0); /** @TODO handle error */
@@ -254,17 +251,14 @@ int usb_ctrlirp(
       else
       {
          /* Fill the request buffer with the data in USB-endianness order. */
-         USB_STDREQ_SET_bmRequestType(pdevice->stdreq, pstdreq->bmRequestType);
-         USB_STDREQ_SET_bRequest(     pdevice->stdreq, pstdreq->bRequest);
-         USB_STDREQ_SET_wValue(       pdevice->stdreq, pstdreq->wValue);
-         USB_STDREQ_SET_wIndex(       pdevice->stdreq, pstdreq->wIndex);
-         USB_STDREQ_SET_wLength(      pdevice->stdreq, pstdreq->wLength);
+         USB_STDREQ_SET_bmRequestType(pdev->stdreq, pstdreq->bmRequestType);
+         USB_STDREQ_SET_bRequest(     pdev->stdreq, pstdreq->bRequest);
+         USB_STDREQ_SET_wValue(       pdev->stdreq, pstdreq->wValue);
+         USB_STDREQ_SET_wIndex(       pdev->stdreq, pstdreq->wIndex);
+         USB_STDREQ_SET_wLength(      pdev->stdreq, pstdreq->wLength);
 
          /* Device available, start control transfer. */
-         status = usbhci_ctrlxfer_start(
-               &pdevice->default_ep,
-               pdevice->stdreq,
-               buffer );
+         status = usbhci_ctrlxfer_start(&pdev->default_ep,pdev->stdreq, buffer);
       }
    }
    return status;
@@ -330,24 +324,24 @@ int usb_irp_cancel( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe )
 
 int usb_device_init( usb_stack_t* pstack, uint8_t index )
 {
-   usb_device_t* pdevice;
+   usb_device_t* pdev;
 
    usb_assert(pstack != NULL);
    usb_assert(index < USB_MAX_DEVICES);
 
-   pdevice = &pstack->devices[index];
-   pdevice->state         = USB_DEV_STATE_DISCONNECTED;
-   pdevice->next_state    = USB_DEV_STATE_DISCONNECTED;
-   pdevice->status        = 0;
-   pdevice->speed         = USB_SPD_INV;
-   pdevice->addr          = USB_DEV_DEFAULT_ADDR;
-   pdevice->n_interfaces  = 0;
-   pdevice->vendor_ID     = 0;
-   pdevice->product_ID    = 0;
-   pdevice->ticks_delay   = pstack->ticks;
+   pdev = &pstack->devices[index];
+   pdev->state         = USB_DEV_STATE_DISCONNECTED;
+   pdev->next_state    = USB_DEV_STATE_DISCONNECTED;
+   pdev->status        = 0;
+   pdev->speed         = USB_SPD_INV;
+   pdev->addr          = USB_DEV_DEFAULT_ADDR;
+   pdev->n_interfaces  = 0;
+   pdev->vendor_ID     = 0;
+   pdev->product_ID    = 0;
+   pdev->ticks_delay   = pstack->ticks;
 #if (USB_MAX_HUBS > 0)
-   pdevice->parent_hub    = USB_DEV_PARENT_ROOT;
-   pdevice->parent_port   = USB_DEV_PARENT_ROOT;
+   pdev->parent_hub    = USB_DEV_PARENT_ROOT;
+   pdev->parent_port   = USB_DEV_PARENT_ROOT;
 #endif
 
    return USB_STATUS_OK;
@@ -357,13 +351,13 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
 {
    uint8_t          i, j;
    uint8_t          n_ep;
-   usb_device_t*    pdevice;
+   usb_device_t*    pdev;
    usb_interface_t* piface;
 
    usb_assert(pstack != NULL);
    usb_assert(index < USB_MAX_DEVICES);
 
-   pdevice = &pstack->devices[index];
+   pdev = &pstack->devices[index];
 
    /**
     * @TODO write this function!
@@ -381,7 +375,7 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
    {
       dev_i = pstack.devices[i];
       usb_assert(dev_i.parent_hub < USB_MAX_DEVICES);
-      if (&pstack.devices[dev_i.parent_hub] == pdevice)
+      if (&pstack.devices[dev_i.parent_hub] == pdev)
          usb_device_release(dev_i);
    }
 #endif
@@ -389,7 +383,7 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
    /** @TODO error check the following instructions. */
    for (i = 0; i < USB_MAX_INTERFACES; ++i)
    {
-      piface = &pdevice->interfaces[i];
+      piface = &pdev->interfaces[i];
       if (piface->driver_handle != USB_IFACE_NO_DRIVER)
       {
          usb_drivers_remove(
@@ -407,9 +401,9 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
       piface->class       = 0;
       piface->subclass    = 0;
       piface->protocol    = 0;
-      pdevice->n_interfaces--;
+      pdev->n_interfaces--;
    }
-   usb_assert(pdevice->n_interfaces == 0);
+   usb_assert(pdev->n_interfaces == 0);
 
    /* Finish by leaving the device in its default state. */
    usb_device_init(pstack, index);
@@ -465,17 +459,17 @@ void usb_device_attach(
       uint8_t      index
 )
 {
-   usb_device_t* pdevice;
+   usb_device_t* pdev;
    usb_assert(pstack != NULL);
    usb_assert(index <= USB_MAX_DEVICES);
-   pdevice = &pstack->devices[index];
+   pdev = &pstack->devices[index];
 
-   pstack->n_devices   += 1;
-   pdevice->state       = USB_DEV_STATE_ATTACHED;
-   pdevice->status     |= USB_DEV_STATUS_ACTIVE;
+   pstack->n_devices += 1;
+   pdev->state        = USB_DEV_STATE_ATTACHED;
+   pdev->status      |= USB_DEV_STATUS_ACTIVE;
 #if (USB_MAX_HUBS > 0)
-   pdevice->parent_hub  = parent_hub;
-   pdevice->parent_port = parent_port;
+   pdev->parent_hub   = parent_hub;
+   pdev->parent_port  = parent_port;
 #endif
 }
 
@@ -489,7 +483,7 @@ int usb_device_find(
 {
    uint8_t       i;
    uint8_t       looped_devs = 0;
-   usb_device_t* pdevice;
+   usb_device_t* pdev;
 
    usb_assert(pstack != NULL);
    usb_assert(hub_index < USB_MAX_HUBS);
@@ -497,11 +491,11 @@ int usb_device_find(
 
    for (i = 0; i < USB_MAX_DEVICES; ++i)
    {
-      pdevice = &pstack->devices[i];
+      pdev = &pstack->devices[i];
       if (usb_device_is_active(pstack, i))
       {
          ++looped_devs;
-         if (pdevice->parent_hub == hub_index && pdevice->parent_port == port)
+         if (pdev->parent_hub == hub_index && pdev->parent_port == port)
             return i; /* Found! */
       }
       if (looped_devs >= pstack->n_devices)
@@ -521,7 +515,7 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
 
 int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
 {
-   usb_device_t*  pdevice;
+   usb_device_t*  pdev;
    const uint8_t* buff;
    const uint8_t* next_buff;
    uint8_t        len;
@@ -531,24 +525,39 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
 
    usb_assert(pstack != NULL);
    usb_assert(index < USB_MAX_DEVICES);
-   pdevice = &pstack->devices[index];
-   buff = pdevice->xfer_buffer;
-   len  = pdevice->xfer_length;
+   pdev = &pstack->devices[index];
+   buff = pdev->xfer_buffer;
+   len  = pdev->xfer_length;
    usb_assert(buff != NULL);
    usb_assert(len > USB_STDDESC_CFG_SIZE);
 
    /* Get the number of interfaces. */
-   pdevice->n_interfaces = USB_STDDESC_CFG_GET_bNumInterfaces(buff);
-   if (pdevice->n_interfaces > USB_MAX_INTERFACES)
+   pdev->n_interfaces = USB_STDDESC_CFG_GET_bNumInterfaces(buff);
+   if (pdev->n_interfaces > USB_MAX_INTERFACES)
+   {
       usb_assert(0); /** @TODO handle error */
+   }
 
    /* Get the configuration value. */
-   pdevice->cfg_value = USB_STDDESC_CFG_GET_bConfigurationValue(buff);
+   pdev->cfg_value = USB_STDDESC_CFG_GET_bConfigurationValue(buff);
+
+   /* Get bmAttributes: self-powered? and remote-wakeup? */
+   if (USB_STDDESC_CFG_GET_bmAttributes(buff) & USB_STDDESC_CFG_SELF_POWERED)
+   {
+      pdev->status |= USB_DEV_STATUS_SELF_PWRD;
+   }
+   if (USB_STDDESC_CFG_GET_bmAttributes(buff) & USB_STDDESC_CFG_REMOTE_WAKEUP)
+   {
+      pdev->status |= USB_DEV_STATUS_REMOTE_WKUP;
+   }
+
+   /* Get maximum power consumption. */
+   pdev->max_power = USB_STDDESC_CFG_GET_bMaxPower(buff);
 
    buff += USB_STDDESC_CFG_SIZE;
    len  -= USB_STDDESC_CFG_SIZE;
    next_len = len;
-   for (i = 0; i < pdevice->n_interfaces; ++i)
+   for (i = 0; i < pdev->n_interfaces; ++i)
    {
       /*
        * Find the next descriptor before parsing so we can pass down the  actual
@@ -563,7 +572,7 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
                USB_STDDESC_IFACE_SIZE) )
       {
          /* If no next iface desc. was found and ... */
-         if (i+1 < pdevice->n_interfaces)
+         if (i+1 < pdev->n_interfaces)
          {
             /* ... this isn't the last iface, then something's wrong. */
             usb_assert(0); /** @TODO handle error */
@@ -597,7 +606,7 @@ int usb_device_parse_ifacedesc(
 )
 {
    usb_interface_t*  piface;
-   usb_device_t*     pdevice;
+   usb_device_t*     pdev;
    uint8_t           ep;
    int               driver_idx;
    int               ret;
@@ -611,10 +620,10 @@ int usb_device_parse_ifacedesc(
    usb_assert(*pbuff != NULL);
    usb_assert(plen   != NULL);
 
-   buff        = *pbuff;
-   len         = *plen;
-   pdevice     = &pstack->devices[USB_ID_TO_DEV(id)];
-   piface      = &pdevice->interfaces[USB_ID_TO_IFACE(id)];
+   buff   = *pbuff;
+   len    = *plen;
+   pdev   = &pstack->devices[USB_ID_TO_DEV(id)];
+   piface = &pdev->interfaces[USB_ID_TO_IFACE(id)];
 
    if (*plen < USB_STDDESC_IFACE_SIZE)
    {
@@ -640,7 +649,7 @@ int usb_device_parse_ifacedesc(
       piface->protocol    = USB_STDDESC_IFACE_GET_bInterfaceProtocol(buff);
 
       /* Check whether there's a suitable driver for the given interface. */
-      driver_idx = usb_drivers_probe(pdevice, 0, buff, len);
+      driver_idx = usb_drivers_probe(pdev, 0, buff, len);
       if (driver_idx < 0)
       {
          /*
@@ -690,8 +699,8 @@ int usb_device_parse_ifacedesc(
             /* ... and configure it. */
             if (usbhci_pipe_configure(
                   &piface->endpoints[ep],
-                  pdevice->addr,
-                  pdevice->speed) )
+                  pdev->addr,
+                  pdev->speed) )
             {
                usb_assert(0); /** @TODO handle error */
             }
@@ -771,7 +780,7 @@ int usb_stack_handle_hubs( usb_stack_t* pstack )
 {
 /** @TODO finish this precedure */
    uint8_t         hub_idx;
-   usb_device_t*   pdevice;
+   usb_device_t*   pdev;
    int16_t         addr;  /* Need whole range for return codes. */
    int16_t         index; /* IDEM. */
    uint8_t         i, j;
