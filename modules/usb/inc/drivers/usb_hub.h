@@ -30,7 +30,7 @@ extern "C" {
 
 
 /** @brief HUB transactions buffer maximum length. */
-#define USB_HUB_BUFF_LEN  128
+#define USB_HUB_BUFF_LEN   128
 
 
 /** @brief USB HUB descriptor type. */
@@ -67,17 +67,20 @@ extern "C" {
 /** @brief Get HUB descriptor's bHubContrCurrent from buffer x. */
 #define USB_HUB_DESC_GET_bHubContrCurrent(x) \
    ((uint8_t ) (x)[6])
-/** @brief Get HUB descriptor's DeviceRemovable from buffer x and port n. */
+/**
+ * @brief Get HUB descriptor's DeviceRemovable from buffer x and  port n.  Ports
+ * identifier n starts at 0.
+ */
 #define USB_HUB_DESC_GET_DeviceRemovable(x, n) \
-   ((uint8_t ) (x)[7 + (((n)+1) >> 3)])
+   ((uint8_t ) ((((x)[7 + (((n)+1) >> 3)]) >> (((n)+1) % 8)) & 0x01))
 /**
  * @brief Get HUB descriptor's PortPwrCtrlMask from buffer x and port n.
  * @param  x  Buffer.
  * @param  N  Total number of ports.
- * @param  n  Port number.
+ * @param  n  Port number, starting from 0.
  */
 #define USB_HUB_DESC_GET_PortPwrCtrlMask(x, N, n) \
-   ((uint8_t ) (x)[8 + (((N)+1) >> 3) + (((n)+1) >> 3)])
+   ((uint8_t ) ((((x)[8 + (((N)+1) >> 3) + (((n)+1) >> 3)]) >> (((n)+1) % 8)) & 0x01))
 
 
 /** @brief Logical Power Switching Mode mask (before shift). */
@@ -192,21 +195,56 @@ extern "C" {
  */
 
 /** @brief Whether device is free or currently in use. */
-#define USB_HUB_STATUS_FREE         (1 << 0)
+#define USB_HUB_STATUS_FREE         (1 <<  0)
 /** @brief Whether device has already been initialized. */
-#define USB_HUB_STATUS_INIT         (1 << 1)
+#define USB_HUB_STATUS_INIT         (1 <<  1)
 /** @brief Whether device has been opened by user code. */
-#define USB_HUB_STATUS_OPEN         (1 << 2)
+#define USB_HUB_STATUS_OPEN         (1 <<  2)
+/** @brief Whether entry actions are to be executed.  */
+#define USB_HUB_STATUS_ENTRY        (1 <<  3)
 /** @brief Whether HUB supports individual port power switching. */
-#define USB_HUB_STATUS_INDIV_POWER  (1 << 3)
+#define USB_HUB_STATUS_INDIV_POWER  (1 <<  4)
 /** @brief Whether it is a compound device. */
-#define USB_HUB_STATUS_COMPOUND_DEV (1 << 4)
+#define USB_HUB_STATUS_COMPOUND_DEV (1 <<  5)
 /** @brief Whether HUB reports individual port over-current protection. */
-#define USB_HUB_STATUS_INDIV_OVC    (1 << 5)
+#define USB_HUB_STATUS_INDIV_OVC    (1 <<  6)
+/** @brief Whether HUB reports global port over-current protection. */
+#define USB_HUB_STATUS_GLOBAL_OVC   (1 <<  7)
 /** @brief Whether HUB supports port indicators. */
-#define USB_HUB_STATUS_INDICATORS   (1 << 6)
+#define USB_HUB_STATUS_INDICATORS   (1 <<  8)
+/** @brief HUB's local power supply is good, only if self-powered.*/
+#define USB_HUB_STATUS_LPS_GOOD     (1 <<  9)
+/** @brief HUB is in an over-current condition, see @ref usb_hub_ocpm_t. */
+#define USB_HUB_STATUS_OVC_ACTIVE   (1 << 10)
 
 /** @} HUB device */
+
+
+/**
+ * @name HUB port
+ * @{
+ */
+
+/** @brief Whether device is removable. */
+#define USB_HUB_PORT_REM            (1 << 0)
+/** @brief Whether a device is currently connected. */
+#define USB_HUB_PORT_CONNECTION     (1 << 1)
+/** @brief Whether port is currently enabled. */
+#define USB_HUB_PORT_ENABLED        (1 << 2)
+/** @brief Whether port is currently suspended. */
+#define USB_HUB_PORT_SUSPENDED      (1 << 3)
+/** @brief Whether port is currently in over-current condition. */
+#define USB_HUB_PORT_OVC_ACTIVE     (1 << 4)
+/** @brief Whether port is being held in the reset state. */
+#define USB_HUB_PORT_RESET_ACTIVE   (1 << 5)
+/** @brief Whether port is in the powered-off state. */
+#define USB_HUB_PORT_POWERED_STATE  (1 << 6)
+/** @brief Low-speed device attached. */
+#define USB_HUB_PORT_LOWSPEED       (1 << 7)
+/** @brief High-speed device attached. */
+#define USB_HUB_PORT_HIGHSPEED      (1 << 8)
+
+/** @} HUB port */
 
 
 /*==================[typedef]================================================*/
@@ -288,22 +326,22 @@ typedef enum _usb_hub_classreq_t
  */
 typedef enum _usb_hub_featsel_t
 {
-   USB_HUB_C_HUB_LOCAL_POWER   =  0,
-   USB_HUB_C_HUB_OVER_CURRENT  =  1,
-   USB_HUB_PORT_CONNECTION     =  0,
-   USB_HUB_PORT_ENABLE         =  1,
-   USB_HUB_PORT_SUSPEND        =  2,
-   USB_HUB_PORT_OVER_CURRENT   =  3,
-   USB_HUB_PORT_RESET          =  4,
-   USB_HUB_PORT_POWER          =  8,
-   USB_HUB_PORT_LOW_SPEED      =  9,
-   USB_HUB_C_PORT_CONNECTION   = 16,
-   USB_HUB_C_PORT_ENABLE       = 17,
-   USB_HUB_C_PORT_SUSPEND      = 18,
-   USB_HUB_C_PORT_OVER_CURRENT = 19,
-   USB_HUB_C_PORT_RESET        = 20,
-   USB_HUB_PORT_TEST           = 21,
-   USB_HUB_PORT_INDICATOR      = 22,
+   USB_HUB_FEATURE_C_HUB_LOCAL_POWER   =  0,
+   USB_HUB_FEATURE_C_HUB_OVER_CURRENT  =  1,
+   USB_HUB_FEATURE_PORT_CONNECTION     =  0,
+   USB_HUB_FEATURE_PORT_ENABLE         =  1,
+   USB_HUB_FEATURE_PORT_SUSPEND        =  2,
+   USB_HUB_FEATURE_PORT_OVER_CURRENT   =  3,
+   USB_HUB_FEATURE_PORT_RESET          =  4,
+   USB_HUB_FEATURE_PORT_POWER          =  8,
+   USB_HUB_FEATURE_PORT_LOW_SPEED      =  9,
+   USB_HUB_FEATURE_C_PORT_CONNECTION   = 16,
+   USB_HUB_FEATURE_C_PORT_ENABLE       = 17,
+   USB_HUB_FEATURE_C_PORT_SUSPEND      = 18,
+   USB_HUB_FEATURE_C_PORT_OVER_CURRENT = 19,
+   USB_HUB_FEATURE_C_PORT_RESET        = 20,
+   USB_HUB_FEATURE_PORT_TEST           = 21,
+   USB_HUB_FEATURE_PORT_INDICATOR      = 22,
 } usb_hub_featsel_t;
 /** @} HUB requests */
 
@@ -317,6 +355,10 @@ typedef enum _usb_hub_state_t
    USB_HUB_STATE_IDLE,
    USB_HUB_STATE_DESC_GET,
    USB_HUB_STATE_DESC_PARSE,
+   USB_HUB_STATE_HUB_STATUS_GET,
+   USB_HUB_STATE_HUB_STATUS_PARSE,
+   USB_HUB_STATE_PORT_STATUS_GET,
+   USB_HUB_STATE_PORT_STATUS_PARSE,
    USB_HUB_STATE_RUNNING,
 } usb_hub_state_t;
 
@@ -331,11 +373,13 @@ typedef struct _usb_hub_t
    uint32_t        port_status[USB_MAX_HUB_PORTS]; /**< Ports' status.        */
    uint16_t        id;          /**< Device's ID within the USB stack.        */
    uint8_t         poweron_t;   /**< Power-on sequence duration, in 2ms units.*/
+   uint8_t         power_req;   /**< Power requirements in mA.                */
    uint8_t         n_ports;     /**< Total number of ports on HUB.            */
+   uint8_t         current_port;/**< Current port being queried.              */
    uint8_t         buffer[USB_HUB_BUFF_LEN]; /**< Transaction buffer length,
-                                                  apped at USB_HUB_BUFF_LEN.  */
+                                                  capped at USB_HUB_BUFF_LEN. */
    uint8_t         buffer_len;  /**< Transaction buffer length, capped at
-                                  USB_HUB_BUFF_LEN.                           */
+                                     USB_HUB_BUFF_LEN.                        */
 } usb_hub_t;
 /** @} HUB device */
 
@@ -418,6 +462,8 @@ int usb_hub_update( void );
  * the stack, some things have changed a little so it will have to be revised.
  */
 
+
+
 /**
  * @brief Check whether the HUB port is active.
  *
@@ -476,7 +522,8 @@ int usb_hub_end_reset( usb_hub_t* phub, uint8_t port );
  * @param phub Pointer to HUB structure.
  * @param port Port number.
  */
-usb_speed_t usb_hub_get_speed( usb_hub_t* phub, uint8_t port );
+//usb_speed_t usb_hub_get_speed( usb_hub_t* phub, uint8_t port );
+usb_speed_t usb_hub_get_speed( uint8_t hub_idx, uint8_t port );
 
 
 /*==================[cplusplus]==============================================*/

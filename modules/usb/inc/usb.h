@@ -83,7 +83,7 @@ extern "C" {
 #define USB_DIR_S             7
 
 
-/** @brief Per device control transfer's buffer length.  */
+/** @brief Per device control transfer's buffer length. */
 #define USB_XFER_BUFFER_LEN   256
 
 
@@ -99,17 +99,21 @@ extern "C" {
 
 
 /** @brief Default device's address, invalid. */
-#define USB_DEV_DEFAULT_ADDR      ((uint8_t) -1)
+#define USB_DEV_DEFAULT_ADDR ((uint8_t) -1)
 
 
 /** @brief Device connected (updated in ISR). */
-#define USB_DEV_STATUS_CONNECTED  (1 << 0)
+#define USB_DEV_STATUS_CONNECTED       (1 << 0)
 /** @brief Device active and connected. */
-#define USB_DEV_STATUS_ACTIVE     (1 << 1)
+#define USB_DEV_STATUS_ACTIVE          (1 << 1)
 /** @brief Device's control endpoint opened by user code. */
-#define USB_DEV_STATUS_LOCKED     (1 << 2)
+#define USB_DEV_STATUS_LOCKED          (1 << 2)
+/** @brief Device is self-powered. */
+#define USB_DEV_STATUS_SELF_PWRD       (1 << 3)
+/** @brief Device supports remote wakeup. */
+#define USB_DEV_STATUS_REMOTE_WKUP     (1 << 4)
 /** @brief Root HUB/device identifier.  */
-#define USB_DEV_PARENT_ROOT       ((uint8_t) -1)
+#define USB_DEV_PARENT_ROOT            ((uint8_t) -1)
 
 
 /** @brief Currently writing to a device on address 0. */
@@ -328,6 +332,7 @@ typedef struct _usb_device_t
    uint8_t         parent_hub;     /**< Index of upstream HUB.                */
    uint8_t         parent_port;    /**< Index of upstream HUB.                */
 #endif
+   uint8_t         max_power;      /**< Maximum consumption from the bus.     */
    uint8_t         addr;           /**< Device's address.                     */
    uint8_t         n_interfaces;   /**< Number of interfaces.                 */
    uint8_t         cfg_value;      /**< Configuration value.                  */

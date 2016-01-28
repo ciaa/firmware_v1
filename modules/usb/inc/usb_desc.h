@@ -117,6 +117,11 @@ extern "C" {
 #define USB_STDDESC_CFG_GET_bMaxPower(x) \
    ((uint8_t ) (x)[8])
 
+/** @brief bmAttributes self-powered device bit. */
+#define USB_STDDESC_CFG_SELF_POWERED  (1 << 6)
+/** @brief bmAttributes remote wakeup supported bit. */
+#define USB_STDDESC_CFG_REMOTE_WAKEUP (1 << 5)
+
 /** @} USB configuration descriptor */
 
 
