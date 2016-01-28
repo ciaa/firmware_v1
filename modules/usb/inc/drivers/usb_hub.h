@@ -201,7 +201,7 @@ extern "C" {
 /** @brief Whether device has been opened by user code. */
 #define USB_HUB_STATUS_OPEN         (1 <<  2)
 /** @brief Whether entry actions are to be executed.  */
-#define USB_HUB_STATUS_ENTRY        (1 <<  3)
+#define USB_HUB_STATUS_REQUEST      (1 <<  3)
 /** @brief Whether HUB supports individual port power switching. */
 #define USB_HUB_STATUS_INDIV_POWER  (1 <<  4)
 /** @brief Whether it is a compound device. */
@@ -353,12 +353,9 @@ typedef enum _usb_hub_featsel_t
 typedef enum _usb_hub_state_t
 {
    USB_HUB_STATE_IDLE,
-   USB_HUB_STATE_DESC_GET,
-   USB_HUB_STATE_DESC_PARSE,
-   USB_HUB_STATE_HUB_STATUS_GET,
-   USB_HUB_STATE_HUB_STATUS_PARSE,
-   USB_HUB_STATE_PORT_STATUS_GET,
-   USB_HUB_STATE_PORT_STATUS_PARSE,
+   USB_HUB_STATE_DESC,
+   USB_HUB_STATE_HUB_STATUS,
+   USB_HUB_STATE_PORT_STATUS,
    USB_HUB_STATE_RUNNING,
 } usb_hub_state_t;
 
