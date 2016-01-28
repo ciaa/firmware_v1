@@ -186,9 +186,8 @@ foreach ($dios as $count=>$dio) {
             $this->log->error("The port $port hasn't a defined 'inverted' configuration!");
             break;
       } 
-      print "/** \brief Port: " . $port_port . " */\n";
+      print "/** \brief Port: " . $port_port . " , size: " . $port_size . " , maks: 0x" . $port_mask . " , called " . $port . " */\n";
       print "{ " . $port_port . ", " . $port_size . ", 0x" . $port_mask . ", ("  . $port_flags . ")},\n";
-
    }
    print "}\n";
 
