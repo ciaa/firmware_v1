@@ -107,12 +107,9 @@ static int _parse_port_status( usb_hub_t* phub, uint8_t port );
  * not be called directly, rather through _update_dev() so there's no need.
  */
 static int _state_idle( usb_hub_t* pdev );
-static int _state_desc_get( usb_hub_t* pdev );
-static int _state_desc_parse( usb_hub_t* pdev );
-static int _state_hub_status_get( usb_hub_t* pdev );
-static int _state_hub_status_parse( usb_hub_t* pdev );
-static int _state_port_status_get( usb_hub_t* pdev );
-static int _state_port_status_parse( usb_hub_t* pdev );
+static int _state_desc( usb_hub_t* pdev );
+static int _state_hub_status( usb_hub_t* pdev );
+static int _state_port_status( usb_hub_t* pdev );
 static int _state_running( usb_hub_t* pdev );
 
 /* No assert, sets the REQUEST bit as well. */
@@ -136,12 +133,9 @@ static usb_hub_stack_t _hub_stack; /* Maybe this shouldn't be static or at least
 static _state_fn_t _state_fn[] =
 {
    _state_idle,
-   _state_desc_get,
-   _state_desc_parse,
-   _state_hub_status_get,
-   _state_hub_status_parse,
-   _state_port_status_get,
-   _state_port_status_parse,
+   _state_desc,
+   _state_hub_status,
+   _state_port_status,
    _state_running,
 };
 
@@ -454,7 +448,7 @@ static int _state_idle( usb_hub_t* pdev )
    return USB_STATUS_OK;
 }
 
-static int _state_desc_get( usb_hub_t* pdev )
+static int _state_desc( usb_hub_t* pdev )
 {
    int status;
 
@@ -490,12 +484,7 @@ static int _state_desc_get( usb_hub_t* pdev )
    return status;
 }
 
-static int _state_desc_parse( usb_hub_t* pdev )
-{
-   return USB_STATUS_OK;
-}
-
-static int _state_hub_status_get( usb_hub_t* pdev )
+static int _state_hub_status( usb_hub_t* pdev )
 {
    int          status;
 
@@ -520,12 +509,7 @@ static int _state_hub_status_get( usb_hub_t* pdev )
    return status;
 }
 
-static int _state_hub_status_parse( usb_hub_t* pdev )
-{
-   return USB_STATUS_OK;
-}
-
-static int _state_port_status_get( usb_hub_t* pdev )
+static int _state_port_status( usb_hub_t* pdev )
 {
    int          status;
 
@@ -556,11 +540,6 @@ static int _state_port_status_get( usb_hub_t* pdev )
       }
    }
    return status;
-}
-
-static int _state_port_status_parse( usb_hub_t* pdev )
-{
-   return USB_STATUS_OK;
 }
 
 static int _state_running( usb_hub_t* pdev )
