@@ -79,7 +79,7 @@
 <?php
 
 require_once './modules/hisio/gen/helpers/cortexM4/lpc43xx/lpc4337/hisio.php';
-$MyHisio = new Hisio;
+$MyHisio = new Hisio();
 
 $dios = $config->getList("/DIL", "DIO");
 foreach ($dios as $count=>$dio) {
@@ -93,11 +93,14 @@ foreach ($dios as $count=>$dio) {
    foreach($pins as $count=>$pin) {
       $pin_port = $config->getValue("/DIL/" . $dio . "/" . $pin, "PORT");
       $pin_pin = $config->getValue("/DIL/" . $dio . "/" . $pin, "PIN");
-      $GPIO = array_search("P" . $pin_port . "_" . $pin_pin, $MyHisio->dio_pins, FALSE);
-      if ($GPIO == NULL) {
+
+      $GPIO = $MyHisio->getByTypeAndResource(FunctionalityBase::DIO, new Pin($pin_port, $pin_pin) );
+      if ($GPIO == null) {
          $this->log->error("PIN " . $pin . " has a 'Port-Pin' pair that doesn't match a valid GPIO.");
       }
-      sscanf($GPIO, "GPIO%d[%d], FUNC%d", $GPIO_Port, $GPIO_Pin, $GPIO_Func);
+      $GPIO_Port = $GPIO->getGpioPort();
+      $GPIO_Pin = $GPIO->getGpioPin();
+      $GPIO_Func = $GPIO->getFunc();
 
       $pin_direction = $config->getValue("/DIL/" . $dio . "/" . $pin, "DIRECTION");
       switch ($pin_direction)
@@ -127,7 +130,7 @@ foreach ($dios as $count=>$dio) {
             $this->log->error("The pin $pin hasn't a defined 'inverted' configuration!");
             break;
       }      
-      print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " , " . $GPIO . " called " . $pin . " */\n";
+      print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " , called " . $pin . " */\n";
       print "{ 0x" . $pin_port . ", " . $pin_pin . ", 0x" . $GPIO_Port . ", " . $GPIO_Pin . ", SCU_MODE_FUNC" . $GPIO_Func . ", (" . $pin_flags . ")},\n";
    }
    print "},\n";
