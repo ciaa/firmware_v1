@@ -107,7 +107,7 @@ foreach ($dios as $count=>$dio) {
       {
          case "IO_INPUT":
             $pin_flags = "DIO_CONFIG_PIN_DIRECTION_INPUT";
-            break;         
+            break;
          case "IO_OUTPUT_INIT_LOW":
             $pin_flags = "DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW";
             break;
@@ -129,7 +129,7 @@ foreach ($dios as $count=>$dio) {
          default:
             $this->log->error("The pin $pin hasn't a defined 'inverted' configuration!");
             break;
-      }      
+      }
       print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " , called " . $pin . " */\n";
       print "{ 0x" . $pin_port . ", " . $pin_pin . ", 0x" . $GPIO_Port . ", " . $GPIO_Pin . ", SCU_MODE_FUNC" . $GPIO_Func . ", (" . $pin_flags . ")},\n";
    }
@@ -148,14 +148,14 @@ foreach ($dios as $count=>$dio) {
          case "IO_PORT_SIZE_8":
             $port_size = "8";
             $port_flags = "DIO_CONFIG_PORT_SIZE_8";
-            break;         
+            break;
          case "IO_PORT_SIZE_16":
             $port_size = "16";
             $port_flags = "DIO_CONFIG_PORT_SIZE_16";
             break;
          case "IO_PORT_SIZE_32":
             $port_size = "32";
-            $port_flags = "DIO_CONFIG_PORT_SIZE_32";           
+            $port_flags = "DIO_CONFIG_PORT_SIZE_32";
             break;
          default:
            $this->log->error("The port $port hasn't a defined size!");
@@ -166,7 +166,7 @@ foreach ($dios as $count=>$dio) {
       {
          case "IO_INPUT":
             $port_flags = $port_flags . " | DIO_CONFIG_PORT_DIRECTION_INPUT";
-            break;         
+            break;
          case "IO_OUTPUT_INIT_LOW":
             $port_flags = $port_flags . " | DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_LOW";
             break;
