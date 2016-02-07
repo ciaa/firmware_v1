@@ -24,7 +24,7 @@ static void setup_hardware( void )
    /* Set pin muxing. */
    Chip_SCU_SetPinMuxing(pinmuxing, sizeof(pinmuxing) / sizeof(PINMUX_GRP_T));
 
-#if 0 // apparently not needed...?
+#if 1 // apparently needed...?
    /* Setup System core frequency to MAX_CLOCK_FREQ. */
    Chip_SetupCoreClock(CLKIN_CRYSTAL, MAX_CLOCK_FREQ, true);
    /* Setup system base clocks and initial states. */
