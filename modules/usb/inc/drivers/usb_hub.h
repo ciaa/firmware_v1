@@ -38,11 +38,29 @@ extern "C" {
 
 
 /**
+ * @brief USB HUB interrupt transfer size, depends on number of ports N.
+ * len = ceil((1 + N) / 8)
+ */
+#define USB_HUB_INT_XFER_LEN(N) ((1 + (N) + 7) / 8)
+
+/** @brief Hub and Port status change bitmap length. */
+#define USB_HUB_SC_BITMAP_LEN   USB_HUB_INT_XFER_LEN(USB_MAX_HUB_PORTS)
+
+/**
+ * @brief Get port number from bitmap's bit-change byte and bit offset.
+ *
+ * Port number is given in USB notation, that is, starting from 1.
+ */
+#define USB_HUB_SC_BITBYTE_TO_PORT(byte, bit) \
+   (((byte) * 8) + (bit))
+
+
+/**
  * @name HUB descriptor
  * @{
  */
 
-/** @brief USB HUB descriptor's minimum size, depends on number of ports. */
+/** @brief USB HUB descriptor's minimum size. */
 #define USB_HUB_DESC_SIZE  9
 /** @brief Calculate actual HUB descriptor's size based on number of ports N. */
 #define USB_HUB_DESC_REAL_SIZE(N) \
@@ -212,10 +230,14 @@ extern "C" {
 #define USB_HUB_STATUS_GLOBAL_OVC   (1 <<  7)
 /** @brief Whether HUB supports port indicators. */
 #define USB_HUB_STATUS_INDICATORS   (1 <<  8)
-/** @brief HUB's local power supply is good, only if self-powered.*/
+/** @brief HUB's local power supply is good, only if self-powered. */
 #define USB_HUB_STATUS_LPS_GOOD     (1 <<  9)
 /** @brief HUB is in an over-current condition, see @ref usb_hub_ocpm_t. */
 #define USB_HUB_STATUS_OVC_ACTIVE   (1 << 10)
+/** @brief HUB's local power supply is good change bit. */
+#define USB_HUB_STATUS_LPS_GOOD_C   (1 << 11)
+/** @brief HUB is in an over-current condition change bit. */
+#define USB_HUB_STATUS_OVC_ACTIVE_C (1 << 12)
 
 /** @} HUB device */
 
@@ -243,6 +265,17 @@ extern "C" {
 #define USB_HUB_PORT_LOWSPEED       (1 << 7)
 /** @brief High-speed device attached. */
 #define USB_HUB_PORT_HIGHSPEED      (1 << 8)
+
+/** @brief Whether a device is currently connected. */
+#define USB_HUB_PORT_CONNECTION_C   (1 << 0)
+/** @brief Whether port is currently enabled. */
+#define USB_HUB_PORT_ENABLED_C      (1 << 1)
+/** @brief Whether port is currently suspended. */
+#define USB_HUB_PORT_SUSPENDED_C    (1 << 2)
+/** @brief Whether port is currently in over-current condition. */
+#define USB_HUB_PORT_OVC_ACTIVE_C   (1 << 3)
+/** @brief Whether port is being held in the reset state. */
+#define USB_HUB_PORT_RESET_ACTIVE_C (1 << 4)
 
 /** @} HUB port */
 
@@ -355,8 +388,12 @@ typedef enum _usb_hub_state_t
    USB_HUB_STATE_IDLE,
    USB_HUB_STATE_DESC,
    USB_HUB_STATE_HUB_STATUS,
+   USB_HUB_STATE_PORT_POWERUP,
    USB_HUB_STATE_PORT_STATUS,
    USB_HUB_STATE_RUNNING,
+   USB_HUB_STATE_UPDATE_STATUS,
+   USB_HUB_STATE_HUB_STATUS_CLEAR,
+   USB_HUB_STATE_PORT_STATUS_CLEAR,
 } usb_hub_state_t;
 
 /**
@@ -366,9 +403,10 @@ typedef struct _usb_hub_t
 {
    usb_stack_t*    pstack;      /**< USB stack the device belongs to.         */
    usb_hub_state_t state;       /**< Device's state.                          */
-   uint32_t        status;      /**< HUB's status                             */
-   uint32_t        port_status[USB_MAX_HUB_PORTS]; /**< Ports' status.        */
+   uint32_t        status;      /**< HUB's status.                            */
    uint16_t        id;          /**< Device's ID within the USB stack.        */
+   uint16_t        port_status[USB_MAX_HUB_PORTS]; /**< Ports' status.        */
+   uint8_t         port_change[USB_MAX_HUB_PORTS]; /**< Ports' status-change. */
    uint8_t         poweron_t;   /**< Power-on sequence duration, in 2ms units.*/
    uint8_t         power_req;   /**< Power requirements in mA.                */
    uint8_t         n_ports;     /**< Total number of ports on HUB.            */
@@ -377,6 +415,8 @@ typedef struct _usb_hub_t
                                                   capped at USB_HUB_BUFF_LEN. */
    uint8_t         buffer_len;  /**< Transaction buffer length, capped at
                                      USB_HUB_BUFF_LEN.                        */
+   uint8_t         sc_bitmap[USB_HUB_SC_BITMAP_LEN];
+                                /**< Hub and Port Status Change Bitmap.       */
 } usb_hub_t;
 /** @} HUB device */
 
@@ -391,7 +431,7 @@ typedef struct _usb_hub_t
 typedef struct _usb_hub_stack_t
 {
    usb_hub_t    hubs[USB_MAX_HUBS]; /**< USB HUB devices state and members.   */
-   uint8_t      n_hubs;      /**< Number of HUBs currently connected.         */
+   uint8_t      n_hubs;             /**< Number of HUBs currently connected.  */
 } usb_hub_stack_t;
 
 

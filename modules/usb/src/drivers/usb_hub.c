@@ -100,6 +100,15 @@ static int _parse_hub_status( usb_hub_t* phub );
  */
 static int _parse_port_status( usb_hub_t* phub, uint8_t port );
 
+/**
+ * @brief Check if there's been a HUB or port status change.
+ *
+ * @param sc_bitmap Hub and Port Status Change Bitmap, returned by INT request.
+ *
+ * @return Non-zero if there's been a change, zero otherwise.
+ */
+static int _hub_or_port_change(uint8_t sc_bitmap[USB_HUB_SC_BITMAP_LEN]);
+
 /*
  * State functions must follow the usb_hub_state_t enumeration order.
  *
@@ -109,8 +118,12 @@ static int _parse_port_status( usb_hub_t* phub, uint8_t port );
 static int _state_idle( usb_hub_t* pdev );
 static int _state_desc( usb_hub_t* pdev );
 static int _state_hub_status( usb_hub_t* pdev );
+static int _state_port_powerup( usb_hub_t* pdev );
 static int _state_port_status( usb_hub_t* pdev );
 static int _state_running( usb_hub_t* pdev );
+static int _state_update_status( usb_hub_t* pdev );
+static int _state_port_clear( usb_hub_t* pdev );
+static int _state_hub_clear( usb_hub_t* pdev );
 
 /* No assert, sets the REQUEST bit as well. */
 static void _next_state( usb_hub_t* pdev, usb_hub_state_t next );
@@ -126,6 +139,9 @@ static int _SetHubDescriptor( usb_hub_t* pdev );
 static int _SetHubFeature( usb_hub_t* pdev, usb_hub_featsel_t feature );
 static int _SetPortFeature( usb_hub_t* pdev, uint8_t port, usb_hub_featsel_t feature );
 
+/* HUB interrupts request. */
+static int _int_request( usb_hub_t* pdev );
+
 
 /*==================[internal data definition]===============================*/
 static usb_hub_stack_t _hub_stack; /* Maybe this shouldn't be static or at least not here like this... */
@@ -135,8 +151,12 @@ static _state_fn_t _state_fn[] =
    _state_idle,
    _state_desc,
    _state_hub_status,
+   _state_port_powerup,
    _state_port_status,
    _state_running,
+   _state_update_status,
+   _state_port_clear,
+   _state_hub_clear,
 };
 
 
@@ -149,15 +169,21 @@ static int _deinit_dev( uint8_t index )
    usb_assert(index < USB_MAX_HUBS);
 
    pdev = &_hub_stack.hubs[index];
-   pdev->status     = USB_HUB_STATUS_FREE;
-   pdev->pstack     = NULL;
-   pdev->id         = 0xFFFF;
-   pdev->state      = USB_HUB_STATE_IDLE;
-   pdev->buffer_len = 0;
-   pdev->n_ports    = 0;
+   pdev->pstack       = NULL;
+   pdev->state        = USB_HUB_STATE_IDLE;
+   pdev->status       = USB_HUB_STATUS_FREE;
+   pdev->id           = 0xFFFF;
+   pdev->poweron_t    = 0;
+   pdev->power_req    = 0;
+   pdev->n_ports      = 0;
+   pdev->current_port = 0;
+   pdev->buffer_len   = 0;
 
    for (i = 0; i < USB_MAX_HUB_PORTS; ++i)
       pdev->port_status[i] = 0x00;
+
+   for (i = 0; i < USB_HUB_SC_BITMAP_LEN; ++i)
+      pdev->sc_bitmap[i] = 0x00;
 
    return 0;
 }
@@ -351,13 +377,14 @@ static int _parse_hub_desc( usb_hub_t* phub )
 
 static int _parse_hub_status( usb_hub_t* phub )
 {
-   uint8_t* buff;
+   uint16_t wHubStatus;
 
    usb_assert(phub != NULL);
 
-   buff = phub->buffer;
+   /* Status bits. */
+   wHubStatus = USB_HUB_STATUS_GET_wHubStatus(phub->buffer);
 
-   if (USB_HUB_STATUS_GET_wHubStatus(buff) & USB_HUB_STATUS_LPS)
+   if (wHubStatus & USB_HUB_STATUS_LPS)
    {
       phub->status |=  USB_HUB_STATUS_LPS_GOOD;
    }
@@ -366,7 +393,7 @@ static int _parse_hub_status( usb_hub_t* phub )
       phub->status &= ~USB_HUB_STATUS_LPS_GOOD;
    }
 
-   if (USB_HUB_STATUS_GET_wHubStatus(buff) & USB_HUB_STATUS_OVC)
+   if (wHubStatus & USB_HUB_STATUS_OVC)
    {
       phub->status |= ~USB_HUB_STATUS_OVC_ACTIVE;
    }
@@ -375,17 +402,40 @@ static int _parse_hub_status( usb_hub_t* phub )
       phub->status &= ~USB_HUB_STATUS_OVC_ACTIVE;
    }
 
+   /* Change bits. */
+   wHubStatus = USB_HUB_STATUS_GET_wHubChange(phub->buffer);
+
+   if (wHubStatus & USB_HUB_STATUS_CHANGE_LPS)
+   {
+      phub->status |=  USB_HUB_STATUS_LPS_GOOD_C;
+   }
+   else
+   {
+      phub->status &= ~USB_HUB_STATUS_LPS_GOOD_C;
+   }
+
+   if wHubStatus & USB_HUB_STATUS_CHANGE_OVC)
+   {
+      phub->status |= ~USB_HUB_STATUS_OVC_ACTIVE_C;
+   }
+   else
+   {
+      phub->status &= ~USB_HUB_STATUS_OVC_ACTIVE_C;
+   }
+
    return USB_STATUS_OK;
 }
 
 static int _parse_port_status( usb_hub_t* phub, uint8_t port )
 {
-   uint32_t wPortStatus;
-   uint32_t port_status;
+   uint16_t wPortStatus;
+   uint16_t port_status;
+   uint8_t  port_change;
 
    usb_assert(phub != NULL);
    usb_assert(port  < phub->n_ports);
 
+   /* Status bits. */
    port_status = 0;
    wPortStatus = USB_HUB_PORT_STATUS_GET_wPortStatus(phub->buffer);
 
@@ -393,44 +443,72 @@ static int _parse_port_status( usb_hub_t* phub, uint8_t port )
    {
       port_status |= USB_HUB_PORT_CONNECTION;
    }
-
    if (wPortStatus & USB_HUB_PORT_STATUS_PED)
    {
       port_status |= USB_HUB_PORT_ENABLED;
    }
-
    if (wPortStatus & USB_HUB_PORT_STATUS_SUS)
    {
       port_status |= USB_HUB_PORT_SUSPENDED;
    }
-
    if (wPortStatus & USB_HUB_PORT_STATUS_OVC)
    {
       port_status |= USB_HUB_PORT_OVC_ACTIVE;
    }
-
    if (wPortStatus & USB_HUB_PORT_STATUS_RST)
    {
       port_status |= USB_HUB_PORT_RESET_ACTIVE;
    }
-
    if (wPortStatus & USB_HUB_PORT_STATUS_PWR)
    {
       port_status |= USB_HUB_PORT_POWERED_STATE;
    }
-
    if (wPortStatus & USB_HUB_PORT_STATUS_LSP)
    {
-      port_status |= USB_HUB_PORT_CONNECTION;
+      port_status |= USB_HUB_PORT_LOWSPEED;
    }
-
    if (wPortStatus & USB_HUB_PORT_STATUS_HSP)
    {
-      port_status |= USB_HUB_PORT_CONNECTION;
+      port_status |= USB_HUB_PORT_HIGHSPEED;
    }
    phub->port_status[port] = port_status;
 
+   /* Change bits. */
+   port_change = 0;
+   wPortStatus = USB_HUB_PORT_STATUS_GET_wPortChange(phub->buffer);
+
+   if (wPortStatus & USB_HUB_PORT_STATUS_CHANGE_CSC)
+   {
+      port_change |= USB_HUB_PORT_CONNECTION_C;
+   }
+   if (wPortStatus & USB_HUB_PORT_STATUS_CHANGE_PED)
+   {
+      port_change |= USB_HUB_PORT_ENABLED_C;
+   }
+   if (wPortStatus & USB_HUB_PORT_STATUS_CHANGE_SUS)
+   {
+      port_change |= USB_HUB_PORT_SUSPENDED_C;
+   }
+   if (wPortStatus & USB_HUB_PORT_STATUS_CHANGE_OVC)
+   {
+      port_change |= USB_HUB_PORT_OVC_ACTIVE_C;
+   }
+   if (wPortStatus & USB_HUB_PORT_STATUS_CHANGE_RST)
+   {
+      port_change |= USB_HUB_PORT_RESET_ACTIVE_C;
+   }
+   phub->port_change[port] = port_change;
+
    return USB_STATUS_OK;
+}
+
+static int _hub_or_port_change(uint8_t sc_bitmap[USB_HUB_SC_BITMAP_LEN])
+{
+   uint8_t i;
+   for (i= 0; i < USB_HUB_SC_BITMAP_LEN && !sc_bitmap[i]; ++i)
+   {
+   }
+   return USB_HUB_SC_BITMAP_LEN - i;
 }
 
 
@@ -502,20 +580,107 @@ static int _state_hub_status( usb_hub_t* pdev )
    }
    else /* USB_STATUS_OK */
    {
-      /* Start querying ports for their status. */
-      pdev->current_port = 0;
-      _next_state(pdev, USB_HUB_STATE_PORT_STATUS);
+      if (!(pdev->status & USB_HUB_STATUS_INIT))
+      {
+         /* During initialization we first need to power up ports. */
+         pdev->current_port = 0;
+         _next_state(pdev, USB_HUB_STATE_PORT_POWERUP);
+      }
+      else
+      {
+         /* Otherwise, go clear the change bit(s) with a ClearFeature request.*/
+         _next_state(pdev, USB_HUB_STATE_HUB_STATUS_CLEAR);
+      }
+   }
+   return status;
+}
+
+static int _state_port_powerup( usb_hub_t* pdev )
+{
+   int status = _SetPortFeature(
+         pdev,
+         pdev->current_port,
+         USB_HUB_FEATURE_PORT_POWER
+   );
+
+   if (status == USB_STATUS_XFER_WAIT)
+   {
+      /* Do nothing and keep waiting. */
+      status = USB_STATUS_OK;
+   }
+   else if (status != USB_STATUS_OK)
+   {
+      usb_assert(0); /** @TODO: handle error */
+   }
+   else /* USB_STATUS_OK */
+   {
+      if (++(pdev->current_port) < pdev->n_ports)
+      {
+         /* Power-up next port. */
+         _next_state(pdev, USB_HUB_STATE_PORT_POWERUP);
+      }
+      else
+      {
+         /* All ports powered up, start querying them for their status. */
+         pdev->current_port = 0;
+         _next_state(pdev, USB_HUB_STATE_PORT_STATUS);
+      }
    }
    return status;
 }
 
 static int _state_port_status( usb_hub_t* pdev )
 {
-   int          status;
+   int status = _GetPortStatus(pdev, pdev->current_port);
 
-   /* Request HUB status. */
-   status = _GetPortStatus(pdev, pdev->current_port);
+   if (status == USB_STATUS_XFER_WAIT)
+   {
+      /* Do nothing and keep waiting. */
+      status = USB_STATUS_OK;
+   }
+   else if (status != USB_STATUS_OK)
+   {
+      usb_assert(0); /** @TODO: handle error */
+   }
+   else /* USB_STATUS_OK */
+   {
+      if (!(pdev->status & USB_HUB_STATUS_INIT))
+      {
+         /* During initialization we need to query all the ports first. */
+         if (++(pdev->current_port) < pdev->n_ports)
+         {
+            /* Query next port status. */
+            _next_state(pdev, USB_HUB_STATE_PORT_STATUS);
+         }
+         else
+         {
+            /* Done with all ports, HUB initialization done! */
+            pdev->status |= USB_HUB_STATUS_INIT;
+            _next_state(pdev, USB_HUB_STATE_RUNNING);
+         }
+      }
+      else
+      {
+         /*
+          * When the HUB is running, this state requests ports'  status  when  a
+          * status change bit was returned during an interrupt.  The  difference
+          * is that we don't loop to this same state but, instead, go clear  the
+          * change bit(s) with a ClearFeature request.
+          */
+         _next_state(pdev, USB_HUB_STATE_PORT_STATUS_CLEAR);
+      }
+   }
+   return status;
+}
 
+static int _state_running( usb_hub_t* pdev )
+{
+   /*
+    * In this state we request interrupt IN transactions at the  rate  specified
+    * by the device waiting for changes in a port or the HUB itself.
+    * Remember it's always endpoint 0.
+    */
+   int status = _int_request(pdev);
    if (status == USB_STATUS_XFER_WAIT)
    {
       /* Do nothing and keep waiting. */
@@ -527,24 +692,111 @@ static int _state_port_status( usb_hub_t* pdev )
    }
    else
    {
-      if (++pdev->current_port < pdev->n_ports)
+      if (_hub_or_port_change(pdev->sc_bitmap))
       {
-         /* Query next port status. */
-         _next_state(pdev, USB_HUB_STATE_PORT_STATUS);
+         /* Something changed, control requests are needed to enquiry about it*/
+         _next_state(pdev, USB_HUB_STATE_UPDATE_STATUS);
       }
       else
       {
-         /* Done with all ports, now start powering them up. */
-         //_next_state(pdev, USB_HUB_STATE_POWER_UP_REQ);
+         /* This is needed to set the REQUEST status bit. */
          _next_state(pdev, USB_HUB_STATE_RUNNING);
+      }
+      status = USB_STATUS_OK;
+   }
+
+   return status;
+}
+
+static int _state_update_status( usb_hub_t* pdev )
+{
+   int     status;
+   uint8_t i_byte, i_bit;
+   uint8_t byte;
+
+   /*
+    * We start from index 0 which is the general HUB status bit.
+    * First, we search with byte granularity.
+    */
+   for (
+         i_byte = 0;
+         i_byte < USB_HUB_SC_BITMAP_LEN && !pdev->sc_bitmap[i_byte];
+         ++i_byte
+       )
+   {
+   }
+   if (i_byte >= USB_HUB_SC_BITMAP_LEN)
+   {
+      /*
+       * We should never arrive here but, in case it happens, it means there are
+       * no more changes to read.
+       */
+      _next_state(pdev, USB_HUB_STATE_RUNNING);
+      status = USB_STATUS_OK;
+   }
+   else
+   {
+      /* Then, we determine which bit. This tells us which port changed. */
+      byte = pdev->sc_bitmap[i_byte];
+      for (i_bit = 0; !(byte & (1 << i_bit)); ++i_bit)
+      {
+      }
+
+      if (i_byte == 0 && i_bit == 0)
+      {
+         /* There was a HUB status change. */
+         status = _GetHubStatus(pdev);
+         if (status == USB_STATUS_XFER_WAIT)
+         {
+            /* Do nothing and keep waiting. */
+            status = USB_STATUS_OK;
+         }
+         else if (status != USB_STATUS_OK)
+         {
+            usb_assert(0); /** @TODO: handle error */
+         }
+         else /* USB_STATUS_OK */
+         {
+            /*
+             * Once we have the HUB status, go to the following state  where  we
+             * check what to do with it and clear it from the bitmap.
+             */
+            _next_state(pdev, USB_HUB_STATE_HUB_STATUS);
+         }
+      }
+      else
+      {
+         /* Port status change (-1 because we start ports on address 0). */
+         pdev->current_port = USB_HUB_SC_BITBYTE_TO_PORT(i_byte, i_bit)-1;
+         status = _GetPortStatus(pdev, pdev->current_port);
+         if (status == USB_STATUS_XFER_WAIT)
+         {
+            /* Do nothing and keep waiting. */
+            status = USB_STATUS_OK;
+         }
+         else if (status != USB_STATUS_OK)
+         {
+            usb_assert(0); /** @TODO: handle error */
+         }
+         else /* USB_STATUS_OK */
+         {
+            /*
+             * Once we have the port status, go to the following state where  we
+             * check what to do with it and clear it from the bitmap.
+             */
+            _next_state(pdev, USB_HUB_STATE_PORT_STATUS);
+         }
       }
    }
    return status;
 }
 
-static int _state_running( usb_hub_t* pdev )
+static int _state_hub_clear( usb_hub_t* pdev )
 {
-   return USB_STATUS_OK;
+}
+
+static int _state_port_clear( usb_hub_t* pdev )
+{
 }
 
 static void _next_state( usb_hub_t* pdev, usb_hub_state_t next )
@@ -553,7 +805,37 @@ static void _next_state( usb_hub_t* pdev, usb_hub_state_t next )
    pdev->state   = next;
 }
 
-/*==== Control requests ====*/
+/*==================[Interrupt request]======================================*/
+
+static int _int_request( usb_hub_t* pdev )
+{
+   int status;
+
+   if (pdev->status & USB_HUB_STATUS_REQUEST)
+   {
+      pdev->buffer_len = USB_HUB_INT_XFER_LEN(pdev->n_ports);
+      status = usb_irp(
+            pdev->pstack,
+            pdev->id,
+            0,
+            pdev->sc_bitmap,
+            pdev->buffer_len
+      );
+      if (status == USB_STATUS_OK)
+      {
+         pdev->status &= ~USB_HUB_STATUS_REQUEST;
+         status = USB_STATUS_XFER_WAIT;
+      }
+   }
+   else
+   {
+      /* Waiting for acknowledge... */
+      status = usb_irp_status(pdev->pstack, pdev->id, 0);
+   }
+   return status;
+}
+
+/*==================[Control requests]=======================================*/
 
 static int _ctrl_request( usb_hub_t* pdev, usb_stdreq_t* preq )
 {
@@ -604,7 +886,7 @@ static int _ClearPortFeature( usb_hub_t* pdev, uint8_t port, usb_hub_featsel_t f
          USB_STDREQ_RECIP_OTHER );
    stdreq.bRequest      = USB_HUB_CLASSREQ_CLEAR_FEATURE;
    stdreq.wValue        = feature;
-   stdreq.wIndex        = port;
+   stdreq.wIndex        = port+1;
    stdreq.wLength       = 0;
 
    return _ctrl_request(pdev, &stdreq);
@@ -718,7 +1000,7 @@ static int _SetPortFeature( usb_hub_t* pdev, uint8_t port, usb_hub_featsel_t fea
          USB_STDREQ_RECIP_OTHER );
    stdreq.bRequest      = USB_HUB_CLASSREQ_SET_FEATURE;
    stdreq.wValue        = feature;
-   stdreq.wIndex        = port;
+   stdreq.wIndex        = port+1;
    stdreq.wLength       = 0;
 
    return _ctrl_request(pdev, &stdreq);
