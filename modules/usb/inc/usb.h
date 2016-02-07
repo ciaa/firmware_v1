@@ -145,7 +145,7 @@ extern "C" {
  * @brief Status codes.
  *
  */
-enum _usb_status_t
+typedef enum _usb_status_t
 {
    USB_STATUS_OK = 0,         /**< Success.                                   */
    USB_STATUS_INV_PARAM,      /**< Invalid argument/parameter to function.    */
@@ -168,7 +168,7 @@ enum _usb_status_t
    USB_STATUS_XFER_ERR,       /**< Error during transfer.                     */
    USB_STATUS_XFER_WAIT,      /**< Transfer in progress.                      */
    USB_STATUS_XFER_RETRY,     /**< Retry last transfer.                       */
-};
+} usb_status_t;
 
 
 /** @brief Device's speed identifier.  */
