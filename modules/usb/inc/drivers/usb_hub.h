@@ -51,8 +51,22 @@ extern "C" {
  *
  * Port number is given in USB notation, that is, starting from 1.
  */
-#define USB_HUB_SC_BITBYTE_TO_PORT(byte, bit) \
-   (((byte) * 8) + (bit))
+#define USB_HUB_SC_BITBYTE_TO_PORT(byte, bit) (((byte) * 8) + (bit))
+
+/**
+ * @brief Get SC bitmap's byte offset from port number.
+ *
+ * Port number must be given in USB notation, that is, starting from 1.
+ */
+#define USB_HUB_PORT_TO_SC_BYTE(port)         ((port) / 8)
+
+/**
+ * @brief Get SC bitmap's bit (within byte) offset from port number.
+ *
+ * Port number must be given in USB notation, that is, starting from 1.
+ */
+#define USB_HUB_PORT_TO_SC_BIT(port)          ((port) % 8)
+
 
 
 /**
@@ -173,25 +187,25 @@ extern "C" {
    USB_ARCH_ENDIANNESS16((uint16_t) (((x)[3] << 8) | (x)[2]))
 
 /** @brief Current Connect Status (PORT_CONNECTION). */
-#define USB_HUB_PORT_STATUS_CCS  (1 <<  0)
+#define USB_HUB_PORT_STATUS_CCS         (1 <<  0)
 /** @brief Port Enable/Disabled (PORT_ENABLE). */
-#define USB_HUB_PORT_STATUS_PED  (1 <<  1)
+#define USB_HUB_PORT_STATUS_PED         (1 <<  1)
 /** @brief Suspend. (PORT_SUSPEND). */
-#define USB_HUB_PORT_STATUS_SUS  (1 <<  2)
+#define USB_HUB_PORT_STATUS_SUS         (1 <<  2)
 /** @brief Over-current (PORT_OVER_CURRENT). */
-#define USB_HUB_PORT_STATUS_OVC  (1 <<  3)
+#define USB_HUB_PORT_STATUS_OVC         (1 <<  3)
 /** @brief Reset (PORT_RESET). */
-#define USB_HUB_PORT_STATUS_RST  (1 <<  4)
+#define USB_HUB_PORT_STATUS_RST         (1 <<  4)
 /** @brief Port Power (PORT_POWER). */
-#define USB_HUB_PORT_STATUS_PWR  (1 <<  8)
+#define USB_HUB_PORT_STATUS_PWR         (1 <<  8)
 /** @brief Low-Speed Device Attached (PORT_LOW_SPEED). */
-#define USB_HUB_PORT_STATUS_LSP  (1 <<  9)
+#define USB_HUB_PORT_STATUS_LSP         (1 <<  9)
 /** @brief High-speed Device Attached (PORT_HIGH_SPEED). */
-#define USB_HUB_PORT_STATUS_HSP  (1 << 10)
+#define USB_HUB_PORT_STATUS_HSP         (1 << 10)
 /** @brief Port Test Mode (PORT_TEST). */
-#define USB_HUB_PORT_STATUS_PTM  (1 << 11)
+#define USB_HUB_PORT_STATUS_PTM         (1 << 11)
 /** @brief Port Indicator Control (PORT_INDICATOR). */
-#define USB_HUB_PORT_STATUS_PIC  (1 << 12)
+#define USB_HUB_PORT_STATUS_PIC         (1 << 12)
 
 /** @brief Connect Status Change (C_PORT_CONNECTION). */
 #define USB_HUB_PORT_STATUS_CHANGE_CSC  (1 << 0)
@@ -239,45 +253,32 @@ extern "C" {
 /** @brief HUB is in an over-current condition change bit. */
 #define USB_HUB_STATUS_OVC_ACTIVE_C (1 << 12)
 
-/** @} HUB device */
-
+/**
+ * @brief HUB port's reset requested.
+ *
+ * This bit is asserted when a port reset is requested  by  the  host  and  will
+ * remain high until the HUB completes the bus reset.
+ *
+ * @warning It's important to note that we'll be using the previous to last  bit
+ * of the wPortStatus register to store the reset_request bit.  The  last  13-15
+ * bits of that register are unused, so it's not a problem but we have  to  keep
+ * it in mind because when we  request  it  and  store  it  in  our  port_status
+ * variable, the _REM bit needs to be masked so that it's value is not lost.
+ */
+#define USB_HUB_PORT_RST_REQ        (1 << 14)
 
 /**
- * @name HUB port
- * @{
+ * @brief HUB port's removable status.
+ *
+ * @warning It's important to note that we'll be  using  the  last  bit  of  the
+ * wPortStatus to store the removable-bit.  The last 13-15 bits of that register
+ * are unused, so it's not a problem but we have to keep it in mind because when
+ * we request it and store it in our port_status variable, the  _REM  bit  needs
+ * to be masked so that it's value is not lost.
  */
+#define USB_HUB_PORT_REM            (1 << 15)
 
-/** @brief Whether device is removable. */
-#define USB_HUB_PORT_REM            (1 << 0)
-/** @brief Whether a device is currently connected. */
-#define USB_HUB_PORT_CONNECTION     (1 << 1)
-/** @brief Whether port is currently enabled. */
-#define USB_HUB_PORT_ENABLED        (1 << 2)
-/** @brief Whether port is currently suspended. */
-#define USB_HUB_PORT_SUSPENDED      (1 << 3)
-/** @brief Whether port is currently in over-current condition. */
-#define USB_HUB_PORT_OVC_ACTIVE     (1 << 4)
-/** @brief Whether port is being held in the reset state. */
-#define USB_HUB_PORT_RESET_ACTIVE   (1 << 5)
-/** @brief Whether port is in the powered-off state. */
-#define USB_HUB_PORT_POWERED_STATE  (1 << 6)
-/** @brief Low-speed device attached. */
-#define USB_HUB_PORT_LOWSPEED       (1 << 7)
-/** @brief High-speed device attached. */
-#define USB_HUB_PORT_HIGHSPEED      (1 << 8)
-
-/** @brief Whether a device is currently connected. */
-#define USB_HUB_PORT_CONNECTION_C   (1 << 0)
-/** @brief Whether port is currently enabled. */
-#define USB_HUB_PORT_ENABLED_C      (1 << 1)
-/** @brief Whether port is currently suspended. */
-#define USB_HUB_PORT_SUSPENDED_C    (1 << 2)
-/** @brief Whether port is currently in over-current condition. */
-#define USB_HUB_PORT_OVC_ACTIVE_C   (1 << 3)
-/** @brief Whether port is being held in the reset state. */
-#define USB_HUB_PORT_RESET_ACTIVE_C (1 << 4)
-
-/** @} HUB port */
+/** @} HUB device */
 
 
 /*==================[typedef]================================================*/
@@ -359,6 +360,7 @@ typedef enum _usb_hub_classreq_t
  */
 typedef enum _usb_hub_featsel_t
 {
+   USB_HUB_FEATURE_INVALID             = -1,
    USB_HUB_FEATURE_C_HUB_LOCAL_POWER   =  0,
    USB_HUB_FEATURE_C_HUB_OVER_CURRENT  =  1,
    USB_HUB_FEATURE_PORT_CONNECTION     =  0,
@@ -394,6 +396,7 @@ typedef enum _usb_hub_state_t
    USB_HUB_STATE_UPDATE_STATUS,
    USB_HUB_STATE_HUB_STATUS_CLEAR,
    USB_HUB_STATE_PORT_STATUS_CLEAR,
+   USB_HUB_STATE_RESET,
 } usb_hub_state_t;
 
 /**
@@ -406,7 +409,7 @@ typedef struct _usb_hub_t
    uint32_t        status;      /**< HUB's status.                            */
    uint16_t        id;          /**< Device's ID within the USB stack.        */
    uint16_t        port_status[USB_MAX_HUB_PORTS]; /**< Ports' status.        */
-   uint8_t         port_change[USB_MAX_HUB_PORTS]; /**< Ports' status-change. */
+   uint8_t         port_change[USB_MAX_HUB_PORTS]; /**< Ports' change.        */
    uint8_t         poweron_t;   /**< Power-on sequence duration, in 2ms units.*/
    uint8_t         power_req;   /**< Power requirements in mA.                */
    uint8_t         n_ports;     /**< Total number of ports on HUB.            */
@@ -561,6 +564,9 @@ int usb_hub_end_reset( usb_hub_t* phub, uint8_t port );
  */
 //usb_speed_t usb_hub_get_speed( usb_hub_t* phub, uint8_t port );
 usb_speed_t usb_hub_get_speed( uint8_t hub_idx, uint8_t port );
+
+int usb_hub_port_reset_start( uint8_t hub_idx, uint8_t port );
+int usb_hub_port_reset_stop( uint8_t hub_idx, uint8_t port );
 
 
 /*==================[cplusplus]==============================================*/
