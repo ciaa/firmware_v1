@@ -1,4 +1,4 @@
-/* Copyright 2015,Diego Ezequiel Vommaro                                        */
+/* Copyright 2015, 2016 Diego Ezequiel Vommaro                                  */
 /* Copyright 2015, ACSE & CADIEEL                                               */
 /*    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/ */
 /*    CADIEEL: http://www.cadieel.org.ar                                        */
@@ -46,18 +46,7 @@ RTCS RTCS {
    INCLUDE_FILE = Rtcs_StateFeedback.h;
    INCLUDE_FILE = rtcs_example.h;
 
-   StateFeedback system_1 {
-      SYSTEM_TYPE = CONTROL_SYSTEM;
-      OBSERVER_TYPE = NONE;
-      PERIOD = 1;
-      X_SIZE = 2;
-      U_SIZE = 1;
-      Y_SIZE = 2;
-      K_MATRIX = 0.4578, 580.0;
-      SEND_FUNCTION = SendControlEffort_1;
-   }
-
-   StateFeedback system_2 {
+   StateFeedback PlantRLC {
       SYSTEM_TYPE = CONTROL_SYSTEM;
       OBSERVER_TYPE = FULL;
       PERIOD = 1;
@@ -67,58 +56,6 @@ RTCS RTCS {
       K_MATRIX = 0.4578, 580.0;
       FUND_MATRIX = -0.09, 58.6632, -0.0014, 0.4443;
       TRAN_MATRIX = 0.0553, 1.0346, 0.0007, 0.0006;
-      SEND_FUNCTION = SendControlEffort_2;
-   }
-
-   StateFeedback system_3 {
-      SYSTEM_TYPE = CONTROL_SYSTEM;
-      OBSERVER_TYPE = FULL;
-      PERIOD = 1;
-      X_SIZE = 2;
-      U_SIZE = 1;
-      Y_SIZE = 1;
-      K_MATRIX = 0.4578, 580.0;
-      L_MATRIX = 0.0019;
-      FUND_MATRIX = 0.4493;
-      TRAN_MATRIX = -0.0017, 0.0007;
-      SEND_FUNCTION = SendControlEffort_3;
-   }
-
-   StateFeedback system_4 {
-      SYSTEM_TYPE = REGULATOR;
-      OBSERVER_TYPE = NONE;
-      PERIOD = 1;
-      X_SIZE = 2;
-      U_SIZE = 1;
-      Y_SIZE = 2;
-      K_MATRIX = 0.4578, 580.0;
-      SEND_FUNCTION = SendControlEffort_4;
-   }
-
-   StateFeedback system_5 {
-      SYSTEM_TYPE = REGULATOR;
-      OBSERVER_TYPE = FULL;
-      PERIOD = 1;
-      X_SIZE = 2;
-      U_SIZE = 1;
-      Y_SIZE = 1;
-      K_MATRIX = 0.4578, 580.0;
-      FUND_MATRIX = -0.09, 58.6632, -0.0014, 0.4443;
-      TRAN_MATRIX = 0.0553, 1.0346, 0.0007, 0.0006;
-      SEND_FUNCTION = SendControlEffort_5;
-   }
-
-   StateFeedback system_6 {
-      SYSTEM_TYPE = REGULATOR;
-      OBSERVER_TYPE = FULL;
-      PERIOD = 1;
-      X_SIZE = 2;
-      U_SIZE = 1;
-      Y_SIZE = 1;
-      K_MATRIX = 0.4578, 580.0;
-      L_MATRIX = 0.0019;
-      FUND_MATRIX = 0.2019;
-      TRAN_MATRIX = -0.0041, 0.0005;
-      SEND_FUNCTION = SendControlEffort_6;
+      SEND_FUNCTION = SendControlEffort;
    }
 }
