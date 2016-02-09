@@ -167,28 +167,32 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index );
 
 int usb_dealloc_endpoint( usb_stack_t* pstack, usb_pipe_t* ppipe );
 
-void usb_device_attach(
+int16_t usb_device_attach(
       usb_stack_t* pstack,
-#if (USB_MAX_HUBS > 0)
       uint8_t      parent_hub,
-      uint8_t      parent_port,
-#endif
-     uint8_t       index
+      uint8_t      parent_port
 );
-
-#if (USB_MAX_HUBS > 0)
-int usb_device_find(
-      usb_stack_t* pstack,
-      uint8_t      hub_index,
-      uint8_t      port
-);
-
-int usb_stack_handle_hubs( usb_stack_t* pstack );
-#endif
 
 int16_t usb_stack_new_addr( usb_stack_t* pstack );
 
 int usb_stack_update_devices( usb_stack_t* pstack );
+
+/**
+ * @brief Get pipe's polling/NAK interval as specified by USB 2.0 section 9.6.6.
+ *
+ * @param pstack Pointer to USB stack structure.
+ * @param id     Device identifier, coordinates representing device and iface.
+ * @param pipe   Pipe number (given by order of endpoints in interface).
+ *
+ * @retval Polling interval in number of USB task ticks value for ISO/INT EPs.
+ * @retval Maximum NAK rate for BULT EPs.
+ * @retval -1 Invalid parameters.
+ * @retval -2 Invalid bInterval value.
+ *
+ * Polling interval in number  of  USB  stack  ticks  value  (see  @ref
+ *          USB_TASK_TICKS), -1 if functions parameters were invalid.
+ */
+int16_t usb_pipe_get_interval( usb_stack_t* pstack, uint16_t id, uint8_t pipe );
 
 
 /* Descriptor parsing methods. */

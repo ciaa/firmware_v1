@@ -82,13 +82,13 @@ static _state_fn_t _state_fn[] =
 
 int _state_waiting_ack( usb_stack_t* pstack, uint8_t index )
 {
-   usb_device_t* pdevice = &pstack->devices[index];
-   usb_pipe_t*   ppipe   = &pdevice->default_ep;
+   usb_device_t* pdev  = &pstack->devices[index];
+   usb_pipe_t*   ppipe = &pdev->default_ep;
 
    int status = usbhci_xfer_status(ppipe);
    if (status == USB_STATUS_OK)
    {
-      pdevice->state = pdevice->next_state;
+      pdev->state = pdev->next_state;
    }
    else if (status == USB_STATUS_XFER_WAIT)
    {
@@ -104,12 +104,12 @@ int _state_waiting_ack( usb_stack_t* pstack, uint8_t index )
 
 int _state_waiting_delay( usb_stack_t* pstack, uint8_t index )
 {
-   usb_device_t* pdevice = &pstack->devices[index];
+   usb_device_t* pdev = &pstack->devices[index];
 
-   if (((int32_t) pdevice->ticks_delay) - ((int32_t) pstack->ticks) <= 0)
+   if (((int32_t) pdev->ticks_delay) - ((int32_t) pstack->ticks) <= 0)
    {
       /* If delay is done, go to next state. */
-      pdevice->state = pdevice->next_state;
+      pdev->state = pdev->next_state;
    }
    return USB_STATUS_OK;
 }
@@ -122,23 +122,23 @@ int _state_disconnected( usb_stack_t* pstack, uint8_t index )
 
 int _state_attached( usb_stack_t* pstack, uint8_t index )
 {
-   usb_device_t* pdevice = &pstack->devices[index];
+   usb_device_t* pdev = &pstack->devices[index];
 
    /* Device attached, wait for powerline to settle. */
-   pdevice->ticks_delay = pstack->ticks + 100;
-   pdevice->state = USB_DEV_STATE_WAITING_DELAY;
-   pdevice->next_state = USB_DEV_STATE_POWERED;
+   pdev->ticks_delay = pstack->ticks + 100;
+   pdev->state       = USB_DEV_STATE_WAITING_DELAY;
+   pdev->next_state  = USB_DEV_STATE_POWERED;
 
    return USB_STATUS_OK;
 }
 
 int _state_powered( usb_stack_t* pstack, uint8_t index )
 {
-   usb_device_t* pdevice = &pstack->devices[index];
+   usb_device_t* pdev = &pstack->devices[index];
 #if (USB_MAX_HUBS > 0)
    /* We're accessing the root device or one with a valid parent HUB index. */
-   usb_assert(index == 0 || pdevice->parent_hub  < USB_MAX_HUBS);
-   usb_assert(index == 0 || pdevice->parent_port < USB_MAX_HUB_PORTS);
+   usb_assert(index == 0 || pdev->parent_hub  < USB_MAX_HUBS);
+   usb_assert(index == 0 || pdev->parent_port < USB_MAX_HUB_PORTS);
 #endif
 
    /*
@@ -155,7 +155,7 @@ int _state_powered( usb_stack_t* pstack, uint8_t index )
    {
       /* Address 0 was free, otherwise we'd have to wait. */
       pstack->status |= USB_STACK_STATUS_ZERO_ADDR;/* Mark it as in-use */
-#if 0//(USB_MAX_HUBS > 0)
+#if (USB_MAX_HUBS > 0)
       /*
        * If index isn't 0, then we're enumerating a device through a  HUB,  this
        * means we have to use HUB commands for reseting and such.
@@ -163,24 +163,19 @@ int _state_powered( usb_stack_t* pstack, uint8_t index )
       if (index > 0)
       {
          /* Start HUB port reset. */
-         phub = pstack->hubs[pdevice->parent_hub];
-         status = usb_hub_begin_reset(phub, pdevice->parent_port);
-         if (status != USB_STATUS_OK)
-            usb_assert(0); /** @TODO handle error */
+         usb_hub_port_reset_start(pdev->parent_hub, pdev->parent_port);
 
-         /* Hold the USB reset high for 10~20 ms. */
-         pdevice->ticks_delay = pstack->ticks + 15;
-         pdevice->state = USB_DEV_STATE_WAITING_DELAY;
-         pdevice->next_state = USB_DEV_STATE_RESET;
+         /* Reset duration is handled by the HUB, just wait for it to finish. */
+         pdev->state = USB_DEV_STATE_RESET;
       }
       else
 #endif
       {
          /* Hardware reset, we wait the required 10~20 ms before proceeding. */
          usbhci_reset_start();
-         pdevice->ticks_delay = pstack->ticks + 15;
-         pdevice->state = USB_DEV_STATE_WAITING_DELAY;
-         pdevice->next_state = USB_DEV_STATE_RESET;
+         pdev->ticks_delay = pstack->ticks + 15;
+         pdev->state       = USB_DEV_STATE_WAITING_DELAY;
+         pdev->next_state  = USB_DEV_STATE_RESET;
       }
    }
    return USB_STATUS_OK;
@@ -188,24 +183,26 @@ int _state_powered( usb_stack_t* pstack, uint8_t index )
 
 int _state_reset( usb_stack_t* pstack, uint8_t index )
 {
-   usb_device_t* pdevice = &pstack->devices[index];
+   usb_device_t* pdev = &pstack->devices[index];
 #if (USB_MAX_HUBS > 0)
    /* We're accessing the root device or one with a valid parent HUB index. */
-   usb_assert(index == 0 || pdevice->parent_hub  < USB_MAX_HUBS);
-   usb_assert(index == 0 || pdevice->parent_port < USB_MAX_HUB_PORTS);
+   usb_assert(index == 0 || pdev->parent_hub  < USB_MAX_HUBS);
+   usb_assert(index == 0 || pdev->parent_port < USB_MAX_HUB_PORTS);
 #endif
 
-#if 0//(USB_MAX_HUBS > 0)
+#if (USB_MAX_HUBS > 0)
    if (index > 0)
    {
-      /* Release reset on USB bus, only for HUBs. */
-      phub = pstack->hubs[pdevice->parent_hub];
-
-      /* Stop HUB port reset. */
-      status = usb_hub_end_reset(phub, pdevice->parent_port);
-      if (status != USB_STATUS_OK)
-         usb_assert(0); /** @TODO handle error */
-      pdevice->state = USB_DEV_STATE_DEFAULT;
+      /* Here we wait until the HUB releases the bus reset. */
+      if (usb_hub_port_reset_status(pdev->parent_hub, pdev->parent_port)
+            == USB_STATUS_BUSY)
+      {
+         pdev->state = USB_DEV_STATE_RESET;
+      }
+      else
+      {
+         pdev->state = USB_DEV_STATE_DEFAULT;
+      }
    }
    else
 #endif
@@ -213,13 +210,13 @@ int _state_reset( usb_stack_t* pstack, uint8_t index )
       if (usbhci_reset_stop() == USB_STATUS_BUSY)
       {
          /* Reset is still in progress, keep waiting. */
-         pdevice->ticks_delay = pstack->ticks + 5;
-         pdevice->state = USB_DEV_STATE_WAITING_DELAY;
-         pdevice->next_state = USB_DEV_STATE_RESET;
+         pdev->ticks_delay = pstack->ticks + 5;
+         pdev->state       = USB_DEV_STATE_WAITING_DELAY;
+         pdev->next_state  = USB_DEV_STATE_RESET;
       }
       else
       {
-         pdevice->state = USB_DEV_STATE_DEFAULT;
+         pdev->state = USB_DEV_STATE_DEFAULT;
       }
    }
    return USB_STATUS_OK;
@@ -228,13 +225,13 @@ int _state_reset( usb_stack_t* pstack, uint8_t index )
 int _state_default( usb_stack_t* pstack, uint8_t index )
 {
    int           status;
-   usb_device_t* pdevice =  &pstack->devices[index];
-   usb_pipe_t*   ppipe   = &pdevice->default_ep;
-   uint8_t*      pstdreq =  pdevice->stdreq;
+   usb_device_t* pdev    = &pstack->devices[index];
+   usb_pipe_t*   ppipe   = &pdev->default_ep;
+   uint8_t*      pstdreq =  pdev->stdreq;
 #if (USB_MAX_HUBS > 0)
    /* We're accessing the root device or one with a valid parent HUB index. */
-   usb_assert(index == 0 || pdevice->parent_hub  < USB_MAX_HUBS);
-   usb_assert(index == 0 || pdevice->parent_port < USB_MAX_HUB_PORTS);
+   usb_assert(index == 0 || pdev->parent_hub  < USB_MAX_HUBS);
+   usb_assert(index == 0 || pdev->parent_port < USB_MAX_HUB_PORTS);
 #endif
 
    /*
@@ -242,20 +239,17 @@ int _state_default( usb_stack_t* pstack, uint8_t index )
     * configure its new address and release the zero-address  communication  bit
     * so the host can setup other devices.
     */
-#if 0//(USB_MAX_HUBS > 0)
+#if (USB_MAX_HUBS > 0)
    if (index > 0)
    {
       /* Get speed of connected device from HUB's port. */
-      phub = pstack->hubs[pdevice->parent_hub];
-      if (status != USB_STATUS_OK)
-         usb_assert(0); /** @TODO handle error */
-      pdevice->speed = usb_hub_get_speed(phub, pdevice->parent_port);
+      pdev->speed = usb_hub_get_speed(pdev->parent_hub, pdev->parent_port);
    }
    else
 #endif
    {
       /* Otherwise, get it directly from the HCI. */
-      pdevice->speed = usbhci_get_speed();
+      pdev->speed = usbhci_get_speed();
    }
 
    /*
@@ -269,7 +263,9 @@ int _state_default( usb_stack_t* pstack, uint8_t index )
    ppipe->interval = 1;
    status = usbhci_pipe_alloc(USB_CTRL);
    if (status < 0)
+   {
       usb_assert(0); /** @TODO handle error */
+   }
    ppipe->handle = (uint8_t) status;
 
    /*
@@ -279,9 +275,11 @@ int _state_default( usb_stack_t* pstack, uint8_t index )
    status = usb_device_lock(pstack, index);
    usb_assert(status == USB_STATUS_OK);
 
-   status = usbhci_pipe_configure(ppipe, 0, pdevice->speed);
+   status = usbhci_pipe_configure(ppipe, 0, pdev->speed);
    if (status)
+   {
       usb_assert(0); /** @TODO handle error */
+   }
 
    /* Once the default pipe has been configured, get device's MPS. */
    USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
@@ -294,9 +292,9 @@ int _state_default( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wIndex(  pstdreq, 0);
    USB_STDREQ_SET_wLength( pstdreq, 8);
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq, pdevice->xfer_buffer);
-   pdevice->state = USB_DEV_STATE_WAITING_ACK;
-   pdevice->next_state = USB_DEV_STATE_ADDRESS;
+   usbhci_ctrlxfer_start(ppipe, pstdreq, pdev->xfer_buffer);
+   pdev->state      = USB_DEV_STATE_WAITING_ACK;
+   pdev->next_state = USB_DEV_STATE_ADDRESS;
 
    status = USB_STATUS_OK;
    return status;
@@ -305,19 +303,21 @@ int _state_default( usb_stack_t* pstack, uint8_t index )
 int _state_address( usb_stack_t* pstack, uint8_t index )
 {
    int           status;
-   usb_device_t* pdevice =  &pstack->devices[index];
-   usb_pipe_t*   ppipe   = &pdevice->default_ep;
-   uint8_t*      pstdreq =  pdevice->stdreq;
+   usb_device_t* pdev    = &pstack->devices[index];
+   usb_pipe_t*   ppipe   = &pdev->default_ep;
+   uint8_t*      pstdreq =  pdev->stdreq;
 
    /* Get MPS and reset device once again. */
-   ppipe->mps = USB_STDDESC_DEV_GET_bMaxPacketSize0(pdevice->xfer_buffer);
+   ppipe->mps = USB_STDDESC_DEV_GET_bMaxPacketSize0(pdev->xfer_buffer);
 
    /* Reconfigure default pipes to MPS and set a new address. */
    ppipe->type = USB_CTRL;
    ppipe->dir  = USB_DIR_TOK;
-   status = usbhci_pipe_configure(ppipe, 0, pdevice->speed);
+   status = usbhci_pipe_configure(ppipe, 0, pdev->speed);
    if (status)
+   {
       usb_assert(0); /** @TODO handle error */
+   }
 
    USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
          USB_DIR_OUT,
@@ -330,8 +330,8 @@ int _state_address( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wLength( pstdreq, 0);
 
    usbhci_ctrlxfer_start(ppipe, pstdreq, NULL);
-   pdevice->state = USB_DEV_STATE_WAITING_ACK;
-   pdevice->next_state = USB_DEV_STATE_CONFIGURING_PIPES;
+   pdev->state      = USB_DEV_STATE_WAITING_ACK;
+   pdev->next_state = USB_DEV_STATE_CONFIGURING_PIPES;
 
    status = USB_STATUS_OK;
    return status;
@@ -340,9 +340,9 @@ int _state_address( usb_stack_t* pstack, uint8_t index )
 int _state_configuring_pipes( usb_stack_t* pstack, uint8_t index )
 {
    int           status;
-   usb_device_t* pdevice =  &pstack->devices[index];
-   usb_pipe_t*   ppipe   = &pdevice->default_ep;
-   uint8_t*      pstdreq =  pdevice->stdreq;
+   usb_device_t* pdev    = &pstack->devices[index];
+   usb_pipe_t*   ppipe   = &pdev->default_ep;
+   uint8_t*      pstdreq =  pdev->stdreq;
 
    /*
     * New address has been set, reconfigure default pipes and request the device
@@ -350,10 +350,12 @@ int _state_configuring_pipes( usb_stack_t* pstack, uint8_t index )
     */
    pstack->status &= ~USB_STACK_STATUS_ZERO_ADDR;
    ppipe->dir      = USB_DIR_TOK;
-   pdevice->addr   = index + 1;
-   status = usbhci_pipe_configure(ppipe, pdevice->addr, pdevice->speed);
+   pdev->addr      = index + 1;
+   status = usbhci_pipe_configure(ppipe, pdev->addr, pdev->speed);
    if (status)
+   {
       usb_assert(0); /** @TODO handle error */
+   }
 
    USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
          USB_DIR_IN,
@@ -365,9 +367,9 @@ int _state_configuring_pipes( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wIndex(  pstdreq,  0);
    USB_STDREQ_SET_wLength( pstdreq, 18);
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq, pdevice->xfer_buffer);
-   pdevice->state = USB_DEV_STATE_WAITING_ACK;
-   pdevice->next_state = USB_DEV_STATE_DEV_DESC;
+   usbhci_ctrlxfer_start(ppipe, pstdreq, pdev->xfer_buffer);
+   pdev->state      = USB_DEV_STATE_WAITING_ACK;
+   pdev->next_state = USB_DEV_STATE_DEV_DESC;
 
    status = USB_STATUS_OK;
    return status;
@@ -376,13 +378,13 @@ int _state_configuring_pipes( usb_stack_t* pstack, uint8_t index )
 int _state_dev_desc( usb_stack_t* pstack, uint8_t index )
 {
    int           status;
-   usb_device_t* pdevice =  &pstack->devices[index];
-   usb_pipe_t*   ppipe   = &pdevice->default_ep;
-   uint8_t*      pstdreq =  pdevice->stdreq;
+   usb_device_t* pdev    = &pstack->devices[index];
+   usb_pipe_t*   ppipe   = &pdev->default_ep;
+   uint8_t*      pstdreq =  pdev->stdreq;
 
    /* Parse the device descriptor and request the configuration one. */
-   pdevice->vendor_ID  = USB_STDDESC_DEV_GET_idVendor(pdevice->xfer_buffer);
-   pdevice->product_ID = USB_STDDESC_DEV_GET_idProduct(pdevice->xfer_buffer);
+   pdev->vendor_ID  = USB_STDDESC_DEV_GET_idVendor(pdev->xfer_buffer);
+   pdev->product_ID = USB_STDDESC_DEV_GET_idProduct(pdev->xfer_buffer);
 
    USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
          USB_DIR_IN,
@@ -394,9 +396,9 @@ int _state_dev_desc( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wIndex(  pstdreq, 0);
    USB_STDREQ_SET_wLength( pstdreq, 9);
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq, pdevice->xfer_buffer);
-   pdevice->state = USB_DEV_STATE_WAITING_ACK;
-   pdevice->next_state = USB_DEV_STATE_CFG_DESC_LEN9;
+   usbhci_ctrlxfer_start(ppipe, pstdreq, pdev->xfer_buffer);
+   pdev->state      = USB_DEV_STATE_WAITING_ACK;
+   pdev->next_state = USB_DEV_STATE_CFG_DESC_LEN9;
 
    status = USB_STATUS_OK;
    return status;
@@ -406,21 +408,23 @@ int _state_dev_desc_len9( usb_stack_t* pstack, uint8_t index )
 {
    int           status;
    uint16_t      aux;
-   usb_device_t* pdevice =  &pstack->devices[index];
-   usb_pipe_t*   ppipe   = &pdevice->default_ep;
-   uint8_t*      pstdreq =  pdevice->stdreq;
+   usb_device_t* pdev    = &pstack->devices[index];
+   usb_pipe_t*   ppipe   = &pdev->default_ep;
+   uint8_t*      pstdreq =  pdev->stdreq;
 
    /* Get the configuration descriptor length and request it again. */
-   if (USB_STDDESC_CFG_GET_wTotalLength(pdevice->xfer_buffer) > 256)
+   if (USB_STDDESC_CFG_GET_wTotalLength(pdev->xfer_buffer) > 256)
+   {
       usb_assert(0); /** @TODO handle error */
+   }
 
-   aux = USB_STDDESC_CFG_GET_wTotalLength(pdevice->xfer_buffer);
+   aux = USB_STDDESC_CFG_GET_wTotalLength(pdev->xfer_buffer);
    USB_STDREQ_SET_wLength(pstdreq, aux);
-   pdevice->xfer_length = aux;
+   pdev->xfer_length = aux;
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq, pdevice->xfer_buffer);
-   pdevice->state = USB_DEV_STATE_WAITING_ACK;
-   pdevice->next_state = USB_DEV_STATE_CFG_DESC;
+   usbhci_ctrlxfer_start(ppipe, pstdreq, pdev->xfer_buffer);
+   pdev->state      = USB_DEV_STATE_WAITING_ACK;
+   pdev->next_state = USB_DEV_STATE_CFG_DESC;
 
    status = USB_STATUS_OK;
    return status;
@@ -429,14 +433,16 @@ int _state_dev_desc_len9( usb_stack_t* pstack, uint8_t index )
 int _state_cfg_desc( usb_stack_t* pstack, uint8_t index )
 {
    int           status;
-   usb_device_t* pdevice =  &pstack->devices[index];
-   usb_pipe_t*   ppipe   = &pdevice->default_ep;
-   uint8_t*      pstdreq =  pdevice->stdreq;
+   usb_device_t* pdev    = &pstack->devices[index];
+   usb_pipe_t*   ppipe   = &pdev->default_ep;
+   uint8_t*      pstdreq =  pdev->stdreq;
 
    /* Parse descriptors and assign each interface a driver. */
    status = usb_device_parse_cfgdesc(pstack, index);
    if (status)
+   {
       usb_assert(0); /** @TODO handle error */
+   }
 
    /* Once that's done, set the configuration on the device. */
    USB_STDREQ_SET_bmRequestType( pstdreq, USB_STDREQ_REQTYPE(
@@ -445,13 +451,13 @@ int _state_cfg_desc( usb_stack_t* pstack, uint8_t index )
          USB_STDREQ_RECIP_DEV )
    );
    USB_STDREQ_SET_bRequest(pstdreq, USB_STDREQ_SET_CONFIGURATION);
-   USB_STDREQ_SET_wValue(  pstdreq, pdevice->cfg_value);
+   USB_STDREQ_SET_wValue(  pstdreq, pdev->cfg_value);
    USB_STDREQ_SET_wIndex(  pstdreq, 0);
    USB_STDREQ_SET_wLength( pstdreq, 0);
 
    usbhci_ctrlxfer_start(ppipe, pstdreq, NULL);
-   pdevice->state = USB_DEV_STATE_WAITING_ACK;
-   pdevice->next_state = USB_DEV_STATE_UNLOCKING;
+   pdev->state      = USB_DEV_STATE_WAITING_ACK;
+   pdev->next_state = USB_DEV_STATE_UNLOCKING;
 
    status = USB_STATUS_OK;
    return status;
@@ -469,34 +475,34 @@ case USB_DEV_STATE_TEST:
    USB_STDREQ_SET_wIndex(  pstdreq,  0);
    USB_STDREQ_SET_wLength( pstdreq, 40);
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq, pdevice->xfer_buffer);
-   pdevice->state = USB_DEV_STATE_WAITING_ACK;
-   pdevice->next_state = USB_DEV_STATE_CONFIGURED;
+   usbhci_ctrlxfer_start(ppipe, pstdreq, pdev->xfer_buffer);
+   pdev->state = USB_DEV_STATE_WAITING_ACK;
+   pdev->next_state = USB_DEV_STATE_CONFIGURED;
    break;
 #endif
 
 int _state_unlocking( usb_stack_t* pstack, uint8_t index )
 {
-   usb_device_t* pdevice =  &pstack->devices[index];
+   usb_device_t* pdev = &pstack->devices[index];
 
    /* This is needed to delay the unlocking of the default control endpoint. */
-   pdevice->ticks_delay = pstack->ticks + 500;
-   pdevice->state = USB_DEV_STATE_WAITING_DELAY;
-   pdevice->next_state = USB_DEV_STATE_UNLOCKING2;
+   pdev->ticks_delay = pstack->ticks + 500;
+   pdev->state       = USB_DEV_STATE_WAITING_DELAY;
+   pdev->next_state  = USB_DEV_STATE_UNLOCKING2;
 
    return USB_STATUS_OK;
 }
 
 int _state_unlocking2( usb_stack_t* pstack, uint8_t index )
 {
-   usb_device_t* pdevice =  &pstack->devices[index];
+   usb_device_t* pdev = &pstack->devices[index];
 
    /*
     * This state is only needed to unlock the default endpoint once the stack is
     * done with the enumeration process. This cannot fail.
     */
    usb_device_unlock(pstack, index);
-   pdevice->state = USB_DEV_STATE_CONFIGURED;
+   pdev->state = USB_DEV_STATE_CONFIGURED;
 
    return USB_STATUS_OK;
 }

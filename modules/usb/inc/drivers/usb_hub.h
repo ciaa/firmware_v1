@@ -230,7 +230,7 @@ extern "C" {
 #define USB_HUB_STATUS_FREE         (1 <<  0)
 /** @brief Whether device has already been initialized. */
 #define USB_HUB_STATUS_INIT         (1 <<  1)
-/** @brief Whether device has been opened by user code. */
+/** @brief Whether HUB has been opened by the host. */
 #define USB_HUB_STATUS_OPEN         (1 <<  2)
 /** @brief Whether entry actions are to be executed.  */
 #define USB_HUB_STATUS_REQUEST      (1 <<  3)
@@ -408,6 +408,8 @@ typedef struct _usb_hub_t
    usb_hub_state_t state;       /**< Device's state.                          */
    uint32_t        status;      /**< HUB's status.                            */
    uint16_t        id;          /**< Device's ID within the USB stack.        */
+   uint16_t        interval;    /**< Polling interval in ticks.               */
+   uint16_t        wait_count;  /**< Interval polling wait count.             */
    uint16_t        port_status[USB_MAX_HUB_PORTS]; /**< Ports' status.        */
    uint8_t         port_change[USB_MAX_HUB_PORTS]; /**< Ports' change.        */
    uint8_t         poweron_t;   /**< Power-on sequence duration, in 2ms units.*/
@@ -486,87 +488,45 @@ int usb_hub_init( void );
  */
 int usb_hub_update( void );
 
-
-
-
-/*
-================================================================================
-================================================================================
-*/
-
-
-
-
-/** @FIXME
- * Everything below this point was sketched before  even  starting  implementing
- * the stack, some things have changed a little so it will have to be revised.
- */
-
-
-
 /**
- * @brief Check whether the HUB port is active.
- *
- * A HUB port is active when a device has been detected on it  and  powered  up.
- * This is used to tell whether a connection (usb_hub_is_connected()) is  a  new
- * event or just the same device not having been yet disconnected.
- *
- * @param phub Pointer to HUB structure.
- * @param port Port number.
- * @return Non-zero if port is active.
+ * @brief Get index to next unopened HUB device.
+ * @retval  USB_STACK_INVALID_HUB_IDX if all available HUBs are already open.
+ * @retval  Next unopened HUB index otherwise.
  */
-int usb_hub_is_active( usb_hub_t* phub, uint8_t port );
-
-/**
- * @brief Check whether a device has been connected on the specified port.
- * @param phub Pointer to HUB structure.
- * @param port Port number.
- * @return Non-zero if a device is connected.
- */
-int usb_hub_is_connected( usb_hub_t* phub, uint8_t port );
-
-/**
- * @brief Power up HUB's specified port.
- * @param phub Pointer to HUB structure.
- * @param port Port number.
- * @todo Write return values.
- */
-int usb_hub_poweron( usb_hub_t* phub, uint8_t port );
-
-/**
- * @brief Power off HUB's specified port.
- * @param phub Pointer to HUB structure.
- * @param port Port number.
- * @todo Write return values.
- */
-int usb_hub_poweroff( usb_hub_t* phub, uint8_t port );
-
-/**
- * @brief Start driving a USB reset on the specified port.
- * @param phub Pointer to HUB structure.
- * @param port Port number.
- * @todo Write return values.
- */
-int usb_hub_begin_reset( usb_hub_t* phub, uint8_t port );
-
-/**
- * @brief Stop driving a USB reset on the specified port.
- * @param phub Pointer to HUB structure.
- * @param port Port number.
- * @todo Write return values.
- */
-int usb_hub_end_reset( usb_hub_t* phub, uint8_t port );
+uint8_t usb_hub_open_next( void );
 
 /**
  * @brief Get speed of device attached to specified port.
- * @param phub Pointer to HUB structure.
- * @param port Port number.
+ * @param hub_idx HUB identifier as returned by @ref usb_hub_open_next().
+ * @param port    Port number.
  */
-//usb_speed_t usb_hub_get_speed( usb_hub_t* phub, uint8_t port );
 usb_speed_t usb_hub_get_speed( uint8_t hub_idx, uint8_t port );
 
+/**
+ * @brief Request a USB bus reset on the specified port.
+ *
+ * @param hub_idx HUB identifier as returned by @ref usb_hub_open_next().
+ * @param port    Port number.
+ *
+ * @returns Always returns successfully.
+ */
 int usb_hub_port_reset_start( uint8_t hub_idx, uint8_t port );
-int usb_hub_port_reset_stop( uint8_t hub_idx, uint8_t port );
+
+/**
+ * @brief Check whether HUB is still driving a bus reset on the specified port.
+ * @param hub_idx HUB identifier as returned by @ref usb_hub_open_next().
+ * @param port    Port number.
+ * @retval USB_STATUS_BUSY USB bus reset is still being held active.
+ * @retval USB_STATUS_OK   USB bus reset no longer held high.
+ */
+int usb_hub_port_reset_status( uint8_t hub_idx, uint8_t port );
+
+/**
+ * @brief Get number of ports supported by HUB.
+ * @param hub_idx HUB identifier as returned by @ref usb_hub_open_next().
+ * @return Number of ports supported by HUB.
+ */
+uint8_t usb_hub_get_n_ports( uint8_t hub_idx );
 
 
 /*==================[cplusplus]==============================================*/

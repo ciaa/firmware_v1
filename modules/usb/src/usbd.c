@@ -43,12 +43,11 @@ int usb_init( usb_stack_t* pstack )
    }
 
 #if (USB_MAX_HUBS > 0)
-   usb_hub_init();
+   usb_hub_init(); /* Initialize HUB driver stack. */
    for (i = 0; i < USB_MAX_HUBS; ++i)
    {
       pstack->hubs[i] = USB_STACK_INVALID_HUB_IDX;
    }
-   pstack->n_hubs = 0;
 #endif
 
    return USB_STATUS_OK;
@@ -90,7 +89,7 @@ uint16_t usb_systick( usb_stack_t* pstack )
 int usb_run( usb_stack_t* pstack )
 {
    int     status;
-   int     addr;  /* Need whole range for return codes. */
+   uint8_t addr;
 
    usb_assert(pstack != NULL);
 
@@ -105,21 +104,17 @@ int usb_run( usb_stack_t* pstack )
          if (usbhci_is_connected())
          {
             /*
-             * This new address must always be 0 for the first device and it can
-             * never fail, thus, an assert here is OK.
+             * On connection, change root device's state to attached  and  start
+             * running the stack. The new address must always be 0 for the first
+             * device, this can never fail because there are  NO  other  devices
+             * connected.
              */
-            addr = usb_stack_new_addr(pstack);
-            usb_assert(addr == 0);
-
-            /* On connection, change root device's state to attached ... */
-            usb_device_attach(
+            addr = usb_device_attach(
                   pstack,
-#if (USB_MAX_HUBS > 0)
                   USB_DEV_PARENT_ROOT,
-                  USB_DEV_PARENT_ROOT,
-#endif
-                  addr );
-            /* ... and start running the stack. */
+                  USB_DEV_PARENT_ROOT
+            );
+            usb_assert(addr == 0);
             pstack->state = USB_HOST_STATE_RUNNING;
          }
          break;
@@ -137,7 +132,9 @@ int usb_run( usb_stack_t* pstack )
             /* Device is no longer connected, release everything. */
             status = usb_device_release(pstack, 0);
             if (status != USB_STATUS_OK)
+            {
                usb_assert(0); /** @TODO handle error */
+            }
             pstack->state = USB_HOST_STATE_IDLE;
             break;
          }
@@ -147,20 +144,17 @@ int usb_run( usb_stack_t* pstack )
           */
          status = usb_stack_update_devices(pstack);
          if (status != USB_STATUS_OK)
+         {
             usb_assert(0); /** @TODO handle error */
+         }
 
 #if (USB_MAX_HUBS > 0)
          status = usb_hub_update();
          if (status != USB_STATUS_OK)
+         {
             usb_assert(0); /** @TODO handle error */
+         }
 #endif
-
-#if 0//(USB_MAX_HUBS > 0)
-         status = usb_stack_handle_hubs(pstack);
-         if (status != USB_STATUS_OK)
-            usb_assert(0); /** @TODO handle error */
-#endif
-
          break;
 
       case USB_HOST_STATE_SUSPENDED:
@@ -306,8 +300,8 @@ int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe )
       {
          status = usbhci_xfer_status(
                &pstack->devices[USB_ID_TO_DEV(device_id)].
-                  interfaces[USB_ID_TO_IFACE(device_id)].
-                  endpoints[pipe] );
+                   interfaces[USB_ID_TO_IFACE(device_id)].
+                   endpoints[pipe] );
       }
    }
    return status;
@@ -419,7 +413,9 @@ int usb_device_is_active( usb_stack_t* pstack, uint8_t index )
    usb_assert(index < USB_MAX_DEVICES);
    ret = 0;
    if (pstack->devices[index].status & USB_DEV_STATUS_ACTIVE)
+   {
       ret = 1;
+   }
    return ret;
 }
 
@@ -450,61 +446,31 @@ int usb_device_unlock( usb_stack_t* pstack, uint8_t index )
    return USB_STATUS_OK;
 }
 
-void usb_device_attach(
+int16_t usb_device_attach(
       usb_stack_t* pstack,
-#if (USB_MAX_HUBS > 0)
       uint8_t      parent_hub,
-      uint8_t      parent_port,
-#endif
-      uint8_t      index
+      uint8_t      parent_port
 )
 {
+   int16_t addr;
+
    usb_device_t* pdev;
    usb_assert(pstack != NULL);
-   usb_assert(index <= USB_MAX_DEVICES);
-   pdev = &pstack->devices[index];
 
-   pstack->n_devices += 1;
-   pdev->state        = USB_DEV_STATE_ATTACHED;
-   pdev->status      |= USB_DEV_STATUS_ACTIVE;
-#if (USB_MAX_HUBS > 0)
-   pdev->parent_hub   = parent_hub;
-   pdev->parent_port  = parent_port;
-#endif
-}
-
-#if 0 /* (USB_MAX_HUBS > 0) might not be necessary anymore, check this! */
-/** @FIXME: this function will be either re-written or replaced. */
-int usb_device_find(
-      usb_stack_t* pstack,
-      uint8_t      hub_index,
-      uint8_t      port
-)
-{
-   uint8_t       i;
-   uint8_t       looped_devs = 0;
-   usb_device_t* pdev;
-
-   usb_assert(pstack != NULL);
-   usb_assert(hub_index < USB_MAX_HUBS);
-   usb_assert(port < USB_MAX_HUB_PORTS);
-
-   for (i = 0; i < USB_MAX_DEVICES; ++i)
+   addr = usb_stack_new_addr(pstack);
+   if (addr >= 0)
    {
-      pdev = &pstack->devices[i];
-      if (usb_device_is_active(pstack, i))
-      {
-         ++looped_devs;
-         if (pdev->parent_hub == hub_index && pdev->parent_port == port)
-            return i; /* Found! */
-      }
-      if (looped_devs >= pstack->n_devices)
-         break; /* Done with active devices. */
-   }
-   /* Not found. */
-   return -1;
-}
+      pdev = &pstack->devices[(uint8_t) addr];
+      pstack->n_devices += 1;
+      pdev->state        = USB_DEV_STATE_ATTACHED;
+      pdev->status      |= USB_DEV_STATUS_ACTIVE;
+#if (USB_MAX_HUBS > 0)
+      pdev->parent_hub   = parent_hub;
+      pdev->parent_port  = parent_port;
 #endif
+   }
+   return addr;
+}
 
 
 /******************************************************************************/
@@ -571,7 +537,7 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
                USB_STDDESC_INTERFACE,
                USB_STDDESC_IFACE_SIZE) )
       {
-         /* If no next iface desc. was found and ... */
+         /* If no next iface desc was found and ... */
          if (i+1 < pdev->n_interfaces)
          {
             /* ... this isn't the last iface, then something's wrong. */
@@ -592,7 +558,9 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
             &buff,
             &len );
       if (status)
+      {
          usb_assert(0); /** @TODO handle error */
+      }
    }
 
    return USB_STATUS_OK;
@@ -663,11 +631,10 @@ int usb_device_parse_ifacedesc(
       }
       else
       {
-         /* Driver found, assign it to interface. */
+         /* Driver found, assign it to interface and parse ep descriptors. */
          usb_assert(driver_idx < USB_MAX_DRIVERS);
          piface->driver_handle = (usb_driver_handle_t) driver_idx;
 
-         /* Endpoints pipes allocated, go ahead and parse descriptors. */
          for (ep = 0; ep < piface->n_endpoints; ++ep)
          {
             /*
@@ -755,7 +722,6 @@ int16_t usb_stack_new_addr( usb_stack_t* pstack )
 int usb_stack_update_devices( usb_stack_t* pstack )
 {
    uint8_t i;
-   uint8_t looped_devs = 0;
    int     status;
 
    usb_assert(pstack != NULL);
@@ -764,76 +730,86 @@ int usb_stack_update_devices( usb_stack_t* pstack )
    {
       if (usb_device_is_active(pstack, i))
       {
-         ++looped_devs;
          status = usb_device_update(pstack, i);
          if (status != USB_STATUS_OK)
+         {
             usb_assert(0); /** @TODO handle error */
+         }
       }
-      if (looped_devs >= pstack->n_devices)
-         break; /* Done with active devices. */
    }
    return USB_STATUS_OK;
 }
 
-#if 0//(USB_MAX_HUBS > 0)
-int usb_stack_handle_hubs( usb_stack_t* pstack )
+int16_t usb_pipe_get_interval( usb_stack_t* pstack, uint16_t id, uint8_t pipe )
 {
-/** @TODO finish this precedure */
-   uint8_t         hub_idx;
-   usb_device_t*   pdev;
-   int16_t         addr;  /* Need whole range for return codes. */
-   int16_t         index; /* IDEM. */
-   uint8_t         i, j;
-   uint8_t         port_address;
+   int16_t       ret;
+   uint8_t       bInt;
+   usb_device_t* pdev;
+   usb_pipe_t*   ppipe;
 
-   usb_assert(pstack != NULL);
-
-   /*
-    * First, update the HUB driver.  This also takes care of HUBs initialization
-    * routine, not just updating their state and status.
-    */
-   usb_hub_update(); /** @TODO check return status */
-
-   /*
-    * Second, loop  through  each  HUB  and  check  its  status  and  ports  for
-    * [dis]connections and other device-related events.
-    */
-   for (i = 0; pstack->hubs[i] != USB_STACK_INVALID_HUB_IDX && i < USB_MAX_HUBS; ++i)
+   /* Validate input parameters. */
+   if (  pstack == NULL ||
+         USB_ID_TO_DEV(id) > USB_MAX_DEVICES-1 ||
+         USB_ID_TO_IFACE(id) > USB_MAX_INTERFACES-1 ||
+         pipe > USB_MAX_ENDPOINTS-1 )
    {
-      hub_idx = pstack->hubs[i];
-
-      /* Loop through each HUB's port. */
-      for (j = 0; j < phub->n_ports; ++j)
+      ret = -1;
+   }
+   else
+   {
+      pdev  = &pstack->devices[USB_ID_TO_DEV(id)];
+      ppipe = &pdev->interfaces[USB_ID_TO_IFACE(id)].endpoints[pipe];
+      bInt  = ppipe->interval;
+      if (   ppipe->type == USB_ISO ||
+            (ppipe->type == USB_INT && pdev->speed == USB_SPD_HS))
       {
-         /* Ports are active when connected to a device. */
-         if (usb_hub_is_active(phub, j))
+         /*
+          * ISO FS/HS (there are no ISO LS) or INT HS.
+          * interval = 2**(bInterval-1) with bInterval = [1:16]
+          */
+         if (bInt < USB_ISO_INTHS_MIN_bInt || bInt > USB_ISO_INTHS_MAX_bInt)
          {
-            if (!usb_hub_is_connected(phub, j))
-            {
-               /* Device was disconnected. */
-               index = usb_device_find(pstack, i, j);
-               if (index < 0)
-                  usb_assert(0); /** @TODO handle error */
-               usb_device_release(pstack, (uint8_t) index);
-               usb_hub_poweroff(phub, j); /* does this go here? Or are ports supposed to be powered on at startup and not on dev. connection? */
-            }
+            ret = -2;
          }
-         else  /* Port is not active */
+         else
          {
-            if (usb_hub_is_connected(phub, j))
-            {
-               /* Setup new device, will begin on next iteration. */
-               addr = usb_stack_new_addr(pstack);
-               if (addr <= 0)
-                  usb_assert(0); /** @TODO handle error */
-               usb_device_attach(pstack, &pstack->devices[addr], i, j);
-               usb_hub_poweron(phub, j); /* does this go here? Or are ports supposed to be powered on at startup and not on dev. connection? */
-            }
+            ret = (1 << (bInt-1));
          }
       }
+      else if (ppipe->type == USB_INT && pdev->speed != USB_SPD_HS)
+      {
+         /* INT FS/LS: interval = bInterval with bInterval = [1:255] */
+         if (bInt < 1)
+         {
+            ret = -2;
+         }
+         else
+         {
+            ret = bInt;
+         }
+      }
+      else
+      {
+         /*
+          * Here we should check for BULK HS, but since we don't  care  what  we
+          * return for other cases (because they make now  sense)  we  can  just
+          * return the same for all of them.
+          */
+         ret = bInt;
+      }
    }
+   if (ret >= 0)
+   {
+      if (pdev->speed == USB_SPD_HS)
+      {
+         /* Convert microframes into milliseconds */
+         ret = (ret + 7) / 8;
+      }
+      /* Convert milliseconds into ticks. */
+      ret = (ret + USB_TASK_TICKS-1) / USB_TASK_TICKS;
+   }
+   return ret;
 }
-#endif
 
 
 void usb_assert(int condition)

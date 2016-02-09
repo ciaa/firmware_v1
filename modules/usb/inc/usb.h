@@ -102,6 +102,10 @@ extern "C" {
 #define USB_DEV_DEFAULT_ADDR ((uint8_t) -1)
 
 
+#define USB_ISO_INTHS_MIN_bInt  1
+#define USB_ISO_INTHS_MAX_bInt 16
+
+
 /** @brief Device connected (updated in ISR). */
 #define USB_DEV_STATUS_CONNECTED       (1 << 0)
 /** @brief Device active and connected. */
@@ -360,11 +364,10 @@ typedef struct _usb_stack_t
    uint16_t         ticks;      /**< 1-millisecond ticks count.               */
    usb_host_state_t state;      /**< Stack's current state.                   */
    usb_device_t     devices[USB_MAX_DEVICES];  /**< Array of devices.         */
+   uint8_t          n_devices;  /**< Number of connected devices.             */
 #if (USB_MAX_HUBS > 0)
    uint8_t          hubs[USB_MAX_HUBS];        /**< Array of HUB indices.     */
-   uint8_t          n_hubs;     /**< Number of connected HUBs.                */
 #endif
-   uint8_t          n_devices;  /**< Number of connected devices.             */
 } usb_stack_t;
 
 
