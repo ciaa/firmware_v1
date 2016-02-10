@@ -340,7 +340,7 @@ static int _state_set_idle( usb_hid_dev_t* pdev )
       stdreq.wValue        = 0;
       stdreq.wIndex        = USB_ID_TO_IFACE(pdev->id);
       stdreq.wLength       = 0;
-      
+
       status = usb_ctrlirp(
             pdev->pstack,
             pdev->id,
@@ -408,7 +408,7 @@ static int _state_set_init( usb_hid_dev_t* pdev )
       stdreq.wValue        = (USB_HID_DESC_TYPE_REPORT << 8);
       stdreq.wIndex        = USB_ID_TO_IFACE(pdev->id);
       stdreq.wLength       = pdev->report_len;
-   
+
       status = usb_ctrlirp(
             pdev->pstack,
             pdev->id,
@@ -477,7 +477,7 @@ static int _state_set_init2( usb_hid_dev_t* pdev )
       stdreq.wValue        = 0;
       stdreq.wIndex        = USB_ID_TO_IFACE(pdev->id);
       stdreq.wLength       = 1;
-   
+
       status = usb_ctrlirp(
             pdev->pstack,
             pdev->id,
@@ -513,7 +513,7 @@ static int _state_set_init2( usb_hid_dev_t* pdev )
       {
          usb_assert(0); /** @TODO: handle error */
       }
-   
+
       /* Report received. */
       /** @TODO Do something with the report ... */
       pdev->status |= USB_HID_STATUS_INIT;
@@ -711,7 +711,7 @@ int usb_hid_assign(
           * descriptors, however, this has already been checked by  the  probing
           * method.
           *
-          * Done with parsing, activate device and exit. The 
+          * Done with parsing, activate device and exit.
           */
          pdev->pstack   =  pstack;
          pdev->id       =  id;

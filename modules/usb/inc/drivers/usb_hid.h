@@ -232,7 +232,7 @@ typedef struct _usb_hid_stack_t
 
 /**
  * @brief Driver registration probing function.
- * 
+ *
  * HID interfaces must have one other interrupt IN endpoint,  mandatory,  and  a
  * second interrupt OUT one, optional. HID  descriptor  will  not  be  validated
  * until assignment.
