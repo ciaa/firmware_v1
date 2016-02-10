@@ -41,10 +41,6 @@ struct _usbhci_pipe_t
    uint32_t       handle; /**< This is actually a Pipe_Handle_T struct.       */
    uint8_t        status; /**< Hardware pipe status.                          */
    const uint8_t  types;  /**< Hardware pipe supported transfer types.        */
-   uint8_t        addr;   /**< We store the device's  address  here  because,
-                               for some reason, the LPCOpen library  requires
-                               us to reconfigure a pipe after cancelling  the
-                               associated transfer currently in progress.     */
 };
 
 
@@ -71,14 +67,14 @@ static HCD_TRANSFER_DIR _to_lpc_dir( usb_dir_t dir );
 /** @FIXME We are only using one for one (core 0). */
 static struct _usbhci_pipe_t _pipe_handle[HCD_MAX_ENDPOINT] =
 {
-   {0, 0, 0x01, 0},
-   {0, 0, 0x01, 0},
-   {0, 0, 0x0E, 0},
-   {0, 0, 0x0E, 0},
-   {0, 0, 0x0E, 0},
-   {0, 0, 0x0E, 0},
-   {0, 0, 0x0E, 0},
-   {0, 0, 0x0E, 0},
+   {0, 0, 0x01},
+   {0, 0, 0x01},
+   {0, 0, 0x0E},
+   {0, 0, 0x0E},
+   {0, 0, 0x0E},
+   {0, 0, 0x0E},
+   {0, 0, 0x0E},
+   {0, 0, 0x0E},
 };
 
 
@@ -186,7 +182,6 @@ int usbhci_init( void )
       {
          _pipe_handle[i].handle = 0;
          _pipe_handle[i].status = 0;
-         _pipe_handle[i].addr   = 0;
       }
 
       /* Core status */
@@ -291,50 +286,61 @@ int usbhci_pipe_dealloc( usb_pipe_t* ppipe )
    return status;
 }
 
-int usbhci_pipe_configure( usb_pipe_t* ppipe, uint8_t addr, usb_speed_t speed )
+int usbhci_pipe_configure( usb_device_t* pdev, usb_pipe_t* ppipe )
 {
    int status;
+   struct _usbhci_pipe_t* phci_pipe;
+   uint8_t port;
 
+   usb_assert(pdev  != NULL);
    usb_assert(ppipe != NULL);
    usb_assert(ppipe->handle < HCD_MAX_ENDPOINT);
 
-   if (_pipe_handle[ppipe->handle].status & USBHCI_PIPE_OPEN)
+   phci_pipe = &_pipe_handle[ppipe->handle];
+
+   port = 0;
+   if (pdev->speed == USB_SPD_HS && pdev->parent_port != USB_DEV_PARENT_ROOT)
+   {
+      port = pdev->parent_port;
+   }
+
+   if (phci_pipe->status & USBHCI_PIPE_OPEN)
    {
       /* If pipe has already been opened, close it before reconfiguring. */
-      HcdClosePipe(_pipe_handle[ppipe->handle].handle);
+      HcdClosePipe(phci_pipe->handle);
    }
    /* Set pipe's status as closed. */
-   _pipe_handle[ppipe->handle].status &= ~USBHCI_PIPE_OPEN;
+   phci_pipe->status &= ~USBHCI_PIPE_OPEN;
 
    /* Configure pipe. */
    status = HcdOpenPipe(
          USB_CORENUM,
-         addr & USB_ADDR_MASK,
-         _to_lpc_speed(speed),
+         pdev->addr & USB_ADDR_MASK,
+         _to_lpc_speed(pdev->speed),
          ppipe->number,
          _to_lpc_type(ppipe->type),
          _to_lpc_dir(ppipe->dir),
          ppipe->mps,
          ppipe->interval,
          1, /** @TODO Mult, for ISO @ HS with >1 transaction per uframe */
-         0, /** @TODO see below */
-         0, /** @TODO this two don't seem to be supported in the LPC library... should I leave them at 0? */
-         &_pipe_handle[ppipe->handle].handle );
+         0, /** @TODO get this from the USB stack */
+         port,
+         &phci_pipe->handle );
 
    if (status == HCD_STATUS_OK)
    {
       /* Once configuration is done, set status as open again. */
-      _pipe_handle[ppipe->handle].addr    = addr & USB_ADDR_MASK;
-      _pipe_handle[ppipe->handle].status |= USBHCI_PIPE_OPEN;
+      phci_pipe->status |= USBHCI_PIPE_OPEN;
       status = USB_STATUS_OK;
    }
    return status;
 }
 
-int usbhci_xfer_start( usb_pipe_t* ppipe )
+int usbhci_xfer_start( usb_device_t* pdev, usb_pipe_t* ppipe )
 {
    int ret;
 
+   usb_assert(pdev  != NULL);
    usb_assert(ppipe != NULL);
    usb_assert(ppipe->handle < HCD_MAX_ENDPOINT);
 
@@ -350,20 +356,20 @@ int usbhci_xfer_start( usb_pipe_t* ppipe )
    return ret;
 }
 
-int usbhci_ctrlxfer_start( usb_pipe_t* ppipe, const uint8_t* stdreq )
+int usbhci_ctrlxfer_start( usb_device_t* pdev, usb_pipe_t* ppipe )
 {
    int ret;
 
-   usb_assert(ppipe  != NULL);
-   usb_assert(stdreq != NULL);
-   usb_assert( ppipe->buffer != NULL ||
-              (ppipe->buffer == NULL && USB_STDREQ_GET_wLength(stdreq) == 0) );
+   usb_assert(pdev  != NULL);
+   usb_assert(ppipe != NULL);
+   usb_assert( ppipe->buffer != NULL || (ppipe->buffer == NULL &&
+            USB_STDREQ_GET_wLength(pdev->stdreq) == 0) );
    usb_assert(ppipe->handle < HCD_MAX_ENDPOINT);
 
    ret = USB_STATUS_XFER_ERR;
    if ( !HcdControlTransfer(
             _pipe_handle[ppipe->handle].handle,
-            stdreq,
+            pdev->stdreq,
             ppipe->buffer) )
    {
       ret = USB_STATUS_OK;
@@ -371,11 +377,12 @@ int usbhci_ctrlxfer_start( usb_pipe_t* ppipe, const uint8_t* stdreq )
    return ret;
 }
 
-int usbhci_xfer_status( usb_pipe_t* ppipe )
+int usbhci_xfer_status( usb_device_t* pdev, usb_pipe_t* ppipe )
 {
    HCD_STATUS hcd_status;
    int        status;
 
+   usb_assert(pdev  != NULL);
    usb_assert(ppipe != NULL);
    usb_assert(ppipe->handle < HCD_MAX_ENDPOINT);
 
@@ -385,7 +392,6 @@ int usbhci_xfer_status( usb_pipe_t* ppipe )
    {
       case HCD_STATUS_OK:
       case HCD_STATUS_TRANSFER_COMPLETED:
-         //HcdClosePipe(_pipe_handle[ppipe->handle].handle);
          status = USB_STATUS_OK;
          break;
 
@@ -422,22 +428,18 @@ int usbhci_xfer_status( usb_pipe_t* ppipe )
    return status;
 }
 
-int usbhci_xfer_cancel( usb_pipe_t* ppipe )
+int usbhci_xfer_cancel( usb_device_t* pdev, usb_pipe_t* ppipe )
 {
-   int           ret;
-   HCD_USB_SPEED speed;
+   int ret;
 
+   usb_assert(pdev  != NULL);
    usb_assert(ppipe != NULL);
    usb_assert(ppipe->handle < HCD_MAX_ENDPOINT);
 
-   HcdGetDeviceSpeed(USB_CORENUM, &speed);
    ret = USB_STATUS_PIPE_CFG;
    if (!HcdCancelTransfer(_pipe_handle[ppipe->handle].handle))
    {
-      ret = usbhci_pipe_configure(
-            ppipe,
-            _pipe_handle[ppipe->handle].addr,
-            _from_lpc_speed(speed) );
+      ret = usbhci_pipe_configure(pdev, ppipe);
    }
    return ret;
 }

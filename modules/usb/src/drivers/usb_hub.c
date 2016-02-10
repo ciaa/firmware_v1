@@ -257,7 +257,6 @@ static int16_t _get_free_dev( void )
 
 static int _update_dev( uint8_t index )
 {
-   int status;
    usb_hub_t* phub;
    usb_assert(index < USB_MAX_HUBS);
    phub = &_hub_stack.hubs[index];
@@ -1270,7 +1269,6 @@ static int _GetPortStatus( usb_hub_t* phub, uint8_t port )
 /* Put new descriptor into phub->buffer. */
 static int _SetHubDescriptor( usb_hub_t* phub )
 {
-   int          status;
    usb_stdreq_t stdreq;
    stdreq.bmRequestType = USB_STDREQ_REQTYPE(
          USB_DIR_OUT,
@@ -1280,13 +1278,11 @@ static int _SetHubDescriptor( usb_hub_t* phub )
    stdreq.wValue        = (USB_HUB_DESC_TYPE << 8);
    stdreq.wIndex        = 0;
    stdreq.wLength       = phub->buffer_len;
-
    return _ctrl_request(phub, &stdreq);
 }
 
 static int _SetHubFeature( usb_hub_t* phub, usb_hub_featsel_t feature )
 {
-   int          status;
    usb_stdreq_t stdreq;
    stdreq.bmRequestType = USB_STDREQ_REQTYPE(
          USB_DIR_OUT,
@@ -1296,13 +1292,11 @@ static int _SetHubFeature( usb_hub_t* phub, usb_hub_featsel_t feature )
    stdreq.wValue        = feature;
    stdreq.wIndex        = 0;
    stdreq.wLength       = 0;
-
    return _ctrl_request(phub, &stdreq);
 }
 
 static int _SetPortFeature( usb_hub_t* phub, uint8_t port, usb_hub_featsel_t feature )
 {
-   int          status;
    usb_stdreq_t stdreq;
    stdreq.bmRequestType = USB_STDREQ_REQTYPE(
          USB_DIR_OUT,
@@ -1312,7 +1306,6 @@ static int _SetPortFeature( usb_hub_t* phub, uint8_t port, usb_hub_featsel_t fea
    stdreq.wValue        = feature;
    stdreq.wIndex        = port+1;
    stdreq.wLength       = 0;
-
    return _ctrl_request(phub, &stdreq);
 }
 
@@ -1321,7 +1314,7 @@ static int _SetPortFeature( usb_hub_t* phub, uint8_t port, usb_hub_featsel_t fea
 
 int usb_hub_probe( const uint8_t* buffer, uint8_t length )
 {
-   int     status;
+   int status;
 
    usb_assert(buffer != NULL);
 

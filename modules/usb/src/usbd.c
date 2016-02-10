@@ -215,8 +215,9 @@ int usb_irp(
       uint32_t     len
 )
 {
-   int         status;
-   usb_pipe_t* ppipe;
+   int           status;
+   usb_device_t* pdev;
+   usb_pipe_t*   ppipe;
 
    /* Validate input parameters. */
    if (  pstack == NULL ||
@@ -230,13 +231,12 @@ int usb_irp(
    }
    else
    {
-      ppipe = &pstack->devices[USB_ID_TO_DEV(device_id)].
-               interfaces[USB_ID_TO_IFACE(device_id)].
-               endpoints[pipe];
+      pdev  = &pstack->devices[USB_ID_TO_DEV(device_id)];
+      ppipe = &pdev->interfaces[USB_ID_TO_IFACE(device_id)].endpoints[pipe];
       ppipe->buffer  = buffer;
       ppipe->length  = len;
       ppipe->retries = 0;
-      status = usbhci_xfer_start(ppipe);
+      status = usbhci_xfer_start(pdev, ppipe);
    }
    return status;
 }
@@ -277,7 +277,7 @@ int usb_ctrlirp(
    {
       /* Lock in place, now reconfigure the pipe accordingly. */
       pdev = &pstack->devices[USB_ID_TO_DEV(device_id)];
-      status = usbhci_pipe_configure(&pdev->default_ep,pdev->addr, pdev->speed);
+      status = usbhci_pipe_configure(pdev, &pdev->default_ep);
       if (status)
       {
          usb_assert(0); /** @TODO handle error */
@@ -294,7 +294,7 @@ int usb_ctrlirp(
          /* Device available, start control transfer. */
          pdev->default_ep.buffer  = buffer;
          pdev->default_ep.retries = 0;
-         status = usbhci_ctrlxfer_start(&pdev->default_ep, pdev->stdreq);
+         status = usbhci_ctrlxfer_start(pdev, &pdev->default_ep);
       }
    }
    return status;
@@ -320,15 +320,15 @@ int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe )
       /* Ctrl-pipes are handled separately because they use another interface.*/
       pdev  = &pstack->devices[dev_idx];
       ppipe = &pdev->default_ep;
-      status = usbhci_xfer_status(ppipe);
+      status = usbhci_xfer_status(pdev, ppipe);
       if (status == USB_STATUS_EP_STALLED)
       {
          /* If the endpoint was stalled, cancel the rest of the transfer. */
-         usbhci_xfer_cancel(ppipe);
+         usbhci_xfer_cancel(pdev, ppipe);
          if (ppipe->retries < USB_MAX_XFER_RETRIES)
          {
             /* And retry if under 3 strikes. */
-            status = usbhci_ctrlxfer_start(ppipe, pdev->stdreq);
+            status = usbhci_ctrlxfer_start(pdev, ppipe);
             if (status != USB_STATUS_OK)
             {
                usb_assert(0); /** @TODO handle error */
@@ -360,16 +360,15 @@ int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe )
       {
          pdev  = &pstack->devices[dev_idx];
          ppipe = &pdev->interfaces[if_idx].endpoints[pipe];
-         status = usbhci_xfer_status(ppipe);
+         status = usbhci_xfer_status(pdev, ppipe);
          if (status == USB_STATUS_EP_STALLED)
          {
             /* If the transfer failed because of an error, cancel it. */
-            usbhci_xfer_cancel(ppipe);
-            //usbhci_pipe_configure(ppipe, pdev->addr, pdev->speed);
+            usbhci_xfer_cancel(pdev, ppipe);
             if (ppipe->retries < USB_MAX_XFER_RETRIES)
             {
                /* And retry if under 3 strikes. */
-               status = usbhci_xfer_start(ppipe);
+               status = usbhci_xfer_start(pdev, ppipe);
                if (status != USB_STATUS_OK)
                {
                   usb_assert(0); /** @TODO handle error */
@@ -392,6 +391,7 @@ int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe )
 int usb_irp_cancel( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe )
 {
    int status;
+   usb_device_t* pdev;
 
    /* Validate input parameters. */
    if (  pstack == NULL ||
@@ -403,9 +403,11 @@ int usb_irp_cancel( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe )
    }
    else
    {
-      usbhci_xfer_cancel( &pstack->devices[USB_ID_TO_DEV(device_id)].
-                           interfaces[USB_ID_TO_IFACE(device_id)].
-                           endpoints[pipe] );
+      pdev = &pstack->devices[USB_ID_TO_DEV(device_id)];
+      usbhci_xfer_cancel(
+            pdev,
+            &pdev->interfaces[USB_ID_TO_IFACE(device_id)].endpoints[pipe]
+      );
       status = USB_STATUS_OK;
 
    }
@@ -788,10 +790,7 @@ int usb_device_parse_ifacedesc(
             piface->endpoints[ep].handle = (uint8_t) ret;
 
             /* ... and configure it. */
-            if (usbhci_pipe_configure(
-                  &piface->endpoints[ep],
-                  pdev->addr,
-                  pdev->speed) )
+            if (usbhci_pipe_configure(pdev, &piface->endpoints[ep]))
             {
                usb_assert(0); /** @TODO handle error */
             }

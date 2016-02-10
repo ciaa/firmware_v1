@@ -87,7 +87,7 @@ int _state_waiting_ack( usb_stack_t* pstack, uint8_t index )
    usb_device_t* pdev  = &pstack->devices[index];
    usb_pipe_t*   ppipe = &pdev->default_ep;
 
-   int status = usbhci_xfer_status(ppipe);
+   int status = usbhci_xfer_status(pdev, ppipe);
    if (status == USB_STATUS_OK)
    {
       pdev->state = pdev->next_state;
@@ -250,8 +250,6 @@ int _state_default( usb_stack_t* pstack, uint8_t index )
    {
       /* Get speed of connected device from HUB's port. */
       pdev->speed = usb_hub_get_speed(pdev->parent_hub, pdev->parent_port);
-      /** @FIXME devices connected on HUBs downstream ports should have packets sent at the HUB's upstream port's speed. */
-      //pdev->speed = pstack->devices[0].speed;
    }
    else
 #endif
@@ -283,7 +281,8 @@ int _state_default( usb_stack_t* pstack, uint8_t index )
    status = usb_device_lock(pstack, index);
    usb_assert(status == USB_STATUS_OK);
 
-   status = usbhci_pipe_configure(ppipe, 0, pdev->speed);
+   pdev->addr = 0;
+   status = usbhci_pipe_configure(pdev, ppipe);
    if (status)
    {
       usb_assert(0); /** @TODO handle error */
@@ -302,7 +301,7 @@ int _state_default( usb_stack_t* pstack, uint8_t index )
 
    pdev->default_ep.length = 8;
    pdev->default_ep.buffer = pdev->xfer_buffer;
-   usbhci_ctrlxfer_start(ppipe, pstdreq);
+   usbhci_ctrlxfer_start(pdev, ppipe);
    pdev->state      = USB_DEV_STATE_WAITING_ACK;
    //pdev->next_state = USB_DEV_STATE_ADDRESS;
    pdev->next_state = USB_DEV_STATE_ADDRESS_RESET;
@@ -346,7 +345,7 @@ int _state_address( usb_stack_t* pstack, uint8_t index )
    /* Reconfigure default pipes to MPS and set a new address. */
    ppipe->type = USB_CTRL;
    ppipe->dir  = USB_DIR_TOK;
-   status = usbhci_pipe_configure(ppipe, 0, pdev->speed);
+   status = usbhci_pipe_configure(pdev, ppipe);
    if (status)
    {
       usb_assert(0); /** @TODO handle error */
@@ -363,7 +362,7 @@ int _state_address( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wLength( pstdreq, 0);
 
    pdev->default_ep.buffer = NULL;
-   usbhci_ctrlxfer_start(ppipe, pstdreq);
+   usbhci_ctrlxfer_start(pdev, ppipe);
    pdev->state      = USB_DEV_STATE_WAITING_ACK;
    pdev->next_state = USB_DEV_STATE_CONFIGURING_PIPES;
 
@@ -385,7 +384,7 @@ int _state_configuring_pipes( usb_stack_t* pstack, uint8_t index )
    pstack->status &= ~USB_STACK_STATUS_ZERO_ADDR;
    ppipe->dir      = USB_DIR_TOK;
    pdev->addr      = index + 1;
-   status = usbhci_pipe_configure(ppipe, pdev->addr, pdev->speed);
+   status = usbhci_pipe_configure(pdev, ppipe);
    if (status)
    {
       usb_assert(0); /** @TODO handle error */
@@ -402,7 +401,7 @@ int _state_configuring_pipes( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wLength( pstdreq, 18);
 
    pdev->default_ep.buffer = pdev->xfer_buffer;
-   usbhci_ctrlxfer_start(ppipe, pstdreq);
+   usbhci_ctrlxfer_start(pdev, ppipe);
    pdev->state      = USB_DEV_STATE_WAITING_ACK;
    pdev->next_state = USB_DEV_STATE_DEV_DESC;
 
@@ -432,7 +431,7 @@ int _state_dev_desc( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wLength( pstdreq, 9);
 
    pdev->default_ep.buffer = pdev->xfer_buffer;
-   usbhci_ctrlxfer_start(ppipe, pstdreq);
+   usbhci_ctrlxfer_start(pdev, ppipe);
    pdev->state      = USB_DEV_STATE_WAITING_ACK;
    pdev->next_state = USB_DEV_STATE_CFG_DESC_LEN9;
 
@@ -459,7 +458,7 @@ int _state_dev_desc_len9( usb_stack_t* pstack, uint8_t index )
    pdev->default_ep.length = aux;
    pdev->default_ep.buffer = pdev->xfer_buffer;
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq);
+   usbhci_ctrlxfer_start(pdev, ppipe);
    pdev->state      = USB_DEV_STATE_WAITING_ACK;
    pdev->next_state = USB_DEV_STATE_CFG_DESC;
 
@@ -493,7 +492,7 @@ int _state_cfg_desc( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wLength( pstdreq, 0);
 
    pdev->default_ep.buffer = NULL;
-   usbhci_ctrlxfer_start(ppipe, pstdreq);
+   usbhci_ctrlxfer_start(pdev, ppipe);
    pdev->state      = USB_DEV_STATE_WAITING_ACK;
    pdev->next_state = USB_DEV_STATE_UNLOCKING;
 
@@ -514,7 +513,7 @@ case USB_DEV_STATE_TEST:
    USB_STDREQ_SET_wLength( pstdreq, 40);
 
    pdev->default_ep.buffer = NULL;
-   usbhci_ctrlxfer_start(ppipe, pstdreq);
+   usbhci_ctrlxfer_start(pdev, ppipe);
    pdev->state = USB_DEV_STATE_WAITING_ACK;
    pdev->next_state = USB_DEV_STATE_CONFIGURED;
    break;
