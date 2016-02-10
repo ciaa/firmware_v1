@@ -44,10 +44,14 @@ struct _usbhci_pipe_t
 };
 
 
-/*==================[internal functions declaration]=========================*/
-
 /** @brief USB Core connection status, updated in ISRs. */
 static volatile uint8_t _connected[MAX_USB_CORE];
+
+
+/*==================[internal functions declaration]=========================*/
+
+/** @brief Get pipe's status from LPCOpen handle. */
+static int _get_hcd_status( uint32_t handle );
 
 /** @brief Speed type conversion, LPC to local stack. */
 static usb_speed_t _from_lpc_speed(HCD_USB_SPEED speed);
@@ -79,6 +83,49 @@ static struct _usbhci_pipe_t _pipe_handle[HCD_MAX_ENDPOINT] =
 
 
 /*==================[internal functions definition]==========================*/
+
+static int _get_hcd_status( uint32_t handle )
+{
+   int status;
+   switch (HcdGetPipeStatus(handle))
+   {
+      case HCD_STATUS_OK:
+      case HCD_STATUS_TRANSFER_COMPLETED:
+         status = USB_STATUS_OK;
+         break;
+
+      case HCD_STATUS_TRANSFER_QUEUED:
+         status = USB_STATUS_XFER_WAIT;
+         break;
+
+      case HCD_STATUS_TRANSFER_ERROR: /* check this */
+      case HCD_STATUS_TRANSFER_CRC:
+      case HCD_STATUS_TRANSFER_BitStuffing:
+      case HCD_STATUS_TRANSFER_DataToggleMismatch:
+      case HCD_STATUS_TRANSFER_PIDCheckFailure:
+      case HCD_STATUS_TRANSFER_UnexpectedPID:
+      case HCD_STATUS_TRANSFER_DataOverrun:
+      case HCD_STATUS_TRANSFER_DataUnderrun:
+      case HCD_STATUS_TRANSFER_CC_Reserved1:
+      case HCD_STATUS_TRANSFER_CC_Reserved2:
+      case HCD_STATUS_TRANSFER_BufferOverrun:
+      case HCD_STATUS_TRANSFER_BufferUnderrun:
+      case HCD_STATUS_TRANSFER_NotAccessed:
+      case HCD_STATUS_TRANSFER_Reserved:
+      default:
+         status = USB_STATUS_XFER_ERR;
+         break;
+
+      case HCD_STATUS_TRANSFER_Stall:
+         status = USB_STATUS_EP_STALLED;
+         break;
+
+      case HCD_STATUS_TRANSFER_DeviceNotResponding:
+         status = USB_STATUS_DEV_UNREACHABLE;
+         break;
+   };
+   return status;
+}
 
 static usb_speed_t _from_lpc_speed(HCD_USB_SPEED speed)
 {
@@ -242,10 +289,10 @@ uint32_t usbhci_get_frame_number( void )
    return HcdGetFrameNumber(USB_CORENUM);
 }
 
-int usbhci_pipe_alloc( usb_xfer_type_t type )
+int16_t usbhci_pipe_alloc( usb_xfer_type_t type )
 {
    uint8_t i;
-   int     ret = -1;
+   int16_t ret = -1;
    for (i = 0; i < HCD_MAX_ENDPOINT && ret == -1; ++i)
    {
       /* Check if pipe is currently being used. */
@@ -288,8 +335,8 @@ int usbhci_pipe_dealloc( usb_pipe_t* ppipe )
 
 int usbhci_pipe_configure( usb_device_t* pdev, usb_pipe_t* ppipe )
 {
-   int status;
    struct _usbhci_pipe_t* phci_pipe;
+   int     status;
    uint8_t port;
 
    usb_assert(pdev  != NULL);
@@ -336,6 +383,56 @@ int usbhci_pipe_configure( usb_device_t* pdev, usb_pipe_t* ppipe )
    return status;
 }
 
+int usbhci_msg_pipe_configure( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
+{
+   struct _usbhci_pipe_t* phci_pipe;
+   int     status;
+   uint8_t port;
+
+   usb_assert(pdev != NULL);
+   usb_assert(pmsg != NULL);
+   usb_assert(pmsg->handle < HCD_MAX_ENDPOINT);
+
+   phci_pipe = &_pipe_handle[pmsg->handle];
+
+   port = 0;
+   if (pdev->speed == USB_SPD_HS && pdev->parent_port != USB_DEV_PARENT_ROOT)
+   {
+      port = pdev->parent_port;
+   }
+
+   if (phci_pipe->status & USBHCI_PIPE_OPEN)
+   {
+      /* If pipe has already been opened, close it before reconfiguring. */
+      HcdClosePipe(phci_pipe->handle);
+   }
+   /* Set pipe's status as closed. */
+   phci_pipe->status &= ~USBHCI_PIPE_OPEN;
+
+   /* Configure pipe. */
+   status = HcdOpenPipe(
+         USB_CORENUM,
+         pdev->addr & USB_ADDR_MASK,
+         _to_lpc_speed(pdev->speed),
+         pmsg->number,
+         _to_lpc_type(USB_CTRL),
+         _to_lpc_dir(pmsg->dir),
+         pmsg->mps,
+         1,
+         1, /** @TODO Mult, for ISO @ HS with >1 transaction per uframe */
+         0, /** @TODO get this from the USB stack */
+         port,
+         &phci_pipe->handle );
+
+   if (status == HCD_STATUS_OK)
+   {
+      /* Once configuration is done, set status as open again. */
+      phci_pipe->status |= USBHCI_PIPE_OPEN;
+      status = USB_STATUS_OK;
+   }
+   return status;
+}
+
 int usbhci_xfer_start( usb_device_t* pdev, usb_pipe_t* ppipe )
 {
    int ret;
@@ -356,21 +453,21 @@ int usbhci_xfer_start( usb_device_t* pdev, usb_pipe_t* ppipe )
    return ret;
 }
 
-int usbhci_ctrlxfer_start( usb_device_t* pdev, usb_pipe_t* ppipe )
+int usbhci_ctrlxfer_start( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
 {
    int ret;
 
-   usb_assert(pdev  != NULL);
-   usb_assert(ppipe != NULL);
-   usb_assert( ppipe->buffer != NULL || (ppipe->buffer == NULL &&
-            USB_STDREQ_GET_wLength(pdev->stdreq) == 0) );
-   usb_assert(ppipe->handle < HCD_MAX_ENDPOINT);
+   usb_assert(pdev != NULL);
+   usb_assert(pmsg != NULL);
+   usb_assert( pmsg->xfer_buffer != NULL || (pmsg->xfer_buffer == NULL &&
+            USB_STDREQ_GET_wLength(pmsg->stdreq) == 0) );
+   usb_assert(pmsg->handle < HCD_MAX_ENDPOINT);
 
    ret = USB_STATUS_XFER_ERR;
    if ( !HcdControlTransfer(
-            _pipe_handle[ppipe->handle].handle,
-            pdev->stdreq,
-            ppipe->buffer) )
+            _pipe_handle[pmsg->handle].handle,
+            pmsg->stdreq,
+            pmsg->xfer_buffer) )
    {
       ret = USB_STATUS_OK;
    }
@@ -379,67 +476,44 @@ int usbhci_ctrlxfer_start( usb_device_t* pdev, usb_pipe_t* ppipe )
 
 int usbhci_xfer_status( usb_device_t* pdev, usb_pipe_t* ppipe )
 {
-   HCD_STATUS hcd_status;
-   int        status;
-
    usb_assert(pdev  != NULL);
    usb_assert(ppipe != NULL);
    usb_assert(ppipe->handle < HCD_MAX_ENDPOINT);
+   return _get_hcd_status(_pipe_handle[ppipe->handle].handle);
+}
 
-   hcd_status = HcdGetPipeStatus(_pipe_handle[ppipe->handle].handle);
-
-   switch (hcd_status)
-   {
-      case HCD_STATUS_OK:
-      case HCD_STATUS_TRANSFER_COMPLETED:
-         status = USB_STATUS_OK;
-         break;
-
-      case HCD_STATUS_TRANSFER_QUEUED:
-         status = USB_STATUS_XFER_WAIT;
-         break;
-
-      case HCD_STATUS_TRANSFER_ERROR: /* check this */
-      case HCD_STATUS_TRANSFER_CRC:
-      case HCD_STATUS_TRANSFER_BitStuffing:
-      case HCD_STATUS_TRANSFER_DataToggleMismatch:
-      case HCD_STATUS_TRANSFER_PIDCheckFailure:
-      case HCD_STATUS_TRANSFER_UnexpectedPID:
-      case HCD_STATUS_TRANSFER_DataOverrun:
-      case HCD_STATUS_TRANSFER_DataUnderrun:
-      case HCD_STATUS_TRANSFER_CC_Reserved1:
-      case HCD_STATUS_TRANSFER_CC_Reserved2:
-      case HCD_STATUS_TRANSFER_BufferOverrun:
-      case HCD_STATUS_TRANSFER_BufferUnderrun:
-      case HCD_STATUS_TRANSFER_NotAccessed:
-      case HCD_STATUS_TRANSFER_Reserved:
-      default:
-         status = USB_STATUS_XFER_ERR;
-         break;
-
-      case HCD_STATUS_TRANSFER_Stall:
-         status = USB_STATUS_EP_STALLED;
-         break;
-
-      case HCD_STATUS_TRANSFER_DeviceNotResponding:
-         status = USB_STATUS_DEV_UNREACHABLE;
-         break;
-   };
-   return status;
+int usbhci_ctrlxfer_status( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
+{
+   usb_assert(pdev != NULL);
+   usb_assert(pmsg != NULL);
+   usb_assert(pmsg->handle < HCD_MAX_ENDPOINT);
+   return _get_hcd_status(_pipe_handle[pmsg->handle].handle);
 }
 
 int usbhci_xfer_cancel( usb_device_t* pdev, usb_pipe_t* ppipe )
 {
    int ret;
-
    usb_assert(pdev  != NULL);
    usb_assert(ppipe != NULL);
    usb_assert(ppipe->handle < HCD_MAX_ENDPOINT);
-
    ret = USB_STATUS_PIPE_CFG;
    if (!HcdCancelTransfer(_pipe_handle[ppipe->handle].handle))
    {
       ret = usbhci_pipe_configure(pdev, ppipe);
+   }
+   return ret;
+}
+
+int usbhci_ctrlxfer_cancel( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
+{
+   int ret;
+   usb_assert(pdev != NULL);
+   usb_assert(pmsg != NULL);
+   usb_assert(pmsg->handle < HCD_MAX_ENDPOINT);
+   ret = USB_STATUS_PIPE_CFG;
+   if (!HcdCancelTransfer(_pipe_handle[pmsg->handle].handle))
+   {
+      ret = usbhci_msg_pipe_configure(pdev, pmsg);
    }
    return ret;
 }

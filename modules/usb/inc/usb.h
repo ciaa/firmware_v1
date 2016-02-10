@@ -116,12 +116,10 @@ extern "C" {
 #define USB_DEV_STATUS_CONNECTED       (1 << 0)
 /** @brief Device active and connected. */
 #define USB_DEV_STATUS_ACTIVE          (1 << 1)
-/** @brief Device's control endpoint opened by user code. */
-#define USB_DEV_STATUS_LOCKED          (1 << 2)
 /** @brief Device is self-powered. */
-#define USB_DEV_STATUS_SELF_PWRD       (1 << 3)
+#define USB_DEV_STATUS_SELF_PWRD       (1 << 2)
 /** @brief Device supports remote wakeup. */
-#define USB_DEV_STATUS_REMOTE_WKUP     (1 << 4)
+#define USB_DEV_STATUS_REMOTE_WKUP     (1 << 3)
 /** @brief Root HUB/device identifier.  */
 #define USB_DEV_PARENT_ROOT            ((uint8_t) -1)
 
@@ -140,13 +138,22 @@ extern "C" {
 #define USB_FORCE_PROBING_ID  0xFFFF
 
 /** @brief Convert a device ID into its device's index. */
-#define USB_ID_TO_DEV(id)     ((uint8_t ) ((id) >> 8))
+#define USB_ID_TO_DEV(id)      ((uint8_t ) ((id) >> 8))
 
 /** @brief Convert a device ID into its device's interface index. */
-#define USB_ID_TO_IFACE(id)   ((uint8_t ) ((id) & 0xFF))
+#define USB_ID_TO_IFACE(id)    ((uint8_t ) ((id) & 0xFF))
 
 /** @brief Convert a device and interface indices into a device ID. */
-#define USB_TO_ID(dev, iface) ((uint16_t) (((dev) << 8) | (iface)))
+#define USB_TO_ID(dev, iface)  ((uint16_t) (((dev) << 8) | (iface)))
+
+/** @brief Convert message pipe's index to ticket, to return by _ctrlirp(). */
+#define USB_IDX_TO_TICKET(idx) ((uint16_t) (((idx) + 1) << 8))
+
+/** @brief Convert ticket back to message pipe's index, used by _irp_status().*/
+#define USB_TICKET_TO_IDX(tkt) ((uint8_t)  (((tkt) >> 8) - 1))
+
+/** @brief Check whether IRP ID corresponds to message pipe or otherwise. */
+#define USB_IRP_ID_IS_MSG(id)  ((id) & 0xFF00)
 
 
 /*==================[typedef]================================================*/
@@ -211,7 +218,30 @@ typedef enum _usb_xfer_type_t
 
 
 /**
- * @brief Pipe structure.
+ * @brief Message pipe structure (for control endpoints).
+ *
+ * Pipe's direction is stored in the most significant bit of addr.
+ *
+ * Requested transfers will be retried up  to  3  times  whenever  an  error  is
+ * encountered during transmission (or reception).  The retries counter is reset
+ * once a successful transfer takes place.  If it fails 3 times in  a  row,  the
+ * pipe will be placed in the STALL state  and  it  will  need  to  be  restored
+ * manually by the user.
+ */
+typedef struct _usb_msg_pipe_t
+{
+   uint8_t          xfer_buffer[USB_XFER_BUFFER_LEN]; /**< Control buffer.    */
+   uint8_t          stdreq[USB_STDREQ_SIZE]; /**< Standard request buffer.    */
+   usb_dir_t        dir;          /**< Endpoint's direction.                  */
+   uint8_t          xfer_length;  /**< Control buffer's length.               */
+   uint8_t          retries;      /**< Number of transfer retries so far.     */
+   uint8_t          handle;       /**< Hardware pipe's handle.                */
+   uint8_t          mps;          /**< Maximum packet size.                   */
+   uint8_t          lock;         /**< Pipe's lock control.                   */
+} usb_msg_pipe_t;
+
+/**
+ * @brief Stream pipe structure.
  *
  * Pipe's direction is stored in the most significant bit of addr.
  *
@@ -228,15 +258,15 @@ typedef enum _usb_xfer_type_t
  */
 typedef struct _usb_pipe_t
 {
-   usb_xfer_type_t  type;      /**< Type (ctrl, bulk, int, iso).         */
-   usb_dir_t        dir;       /**< Endpoint's direction.                */
-   uint32_t         length;    /**< Transfer's buffer length.            */
-   uint8_t*         buffer;    /**< Pointer to transfer buffer.          */
-   uint8_t          retries;   /**< Number of transfer retries so far.   */
-   uint8_t          handle;    /**< Hardware pipe's handle.              */
-   uint8_t          number;    /**< Endpoint number (0 - 15).            */
-   uint8_t          mps;       /**< Maximum packet size.                 */
-   uint8_t          interval;  /**< Frames between INT or ISO transfers. */
+   usb_xfer_type_t  type;      /**< Type (bulk, int, iso).                    */
+   usb_dir_t        dir;       /**< Endpoint's direction.                     */
+   uint32_t         length;    /**< Transfer's buffer length.                 */
+   uint8_t*         buffer;    /**< Pointer to transfer buffer.               */
+   uint8_t          retries;   /**< Number of transfer retries so far.        */
+   uint8_t          handle;    /**< Hardware pipe's handle.                   */
+   uint8_t          number;    /**< Endpoint number (0 - 15).                 */
+   uint8_t          mps;       /**< Maximum packet size.                      */
+   uint8_t          interval;  /**< Frames between INT or ISO transfers.      */
 } usb_pipe_t;
 
 
@@ -338,17 +368,14 @@ typedef enum _usb_dev_state_t
  */
 typedef struct _usb_device_t
 {
+   usb_dev_state_t state;          /**< Device's current state.               */
+   usb_dev_state_t next_state;     /**< Device's state after a delay.         */
+   usb_speed_t     speed;          /**< Speed (LS, FS or HS).                 */
+   usb_interface_t interfaces[USB_MAX_INTERFACES]; /**< Array of interfaces.  */
    uint32_t        status;         /**< Device status, see description.       */
    uint16_t        vendor_ID;      /**< Vendor ID.                            */
    uint16_t        product_ID;     /**< Product ID.                           */
    uint16_t        ticks_delay;    /**< Delay this number of ticks count.     */
-   usb_dev_state_t state;          /**< Device's current state.               */
-   usb_dev_state_t next_state;     /**< Device's state after a delay.         */
-   usb_speed_t     speed;          /**< Speed (LS, FS or HS).                 */
-   usb_pipe_t      default_ep;     /**< Default control pipes (endpoint 0).   */
-   usb_interface_t interfaces[USB_MAX_INTERFACES]; /**< Array of interfaces.  */
-   uint8_t         xfer_buffer[USB_XFER_BUFFER_LEN]; /**< Control buffer.     */
-   uint8_t         stdreq[USB_STDREQ_SIZE]; /**< Standard request buffer.     */
 #if (USB_MAX_HUBS > 0)
    uint8_t         parent_hub;     /**< Index of upstream HUB.                */
    uint8_t         parent_port;    /**< Index of upstream HUB.                */
@@ -357,7 +384,6 @@ typedef struct _usb_device_t
    uint8_t         addr;           /**< Device's address.                     */
    uint8_t         n_interfaces;   /**< Number of interfaces.                 */
    uint8_t         cfg_value;      /**< Configuration value.                  */
-   uint8_t         xfer_length;    /**< Control buffer's length.              */
 } usb_device_t;
 
 /**
@@ -380,10 +406,11 @@ typedef struct _usb_stack_t
    uint32_t         status;     /**< Stack status, see description.           */
    uint16_t         ticks;      /**< 1-millisecond ticks count.               */
    usb_host_state_t state;      /**< Stack's current state.                   */
-   usb_device_t     devices[USB_MAX_DEVICES];  /**< Array of devices.         */
+   usb_msg_pipe_t   def_ep[USB_N_CTRL_ENDPOINTS]; /**< Default control EPs.   */
+   usb_device_t     devices[USB_MAX_DEVICES];     /**< Array of devices.      */
    uint8_t          n_devices;  /**< Number of connected devices.             */
 #if (USB_MAX_HUBS > 0)
-   uint8_t          hubs[USB_MAX_HUBS];        /**< Array of HUB indices.     */
+   uint8_t          hubs[USB_MAX_HUBS];           /**< Array of HUB indices.  */
 #endif
 } usb_stack_t;
 

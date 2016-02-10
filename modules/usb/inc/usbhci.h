@@ -96,7 +96,7 @@ uint32_t usbhci_get_frame_number( void );
  *             available on every physical endpoint.
  * @return Zero on success, non-zero otherwise.
  */
-int usbhci_pipe_alloc( usb_xfer_type_t type );
+int16_t usbhci_pipe_alloc( usb_xfer_type_t type );
 
 /**
  * @brief Release hardware pipe.
@@ -105,17 +105,25 @@ int usbhci_pipe_alloc( usb_xfer_type_t type );
 int usbhci_pipe_dealloc( usb_pipe_t* ppipe );
 
 /**
- * @brief Configure previously allocated hardware pipe.
+ * @brief Configure previously allocated hardware streaming pipe.
+ *
  * @param pdev  Pointer to device owner of the pipe.
- * @param ppipe Pointer to pipe structure.
- * @warning This might be merged into usbhci_pipe_alloc().
+ * @param ppipe Pointer to streaming pipe structure.
  */
 int usbhci_pipe_configure( usb_device_t* pdev, usb_pipe_t* ppipe );
 
 /**
+ * @brief Configure previously allocated hardware message (control) pipe.
+ *
+ * @param pdev  Pointer to device owner of the pipe.
+ * @param pmsg  Pointer to message pipe structure.
+ */
+int usbhci_msg_pipe_configure( usb_device_t* pdev, usb_msg_pipe_t* pmsg );
+
+/**
  * @brief Request USB transfer.
  * @param pdev  Pointer to device owner of the pipe.
- * @param ppipe Pointer to pipe structure.
+ * @param ppipe Pointer to streaming pipe structure.
  * @todo Replace return info with retvals
  */
 int usbhci_xfer_start( usb_device_t* pdev, usb_pipe_t* ppipe );
@@ -127,17 +135,17 @@ int usbhci_xfer_start( usb_device_t* pdev, usb_pipe_t* ppipe );
  * ones with a standarized structure, that is, that  use  message  pipes.  Their
  * status should still be checked with the same usbhci_xfer_status() method.
  *
- * @param pdev   Pointer to device owner of the pipe (with the stdreq buffer).
- * @param ppipe  Pointer to pipe structure.
+ * @param pdev  Pointer to device owner of the pipe (with the stdreq buffer).
+ * @param pmsg  Pointer to message pipe structure.
  *
  * @todo Replace return info with retvals
  */
-int usbhci_ctrlxfer_start( usb_device_t* pdev, usb_pipe_t* ppipe );
+int usbhci_ctrlxfer_start( usb_device_t* pdev, usb_msg_pipe_t* pmsg );
 
 /**
  * @brief Get USB transfer status.
  * @param pdev  Pointer to device owner of the pipe.
- * @param ppipe Pointer to pipe structure.
+ * @param ppipe Pointer to streamming pipe structure.
  *
  * @return Current pipe's transfer status.
  * @todo Replace return info with retvals
@@ -145,13 +153,32 @@ int usbhci_ctrlxfer_start( usb_device_t* pdev, usb_pipe_t* ppipe );
 int usbhci_xfer_status( usb_device_t* pdev, usb_pipe_t* ppipe );
 
 /**
+ * @brief Get USB control transfer status.
+ * @param pdev  Pointer to device owner of the pipe.
+ * @param pmsg  Pointer to message pipe structure.
+ *
+ * @return Current pipe's transfer status.
+ * @todo Replace return info with retvals
+ */
+int usbhci_ctrlxfer_status( usb_device_t* pdev, usb_msg_pipe_t* pmsg );
+
+/**
  * @brief Cancel USB transfer.
  * @param pdev  Pointer to device owner of the pipe.
- * @param ppipe Pointer to pipe structure.
+ * @param ppipe Pointer to streaming pipe structure.
  *
  * @todo Replace return info with retvals
  */
 int usbhci_xfer_cancel( usb_device_t* pdev, usb_pipe_t* ppipe );
+
+/**
+ * @brief Cancel USB control transfer.
+ * @param pdev  Pointer to device owner of the pipe.
+ * @param pmsg  Pointer to message pipe structure.
+ *
+ * @todo Replace return info with retvals
+ */
+int usbhci_ctrlxfer_cancel( usb_device_t* pdev, usb_msg_pipe_t* pmsg );
 
 
 /**

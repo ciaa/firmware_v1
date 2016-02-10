@@ -86,6 +86,8 @@ int usb_irp(
  * @brief Control transfers request method.
  *
  * @param pstack    Pointer to USB stack structure.
+ * @param ticket    Returns control transfer's ticket,  this is  then used  when
+ *                  checking for the IRP status.
  * @param device_id Device  identifier,  coordinates  representing  device   and
  *                  interface.
  * @param pstdreq   Standard request descriptor.
@@ -98,6 +100,7 @@ int usb_irp(
  */
 int usb_ctrlirp(
       usb_stack_t*        pstack,
+      uint16_t*           ticket,
       uint16_t            device_id,
       const usb_stdreq_t* pstdreq,
       uint8_t*            buffer
@@ -108,20 +111,22 @@ int usb_ctrlirp(
  * @param pstack    Pointer to USB stack structure.
  * @param device_id Device  identifier,  coordinates  representing  device   and
  *                  interface.
- * @param pipe      Pipe number (given by order of endpoints in interface),  use
- *                  0 (zero) for default control pipe. Use USB_CTRL_PIPE_TOKEN
- *                  to check the device's default control pipe status.
+ * @param irp_id    When requesting the status of a control  transfer,  use  the
+ *                  ticket returned by @ref  usb_ctrlirp(),  otherwise  use  the
+ *                  device's pipe number (given by order of EPs in interface).
  */
-int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe );
+int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint16_t irp_id );
 
 /**
  * @brief Cancel ongoing IRP.
  * @param pstack    Pointer to USB stack structure.
  * @param device_id Device  identifier,  coordinates  representing  device   and
  *                  interface.
- * @param pipe      Pipe number (given by order of endpoints in interface).
+ * @param irp_id    When cancelling a control transfer,  use the ticket returned
+ *                  by @ref  usb_ctrlirp(),  otherwise  use  the  device's  pipe
+ *                  number (given by order of EPs in interface).
  */
-int usb_irp_cancel( usb_stack_t* pstack, uint16_t device_id, uint8_t pipe );
+int usb_irp_cancel( usb_stack_t* pstack, uint16_t device_id, uint16_t irp_id );
 
 /**
  * @brief Increase internal tick counter by given amount and retrieve new value.
@@ -163,9 +168,9 @@ int usb_pipe_remove( usb_pipe_t* ppipe );
 
 int usb_device_is_active( usb_stack_t* pstack, uint8_t index );
 
-int usb_device_lock( usb_stack_t* pstack, uint8_t index );
+int usb_get_ctrl_pipe( usb_stack_t* pstack, uint8_t* index );
 
-int usb_device_unlock( usb_stack_t* pstack, uint8_t index );
+int usb_unlock_pipe( usb_stack_t* pstack, uint8_t index );
 
 int usb_device_update( usb_stack_t* pstack, uint8_t index );
 

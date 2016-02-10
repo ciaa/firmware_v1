@@ -28,19 +28,30 @@ extern "C" {
 #define USB_TASK_TICKS       50
 
 /** @brief Maximum number of devices.  */
-#define USB_MAX_DEVICES       2
+#define USB_MAX_DEVICES       3
 
 /** @brief Maximum number of interfaces per device.  */
 #define USB_MAX_INTERFACES    1
 
-/** @brief Maximum number of endpoints per interface (besides ep. 0).  */
-#define USB_MAX_ENDPOINTS     2
+/** @brief Maximum number of endpoints per interface (not counting ep. 0).  */
+#define USB_MAX_ENDPOINTS     1
 
 /** @brief Maximum number of HUBs, 0 equals no HUB support.  */
-#define USB_MAX_HUBS          1
+#define USB_MAX_HUBS          2
 
 /** @brief Maximum number of HUB ports per HUB.  */
-#define USB_MAX_HUB_PORTS     4
+#define USB_MAX_HUB_PORTS     7
+
+/**
+ * @brief Number of control endpoints supported by the specific hardware.
+ *
+ * @warning It is \b very important to match this correctly  to  the  underlying
+ * hardware because, on initialization, the Host will request  as  many  control
+ * endpoints as selected here from the low-level hardware  driver  (through  the
+ * USB-HCI interface) and that \b cannot fail. You can, however, specify a lower
+ * number in case those extra endpoints need to be used for other purposes.
+ */
+#define USB_N_CTRL_ENDPOINTS  2
 
 
 /*==================[cplusplus]==============================================*/
