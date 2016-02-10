@@ -157,6 +157,10 @@ int usb_device_init( usb_stack_t* pstack, uint8_t index );
 
 int usb_device_release( usb_stack_t* pstack, uint8_t index );
 
+int usb_release_from_port( usb_stack_t* pstack, uint8_t hub_idx, uint8_t port );
+
+int usb_pipe_remove( usb_pipe_t* ppipe );
+
 int usb_device_is_active( usb_stack_t* pstack, uint8_t index );
 
 int usb_device_lock( usb_stack_t* pstack, uint8_t index );

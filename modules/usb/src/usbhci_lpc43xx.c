@@ -38,9 +38,13 @@
  */
 struct _usbhci_pipe_t
 {
-   uint32_t       handle; /**< This is actually a Pipe_Handle_T struct. */
-   uint8_t        status; /**< HW pipe status.                          */
-   const uint8_t  types;  /**< HW pipe supported transfer types.        */
+   uint32_t       handle; /**< This is actually a Pipe_Handle_T struct.       */
+   uint8_t        status; /**< Hardware pipe status.                          */
+   const uint8_t  types;  /**< Hardware pipe supported transfer types.        */
+   uint8_t        addr;   /**< We store the device's  address  here  because,
+                               for some reason, the LPCOpen library  requires
+                               us to reconfigure a pipe after cancelling  the
+                               associated transfer currently in progress.     */
 };
 
 
@@ -64,17 +68,17 @@ static HCD_TRANSFER_DIR _to_lpc_dir( usb_dir_t dir );
 
 /*==================[internal data definition]===============================*/
 
-/** @TODO implement this */
+/** @FIXME We are only using one for one (core 0). */
 static struct _usbhci_pipe_t _pipe_handle[HCD_MAX_ENDPOINT] =
 {
-   {0, 0, 0x01},
-   {0, 0, 0x01},
-   {0, 0, 0x0E},
-   {0, 0, 0x0E},
-   {0, 0, 0x0E},
-   {0, 0, 0x0E},
-   {0, 0, 0x0E},
-   {0, 0, 0x0E},
+   {0, 0, 0x01, 0},
+   {0, 0, 0x01, 0},
+   {0, 0, 0x0E, 0},
+   {0, 0, 0x0E, 0},
+   {0, 0, 0x0E, 0},
+   {0, 0, 0x0E, 0},
+   {0, 0, 0x0E, 0},
+   {0, 0, 0x0E, 0},
 };
 
 
@@ -182,6 +186,7 @@ int usbhci_init( void )
       {
          _pipe_handle[i].handle = 0;
          _pipe_handle[i].status = 0;
+         _pipe_handle[i].addr   = 0;
       }
 
       /* Core status */
@@ -251,12 +256,12 @@ int usbhci_pipe_alloc( usb_xfer_type_t type )
       /* Check if pipe is currently being used. */
       if (!_pipe_handle[i].status & USBHCI_PIPE_INUSE)
       {
-#if 0 /* Pipe type filtering is not yet active nor supported. */
-         if (!(_pipe_handle[i].types & (1 << type)))
-            continue; /* Doesn't support requested type. */
-#endif
-         _pipe_handle[i].status |= USBHCI_PIPE_INUSE;
-         ret = i;
+         if (_pipe_handle[i].types & (1 << type))
+         {
+            /* Requested type supported. */
+            _pipe_handle[i].status |= USBHCI_PIPE_INUSE;
+            ret = i;
+         }
       }
    }
    return ret;
@@ -282,12 +287,6 @@ int usbhci_pipe_dealloc( usb_pipe_t* ppipe )
    if (status == USB_STATUS_OK)
    {
       _pipe_handle[ppipe->handle].status = 0;
-      ppipe->handle   = (uint8_t) -1;
-      ppipe->number   = 0;
-      ppipe->type     = USB_CTRL;
-      ppipe->dir      = (uint8_t) -1;
-      ppipe->mps      = 0;
-      ppipe->interval = (uint8_t) -1;
    }
    return status;
 }
@@ -325,17 +324,14 @@ int usbhci_pipe_configure( usb_pipe_t* ppipe, uint8_t addr, usb_speed_t speed )
    if (status == HCD_STATUS_OK)
    {
       /* Once configuration is done, set status as open again. */
+      _pipe_handle[ppipe->handle].addr    = addr & USB_ADDR_MASK;
       _pipe_handle[ppipe->handle].status |= USBHCI_PIPE_OPEN;
       status = USB_STATUS_OK;
    }
    return status;
 }
 
-int usbhci_xfer_start(
-   usb_pipe_t* ppipe,
-   uint8_t*    buffer,
-   uint32_t    length
-)
+int usbhci_xfer_start( usb_pipe_t* ppipe )
 {
    int ret;
 
@@ -343,29 +339,32 @@ int usbhci_xfer_start(
    usb_assert(ppipe->handle < HCD_MAX_ENDPOINT);
 
    ret = USB_STATUS_XFER_ERR;
-   if (!HcdDataTransfer(_pipe_handle[ppipe->handle].handle, buffer,length,NULL))
+   if ( !HcdDataTransfer(
+            _pipe_handle[ppipe->handle].handle,
+            ppipe->buffer,
+            ppipe->length,
+            NULL) )
    {
       ret = USB_STATUS_OK;
    }
    return ret;
 }
 
-int usbhci_ctrlxfer_start(
-   usb_pipe_t*    ppipe,
-   const uint8_t* stdreq,
-   uint8_t*       buffer
-)
+int usbhci_ctrlxfer_start( usb_pipe_t* ppipe, const uint8_t* stdreq )
 {
-   int      ret;
+   int ret;
 
    usb_assert(ppipe  != NULL);
    usb_assert(stdreq != NULL);
-   usb_assert(buffer != NULL ||
-             (buffer == NULL && USB_STDREQ_GET_wLength(stdreq) == 0));
+   usb_assert( ppipe->buffer != NULL ||
+              (ppipe->buffer == NULL && USB_STDREQ_GET_wLength(stdreq) == 0) );
    usb_assert(ppipe->handle < HCD_MAX_ENDPOINT);
 
    ret = USB_STATUS_XFER_ERR;
-   if (!HcdControlTransfer(_pipe_handle[ppipe->handle].handle, stdreq, buffer))
+   if ( !HcdControlTransfer(
+            _pipe_handle[ppipe->handle].handle,
+            stdreq,
+            ppipe->buffer) )
    {
       ret = USB_STATUS_OK;
    }
@@ -425,9 +424,22 @@ int usbhci_xfer_status( usb_pipe_t* ppipe )
 
 int usbhci_xfer_cancel( usb_pipe_t* ppipe )
 {
+   int           ret;
+   HCD_USB_SPEED speed;
+
    usb_assert(ppipe != NULL);
    usb_assert(ppipe->handle < HCD_MAX_ENDPOINT);
-   return HcdCancelTransfer(_pipe_handle[ppipe->handle].handle);
+
+   HcdGetDeviceSpeed(USB_CORENUM, &speed);
+   ret = USB_STATUS_PIPE_CFG;
+   if (!HcdCancelTransfer(_pipe_handle[ppipe->handle].handle))
+   {
+      ret = usbhci_pipe_configure(
+            ppipe,
+            _pipe_handle[ppipe->handle].addr,
+            _from_lpc_speed(speed) );
+   }
+   return ret;
 }
 
 void _usb_host_on_connection( uint8_t corenum )

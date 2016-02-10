@@ -120,11 +120,7 @@ int usbhci_pipe_configure( usb_pipe_t* ppipe, uint8_t addr, usb_speed_t speed );
  * @param length Buffer's length.
  * @todo Replace return info with retvals
  */
-int usbhci_xfer_start(
-   usb_pipe_t* ppipe,
-   uint8_t*    buffer,
-   uint32_t    length
-);
+int usbhci_xfer_start( usb_pipe_t* ppipe );
 
 /**
  * @brief Request USB control transfer.
@@ -140,11 +136,7 @@ int usbhci_xfer_start(
  *
  * @todo Replace return info with retvals
  */
-int usbhci_ctrlxfer_start(
-   usb_pipe_t*    ppipe,
-   const uint8_t* stdreq,
-   uint8_t*       buffer
-);
+int usbhci_ctrlxfer_start( usb_pipe_t* ppipe, const uint8_t* stdreq );
 
 /**
  * @brief Get USB transfer status.

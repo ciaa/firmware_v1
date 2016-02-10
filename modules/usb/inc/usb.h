@@ -102,8 +102,14 @@ extern "C" {
 #define USB_DEV_DEFAULT_ADDR ((uint8_t) -1)
 
 
+/** @brief Minimum bInterval value for FS/HS ISO or HS INT. */
 #define USB_ISO_INTHS_MIN_bInt  1
+/** @brief Maximum bInterval value for FS/HS ISO or HS INT. */
 #define USB_ISO_INTHS_MAX_bInt 16
+
+
+/** @brief Maximum number of transfer retries before failing. */
+#define USB_MAX_XFER_RETRIES    3
 
 
 /** @brief Device connected (updated in ISR). */
@@ -209,16 +215,26 @@ typedef enum _usb_xfer_type_t
  *
  * Pipe's direction is stored in the most significant bit of addr.
  *
- * The interval represents every how many  frames  a  transfer  is  expected  to
- * happen. For example, a period of 0 means a transfer on  every  frame  whereas
- * a period of 1 means a transfer on every other frame.
+ * The interval represents every how many (micro)frames a transfer  is  expected
+ * to happen.  For example, a period of  0  means  a  transfer  on  every  frame
+ * whereas a period of 1 means a transfer on every other frame.
+ *
+ * Requested transfers will be retried up  to  3  times  whenever  an  error  is
+ * encountered during transmission (or reception).  The retries counter is reset
+ * once a successful transfer takes place.  If it fails 3 times in  a  row,  the
+ * pipe will be placed in the STALL state  and  it  will  need  to  be  restored
+ * manually by the user.
+ * @TODO implement pipe STALL state and restoring method.
  */
 typedef struct _usb_pipe_t
 {
-   uint8_t          handle;    /**< Hardware pipe's handle.              */
-   uint8_t          number;    /**< Endpoint number (0 - 15).            */
    usb_xfer_type_t  type;      /**< Type (ctrl, bulk, int, iso).         */
    usb_dir_t        dir;       /**< Endpoint's direction.                */
+   uint32_t         length;    /**< Transfer's buffer length.            */
+   uint8_t*         buffer;    /**< Pointer to transfer buffer.          */
+   uint8_t          retries;   /**< Number of transfer retries so far.   */
+   uint8_t          handle;    /**< Hardware pipe's handle.              */
+   uint8_t          number;    /**< Endpoint number (0 - 15).            */
    uint8_t          mps;       /**< Maximum packet size.                 */
    uint8_t          interval;  /**< Frames between INT or ISO transfers. */
 } usb_pipe_t;
@@ -264,7 +280,7 @@ typedef struct _usb_interface_t
  */
 typedef enum _usb_dev_state_t
 {
-   USB_DEV_STATE_WAITING_ACK,       /**< Waiting for a control transaction 
+   USB_DEV_STATE_WAITING_ACK,       /**< Waiting for a control transaction
                                          during enumeration to ACK.           */
    USB_DEV_STATE_WAITING_DELAY,     /**< Waiting for a delay to expire.       */
    USB_DEV_STATE_DISCONNECTED,      /**< No device connected.                 */
@@ -273,14 +289,15 @@ typedef enum _usb_dev_state_t
    USB_DEV_STATE_RESET,             /**< Holding USB reset high for 10~20 ms. */
    USB_DEV_STATE_DEFAULT,           /**< Reseted, configuring pipes and new
                                          address.                             */
+   USB_DEV_STATE_ADDRESS_RESET,     /**< Get MPS and reset device again.      */
    USB_DEV_STATE_ADDRESS,           /**< Address being assigned.              */
    USB_DEV_STATE_CONFIGURING_PIPES, /**< Configure ctrl. pipe to new address
                                          and request dev. desc.               */
-   USB_DEV_STATE_DEV_DESC,          /**< Parse dev. desc. and request config. 
+   USB_DEV_STATE_DEV_DESC,          /**< Parse dev. desc. and request config.
                                          descriptor's first 9 bytes.          */
    USB_DEV_STATE_CFG_DESC_LEN9,     /**< Get cfg. desc.'s length and request
                                          it full (up to 256 bytes).           */
-   USB_DEV_STATE_CFG_DESC,          /**< Parse cfg. desc. and request ifaces. 
+   USB_DEV_STATE_CFG_DESC,          /**< Parse cfg. desc. and request ifaces.
                                          descriptors.                         */
    USB_DEV_STATE_UNLOCKING,         /**< */
    USB_DEV_STATE_UNLOCKING2,        /**< */

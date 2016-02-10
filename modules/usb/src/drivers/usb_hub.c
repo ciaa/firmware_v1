@@ -478,6 +478,7 @@ static int _parse_port_status( usb_hub_t* phub, uint8_t port )
    usb_assert(phub != NULL);
    usb_assert(port < phub->n_ports);
 
+   phub->port_status[port] &= USB_HUB_PORT_RST_REQ | USB_HUB_PORT_REM;
    phub->port_status[port] |=
       ( USB_HUB_PORT_STATUS_GET_wPortStatus(phub->buffer) &
          ~(USB_HUB_PORT_RST_REQ | USB_HUB_PORT_REM) );
@@ -567,13 +568,13 @@ static int _process_port_feature(
    usb_assert(phub != NULL);
    usb_assert(port < phub->n_ports);
 
-   if (feature == USB_HUB_FEATURE_PORT_RESET)
+   if (feature == USB_HUB_FEATURE_C_PORT_RESET)
    {
       /*
        * Clearing a port reset means a request had been previously issued,
        * we need to clear the reset_request bit before continuing.
        */
-      phub->port_status[port] &= ~USB_HUB_PORT_RST_REQ;
+      phub->port_status[port] &= ~USB_HUB_PORT_STATUS_RST;
    }
    else if (feature == USB_HUB_FEATURE_C_PORT_CONNECTION)
    {
@@ -587,7 +588,7 @@ static int _process_port_feature(
       }
       else
       {
-         usb_device_release(phub->pstack, USB_ID_TO_DEV(phub->id));
+         usb_release_from_port(phub->pstack, _get_hub_index(phub), port);
       }
    }
    return USB_STATUS_OK;
@@ -790,9 +791,11 @@ static int _state_running( usb_hub_t* phub )
          /* Do nothing and keep waiting. */
          status = USB_STATUS_OK;
       }
-      else if (status == USB_STATUS_EP_STALLED)
+      else if (status == USB_STATUS_XFER_RETRY)
       {
-         usb_assert(0); /** @TODO: retry transfer */
+         /* Transfer cancelled for taking too long, restart polling count. */
+         phub->wait_count = 0;
+         _next_state(phub, USB_HUB_STATE_RUNNING);
       }
       else if (status != USB_STATUS_OK)
       {
@@ -1086,6 +1089,9 @@ static int _state_port_reset( usb_hub_t* phub )
    }
    else /* USB_STATUS_OK */
    {
+      /* Set the reset-status bit and remove the reset-request one. */
+      phub->port_status[phub->current_port] |=  USB_HUB_PORT_STATUS_RST;
+      phub->port_status[phub->current_port] &= ~USB_HUB_PORT_RST_REQ;
       _next_state(phub, USB_HUB_STATE_RUNNING);
    }
    return status;
@@ -1125,6 +1131,16 @@ static int _int_request( usb_hub_t* phub )
    {
       /* Waiting for acknowledge... */
       status = usb_irp_status(phub->pstack, phub->id, 0);
+      if (status == USB_STATUS_XFER_WAIT)
+      {
+         /*
+          * @FIXME
+          * For now, lets assume the transfer should complete in one tick,  that
+          * means we should never get this status returned.
+          */
+         usb_irp_cancel(phub->pstack, phub->id, 0);
+         status = USB_STATUS_XFER_RETRY;
+      }
    }
    return status;
 }

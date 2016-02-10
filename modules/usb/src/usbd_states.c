@@ -44,6 +44,7 @@ int _state_attached( usb_stack_t* pstack, uint8_t index );
 int _state_powered( usb_stack_t* pstack, uint8_t index );
 int _state_reset( usb_stack_t* pstack, uint8_t index );
 int _state_default( usb_stack_t* pstack, uint8_t index );
+int _state_address_reset( usb_stack_t* pstack, uint8_t index );
 int _state_address( usb_stack_t* pstack, uint8_t index );
 int _state_configuring_pipes( usb_stack_t* pstack, uint8_t index );
 int _state_dev_desc( usb_stack_t* pstack, uint8_t index );
@@ -66,6 +67,7 @@ static _state_fn_t _state_fn[] =
    _state_powered,
    _state_reset,
    _state_default,
+   _state_address_reset,
    _state_address,
    _state_configuring_pipes,
    _state_dev_desc,
@@ -164,19 +166,20 @@ int _state_powered( usb_stack_t* pstack, uint8_t index )
       {
          /* Start HUB port reset. */
          usb_hub_port_reset_start(pdev->parent_hub, pdev->parent_port);
-
          /* Reset duration is handled by the HUB, just wait for it to finish. */
-         pdev->state = USB_DEV_STATE_RESET;
       }
       else
 #endif
       {
          /* Hardware reset, we wait the required 10~20 ms before proceeding. */
          usbhci_reset_start();
-         pdev->ticks_delay = pstack->ticks + 15;
-         pdev->state       = USB_DEV_STATE_WAITING_DELAY;
-         pdev->next_state  = USB_DEV_STATE_RESET;
+         //pdev->ticks_delay = pstack->ticks + 15;
+         //pdev->state       = USB_DEV_STATE_WAITING_DELAY;
+         //pdev->next_state  = USB_DEV_STATE_RESET;
       }
+
+      pdev->state      = USB_DEV_STATE_RESET;
+      pdev->next_state = USB_DEV_STATE_DEFAULT;
    }
    return USB_STATUS_OK;
 }
@@ -202,6 +205,7 @@ int _state_reset( usb_stack_t* pstack, uint8_t index )
       else
       {
          pdev->state = USB_DEV_STATE_DEFAULT;
+         pdev->state = pdev->next_state;
       }
    }
    else
@@ -210,13 +214,15 @@ int _state_reset( usb_stack_t* pstack, uint8_t index )
       if (usbhci_reset_stop() == USB_STATUS_BUSY)
       {
          /* Reset is still in progress, keep waiting. */
-         pdev->ticks_delay = pstack->ticks + 5;
-         pdev->state       = USB_DEV_STATE_WAITING_DELAY;
-         pdev->next_state  = USB_DEV_STATE_RESET;
+         pdev->state = USB_DEV_STATE_RESET;
+         //pdev->ticks_delay = pstack->ticks + 5;
+         //pdev->state       = USB_DEV_STATE_WAITING_DELAY;
+         //pdev->next_state  = USB_DEV_STATE_RESET;
       }
       else
       {
          pdev->state = USB_DEV_STATE_DEFAULT;
+         pdev->state = pdev->next_state;
       }
    }
    return USB_STATUS_OK;
@@ -244,6 +250,8 @@ int _state_default( usb_stack_t* pstack, uint8_t index )
    {
       /* Get speed of connected device from HUB's port. */
       pdev->speed = usb_hub_get_speed(pdev->parent_hub, pdev->parent_port);
+      /** @FIXME devices connected on HUBs downstream ports should have packets sent at the HUB's upstream port's speed. */
+      //pdev->speed = pstack->devices[0].speed;
    }
    else
 #endif
@@ -292,12 +300,40 @@ int _state_default( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wIndex(  pstdreq, 0);
    USB_STDREQ_SET_wLength( pstdreq, 8);
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq, pdev->xfer_buffer);
+   pdev->default_ep.length = 8;
+   pdev->default_ep.buffer = pdev->xfer_buffer;
+   usbhci_ctrlxfer_start(ppipe, pstdreq);
    pdev->state      = USB_DEV_STATE_WAITING_ACK;
-   pdev->next_state = USB_DEV_STATE_ADDRESS;
+   //pdev->next_state = USB_DEV_STATE_ADDRESS;
+   pdev->next_state = USB_DEV_STATE_ADDRESS_RESET;
 
    status = USB_STATUS_OK;
    return status;
+}
+
+int _state_address_reset( usb_stack_t* pstack, uint8_t index )
+{
+   usb_device_t* pdev    = &pstack->devices[index];
+
+   /* Get MPS and reset device once again. */
+   pdev->default_ep.mps = USB_STDDESC_DEV_GET_bMaxPacketSize0(pdev->xfer_buffer);
+
+#if (USB_MAX_HUBS > 0)
+   if (index > 0)
+   {
+      /* Start HUB port reset. */
+      usb_hub_port_reset_start(pdev->parent_hub, pdev->parent_port);
+      /* Reset duration is handled by the HUB, just wait for it to finish. */
+   }
+   else
+#endif
+   {
+      /* Start hardware reset. */
+      usbhci_reset_start();
+   }
+   pdev->state      = USB_DEV_STATE_RESET;
+   pdev->next_state = USB_DEV_STATE_ADDRESS;
+   return USB_STATUS_OK;
 }
 
 int _state_address( usb_stack_t* pstack, uint8_t index )
@@ -306,9 +342,6 @@ int _state_address( usb_stack_t* pstack, uint8_t index )
    usb_device_t* pdev    = &pstack->devices[index];
    usb_pipe_t*   ppipe   = &pdev->default_ep;
    uint8_t*      pstdreq =  pdev->stdreq;
-
-   /* Get MPS and reset device once again. */
-   ppipe->mps = USB_STDDESC_DEV_GET_bMaxPacketSize0(pdev->xfer_buffer);
 
    /* Reconfigure default pipes to MPS and set a new address. */
    ppipe->type = USB_CTRL;
@@ -329,7 +362,8 @@ int _state_address( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wIndex(  pstdreq, 0);
    USB_STDREQ_SET_wLength( pstdreq, 0);
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq, NULL);
+   pdev->default_ep.buffer = NULL;
+   usbhci_ctrlxfer_start(ppipe, pstdreq);
    pdev->state      = USB_DEV_STATE_WAITING_ACK;
    pdev->next_state = USB_DEV_STATE_CONFIGURING_PIPES;
 
@@ -367,7 +401,8 @@ int _state_configuring_pipes( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wIndex(  pstdreq,  0);
    USB_STDREQ_SET_wLength( pstdreq, 18);
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq, pdev->xfer_buffer);
+   pdev->default_ep.buffer = pdev->xfer_buffer;
+   usbhci_ctrlxfer_start(ppipe, pstdreq);
    pdev->state      = USB_DEV_STATE_WAITING_ACK;
    pdev->next_state = USB_DEV_STATE_DEV_DESC;
 
@@ -396,7 +431,8 @@ int _state_dev_desc( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wIndex(  pstdreq, 0);
    USB_STDREQ_SET_wLength( pstdreq, 9);
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq, pdev->xfer_buffer);
+   pdev->default_ep.buffer = pdev->xfer_buffer;
+   usbhci_ctrlxfer_start(ppipe, pstdreq);
    pdev->state      = USB_DEV_STATE_WAITING_ACK;
    pdev->next_state = USB_DEV_STATE_CFG_DESC_LEN9;
 
@@ -420,9 +456,10 @@ int _state_dev_desc_len9( usb_stack_t* pstack, uint8_t index )
 
    aux = USB_STDDESC_CFG_GET_wTotalLength(pdev->xfer_buffer);
    USB_STDREQ_SET_wLength(pstdreq, aux);
-   pdev->xfer_length = aux;
+   pdev->default_ep.length = aux;
+   pdev->default_ep.buffer = pdev->xfer_buffer;
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq, pdev->xfer_buffer);
+   usbhci_ctrlxfer_start(ppipe, pstdreq);
    pdev->state      = USB_DEV_STATE_WAITING_ACK;
    pdev->next_state = USB_DEV_STATE_CFG_DESC;
 
@@ -455,7 +492,8 @@ int _state_cfg_desc( usb_stack_t* pstack, uint8_t index )
    USB_STDREQ_SET_wIndex(  pstdreq, 0);
    USB_STDREQ_SET_wLength( pstdreq, 0);
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq, NULL);
+   pdev->default_ep.buffer = NULL;
+   usbhci_ctrlxfer_start(ppipe, pstdreq);
    pdev->state      = USB_DEV_STATE_WAITING_ACK;
    pdev->next_state = USB_DEV_STATE_UNLOCKING;
 
@@ -475,7 +513,8 @@ case USB_DEV_STATE_TEST:
    USB_STDREQ_SET_wIndex(  pstdreq,  0);
    USB_STDREQ_SET_wLength( pstdreq, 40);
 
-   usbhci_ctrlxfer_start(ppipe, pstdreq, pdev->xfer_buffer);
+   pdev->default_ep.buffer = NULL;
+   usbhci_ctrlxfer_start(ppipe, pstdreq);
    pdev->state = USB_DEV_STATE_WAITING_ACK;
    pdev->next_state = USB_DEV_STATE_CONFIGURED;
    break;

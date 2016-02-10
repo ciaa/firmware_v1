@@ -336,7 +336,7 @@ typedef enum _usb_hub_ocpm_t {
  */
 /**
  * @brief USB HUB class request codes.
- * 
+ *
  * Any code not present in the following list is reserved.
  */
 typedef enum _usb_hub_classreq_t
