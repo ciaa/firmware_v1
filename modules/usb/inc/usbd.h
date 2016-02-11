@@ -95,7 +95,8 @@ int usb_irp(
  *                  unused.
  *
  * @retval USB_STATUS_OK   On success
- * @retval USB_STATUS_BUSY Control endpoint is currently busy, try again later.
+ * @retval USB_STATUS_BUSY Control endpoint is currently busy  or  device  isn't
+ *                         done with the enumeration process, try again later.
  * @TODO complete the return values list.
  */
 int usb_ctrlirp(
@@ -127,6 +128,22 @@ int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint16_t irp_id );
  *                  number (given by order of EPs in interface).
  */
 int usb_irp_cancel( usb_stack_t* pstack, uint16_t device_id, uint16_t irp_id );
+
+/**
+ * @brief Control transfer request method \b without checking for completion  of
+ * the enumeration process.
+ *
+ * See @ref usb_ctrlirp() for parameters and return values.
+ *
+ * @warning Do \b NOT use this unless you really know what you are doing!
+ */
+int usb_ctrlirp_bypass(
+      usb_stack_t*        pstack,
+      uint16_t*           ticket,
+      uint16_t            device_id,
+      const usb_stdreq_t* pstdreq,
+      uint8_t*            buffer
+);
 
 /**
  * @brief Increase internal tick counter by given amount and retrieve new value.

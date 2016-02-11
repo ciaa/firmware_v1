@@ -408,6 +408,7 @@ typedef struct _usb_hub_t
    usb_hub_state_t state;       /**< Device's state.                          */
    uint32_t        status;      /**< HUB's status.                            */
    uint16_t        id;          /**< Device's ID within the USB stack.        */
+   uint16_t        ticket;      /**< In-progress control transfer's ticket.   */
    uint16_t        interval;    /**< Polling interval in ticks.               */
    uint16_t        wait_count;  /**< Interval polling wait count.             */
    uint16_t        port_status[USB_MAX_HUB_PORTS]; /**< Ports' status.        */

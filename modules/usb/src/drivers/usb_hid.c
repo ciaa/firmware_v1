@@ -120,6 +120,7 @@ static int _deinit_dev( uint8_t index )
    pdev->status     = USB_HID_STATUS_FREE | USB_HID_STATUS_ENTRY;
    pdev->pstack     = NULL;
    pdev->id         = 0xFFFF;
+   pdev->ticket     = 0;
    pdev->taskID     = 255;
    pdev->protocol   = USB_HID_PROTO_NONE;
    pdev->state      = USB_HID_STATE_IDLE;
@@ -343,6 +344,7 @@ static int _state_set_idle( usb_hid_dev_t* pdev )
 
       status = usb_ctrlirp(
             pdev->pstack,
+            &pdev->ticket,
             pdev->id,
             &stdreq,
             NULL
@@ -367,7 +369,7 @@ static int _state_set_idle( usb_hid_dev_t* pdev )
       status = usb_irp_status(
             pdev->pstack,
             pdev->id,
-            USB_CTRL_PIPE_TOKEN
+            pdev->ticket
       );
       if (status == USB_STATUS_XFER_WAIT)
       {
@@ -411,6 +413,7 @@ static int _state_set_init( usb_hid_dev_t* pdev )
 
       status = usb_ctrlirp(
             pdev->pstack,
+            &pdev->ticket,
             pdev->id,
             &stdreq,
             pdev->report
@@ -434,7 +437,7 @@ static int _state_set_init( usb_hid_dev_t* pdev )
       status = usb_irp_status(
             pdev->pstack,
             pdev->id,
-            USB_CTRL_PIPE_TOKEN
+            pdev->ticket
       );
       if (status == USB_STATUS_XFER_WAIT)
       {
@@ -480,6 +483,7 @@ static int _state_set_init2( usb_hid_dev_t* pdev )
 
       status = usb_ctrlirp(
             pdev->pstack,
+            &pdev->ticket,
             pdev->id,
             &stdreq,
             pdev->report
@@ -501,7 +505,7 @@ static int _state_set_init2( usb_hid_dev_t* pdev )
       status = usb_irp_status(
             pdev->pstack,
             pdev->id,
-            USB_CTRL_PIPE_TOKEN
+            pdev->ticket
       );
       if (status == USB_STATUS_XFER_WAIT)
       {

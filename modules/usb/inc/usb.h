@@ -112,14 +112,20 @@ extern "C" {
 #define USB_MAX_XFER_RETRIES    3
 
 
-/** @brief Device connected (updated in ISR). */
-#define USB_DEV_STATUS_CONNECTED       (1 << 0)
 /** @brief Device active and connected. */
-#define USB_DEV_STATUS_ACTIVE          (1 << 1)
+#define USB_DEV_STATUS_ACTIVE          (1 << 0)
+/** @brief Device enumerated and initialized. */
+#define USB_DEV_STATUS_INIT            (1 << 1)
 /** @brief Device is self-powered. */
 #define USB_DEV_STATUS_SELF_PWRD       (1 << 2)
 /** @brief Device supports remote wakeup. */
 #define USB_DEV_STATUS_REMOTE_WKUP     (1 << 3)
+/**
+ * @brief Whether the device has requested a control transfer, this will be used
+ * entirely by the Host during initialization  so  we  know  no  more  than  one
+ * request at a time will be active (no matter the number of interfaces).
+ */
+#define USB_DEV_STATUS_REQUEST         (1 << 4)
 /** @brief Root HUB/device identifier.  */
 #define USB_DEV_PARENT_ROOT            ((uint8_t) -1)
 
@@ -230,13 +236,10 @@ typedef enum _usb_xfer_type_t
  */
 typedef struct _usb_msg_pipe_t
 {
-   uint8_t          xfer_buffer[USB_XFER_BUFFER_LEN]; /**< Control buffer.    */
+   uint8_t*         buffer;       /**< Pointer to message buffer.             */
    uint8_t          stdreq[USB_STDREQ_SIZE]; /**< Standard request buffer.    */
-   usb_dir_t        dir;          /**< Endpoint's direction.                  */
-   uint8_t          xfer_length;  /**< Control buffer's length.               */
    uint8_t          retries;      /**< Number of transfer retries so far.     */
    uint8_t          handle;       /**< Hardware pipe's handle.                */
-   uint8_t          mps;          /**< Maximum packet size.                   */
    uint8_t          lock;         /**< Pipe's lock control.                   */
 } usb_msg_pipe_t;
 
@@ -290,8 +293,8 @@ typedef uint8_t usb_driver_handle_t;
 typedef struct _usb_interface_t
 {
    usb_pipe_t          endpoints[USB_MAX_ENDPOINTS]; /**< Array of endpoints. */
-   uint16_t            n_endpoints;    /**< Number of endpoints.              */
    usb_driver_handle_t driver_handle;  /**< Interface's driver handle.        */
+   uint16_t            n_endpoints;    /**< Number of endpoints.              */
    uint8_t             class;
    uint8_t             subclass;
    uint8_t             protocol;
@@ -310,29 +313,20 @@ typedef struct _usb_interface_t
  */
 typedef enum _usb_dev_state_t
 {
-   USB_DEV_STATE_WAITING_ACK,       /**< Waiting for a control transaction
-                                         during enumeration to ACK.           */
-   USB_DEV_STATE_WAITING_DELAY,     /**< Waiting for a delay to expire.       */
+   USB_DEV_STATE_WAIT_DELAY,        /**< Waiting for a delay to expire.       */
    USB_DEV_STATE_DISCONNECTED,      /**< No device connected.                 */
    USB_DEV_STATE_ATTACHED,          /**< Attached, waiting for power.         */
-   USB_DEV_STATE_POWERED,           /**< Powered, assert USB reset.           */
-   USB_DEV_STATE_RESET,             /**< Holding USB reset high for 10~20 ms. */
-   USB_DEV_STATE_DEFAULT,           /**< Reseted, configuring pipes and new
-                                         address.                             */
-   USB_DEV_STATE_ADDRESS_RESET,     /**< Get MPS and reset device again.      */
-   USB_DEV_STATE_ADDRESS,           /**< Address being assigned.              */
-   USB_DEV_STATE_CONFIGURING_PIPES, /**< Configure ctrl. pipe to new address
-                                         and request dev. desc.               */
-   USB_DEV_STATE_DEV_DESC,          /**< Parse dev. desc. and request config.
-                                         descriptor's first 9 bytes.          */
-   USB_DEV_STATE_CFG_DESC_LEN9,     /**< Get cfg. desc.'s length and request
-                                         it full (up to 256 bytes).           */
-   USB_DEV_STATE_CFG_DESC,          /**< Parse cfg. desc. and request ifaces.
-                                         descriptors.                         */
-   USB_DEV_STATE_UNLOCKING,         /**< */
-   USB_DEV_STATE_UNLOCKING2,        /**< */
-   USB_DEV_STATE_CONFIGURED,        /**< Configured, in stand by for
-                                         transactions.                        */
+   USB_DEV_STATE_POWERED,           /**< Powered, start reset and lock addr 0 */
+   USB_DEV_STATE_RESET,             /**< Request a bus-reset.                 */
+   USB_DEV_STATE_DEFAULT,           /**< Wait for the bus-reset to complete.  */
+   USB_DEV_STATE_MPS,               /**< Request 8B of dev descriptor (MPS).  */
+   USB_DEV_STATE_ADDRESS,           /**< Setup device's new address.          */
+   USB_DEV_STATE_DEV_DESC,          /**< Request and parse device descriptor. */
+   USB_DEV_STATE_CFG_DESC_LEN9,     /**< Request first 9B of cfg. descriptor. */
+   USB_DEV_STATE_CFG_DESC,          /**< Request and parse full cfg. desc.    */
+   USB_DEV_STATE_SET_CFG,           /**< Set configuration value.             */
+   USB_DEV_STATE_UNLOCK,            /**< Unlock address 0.                    */
+   USB_DEV_STATE_CONFIGURED,        /**< Configured, in stand by for transfers*/
    USB_DEV_STATE_SUSPENDED,         /**< Bus inactive, waiting for activity.  */
    USB_DEV_STATE_TEST,              /*   For testing purposes.                */
 } usb_dev_state_t;
@@ -373,6 +367,7 @@ typedef struct _usb_device_t
    usb_speed_t     speed;          /**< Speed (LS, FS or HS).                 */
    usb_interface_t interfaces[USB_MAX_INTERFACES]; /**< Array of interfaces.  */
    uint32_t        status;         /**< Device status, see description.       */
+   uint16_t        ticket;         /**< Ticket for following IRP messages.    */
    uint16_t        vendor_ID;      /**< Vendor ID.                            */
    uint16_t        product_ID;     /**< Product ID.                           */
    uint16_t        ticks_delay;    /**< Delay this number of ticks count.     */
@@ -380,8 +375,11 @@ typedef struct _usb_device_t
    uint8_t         parent_hub;     /**< Index of upstream HUB.                */
    uint8_t         parent_port;    /**< Index of upstream HUB.                */
 #endif
+   uint8_t         xfer_buffer[USB_XFER_BUFFER_LEN]; /**< Control buffer.     */
+   uint8_t         xfer_length  ;  /**< Control buffer's length.              */
    uint8_t         max_power;      /**< Maximum consumption from the bus.     */
    uint8_t         addr;           /**< Device's address.                     */
+   uint8_t         mps;            /**< Device's control EP max packet size.  */
    uint8_t         n_interfaces;   /**< Number of interfaces.                 */
    uint8_t         cfg_value;      /**< Configuration value.                  */
 } usb_device_t;

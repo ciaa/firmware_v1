@@ -209,6 +209,7 @@ typedef struct _usb_hid_dev_t
    TaskType           taskID;     /**< ID of user task that opened this HID.  */
    uint32_t           status;     /**< Status, see constant definitions.      */
    uint16_t           id;         /**< Device's ID within the USB stack.      */
+   uint16_t           ticket;     /**< In-progress control transfer's ticket. */
    uint8_t            report[USB_HID_BUFF_LEN];/**< Report's buffer, capped at
                                                     USB_HID_BUFF_LEN.         */
    uint8_t            report_len; /**< Report's length, capped at

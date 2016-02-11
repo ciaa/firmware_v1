@@ -217,6 +217,7 @@ static int _deinit_dev( uint8_t index )
    phub->state        = USB_HUB_STATE_IDLE;
    phub->status       = USB_HUB_STATUS_FREE;
    phub->id           = 0xFFFF;
+   phub->ticket       = 0;
    phub->interval     = 0;
    phub->wait_count   = 0;
    phub->poweron_t    = 0;
@@ -617,7 +618,7 @@ static int _state_idle( usb_hub_t* phub )
    {
       /*
        * Since we might need to retry the next request  (because  we  don't  yet
-       * know it's actual size), this signals it is the first try.
+       * know it's actual size), len = 0 signals it is the first try.
        */
       phub->buffer_len = 0;
       _next_state(phub, USB_HUB_STATE_DESC);
@@ -1152,7 +1153,13 @@ static int _ctrl_request( usb_hub_t* phub, usb_stdreq_t* preq )
 
    if (phub->status & USB_HUB_STATUS_REQUEST)
    {
-      status = usb_ctrlirp(phub->pstack, phub->id, preq, phub->buffer);
+      status = usb_ctrlirp(
+            phub->pstack,
+            &phub->ticket,
+            phub->id,
+            preq,
+            phub->buffer
+      );
       if (status == USB_STATUS_OK)
       {
          phub->status &= ~USB_HUB_STATUS_REQUEST;
@@ -1166,7 +1173,7 @@ static int _ctrl_request( usb_hub_t* phub, usb_stdreq_t* preq )
    else
    {
       /* Waiting for acknowledge... */
-      status = usb_irp_status(phub->pstack, phub->id, USB_CTRL_PIPE_TOKEN);
+      status = usb_irp_status(phub->pstack, phub->id, phub->ticket);
    }
    return status;
 }

@@ -387,6 +387,7 @@ int usbhci_msg_pipe_configure( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
 {
    struct _usbhci_pipe_t* phci_pipe;
    int     status;
+   uint8_t hub;
    uint8_t port;
 
    usb_assert(pdev != NULL);
@@ -395,9 +396,12 @@ int usbhci_msg_pipe_configure( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
 
    phci_pipe = &_pipe_handle[pmsg->handle];
 
+   hub  = 0;
    port = 0;
-   if (pdev->speed == USB_SPD_HS && pdev->parent_port != USB_DEV_PARENT_ROOT)
+   if (pdev->speed != USB_SPD_HS && usbhci_get_speed() == USB_SPD_HS)
    {
+      /* FS/LS pipes require the HUB port when connected through a HS HUB one.*/
+      hub  = 1;
       port = pdev->parent_port;
    }
 
@@ -414,13 +418,13 @@ int usbhci_msg_pipe_configure( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
          USB_CORENUM,
          pdev->addr & USB_ADDR_MASK,
          _to_lpc_speed(pdev->speed),
-         pmsg->number,
+         0,
          _to_lpc_type(USB_CTRL),
-         _to_lpc_dir(pmsg->dir),
-         pmsg->mps,
+         _to_lpc_dir(USB_DIR_TOK),
+         pdev->mps,
          1,
          1, /** @TODO Mult, for ISO @ HS with >1 transaction per uframe */
-         0, /** @TODO get this from the USB stack */
+         hub, /** @TODO get this from the USB stack */
          port,
          &phci_pipe->handle );
 
@@ -459,7 +463,7 @@ int usbhci_ctrlxfer_start( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
 
    usb_assert(pdev != NULL);
    usb_assert(pmsg != NULL);
-   usb_assert( pmsg->xfer_buffer != NULL || (pmsg->xfer_buffer == NULL &&
+   usb_assert( pmsg->buffer != NULL || (pmsg->buffer == NULL &&
             USB_STDREQ_GET_wLength(pmsg->stdreq) == 0) );
    usb_assert(pmsg->handle < HCD_MAX_ENDPOINT);
 
@@ -467,7 +471,7 @@ int usbhci_ctrlxfer_start( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
    if ( !HcdControlTransfer(
             _pipe_handle[pmsg->handle].handle,
             pmsg->stdreq,
-            pmsg->xfer_buffer) )
+            pmsg->buffer) )
    {
       ret = USB_STATUS_OK;
    }
