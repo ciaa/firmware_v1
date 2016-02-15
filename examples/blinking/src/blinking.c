@@ -67,10 +67,14 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_stdio.h"
+#include "chip.h"
 #include "os.h"               /* <= operating system header */
-#include "ciaaPOSIX_stdio.h"  /* <= device handler header */
 #include "ciaaPOSIX_string.h" /* <= string header */
 #include "ciaak.h"            /* <= ciaa kernel header */
+#include "mem_tests.h"        /* <= NXP mem tests header */
+#include "EMC.h"             /* <= EMC module header */
 #include "blinking.h"         /* <= own header */
 
 /*==================[macros and definitions]=================================*/
@@ -86,6 +90,7 @@
  * Device path /dev/dio/out/0
  */
 static int32_t fd_out;
+bool EMC_Success;
 
 /*==================[external data definition]===============================*/
 
@@ -143,8 +148,19 @@ void ErrorHook(void)
  */
 TASK(InitTask)
 {
+	MEM_TEST_SETUP_T MemSetup;
+
    /* init CIAA kernel and devices */
    ciaak_start();
+   //
+   Chip_SetupCoreClock(CLKIN_IRC, 190000000, true);
+   EMC_Initialize();
+   ciaaPOSIX_memset(&MemSetup, 0, sizeof(MemSetup));
+   MemSetup.start_addr = CIAA_EMC_LPC43XX_SDRAM_BASE;
+   MemSetup.bytes = 100000;
+   EMC_Success = mem_test_address(&MemSetup);
+   EMC_Success &= mem_test_invaddress(&MemSetup);
+   EMC_Success &= mem_test_pattern(&MemSetup);
 
    /* print message (only on x86) */
    ciaaPOSIX_printf("Init Task...\n");
@@ -178,6 +194,14 @@ TASK(PeriodicTask)
    /* blink output */
    ciaaPOSIX_read(fd_out, &outputs, 1);
    outputs ^= 0x20;
+   if(!EMC_Success)
+   {
+      outputs |= 0x40; //algo fallo!
+   }
+   else
+   {
+      outputs ^= 0x80;
+   }
    ciaaPOSIX_write(fd_out, &outputs, 1);
 
    /* terminate task */
