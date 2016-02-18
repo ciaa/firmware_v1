@@ -3,6 +3,7 @@
 # Copyright 2014, 2015, Mariano Cerdeiro
 # Copyright 2014, 2015, Juan Cecconi (Numetron, UTN-FRBA)
 # Copyright 2014, 2015, Esteban Volentini (LabMicro, UNT)
+# Copyright 2016, 		Franco Bucafusco (BuckLabs)
 # All rights reserved
 #
 # This file is part of CIAA Firmware.
@@ -49,6 +50,7 @@
 #
 ###############################################################################
 -include Makefile.mine
+
 ###############################################################################
 # ARCH, CPUTYPE and CPU following are supported
 # +--------------+---------------+----------------+--------------+---------------+
@@ -71,6 +73,7 @@ CPUTYPE        ?= ia64
 CPU            ?= none
 COMPILER       ?= gcc
 endif
+
 # Default values for ciaa_sim_ia32
 ifeq ($(BOARD),ciaa_sim_ia32)
 ARCH           ?= x86
@@ -78,13 +81,15 @@ CPUTYPE        ?= ia32
 CPU            ?= none
 COMPILER       ?= gcc
 endif
+
 # Default values for ciaa_pic
 ifeq ($(BOARD),ciaa_pic)
 ARCH           ?= mips
 CPUTYPE        ?= pic32
 CPU            ?= pic32mz
 COMPILER       ?= gcc
-endif
+endif 
+
 # Default values for edu_ciaa_nxp
 ifeq ($(BOARD),edu_ciaa_nxp)
 ARCH           ?= cortexM4
@@ -92,6 +97,7 @@ CPUTYPE        ?= lpc43xx
 CPU            ?= lpc4337
 COMPILER       ?= gcc
 endif
+
 # Default values for ciaa_nxp
 ifeq ($(BOARD),ciaa_nxp)
 ARCH           ?= cortexM4
@@ -99,6 +105,7 @@ CPUTYPE        ?= lpc43xx
 CPU            ?= lpc4337
 COMPILER       ?= gcc
 endif
+
 # Default values for ciaa_fsl
 ifeq ($(BOARD),ciaa_fsl)
 ARCH           ?= cortexM4
@@ -106,12 +113,22 @@ CPUTYPE        ?= k60_120
 CPU            ?= mk60fx512vlq15
 COMPILER       ?= gcc
 endif
+
+# Default values for MSP-EXP430G2
+ifeq ($(BOARD), MSP-EXP430G2)
+ARCH           ?= msp430
+CPUTYPE        ?= msp430g2x
+CPU            ?= msp430g2231
+COMPILER       ?= gcc
+endif
+
 # Default values in other case
 ARCH           ?= x86
 CPUTYPE        ?= ia32
 CPU            ?= none
 COMPILER       ?= gcc
 BOARD          ?= none
+
 # export defined vars to the environment
 export ARCH
 export CPUTYPE
@@ -168,9 +185,11 @@ MULTILINE_ECHO    = echo -e
 define cyg2win
 `cygpath -w $(1)`
 endef
+
 define cp4c
 $(if $(findstring tst_,$(MAKECMDGOALS)),$(1),$(call cyg2win,$(1)))
 endef
+
 # Libraries group linker parameters
 START_GROUP       = -Xlinker --start-group
 END_GROUP         = -Xlinker --end-group
@@ -183,23 +202,29 @@ MULTILINE_ECHO    = echo -n
 define cyg2win
 $(1)
 endef
+
 define cp4c
 $(1)
 endef
+
 UNAME_S           := $(shell uname -s)
+
 ifeq ($(UNAME_S),Linux)
 # LINUX
 # Libraries group linker parameters
 START_GROUP       = -Xlinker --start-group
 END_GROUP         = -Xlinker --end-group
 endif
+
 ifeq ($(UNAME_S),Darwin)
 # MACOS
 # Compile in 32 bits mode
 ifeq ($(ARCH),x86)
 CFLAGS            += -m32 -Wno-typedef-redefinition
+
 # 32 bits non relocable excutable image
 LFLAGS            += -m32 -Xlinker -no_pie
+
 # Libraries group linker parameters
 START_GROUP       = -all_load
 END_GROUP         =
@@ -213,25 +238,34 @@ endif
 ###############################################################################
 # get root dir
 ROOT_DIR := .
+
 # out dir
 OUT_DIR   = $(ROOT_DIR)$(DS)out
+
 # object dir
 OBJ_DIR  = $(OUT_DIR)$(DS)obj
+
 # lib dir
 LIB_DIR  = $(OUT_DIR)$(DS)lib
+
 # bin dir
 BIN_DIR  = $(OUT_DIR)$(DS)bin
+
 # rtos gen dir
 GEN_DIR = $(OUT_DIR)$(DS)gen
+
 # rtos test gen dir
 RTOS_TEST_GEN_DIR = $(OUT_DIR)$(DS)rtos
+
 # etc dir (configuration dir)
 ETC_DIR = $(OUT_DIR)$(DS)etc
 
 # include needed project
 include $(PROJECT_PATH)$(DS)mak$(DS)Makefile
+
 # base module is always needed and included
 MODS += modules$(DS)base
+
 # include needed modules
 include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 
@@ -239,22 +273,31 @@ include $(foreach module, $(MODS), $(module)$(DS)mak$(DS)Makefile)
 
 # add include files
 INCLUDE += $(foreach LIB, $(LIBS), $($(LIB)_INC_PATH))
+
 #Adds include project file if We wanto to do a project build
 ifneq ($(findstring tst_, $(MAKECMDGOALS)),tst_)
 CFLAGS  += $(foreach inc, $(INC_FILES), -I$(call cp4c,$(inc)))
 endif
-CFLAGS  += $(foreach inc, $(INCLUDE), -I$(inc))
+
+CFLAGS  += $(foreach inc, $(INCLUDE), -I $(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DBOARD=$(BOARD)
+	
 TARGET_NAME ?= $(BIN_DIR)$(DS)$(PROJECT_NAME)
+
 LD_TARGET = $(TARGET_NAME).$(LD_EXTENSION)
+
 # create list of object files for a Lib (without DIR), based on source file %.c and %.s
 $(foreach LIB, $(LIBS), $(eval $(LIB)_OBJ_FILES =  $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(patsubst %.cpp,%.o,$($(LIB)_SRC_FILES))))))))
+
 # Complete list of object files (without DIR), based on source file %.c and %.s
 $(foreach LIB, $(LIBS), $(eval LIBS_OBJ_FILES += $($(LIB)_OBJ_FILES)))
+
 # Complete Libs Source Files for debug Info
 $(foreach LIB, $(LIBS), $(eval LIBS_SRC_FILES += $($(LIB)_SRC_FILES)))
+
 # Complete Libs Source Dirs for vpath search (duplicates removed by sort)
 $(foreach LIB, $(LIBS), $(eval LIBS_SRC_DIRS += $(sort $(dir $($(LIB)_SRC_FILES)))))
+
 # Add the search patterns
 vpath %.c $($(PROJECT_NAME)_SRC_PATH)
 vpath %.c $(LIBS_SRC_DIRS)
@@ -298,6 +341,7 @@ FILES_TO_MOCK = $(foreach DIR, $(DIRS), $(wildcard $(DIR)inc$(DS)*.h))
 
 FILES_MOCKED = $(foreach MOCKED, $(FILES_TO_MOCK), $(MOCKS_OUT_DIR)$(DS)mock_$(notdir $(MOCKED)))
 
+ 
 
 ###############################################################################
 # rule for tst_<mod>[_file]
@@ -309,12 +353,15 @@ tst_mod = $(firstword $(filter-out tst,$(subst _, ,$(MAKECMDGOALS))))
 # get file to be tested (if present) and store it in tst_file
 # this shall be done multiple times, one time for each possible _, no 3 _ are supported in the test file name
 tst_file := $(word 2,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS))))
+
 ifneq ($(word 3,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))),)
 tst_file := $(join $(tst_file),_$(word 3,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))))
 endif
+
 ifneq ($(word 4,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))),)
 tst_file := $(join $(tst_file),_$(word 4,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))))
 endif
+
 ifneq ($(word 5,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))),)
 tst_file := $(join $(tst_file),_$(word 5,$(filter-out tst,$(subst _, ,$(MAKECMDGOALS)))))
 endif
@@ -323,9 +370,10 @@ endif
 ifeq ($(tst_file),all)
 tst_file :=
 endif
-
+	
 # include corresponding makefile
 include modules$(DS)$(tst_mod)$(DS)mak$(DS)Makefile
+	
 # include test makefile
 include modules$(DS)$(tst_mod)$(DS)test$(DS)utest$(DS)mak$(DS)Makefile
 
@@ -353,8 +401,10 @@ UNITY_SRC = modules$(DS)$(tst_mod)$(DS)test$(DS)utest$(DS)src$(DS)test_$(tst_fil
             $(foreach file,$(filter-out $(tst_file).c,$(notdir $($(tst_mod)_SRC_FILES))), out$(DS)ceedling$(DS)mocks$(DS)mock_$(file)) \
             $(foreach mods,$($(tst_mod)_TST_MOD), $(foreach files, $(notdir $($(mods)_SRC_FILES)), out$(DS)ceedling$(DS)mocks$(DS)mock_$(files))) \
             $(foreach tst_mocks, $($(tst_mod)_TST_MOCKS), out$(DS)ceedling$(DS)mocks$(DS)mock_$(tst_mocks))
+
 # Needed Unity Obj files
 UNITY_OBJ = $(notdir $(UNITY_SRC:.c=.o))
+
 # Add the search patterns
 $(foreach U_SRC, $(sort $(dir $(UNITY_SRC))), $(eval vpath %.c $(U_SRC)))
 
@@ -368,7 +418,6 @@ MTEST := $(notdir $(wildcard $($(tst_mod)_PATH)$(DS)test$(DS)utest$(DS)src$(DS)t
 MTEST := $(subst test_,,$(MTEST))
 MTEST := $(subst .c,,$(MTEST))
 MTEST := $(foreach tst, $(MTEST),tst_$(tst_mod)_$(tst))
-
 
 endif
 
@@ -431,6 +480,7 @@ code_sanity:
 	@echo ===============================================================================
 	@echo Checking for trailing spaces
 	@./modules/tools/scripts/check_trailing_spaces.sh
+
 ###############################################################################
 # rule to run osek oil generator tests
 osek_oil_gen_tst:
@@ -459,7 +509,7 @@ tst:
 	@echo "|               Unit Tests                                                    |"
 	@echo "+-----------------------------------------------------------------------------+"
 	@$(MULTILINE_ECHO) "Following tst rules have been created:\n $(foreach TST,$(ALL_MODS),     tst_$(TST): run unit tests of $(TST)\n)"
-
+	@echo $(RUNNERS_OUT_DIR)
 
 $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo ' '
@@ -487,7 +537,8 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo ===============================================================================
 	@echo Compiling 'c' file: $<
 	@echo ' '
-	$(CC) $(CFLAGS) $(call cp4c,$<) -o $(OBJ_DIR)$(DS)$@
+	$(CC) $(CFLAGS) $(call cp4c,$<) -o $(OBJ_DIR)$(DS)$@ 
+
 ifeq ($(MAKE_DEPENDENCIES),1)
 	@echo ' '
 	@echo Generating dependencies...
@@ -517,18 +568,21 @@ endif
 	@echo Compiling 'asm' with C preprocessing file: $<
 	@echo ' '
 	$(CC) $(CFLAGS) -x assembler-with-cpp $(call cp4c,$<) -o $(OBJ_DIR)$(DS)$@
-
-
+  
 ###############################################################################
 # Incremental Build (IDE: Build)
 # link rule
 
 # New rules for LIBS dependencies
 $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$($(LIB)_OBJ_FILES:.o=.d))))
+
 # New rules for project dependencies
 $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:.o=.d))))
+
 # libs with contains sources
 LIBS_WITH_SRC	= $(foreach LIB, $(LIBS), $(if $(filter %.c,$($(LIB)_SRC_FILES)),$(LIB)))
+
+ 
 
 $(PROJECT_NAME) : $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
@@ -539,7 +593,7 @@ $(PROJECT_NAME) : $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(PROJECT_NAME)
-	@echo ' '
+
 	$(POST_BUILD)
 
 ###############################################################################
@@ -587,12 +641,36 @@ doxygen:
 	doxygen modules$(DS)tools$(DS)doxygen$(DS)doxygen.cnf
 
 ###############################################################################
-# openocd
+# openocd inclusion
+ifeq ($(ARCH),x86)
+	
+else
+ifeq ($(ARCH),msp430)
+
+else
+# if CPU is not entered shows an error
+ifeq ($(CPU),)
+	
+else
+ifeq ($(OPENOCD_CFG),)
+
+else
 include modules$(DS)tools$(DS)openocd$(DS)mak$(DS)Makefile
+endif
+endif
+endif
+endif
+
+###############################################################################
+# openocd rule
 openocd:
+
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
+else
+ifeq ($(ARCH),msp430)
+	@echo ERROR: MSP430 do not support OpenOCD, use mspdebug instead.
 else
 # if CPU is not entered shows an error
 ifeq ($(CPU),)
@@ -608,6 +686,38 @@ else
 endif
 endif
 endif
+endif
+
+
+###############################################################################
+# mspdebug inclusion
+ifeq ($(ARCH),msp430)
+include modules$(DS)tools$(DS)mspdebug$(DS)mak$(DS)Makefile
+endif 
+
+###############################################################################
+# mspdebug rule
+
+mspdebug:
+
+ifneq ($(ARCH),msp430)
+	@echo ERROR: mspdebug only works on MSP430 architecture.
+else
+# if CPU is not entered shows an error
+ifeq ($(CPU),)
+	@echo ERROR: The CPU variable of your makefile is empty.
+else
+ifeq ($(MSPDEBUG_CFG),)
+	@echo ERROR: Your CPU: $(CPU) may not be supported...
+else
+	@echo ===============================================================================
+	@echo Starting mspdebug...
+	@echo ' '
+	$(MSPDEBUG_BIN) $(MSPDEBUG_FLAGS)
+endif
+endif
+endif
+
 
 ###############################################################################
 # Take make arguments into MAKE_ARGS variable
@@ -669,12 +779,15 @@ download:
 ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
 else
+ifeq ($(ARCH),msp430)
+	@echo ERROR: DOWNLOAD TODAVIA NO IMPLEMENTADO
+else
 # if CPU is not entered shows an error
 ifeq ($(CPU),)
 	@echo ERROR: The CPU variable of your makefile is empty.
 else
-ifeq ($(OPENOCD_CFG),)
-	@echo ERROR: Your CPU: $(CPU) may not be supported...
+ifeq ( $(OPENOCD_CFG), )
+	@echo ERROR: Your CPU: $(CPU) may not be supported... 
 else
 	@echo ===============================================================================
 	@echo Starting OpenOCD and downloading...
@@ -688,6 +801,7 @@ ifeq ($(words $(MAKE_ARGS)),1)
 	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 1,$(MAKE_ARGS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
 else
 	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 1,$(MAKE_ARGS)) $(TARGET_DOWNLOAD_$(word 2,$(MAKE_ARGS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+endif
 endif
 endif
 endif
@@ -822,12 +936,12 @@ info:
 	@echo BOARD/ARCH/CPUTYPE/CPU...: $(BOARD)/$(ARCH)/$(CPUTYPE)/$(CPU)
 	@echo enable modules.....: $(MODS)
 	@echo libraries..........: $(LIBS)
-	@echo libraris with srcs.: $(LIBS_WITH_SRC)
+	@echo libraries with srcs: $(LIBS_WITH_SRC)
 	@echo RTOS config........: $(POIL_FILES) $(OIL_FILES)
-#	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
-#	@echo Lib Src Files......: $(LIBS_SRC_FILES)
-#	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)
-#	@echo Project Src Path...: $($(PROJECT_NAME)_SRC_PATH)
+	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
+	@echo Lib Src Files......: $(LIBS_SRC_FILES)
+	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)
+	@echo Project Src Path...: $($(PROJECT_NAME)_SRC_PATH)
 	@echo Includes...........: $(INCLUDE)
 	@echo use make info_\<mod\>: to get information of a specific module. eg: make info_posix
 	@echo "+-----------------------------------------------------------------------------+"
@@ -907,6 +1021,7 @@ generate_make: generate
 Link2RAM:
 	make LINKER_SCRIPT=$(LINKER_SCRIPT_RAM_EXEC)
 
+
 ###############################################################################
 # Run the bin file
 run:
@@ -919,6 +1034,7 @@ ifeq ($(ARCH),x86)
 else
 	@echo ERROR: You can not run this binary due to you are not in Windows nor Linux ARCH
 endif
+
 ###############################################################################
 # Run all FreeOSEK Tests
 include modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)mak$(DS)Makefile

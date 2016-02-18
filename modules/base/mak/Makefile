@@ -35,14 +35,18 @@
 ###############################################################################
 # library
 LIBS               += base
+
 # version
 base_VERSION		  = 0.4.1
+
 # library path
 base_PATH      = $(ROOT_DIR)$(DS)modules$(DS)base
+
 # library source path
 base_SRC_PATH  = $(base_PATH)$(DS)src
+
 # library include path
-base_INC_PATH  = $(base_PATH)$(DS)inc                      \
+base_INC_PATH  = $(base_PATH)$(DS)inc                           \
    $(base_PATH)$(DS)$(ARCH)$(DS)inc                             \
    $(base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc              \
    $(base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc

@@ -1,4 +1,5 @@
-/* Copyright 2014, ACSE & CADIEEL
+/* Copyright 2016, Franco Bucafusco (BuckLabs)
+ * Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  * Copyright 2014, 2015 Mariano Cerdeiro
@@ -80,6 +81,8 @@ extern "C" {
 #define mips                  3
 /** \brief ARCH cortexM0 */
 #define cortexM0              4
+/** \brief ARCH msp430 */
+#define msp430                5
 
 /****** CPUTYPE macro definitions ******/
 /*** CPUTYPES for ARCH=x86 ***/
@@ -98,6 +101,10 @@ extern "C" {
 /*** CPUTYPES for ARCH=mips ***/
 #define pic32                 1
 
+/*** CPUTYPES for ARCH=msp430 ***/
+#define msp430g2x             1
+#define msp430f5x_6x          2
+
 /****** CPU macro definitions ******/
 /*** CPU for ARCH=x86 CPUTYPE=ia32 ***/
 
@@ -111,6 +118,12 @@ extern "C" {
 
 /*** CPU for ARCH=mips CPUTYPE=pic32 ***/
 #define pic32mz               3
+
+/*** CPU for ARCH=msp430 CPUTYPE=msp430g2x_ ***/
+#define msp430g2231    	      4
+
+/*** CPU for ARCH=msp430 CPUTYPE=msp430f5x_6x ***/
+#define msp430f5529           5
 
 /****** BOARDS macro definitions ******/
 /*** BOARD for ARCH=x86 CPUTYPE=ia32 ***/
@@ -130,20 +143,33 @@ extern "C" {
 
 /*** BOARD for ARCH=mips CPUTYPE=pic32 ***/
 #define ciaa_pic              6
+ 
+/*** BOARD for ARCH=msp430 CPUTYPE=msp430_ ***/
+#define msp_ext430g2          7
+#define ciaa_430              8
 
 /****** CIAAPLATFORM_REGLENGTH ******/
 /** \brief definition of the lenght of the register */
 #if (ARCH == x86)
+
 #if (CPUTYPE == ia32)
 #define CIAAPLATFORM_REGLENGTH      32
 #elif (CPUTYPE == ia64)
 #define CIAAPLATFORM_REGLENGTH      64
+#endif
+
+#endif
+
+#if (ARCH == msp430)
+#if (  CPUTYPE == msp430  )
+#define CIAAPLATFORM_REGLENGTH      16
 #endif
 #endif
 
 /****** CIAAPLATFORM_ENDIANESS ******/
 #define CIAAPLATFORM_BIGENDIAN      0
 #define CIAAPLATFORM_LITTLEENDIAN   1
+
 #if (ARCH == posix)
 #define CIAAPLATFORM_ENDIANESS CIAAPLATFORM_LITTLEENDIAN
 #endif
@@ -167,6 +193,10 @@ extern "C" {
 #elif ( ( ARCH == mips ) && \
         ( CPUTYPE == pic32 ) && \
         ( CPU == pic32mz ) )
+#elif ( ( ARCH == msp430 ) && \
+        ( CPUTYPE == msp430g2x ) && \
+        ( CPU == msp430g2231 ) )
+
 #else
 #error the entered architecture is not supported... :(
 #endif
