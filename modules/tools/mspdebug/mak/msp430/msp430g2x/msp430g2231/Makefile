@@ -35,18 +35,25 @@
 #
 ###############################################################################
 # openocd config
-OPENOCD_CFG				= $(OPENOCD_PATH)$(DS)cfg$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)ciaa-nxp.cfg
+#OPENOCD_CFG				= $(OPENOCD_PATH)$(DS)cfg$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)ciaa-nxp.cfg
+
 # A relocation offset used when write the image file to the current target’s flash bank
-TARGET_DOWNLOAD_FLASH_BASE_ADDR = 0x1A000000
-TARGET_DOWNLOAD_FLASH_BANK = 0
+#TARGET_DOWNLOAD_FLASH_BASE_ADDR = 0x1A000000
+#TARGET_DOWNLOAD_FLASH_BANK = 0
+
 # A relocation offset used when write the image file to the current target’s qspi bank
-TARGET_DOWNLOAD_QSPI_BASE_ADDR = 0x14000000
-TARGET_DOWNLOAD_QSPI_BANK = 1
+#TARGET_DOWNLOAD_QSPI_BASE_ADDR = 0x14000000
+#TARGET_DOWNLOAD_QSPI_BANK = 1
+
 # The file type to be flashed, must be specified explicitly. ex.: bin
-TARGET_DOWNLOAD_EXTENSION = bin
+#TARGET_DOWNLOAD_EXTENSION = bin
+
 # Flash write command
-FLASH_WRITE_COMMAND = flash write_image erase unlock
+FLASH_WRITE_COMMAND =  "prog $(LD_TARGET)"
+
+
 # Flash erase comand
-FLASH_ERASE_COMMAND = flash erase_sector
+FLASH_ERASE_COMMAND =  erase
+
 # Flash mass erase comand
 MASS_ERASE_COMMAND = flash erase_sector 0 0 last

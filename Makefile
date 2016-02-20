@@ -308,6 +308,7 @@ vpath %.o $(OBJ_DIR)
 vpath %.oil $(ETC_DIR)
 vpath %.poil $(dir $(POIL_FILES))
 
+
 #rule for library
 define librule
 $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
@@ -318,6 +319,7 @@ $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ' '
 endef
 
+ 
 OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(SRC_FILES)))))
 OIL_4_GEN += $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(POIL_FILES))), $(ETC_DIR)$(DS)$(OIL)) $(OIL_FILES)
 OIL_4_GEN_DEP += $(notdir $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(POIL_FILES))), $(ETC_DIR)$(DS)$(OIL))) $(OIL_FILES)
@@ -578,10 +580,9 @@ $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$($(LIB)_OBJ
 
 # New rules for project dependencies
 $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:.o=.d))))
-
+ 
 # libs with contains sources
 LIBS_WITH_SRC	= $(foreach LIB, $(LIBS), $(if $(filter %.c,$($(LIB)_SRC_FILES)),$(LIB)))
-
  
 
 $(PROJECT_NAME) : $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
@@ -732,6 +733,13 @@ erase:
 ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
 else
+ifeq ($(ARCH),msp430)
+	@echo ===============================================================================
+	@echo Starting mspdebug and erasing...
+	@echo
+	#@echo $(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(FLASH_ERASE_COMMAND)
+	$(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(FLASH_ERASE_COMMAND)
+else
 # if CPU is not entered shows an error
 ifeq ($(CPU),)
 	@echo ERROR: The CPU variable of your makefile is empty.
@@ -772,6 +780,8 @@ endif
 endif
 endif
 endif
+endif
+
 ###############################################################################
 # Download to target, syntax download [file]
 download:
@@ -780,7 +790,10 @@ ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
 else
 ifeq ($(ARCH),msp430)
-	@echo ERROR: DOWNLOAD TODAVIA NO IMPLEMENTADO
+	@echo ===============================================================================
+	@echo Starting mspdebug and downloading...
+	@echo
+	$(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(FLASH_WRITE_COMMAND)
 else
 # if CPU is not entered shows an error
 ifeq ($(CPU),)
@@ -1148,3 +1161,4 @@ ifeq ($(CPUTYPE),lpc43xx)
 else
 	@echo '$(CPUTYPE) not supported for multicore.'
 endif
+ 

@@ -1,7 +1,6 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro
-# Copyright 2014, Juan Cecconi
+# Copyright 2016, Franco Bucafusco (BuckLabs)
 #
 # This file is part of CIAA Firmware.
 #
@@ -33,13 +32,17 @@
 #
 ###############################################################################
 # mspdebug path
-MSPDEBUG_PATH 		   = $(ROOT_DIR)$(DS)modules$(DS)tools$(DS)mspdebug
+MSPDEBUG_PATH 		   	= $(ROOT_DIR)$(DS)modules$(DS)tools$(DS)mspdebug
 
-# openocd bin file
-MSPDEBUG_BIN 		   = mspdebug
+# mspdebug bin file
+MSPDEBUG_BIN 		   	= mspdebug
 
-# openocd Flag
-MSPDEBUG_FLAGS 		   = -C $(MSPDEBUG_CFG)
+# mspdebug protocol
+ifeq ($(BOARD),MSP-EXP430G2)
+MSPDEBUG_PROTOCOL		= rf2500
+endif
 
-# openocd dependent makefile
+ 
+
+# mspdebug dependent makefile
 -include $(MSPDEBUG_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Makefile
