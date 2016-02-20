@@ -594,7 +594,7 @@ $(PROJECT_NAME) : $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(PROJECT_NAME)
-
+ 
 	$(POST_BUILD)
 
 ###############################################################################

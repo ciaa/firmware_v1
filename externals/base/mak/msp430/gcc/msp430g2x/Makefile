@@ -37,7 +37,7 @@ LINKER_SCRIPT ?= $(CPU).ld
 
 #LINKER_SCRIPT_RAM_EXEC ?= ciaa_lpc4337_RAM_Exec.ld
 
-LFLAGS += -nostdlib  -T "externals/base/msp430/linker/$(LINKER_SCRIPT)"
+LFLAGS +=  -T "externals/base/msp430/linker/$(LINKER_SCRIPT)"
 
 # this file needs to be compiled separated and not added to a library
 #SRC_FILES                  += $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(D)src$(DS)crp.c
