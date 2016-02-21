@@ -108,12 +108,13 @@ int _irp_status(
          }
          else
          {
+            *pretries += 1;
             status = USB_STATUS_XFER_WAIT;
          }
       }
       else
       {
-         status = USB_STATUS_OK;
+         status = USB_STATUS_EP_STALLED;
       }
    }
    else if (status == USB_STATUS_OK)
