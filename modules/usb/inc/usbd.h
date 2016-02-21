@@ -220,6 +220,8 @@ int usb_stack_update_devices( usb_stack_t* pstack );
  */
 int16_t usb_pipe_get_interval( usb_stack_t* pstack, uint16_t id, uint8_t pipe );
 
+uint8_t usb_device_get_addr( usb_stack_t* pstack, uint16_t id );
+
 
 /* Descriptor parsing methods. */
 

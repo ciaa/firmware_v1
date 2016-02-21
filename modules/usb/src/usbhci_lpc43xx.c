@@ -15,6 +15,10 @@
 #include "usb.h"
 #include "usbd.h"
 #include "usbhci.h"
+#if (USB_MAX_HUBS > 0)
+#include "drivers/usb_hub.h"
+#endif
+
 #include "HAL/HAL.h"
 #include "HCD/HCD.h"
 #include "USBMode.h"
@@ -398,12 +402,17 @@ int usbhci_msg_pipe_configure( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
 
    hub  = 0;
    port = 0;
+#if (USB_MAX_HUBS > 0)
    if (pdev->speed != USB_SPD_HS && usbhci_get_speed() == USB_SPD_HS)
    {
-      /* FS/LS pipes require the HUB port when connected through a HS HUB one.*/
-      hub  = 1;
+      /*
+       * FS/LS pipes require the HUB addr and port when connected through  a  HS
+       * one. The 
+       */
+      hub  = usb_hub_get_address(pdev->parent_hub);
       port = pdev->parent_port;
    }
+#endif
 
    if (phci_pipe->status & USBHCI_PIPE_OPEN)
    {

@@ -377,8 +377,6 @@ typedef struct _usb_device_t
    uint8_t          parent_hub;     /**< Index of upstream HUB.               */
    uint8_t          parent_port;    /**< Index of upstream HUB.               */
 #endif
-   uint8_t          xfer_buffer[USB_XFER_BUFFER_LEN]; /**< Control buffer.    */
-   uint8_t          xfer_length;    /**< Control buffer's length.             */
    uint8_t          cte_index;      /**< Device's index in usb_devices_cfg.   */
    uint8_t          max_power;      /**< Maximum consumption from the bus.    */
    uint8_t          addr;           /**< Device's address.                    */
@@ -403,11 +401,13 @@ typedef enum _usb_host_state_t
 /** @brief USB stack structure.  */
 typedef struct _usb_stack_t
 {
-   uint32_t         status;     /**< Stack status, see description.           */
-   uint16_t         ticks;      /**< 1-millisecond ticks count.               */
    usb_host_state_t state;      /**< Stack's current state.                   */
    usb_msg_pipe_t   def_ep[USB_N_CTRL_ENDPOINTS]; /**< Default control EPs.   */
    usb_device_t     devices[USB_MAX_DEVICES];     /**< Array of devices.      */
+   uint32_t         status;     /**< Stack status, see description.           */
+   uint16_t         ticks;      /**< 1-millisecond ticks count.               */
+   uint8_t          xfer_buffer[USB_XFER_BUFFER_LEN]; /**< Control buffer.    */
+   uint8_t          xfer_length;    /**< Control buffer's current length.     */
    uint8_t          n_devices;  /**< Number of connected devices.             */
 } usb_stack_t;
 

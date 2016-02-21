@@ -1519,6 +1519,14 @@ int usb_hub_port_reset_status( uint8_t hub_idx, uint8_t port )
    return status;
 }
 
+uint8_t usb_hub_get_address( uint8_t hub_idx )
+{
+   usb_hub_t* phub;
+   usb_assert(hub_idx < USB_MAX_HUBS);
+   phub = &_hub_stack.hubs[hub_idx];
+   return usb_device_get_addr(phub->pstack, phub->id);
+}
+
 uint8_t usb_hub_get_n_ports( uint8_t hub_idx )
 {
    usb_assert(hub_idx < USB_MAX_HUBS);

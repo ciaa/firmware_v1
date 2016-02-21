@@ -166,11 +166,11 @@ static int _ctrl_request( usb_stack_t* pstack, uint8_t idx, usb_stdreq_t* preq )
             &pdev->ticket,
             USB_TO_ID(idx, 0),
             preq,
-            pdev->xfer_buffer
+            pstack->xfer_buffer
       );
       if (status == USB_STATUS_OK)
       {
-         pdev->xfer_length = (uint8_t) preq->wLength;
+         pstack->xfer_length = (uint8_t) preq->wLength;
          pdev->status &= ~USB_DEV_STATUS_REQUEST;
          status = USB_STATUS_XFER_WAIT;
       }
@@ -335,7 +335,7 @@ static int _state_mps( usb_stack_t* pstack, uint8_t index )
    else /* USB_STATUS_OK */
    {
       /* Get MPS and reset device once again. */
-      pdev->mps = USB_STDDESC_DEV_GET_bMaxPacketSize0(pdev->xfer_buffer);
+      pdev->mps = USB_STDDESC_DEV_GET_bMaxPacketSize0(pstack->xfer_buffer);
       _port_reset(pdev, index);
       _next_state(pdev, USB_DEV_STATE_RESET, USB_DEV_STATE_ADDRESS);
    }
@@ -405,8 +405,8 @@ static int _state_dev_desc( usb_stack_t* pstack, uint8_t index )
    }
    else /* USB_STATUS_OK */
    {
-      pdev->vendor_ID  = USB_STDDESC_DEV_GET_idVendor(pdev->xfer_buffer);
-      pdev->product_ID = USB_STDDESC_DEV_GET_idProduct(pdev->xfer_buffer);
+      pdev->vendor_ID  = USB_STDDESC_DEV_GET_idVendor(pstack->xfer_buffer);
+      pdev->product_ID = USB_STDDESC_DEV_GET_idProduct(pstack->xfer_buffer);
       _next_state(pdev,USB_DEV_STATE_CFG_DESC_LEN9,USB_DEV_STATE_CFG_DESC_LEN9);
    }
    return status;
@@ -440,7 +440,7 @@ static int _state_cfg_desc_len9( usb_stack_t* pstack, uint8_t index )
    }
    else /* USB_STATUS_OK */
    {
-      if (USB_STDDESC_CFG_GET_wTotalLength(pdev->xfer_buffer)
+      if (USB_STDDESC_CFG_GET_wTotalLength(pstack->xfer_buffer)
             > USB_XFER_BUFFER_LEN)
       {
          usb_assert(0); /** @TODO handle error */
@@ -464,7 +464,7 @@ static int _state_cfg_desc( usb_stack_t* pstack, uint8_t index )
    stdreq.bRequest      = USB_STDREQ_GET_DESCRIPTOR;
    stdreq.wValue        = USB_STDDESC_CONFIGURATION << 8;
    stdreq.wIndex        = 0;
-   stdreq.wLength       = USB_STDDESC_CFG_GET_wTotalLength(pdev->xfer_buffer);
+   stdreq.wLength       = USB_STDDESC_CFG_GET_wTotalLength(pstack->xfer_buffer);
 
    status = _ctrl_request(pstack, index, &stdreq);
    if (status == USB_STATUS_XFER_WAIT)

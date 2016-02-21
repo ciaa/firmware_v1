@@ -516,6 +516,13 @@ int usb_hub_port_reset_start( uint8_t hub_idx, uint8_t port );
 int usb_hub_port_reset_status( uint8_t hub_idx, uint8_t port );
 
 /**
+ * @brief Get HUB bus address.
+ * @param hub_idx HUB identifier.
+ * @return HUB bus address.
+ */
+uint8_t usb_hub_get_address( uint8_t hub_idx );
+
+/**
  * @brief Get number of ports supported by HUB.
  * @param hub_idx HUB identifier.
  * @return Number of ports supported by HUB.

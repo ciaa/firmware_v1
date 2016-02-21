@@ -518,7 +518,6 @@ int usb_device_init( usb_stack_t* pstack, uint8_t index )
    pdev->parent_hub    = USB_DEV_PARENT_ROOT;
    pdev->parent_port   = USB_DEV_PARENT_ROOT;
 #endif
-   pdev->xfer_length   = 0;
    pdev->cte_index     = USB_STACK_INVALID_IDX;
    pdev->max_power     = 0;
    pdev->cfg_value     = 0;
@@ -709,8 +708,8 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
    usb_assert(pstack != NULL);
    usb_assert(index < USB_MAX_DEVICES);
    pdev = &pstack->devices[index];
-   buff = pdev->xfer_buffer;
-   len  = pdev->xfer_length;
+   buff = pstack->xfer_buffer;
+   len  = pstack->xfer_length;
    usb_assert(buff != NULL);
    usb_assert(len > USB_STDDESC_CFG_SIZE);
 
@@ -1046,6 +1045,21 @@ int16_t usb_pipe_get_interval( usb_stack_t* pstack, uint16_t id, uint8_t pipe )
       }
       /* Convert milliseconds into ticks. */
       ret = (ret + USB_TASK_TICKS-1) / USB_TASK_TICKS;
+   }
+   return ret;
+}
+
+uint8_t usb_device_get_addr( usb_stack_t* pstack, uint16_t id )
+{
+   uint8_t ret;
+   /* Validate input parameters. */
+   if ( pstack == NULL || USB_ID_TO_DEV(id) > USB_MAX_DEVICES-1)
+   {
+      ret = USB_STACK_INVALID_IDX;
+   }
+   else
+   {
+      ret = pstack->devices[USB_ID_TO_DEV(id)].addr;
    }
    return ret;
 }
