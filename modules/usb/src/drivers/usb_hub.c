@@ -146,8 +146,8 @@ static int _process_port_feature(
 
 /**
  * @brief Get HUB index within HUB stack from the given pointer.
- * @returns USB_STACK_INVALID_HUB_IDX if device pointer cannot be found within
- *          the HUB stack, actual HUB index otherwise.
+ * @returns USB_STACK_INVALID_IDX if device pointer cannot be found  within  the
+ *          HUB stack, actual HUB index otherwise.
  */
 static uint8_t _get_hub_index( usb_hub_t* phub );
 
@@ -604,7 +604,7 @@ static uint8_t _get_hub_index( usb_hub_t* phub )
    if (idx >= USB_MAX_HUBS)
    {
       /* Device not found. */
-      idx = USB_STACK_INVALID_HUB_IDX;
+      idx = USB_STACK_INVALID_IDX;
    }
    return idx;
 }
@@ -1461,24 +1461,6 @@ int usb_hub_update( void )
       }
    }
    return status;
-}
-
-uint8_t usb_hub_open_next( void )
-{
-   uint8_t i;
-   for (i = 0; i < USB_MAX_HUBS; ++i)
-   {
-      if ( (_hub_stack.hubs[i].status & USB_HUB_STATUS_INIT) &&
-          !(_hub_stack.hubs[i].status & USB_HUB_STATUS_OPEN) )
-      {
-         break;
-      }
-   }
-   if (i >= USB_MAX_HUBS)
-   {
-      i = USB_STACK_INVALID_HUB_IDX;
-   }
-   return i;
 }
 
 usb_speed_t usb_hub_get_speed( uint8_t hub_idx, uint8_t port )

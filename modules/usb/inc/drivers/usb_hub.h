@@ -490,15 +490,8 @@ int usb_hub_init( void );
 int usb_hub_update( void );
 
 /**
- * @brief Get index to next unopened HUB device.
- * @retval  USB_STACK_INVALID_HUB_IDX if all available HUBs are already open.
- * @retval  Next unopened HUB index otherwise.
- */
-uint8_t usb_hub_open_next( void );
-
-/**
  * @brief Get speed of device attached to specified port.
- * @param hub_idx HUB identifier as returned by @ref usb_hub_open_next().
+ * @param hub_idx HUB identifier.
  * @param port    Port number.
  */
 usb_speed_t usb_hub_get_speed( uint8_t hub_idx, uint8_t port );
@@ -506,7 +499,7 @@ usb_speed_t usb_hub_get_speed( uint8_t hub_idx, uint8_t port );
 /**
  * @brief Request a USB bus reset on the specified port.
  *
- * @param hub_idx HUB identifier as returned by @ref usb_hub_open_next().
+ * @param hub_idx HUB identifier.
  * @param port    Port number.
  *
  * @returns Always returns successfully.
@@ -515,7 +508,7 @@ int usb_hub_port_reset_start( uint8_t hub_idx, uint8_t port );
 
 /**
  * @brief Check whether HUB is still driving a bus reset on the specified port.
- * @param hub_idx HUB identifier as returned by @ref usb_hub_open_next().
+ * @param hub_idx HUB identifier.
  * @param port    Port number.
  * @retval USB_STATUS_BUSY USB bus reset is still being held active.
  * @retval USB_STATUS_OK   USB bus reset no longer held high.
@@ -524,7 +517,7 @@ int usb_hub_port_reset_status( uint8_t hub_idx, uint8_t port );
 
 /**
  * @brief Get number of ports supported by HUB.
- * @param hub_idx HUB identifier as returned by @ref usb_hub_open_next().
+ * @param hub_idx HUB identifier.
  * @return Number of ports supported by HUB.
  */
 uint8_t usb_hub_get_n_ports( uint8_t hub_idx );

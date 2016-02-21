@@ -37,8 +37,8 @@ extern "C" {
 /*==================[inclusions]=============================================*/
 #include <stdint.h>
 #include "usb_cfg.h"
-#include "usb_check.h"
 #include "usb_std.h"
+#include "usb_devices_cfg.h"
 
 
 /*==================[macros]=================================================*/
@@ -133,7 +133,7 @@ extern "C" {
 /** @brief Currently writing to a device on address 0. */
 #define USB_STACK_STATUS_ZERO_ADDR  (1 << 0)
 /** @brief Marks a HUB index as unused. */
-#define USB_STACK_INVALID_HUB_IDX   USB_DEV_PARENT_ROOT
+#define USB_STACK_INVALID_IDX       USB_DEV_PARENT_ROOT
 
 
 /**
@@ -289,12 +289,14 @@ typedef uint8_t usb_driver_handle_t;
  *
  * When the stack was unable to assign a driver to an interface, it will set the
  * driver_handle to USB_IFACE_NO_DRIVER.
+ *
+ * @warning The protocol member can only take values from 0 to 253, both 254 and
+ * 255 are reserved for internal USB stack usage.
  */
 typedef struct _usb_interface_t
 {
-   usb_pipe_t          endpoints[USB_MAX_ENDPOINTS]; /**< Array of endpoints. */
+   usb_pipe_t*const    endpoints;      /**< Array of endpoints.               */
    usb_driver_handle_t driver_handle;  /**< Interface's driver handle.        */
-   uint16_t            n_endpoints;    /**< Number of endpoints.              */
    uint8_t             class;
    uint8_t             subclass;
    uint8_t             protocol;
@@ -362,26 +364,26 @@ typedef enum _usb_dev_state_t
  */
 typedef struct _usb_device_t
 {
-   usb_dev_state_t state;          /**< Device's current state.               */
-   usb_dev_state_t next_state;     /**< Device's state after a delay.         */
-   usb_speed_t     speed;          /**< Speed (LS, FS or HS).                 */
-   usb_interface_t interfaces[USB_MAX_INTERFACES]; /**< Array of interfaces.  */
-   uint32_t        status;         /**< Device status, see description.       */
-   uint16_t        ticket;         /**< Ticket for following IRP messages.    */
-   uint16_t        vendor_ID;      /**< Vendor ID.                            */
-   uint16_t        product_ID;     /**< Product ID.                           */
-   uint16_t        ticks_delay;    /**< Delay this number of ticks count.     */
+   usb_dev_state_t  state;          /**< Device's current state.              */
+   usb_dev_state_t  next_state;     /**< Device's state after a delay.        */
+   usb_speed_t      speed;          /**< Speed (LS, FS or HS).                */
+   usb_interface_t* interfaces;     /**< Array of interfaces.                 */
+   uint32_t         status;         /**< Device status, see description.      */
+   uint16_t         ticket;         /**< Ticket for following IRP messages.   */
+   uint16_t         vendor_ID;      /**< Vendor ID.                           */
+   uint16_t         product_ID;     /**< Product ID.                          */
+   uint16_t         ticks_delay;    /**< Delay this number of ticks count.    */
 #if (USB_MAX_HUBS > 0)
-   uint8_t         parent_hub;     /**< Index of upstream HUB.                */
-   uint8_t         parent_port;    /**< Index of upstream HUB.                */
+   uint8_t          parent_hub;     /**< Index of upstream HUB.               */
+   uint8_t          parent_port;    /**< Index of upstream HUB.               */
 #endif
-   uint8_t         xfer_buffer[USB_XFER_BUFFER_LEN]; /**< Control buffer.     */
-   uint8_t         xfer_length  ;  /**< Control buffer's length.              */
-   uint8_t         max_power;      /**< Maximum consumption from the bus.     */
-   uint8_t         addr;           /**< Device's address.                     */
-   uint8_t         mps;            /**< Device's control EP max packet size.  */
-   uint8_t         n_interfaces;   /**< Number of interfaces.                 */
-   uint8_t         cfg_value;      /**< Configuration value.                  */
+   uint8_t          xfer_buffer[USB_XFER_BUFFER_LEN]; /**< Control buffer.    */
+   uint8_t          xfer_length;    /**< Control buffer's length.             */
+   uint8_t          cte_index;      /**< Device's index in usb_devices_cfg.   */
+   uint8_t          max_power;      /**< Maximum consumption from the bus.    */
+   uint8_t          addr;           /**< Device's address.                    */
+   uint8_t          mps;            /**< Device's control EP max packet size. */
+   uint8_t          cfg_value;      /**< Configuration value.                 */
 } usb_device_t;
 
 /**
@@ -407,9 +409,6 @@ typedef struct _usb_stack_t
    usb_msg_pipe_t   def_ep[USB_N_CTRL_ENDPOINTS]; /**< Default control EPs.   */
    usb_device_t     devices[USB_MAX_DEVICES];     /**< Array of devices.      */
    uint8_t          n_devices;  /**< Number of connected devices.             */
-#if (USB_MAX_HUBS > 0)
-   uint8_t          hubs[USB_MAX_HUBS];           /**< Array of HUB indices.  */
-#endif
 } usb_stack_t;
 
 
@@ -451,6 +450,20 @@ typedef struct _usb_driver_t
 
 /** @} USB driver callbacks */
 
+
+/*==================[external functions definition]==========================*/
+/* This are configuration related functions. */
+
+usb_interface_t* usb_devices_cfg_get_ifaces(
+      uint16_t pid,
+      uint16_t vid,
+      uint8_t  n_ifaces,
+      uint8_t* pindex
+);
+
+
+/* Check USB configurations. */
+#include "usb_check.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

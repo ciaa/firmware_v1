@@ -225,13 +225,11 @@ static int _state_powered( usb_stack_t* pstack, uint8_t index )
 #endif
    /*
     * Drive USB reset for 10~20 ms, but  only  if  the  host  is  currently  not
-    * resetting or communicating to another device on address  0.   If  device's
-    * index is 0, then it's the root HUB or  device,  it  is  accessed  directly
-    * through the hardware.  Otherwise, we need to find to which port  in  which
-    * HUB it is connected to in order to reset it.  Also, notify the stack  that
-    * someone will begin an enumeration process, this mean address 0 will be  in
-    * use by this device for the time  being.   Any  other  devices'  reset  and
-    * addressing process pending will have to wait until this one completes.
+    * resetting or communicating to another device on address 0.   Also,  notify
+    * the stack that someone  will  begin  an  enumeration  process,  this  mean
+    * address 0 will be in use by this device for the  time  being.   Any  other
+    * devices' reset and addressing process pending will have to wait until this
+    * one completes.
     */
    if (!(pstack->status & USB_STACK_STATUS_ZERO_ADDR))
    {

@@ -227,7 +227,8 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index );
 
 int usb_device_parse_ifacedesc(
       usb_stack_t*    pstack,
-      uint16_t        id,
+      uint8_t         dev_idx,
+      uint8_t         iface_idx,
       const uint8_t** pbuff,
       uint8_t*        plen
 );

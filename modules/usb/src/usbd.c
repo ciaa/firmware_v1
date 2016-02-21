@@ -13,6 +13,7 @@
 #include <stdio.h>
 
 #include "usb.h"
+#include "usb_devices_cfg.h"
 #include "usbhci.h"
 #include "usb_std.h"
 #include "usb_desc.h"
@@ -165,10 +166,6 @@ int usb_init( usb_stack_t* pstack )
 
 #if (USB_MAX_HUBS > 0)
    usb_hub_init(); /* Initialize HUB driver stack. */
-   for (i = 0; i < USB_MAX_HUBS; ++i)
-   {
-      pstack->hubs[i] = USB_STACK_INVALID_HUB_IDX;
-   }
 #endif
 
    return USB_STATUS_OK;
@@ -514,7 +511,6 @@ int usb_device_init( usb_stack_t* pstack, uint8_t index )
    pdev->speed         = USB_SPD_INV;
    pdev->addr          = USB_DEV_DEFAULT_ADDR;
    pdev->mps           = 0;
-   pdev->n_interfaces  = 0;
    pdev->vendor_ID     = 0;
    pdev->product_ID    = 0;
    pdev->ticks_delay   = pstack->ticks;
@@ -523,6 +519,7 @@ int usb_device_init( usb_stack_t* pstack, uint8_t index )
    pdev->parent_port   = USB_DEV_PARENT_ROOT;
 #endif
    pdev->xfer_length   = 0;
+   pdev->cte_index     = USB_STACK_INVALID_IDX;
    pdev->max_power     = 0;
    pdev->cfg_value     = 0;
 
@@ -532,7 +529,7 @@ int usb_device_init( usb_stack_t* pstack, uint8_t index )
 int usb_device_release( usb_stack_t* pstack, uint8_t index )
 {
    uint8_t          i, j;
-   uint8_t          n_elements;
+   uint8_t          n_elems;
    usb_device_t*    pdev;
    usb_interface_t* piface;
 
@@ -562,31 +559,29 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
    }
 #endif
 
-   /** @TODO error check the following instructions. */
-   n_elements = pdev->n_interfaces;
-   for (i = 0; i < n_elements; ++i)
+   if (pdev->cte_index != USB_STACK_INVALID_IDX)
    {
-      piface = &pdev->interfaces[i];
-      if (piface->driver_handle != USB_IFACE_NO_DRIVER)
+      n_elems = USB_GET_IFACES_N(pdev->cte_index);
+      for (i = 0; i < n_elems; ++i)
       {
-         usb_drivers_remove(
-               pstack,
-               USB_TO_ID(index, i),
-               piface->driver_handle );
-         piface->driver_handle = USB_IFACE_NO_DRIVER;
+         piface = &pdev->interfaces[i];
+         if (piface->driver_handle != USB_IFACE_NO_DRIVER)
+         {
+            usb_drivers_remove(
+                  pstack,
+                  USB_TO_ID(index, i),
+                  piface->driver_handle );
+            piface->driver_handle = USB_IFACE_NO_DRIVER;
+         }
+         for (j = 0; j < USB_GET_EPS_N(pdev->cte_index, i); ++j)
+         {
+            usb_pipe_remove(&piface->endpoints[j]);
+         }
+         piface->class       =   0;
+         piface->subclass    =   0;
+         piface->protocol    = 255; /* Unsupported protocol number. */
       }
-      n_elements = piface->n_endpoints;
-      for (j = 0; j < n_elements; ++j)
-      {
-         usb_pipe_remove(&piface->endpoints[j]);
-      }
-      piface->n_endpoints = 0;
-      piface->class       = 0;
-      piface->subclass    = 0;
-      piface->protocol    = 0;
-      pdev->n_interfaces--;
    }
-   usb_assert(pdev->n_interfaces == 0);
 
    /* Finish by leaving the device in its default state. */
    usb_device_init(pstack, index);
@@ -687,6 +682,8 @@ int16_t usb_device_attach(
       pdev->parent_hub   = parent_hub;
       pdev->parent_port  = parent_port;
 #endif
+      pdev->interfaces   = NULL; /* We request this when enumerating. */
+      pdev->cte_index    = USB_STACK_INVALID_IDX;
    }
    return addr;
 }
@@ -703,6 +700,7 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
    usb_device_t*  pdev;
    const uint8_t* buff;
    const uint8_t* next_buff;
+   uint8_t        n_ifaces;
    uint8_t        len;
    uint8_t        next_len;
    uint8_t        i;
@@ -716,10 +714,23 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
    usb_assert(buff != NULL);
    usb_assert(len > USB_STDDESC_CFG_SIZE);
 
-   /* Get the number of interfaces. */
-   pdev->n_interfaces = USB_STDDESC_CFG_GET_bNumInterfaces(buff);
-   if (pdev->n_interfaces > USB_MAX_INTERFACES)
+   /*
+    * Use the number of interfacesand product/vendor ID to search for a matching
+    * interface array.  The array list is the one generated with  the  specified
+    * number of interfaces per device and endpoints per interface,  this  should
+    * not fail but could if you plug in something outside what you specified  or
+    * the configuration was incorrect.
+    */
+   n_ifaces = USB_STDDESC_CFG_GET_bNumInterfaces(buff);
+   pdev->interfaces = usb_devices_cfg_get_ifaces(
+         pdev->product_ID,
+         pdev->vendor_ID,
+         n_ifaces,
+         &pdev->cte_index
+   );
+   if (pdev->interfaces == NULL)
    {
+      /* A matching interface was not found. */
       usb_assert(0); /** @TODO handle error */
    }
 
@@ -742,7 +753,7 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
    buff += USB_STDDESC_CFG_SIZE;
    len  -= USB_STDDESC_CFG_SIZE;
    next_len = len;
-   for (i = 0; i < pdev->n_interfaces; ++i)
+   for (i = 0; i < n_ifaces; ++i)
    {
       /*
        * Find the next descriptor before parsing so we can pass down the  actual
@@ -757,7 +768,7 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
                USB_STDDESC_IFACE_SIZE) )
       {
          /* If no next iface desc was found and ... */
-         if (i+1 < pdev->n_interfaces)
+         if (i+1 < n_ifaces)
          {
             /* ... this isn't the last iface, then something's wrong. */
             usb_assert(0); /** @TODO handle error */
@@ -771,11 +782,7 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
       }
 
       len = len - next_len;
-      status = usb_device_parse_ifacedesc(
-            pstack,
-            USB_TO_ID(index, i),
-            &buff,
-            &len );
+      status = usb_device_parse_ifacedesc(pstack, index, i, &buff, &len);
       if (status)
       {
          usb_assert(0); /** @TODO handle error */
@@ -787,13 +794,15 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
 
 int usb_device_parse_ifacedesc(
       usb_stack_t*    pstack,
-      uint16_t        id,
+      uint8_t         dev_idx,
+      uint8_t         iface_idx,
       const uint8_t** pbuff,
       uint8_t*        plen
 )
 {
    usb_interface_t*  piface;
    usb_device_t*     pdev;
+   uint8_t           n_eps;
    uint8_t           ep;
    int               driver_idx;
    int16_t           pipe_handle;
@@ -802,16 +811,16 @@ int usb_device_parse_ifacedesc(
    uint8_t           len;
 
    usb_assert(pstack != NULL);
-   usb_assert(USB_ID_TO_DEV(id) < USB_MAX_DEVICES);
-   usb_assert(USB_ID_TO_IFACE(id) < USB_MAX_INTERFACES);
    usb_assert(pbuff  != NULL);
    usb_assert(*pbuff != NULL);
    usb_assert(plen   != NULL);
+   usb_assert(dev_idx   < USB_MAX_DEVICES);
+   usb_assert(iface_idx < USB_MAX_INTERFACES);
 
    buff   = *pbuff;
    len    = *plen;
-   pdev   = &pstack->devices[USB_ID_TO_DEV(id)];
-   piface = &pdev->interfaces[USB_ID_TO_IFACE(id)];
+   pdev   = &pstack->devices[dev_idx];
+   piface = &pdev->interfaces[iface_idx];
 
    if (*plen < USB_STDDESC_IFACE_SIZE)
    {
@@ -831,10 +840,16 @@ int usb_device_parse_ifacedesc(
    else
    {
       /* Everything's alright so far, go ahead and copy base data over. */
-      piface->n_endpoints = USB_STDDESC_IFACE_GET_bNumEndpoints(buff);
       piface->class       = USB_STDDESC_IFACE_GET_bInterfaceClass(buff);
       piface->subclass    = USB_STDDESC_IFACE_GET_bInterfaceSubClass(buff);
       piface->protocol    = USB_STDDESC_IFACE_GET_bInterfaceProtocol(buff);
+
+      /* Check if the configured interface matches the number of endpoints. */
+      n_eps = USB_STDDESC_IFACE_GET_bNumEndpoints(buff);
+      if (n_eps != USB_GET_EPS_N(pdev->cte_index, iface_idx))
+      {
+         usb_assert(0); /** @TODO handle error */
+      }
 
       /* Check whether there's a suitable driver for the given interface. */
       driver_idx = usb_drivers_probe(pdev, 0, buff, len);
@@ -855,7 +870,7 @@ int usb_device_parse_ifacedesc(
          usb_assert(driver_idx < USB_MAX_DRIVERS);
          piface->driver_handle = (usb_driver_handle_t) driver_idx;
 
-         for (ep = 0; ep < piface->n_endpoints; ++ep)
+         for (ep = 0; ep < n_eps; ++ep)
          {
             /*
              * First, advance buffer till  next  endpoint  descriptor,  this  is
@@ -890,7 +905,13 @@ int usb_device_parse_ifacedesc(
          }
 
          /* Finally, register interface with driver. */
-         ret = usb_drivers_assign(pstack, id, buff, len, driver_idx);
+         ret = usb_drivers_assign(
+               pstack,
+               USB_TO_ID(dev_idx, iface_idx),
+               buff,
+               len,
+               driver_idx
+         );
          if (ret)
          {
             usb_assert(0); /** @TODO handle error */

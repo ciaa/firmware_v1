@@ -27,15 +27,6 @@ extern "C" {
 /** @brief Task interval in ms. */
 #define USB_TASK_TICKS       50
 
-/** @brief Maximum number of devices.  */
-#define USB_MAX_DEVICES       3
-
-/** @brief Maximum number of interfaces per device.  */
-#define USB_MAX_INTERFACES    1
-
-/** @brief Maximum number of endpoints per interface (not counting ep. 0).  */
-#define USB_MAX_ENDPOINTS     1
-
 /** @brief Maximum number of HUBs, 0 equals no HUB support.  */
 #define USB_MAX_HUBS          2
 
