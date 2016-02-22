@@ -75,6 +75,14 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+void setUp(void)
+{
+}
+
+void tearDown(void)
+{
+}
+
 void test_ciaaLibs_utilsNtohsBigEnd (){
    #if CIAAPLATFORM_BIGENDIAN == 0
    TEST_ASSERT_EQUAL_INT (0x3412 ,ciaaLibs_utilsNtohs(0x1234));
@@ -85,17 +93,17 @@ void test_ciaaLibs_utilsNtohsBigEnd (){
 
 void test_ciaaLibs_utilsNtohlBigEnd (){
    #if CIAAPLATFORM_BIGENDIAN == 0
-   TEST_ASSERT_EQUAL_INT (0x78563412 ,ciaaLibs_utilsNtohs(0x12345678));
+   TEST_ASSERT_EQUAL_INT (0x78563412 ,ciaaLibs_utilsNtohl(0x12345678));
    #else
-   TEST_ASSERT_EQUAL_INT (0x12345678,ciaaLibs_utilsNtohs (0x12345678));
+   TEST_ASSERT_EQUAL_INT (0x12345678,ciaaLibs_utilsNtohl (0x12345678));
    #endif
 }
 
 void test_ciaaLibs_utilsNtohllBigEnd (){
    #if CIAAPLATFORM_BIGENDIAN == 0
-   TEST_ASSERT_EQUAL_INT (0x6758231478563412 ,ciaaLibs_utilsNtohs(0x1234567814235867));
+   TEST_ASSERT_EQUAL_INT (0x6758231478563412 ,ciaaLibs_utilsNtohll (0x1234567814235867));
    #else
-   TEST_ASSERT_EQUAL_INT (0x1234567814235867,ciaaLibs_utilsNtohs (0x1234567814235867));
+   TEST_ASSERT_EQUAL_INT (0x1234567814235867,ciaaLibs_utilsNtohll (0x1234567814235867));
    #endif
 }
 
