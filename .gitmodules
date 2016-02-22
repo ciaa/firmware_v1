@@ -10,3 +10,6 @@
 [submodule "modules/updatecommon"]
 	path = modules/updatecommon
 	url = https://github.com/ciaa/firmware.modules.update.common.git
+[submodule "modules/updateslave"]
+	path = modules/updateslave
+	url = https://github.com/ciaa/firmware.modules.update.slave
