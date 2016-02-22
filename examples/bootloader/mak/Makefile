@@ -52,5 +52,5 @@ MODS ?= modules$(DS)posix           \
         modules$(DS)libs            \
         modules$(DS)modbus            \
         modules$(DS)rtos            \
-        modules$(DS)update
-
+        modules$(DS)updateSlave		\
+	modules$(DS)updateCommon	\
