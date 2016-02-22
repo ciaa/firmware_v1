@@ -75,30 +75,39 @@ static uint8_t config_buffer [4];
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+
+void setUp(void)
+{
+}
+
+void tearDown(void)
+{
+}
+
 void test_ciaaLibs_SetByte (){
    ciaaLibs_SetByte (config_buffer, 0,0x5);
-   TEST_ASSERT_TRUE (5 == config_buffer[0]);
+   TEST_ASSERT_TRUE (0x5 == config_buffer[0]);
 }
 
 void test_ciaaLibs_SetUint16 (){
    ciaaLibs_SetUint16 (config_buffer, 0, 0x2425);
-   TEST_ASSERT_TRUE (config_buffer[0] == 25);
-   TEST_ASSERT_TRUE (config_buffer[1] == 24);
+   TEST_ASSERT_TRUE (config_buffer[0] == 0x24);
+   TEST_ASSERT_TRUE (config_buffer[1] == 0x25);
 }
 
-void test_ciaaLibs_SetUint24 (uint8_t *config_buffer, uint8_t ptr, uint32_t value){
+void test_ciaaLibs_SetUint24 (){
    ciaaLibs_SetUint24 (config_buffer, 0, 0x102425);
-   TEST_ASSERT_TRUE (config_buffer[0] == 25);
-   TEST_ASSERT_TRUE (config_buffer[1] == 24);
-   TEST_ASSERT_TRUE (config_buffer[2] == 10);
+   TEST_ASSERT_TRUE (config_buffer[0] == 0x10);
+   TEST_ASSERT_TRUE (config_buffer[1] == 0x24);
+   TEST_ASSERT_TRUE (config_buffer[2] == 0x25);
 }
 
-void test_ciaaLibs_SetUint32 (uint8_t *config_buffer, uint8_t ptr, uint32_t value){
+void test_ciaaLibs_SetUint32 (){
    ciaaLibs_SetUint32 (config_buffer, 0, 0x15102425);
-   TEST_ASSERT_TRUE (config_buffer[0] == 25);
-   TEST_ASSERT_TRUE (config_buffer[1] == 24);
-   TEST_ASSERT_TRUE (config_buffer[2] == 10);
-   TEST_ASSERT_TRUE (config_buffer[3] == 15);
+   TEST_ASSERT_TRUE (config_buffer[0] == 0x15);
+   TEST_ASSERT_TRUE (config_buffer[1] == 0x10);
+   TEST_ASSERT_TRUE (config_buffer[2] == 0x24);
+   TEST_ASSERT_TRUE (config_buffer[3] == 0x25);
 
 }
 /** @} doxygen end group definition */
