@@ -235,6 +235,7 @@ static int _state_powered( usb_stack_t* pstack, uint8_t index )
    {
       /* Address 0 is free, otherwise we'd have to wait. */
       pstack->status |= USB_STACK_STATUS_ZERO_ADDR;/* Mark it as in-use */
+      pdev->status   |= USB_DEV_STATUS_LOCK_ON_ADDR_ZERO; /* IDEM for device. */
       _port_reset(pdev, index);
       _next_state(pdev, USB_DEV_STATE_RESET, USB_DEV_STATE_DEFAULT);
    }
@@ -528,7 +529,8 @@ static int _state_unlock( usb_stack_t* pstack, uint8_t index )
 {
    usb_device_t* pdev = &pstack->devices[index];
    pstack->status &= ~USB_STACK_STATUS_ZERO_ADDR; /* Unlock address 0. */
-   pdev->status |= USB_DEV_STATUS_INIT; /* Device enumerated. */
+   pdev->status   &= ~USB_DEV_STATUS_LOCK_ON_ADDR_ZERO; /* IDEM for device */
+   pdev->status   |= USB_DEV_STATUS_INIT; /* Device enumerated. */
    _next_state(pdev, USB_DEV_STATE_CONFIGURED, USB_DEV_STATE_CONFIGURED);
    return USB_STATUS_OK;
 }

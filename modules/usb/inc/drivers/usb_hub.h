@@ -517,6 +517,10 @@ int usb_hub_port_reset_status( uint8_t hub_idx, uint8_t port );
 
 /**
  * @brief Get HUB bus address.
+ *
+ * You can also use this to get the device's index in the USB  stack,  it's  the
+ * bus address minus 1.
+ *
  * @param hub_idx HUB identifier.
  * @return HUB bus address.
  */

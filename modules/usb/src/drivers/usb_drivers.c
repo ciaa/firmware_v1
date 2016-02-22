@@ -132,11 +132,14 @@ int usb_drivers_assign(
 
    usb_assert(pstack != NULL);
    usb_assert(USB_ID_TO_DEV(id) < USB_MAX_DEVICES);
-   usb_assert(USB_ID_TO_IFACE(id) < USB_MAX_INTERFACES);
+   usb_assert(USB_ID_TO_IFACE(id) <
+         USB_GET_IFACES_N(pstack->devices[USB_ID_TO_IFACE(id)].cte_index));
    usb_assert(handle < USB_MAX_DRIVERS);
 
    if (usb_drivers[handle].assign != NULL)
+   {
       status = usb_drivers[handle].assign(pstack, id, buffer, length);
+   }
    return status;
 }
 
@@ -150,11 +153,14 @@ int usb_drivers_remove(
 
    usb_assert(pstack != NULL);
    usb_assert(USB_ID_TO_DEV(id) < USB_MAX_DEVICES);
-   usb_assert(USB_ID_TO_IFACE(id) < USB_MAX_INTERFACES);
+   usb_assert(USB_ID_TO_IFACE(id) <
+         USB_GET_IFACES_N(pstack->devices[USB_ID_TO_IFACE(id)].cte_index));
    usb_assert(handle < USB_MAX_DRIVERS);
 
    if (usb_drivers[handle].assign != NULL)
+   {
       status = usb_drivers[handle].remove(pstack, id);
+   }
    return status;
 }
 

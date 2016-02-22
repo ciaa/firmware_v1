@@ -183,9 +183,10 @@ int usb_release_from_port( usb_stack_t* pstack, uint8_t hub_idx, uint8_t port );
 
 int usb_pipe_remove( usb_pipe_t* ppipe );
 
+/* Non-zero if active. */
 int usb_device_is_active( usb_stack_t* pstack, uint8_t index );
 
-int usb_get_ctrl_pipe( usb_stack_t* pstack, uint8_t* index );
+int usb_get_ctrl_pipe( usb_stack_t* pstack, uint8_t dev_idx, uint8_t* index );
 
 int usb_unlock_pipe( usb_stack_t* pstack, uint8_t index );
 

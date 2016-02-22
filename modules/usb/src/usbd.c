@@ -21,7 +21,9 @@
 #include "usbd_states.h"
 
 #include "drivers/usb_drivers.h"
+#if (USB_MAX_HUBS > 0)
 #include "drivers/usb_hub.h"
+#endif
 
 
 /*==================[internal functions declaration]=========================*/
@@ -51,8 +53,8 @@ int16_t _devidx_from_hub_port(
    usb_device_t* pdev;
 
    usb_assert(pstack!= NULL);
-   usb_assert(hub_idx < USB_MAX_HUBS      || hub_idx == USB_DEV_PARENT_ROOT);
-   usb_assert(port    < USB_MAX_HUB_PORTS || port    == USB_DEV_PARENT_ROOT);
+   usb_assert(hub_idx < USB_MAX_HUBS || hub_idx == USB_DEV_PARENT_ROOT);
+   usb_assert(  port  < USB_MAX_HUB_PORTS);
 
    /* Search for matching device. */
    for (ret = -1, i = 0; i < USB_MAX_DEVICES && ret == -1; ++i)
@@ -81,15 +83,26 @@ int _irp_status(
    pdev  = &pstack->devices[USB_ID_TO_DEV(id)];
    if (is_ctrl)
    {
+      /* Control endpoint. */
       ppipe    = &pstack->def_ep[index];
       pretries = &(((usb_msg_pipe_t*) ppipe)->retries);
       status   = usbhci_ctrlxfer_status(pdev, (usb_msg_pipe_t*) ppipe);
    }
    else
    {
-      ppipe    = &pdev->interfaces[USB_ID_TO_IFACE(id)].endpoints[index];
-      pretries = &(((usb_pipe_t*) ppipe)->retries);
-      status   = usbhci_xfer_status(pdev, (usb_pipe_t*) ppipe);
+      /* Streaming endpoint, also check interface and endpoint indexes. */
+      if (  pdev->cte_index == USB_STACK_INVALID_IDX ||
+            USB_ID_TO_IFACE(id) > USB_GET_IFACES_N(pdev->cte_index)-1 ||
+            index > USB_GET_EPS_N(pdev->cte_index, USB_ID_TO_IFACE(id))-1 )
+      {
+         status = USB_STATUS_INV_DESC;
+      }
+      else
+      {
+         ppipe    = &pdev->interfaces[USB_ID_TO_IFACE(id)].endpoints[index];
+         pretries = &(((usb_pipe_t*) ppipe)->retries);
+         status   = usbhci_xfer_status(pdev, (usb_pipe_t*) ppipe);
+      }
    }
 
    if (status == USB_STATUS_EP_STALLED)
@@ -162,7 +175,7 @@ int usb_init( usb_stack_t* pstack )
          }
       }
       pstack->def_ep[i].handle = (uint8_t) handle;
-      pstack->def_ep[i].lock   = 0;
+      pstack->def_ep[i].lock   = USB_STACK_INVALID_IDX;
    }
 
 #if (USB_MAX_HUBS > 0)
@@ -228,11 +241,7 @@ int usb_run( usb_stack_t* pstack )
              * device, this can never fail because there are  NO  other  devices
              * connected.
              */
-            addr = usb_device_attach(
-                  pstack,
-                  USB_DEV_PARENT_ROOT,
-                  USB_DEV_PARENT_ROOT
-            );
+            addr = usb_device_attach(pstack, USB_DEV_PARENT_ROOT, 0);
             usb_assert(addr == 0);
             pstack->state = USB_HOST_STATE_RUNNING;
          }
@@ -302,23 +311,29 @@ int usb_irp(
       uint32_t     len
 )
 {
-   int           status;
+   int           status = USB_STATUS_INV_PARAM;
    usb_device_t* pdev;
    usb_pipe_t*   ppipe;
 
-   /* Validate input parameters. */
-   if (  pstack == NULL ||
+   /* Validate input parameters: stack and device index. */
+   if (pstack != NULL && USB_ID_TO_DEV(device_id) < USB_MAX_DEVICES)
+   {
+      pdev = &pstack->devices[USB_ID_TO_DEV(device_id)];
+      status = USB_STATUS_OK;
+   }
+
+   /* Validate input parameters: the rest of them. */
+   if (  status != USB_STATUS_OK ||
          buffer == NULL ||
-         USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1 ||
-         USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1 ||
-         pipe > USB_MAX_ENDPOINTS-1 ||
+         pdev->cte_index == USB_STACK_INVALID_IDX ||
+         USB_ID_TO_IFACE(device_id) > USB_GET_IFACES_N(pdev->cte_index)-1 ||
+         pipe > USB_GET_EPS_N(pdev->cte_index, USB_ID_TO_IFACE(device_id))-1 ||
          len == 0 )
    {
       status = USB_STATUS_INV_PARAM;
    }
    else
    {
-      pdev = &pstack->devices[USB_ID_TO_DEV(device_id)];
       if (!(pdev->status & USB_DEV_STATUS_INIT))
       {
          /* If device hasn't finished initialization don't accept IRPs. */
@@ -344,21 +359,25 @@ int usb_ctrlirp_bypass(
       uint8_t*            buffer
 )
 {
-   int             status;
+   int             status  = USB_STATUS_INV_PARAM;
+   uint8_t         dev_idx = USB_ID_TO_DEV(device_id);
    uint8_t         index;
    usb_device_t*   pdev;
    usb_msg_pipe_t* pmsg;
 
-   /* Validate input parameters. */
-   if (  pstack  == NULL ||
-         ticket  == NULL ||
-         pstdreq == NULL ||
-         USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1 ||
-         USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1 )
+   /* Validate input parameters: stack and device index. */
+   if (pstack != NULL && dev_idx < USB_MAX_DEVICES)
+   {
+      pdev = &pstack->devices[dev_idx];
+      status = USB_STATUS_OK;
+   }
+
+   /* Validate input parameters: the rest of them. */
+   if (status != USB_STATUS_OK || ticket  == NULL || pstdreq == NULL)
    {
       status = USB_STATUS_INV_PARAM;
    }
-   else if (usb_get_ctrl_pipe(pstack, &index) != USB_STATUS_OK)
+   else if (usb_get_ctrl_pipe(pstack, dev_idx, &index) != USB_STATUS_OK)
    {
       /* Check whether a control endpoint is available. */
       status = USB_STATUS_BUSY;
@@ -366,7 +385,6 @@ int usb_ctrlirp_bypass(
    else
    {
       /* Pipe-lock in place, now reconfigure the pipe accordingly. */
-      pdev    = &pstack->devices[USB_ID_TO_DEV(device_id)];
       pmsg    = &pstack->def_ep[index];
       *ticket = USB_IDX_TO_TICKET(index);
       status  = usbhci_msg_pipe_configure(pdev, pmsg);
@@ -425,9 +443,7 @@ int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint16_t irp_id )
 {
    int status;
 
-   if (  pstack == NULL ||
-         USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1 ||
-         USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1 )
+   if (pstack == NULL || USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1)
    {
       /* Invalid input parameters. */
       status = USB_STATUS_INV_PARAM;
@@ -443,7 +459,7 @@ int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint16_t irp_id )
          usb_unlock_pipe(pstack, USB_TICKET_TO_IDX(irp_id));
       }
    }
-   else if (!USB_IRP_ID_IS_MSG(irp_id) && irp_id < USB_MAX_ENDPOINTS)
+   else if (!USB_IRP_ID_IS_MSG(irp_id))
    {
       /* Streaming pipe. */
       status = _irp_status(pstack, device_id, irp_id, 0);
@@ -457,35 +473,49 @@ int usb_irp_status( usb_stack_t* pstack, uint16_t device_id, uint16_t irp_id )
 
 int usb_irp_cancel( usb_stack_t* pstack, uint16_t device_id, uint16_t irp_id )
 {
-   int status;
+   int           status  = USB_STATUS_INV_PARAM;
+   uint8_t       dev_idx = USB_ID_TO_DEV(device_id);
+   usb_device_t* pdev;
 
    /* Validate input parameters. */
-   if (  pstack == NULL ||
-         USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1 ||
-         USB_ID_TO_IFACE(device_id) > USB_MAX_INTERFACES-1 )
+   if (pstack != NULL && dev_idx < USB_MAX_DEVICES)
+   {
+      pdev = &pstack->devices[dev_idx];
+      status = USB_STATUS_OK;
+   }
+   if (status != USB_STATUS_OK)
    {
       status = USB_STATUS_INV_PARAM;
    }
    else if ( USB_IRP_ID_IS_MSG(irp_id) &&
              USB_TICKET_TO_IDX(irp_id) < USB_N_CTRL_ENDPOINTS )
    {
-      /* Cancelling a control transfer. */
+      /* Cancelling a control transfer, don't forget to unlock the pipe. */
       usbhci_ctrlxfer_cancel(
-            &pstack->devices[USB_ID_TO_DEV(device_id)],
+            &pstack->devices[dev_idx],
             &pstack->def_ep[USB_TICKET_TO_IDX(irp_id)]
       );
+      usb_unlock_pipe(pstack, USB_TICKET_TO_IDX(irp_id));
       status = USB_STATUS_OK;
    }
-   else if (!USB_IRP_ID_IS_MSG(irp_id) && irp_id < USB_MAX_ENDPOINTS)
+   else if (!USB_IRP_ID_IS_MSG(irp_id))
    {
-      /* ... a streaming endpoint/pipe transfer. */
-      usbhci_xfer_cancel(
-            &pstack->devices[USB_ID_TO_DEV(device_id)],
-            &pstack->devices[USB_ID_TO_DEV(device_id)]
-               .interfaces[USB_ID_TO_IFACE(device_id)]
-               .endpoints[(uint8_t)irp_id]
-      );
-      status = USB_STATUS_OK;
+      if ( pdev->cte_index == USB_STACK_INVALID_IDX ||
+           USB_ID_TO_IFACE(device_id) > USB_GET_IFACES_N(pdev->cte_index)-1 ||
+           irp_id > USB_GET_EPS_N(pdev->cte_index,USB_ID_TO_IFACE(device_id))-1)
+      {
+         status = USB_STATUS_INV_PARAM;
+      }
+      else
+      {
+         /* It's a streaming endpoint/pipe transfer. */
+         usbhci_xfer_cancel(
+               &pstack->devices[dev_idx],
+               &pstack->devices[dev_idx].interfaces[USB_ID_TO_IFACE(device_id)]
+                                        .endpoints[(uint8_t)irp_id]
+         );
+         status = USB_STATUS_OK;
+      }
    }
    else
    {
@@ -517,7 +547,7 @@ int usb_device_init( usb_stack_t* pstack, uint8_t index )
    pdev->ticks_delay   = pstack->ticks;
 #if (USB_MAX_HUBS > 0)
    pdev->parent_hub    = USB_DEV_PARENT_ROOT;
-   pdev->parent_port   = USB_DEV_PARENT_ROOT;
+   pdev->parent_port   = 0;
 #endif
    pdev->cte_index     = USB_STACK_INVALID_IDX;
    pdev->max_power     = 0;
@@ -532,30 +562,27 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
    uint8_t          n_elems;
    usb_device_t*    pdev;
    usb_interface_t* piface;
+#if (USB_MAX_HUBS > 0)
+   usb_device_t*    dev_i;
+#endif
 
    usb_assert(pstack != NULL);
    usb_assert(index < USB_MAX_DEVICES);
 
    pdev = &pstack->devices[index];
 
-   /**
-    * @TODO write this function!
-    *
-    * Remember to release downstream devices if this is a HUB!
-    * Don't forget to skip i=0 'cause that's the root HUB/device, it should  pop
-    * up with the assertion in any case though.
-    *
-    * Something like follows...
-    */
-#if 0//(USB_MAX_HUBS > 0)
-    usb_device_t dev_i;
-
-   for (i = 1; i < pstack.n_devices; ++i) /* Note the i=1 to skip root. */
+#if (USB_MAX_HUBS > 0)
+   for (i = 1; i < USB_MAX_DEVICES; ++i) /* Note the i=1 to skip root. */
    {
-      dev_i = pstack.devices[i];
-      usb_assert(dev_i.parent_hub < USB_MAX_DEVICES);
-      if (&pstack.devices[dev_i.parent_hub] == pdev)
-         usb_device_release(dev_i);
+      /*Search for devices connected downstream from us, only if we are a HUB.*/
+      if (usb_device_is_active(pstack, i))
+      {
+         if (usb_hub_get_address(pstack->devices[i].parent_hub) == index+1)
+         {
+            /* We are the parent HUB of dev_i, release that one first. */
+            usb_device_release(pstack, i);
+         }
+      }
    }
 #endif
 
@@ -580,6 +607,25 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
          piface->class       =   0;
          piface->subclass    =   0;
          piface->protocol    = 255; /* Unsupported protocol number. */
+      }
+   }
+
+   /*
+    * If device was in the middle of the enumeration process, release  the  lock
+    * on address 0 so others can enumerate.
+    */
+   if (pdev->status & USB_DEV_STATUS_LOCK_ON_ADDR_ZERO)
+   {
+      pstack->status &= ~USB_STACK_STATUS_ZERO_ADDR;
+   }
+
+   /* Also, check if a message pipe had been locked for this device. */
+   for (i = 0; i < USB_N_CTRL_ENDPOINTS; ++i)
+   {
+      if (pstack->def_ep[i].lock == index)
+      {
+         /* If that's the case, cancel the transfer. */
+         usb_irp_cancel(pstack, USB_TO_ID(index, 0), pdev->ticket);
       }
    }
 
@@ -616,23 +662,18 @@ int usb_pipe_remove( usb_pipe_t* ppipe )
 
 int usb_device_is_active( usb_stack_t* pstack, uint8_t index )
 {
-   int ret;
    usb_assert(pstack != NULL);
    usb_assert(index < USB_MAX_DEVICES);
-   ret = 0;
-   if (pstack->devices[index].status & USB_DEV_STATUS_ACTIVE)
-   {
-      ret = 1;
-   }
-   return ret;
+   return (pstack->devices[index].status & USB_DEV_STATUS_ACTIVE);
 }
 
-int usb_get_ctrl_pipe( usb_stack_t* pstack, uint8_t* index )
+int usb_get_ctrl_pipe( usb_stack_t* pstack, uint8_t dev_idx, uint8_t* index )
 {
    uint8_t i;
    int     ret;
 
    usb_assert(pstack != NULL);
+   usb_assert(dev_idx < USB_MAX_DEVICES);
    usb_assert(index  != NULL);
 
    /* Search for an unlocked control pipe. */
@@ -640,10 +681,10 @@ int usb_get_ctrl_pipe( usb_stack_t* pstack, uint8_t* index )
    for (i = 0; i < USB_N_CTRL_ENDPOINTS && ret == USB_STATUS_BUSY; ++i)
    {
 /** @TODO take into consideration multi-threaded systems here, use some kind of semaphore or something... */
-      if (pstack->def_ep[i].lock == 0)
+      if (pstack->def_ep[i].lock == USB_STACK_INVALID_IDX)
       {
          /* Endpoint is free, lock it and return. */
-         pstack->def_ep[i].lock = 1;
+         pstack->def_ep[i].lock = dev_idx;
          *index = i;
          ret = USB_STATUS_OK;
       }
@@ -655,8 +696,7 @@ int usb_unlock_pipe( usb_stack_t* pstack, uint8_t index )
 {
    usb_assert(pstack != NULL);
    usb_assert(index < USB_N_CTRL_ENDPOINTS);
-/** @TODO I don't think multi-threaded systems will affect this function... check! */
-   pstack->def_ep[index].lock = 0;
+   pstack->def_ep[index].lock = USB_STACK_INVALID_IDX;
    return USB_STATUS_OK;
 }
 
@@ -814,12 +854,14 @@ int usb_device_parse_ifacedesc(
    usb_assert(pbuff  != NULL);
    usb_assert(*pbuff != NULL);
    usb_assert(plen   != NULL);
-   usb_assert(dev_idx   < USB_MAX_DEVICES);
-   usb_assert(iface_idx < USB_MAX_INTERFACES);
+   usb_assert(dev_idx < USB_MAX_DEVICES);
+
+   pdev   = &pstack->devices[dev_idx];
+   usb_assert(pdev->cte_index != USB_STACK_INVALID_IDX);
+   usb_assert(iface_idx < USB_GET_IFACES_N(pdev->cte_index));
 
    buff   = *pbuff;
    len    = *plen;
-   pdev   = &pstack->devices[dev_idx];
    piface = &pdev->interfaces[iface_idx];
 
    if (*plen < USB_STDDESC_IFACE_SIZE)
@@ -832,24 +874,19 @@ int usb_device_parse_ifacedesc(
       /* Validate interface's descriptor type. */
       ret = USB_STATUS_INV_DESC;
    }
-   else if (USB_STDDESC_IFACE_GET_bNumEndpoints(buff) > USB_MAX_ENDPOINTS)
+   else if ( (n_eps = USB_STDDESC_IFACE_GET_bNumEndpoints(buff))
+               != USB_GET_EPS_N(pdev->cte_index, iface_idx) )
    {
-      /* Validate maximum number of endpoints. */
+      /* Check if the configured interface matches the number of endpoints. */
       ret = USB_STATUS_EP_AVAIL;
    }
    else
    {
+
       /* Everything's alright so far, go ahead and copy base data over. */
       piface->class       = USB_STDDESC_IFACE_GET_bInterfaceClass(buff);
       piface->subclass    = USB_STDDESC_IFACE_GET_bInterfaceSubClass(buff);
       piface->protocol    = USB_STDDESC_IFACE_GET_bInterfaceProtocol(buff);
-
-      /* Check if the configured interface matches the number of endpoints. */
-      n_eps = USB_STDDESC_IFACE_GET_bNumEndpoints(buff);
-      if (n_eps != USB_GET_EPS_N(pdev->cte_index, iface_idx))
-      {
-         usb_assert(0); /** @TODO handle error */
-      }
 
       /* Check whether there's a suitable driver for the given interface. */
       driver_idx = usb_drivers_probe(pdev, 0, buff, len);
@@ -981,16 +1018,24 @@ int usb_stack_update_devices( usb_stack_t* pstack )
 
 int16_t usb_pipe_get_interval( usb_stack_t* pstack, uint16_t id, uint8_t pipe )
 {
-   int16_t       ret;
+   int16_t       ret = -1;
    uint8_t       bInt;
    usb_device_t* pdev;
    usb_pipe_t*   ppipe;
 
-   /* Validate input parameters. */
-   if (  pstack == NULL ||
-         USB_ID_TO_DEV(id) > USB_MAX_DEVICES-1 ||
-         USB_ID_TO_IFACE(id) > USB_MAX_INTERFACES-1 ||
-         pipe > USB_MAX_ENDPOINTS-1 )
+
+   /* Validate input parameters: stack and device index. */
+   if (pstack != NULL && USB_ID_TO_DEV(id) < USB_MAX_DEVICES)
+   {
+      pdev = &pstack->devices[USB_ID_TO_DEV(id)];
+      ret  = 0;
+   }
+
+   /* Validate input parameters: the rest of them. */
+   if (  ret != 0 ||
+         pdev->cte_index == USB_STACK_INVALID_IDX ||
+         USB_ID_TO_IFACE(id) > USB_GET_IFACES_N(pdev->cte_index)-1 ||
+         pipe > USB_GET_EPS_N(pdev->cte_index, USB_ID_TO_IFACE(id))-1 )
    {
       ret = -1;
    }

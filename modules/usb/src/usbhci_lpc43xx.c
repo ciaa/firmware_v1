@@ -341,6 +341,7 @@ int usbhci_pipe_configure( usb_device_t* pdev, usb_pipe_t* ppipe )
 {
    struct _usbhci_pipe_t* phci_pipe;
    int     status;
+   uint8_t hub;
    uint8_t port;
 
    usb_assert(pdev  != NULL);
@@ -349,11 +350,16 @@ int usbhci_pipe_configure( usb_device_t* pdev, usb_pipe_t* ppipe )
 
    phci_pipe = &_pipe_handle[ppipe->handle];
 
+   hub  = 0;
    port = 0;
-   if (pdev->speed == USB_SPD_HS && pdev->parent_port != USB_DEV_PARENT_ROOT)
+#if (USB_MAX_HUBS > 0)
+   if (pdev->speed != USB_SPD_HS && usbhci_get_speed() == USB_SPD_HS)
    {
+      /* FS/LS pipes require the addr & port when connected through a HS one. */
+      hub  = usb_hub_get_address(pdev->parent_hub);
       port = pdev->parent_port;
    }
+#endif
 
    if (phci_pipe->status & USBHCI_PIPE_OPEN)
    {
@@ -374,7 +380,7 @@ int usbhci_pipe_configure( usb_device_t* pdev, usb_pipe_t* ppipe )
          ppipe->mps,
          ppipe->interval,
          1, /** @TODO Mult, for ISO @ HS with >1 transaction per uframe */
-         0, /** @TODO get this from the USB stack */
+         hub,
          port,
          &phci_pipe->handle );
 
@@ -405,10 +411,7 @@ int usbhci_msg_pipe_configure( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
 #if (USB_MAX_HUBS > 0)
    if (pdev->speed != USB_SPD_HS && usbhci_get_speed() == USB_SPD_HS)
    {
-      /*
-       * FS/LS pipes require the HUB addr and port when connected through  a  HS
-       * one. The 
-       */
+      /* FS/LS pipes require the addr & port when connected through a HS one. */
       hub  = usb_hub_get_address(pdev->parent_hub);
       port = pdev->parent_port;
    }
@@ -433,7 +436,7 @@ int usbhci_msg_pipe_configure( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
          pdev->mps,
          1,
          1, /** @TODO Mult, for ISO @ HS with >1 transaction per uframe */
-         hub, /** @TODO get this from the USB stack */
+         hub,
          port,
          &phci_pipe->handle );
 

@@ -113,21 +113,24 @@ extern "C" {
 
 
 /** @brief Device active and connected. */
-#define USB_DEV_STATUS_ACTIVE          (1 << 0)
+#define USB_DEV_STATUS_ACTIVE            (1 << 0)
 /** @brief Device enumerated and initialized. */
-#define USB_DEV_STATUS_INIT            (1 << 1)
+#define USB_DEV_STATUS_INIT              (1 << 1)
 /** @brief Device is self-powered. */
-#define USB_DEV_STATUS_SELF_PWRD       (1 << 2)
+#define USB_DEV_STATUS_SELF_PWRD         (1 << 2)
 /** @brief Device supports remote wakeup. */
-#define USB_DEV_STATUS_REMOTE_WKUP     (1 << 3)
+#define USB_DEV_STATUS_REMOTE_WKUP       (1 << 3)
+/** @brief Device has locked address 0 (zero) for enumeration. */
+#define USB_DEV_STATUS_LOCK_ON_ADDR_ZERO (1 << 4)
 /**
  * @brief Whether the device has requested a control transfer, this will be used
  * entirely by the Host during initialization  so  we  know  no  more  than  one
  * request at a time will be active (no matter the number of interfaces).
  */
-#define USB_DEV_STATUS_REQUEST         (1 << 4)
+#define USB_DEV_STATUS_REQUEST           (1 << 5)
+
 /** @brief Root HUB/device identifier.  */
-#define USB_DEV_PARENT_ROOT            ((uint8_t) -1)
+#define USB_DEV_PARENT_ROOT              ((uint8_t) -1)
 
 
 /** @brief Currently writing to a device on address 0. */
