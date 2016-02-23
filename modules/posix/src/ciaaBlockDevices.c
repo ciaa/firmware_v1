@@ -53,6 +53,9 @@
 #include "ciaak.h"       /* <= ciaa kernel header */
 #include "os.h"
 
+ssize_t variable_culo   ;
+ssize_t variable_culo   2;
+
 /*==================[macros and definitions]=================================*/
 #define ciaaBlockDevices_MAXDEVICES          20
 

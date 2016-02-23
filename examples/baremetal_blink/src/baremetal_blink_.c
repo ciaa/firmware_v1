@@ -38,3 +38,11 @@ int main(void)
 	
 	return 0;
 }
+ 
+__attribute__((__interrupt__(PORT1_VECTOR)))
+port1_isr (void)
+{
+
+}
+
+ 

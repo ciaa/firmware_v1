@@ -3,6 +3,7 @@
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
  * Copyright 2014, 2015 Mariano Cerdeiro
+ *
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -196,6 +197,9 @@ extern "C" {
 #elif ( ( ARCH == msp430 ) && \
         ( CPUTYPE == msp430g2x ) && \
         ( CPU == msp430g2231 ) )
+#elif ( ( ARCH == msp430 ) && \
+        ( CPUTYPE == msp430f5x_6x ) && \
+        ( CPU == msp430f5529 ) )
 
 #else
 #error the entered architecture is not supported... :(

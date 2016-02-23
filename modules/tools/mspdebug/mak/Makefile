@@ -42,7 +42,10 @@ ifeq ($(BOARD),MSP-EXP430G2)
 MSPDEBUG_PROTOCOL		= rf2500
 endif
 
- 
+ifeq ($(BOARD),MSP-EXP430F5529)
+MSPDEBUG_PROTOCOL		= rf2500
+endif
 
+ 
 # mspdebug dependent makefile
 -include $(MSPDEBUG_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Makefile

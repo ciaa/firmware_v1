@@ -122,6 +122,14 @@ CPU            ?= msp430g2231
 COMPILER       ?= gcc
 endif
 
+# Default values for MSP-EXP430F5529
+ifeq ($(BOARD), MSP-EXP430F5529)
+ARCH           ?= msp430
+CPUTYPE        ?= msp430f5x_6x
+CPU            ?= msp430f5529
+COMPILER       ?= gcc
+endif
+
 # Default values in other case
 ARCH           ?= x86
 CPUTYPE        ?= ia32
@@ -736,8 +744,7 @@ else
 ifeq ($(ARCH),msp430)
 	@echo ===============================================================================
 	@echo Starting mspdebug and erasing...
-	@echo
-	#@echo $(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(FLASH_ERASE_COMMAND)
+ 
 	$(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(FLASH_ERASE_COMMAND)
 else
 # if CPU is not entered shows an error
