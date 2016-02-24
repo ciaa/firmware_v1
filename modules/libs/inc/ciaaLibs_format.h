@@ -3,7 +3,7 @@
  * Copyright 2015, Matias Giori
  * Copyright 2015, Franco Salinas
  * Copyright 2015, Pablo Alcorta
- * 
+ *
  * This file is part of CIAA Firmware.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@
  * EV           Esteban Volentini
  * MG           Matias Giori
  * FS           Franco Salinas
- * PA		Pablo Alcorta
+ * PA		       Pablo Alcorta
  */
 
 /*
