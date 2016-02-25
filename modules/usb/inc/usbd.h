@@ -62,6 +62,20 @@ int usb_deinit( usb_stack_t* pstack );
  */
 int usb_run( usb_stack_t* pstack );
 
+/**
+ * @brief Reset USB device associated to the given ID (as received when assigned
+ * to a driver).
+ *
+ * This gives you the option to reset the device associated to the given  ID  in
+ * case some error happens, such  as  receiving  invalid  information  from  it,
+ * corrupt bus transactions,  trying  to  connect  a  device  the  stack  wasn't
+ * configured for, etc.
+ *
+ * @param pstack    Pointer to USB stack structure.
+ * @param device_id Device  identifier,  coordinates  representing  device   and
+ *                  interface.
+ */
+int usb_device_reset( usb_stack_t* pstack, uint16_t device_id );
 
 /**
  * @brief Main transfers request method, I/O Request Packet.
@@ -168,12 +182,6 @@ uint16_t usb_systick( usb_stack_t* pstack );
 void usb_assert(int condition);
 
 
-/**
- * @brief Relase device and deallocate its interfaces.
- * @param pdevice Pointer to USB device to release.
- */
-/** TODO */
-
 
 int usb_device_init( usb_stack_t* pstack, uint8_t index );
 
@@ -236,7 +244,12 @@ int usb_device_parse_ifacedesc(
       uint8_t*        plen
 );
 
-int usb_device_parse_epdesc( usb_pipe_t* ppipe, const uint8_t* buffer );
+int usb_device_parse_epdesc(
+      usb_device_t*  pdev,
+      uint8_t        iface,
+      uint8_t        ep,
+      const uint8_t* buffer
+);
 
 
 /*==================[cplusplus]==============================================*/

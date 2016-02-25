@@ -95,7 +95,11 @@ extern "C" {
 
 
 /** @brief Used to identify an interface with no driver associated to it. */
-#define USB_IFACE_NO_DRIVER ((usb_driver_handle_t)-1)
+#define USB_IFACE_NO_DRIVER   ((usb_driver_handle_t)-1)
+/** @brief Interface which couldn't be configured for lack of resources. */
+#define USB_IFACE_ERR_CFG     ((usb_driver_handle_t)-2)
+/** @brief Interface which failed to be assigned to driver. */
+#define USB_IFACE_ERR_ASSIGN  ((usb_driver_handle_t)-3)
 
 
 /** @brief Default device's address, invalid. */
@@ -144,7 +148,7 @@ extern "C" {
  * devices with the specified ID.  This means a driver can be  assigned  to  any
  * interface with the necessary requirements no matter the device's IDs.
  */
-#define USB_FORCE_PROBING_ID  0xFFFF
+#define USB_FORCE_PROBING_ID   0xFFFF
 
 /** @brief Convert a device ID into its device's index. */
 #define USB_ID_TO_DEV(id)      ((uint8_t ) ((id) >> 8))
@@ -182,6 +186,7 @@ typedef enum _usb_status_t
    USB_STATUS_DRIVER_FAIL,    /**< Driver could not identify device.          */
 
    USB_STATUS_PIPE_CFG,       /**< Unable to setup pipe.                      */
+   USB_STATUS_IFACE_CFG,      /**< Unable to setup interface.                 */
    USB_STATUS_HCD_INIT,       /**< Cannot initialize Host Controller Driver.  */
 
    USB_STATUS_INV_DESC,       /**< Invalid descriptor.                        */
@@ -194,6 +199,19 @@ typedef enum _usb_status_t
    USB_STATUS_XFER_ERR,       /**< Error during transfer.                     */
    USB_STATUS_XFER_WAIT,      /**< Transfer in progress.                      */
    USB_STATUS_XFER_RETRY,     /**< Retry last transfer.                       */
+
+   /*
+    * Device status follow, this are used to indicate the state  of  the  device
+    * when an error condition occurred and stack couldn't  keep  on  processing.
+    * For example, a failed enumeration because the number of  interfaces  isn't
+    * supported.
+    */
+   USB_STATUS_E_MPS,
+   USB_STATUS_E_ADDR,
+   USB_STATUS_E_DEV_DESC,
+   USB_STATUS_E_CFG_DESC,
+   USB_STATUS_E_CFG_DESC_LEN,
+   USB_STATUS_E_CFG_SET,
 } usb_status_t;
 
 
@@ -276,8 +294,8 @@ typedef struct _usb_pipe_t
 } usb_pipe_t;
 
 
-/** @brief USB driver's handle type. */
-typedef uint8_t usb_driver_handle_t;
+/** @brief USB driver's handle type, up to 127 devices. */
+typedef int8_t usb_driver_handle_t;
 
 /**
  * @brief USB device structure.
@@ -332,6 +350,7 @@ typedef enum _usb_dev_state_t
    USB_DEV_STATE_SET_CFG,           /**< Set configuration value.             */
    USB_DEV_STATE_UNLOCK,            /**< Unlock address 0.                    */
    USB_DEV_STATE_CONFIGURED,        /**< Configured, in stand by for transfers*/
+   USB_DEV_STATE_ERROR,             /**< Device failed enumeration.           */
    USB_DEV_STATE_SUSPENDED,         /**< Bus inactive, waiting for activity.  */
    USB_DEV_STATE_TEST,              /*   For testing purposes.                */
 } usb_dev_state_t;
@@ -349,20 +368,21 @@ typedef enum _usb_dev_state_t
  * 'opened' devices have been claimed by  user  code  and  cannot  be  otherwise
  * claimed by someone else.
  *
+ * There's a second status member (err_status) used only when the device failed.
+ * This can happen if a unspecified device is connected, if the  connection  was
+ * lost but the device  wasn't  reported  as  released.   There's  a  number  of
+ * situations that can lead to this error state, for that  reason  we  use  this
+ * member to hold information about what caused the device to fail.
+ *
+ *
  * A single endpoint is used for control  pipes,  it  will  be  reconfigured  as
  * needed for every IN or OUT transaction.
- *
- * @warning The standard request buffer (stdreq) stores members data in the  USB
- * bus's byte ordering, that is, little-endian.
- *
- * @warning Control pipe's buffer can become quite  large  on  devices  with  an
- * extensive configuration descriptor, as it  is  now  this  will  affect  *all*
- * devices' structure.
  *
  * @warning The buffer's size is currently limited to 256  bytes,  however,  the
  * USB specification assigns it a 2-byte value, so this limit is  being  imposed
  * by the implementation.  On the other hand, 256 bytes should be plenty  enough
- * to handle quite some complex devices, even with multiple interfaces.
+ * to handle quite some complex devices, even with  multiple  interfaces.   This
+ * will have to change when supporting cfg descriptors larger than 256.
  *
  */
 typedef struct _usb_device_t
@@ -372,6 +392,7 @@ typedef struct _usb_device_t
    usb_speed_t      speed;          /**< Speed (LS, FS or HS).                */
    usb_interface_t* interfaces;     /**< Array of interfaces.                 */
    uint32_t         status;         /**< Device status, see description.      */
+   uint32_t         err_status;     /**< Device error status, see description.*/
    uint16_t         ticket;         /**< Ticket for following IRP messages.   */
    uint16_t         vendor_ID;      /**< Vendor ID.                           */
    uint16_t         product_ID;     /**< Product ID.                          */

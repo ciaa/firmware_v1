@@ -92,8 +92,9 @@ int usb_drivers_probe(
    usb_driver_handle_t i;
 
    usb_assert(pdevice != NULL);
-   usb_assert(buffer != NULL);
-   usb_assert(length > 0);
+   usb_assert(buffer  != NULL);
+   usb_assert(length  >  0);
+   usb_assert(offset  >= 0);
 
    ret = -1;
    if (offset < USB_MAX_DRIVERS)
@@ -113,7 +114,9 @@ int usb_drivers_probe(
          {
             /* Otherwise, call the probing function. */
             if (!usb_drivers[i].probe(buffer, length))
+            {
                ret = i; /* Driver found! */
+            }
          }
       }
    }
@@ -134,7 +137,7 @@ int usb_drivers_assign(
    usb_assert(USB_ID_TO_DEV(id) < USB_MAX_DEVICES);
    usb_assert(USB_ID_TO_IFACE(id) <
          USB_GET_IFACES_N(pstack->devices[USB_ID_TO_IFACE(id)].cte_index));
-   usb_assert(handle < USB_MAX_DRIVERS);
+   usb_assert(handle >= 0 && handle < USB_MAX_DRIVERS);
 
    if (usb_drivers[handle].assign != NULL)
    {
@@ -155,7 +158,7 @@ int usb_drivers_remove(
    usb_assert(USB_ID_TO_DEV(id) < USB_MAX_DEVICES);
    usb_assert(USB_ID_TO_IFACE(id) <
          USB_GET_IFACES_N(pstack->devices[USB_ID_TO_IFACE(id)].cte_index));
-   usb_assert(handle < USB_MAX_DRIVERS);
+   usb_assert(handle >= 0 && handle < USB_MAX_DRIVERS);
 
    if (usb_drivers[handle].assign != NULL)
    {

@@ -33,6 +33,8 @@ int16_t _devidx_from_hub_port(
       uint8_t port
 );
 
+void _release_iface_endpoints( usb_device_t* pdev, uint8_t iface );
+
 int _irp_status(
       usb_stack_t* pstack,
       uint16_t     id,
@@ -66,6 +68,15 @@ int16_t _devidx_from_hub_port(
       }
    }
    return ret;
+}
+
+void _release_iface_endpoints( usb_device_t* pdev, uint8_t iface )
+{
+   uint8_t i;
+   for (i = 0; i < USB_GET_EPS_N(pdev->cte_index, iface); ++i)
+   {
+      usb_pipe_remove(&pdev->interfaces[iface].endpoints[i]);
+   }
 }
 
 int _irp_status(
@@ -303,6 +314,34 @@ int usb_run( usb_stack_t* pstack )
 
 /******************************************************************************/
 
+int usb_device_reset( usb_stack_t* pstack, uint16_t device_id )
+{
+   int     status;
+   uint8_t hub  = 0;
+   uint8_t port = 0;
+
+   if (pstack == NULL || USB_ID_TO_DEV(device_id) > USB_MAX_DEVICES-1)
+   {
+      /* Invalid input parameters. */
+      status = USB_STATUS_INV_PARAM;
+   }
+   else
+   {
+#if (USB_MAX_HUBS > 0)
+      /*
+       * We need to store the parent hub and port  pair  so  that  we  can  then
+       * trigger a new device attachment on the same coordinates.
+       */
+      hub  = pstack->devices[USB_ID_TO_DEV(device_id)].parent_hub;
+      port = pstack->devices[USB_ID_TO_DEV(device_id)].parent_port;
+#endif
+      usb_device_release(pstack, USB_ID_TO_DEV(device_id));
+      usb_device_attach(pstack, hub, port);
+      status = USB_STATUS_OK;
+   }
+   return status;
+}
+
 int usb_irp(
       usb_stack_t* pstack,
       uint16_t     device_id,
@@ -538,6 +577,7 @@ int usb_device_init( usb_stack_t* pstack, uint8_t index )
    pdev->state         = USB_DEV_STATE_DISCONNECTED;
    pdev->next_state    = USB_DEV_STATE_DISCONNECTED;
    pdev->status        = 0;
+   pdev->err_status    = 0;
    pdev->ticket        = 0;
    pdev->speed         = USB_SPD_INV;
    pdev->addr          = USB_DEV_DEFAULT_ADDR;
@@ -558,13 +598,10 @@ int usb_device_init( usb_stack_t* pstack, uint8_t index )
 
 int usb_device_release( usb_stack_t* pstack, uint8_t index )
 {
-   uint8_t          i, j;
+   uint8_t          i;
    uint8_t          n_elems;
    usb_device_t*    pdev;
    usb_interface_t* piface;
-#if (USB_MAX_HUBS > 0)
-   usb_device_t*    dev_i;
-#endif
 
    usb_assert(pstack != NULL);
    usb_assert(index < USB_MAX_DEVICES);
@@ -579,7 +616,7 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
       {
          if (usb_hub_get_address(pstack->devices[i].parent_hub) == index+1)
          {
-            /* We are the parent HUB of dev_i, release that one first. */
+            /* We are the parent HUB of dev[i], release that one first. */
             usb_device_release(pstack, i);
          }
       }
@@ -592,7 +629,7 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
       for (i = 0; i < n_elems; ++i)
       {
          piface = &pdev->interfaces[i];
-         if (piface->driver_handle != USB_IFACE_NO_DRIVER)
+         if (piface->driver_handle >= 0)
          {
             usb_drivers_remove(
                   pstack,
@@ -600,10 +637,9 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
                   piface->driver_handle );
             piface->driver_handle = USB_IFACE_NO_DRIVER;
          }
-         for (j = 0; j < USB_GET_EPS_N(pdev->cte_index, i); ++j)
-         {
-            usb_pipe_remove(&piface->endpoints[j]);
-         }
+
+         _release_iface_endpoints(pdev, i);
+
          piface->class       =   0;
          piface->subclass    =   0;
          piface->protocol    = 255; /* Unsupported protocol number. */
@@ -771,65 +807,63 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
    if (pdev->interfaces == NULL)
    {
       /* A matching interface was not found. */
-      usb_assert(0); /** @TODO handle error */
+      status = USB_STATUS_IFACE_CFG;
    }
-
-   /* Get the configuration value. */
-   pdev->cfg_value = USB_STDDESC_CFG_GET_bConfigurationValue(buff);
-
-   /* Get bmAttributes: self-powered? and remote-wakeup? */
-   if (USB_STDDESC_CFG_GET_bmAttributes(buff) & USB_STDDESC_CFG_SELF_POWERED)
+   else
    {
-      pdev->status |= USB_DEV_STATUS_SELF_PWRD;
-   }
-   if (USB_STDDESC_CFG_GET_bmAttributes(buff) & USB_STDDESC_CFG_REMOTE_WAKEUP)
-   {
-      pdev->status |= USB_DEV_STATUS_REMOTE_WKUP;
-   }
+      /* Get the configuration value. */
+      pdev->cfg_value = USB_STDDESC_CFG_GET_bConfigurationValue(buff);
 
-   /* Get maximum power consumption. */
-   pdev->max_power = USB_STDDESC_CFG_GET_bMaxPower(buff);
-
-   buff += USB_STDDESC_CFG_SIZE;
-   len  -= USB_STDDESC_CFG_SIZE;
-   next_len = len;
-   for (i = 0; i < n_ifaces; ++i)
-   {
-      /*
-       * Find the next descriptor before parsing so we can pass down the  actual
-       * entire interface plus endpoints and such descriptors.
-       */
-      next_buff = buff;
-      len = next_len;
-      if (usb_goto_next_desc(
-               &next_buff,
-               &next_len,
-               USB_STDDESC_INTERFACE,
-               USB_STDDESC_IFACE_SIZE) )
+      /* Get bmAttributes: self-powered? and remote-wakeup? */
+      if (USB_STDDESC_CFG_GET_bmAttributes(buff) & USB_STDDESC_CFG_SELF_POWERED)
       {
-         /* If no next iface desc was found and ... */
-         if (i+1 < n_ifaces)
-         {
-            /* ... this isn't the last iface, then something's wrong. */
-            usb_assert(0); /** @TODO handle error */
-         }
-         else
-         {
-            /* Otherwise, it's alright so do nothing. */
-            next_buff = NULL;
-            next_len  = 0;
-         }
+         pdev->status |= USB_DEV_STATUS_SELF_PWRD;
+      }
+      if (USB_STDDESC_CFG_GET_bmAttributes(buff) & USB_STDDESC_CFG_REMOTE_WAKEUP)
+      {
+         pdev->status |= USB_DEV_STATUS_REMOTE_WKUP;
       }
 
-      len = len - next_len;
-      status = usb_device_parse_ifacedesc(pstack, index, i, &buff, &len);
-      if (status)
+      /* Get maximum power consumption. */
+      pdev->max_power = USB_STDDESC_CFG_GET_bMaxPower(buff);
+
+      buff += USB_STDDESC_CFG_SIZE;
+      len  -= USB_STDDESC_CFG_SIZE;
+      next_len = len;
+      status = USB_STATUS_OK;
+      for (i = 0; i < n_ifaces && status == USB_STATUS_OK; ++i)
       {
-         usb_assert(0); /** @TODO handle error */
+         /*
+          * Find the next descriptor before parsing so  we  can  pass  down  the
+          * actual entire interface plus endpoints and such descriptors.
+          */
+         next_buff = buff;
+         len = next_len;
+         if (usb_goto_next_desc(
+                  &next_buff,
+                  &next_len,
+                  USB_STDDESC_INTERFACE,
+                  USB_STDDESC_IFACE_SIZE) )
+         {
+            /* If no next interface descriptor was found and ... */
+            if (i+1 < n_ifaces)
+            {
+               /* ... this isn't the last interface, then something's wrong. */
+               status = USB_STATUS_IFACE_CFG;
+            }
+            else
+            {
+               /* Otherwise, it's alright so do nothing. */
+               next_buff = NULL;
+               next_len  = 0;
+            }
+         }
+
+         len = len - next_len;
+         status = usb_device_parse_ifacedesc(pstack, index, i, &buff, &len);
       }
    }
-
-   return USB_STATUS_OK;
+   return status;
 }
 
 int usb_device_parse_ifacedesc(
@@ -845,8 +879,7 @@ int usb_device_parse_ifacedesc(
    uint8_t           n_eps;
    uint8_t           ep;
    int               driver_idx;
-   int16_t           pipe_handle;
-   int               ret;
+   int               status;
    const uint8_t*    buff;
    uint8_t           len;
 
@@ -867,18 +900,18 @@ int usb_device_parse_ifacedesc(
    if (*plen < USB_STDDESC_IFACE_SIZE)
    {
       /* Validate buffers minimum length. */
-      ret = USB_STATUS_INV_PARAM;
+      status = USB_STATUS_INV_PARAM;
    }
    else if(USB_STDDESC_IFACE_GET_bDescriptorType(buff) != USB_STDDESC_INTERFACE)
    {
       /* Validate interface's descriptor type. */
-      ret = USB_STATUS_INV_DESC;
+      status = USB_STATUS_INV_DESC;
    }
    else if ( (n_eps = USB_STDDESC_IFACE_GET_bNumEndpoints(buff))
                != USB_GET_EPS_N(pdev->cte_index, iface_idx) )
    {
       /* Check if the configured interface matches the number of endpoints. */
-      ret = USB_STATUS_EP_AVAIL;
+      status = USB_STATUS_EP_AVAIL;
    }
    else
    {
@@ -898,8 +931,8 @@ int usb_device_parse_ifacedesc(
           * through the USB stack, this way the user can get  information  about
           * it and find out why it wasn't assigned a driver.
           */
-         piface->driver_handle = (usb_driver_handle_t) USB_IFACE_NO_DRIVER;
-         ret = USB_STATUS_OK;
+         piface->driver_handle = USB_IFACE_NO_DRIVER;
+         status = USB_STATUS_OK;
       }
       else
       {
@@ -907,62 +940,69 @@ int usb_device_parse_ifacedesc(
          usb_assert(driver_idx < USB_MAX_DRIVERS);
          piface->driver_handle = (usb_driver_handle_t) driver_idx;
 
-         for (ep = 0; ep < n_eps; ++ep)
+         status = USB_STATUS_OK;
+         for (ep = 0; ep < n_eps && status == USB_STATUS_OK; ++ep)
          {
             /*
              * First, advance buffer till  next  endpoint  descriptor,  this  is
              * important because other descriptors might be in between  endpoint
              * ones and that is only known by the driver.
              */
-            if (usb_goto_next_desc(
-                     pbuff,
-                     plen,
-                     USB_STDDESC_ENDPOINT,
-                     USB_STDDESC_EP_SIZE) )
-            {
-               usb_assert(0); /** @TODO handle error */
-            }
-
+            usb_goto_next_desc(
+                  pbuff,
+                  plen,
+                  USB_STDDESC_ENDPOINT,
+                  USB_STDDESC_EP_SIZE
+            );
             /* Get endpoint info and initialize it. */
-            usb_device_parse_epdesc(&piface->endpoints[ep], *pbuff);
-
-            /* Allocate physical endpoint to it ... */
-            pipe_handle = usbhci_pipe_alloc(piface->endpoints[ep].type);
-            if (pipe_handle < 0)
-            {
-               usb_assert(0); /** @TODO handle error */
-            }
-            piface->endpoints[ep].handle = (uint8_t) pipe_handle;
-
-            /* ... and configure it. */
-            if (usbhci_pipe_configure(pdev, &piface->endpoints[ep]))
-            {
-               usb_assert(0); /** @TODO handle error */
-            }
+            status = usb_device_parse_epdesc(pdev, iface_idx, ep, *pbuff);
          }
 
-         /* Finally, register interface with driver. */
-         ret = usb_drivers_assign(
-               pstack,
-               USB_TO_ID(dev_idx, iface_idx),
-               buff,
-               len,
-               driver_idx
-         );
-         if (ret)
+         if (status != USB_STATUS_OK)
          {
-            usb_assert(0); /** @TODO handle error */
+            /* There was a resource allocation problem, invalidate interface. */
+            piface->driver_handle = USB_IFACE_ERR_CFG;
+            status = USB_STATUS_OK;
+         }
+         else
+         {
+            /* Finally, register interface with driver. */
+            if (usb_drivers_assign(
+                  pstack,
+                  USB_TO_ID(dev_idx, iface_idx),
+                  buff,
+                  len,
+                  driver_idx) )
+            {
+               /* Unable to register, release endpoints. */
+               piface->driver_handle = USB_IFACE_ERR_ASSIGN;
+               _release_iface_endpoints(pdev, iface_idx);
+               status = USB_STATUS_OK;
+            }
          }
       }
    }
-   return ret;
+   return status;
 }
 
-int usb_device_parse_epdesc( usb_pipe_t* ppipe, const uint8_t* buffer )
+int usb_device_parse_epdesc(
+      usb_device_t*  pdev,
+      uint8_t        iface,
+      uint8_t        ep,
+      const uint8_t* buffer
+)
 {
-   usb_assert(ppipe  != NULL);
-   usb_assert(buffer != NULL);
+   int              status;
+   int16_t          pipe_handle;
+   uint8_t          i;
+   usb_pipe_t*      ppipe;
 
+   usb_assert(pdev   != NULL);
+   usb_assert(buffer != NULL);
+   usb_assert(iface < USB_GET_IFACES_N(pdev->cte_index));
+   usb_assert(ep    < USB_GET_EPS_N(pdev->cte_index, iface));
+
+   ppipe = &pdev->interfaces[iface].endpoints[ep];
    ppipe->number   = USB_STDDESC_EP_GET_bEndpointAddress(buffer) & 0x7F;
    ppipe->type     = USB_STDDESC_EP_GET_bmAttributes(buffer) & USB_STDDESC_EP_ATTR_TYPE_MASK;
    ppipe->dir      =(USB_STDDESC_EP_GET_bEndpointAddress(buffer) & 0x80) ? USB_DIR_IN : USB_DIR_OUT;
@@ -971,7 +1011,27 @@ int usb_device_parse_epdesc( usb_pipe_t* ppipe, const uint8_t* buffer )
    ppipe->length   = 0;
    ppipe->buffer   = NULL;
 
-   return USB_STATUS_OK;
+   /* Allocate physical endpoint and configure it. */
+   status = USB_STATUS_PIPE_CFG;
+   pipe_handle = usbhci_pipe_alloc(ppipe->type);
+   if (pipe_handle >= 0)
+   {
+      ppipe->handle = (uint8_t) pipe_handle;
+      if (!usbhci_pipe_configure(pdev, ppipe))
+      {
+         status = USB_STATUS_OK;
+      }
+   }
+   if (status == USB_STATUS_PIPE_CFG)
+   {
+      /*
+       * Arriving here means we couldn't allocate the pipe or configure it,  now
+       * we can't have an incomplete interface so we're going to release all the
+       * pipes that could have already been associated to it and return.
+       */
+      _release_iface_endpoints(pdev, iface);
+   }
+   return status;
 }
 
 

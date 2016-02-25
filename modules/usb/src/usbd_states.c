@@ -79,6 +79,7 @@ static int _state_cfg_desc( usb_stack_t* pstack, uint8_t index );
 static int _state_set_cfg( usb_stack_t* pstack, uint8_t index );
 static int _state_unlock( usb_stack_t* pstack, uint8_t index );
 static int _state_configured( usb_stack_t* pstack, uint8_t index );
+static int _state_error( usb_stack_t* pstack, uint8_t index );
 static int _state_suspended( usb_stack_t* pstack, uint8_t index );
 
 
@@ -100,6 +101,7 @@ static _state_fn_t _state_fn[] =
    _state_set_cfg,
    _state_unlock,
    _state_configured,
+   _state_error,
    _state_suspended,
 };
 
@@ -331,7 +333,10 @@ static int _state_mps( usb_stack_t* pstack, uint8_t index )
    }
    else if (status != USB_STATUS_OK)
    {
-      usb_assert(0); /** @TODO: handle error */
+      /* Unable to communicate, already failed on the very first transfer. */
+      pdev->err_status = USB_STATUS_E_MPS;
+      _next_state(pdev, USB_DEV_STATE_ERROR, USB_DEV_STATE_ERROR);
+      status = USB_STATUS_OK;
    }
    else /* USB_STATUS_OK */
    {
@@ -367,7 +372,10 @@ static int _state_address( usb_stack_t* pstack, uint8_t index )
    }
    else if (status != USB_STATUS_OK)
    {
-      usb_assert(0); /** @TODO: handle error */
+      /* Unable to set device's address. */
+      pdev->err_status = USB_STATUS_E_ADDR;
+      _next_state(pdev, USB_DEV_STATE_ERROR, USB_DEV_STATE_ERROR);
+      status = USB_STATUS_OK;
    }
    else /* USB_STATUS_OK */
    {
@@ -402,7 +410,10 @@ static int _state_dev_desc( usb_stack_t* pstack, uint8_t index )
    }
    else if (status != USB_STATUS_OK)
    {
-      usb_assert(0); /** @TODO: handle error */
+      /* Unable to get device's device-descriptor. */
+      pdev->err_status = USB_STATUS_E_DEV_DESC;
+      _next_state(pdev, USB_DEV_STATE_ERROR, USB_DEV_STATE_ERROR);
+      status = USB_STATUS_OK;
    }
    else /* USB_STATUS_OK */
    {
@@ -437,16 +448,25 @@ static int _state_cfg_desc_len9( usb_stack_t* pstack, uint8_t index )
    }
    else if (status != USB_STATUS_OK)
    {
-      usb_assert(0); /** @TODO: handle error */
+      /* Unable to get device's configuration-descriptor. */
+      pdev->err_status = USB_STATUS_E_CFG_DESC;
+      _next_state(pdev, USB_DEV_STATE_ERROR, USB_DEV_STATE_ERROR);
+      status = USB_STATUS_OK;
    }
    else /* USB_STATUS_OK */
    {
       if (USB_STDDESC_CFG_GET_wTotalLength(pstack->xfer_buffer)
             > USB_XFER_BUFFER_LEN)
       {
-         usb_assert(0); /** @TODO handle error */
+         /* Device's configuration descriptor is larger than supported. */
+         pdev->err_status = USB_STATUS_E_CFG_DESC_LEN;
+         _next_state(pdev, USB_DEV_STATE_ERROR, USB_DEV_STATE_ERROR);
+         status = USB_STATUS_OK;
       }
-      _next_state(pdev, USB_DEV_STATE_CFG_DESC, USB_DEV_STATE_CFG_DESC);
+      else
+      {
+         _next_state(pdev, USB_DEV_STATE_CFG_DESC, USB_DEV_STATE_CFG_DESC);
+      }
    }
    return status;
 }
@@ -475,7 +495,10 @@ static int _state_cfg_desc( usb_stack_t* pstack, uint8_t index )
    }
    else if (status != USB_STATUS_OK)
    {
-      usb_assert(0); /** @TODO: handle error */
+      /* Unable to get device's configuration-descriptor. */
+      pdev->err_status = USB_STATUS_E_CFG_DESC;
+      _next_state(pdev, USB_DEV_STATE_ERROR, USB_DEV_STATE_ERROR);
+      status = USB_STATUS_OK;
    }
    else /* USB_STATUS_OK */
    {
@@ -483,9 +506,15 @@ static int _state_cfg_desc( usb_stack_t* pstack, uint8_t index )
       status = usb_device_parse_cfgdesc(pstack, index);
       if (status)
       {
-         usb_assert(0); /** @TODO handle error */
+         /* Invalid/incorrect configuration descriptor. */
+         pdev->err_status = USB_STATUS_E_CFG_DESC;
+         _next_state(pdev, USB_DEV_STATE_ERROR, USB_DEV_STATE_ERROR);
+         status = USB_STATUS_OK;
       }
-      _next_state(pdev, USB_DEV_STATE_SET_CFG, USB_DEV_STATE_SET_CFG);
+      else
+      {
+         _next_state(pdev, USB_DEV_STATE_SET_CFG, USB_DEV_STATE_SET_CFG);
+      }
    }
 
    return status;
@@ -515,7 +544,10 @@ static int _state_set_cfg( usb_stack_t* pstack, uint8_t index )
    }
    else if (status != USB_STATUS_OK)
    {
-      usb_assert(0); /** @TODO: handle error */
+      /* Invalid/incorrect configuration descriptor. */
+      pdev->err_status = USB_STATUS_E_CFG_SET;
+      _next_state(pdev, USB_DEV_STATE_ERROR, USB_DEV_STATE_ERROR);
+      status = USB_STATUS_OK;
    }
    else /* USB_STATUS_OK */
    {
@@ -538,6 +570,25 @@ static int _state_unlock( usb_stack_t* pstack, uint8_t index )
 static int _state_configured( usb_stack_t* pstack, uint8_t index )
 {
    /* Nothing to do here... ? */
+   return USB_STATUS_OK;
+}
+
+static int _state_error( usb_stack_t* pstack, uint8_t index )
+{
+   usb_device_t* pdev = &pstack->devices[index];
+   if (pdev->status & USB_DEV_STATUS_REQUEST)
+   {
+      /*
+       * When first arriving to this state, make sure  the  device  unlocks  the
+       * default address 0 so that others can enumerate.
+       */
+      pstack->status &= ~USB_STACK_STATUS_ZERO_ADDR; /* Unlock address 0. */
+      pdev->status   &= ~USB_DEV_STATUS_LOCK_ON_ADDR_ZERO; /* IDEM for device */
+   }
+   else
+   {
+      /* The rest of the time... do nothing. */
+   }
    return USB_STATUS_OK;
 }
 
