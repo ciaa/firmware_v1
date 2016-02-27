@@ -126,9 +126,9 @@ int _irp_status(
          /* And retry if under 3 strikes. */
          status = (is_ctrl) ? usbhci_ctrlxfer_start(pdev,(usb_msg_pipe_t*)ppipe)
                             : usbhci_xfer_start(pdev, (usb_pipe_t*) ppipe);
-         if (status != USB_STATUS_OK)
+         if (status == USB_STATUS_OK)
          {
-            usb_assert(0); /** @TODO handle error */
+            status = USB_STATUS_EP_STALLED;
          }
          else
          {
@@ -270,11 +270,7 @@ int usb_run( usb_stack_t* pstack )
             if (!usbhci_is_connected())
             {
                /* Device is no longer connected, release everything. */
-               status = usb_device_release(pstack, 0);
-               if (status != USB_STATUS_OK)
-               {
-                  usb_assert(0); /** @TODO handle error */
-               }
+               usb_device_release(pstack, 0);
                pstack->state = USB_HOST_STATE_IDLE;
             }
             else
@@ -284,16 +280,10 @@ int usb_run( usb_stack_t* pstack )
                 * handle HUBs (HUBs are the only devices owned by the stack).
                 */
                status = usb_stack_update_devices(pstack);
-               if (status != USB_STATUS_OK)
-               {
-                  usb_assert(0); /** @TODO handle error */
-               }
-
 #if (USB_MAX_HUBS > 0)
-               status = usb_hub_update();
-               if (status != USB_STATUS_OK)
+               if (status == USB_STATUS_OK)
                {
-                  usb_assert(0); /** @TODO handle error */
+                  status = usb_hub_update();
                }
 #endif
             }
@@ -427,11 +417,7 @@ int usb_ctrlirp_bypass(
       pmsg    = &pstack->def_ep[index];
       *ticket = USB_IDX_TO_TICKET(index);
       status  = usbhci_msg_pipe_configure(pdev, pmsg);
-      if (status != USB_STATUS_OK)
-      {
-         usb_assert(0); /** @TODO handle error */
-      }
-      else
+      if (status == USB_STATUS_OK)
       {
          /* Fill the request buffer with the data in USB-endianness order. */
          USB_STDREQ_SET_bmRequestType(pmsg->stdreq, pstdreq->bmRequestType);
@@ -635,11 +621,10 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
                   pstack,
                   USB_TO_ID(index, i),
                   piface->driver_handle );
+
+            _release_iface_endpoints(pdev, i);
             piface->driver_handle = USB_IFACE_NO_DRIVER;
          }
-
-         _release_iface_endpoints(pdev, i);
-
          piface->class       =   0;
          piface->subclass    =   0;
          piface->protocol    = 255; /* Unsupported protocol number. */
@@ -1066,11 +1051,7 @@ int usb_stack_update_devices( usb_stack_t* pstack )
    {
       if (usb_device_is_active(pstack, i))
       {
-         status = usb_device_update(pstack, i);
-         if (status != USB_STATUS_OK)
-         {
-            usb_assert(0); /** @TODO handle error */
-         }
+         usb_device_update(pstack, i);
       }
    }
    return USB_STATUS_OK;

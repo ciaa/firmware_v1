@@ -390,6 +390,10 @@ int usbhci_pipe_configure( usb_device_t* pdev, usb_pipe_t* ppipe )
       phci_pipe->status |= USBHCI_PIPE_OPEN;
       status = USB_STATUS_OK;
    }
+   else
+   {
+      status = USB_STATUS_PIPE_CFG;
+   }
    return status;
 }
 
@@ -445,6 +449,10 @@ int usbhci_msg_pipe_configure( usb_device_t* pdev, usb_msg_pipe_t* pmsg )
       /* Once configuration is done, set status as open again. */
       phci_pipe->status |= USBHCI_PIPE_OPEN;
       status = USB_STATUS_OK;
+   }
+   else
+   {
+      status = USB_STATUS_PIPE_CFG;
    }
    return status;
 }

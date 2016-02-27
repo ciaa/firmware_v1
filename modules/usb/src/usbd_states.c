@@ -507,7 +507,7 @@ static int _state_cfg_desc( usb_stack_t* pstack, uint8_t index )
       if (status)
       {
          /* Invalid/incorrect configuration descriptor. */
-         pdev->err_status = USB_STATUS_E_CFG_DESC;
+         pdev->err_status = USB_STATUS_E_INV_CFG_DESC;
          _next_state(pdev, USB_DEV_STATE_ERROR, USB_DEV_STATE_ERROR);
          status = USB_STATUS_OK;
       }
