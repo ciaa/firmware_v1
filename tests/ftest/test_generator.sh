@@ -1,4 +1,4 @@
-# Copyright 2015, Carlos Pantelides
+# Copyright 2015, 2016 Carlos Pantelides
 # All rights reserved.
 #
 # This file is part of CIAA Firmware.
@@ -11,7 +11,7 @@
 #
 # 2. Redistributions in binary form must reproduce the above copyright notice,
 #    this list of conditions and the following disclaimer in the documentation
-#    and/or other materials provided with the distribution.
+#    and${DS}or other materials provided with the distribution.
 #
 # 3. Neither the name of the copyright holder nor the names of its
 #    contributors may be used to endorse or promote products derived from this
@@ -29,45 +29,48 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# comment out the ">${DS}dev${DS}null" redirections and "rm ..." lines when fixing broken tests
+
 testBlinkingExampleFull() {
    rm -rf ${TMP}${DS}*
 
-   php modules/rtos/generator/generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
+   php modules${DS}rtos${DS}generator${DS}generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
-      -t ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
-         ${FIXTURES}${DS}gen/inc/Os_Cfg.h.php \
-         ${FIXTURES}${DS}gen/src/Os_Cfg.c.php \
-         ${FIXTURES}${DS}gen/src/Os_Internal_Cfg.c.php \
-         ${FIXTURES}${DS}gen/src/x86/Os_Internal_Arch_Cfg.c.php \
-         ${FIXTURES}${DS}gen/inc/x86/Os_Internal_Arch_Cfg.h.php \
-      -b /gen/ \
-      -o ${TMP} > /dev/null 2>&1
+      -t ${FIXTURES}${DS}gen${DS}inc${DS}Os_Internal_Cfg.h.php \
+         ${FIXTURES}${DS}gen${DS}inc${DS}Os_Cfg.h.php \
+         ${FIXTURES}${DS}gen${DS}src${DS}Os_Cfg.c.php \
+         ${FIXTURES}${DS}gen${DS}src${DS}Os_Internal_Cfg.c.php \
+         ${FIXTURES}${DS}gen${DS}src${DS}x86${DS}Os_Internal_Arch_Cfg.c.php \
+         ${FIXTURES}${DS}gen${DS}inc${DS}x86${DS}Os_Internal_Arch_Cfg.h.php \
+      -b ${DS}gen${DS} \
+      -H modules${DS}rtos${DS}gen${DS}ginc${DS}Multicore.php \
+      -o ${TMP} > ${DS}dev${DS}null 2>&1
 
-   GOT=${TMP}
+   local GOT=${TMP}
 
-   FILE=$(find "$GOT" -iname Os_Cfg.c)
-   diff -w  ${EXPECTED}${DS}src/Os_Cfg.c                   "$FILE" > /dev/null
-   assertTrue $?
+   local FILE=$(find "$GOT" -iname Os_Cfg.c)
+   diff -w  "${EXPECTED}${DS}src${DS}Os_Cfg.c" "$FILE" > ${DS}dev${DS}null
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}src${DS}Os_Cfg.c != $FILE"
 
    FILE=$(find "$GOT" -iname Os_Internal_Arch_Cfg.c)
-   diff -w  ${EXPECTED}${DS}src/x86/Os_Internal_Arch_Cfg.c "$FILE" > /dev/null
-   assertTrue $?
+   diff -w  "${EXPECTED}${DS}src${DS}x86${DS}Os_Internal_Arch_Cfg.c" "$FILE" > ${DS}dev${DS}null
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}src${DS}x86${DS}Os_Internal_Arch_Cfg.c != $FILE"
 
    FILE=$(find "$GOT" -iname Os_Internal_Cfg.c)
-   diff -w  ${EXPECTED}${DS}src/Os_Internal_Cfg.c          "$FILE" > /dev/null
-   assertTrue $?
+   diff -w  "${EXPECTED}${DS}src${DS}Os_Internal_Cfg.c" "$FILE" > ${DS}dev${DS}null
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}src${DS}Os_Internal_Cfg.c != $FILE"
 
    FILE=$(find "$GOT" -iname Os_Internal_Arch_Cfg.h)
-   diff -w  ${EXPECTED}${DS}inc/x86/Os_Internal_Arch_Cfg.h "$FILE" > /dev/null
-   assertTrue $?
+   diff -w  "${EXPECTED}${DS}inc${DS}x86${DS}Os_Internal_Arch_Cfg.h" "$FILE" > ${DS}dev${DS}null
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}inc${DS}x86${DS}Os_Internal_Arch_Cfg.h != $FILE"
 
    FILE=$(find "$GOT" -iname Os_Cfg.h)
-   diff -w  ${EXPECTED}${DS}inc/Os_Cfg.h                   "$FILE" > /dev/null
-   assertTrue $?
+   diff -w  "${EXPECTED}${DS}inc${DS}Os_Cfg.h" "$FILE" > ${DS}dev${DS}null
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}inc${DS}Os_Cfg.h != $FILE"
 
    FILE=$(find "$GOT" -iname Os_Internal_Cfg.h)
-   diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h          "$FILE" > /dev/null
-   assertTrue $?
+   diff -w  "${EXPECTED}${DS}inc${DS}Os_Internal_Cfg.h" "$FILE" > ${DS}dev${DS}null
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}inc${DS}Os_Internal_Cfg.h != $FILE"
 
    rm -rf ${TMP}${DS}*
 }
@@ -75,36 +78,50 @@ testBlinkingExampleFull() {
 testOneTemplate() {
    rm -rf ${TMP}${DS}*
 
-   php modules/rtos/generator/generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
+   php modules${DS}rtos${DS}generator${DS}generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
-      -t ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
-      -b /gen/ \
-      -o ${TMP} > /dev/null 2>&1
+      -t ${FIXTURES}${DS}gen${DS}inc${DS}Os_Internal_Cfg.h.php \
+      -b ${DS}gen${DS} \
+      -H modules${DS}rtos${DS}gen${DS}ginc${DS}Multicore.php \
+      -o ${TMP} > ${DS}dev${DS}null 2>&1
 
-   GOT=${TMP}
+   local GOT=${TMP}
 
-   FILE=$(find "$GOT" -iname Os_Internal_Cfg.h)
-   diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h                   "$FILE" > /dev/null
-   assertTrue $?
+   local FILE=$(find "$GOT" -iname Os_Internal_Cfg.h)
+   diff -w  "${EXPECTED}${DS}inc${DS}Os_Internal_Cfg.h" "$FILE" > ${DS}dev${DS}null
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}inc${DS}Os_Internal_Cfg.h != $FILE"
 
    rm -rf ${TMP}${DS}*
 }
 
 testOutputPath() {
-   php modules/rtos/generator/generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
+   php modules${DS}rtos${DS}generator${DS}generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
-      -t ${FIXTURES}${DS}gen/inc/Os_Internal_Cfg.h.php \
-      -b /gen/ \
-      -o ${TMP} > /dev/null 2>&1
+      -t "${FIXTURES}${DS}gen${DS}inc${DS}Os_Internal_Cfg.h.php" \
+      -b ${DS}gen${DS} \
+      -H modules${DS}rtos${DS}gen${DS}ginc${DS}Multicore.php \
+      -o ${TMP} > ${DS}dev${DS}null 2>&1
 
-   GOT=${TMP}
-
-   diff -w  ${EXPECTED}${DS}inc/Os_Internal_Cfg.h  ${TMP}${DS}inc/Os_Internal_Cfg.h > /dev/null
-   assertTrue $?
+   diff -w  "${EXPECTED}${DS}inc${DS}Os_Internal_Cfg.h"  "${TMP}${DS}inc${DS}Os_Internal_Cfg.h" > ${DS}dev${DS}null
+   assertTrue $? || echo  "FAIL: ${EXPECTED}${DS}inc${DS}Os_Internal_Cfg.h $got"
 
    rm -rf ${TMP}${DS}*
 }
 
+testHelper() {
+   php modules${DS}rtos${DS}generator${DS}generator.php -v -DARCH=x85 -DCPUTYPE=ia32 -DCPU=none \
+   -c ${FIXTURES}${DS}blinking.oil \
+   -t ${FIXTURES}${DS}templates${DS}template_for_helper_testing.php \
+   -b ${DS}templates${DS} \
+   -H ${FIXTURES}${DS}gen${DS}DummyHelper.php \
+   -o ${TMP} > ${DS}dev${DS}null 2>&1
+
+   diff -w "${EXPECTED}${DS}template_for_helper_testing"  "${TMP}${DS}template_for_helper_testing" > ${DS}dev${DS}null
+   assertTrue $? || echo "ERROR: ${EXPECTED}${DS}template_for_helper_testing != ${TMP}${DS}template_for_helper_testing"
+
+   rm -rf ${TMP}${DS}*
+
+}
 
 SHUNIT=$1
 TESTS=$2

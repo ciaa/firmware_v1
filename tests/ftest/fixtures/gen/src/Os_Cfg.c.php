@@ -60,7 +60,7 @@
 
 /*==================[internal data definition]===============================*/
 <?php
-$errorhook=$config->getValue("/OSEK/" . $os[0],"ERRORHOOK");
+$errorhook=$this->config->getValue("/OSEK/" . $os[0],"ERRORHOOK");
 if ($errorhook == "TRUE")
 {
 ?>

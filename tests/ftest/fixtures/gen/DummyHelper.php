@@ -1,8 +1,7 @@
 <?php
-/* Copyright 2008, 2009 Mariano Cerdeiro
- * Copyright 2014, ACSE & CADIEEL
- *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *      CADIEEL: http://www.cadieel.org.ar
+/*
+ * Copyright 2016, Carlos Pantelides
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -33,28 +32,22 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-require_once ("config.php");
-
-$this->config->parseOilFile("example.oil");
-
-#$this->config->dump();
-
-print "Tasks: " . $this->config->getCount("/OSEK","TASK") . "\n";
-print "TasksK List:\n";
-
-$tasks = $this->config->getList("/OSEK","TASK");
-
-$task_count=0;
-
-foreach ($tasks as $task)
+class DummyHelper
 {
-   print "Task " . $task_count++ . " Location " . $task . "\n";
-   $attributes = $this->config->getAttributes($task,"*");
-   foreach ($attributes as $attr)
+   private $config;
+   private $definitions;
+   private $log;
+
+   function __construct($config, $definitions,$log)
    {
-      print $attr . ": " . $this->config->getValue($task, $attr) . "\n";
+      $this->config = $config;
+      $this->definitions = $definitions;
+      $this->log = $log;
+   }
+
+   function method($arg1, $arg2)
+   {
+      $this->log->info("DummyHelper: method called with args: $arg1 $arg2");
+      return "$arg1 $arg2";
    }
 }
-
-?>

@@ -354,15 +354,15 @@ void (* const g_pfnVectors[])(void) = {
 <?php
 
 /* get ISRs defined by user application */
-$intnames = $config->getList("/OSEK","ISR");
+$intnames = $this->config->getList("/OSEK","ISR");
 
 for($i=0; $i < $MAX_INT_COUNT; $i++)
 {
    $src_found = 0;
    foreach ($intnames as $int)
    {
-      $intcat = $config->getValue("/OSEK/" . $int,"CATEGORY");
-      $source = $config->getValue("/OSEK/" . $int,"INTERRUPT");
+      $intcat = $this->config->getValue("/OSEK/" . $int,"CATEGORY");
+      $source = $this->config->getValue("/OSEK/" . $int,"INTERRUPT");
 
       if($intList[$i] == $source)
       {
@@ -393,11 +393,11 @@ void Enable_User_ISRs(void)
 {
 <?php
 /* get ISRs defined by user application */
-$intnames = $config->getList("/OSEK","ISR");
+$intnames = $this->config->getList("/OSEK","ISR");
 foreach ($intnames as $int)
 {
-   $source = $config->getValue("/OSEK/" . $int,"INTERRUPT");
-   $prio = $config->getValue("/OSEK/" . $int,"PRIORITY");
+   $source = $this->config->getValue("/OSEK/" . $int,"INTERRUPT");
+   $prio = $this->config->getValue("/OSEK/" . $int,"PRIORITY");
 
    print "   /* Enabling IRQ $source with priority $prio */\n";
    print "   NVIC_EnableIRQ(" . array_search($source, $intList) . ");\n";
@@ -411,11 +411,11 @@ void Enable_ISR2_Arch(void)
 {
 <?php
 /* get ISRs defined by user application */
-$intnames = $config->getList("/OSEK","ISR");
+$intnames = $this->config->getList("/OSEK","ISR");
 foreach ($intnames as $int)
 {
-   $source = $config->getValue("/OSEK/" . $int,"INTERRUPT");
-   $cat = $config->getValue("/OSEK/" . $int,"CATEGORY");
+   $source = $this->config->getValue("/OSEK/" . $int,"INTERRUPT");
+   $cat = $this->config->getValue("/OSEK/" . $int,"CATEGORY");
 
    if($cat == 2)
    {
@@ -431,11 +431,11 @@ void Disable_ISR2_Arch(void)
 {
 <?php
 /* get ISRs defined by user application */
-$intnames = $config->getList("/OSEK","ISR");
+$intnames = $this->config->getList("/OSEK","ISR");
 foreach ($intnames as $int)
 {
-   $source = $config->getValue("/OSEK/" . $int,"INTERRUPT");
-   $cat = $config->getValue("/OSEK/" . $int,"CATEGORY");
+   $source = $this->config->getValue("/OSEK/" . $int,"INTERRUPT");
+   $cat = $this->config->getValue("/OSEK/" . $int,"CATEGORY");
 
    if($cat == 2)
    {
