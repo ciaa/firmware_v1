@@ -22,8 +22,7 @@
 
 int main(void)
 {
-	WDTCTL = WDTPW | WDTHOLD;		// Stop watchdog timer
-	P1DIR |= 0x01;					// Set P1.0 to output direction
+
 
 	for(;;) 
 	{
@@ -45,4 +44,17 @@ port1_isr (void)
 
 }
 
+
+_system_pre_init()
+{
+	WDTCTL = WDTPW | WDTHOLD;		// Stop watchdog timer
+		P1DIR |= 0x01;					// Set P1.0 to output direction
+}
+/*
+__attribute__((__interrupt__(RESET_VECTOR)))
+reset_vector (void)
+{
+
+}
+*/
  

@@ -1,4 +1,4 @@
-/* Copyright 2014, 2015 Pablo Ridolfi (UTN-FRBA)
+/* Copyright 2016, Franco Bucafusco
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,9 +31,9 @@
  *
  */
 
-/** \brief CIAA Dio Driver for msp430g2231
+/** \brief CIAA Dio Driver for msp430f5529
  **
- ** Implements the Digital Input/Output (Dio) Driver for msp430g2231
+ ** Implements the Digital Input/Output (Dio) Driver for msp430f5529
  **
  **/
 
@@ -49,12 +49,13 @@
 #include "ciaaDriverDio_Internal.h"
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_string.h"
+
 #include "hw_memmap.h"
+#include "gpio.h"
 
 /*==================[macros and definitions]=================================*/
 
-#define GPIO_PORT_TO_BASE	 ((t430IOstruct*)P1IN_)
-
+ 
 /** \brief Managed input count */
 #define ciaaDriverDio_InputCount (sizeof(ciaaDriverDio_Inputs) / sizeof(ciaaDriverDio_dioType))
 
@@ -62,7 +63,8 @@
 #define ciaaDriverDio_OutputCount (sizeof(ciaaDriverDio_Outputs) / sizeof(ciaaDriverDio_dioType))
 
 /** \brief Pointer to Devices */
-typedef struct  {
+typedef struct  
+{
    ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
 } ciaaDriverConstType;
@@ -79,9 +81,9 @@ typedef struct  {
  * This microcontroller hasn't any IO library provided by TI so the
  * imlementation is done directly using registers.
  */
-#if (msp_ext430g2 == BOARD)
-const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {1.3} };
-const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {1.0}, {1.6} };
+#if (msp_ext430f5529 == BOARD)
+const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {1.7} , {2.2}  };
+const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {1.0}, {8.1}, {8.3} };
 #endif
 
 /** \brief Device for DIO 0 */
@@ -128,47 +130,23 @@ static ciaaDriverConstType const ciaaDriverDioConst =
 
 /*==================[internal functions definition]==========================*/
 
-/** \brief perform low level gpio initialization for msp430g2231
+/** \brief perform low level gpio initialization for msp430f5529
  */
-static void ciaa_msp430g2231_gpio_init(void)
+static void ciaa_msp430f5529_gpio_init(void)
 {
-	t430IOstruct * baseAddress  ;
-	unsigned char  flag;
-
-#if (msp_ext430g2 == BOARD)
-	//const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {1.3} };
-	//const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {1.0}, {1.6} };
-	for(unsigned short i;i<ciaaDriverDio_InputCount;i++)
-	{
-		baseAddress = GPIO_PORT_TO_BASE[ciaaDriverDio_Inputs[i].port];
-		flag = (1<<ciaaDriverDio_Inputs[i].pin);
-
-		baseAddress->pDIR &= ~flag; //como entrada
+ unsigned short i;
+#if( msp_ext430f5529 == BOARD )
+	for(i=0;i<ciaaDriverDio_InputCount;i++)
+	{ 
+		GPIO_setAsInputPin(ciaaDriverDio_Inputs[i].port, 1<<ciaaDriverDio_Inputs[i].pin );		//como entrada
 	}
 
    	/* LEDs */
-	for(unsigned short i;i<ciaaDriverDio_OutputCount;i++)
+	for(i=0;i<ciaaDriverDio_OutputCount;i++)
 	{
-		baseAddress = GPIO_PORT_TO_BASE[ciaaDriverDio_Outputs[i].port];
-		flag = (1<<ciaaDriverDio_Outputs[i].pin);
-
-		baseAddress->pOUT &= ~flag; //lo apago
-		baseAddress->pDIR |= flag; //como salida
+		GPIO_setOutputLowOnPin(ciaaDriverDio_Outputs[i].port,1<<ciaaDriverDio_Outputs[i].pin); 	//lo apago
+		GPIO_setAsOutputPin(ciaaDriverDio_Outputs[i].port, 1<<ciaaDriverDio_Outputs[i].pin);	//como salida
 	}
-
-/*
-typedef struct
-{
-	volatile uint8_t	pIN;
-	volatile uint8_t	pOUT;
-	volatile uint8_t	pDIR;
-	volatile uint8_t	pIFG;
-	volatile uint8_t	pIES;
-	volatile uint8_t	pIE;
-	volatile uint8_t	pSEL;
-	volatile uint8_t	pREN;
-} t430IOstruct;
-*/
 #else
    #error please define BOARD variable!
 #endif
@@ -178,23 +156,17 @@ typedef struct
  *  \param[in] outputNumber number of output to set (0 to ciaaDriverDio_OutputCount)
  *  \param[in] value new state for output (true or false)
  */
-static void ciaa_msp430g2231_writeOutput(uint8_t outputNumber, uint8_t value)
+static void ciaa_msp430f5529_writeOutput(uint8_t outputNumber, uint8_t value)
 {
 	if (outputNumber < ciaaDriverDio_OutputCount)
 	{ 
-		t430IOstruct * baseAddress  ;
-		unsigned char  flag;
-
-		baseAddress = GPIO_PORT_TO_BASE[ciaaDriverDio_Outputs[outputNumber].port];
-		flag = (1<<ciaaDriverDio_Outputs[outputNumber].pin);
-
 		if( value!=0)
 		{
-			baseAddress->pOUT &= ~flag; 
+		GPIO_setOutputLowOnPin(ciaaDriverDio_Outputs[outputNumber].port,1<<ciaaDriverDio_Outputs[outputNumber].pin) ; 
 		}
 		else
 		{
-			baseAddress->pOUT |= flag; 
+		GPIO_setOutputHighOnPin(ciaaDriverDio_Outputs[outputNumber].port,1<<ciaaDriverDio_Outputs[outputNumber].pin) ; 
 		}     
 	}
 }
@@ -203,19 +175,13 @@ static void ciaa_msp430g2231_writeOutput(uint8_t outputNumber, uint8_t value)
  *  \param[in] inputNumber number of output to read (0 to ciaaDriverDio_InputCount)
  *  \return 1 if gpio is high, 0 if it's low, -1 if incorrect pin number
  */
-static int8_t ciaa_msp430g2231_readInput(uint8_t inputNumber)
+static int8_t ciaa_msp430f5529_readInput(uint8_t inputNumber)
 {
    int8_t rv = -1;
 
    if (inputNumber < ciaaDriverDio_InputCount)
    {
-		t430IOstruct * baseAddress  ;
-		unsigned char  flag;
-
-		baseAddress = GPIO_PORT_TO_BASE[ciaaDriverDio_Inputs[inputNumber].port];
-		flag = (1<<ciaaDriverDio_Inputs[inputNumber].pin);
-
-      	rv = (baseAddress->pIN&flag) ? 1 : 0;
+		rv = GPIO_getInputPinValue(ciaaDriverDio_Inputs[inputNumber].port,1<<ciaaDriverDio_Inputs[inputNumber].pin);
    }
 
    return rv;
@@ -225,19 +191,14 @@ static int8_t ciaa_msp430g2231_readInput(uint8_t inputNumber)
  *  \param[in] outputNumber number of output to read (0 to ciaaDriverDio_OutputCount)
  *  \return 1 if gpio is high, 0 if it's low, -1 if incorrect pin number
  */
-static int8_t ciaa_msp430g2231_readOutput(uint8_t outputNumber)
+static int8_t ciaa_msp430f5529_readOutput(uint8_t outputNumber)
 {
    int8_t rv = -1;
 
    if (outputNumber < ciaaDriverDio_OutputCount)
    {
-		t430IOstruct * baseAddress  ;
-		unsigned char  flag;
-
-		baseAddress = GPIO_PORT_TO_BASE[ciaaDriverDio_Inputs[outputNumber].port];
-		flag = (1<<ciaaDriverDio_Inputs[outputNumber].pin);
-
-      	rv = (baseAddress->pOUT&flag) ? 1 : 0;     
+	//TODO PROBAR QUE EL PIN REFLEJE EL VALOR DE POUT
+		rv = GPIO_getInputPinValue(ciaaDriverDio_Outputs[outputNumber].port,1<<ciaaDriverDio_Outputs[outputNumber].pin);
    }
 
    return rv;
@@ -247,10 +208,10 @@ static int8_t ciaa_msp430g2231_readOutput(uint8_t outputNumber)
  *  \param[in] number of pins to read (normally ciaaDriverDio_OutputCount or ciaaDriverDio_InputCount)
  *  \param[out] buffer user buffer
  *  \param[in] size user buffer size
- *  \param[in] readFunction function used to read pins (normally ciaa_msp430g2231_readOutput or ciaa_msp430g2231_readInput)
+ *  \param[in] readFunction function used to read pins (normally ciaa_msp430f5529_readOutput or ciaa_msp430f5529_readInput)
  *  \return number bytes required in buffer to store bits
  */
-static int32_t ciaa_msp430g2231_readPins(int32_t pinCount, uint8_t * buffer, size_t size, int32_t (*readFunction)(uint32_t))
+static int32_t ciaa_msp430f5529_readPins(int32_t pinCount, uint8_t * buffer, size_t size, int32_t (*readFunction)(uint32_t))
 {
    int32_t count, i, j;
 
@@ -305,12 +266,12 @@ extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, u
    if(device == ciaaDioDevices[0])
    {
       /* accessing to inputs */
-      ret = ciaa_msp430g2231_readPins(ciaaDriverDio_InputCount, buffer, size, ciaa_msp430g2231_readInput);
+      ret = ciaa_msp430f5529_readPins(ciaaDriverDio_InputCount, buffer, size, ciaa_msp430f5529_readInput);
    }
    else if(device == ciaaDioDevices[1])
    {
       /* accessing to outputs */
-      ret = ciaa_msp430g2231_readPins(ciaaDriverDio_OutputCount, buffer, size, ciaa_msp430g2231_readOutput);
+      ret = ciaa_msp430f5529_readPins(ciaaDriverDio_OutputCount, buffer, size, ciaa_msp430f5529_readOutput);
    }
    else
    {
@@ -340,7 +301,7 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
          /* set outputs according to bits defined in user buffer */
          for(i = 0, j = 0; (i < ciaaDriverDio_OutputCount) && (j < size); i++)
          {
-            ciaa_msp430g2231_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
+            ciaa_msp430f5529_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
 
             if( (i > 0) && ((i & 0x07) == 0) )
             {
@@ -367,7 +328,7 @@ void ciaaDriverDio_init(void)
    uint8_t loopi;
 
    /* low level GPIO peripheral initialization */
-   ciaa_msp430g2231_gpio_init();
+   ciaa_msp430f5529_gpio_init();
 
    /* add dio driver to the list of devices */
    for(loopi = 0; loopi < ciaaDriverDioConst.countOfDevices; loopi++) 

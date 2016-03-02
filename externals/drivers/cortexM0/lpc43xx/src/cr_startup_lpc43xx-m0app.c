@@ -149,7 +149,8 @@ extern unsigned int __bss_section_table_end;
 //
 //*****************************************************************************
 void
-ResetISR(void) {
+ResetISR(void) 
+{
 
   // ******************************
   // Modify CREG->M0APPMAP so that M0 looks in correct place

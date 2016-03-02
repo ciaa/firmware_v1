@@ -39,16 +39,16 @@
 #
 ###############################################################################
 # TOOLCHAIN
-CC = msp430-elf-gcc
-LD = msp430-elf-gcc
-AR = msp430-elf-ar
-AS = msp430-elf-as
-GDB = msp430-elf-gdb
-NM = msp430-elf-nm
+CC = msp430-gcc
+LD = msp430-gcc
+AR = msp430-ar
+AS = msp430-as
+GDB = msp430-gdb
+NM = msp430-nm
 
 # COMPILER AND LINKER OPTIONS
 #AFLAGS += -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
-CFLAGS += -c -Wall -g3  -gdwarf-2 -ggdb -mmcu=$(CPU) 
+CFLAGS += -c -Wall -g3 -O0 -gdwarf-2 -ggdb -mmcu=$(CPU) 
 LFLAGS += $(LINKSCRIPT)  -mmcu=$(CPU)  
 #-Map="$(TARGET_NAME).map" 
 
