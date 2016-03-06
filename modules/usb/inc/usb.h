@@ -38,6 +38,7 @@ extern "C" {
 #include <stdint.h>
 #include "usb_cfg.h"
 #include "usb_std.h"
+#include "usb_desc.h"
 #include "usb_devices_cfg.h"
 
 
@@ -83,8 +84,8 @@ extern "C" {
 #define USB_DIR_S             7
 
 
-/** @brief Per device control transfer's buffer length. */
-#define USB_XFER_BUFFER_LEN   256
+/** @brief Enumeration transfer buffer length, largest descriptor needed. */
+#define USB_XFER_BUFFER_LEN   USB_STDDESC_DEV_SIZE
 
 
 /**
@@ -210,8 +211,8 @@ typedef enum _usb_status_t
    USB_STATUS_E_ADDR,
    USB_STATUS_E_DEV_DESC,
    USB_STATUS_E_INV_CFG_DESC,
+   USB_STATUS_E_CFG_DESC9,
    USB_STATUS_E_CFG_DESC,
-   USB_STATUS_E_CFG_DESC_LEN,
    USB_STATUS_E_CFG_SET,
 } usb_status_t;
 
@@ -375,9 +376,20 @@ typedef enum _usb_dev_state_t
  * situations that can lead to this error state, for that  reason  we  use  this
  * member to hold information about what caused the device to fail.
  *
- *
  * A single endpoint is used for control  pipes,  it  will  be  reconfigured  as
  * needed for every IN or OUT transaction.
+ *
+ * The configuration buffer will hold the entire configuration descriptor.  It's
+ * important to have this descriptor's information when a  device  has  multiple
+ * configurations and interfaces' settings (for instance, a webcam with multiple
+ * resolutions).  It might be a large buffer, it really depends on the length of
+ * the descriptor, the problem is that all the information contained in it can't
+ * be obtained individually so you just have to request it altogether.
+ *
+ * The configuration buffer's length is only needed if the actual length of  the
+ * descriptor is less than the buffer's.  This might happen if you weren't aware
+ * of the real length and specified a larger than needed value or if it is meant
+ * to support multiple similar devices with differing descriptors.
  *
  * @warning The buffer's size is currently limited to 256  bytes,  however,  the
  * USB specification assigns it a 2-byte value, so this limit is  being  imposed
@@ -388,12 +400,14 @@ typedef enum _usb_dev_state_t
  */
 typedef struct _usb_device_t
 {
+   usb_interface_t* interfaces;     /**< Array of interfaces.                 */
+   uint8_t*         cfg_buffer;     /**< Configuration buffer.                */
    usb_dev_state_t  state;          /**< Device's current state.              */
    usb_dev_state_t  next_state;     /**< Device's state after a delay.        */
    usb_speed_t      speed;          /**< Speed (LS, FS or HS).                */
-   usb_interface_t* interfaces;     /**< Array of interfaces.                 */
    uint32_t         status;         /**< Device status, see description.      */
    uint32_t         err_status;     /**< Device error status, see description.*/
+   uint16_t         cfg_buf_len;    /**< Length of the configuration buffer.  */
    uint16_t         ticket;         /**< Ticket for following IRP messages.   */
    uint16_t         vendor_ID;      /**< Vendor ID.                           */
    uint16_t         product_ID;     /**< Product ID.                          */
@@ -423,7 +437,15 @@ typedef enum _usb_host_state_t
    USB_HOST_STATE_SUSPENDED  /**< Bus inactive, waiting for activity.         */
 } usb_host_state_t;
 
-/** @brief USB stack structure.  */
+/**
+ * @brief USB stack structure.
+ *
+ * The control transfer buffer is shared among all devices, it's used during the
+ * enumeration process and that means that only one device can  enumerate  at  a
+ * time.  The length is determined  by  the  largest  descriptor  needed  before
+ * requesting the first 9 bytes of the configuration one,  this  one  will  then
+ * be stored in the per-device configuration buffer.
+ */
 typedef struct _usb_stack_t
 {
    usb_host_state_t state;      /**< Stack's current state.                   */
@@ -432,7 +454,6 @@ typedef struct _usb_stack_t
    uint32_t         status;     /**< Stack status, see description.           */
    uint16_t         ticks;      /**< 1-millisecond ticks count.               */
    uint8_t          xfer_buffer[USB_XFER_BUFFER_LEN]; /**< Control buffer.    */
-   uint8_t          xfer_length;    /**< Control buffer's current length.     */
    uint8_t          n_devices;  /**< Number of connected devices.             */
 } usb_stack_t;
 
@@ -479,11 +500,27 @@ typedef struct _usb_driver_t
 /*==================[external functions definition]==========================*/
 /* This are configuration related functions. */
 
-usb_interface_t* usb_devices_cfg_get_ifaces(
-      uint16_t pid,
-      uint16_t vid,
-      uint8_t  n_ifaces,
-      uint8_t* pindex
+/**
+ * @brief Get interfaces array and configuration buffer based on device's number
+ * of interfaces, product ID, vendor ID and configuration descriptor length.
+ *
+ * @param ppiface  Pointer to array of interfaces, store returned value here.
+ * @param pbuffer  Pointer to configuration buffer, store returned value here.
+ * @param pid      Device's product ID.
+ * @param vid      Device's vendor ID.
+ * @param len      Device's configuration descriptor length.
+ * @param n_ifaces Device's number of interfaces.
+ *
+ * @return         Configuration index or -1 if current configurations  couldn't
+ *                 be matched with the given device characteristics.
+ */
+int16_t usb_device_get_config(
+      usb_interface_t** ppiface,
+      char**            pbuffer,
+      uint16_t          pid,
+      uint16_t          vid,
+      uint16_t          len,
+      uint8_t           n_ifaces
 );
 
 

@@ -18,6 +18,8 @@
 #define USB_GET_PRODUCT_ID(dev)  usb_cte_devices[dev].product_id
 /** @brief Get vendor ID of device 'dev'. */
 #define USB_GET_VENDOR_ID(dev)   usb_cte_devices[dev].vendor_id
+/** @brief Get length of configuration descriptor buffer of device 'dev'. */
+#define USB_GET_CFG_LEN(dev)     usb_cte_devices[dev].cfg_len
 
 /** @brief Default data for usb_interface_t initialization. */
 #define USB_DEFAULT_IFACE_DATA(eps) {eps, USB_IFACE_NO_DRIVER, 0, 0, 255}
@@ -29,9 +31,10 @@ typedef struct _usb_cte_iface_t
 
 typedef struct _usb_cte_dev_t
 {
-   uint16_t         product_id;
-   uint16_t         vendor_id;
    usb_cte_iface_t* ifaces;
+   uint16_t         vendor_id;
+   uint16_t         product_id;
+   uint16_t         cfg_len;
    uint8_t          n_ifaces;
 } usb_cte_dev_t;
 

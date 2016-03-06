@@ -56,7 +56,12 @@ static void _port_reset( usb_device_t* pdev, uint8_t index );
 static void _set_delay( usb_stack_t* pstack, uint8_t index, uint16_t delay );
 
 /** @brief Request control transfer and wait for its completion. */
-static int _ctrl_request( usb_stack_t* pstack, uint8_t idx, usb_stdreq_t* preq);
+static int _ctrl_request(
+      usb_stack_t*  pstack,
+      uint8_t       idx,
+      usb_stdreq_t* preq,
+      uint8_t*      buffer
+);
 
 
 /*
@@ -154,7 +159,12 @@ static void _set_delay( usb_stack_t* pstack, uint8_t index, uint16_t delay )
    return;
 }
 
-static int _ctrl_request( usb_stack_t* pstack, uint8_t idx, usb_stdreq_t* preq )
+static int _ctrl_request(
+      usb_stack_t*  pstack,
+      uint8_t       idx,
+      usb_stdreq_t* preq,
+      uint8_t*      buffer
+)
 {
    int status;
    usb_device_t* pdev = &pstack->devices[idx];
@@ -168,11 +178,10 @@ static int _ctrl_request( usb_stack_t* pstack, uint8_t idx, usb_stdreq_t* preq )
             &pdev->ticket,
             USB_TO_ID(idx, 0),
             preq,
-            pstack->xfer_buffer
+            buffer
       );
       if (status == USB_STATUS_OK)
       {
-         pstack->xfer_length = (uint8_t) preq->wLength;
          pdev->status &= ~USB_DEV_STATUS_REQUEST;
          status = USB_STATUS_XFER_WAIT;
       }
@@ -325,7 +334,7 @@ static int _state_mps( usb_stack_t* pstack, uint8_t index )
    stdreq.wIndex        = 0;
    stdreq.wLength       = 8;
 
-   status = _ctrl_request(pstack, index, &stdreq);
+   status = _ctrl_request(pstack, index, &stdreq, pstack->xfer_buffer);
    if (status == USB_STATUS_XFER_WAIT)
    {
       /* Do nothing and keep waiting. */
@@ -364,7 +373,7 @@ static int _state_address( usb_stack_t* pstack, uint8_t index )
    stdreq.wIndex        = 0;
    stdreq.wLength       = 0;
 
-   status = _ctrl_request(pstack, index, &stdreq);
+   status = _ctrl_request(pstack, index, &stdreq, NULL);
    if (status == USB_STATUS_XFER_WAIT)
    {
       /* Do nothing and keep waiting. */
@@ -402,7 +411,7 @@ static int _state_dev_desc( usb_stack_t* pstack, uint8_t index )
    stdreq.wIndex        = 0;
    stdreq.wLength       = USB_STDDESC_DEV_SIZE;
 
-   status = _ctrl_request(pstack, index, &stdreq);
+   status = _ctrl_request(pstack, index, &stdreq, pstack->xfer_buffer);
    if (status == USB_STATUS_XFER_WAIT)
    {
       /* Do nothing and keep waiting. */
@@ -440,7 +449,7 @@ static int _state_cfg_desc_len9( usb_stack_t* pstack, uint8_t index )
    stdreq.wIndex        = 0;
    stdreq.wLength       = USB_STDDESC_CFG_SIZE;
 
-   status = _ctrl_request(pstack, index, &stdreq);
+   status = _ctrl_request(pstack, index, &stdreq, pstack->xfer_buffer);
    if (status == USB_STATUS_XFER_WAIT)
    {
       /* Do nothing and keep waiting. */
@@ -455,11 +464,11 @@ static int _state_cfg_desc_len9( usb_stack_t* pstack, uint8_t index )
    }
    else /* USB_STATUS_OK */
    {
-      if (USB_STDDESC_CFG_GET_wTotalLength(pstack->xfer_buffer)
-            > USB_XFER_BUFFER_LEN)
+      status = usb_device_parse_cfgdesc9(pstack, index);
+      if (status != USB_STATUS_OK)
       {
-         /* Device's configuration descriptor is larger than supported. */
-         pdev->err_status = USB_STATUS_E_CFG_DESC_LEN;
+         /* Cfg. descriptor couldn't be matched with generated configurations.*/
+         pdev->err_status = USB_STATUS_E_CFG_DESC9;
          _next_state(pdev, USB_DEV_STATE_ERROR, USB_DEV_STATE_ERROR);
          status = USB_STATUS_OK;
       }
@@ -485,9 +494,9 @@ static int _state_cfg_desc( usb_stack_t* pstack, uint8_t index )
    stdreq.bRequest      = USB_STDREQ_GET_DESCRIPTOR;
    stdreq.wValue        = USB_STDDESC_CONFIGURATION << 8;
    stdreq.wIndex        = 0;
-   stdreq.wLength       = USB_STDDESC_CFG_GET_wTotalLength(pstack->xfer_buffer);
+   stdreq.wLength       = pdev->cfg_buf_len;
 
-   status = _ctrl_request(pstack, index, &stdreq);
+   status = _ctrl_request(pstack, index, &stdreq, pdev->cfg_buffer);
    if (status == USB_STATUS_XFER_WAIT)
    {
       /* Do nothing and keep waiting. */
@@ -536,7 +545,7 @@ static int _state_set_cfg( usb_stack_t* pstack, uint8_t index )
    stdreq.wIndex        = 0;
    stdreq.wLength       = 0;
 
-   status = _ctrl_request(pstack, index, &stdreq);
+   status = _ctrl_request(pstack, index, &stdreq, NULL);
    if (status == USB_STATUS_XFER_WAIT)
    {
       /* Do nothing and keep waiting. */

@@ -560,10 +560,13 @@ int usb_device_init( usb_stack_t* pstack, uint8_t index )
    usb_assert(index < USB_MAX_DEVICES);
 
    pdev = &pstack->devices[index];
+   pdev->interfaces    = NULL;
+   pdev->cfg_buffer    = NULL;
    pdev->state         = USB_DEV_STATE_DISCONNECTED;
    pdev->next_state    = USB_DEV_STATE_DISCONNECTED;
    pdev->status        = 0;
    pdev->err_status    = 0;
+   pdev->cfg_buf_len   = 0;
    pdev->ticket        = 0;
    pdev->speed         = USB_SPD_INV;
    pdev->addr          = USB_DEV_DEFAULT_ADDR;
@@ -764,6 +767,46 @@ int usb_device_update( usb_stack_t* pstack, uint8_t index )
    return usbd_state_run(pstack, index);
 }
 
+int usb_device_parse_cfgdesc9( usb_stack_t* pstack, uint8_t index )
+{
+   int           status;
+   int16_t       cfg_index;
+   usb_device_t* pdev;
+
+   usb_assert(pstack != NULL);
+   usb_assert(index < USB_MAX_DEVICES);
+   pdev = &pstack->devices[index];
+
+   /*
+    * Use the number of interfacesand product/vendor ID to search for a matching
+    * interface array.  The array list is the one generated with  the  specified
+    * number of interfaces per device and endpoints per interface,  this  should
+    * not fail but could if you plug in something outside what you specified  or
+    * the configuration was incorrect.  Also, get the buffer where to store  the
+    * configuration descriptor
+    */
+   cfg_index = usb_device_get_config(
+         &pdev->interfaces,
+         &pdev->cfg_buffer,
+         pdev->product_ID,
+         pdev->vendor_ID,
+         USB_STDDESC_CFG_GET_wTotalLength(pstack->xfer_buffer),
+         USB_STDDESC_CFG_GET_bNumInterfaces(pstack->xfer_buffer)
+   );
+   if (cfg_index < 0)
+   {
+      /* A matching interface was not found. */
+      status = USB_STATUS_IFACE_CFG;
+   }
+   else
+   {
+      pdev->cfg_buf_len = USB_STDDESC_CFG_GET_wTotalLength(pstack->xfer_buffer);
+      pdev->cte_index   = (uint8_t) cfg_index;
+      status = USB_STATUS_OK;
+   }
+   return status;
+}
+
 int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
 {
    usb_device_t*  pdev;
@@ -778,83 +821,61 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
    usb_assert(pstack != NULL);
    usb_assert(index < USB_MAX_DEVICES);
    pdev = &pstack->devices[index];
-   buff = pstack->xfer_buffer;
-   len  = pstack->xfer_length;
+   buff = pdev->cfg_buffer;
+   len  = pdev->cfg_buf_len;
    usb_assert(buff != NULL);
    usb_assert(len > USB_STDDESC_CFG_SIZE);
 
-   /*
-    * Use the number of interfacesand product/vendor ID to search for a matching
-    * interface array.  The array list is the one generated with  the  specified
-    * number of interfaces per device and endpoints per interface,  this  should
-    * not fail but could if you plug in something outside what you specified  or
-    * the configuration was incorrect.
-    */
-   n_ifaces = USB_STDDESC_CFG_GET_bNumInterfaces(buff);
-   pdev->interfaces = usb_devices_cfg_get_ifaces(
-         pdev->product_ID,
-         pdev->vendor_ID,
-         n_ifaces,
-         &pdev->cte_index
-   );
-   if (pdev->interfaces == NULL)
+   /* Get the configuration value. */
+   pdev->cfg_value = USB_STDDESC_CFG_GET_bConfigurationValue(buff);
+
+   /* Get bmAttributes: self-powered? and remote-wakeup? */
+   if (USB_STDDESC_CFG_GET_bmAttributes(buff) & USB_STDDESC_CFG_SELF_POWERED)
    {
-      /* A matching interface was not found. */
-      status = USB_STATUS_IFACE_CFG;
+      pdev->status |= USB_DEV_STATUS_SELF_PWRD;
    }
-   else
+   if (USB_STDDESC_CFG_GET_bmAttributes(buff) & USB_STDDESC_CFG_REMOTE_WAKEUP)
    {
-      /* Get the configuration value. */
-      pdev->cfg_value = USB_STDDESC_CFG_GET_bConfigurationValue(buff);
+      pdev->status |= USB_DEV_STATUS_REMOTE_WKUP;
+   }
 
-      /* Get bmAttributes: self-powered? and remote-wakeup? */
-      if (USB_STDDESC_CFG_GET_bmAttributes(buff) & USB_STDDESC_CFG_SELF_POWERED)
-      {
-         pdev->status |= USB_DEV_STATUS_SELF_PWRD;
-      }
-      if (USB_STDDESC_CFG_GET_bmAttributes(buff) & USB_STDDESC_CFG_REMOTE_WAKEUP)
-      {
-         pdev->status |= USB_DEV_STATUS_REMOTE_WKUP;
-      }
+   /* Get maximum power consumption. */
+   pdev->max_power = USB_STDDESC_CFG_GET_bMaxPower(buff);
 
-      /* Get maximum power consumption. */
-      pdev->max_power = USB_STDDESC_CFG_GET_bMaxPower(buff);
-
-      buff += USB_STDDESC_CFG_SIZE;
-      len  -= USB_STDDESC_CFG_SIZE;
-      next_len = len;
-      status = USB_STATUS_OK;
-      for (i = 0; i < n_ifaces && status == USB_STATUS_OK; ++i)
+   n_ifaces = USB_GET_IFACES_N(pdev->cte_index);
+   buff    += USB_STDDESC_CFG_SIZE;
+   len     -= USB_STDDESC_CFG_SIZE;
+   next_len = len;
+   status   = USB_STATUS_OK;
+   for (i = 0; i < n_ifaces && status == USB_STATUS_OK; ++i)
+   {
+      /*
+       * Find the next descriptor before parsing so we can pass down the  actual
+       * entire interface plus endpoints and such descriptors.
+       */
+      next_buff = buff;
+      len = next_len;
+      if (usb_goto_next_desc(
+               &next_buff,
+               &next_len,
+               USB_STDDESC_INTERFACE,
+               USB_STDDESC_IFACE_SIZE) )
       {
-         /*
-          * Find the next descriptor before parsing so  we  can  pass  down  the
-          * actual entire interface plus endpoints and such descriptors.
-          */
-         next_buff = buff;
-         len = next_len;
-         if (usb_goto_next_desc(
-                  &next_buff,
-                  &next_len,
-                  USB_STDDESC_INTERFACE,
-                  USB_STDDESC_IFACE_SIZE) )
+         /* If no next interface descriptor was found and ... */
+         if (i+1 < n_ifaces)
          {
-            /* If no next interface descriptor was found and ... */
-            if (i+1 < n_ifaces)
-            {
-               /* ... this isn't the last interface, then something's wrong. */
-               status = USB_STATUS_IFACE_CFG;
-            }
-            else
-            {
-               /* Otherwise, it's alright so do nothing. */
-               next_buff = NULL;
-               next_len  = 0;
-            }
+            /* ... this isn't the last interface, then something's wrong. */
+            status = USB_STATUS_IFACE_CFG;
          }
-
-         len = len - next_len;
-         status = usb_device_parse_ifacedesc(pstack, index, i, &buff, &len);
+         else
+         {
+            /* Otherwise, it's alright so do nothing. */
+            next_buff = NULL;
+            next_len  = 0;
+         }
       }
+      len = len - next_len;
+      status = usb_device_parse_ifacedesc(pstack, index, i, &buff, &len);
    }
    return status;
 }

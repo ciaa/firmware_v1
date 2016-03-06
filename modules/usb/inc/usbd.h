@@ -234,6 +234,8 @@ uint8_t usb_device_get_addr( usb_stack_t* pstack, uint16_t id );
 
 /* Descriptor parsing methods. */
 
+int usb_device_parse_cfgdesc9( usb_stack_t* pstack, uint8_t index );
+
 int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index );
 
 int usb_device_parse_ifacedesc(
