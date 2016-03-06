@@ -659,9 +659,17 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
 
 int usb_release_from_port( usb_stack_t* pstack, uint8_t hub_idx, uint8_t port )
 {
+   /*
+    * It's quite possible for the index to be -1. The most likely scenario is if
+    * you connect a device to a HUB and go above the maximum number of supported
+    * devices. The HUB's call to usb_device_attach() will fail, however, once it
+    * detects a disconnection on that port it will still call this function,  it
+    * isn't aware of the maximum number of devices.
+    */
    int16_t index;
-   usb_assert((index = _devidx_from_hub_port(pstack, hub_idx, port)) >= 0);
-   return usb_device_release(pstack, (uint8_t) index);
+   index = _devidx_from_hub_port(pstack, hub_idx, port);
+   return (index < 0) ? USB_STATUS_OK
+                      : usb_device_release(pstack, (uint8_t) index);
 }
 
 int usb_pipe_remove( usb_pipe_t* ppipe )

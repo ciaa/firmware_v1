@@ -11,6 +11,11 @@
  * @addtogroup USB_HUB USB HUB
  * @brief CIAA HUB driver header
  *
+ * Be careful of HUBs with more than 7 ports, it's very  likely  that  they  are
+ * actually implemented as more than one HUB in the same device (making it  into
+ * a compound device).  This will affect the number of supported devices, number
+ * of total HUBs and number of ports per HUB.
+ *
  * @{
  */
 
