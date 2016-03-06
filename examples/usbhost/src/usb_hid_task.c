@@ -47,7 +47,7 @@ void usb_hid_task_loop( void )
 
       /* Since _hid_read() is blocking, we need to stop and restart the alarm.*/
       CancelAlarm(ActivateUSBHIDTask);
-      usb_hid_read(hid_fd, buffer, 5);
+      usb_hid_read(hid_fd, buffer, 8);
       SetRelAlarm(ActivateUSBHIDTask, 50, 50);
 
       if (buffer[1] != 0x00)
