@@ -225,7 +225,7 @@ typedef struct _usb_hid_dev_t
 typedef struct _usb_hid_stack_t
 {
    usb_hid_dev_t devices[USB_HID_MAX_DEVICES]; /**< HID devices.              */
-   uint8_t   n_devices;     /**< Number of HID devices currently connected.   */
+   uint8_t       n_devices;     /**< Number of HID devices currently connected.   */
 } usb_hid_stack_t;
 
 
@@ -241,7 +241,7 @@ typedef struct _usb_hid_stack_t
  * @param buffer  Buffer containing the entire interface descriptor.
  * @param len     Buffer's length.
  */
-int usb_hid_probe( const uint8_t* buffer, uint8_t len );
+int usb_hid_probe( const uint8_t* buffer, uint16_t len );
 
 /**
  * @brief Driver registration assignment function.
@@ -257,7 +257,7 @@ int usb_hid_assign(
       usb_stack_t*   pstack,
       uint16_t       id,
       const uint8_t* buffer,
-      uint8_t        length
+      uint16_t       length
 );
 
 /**

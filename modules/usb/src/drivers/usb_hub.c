@@ -53,7 +53,7 @@ static int _update_dev( uint8_t index );
  * it will be advanced to it on entry.
  * Remember that this endpoint must be an interrupt IN one.
  */
-static int _validate_first_ep( const uint8_t** pbuffer, uint8_t* plen );
+static int _validate_first_ep( const uint8_t** pbuffer, uint16_t* plen );
 
 /**
  * @brief Parse HUB descriptor.
@@ -126,7 +126,7 @@ static int _hub_or_port_change(uint8_t sc_bitmap[USB_HUB_SC_BITMAP_LEN]);
  *          pbit_mask is non-NULL.
  */
 static usb_hub_featsel_t _get_port_feature_change(
-      uint8_t change_bits,
+      uint8_t  change_bits,
       uint8_t* pbit_mask
 );
 
@@ -266,7 +266,7 @@ static int _update_dev( uint8_t index )
    return _state_fn[phub->state](phub);
 }
 
-static int _validate_first_ep(const uint8_t** pbuffer, uint8_t* plen )
+static int _validate_first_ep(const uint8_t** pbuffer, uint16_t* plen )
 {
    int status;
 
@@ -514,7 +514,7 @@ static int _hub_or_port_change(uint8_t sc_bitmap[USB_HUB_SC_BITMAP_LEN])
 }
 
 static usb_hub_featsel_t _get_port_feature_change(
-      uint8_t change_bits,
+      uint8_t  change_bits,
       uint8_t* pbit_mask
 )
 {
@@ -1319,7 +1319,7 @@ static int _SetPortFeature( usb_hub_t* phub, uint8_t port, usb_hub_featsel_t fea
 
 /*==================[external functions definition]==========================*/
 
-int usb_hub_probe( const uint8_t* buffer, uint8_t length )
+int usb_hub_probe( const uint8_t* buffer, uint16_t length )
 {
    int status;
 
@@ -1356,7 +1356,7 @@ int usb_hub_assign(
       usb_stack_t*   pstack,
       uint16_t       id,
       const uint8_t* buffer,
-      uint8_t        length
+      uint16_t       length
 )
 {
    usb_hub_t* phub;

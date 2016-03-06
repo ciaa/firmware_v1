@@ -28,10 +28,10 @@ static usb_interface_t usb_ifaces_3[1] = {
 };
 
 /* Configuration buffers. */
-static char usb_cfg_buffer_0[2466];
-static char usb_cfg_buffer_1[  34];
-static char usb_cfg_buffer_2[  41];
-static char usb_cfg_buffer_3[  25];
+static uint8_t usb_cfg_buffer_0[2466];
+static uint8_t usb_cfg_buffer_1[  34];
+static uint8_t usb_cfg_buffer_2[  41];
+static uint8_t usb_cfg_buffer_3[  25];
 
 
 /* Constants. */
@@ -56,7 +56,7 @@ static usb_interface_t*const usb_ifaces[USB_MAX_DEVICES] = {
 };
 
 /* Array of config buffers, these will be requested alongside the interfaces. */
-static char*const usb_cfg_buffers[USB_MAX_DEVICES] = {
+static uint8_t*const usb_cfg_buffers[USB_MAX_DEVICES] = {
    usb_cfg_buffer_0,
    usb_cfg_buffer_1,
    usb_cfg_buffer_2,
@@ -67,7 +67,7 @@ static char*const usb_cfg_buffers[USB_MAX_DEVICES] = {
 /* Interface & configuration buffer pointers getter. */
 int16_t usb_device_get_config(
       usb_interface_t** ppiface,
-      char**            pbuffer,
+      uint8_t**         pbuffer,
       uint16_t          vid,
       uint16_t          pid,
       uint16_t          len,

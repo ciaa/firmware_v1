@@ -169,8 +169,6 @@ static int _ctrl_request(
    int status;
    usb_device_t* pdev = &pstack->devices[idx];
 
-   usb_assert(preq->wLength <= 0xFF);
-
    if (pdev->status & USB_DEV_STATUS_REQUEST)
    {
       status = usb_ctrlirp_bypass(

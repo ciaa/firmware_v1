@@ -22,22 +22,22 @@
 
 int usb_goto_next_desc(
       const uint8_t** pbuff,
-      uint8_t*        plen,
+      uint16_t*       plen,
       usb_stddesc_t   desc_type,
-      uint8_t         desc_size
+      uint16_t        desc_size
 )
 {
    int            ret = -1;
    const uint8_t* buff;
-   int16_t        len; /* Signed to identify underflow on uint8_t variable. */
-   uint8_t        desc_len;
+   int32_t        len; /* Signed to identify underflow on uint16_t variable. */
+   uint16_t       desc_len;
 
    usb_assert(pbuff  != NULL);
    usb_assert(*pbuff != NULL);
    usb_assert(plen   != NULL);
 
    buff = *pbuff;
-   len  = (uint16_t) *plen;
+   len  = (uint32_t) *plen;
 
    /* Assume we start on a descriptor, the first byte is the length. */
    desc_len = buff[0];
@@ -52,7 +52,7 @@ int usb_goto_next_desc(
       {
          /* Descriptor found! */
          *pbuff = buff;
-         *plen  = (uint8_t) len;
+         *plen  = (uint16_t) len;
          ret = 0;
       }
       buff += desc_len;

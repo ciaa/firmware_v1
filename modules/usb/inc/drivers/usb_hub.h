@@ -454,7 +454,7 @@ typedef struct _usb_hub_stack_t
  * @param buffer  Buffer containing the entire interface descriptor.
  * @param len     Buffer's length.
  */
-int usb_hub_probe( const uint8_t* buffer, const uint8_t len );
+int usb_hub_probe( const uint8_t* buffer, const uint16_t len );
 
 /**
  * @brief Driver registration assignment function.
@@ -471,7 +471,7 @@ int usb_hub_assign(
       usb_stack_t*   pstack,
       uint16_t       id,
       const uint8_t* buffer,
-      uint8_t        length
+      uint16_t       length
 );
 
 /**

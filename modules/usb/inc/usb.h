@@ -464,13 +464,13 @@ typedef struct _usb_stack_t
  */
 
 /** @brief Driver probing function, see @usb_drivers_probe() for details. */
-typedef int (*usb_fcn_probe_t)(const uint8_t* buffer, uint8_t len );
+typedef int (*usb_fcn_probe_t)(const uint8_t* buffer, uint16_t len );
 /** @brief Driver assignment function, see @usb_drivers_assign() for details. */
 typedef int (*usb_fcn_assign_t)(
       usb_stack_t*   pstack,
       uint16_t       id,
       const uint8_t* buffer,
-      uint8_t        length
+      uint16_t       length
 );
 /** @brief Driver removal function, see @usb_drivers_remove() for details. */
 typedef int (*usb_fcn_remove_t)( usb_stack_t* pstack, uint16_t id );
@@ -516,7 +516,7 @@ typedef struct _usb_driver_t
  */
 int16_t usb_device_get_config(
       usb_interface_t** ppiface,
-      char**            pbuffer,
+      uint8_t**         pbuffer,
       uint16_t          pid,
       uint16_t          vid,
       uint16_t          len,

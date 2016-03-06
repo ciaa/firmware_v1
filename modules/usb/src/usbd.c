@@ -788,8 +788,8 @@ int usb_device_parse_cfgdesc9( usb_stack_t* pstack, uint8_t index )
    cfg_index = usb_device_get_config(
          &pdev->interfaces,
          &pdev->cfg_buffer,
-         pdev->product_ID,
          pdev->vendor_ID,
+         pdev->product_ID,
          USB_STDDESC_CFG_GET_wTotalLength(pstack->xfer_buffer),
          USB_STDDESC_CFG_GET_bNumInterfaces(pstack->xfer_buffer)
    );
@@ -812,11 +812,11 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
    usb_device_t*  pdev;
    const uint8_t* buff;
    const uint8_t* next_buff;
-   uint8_t        n_ifaces;
-   uint8_t        len;
-   uint8_t        next_len;
-   uint8_t        i;
    int            status;
+   uint16_t       len;
+   uint16_t       next_len;
+   uint8_t        n_ifaces;
+   uint8_t        i;
 
    usb_assert(pstack != NULL);
    usb_assert(index < USB_MAX_DEVICES);
@@ -885,7 +885,7 @@ int usb_device_parse_ifacedesc(
       uint8_t         dev_idx,
       uint8_t         iface_idx,
       const uint8_t** pbuff,
-      uint8_t*        plen
+      uint16_t*       plen
 )
 {
    usb_interface_t*  piface;
@@ -895,12 +895,12 @@ int usb_device_parse_ifacedesc(
    int               driver_idx;
    int               status;
    const uint8_t*    buff;
-   uint8_t           len;
+   uint16_t          len;
 
    usb_assert(pstack != NULL);
    usb_assert(pbuff  != NULL);
    usb_assert(*pbuff != NULL);
-   usb_assert(plen   != NULL);
+   usb_assert( plen  != NULL);
    usb_assert(dev_idx < USB_MAX_DEVICES);
 
    pdev   = &pstack->devices[dev_idx];
@@ -1006,10 +1006,9 @@ int usb_device_parse_epdesc(
       const uint8_t* buffer
 )
 {
-   int              status;
-   int16_t          pipe_handle;
-   uint8_t          i;
-   usb_pipe_t*      ppipe;
+   int         status;
+   int16_t     pipe_handle;
+   usb_pipe_t* ppipe;
 
    usb_assert(pdev   != NULL);
    usb_assert(buffer != NULL);
@@ -1072,7 +1071,6 @@ int16_t usb_stack_new_addr( usb_stack_t* pstack )
 int usb_stack_update_devices( usb_stack_t* pstack )
 {
    uint8_t i;
-   int     status;
 
    usb_assert(pstack != NULL);
 

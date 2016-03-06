@@ -243,7 +243,7 @@ int usb_device_parse_ifacedesc(
       uint8_t         dev_idx,
       uint8_t         iface_idx,
       const uint8_t** pbuff,
-      uint8_t*        plen
+      uint16_t*       plen
 );
 
 int usb_device_parse_epdesc(

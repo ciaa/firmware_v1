@@ -70,7 +70,7 @@ static int _open_dev( const char* str_num, int flags, usb_hid_protocol_t protoco
  * it will be advanced to it on entry.
  * Remember that this endpoint must be an interrupt IN one.
  */
-static int _validate_first_ep( const uint8_t** pbuffer, uint8_t* plen );
+static int _validate_first_ep( const uint8_t** pbuffer, uint16_t* plen );
 
 /**
  * @brief Validate optional endpoint in interface's descriptor.
@@ -79,7 +79,7 @@ static int _validate_first_ep( const uint8_t** pbuffer, uint8_t* plen );
  * it will be advanced to it on entry.
  * Remember that this endpoint must be an interrupt OUT one.
  */
-static int _validate_optional_ep( const uint8_t** pbuffer, uint8_t* plen );
+static int _validate_optional_ep( const uint8_t** pbuffer, uint16_t* plen );
 
 /*
  * State functions must follow the usb_hid_state_t enumeration order.
@@ -224,7 +224,7 @@ static int _open_dev( const char* str_num, int flags, usb_hid_protocol_t protoco
    return ret;
 }
 
-static int _validate_first_ep(const uint8_t** pbuffer, uint8_t* plen )
+static int _validate_first_ep(const uint8_t** pbuffer, uint16_t* plen )
 {
    int            status;
 
@@ -267,7 +267,7 @@ static int _validate_first_ep(const uint8_t** pbuffer, uint8_t* plen )
    return status;
 }
 
-static int _validate_optional_ep(const uint8_t** pbuffer, uint8_t* plen )
+static int _validate_optional_ep(const uint8_t** pbuffer, uint16_t* plen )
 {
    int            status;
 
@@ -532,6 +532,7 @@ static int _state_set_init2( usb_hid_dev_t* pdev )
 static int _state_set_running( usb_hid_dev_t* pdev )
 {
    /* Waiting for user to open device and begin transfer. */
+   return USB_STATUS_OK;
 }
 
 static int _state_set_waiting_xfer( usb_hid_dev_t* pdev )
@@ -560,7 +561,7 @@ static int _state_set_waiting_xfer( usb_hid_dev_t* pdev )
 
 /*==================[external functions definition]==========================*/
 
-int usb_hid_probe( const uint8_t* buffer, uint8_t length )
+int usb_hid_probe( const uint8_t* buffer, uint16_t length )
 {
 /**
  * @FIXME an HID device can actually have  a  second  (optional)  interrupt  OUT
@@ -616,12 +617,12 @@ int usb_hid_assign(
       usb_stack_t*   pstack,
       uint16_t       id,
       const uint8_t* buffer,
-      uint8_t        length
+      uint16_t       length
 )
 {
    int               new_idx;
    int               ret;
-   usb_hid_dev_t*        pdev;
+   usb_hid_dev_t*    pdev;
    uint8_t           bLength;
 
    usb_assert(pstack != NULL);
@@ -733,8 +734,8 @@ int usb_hid_assign(
 
 int usb_hid_remove( usb_stack_t* pstack, uint16_t id )
 {
-   uint8_t    i;
-   int        status;
+   uint8_t        i;
+   int            status;
    usb_hid_dev_t* pdev;
 
    /* First, search for device in driver's structure. */
@@ -785,8 +786,8 @@ int usb_hid_update( void )
 
 int usb_hid_open(const char *pathname, int flags)
 {
-   int            ret;
-   uint8_t        offset;
+   int     ret;
+   uint8_t offset;
    usb_hid_protocol_t proto;
 
    /** @TODO

@@ -308,9 +308,9 @@ typedef struct _usb_desc_ep_t
  */
 int usb_goto_next_desc(
       const uint8_t** pbuff,
-      uint8_t*        plen,
+      uint16_t*       plen,
       usb_stddesc_t   desc_type,
-      uint8_t         desc_size
+      uint16_t        desc_size
 );
 
 

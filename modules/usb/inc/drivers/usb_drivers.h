@@ -83,7 +83,7 @@ int usb_drivers_probe(
       const usb_device_t* pdevice,
       usb_driver_handle_t offset,
       const uint8_t*      buffer,
-      uint8_t             length
+      uint16_t            length
 );
 
 
@@ -112,7 +112,7 @@ int usb_drivers_assign(
       usb_stack_t*        pstack,
       uint16_t            id,
       const uint8_t*      buffer,
-      uint8_t             length,
+      uint16_t            length,
       usb_driver_handle_t handle
 );
 
