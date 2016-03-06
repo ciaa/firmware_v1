@@ -842,11 +842,13 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
    /* Get maximum power consumption. */
    pdev->max_power = USB_STDDESC_CFG_GET_bMaxPower(buff);
 
-   n_ifaces = USB_GET_IFACES_N(pdev->cte_index);
-   buff    += USB_STDDESC_CFG_SIZE;
-   len     -= USB_STDDESC_CFG_SIZE;
-   next_len = len;
+   /* First, move towards the first interface descriptor. */
+   usb_goto_next_desc(&buff, &len,USB_STDDESC_INTERFACE,USB_STDDESC_IFACE_SIZE);
+
    status   = USB_STATUS_OK;
+   n_ifaces = USB_GET_IFACES_N(pdev->cte_index);
+   next_len = len;
+
    for (i = 0; i < n_ifaces && status == USB_STATUS_OK; ++i)
    {
       /*

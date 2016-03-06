@@ -591,6 +591,7 @@ static int _state_error( usb_stack_t* pstack, uint8_t index )
        */
       pstack->status &= ~USB_STACK_STATUS_ZERO_ADDR; /* Unlock address 0. */
       pdev->status   &= ~USB_DEV_STATUS_LOCK_ON_ADDR_ZERO; /* IDEM for device */
+      pdev->status   &= ~USB_DEV_STATUS_REQUEST;
    }
    else
    {
