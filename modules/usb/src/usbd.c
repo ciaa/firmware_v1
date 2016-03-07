@@ -73,7 +73,7 @@ int16_t _devidx_from_hub_port(
 void _release_iface_endpoints( usb_device_t* pdev, uint8_t iface )
 {
    uint8_t i;
-   for (i = 0; i < USB_GET_EPS_N(pdev->cte_index, iface); ++i)
+   for (i = 0; i < pdev->interfaces[iface].n_eps; ++i)
    {
       usb_pipe_remove(&pdev->interfaces[iface].endpoints[i]);
    }
@@ -628,6 +628,7 @@ int usb_device_release( usb_stack_t* pstack, uint8_t index )
             _release_iface_endpoints(pdev, i);
             piface->driver_handle = USB_IFACE_NO_DRIVER;
          }
+         piface->n_eps       =   0;
          piface->class       =   0;
          piface->subclass    =   0;
          piface->protocol    = 255; /* Unsupported protocol number. */
@@ -845,9 +846,10 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
    /* First, move towards the first interface descriptor. */
    usb_goto_next_desc(&buff, &len,USB_STDDESC_INTERFACE,USB_STDDESC_IFACE_SIZE);
 
-   status   = USB_STATUS_OK;
-   n_ifaces = USB_GET_IFACES_N(pdev->cte_index);
-   next_len = len;
+   status    = USB_STATUS_OK;
+   n_ifaces  = USB_GET_IFACES_N(pdev->cte_index);
+   next_buff = buff;
+   next_len  = len;
 
    for (i = 0; i < n_ifaces && status == USB_STATUS_OK; ++i)
    {
@@ -855,8 +857,8 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
        * Find the next descriptor before parsing so we can pass down the  actual
        * entire interface plus endpoints and such descriptors.
        */
-      next_buff = buff;
-      len = next_len;
+      buff = next_buff;
+      len  = next_len;
       if (usb_goto_next_desc(
                &next_buff,
                &next_len,
@@ -924,9 +926,10 @@ int usb_device_parse_ifacedesc(
       status = USB_STATUS_INV_DESC;
    }
    else if ( (n_eps = USB_STDDESC_IFACE_GET_bNumEndpoints(buff))
-               != USB_GET_EPS_N(pdev->cte_index, iface_idx) )
+               > USB_GET_EPS_N(pdev->cte_index, iface_idx) )
    {
       /* Check if the configured interface matches the number of endpoints. */
+      /* We can handle the configured value or less. */
       status = USB_STATUS_EP_AVAIL;
    }
    else
@@ -957,6 +960,7 @@ int usb_device_parse_ifacedesc(
          piface->driver_handle = (usb_driver_handle_t) driver_idx;
 
          status = USB_STATUS_OK;
+         piface->n_eps = 0;
          for (ep = 0; ep < n_eps && status == USB_STATUS_OK; ++ep)
          {
             /*
@@ -972,6 +976,10 @@ int usb_device_parse_ifacedesc(
             );
             /* Get endpoint info and initialize it. */
             status = usb_device_parse_epdesc(pdev, iface_idx, ep, *pbuff);
+            if (status == USB_STATUS_OK)
+            {
+               piface->n_eps += 1;
+            }
          }
 
          if (status != USB_STATUS_OK)

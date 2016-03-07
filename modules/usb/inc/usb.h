@@ -320,6 +320,7 @@ typedef struct _usb_interface_t
 {
    usb_pipe_t*const    endpoints;      /**< Array of endpoints.               */
    usb_driver_handle_t driver_handle;  /**< Interface's driver handle.        */
+   uint8_t             n_eps;          /**< Number of endpoints in use.       */
    uint8_t             class;
    uint8_t             subclass;
    uint8_t             protocol;
