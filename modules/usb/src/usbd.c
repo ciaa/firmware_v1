@@ -856,14 +856,12 @@ int usb_device_parse_cfgdesc( usb_stack_t* pstack, uint8_t index )
       /*
        * Find the next descriptor before parsing so we can pass down the  actual
        * entire interface plus endpoints and such descriptors.
+       * During enumeration we set the interfaces to  the  default  setting,  it
+       * doesn't matter if they have alternate ones.
        */
       buff = next_buff;
       len  = next_len;
-      if (usb_goto_next_desc(
-               &next_buff,
-               &next_len,
-               USB_STDDESC_INTERFACE,
-               USB_STDDESC_IFACE_SIZE) )
+      if (usb_goto_iface_desc(&next_buff, &next_len, i+1, 0))
       {
          /* If no next interface descriptor was found and ... */
          if (i+1 < n_ifaces)

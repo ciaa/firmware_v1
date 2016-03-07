@@ -313,6 +313,25 @@ int usb_goto_next_desc(
       uint16_t        desc_size
 );
 
+/**
+ * @brief Advance buffer to the specified interface (and setting) descriptor.
+ *
+ * @warning Buffer \b must be positioned at the start of a descriptor.
+ *
+ * @param  pbuff     Pointer to buffer to advance, buffer will be modified.
+ * @param  plen      Pointer to length of buffer, length will be modified.
+ * @param  iface_idx Interface number to advance to.
+ * @param  alt_set   Alternate setting of interface to advance to.
+ *
+ * @return 0 on success, -1 otherwise.
+ */
+int usb_goto_iface_desc(
+      const uint8_t** pbuff,
+      uint16_t*       plen,
+      uint8_t         iface_idx,
+      uint8_t         alt_set
+);
+
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
