@@ -78,7 +78,13 @@
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
+#include "msp430.h"
 
+void __attribute__((constructor))myctor()
+{
+  WDTCTL = WDTPW | WDTHOLD;		// Stop watchdog timer
+
+}
 /*==================[internal data definition]===============================*/
 
 /** \brief File descriptor for digital output ports
@@ -86,10 +92,12 @@
  * Device path /dev/dio/out/0
  */
 static int32_t fd_out;
-
+volatile char asdfasdf=1;
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+
+
 
 /*==================[external functions definition]==========================*/
 /** \brief Main function
@@ -103,6 +111,9 @@ static int32_t fd_out;
  */
 int main(void)
 {
+
+
+
     /* Starts the operating system in the Application Mode 1 */
     /* This example has only one Application Mode */
     StartOS(AppMode1);
@@ -132,8 +143,8 @@ int main(void)
  */
 void ErrorHook(void)
 {
-    ciaaPOSIX_printf("ErrorHook was called\n");
-    ciaaPOSIX_printf("Service: %d, P1: %d, P2: %d, P3: %d, RET: %d\n", OSErrorGetServiceId(), OSErrorGetParam1(), OSErrorGetParam2(), OSErrorGetParam3(), OSErrorGetRet());
+     ciaaPOSIX_printf("ErrorHook was called\n");
+     ciaaPOSIX_printf("Service: %d, P1: %d, P2: %d, P3: %d, RET: %d\n", OSErrorGetServiceId(), OSErrorGetParam1(), OSErrorGetParam2(), OSErrorGetParam3(), OSErrorGetRet());
     ShutdownOS(0);
 }
 
@@ -188,4 +199,3 @@ TASK(PeriodicTask)
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

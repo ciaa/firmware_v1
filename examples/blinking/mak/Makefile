@@ -33,6 +33,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ###############################################################################
+
 # Project Name: based on Project Path and used to define OSEK configuration file
 PROJECT_NAME               = $(lastword $(subst $(DS), , $(PROJECT_PATH)))
 
@@ -50,10 +51,18 @@ SRC_FILES            += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
 OIL_FILES            += $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).oil
 
-# Modules needed for this example
+# modules needed for this example
 MODS ?= modules$(DS)posix           \
         modules$(DS)ciaak           \
         modules$(DS)drivers         \
         modules$(DS)rtos            \
         modules$(DS)libs
+		  # \
+		  #externals$(DS)drivers
 
+
+#system configurations
+#-include Makefile.sys
+
+# configuration for the system
+CFLAGS += -D CIAA_HEAP_MEM_SIZE=200

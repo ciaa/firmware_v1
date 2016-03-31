@@ -144,7 +144,7 @@ extern "C" {
 
 /*** BOARD for ARCH=mips CPUTYPE=pic32 ***/
 #define ciaa_pic              6
- 
+
 /*** BOARD for ARCH=msp430 CPUTYPE=msp430_ ***/
 #define msp_ext430g2          7
 #define ciaa_430              8
@@ -200,7 +200,6 @@ extern "C" {
 #elif ( ( ARCH == msp430 ) && \
         ( CPUTYPE == msp430f5x_6x ) && \
         ( CPU == msp430f5529 ) )
-
 #else
 #error the entered architecture is not supported... :(
 #endif
@@ -219,4 +218,3 @@ extern "C" {
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef CIAAPLATFORMS_H */
-
