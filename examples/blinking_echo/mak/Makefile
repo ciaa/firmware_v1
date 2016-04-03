@@ -46,8 +46,9 @@ INC_FILES            += $(PROJECT_PATH)$(DS)inc
 # library source files
 SRC_FILES            += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
 # configuration for OSEK-OS
-OIL_FILES            += $(wildcard $(PROJECT_PATH)$(DS)etc$(DS)*.oil)
+#OIL_FILES            += $(wildcard $(PROJECT_PATH)$(DS)etc$(DS)*.oil)
 POIL_FILES        	+= $(if $(findstring .oil, $(OIL_FILES)),,$(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).poil)
+
 # Modules needed for this example
 MODS ?= modules$(DS)posix           \
         modules$(DS)ciaak           \
@@ -55,3 +56,5 @@ MODS ?= modules$(DS)posix           \
         modules$(DS)rtos            \
         modules$(DS)libs
 
+# configuration for the system
+CFLAGS += -D CIAA_HEAP_MEM_SIZE=200

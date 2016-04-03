@@ -146,7 +146,7 @@ extern "C" {
 #define ciaa_pic              6
 
 /*** BOARD for ARCH=msp430 CPUTYPE=msp430_ ***/
-#define msp_ext430g2          7
+#define msp_exp430f5529       7
 #define ciaa_430              8
 
 /****** CIAAPLATFORM_REGLENGTH ******/

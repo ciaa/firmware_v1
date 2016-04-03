@@ -34,12 +34,13 @@
 #
 ###############################################################################
 # TOOLCHAIN
-CC = msp430-elf-gcc
-LD = msp430-elf-gcc
-AR = msp430-elf-ar
-AS = msp430-elf-as
-GDB = msp430-elf-gdb
-NM = msp430-elf-nm
+CC 	= msp430-elf-gcc
+LD 	= msp430-elf-gcc
+AR 	= msp430-elf-ar
+AS 	= msp430-elf-as
+GDB 	= msp430-elf-gdb
+NM 	= msp430-elf-nm
+OBJD 	= msp430-elf-objdump
 
 # COMPILER AND LINKER OPTIONS
 #AFLAGS += -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb

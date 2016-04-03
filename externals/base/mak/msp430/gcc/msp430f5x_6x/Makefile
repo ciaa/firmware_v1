@@ -34,7 +34,7 @@
 
 LINKER_SCRIPT ?= $(CPU).ld
 
-LFLAGS +=  -T "externals/base/msp430/linker/$(LINKER_SCRIPT)" # -nostartfiles # -nostdlib
+LFLAGS +=  -T "externals/base/msp430/linker/$(LINKER_SCRIPT)" # -nostartfiles  # -nostdlib
 
 # this file needs to be compiled separated and not added to a library
 #SRC_FILES                  += $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(D)src$(DS)crp.c

@@ -122,8 +122,8 @@ CPU            ?= msp430g2231
 COMPILER       ?= gcc
 endif
 
-# Default values for MSP-EXP430F5529
-ifeq ($(BOARD), MSP-EXP430F5529)
+# Default values for msp_exp430f5529
+ifeq ($(BOARD), msp_exp430f5529)
 ARCH           ?= msp430
 CPUTYPE        ?= msp430f5x_6x
 CPU            ?= msp430f5529
@@ -706,7 +706,6 @@ endif
 
 ###############################################################################
 # mspdebug rule
-
 mspdebug:
 
 ifneq ($(ARCH),msp430)
@@ -1169,3 +1168,12 @@ else
 	@echo '$(CPUTYPE) not supported for multicore.'
 endif
  
+
+###############################################################################
+# generate dissasembly and other files
+dis: 
+	@echo "*** Generating dissasembly ***"	 
+	$(OBJD) -D $(LD_TARGET) > "$(subst .out,,$(LD_TARGET))_DIS.TXT"
+	@echo "*** Generating sections file ***"	 
+	$(OBJD) -h $(LD_TARGET) > "$(subst .out,,$(LD_TARGET))_SEC.TXT"
+

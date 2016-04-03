@@ -253,8 +253,6 @@ TASK(PeriodicTask)
    /* variables to store input/output status */
    uint8_t inputs = 0, outputs = 0;
 
-   /* read inputs */
-   ciaaPOSIX_read(fd_in, &inputs, 1);
 
    /* read outputs */
    ciaaPOSIX_read(fd_out, &outputs, 1);
@@ -281,4 +279,3 @@ TASK(PeriodicTask)
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

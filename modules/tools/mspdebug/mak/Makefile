@@ -42,7 +42,7 @@ ifeq ($(BOARD),MSP-EXP430G2)
 MSPDEBUG_PROTOCOL		= rf2500
 endif
 
-ifeq ($(BOARD),MSP-EXP430F5529)
+ifeq ($(BOARD),msp_exp430f5529)
 MSPDEBUG_PROTOCOL		= rf2500
 endif
 
