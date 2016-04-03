@@ -1,4 +1,4 @@
-/* Copyright 2014, 2016, Mariano Cerdeiro
+/* Copyright 2016, Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -45,7 +45,8 @@
 /*==================[inclusions]=============================================*/
 #include "unity.h"
 #include "ciaaPOSIX_stdint.h"
-#include "ciaaLibs_Maths.h"
+#include "ciaaLibs_PoolBuf.h"
+#include "mock_ciaaLibs_Maths.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -54,6 +55,12 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+static ciaaLibs_poolBufType pool;
+
+static uint32_t poolElements[64];
+
+static uint32_t status[2];
+
 
 /*==================[external data definition]===============================*/
 
@@ -76,106 +83,54 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-void doNothing(void) {
-}
-
-/** \brief test ciaaLibs_isPowerOfTwo
- **/
-void test_ciaaLibs_isPowerOfTwo(void) {
+void test_ciaaLibs_poolBufInit(void) {
    int32_t val;
-
-   val = 500;
-   TEST_ASSERT_TRUE(ciaaLibs_isPowerOfTwo(val) == 0);
-
-   val = 1024;
-   TEST_ASSERT_TRUE(ciaaLibs_isPowerOfTwo(val) == 1);
-
-   val = 1023;
-   TEST_ASSERT_TRUE(ciaaLibs_isPowerOfTwo(val) == 0);
-
-   val = 2048;
-   TEST_ASSERT_TRUE(ciaaLibs_isPowerOfTwo(val) == 1);
-
-   val = 1;
-   TEST_ASSERT_TRUE(ciaaLibs_isPowerOfTwo(val) == 1);
-}
-
-/** \brief test ciaaLibs_min
- **/
-void test_ciaaLibs_min(void) {
-   TEST_ASSERT_EQUAL_INT(ciaaLibs_min(10, 15), 10);
-   TEST_ASSERT_EQUAL_INT(ciaaLibs_min(-10, 15), -10);
-   TEST_ASSERT_EQUAL_INT(ciaaLibs_min(-10, -15), -15);
-}
-
-/** \brief test ciaaLibs_max
- **/
-void test_ciaaLibs_max(void) {
-   TEST_ASSERT_EQUAL_INT(ciaaLibs_max(10, 15), 15);
-   TEST_ASSERT_EQUAL_INT(ciaaLibs_max(-10, 15), 15);
-   TEST_ASSERT_EQUAL_INT(ciaaLibs_max(-10, -15), -10);
-}
-
-/** \brief test ciaaLibs_setBit
- **/
-void  test_ciaaLibs_setBit(void) {
-   int32_t val = 0;
-
-   ciaaLibs_setBit(val, 1);
-   TEST_ASSERT_EQUAL_INT(0x2, val);
-
-   ciaaLibs_setBit(val, 7);
-   TEST_ASSERT_EQUAL_INT(0x82, val);
-
-   ciaaLibs_setBit(val, 2);
-   TEST_ASSERT_EQUAL_INT(0x86, val);
-
-   ciaaLibs_setBit(val, 6);
-   TEST_ASSERT_EQUAL_INT(0xC6, val);
-}
-
-/** \brief test ciaaLibs_clearBit
- **/
-void  test_ciaaLibs_clearBit(void) {
-   int32_t val = 0xFF;
-
-   ciaaLibs_clearBit(val, 1);
-   TEST_ASSERT_EQUAL_INT(0xFD, val);
-
-   ciaaLibs_clearBit(val, 7);
-   TEST_ASSERT_EQUAL_INT(0x7D, val);
-
-   ciaaLibs_clearBit(val, 2);
-   TEST_ASSERT_EQUAL_INT(0x79, val);
-
-   ciaaLibs_clearBit(val, 6);
-   TEST_ASSERT_EQUAL_INT(0x39, val);
-}
-
-void test_ciaaLibs_getFirstNotSetBit(void) {
-   int8_t val;
-
-   val = ciaaLibs_getFirstNotSetBit(0xffffffffu);
+   val = ciaaLibs_poolBufInit((ciaaLibs_poolBufType*)NULL, (void*)poolElements, status, 64, sizeof(poolElements[0]));
    TEST_ASSERT_EQUAL_INT(-1, val);
 
-   val = ciaaLibs_getFirstNotSetBit(0xffffu);
-   TEST_ASSERT_EQUAL_INT(16, val);
+   val = ciaaLibs_poolBufInit(&pool, (void*)NULL, status, 64, sizeof(poolElements[0]));
+   TEST_ASSERT_EQUAL_INT(-1, val);
 
-   val = ciaaLibs_getFirstNotSetBit(0xfffffu);
-   TEST_ASSERT_EQUAL_INT(20, val);
+   val = ciaaLibs_poolBufInit(&pool, (void*)poolElements, (uint32_t*)NULL, 64, sizeof(poolElements[0]));
+   TEST_ASSERT_EQUAL_INT(-1, val);
 
-   val = ciaaLibs_getFirstNotSetBit(0xff07fu);
-   TEST_ASSERT_EQUAL_INT(7, val);
+   val = ciaaLibs_poolBufInit(&pool, (void*)poolElements, status, 63, sizeof(poolElements[0]));
+   TEST_ASSERT_EQUAL_INT(-1, val);
 
-   val = ciaaLibs_getFirstNotSetBit(0xfbffu);
-   TEST_ASSERT_EQUAL_INT(10, val);
-
-   val = ciaaLibs_getFirstNotSetBit(0xbfffffffu);
-   TEST_ASSERT_EQUAL_INT(30, val);
-
-   val = ciaaLibs_getFirstNotSetBit(0xdfffffffu);
-   TEST_ASSERT_EQUAL_INT(29, val);
+   val = ciaaLibs_poolBufInit(&pool, (void*)poolElements, status, 64, sizeof(poolElements[0]));
+   TEST_ASSERT_EQUAL_INT(1, val);
 }
+
+
+void test_ciaaLibs_poolBufLockAndFree(void) {
+   uint32_t * element;
+   size_t ret;
+
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(0, 0);
+   element = ciaaLibs_poolBufLock(&pool);
+   TEST_ASSERT_EQUAL_PTR(&poolElements[0], element);
+
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(1, 1);
+   element = ciaaLibs_poolBufLock(&pool);
+   TEST_ASSERT_EQUAL_PTR(&poolElements[1], element);
+
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(3, 2);
+   element = ciaaLibs_poolBufLock(&pool);
+   TEST_ASSERT_EQUAL_PTR(&poolElements[2], element);
+
+   /* simulate full */
+   ciaaLibs_getFirstNotSetBit_IgnoreAndReturn(-1);
+   element = ciaaLibs_poolBufLock(&pool);
+   TEST_ASSERT_EQUAL_PTR(NULL, element);
+
+   ret = ciaaLibs_poolBufFree(&pool, &poolElements[0]);
+   TEST_ASSERT_EQUAL_INT(1, ret);
+
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(2, 0);
+   element = ciaaLibs_poolBufLock(&pool);
+   TEST_ASSERT_EQUAL_PTR(&poolElements[0], element);
+}
+
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

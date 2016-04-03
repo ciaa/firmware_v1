@@ -1,4 +1,4 @@
-/* Copyright 2014, 2016, Mariano Cerdeiro
+/* Copyright 2016, Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,9 +31,9 @@
  *
  */
 
-/** \brief Math Library sources
+/** \brief Pool Buffer Library sources
  **
- ** This library provides a Maths functionalities
+ ** This library provides a pool buffer
  **
  **/
 
@@ -43,7 +43,9 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdlib.h"
+#include "ciaaLibs_PoolBuf.h"
+#include "ciaaLibs_Maths.h"
+#include "ciaaPOSIX_string.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -57,37 +59,96 @@
 
 /*==================[internal functions definition]==========================*/
 
-/*==================[external functions definition]==========================*/
-extern int8_t ciaaLibs_getFirstNotSetBit(uint32_t value)
-{
-   uint32_t mask = 0xffffffffu;
-   bool found = false;
-   uint8_t searchSize = 16;
-   uint8_t searchPos = 0;
 
-   if (mask != value) {
-      while(false == found)
-      {
-         /* check if one or more bits are 0 */
-         if (((mask >> (32-searchSize)) << searchPos) !=
-               (value & ((mask >> (32-searchSize)) << searchPos))) {
-            if (1 != searchSize) {
-               searchSize >>= 1;
-            } else {
-               found = true;
-            }
-         } else {
-            searchPos += searchSize;
-         }
+/*==================[external functions definition]==========================*/
+extern int32_t ciaaLibs_poolBufInit(ciaaLibs_poolBufType * pbuf,
+      void * buf, uint32_t * statusPtr, size_t poolSize, size_t elementSize)
+{
+   int32_t ret = 1;
+   uint32_t i;
+
+   /* all 3 buffers shall be valid */
+   if (NULL == pbuf) {
+      ret = -1;
+   }
+   if (NULL == buf) {
+      ret = -1;
+   }
+   if (NULL == statusPtr) {
+      ret = -1;
+   }
+
+   /* size shall be multiple of 32 */
+   if ((0 != (poolSize & 0x1F)) || (32 > poolSize)) {
+      ret = -1;
+   }
+
+   /* if not errors are found perform the initialization */
+   if (1 == ret) {
+      pbuf->buf = buf;
+      pbuf->statusPtr = statusPtr;
+      pbuf->poolSize = poolSize;
+      pbuf->elementSize = elementSize;
+
+      for(i = 0; i < (poolSize >> 5); i++) {
+         /* indicate that all elements are free and not beeing used */
+         pbuf->statusPtr[i] = 0;
       }
    }
 
-   if (false == found) {
-      searchPos = -1;
+   return ret;
+} /* end of ciaaLibs_poolBufInit */
+
+extern void * ciaaLibs_poolBufLock(ciaaLibs_poolBufType * pbuf)
+{
+   void * ret = NULL;
+   uint32_t i; /** <= variable for the loop */
+   uint32_t freePos = 0; /** variable to indicate which position is free */
+   int8_t pos;
+   bool found = false;
+
+   /* enter critical section */
+
+   for(i = 0; (i < (pbuf->poolSize >> 5)) && (false == found); i++) {
+      pos = ciaaLibs_getFirstNotSetBit(pbuf->statusPtr[i]);
+      if (-1 != pos) {
+         freePos += pos;
+         found = true;
+      } else {
+         /* no free place in the first 32 positions */
+         freePos += 32;
+      }
    }
 
-   return searchPos;
-}
+   if (true == found)
+   {
+      /* reserve the element in the pool */
+      ciaaLibs_setBit(pbuf->statusPtr[i-1], freePos & 0x1f);
+
+      /* exit critical section */
+
+      /* get element address */
+      ret = (void*) &pbuf->buf[freePos * pbuf->elementSize];
+   } else {
+      /* exit critical section */
+   }
+
+   return ret;
+} /* end of ciaaLibs_poolBufAdd */
+
+extern size_t ciaaLibs_poolBufFree(ciaaLibs_poolBufType * pbuf, void * data)
+{
+   /* if data is smaller pbuf->buf this will carsh, but it shall never
+    * happens. */
+   uintptr_t diff = (uintptr_t)(pbuf->buf) - (uintptr_t)data;
+
+   size_t element = diff / pbuf->elementSize;
+
+   /* free the element */
+   ciaaLibs_clearBit(pbuf->statusPtr[element>>5], element & 0x1f);
+
+   return 1;
+} /* end of ciaaLibs_poolBufFree */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
