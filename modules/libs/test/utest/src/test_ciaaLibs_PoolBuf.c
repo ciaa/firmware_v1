@@ -124,7 +124,6 @@ void test_ciaaLibs_poolBufLockAndFree(void) {
    TEST_ASSERT_EQUAL_PTR(&pool_buf[0], element);
 }
 
-
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

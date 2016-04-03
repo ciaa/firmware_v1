@@ -117,7 +117,11 @@ extern int32_t ciaaLibs_poolBufInit(ciaaLibs_poolBufType * pbuf,
 /** \brief get free place on the pool buffer
  **
  ** \param[inout] pbuf pointer to the pool buffer
- ** returns a pointer to the element or NULL if not free element is available
+ ** \return a pointer to the element or NULL if not free element is available
+ **
+ ** \remarks this function is not thread safe, in a multi task environment
+ **          ensure that this function is not executed concurrently with the
+ **          same pbuf parameter.
  **/
 extern void * ciaaLibs_poolBufLock(ciaaLibs_poolBufType * pbuf);
 
