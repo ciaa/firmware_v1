@@ -55,12 +55,7 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
-static ciaaLibs_poolBufType pool;
-
-static uint32_t poolElements[64];
-
-static uint32_t status[2];
-
+CIAALIBS_POOLDECLARE(pool, uint32_t, 60);
 
 /*==================[external data definition]===============================*/
 
@@ -85,19 +80,16 @@ void tearDown(void) {
 
 void test_ciaaLibs_poolBufInit(void) {
    int32_t val;
-   val = ciaaLibs_poolBufInit((ciaaLibs_poolBufType*)NULL, (void*)poolElements, status, 64, sizeof(poolElements[0]));
+   val = ciaaLibs_poolBufInit((ciaaLibs_poolBufType*)NULL, (void*)pool_buf, pool_status, 60, sizeof(uint32_t));
    TEST_ASSERT_EQUAL_INT(-1, val);
 
-   val = ciaaLibs_poolBufInit(&pool, (void*)NULL, status, 64, sizeof(poolElements[0]));
+   val = ciaaLibs_poolBufInit(&pool, (void*)NULL, pool_status, 60, sizeof(uint32_t));
    TEST_ASSERT_EQUAL_INT(-1, val);
 
-   val = ciaaLibs_poolBufInit(&pool, (void*)poolElements, (uint32_t*)NULL, 64, sizeof(poolElements[0]));
+   val = ciaaLibs_poolBufInit(&pool, (void*)pool_buf, (uint32_t*)NULL, 60, sizeof(uint32_t));
    TEST_ASSERT_EQUAL_INT(-1, val);
 
-   val = ciaaLibs_poolBufInit(&pool, (void*)poolElements, status, 63, sizeof(poolElements[0]));
-   TEST_ASSERT_EQUAL_INT(-1, val);
-
-   val = ciaaLibs_poolBufInit(&pool, (void*)poolElements, status, 64, sizeof(poolElements[0]));
+   val = ciaaLibs_poolBufInit(&pool, (void*)pool_buf, pool_status, 60, sizeof(uint32_t));
    TEST_ASSERT_EQUAL_INT(1, val);
 }
 
@@ -108,27 +100,28 @@ void test_ciaaLibs_poolBufLockAndFree(void) {
 
    ciaaLibs_getFirstNotSetBit_ExpectAndReturn(0, 0);
    element = ciaaLibs_poolBufLock(&pool);
-   TEST_ASSERT_EQUAL_PTR(&poolElements[0], element);
+   TEST_ASSERT_EQUAL_PTR(&pool_buf[0], element);
 
    ciaaLibs_getFirstNotSetBit_ExpectAndReturn(1, 1);
    element = ciaaLibs_poolBufLock(&pool);
-   TEST_ASSERT_EQUAL_PTR(&poolElements[1], element);
+   TEST_ASSERT_EQUAL_PTR(&pool_buf[1], element);
 
    ciaaLibs_getFirstNotSetBit_ExpectAndReturn(3, 2);
    element = ciaaLibs_poolBufLock(&pool);
-   TEST_ASSERT_EQUAL_PTR(&poolElements[2], element);
+   TEST_ASSERT_EQUAL_PTR(&pool_buf[2], element);
 
    /* simulate full */
-   ciaaLibs_getFirstNotSetBit_IgnoreAndReturn(-1);
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(7,-1);
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(0,60-32);
    element = ciaaLibs_poolBufLock(&pool);
    TEST_ASSERT_EQUAL_PTR(NULL, element);
 
-   ret = ciaaLibs_poolBufFree(&pool, &poolElements[0]);
+   ret = ciaaLibs_poolBufFree(&pool, &pool_buf[0]);
    TEST_ASSERT_EQUAL_INT(1, ret);
 
-   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(2, 0);
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(6, 0);
    element = ciaaLibs_poolBufLock(&pool);
-   TEST_ASSERT_EQUAL_PTR(&poolElements[0], element);
+   TEST_ASSERT_EQUAL_PTR(&pool_buf[0], element);
 }
 
 

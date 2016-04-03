@@ -54,6 +54,31 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief macro to define the pool declaration variables
+ **
+ ** This macro genertes the definition of 3 variables called:
+ **  * <name>_buf: array of type type and size size
+ **  * <name>_status: array to store the status (free and used of each element
+ **                   of the buffer <name>_buf.
+ **  * <name>: pool
+ **
+ ** If you use this macro you do not need to call ciaaLibs_poolBufInit.
+ **
+ ** \param[in] name name of the pool
+ ** \param[in] type type of the variable
+ ** \param[in] size size of the pool
+ **
+ **/
+#define CIAALIBS_POOLDECLARE(name, type, size)  \
+   type name ## _buf[(size)];                   \
+   uint32_t name ## _status[(size)/32] = { 0 }; \
+   ciaaLibs_poolBufType name = {                \
+      (size),                                   \
+      sizeof(type),                             \
+      name ## _status,                          \
+      name ## _buf                              \
+   };
+
 
 /*==================[typedef]================================================*/
 /** \brief pool buffer type
@@ -85,11 +110,6 @@ typedef struct {
  ** \param[in] elementSize size of an element in the pool
  ** \return 1 if init can be performed -1 in other case
  **
- ** \remarks for performance the size of the poolBuffer shall be of multuple
- **          of 32 bits, an array of uint32 is used to indicate which element
- **          of the pool is beeing used an which one is free, each bit
- **          indicates the state of one element. This may be improved in the
- **          feature to support other sizes diferent to 32 * x.
  **/
 extern int32_t ciaaLibs_poolBufInit(ciaaLibs_poolBufType * pbuf,
       void * buf, uint32_t * statusPtr, size_t poolSize, size_t elementSize);
@@ -107,7 +127,7 @@ extern void * ciaaLibs_poolBufLock(ciaaLibs_poolBufType * pbuf);
  ** \param[in]    element pointer to the element to be removed from the pool
  ** \returns 1 if success 0 if an error occurs
  **/
-extern size_t ciaaLibs_poolBufFree(ciaaLibs_poolBufType * cbuf, void * data);
+extern size_t ciaaLibs_poolBufFree(ciaaLibs_poolBufType * pbuf, void * data);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

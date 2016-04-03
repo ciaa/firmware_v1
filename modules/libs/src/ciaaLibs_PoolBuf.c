@@ -78,11 +78,6 @@ extern int32_t ciaaLibs_poolBufInit(ciaaLibs_poolBufType * pbuf,
       ret = -1;
    }
 
-   /* size shall be multiple of 32 */
-   if ((0 != (poolSize & 0x1F)) || (32 > poolSize)) {
-      ret = -1;
-   }
-
    /* if not errors are found perform the initialization */
    if (1 == ret) {
       pbuf->buf = buf;
@@ -103,13 +98,16 @@ extern void * ciaaLibs_poolBufLock(ciaaLibs_poolBufType * pbuf)
 {
    void * ret = NULL;
    uint32_t i; /** <= variable for the loop */
+   uint32_t loopCount;
    uint32_t freePos = 0; /** variable to indicate which position is free */
    int8_t pos;
    bool found = false;
 
+   loopCount = (pbuf->poolSize + 31 ) >> 5;
+
    /* enter critical section */
 
-   for(i = 0; (i < (pbuf->poolSize >> 5)) && (false == found); i++) {
+   for(i = 0; (i < loopCount) && (false == found); i++) {
       pos = ciaaLibs_getFirstNotSetBit(pbuf->statusPtr[i]);
       if (-1 != pos) {
          freePos += pos;
@@ -120,7 +118,8 @@ extern void * ciaaLibs_poolBufLock(ciaaLibs_poolBufType * pbuf)
       }
    }
 
-   if (true == found)
+   /* if found and the found free element is within the size */
+   if ((true == found) && (freePos < pbuf->poolSize))
    {
       /* reserve the element in the pool */
       ciaaLibs_setBit(pbuf->statusPtr[i-1], freePos & 0x1f);

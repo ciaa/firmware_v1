@@ -105,7 +105,7 @@ extern "C" {
 /*==================[external functions declaration]=========================*/
 /** \brief get the first not set bit in a uint32
  **
- ** Finds the first not set bit in a uint32_t
+ ** Finds the first not set bit in a uint32_t. It start searching in the LSB.
  **
  ** \param[in] value value to find out the bit
  ** \return -1 if all bits are set and a value between 0 and 31 if a not set
