@@ -133,7 +133,7 @@ extern void * ciaaLibs_poolBufLock(ciaaLibs_poolBufType * pbuf)
    }
 
    return ret;
-} /* end of ciaaLibs_poolBufAdd */
+} /* end of ciaaLibs_poolBufLock */
 
 extern size_t ciaaLibs_poolBufFree(ciaaLibs_poolBufType * pbuf, void * data)
 {
