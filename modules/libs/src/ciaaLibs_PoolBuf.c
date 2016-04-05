@@ -137,9 +137,9 @@ extern void * ciaaLibs_poolBufLock(ciaaLibs_poolBufType * pbuf)
 
 extern size_t ciaaLibs_poolBufFree(ciaaLibs_poolBufType * pbuf, void * data)
 {
-   /* if data is smaller pbuf->buf this will carsh, but it shall never
+   /* if data is smaller pbuf->buf this will crash, but it shall never
     * happens. */
-   uintptr_t diff = (uintptr_t)(pbuf->buf) - (uintptr_t)data;
+   uintptr_t diff = (uintptr_t)data - (uintptr_t)(pbuf->buf);
 
    size_t element = diff / pbuf->elementSize;
 
