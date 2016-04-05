@@ -36,7 +36,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Libs CIAA Libraries
  ** @{ */
 /** \addtogroup UnitTests Unit Tests
  ** @{ */

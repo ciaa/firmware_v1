@@ -1,4 +1,4 @@
-/* Copyright 2014, 2016, Mariano Cerdeiro
+/* Copyright 2016, Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,19 +31,22 @@
  *
  */
 
-/** \brief Math Library sources
- **
- ** This library provides a Maths functionalities
+/** \brief This file implements the test of the string library
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Libs CIAA Libraries
+/** \addtogroup POSIX POSIX Implementation
+ ** @{ */
+/** \addtogroup ModuleTests Module Tests
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdlib.h"
+#include "unity.h"
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaLibs_PoolBuf.h"
+#include "mock_ciaaLibs_Maths.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -52,43 +55,76 @@
 /*==================[internal functions declaration]=========================*/
 
 /*==================[internal data definition]===============================*/
+CIAALIBS_POOLDECLARE(pool, uint32_t, 60);
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-extern int8_t ciaaLibs_getFirstNotSetBit(uint32_t value)
-{
-   uint32_t mask = 0xffffffffu;
-   bool found = false;
-   uint8_t searchSize = 16;
-   uint8_t searchPos = 0;
-
-   if (mask != value) {
-      while(false == found)
-      {
-         /* check if one or more bits are 0 */
-         if (((mask >> (32-searchSize)) << searchPos) !=
-               (value & ((mask >> (32-searchSize)) << searchPos))) {
-            if (1 != searchSize) {
-               searchSize >>= 1;
-            } else {
-               found = true;
-            }
-         } else {
-            searchPos += searchSize;
-         }
-      }
-   }
-
-   if (false == found) {
-      searchPos = -1;
-   }
-
-   return searchPos;
+/** \brief set Up function
+ **
+ ** This function is called before each test case is executed
+ **
+ **/
+void setUp(void) {
 }
 
+/** \brief tear Down function
+ **
+ ** This function is called after each test case is executed
+ **
+ **/
+void tearDown(void) {
+}
+
+void test_ciaaLibs_poolBufInit(void) {
+   int32_t val;
+   val = ciaaLibs_poolBufInit((ciaaLibs_poolBufType*)NULL, (void*)pool_buf, pool_status, 60, sizeof(uint32_t));
+   TEST_ASSERT_EQUAL_INT(-1, val);
+
+   val = ciaaLibs_poolBufInit(&pool, (void*)NULL, pool_status, 60, sizeof(uint32_t));
+   TEST_ASSERT_EQUAL_INT(-1, val);
+
+   val = ciaaLibs_poolBufInit(&pool, (void*)pool_buf, (uint32_t*)NULL, 60, sizeof(uint32_t));
+   TEST_ASSERT_EQUAL_INT(-1, val);
+
+   val = ciaaLibs_poolBufInit(&pool, (void*)pool_buf, pool_status, 60, sizeof(uint32_t));
+   TEST_ASSERT_EQUAL_INT(1, val);
+}
+
+
+void test_ciaaLibs_poolBufLockAndFree(void) {
+   uint32_t * element;
+   size_t ret;
+
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(0, 0);
+   element = ciaaLibs_poolBufLock(&pool);
+   TEST_ASSERT_EQUAL_PTR(&pool_buf[0], element);
+
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(1, 1);
+   element = ciaaLibs_poolBufLock(&pool);
+   TEST_ASSERT_EQUAL_PTR(&pool_buf[1], element);
+
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(3, 2);
+   element = ciaaLibs_poolBufLock(&pool);
+   TEST_ASSERT_EQUAL_PTR(&pool_buf[2], element);
+
+   /* simulate full */
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(7,-1);
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(0,60-32);
+   element = ciaaLibs_poolBufLock(&pool);
+   TEST_ASSERT_EQUAL_PTR(NULL, element);
+
+   ret = ciaaLibs_poolBufFree(&pool, &pool_buf[0]);
+   TEST_ASSERT_EQUAL_INT(1, ret);
+
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(6, 0);
+   element = ciaaLibs_poolBufLock(&pool);
+   TEST_ASSERT_EQUAL_PTR(&pool_buf[0], element);
+}
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
