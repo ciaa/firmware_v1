@@ -103,7 +103,7 @@ typedef struct {
  **
  ** Performs the initialization of the pool buffer without allocating any memory.
  **
- ** \param[inout] pcuf pool buffer to be initializated
+ ** \param[inout] pbuf pool buffer to be initializated
  ** \param[in] buf pointer to the buffer with size poolSize * elementSize
  ** \param[in] statusPtr pointer to the buffer of poolSize / 32 of type uint32
  ** \param[in] poolSize size of the pool shall be multiple of 32
