@@ -52,7 +52,7 @@ extern "C"
  * @note	This enables the systick interrupt and sets up the systick rate. This
  * function is only used in standalone systems.
  */
-void lwipSysTick_Enable(uint32_t period);
+void SysTick_Enable(uint32_t period);
 
 /**
  * @brief	Disable LWIP tick
@@ -60,7 +60,7 @@ void lwipSysTick_Enable(uint32_t period);
  * This disables the systick interrupt. This function is only used in
  * standalone systems.
  */
-void lwipSysTick_Disable(void);
+void SysTick_Disable(void);
 
 /**
  * @brief	Get the current systick time in milliSeconds

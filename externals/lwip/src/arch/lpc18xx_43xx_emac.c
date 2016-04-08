@@ -39,7 +39,7 @@
 #include "netif/etharp.h"
 #include "netif/ppp_oe.h"
 
-#include "arch/lpc_18xx43xx_emac_config.h"
+#include "lpc_18xx43xx_emac_config.h"
 #include "arch/lpc18xx_43xx_emac.h"
 
 #include "chip.h"
@@ -109,7 +109,7 @@ struct lpc_enetdata {
 	sys_sem_t RxSem;/**< RX receive thread wakeup semaphore */
 	sys_sem_t TxCleanSem;	/**< TX cleanup thread wakeup semaphore */
 	sys_mutex_t TXLockMutex;/**< TX critical section mutex */
-	xSemaphoreHandle xTXDCountSem;	/**< TX free buffer counting semaphore */
+	SemaphoreHandle_t xTXDCountSem;	/**< TX free buffer counting semaphore */
 #endif
 };
 
@@ -572,7 +572,7 @@ static err_t low_level_init(struct netif *netif)
 	struct lpc_enetdata *lpc_netifdata = netif->state;
 
 	/* Initialize via Chip ENET function */
-	Chip_ENET_Init(LPC_ETHERNET);
+	Chip_ENET_Init(LPC_ETHERNET, BOARD_ENET_PHY_ADDR);
 
 	/* Save MAC address */
 	Chip_ENET_SetADDR(LPC_ETHERNET, netif->hwaddr);
@@ -809,7 +809,7 @@ s32_t lpc_tx_ready(struct netif *netif)
  * @note	This function handles the transmit, receive, and error interrupt of
  * the LPC118xx/43xx. This is meant to be used when NO_SYS=0.
  */
-void OSEK_ISR_ETH_IRQHandler(void)
+void ETH_IRQHandler(void)
 {
 #if NO_SYS == 1
 	/* Interrupts are not used without an RTOS */
@@ -863,15 +863,6 @@ void lpc_emac_set_speed(int mbs_100)
 	else {
 		LPC_ETHERNET->MAC_CONFIG &= ~MAC_CFG_FES;
 	}
-}
-
-/* Returns the MAC address assigned to this board */
-void Board_ENET_GetMacADDR(uint8_t *mcaddr)
-{
-   /* TODO FIXME!! Get MAC address from I2C memory!! */
-	uint8_t boardmac[] = {0x00, 0x60, 0x37, 0x12, 0x34, 0x56};
-
-	memcpy(mcaddr, boardmac, 6);
 }
 
 /* LWIP 18xx/43xx EMAC initialization function */

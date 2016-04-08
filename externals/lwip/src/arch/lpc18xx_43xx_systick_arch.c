@@ -31,6 +31,8 @@
 
 #include "lwip/opt.h"
 
+#if NO_SYS == 1
+
 #include "chip.h"
 #include "arch/lpc_arch.h"
 
@@ -45,10 +47,13 @@
 /* Saved reference period foe standalone mode */
 static uint32_t saved_period;
 
+#if (defined(CHIP_LPC43XX) && defined(CORE_M0))
+
 #define RITIMER_IRQn_PRI  (255)
 
 /* RITimer Reload value */
 static uint32_t reload_val;
+#endif
 
 /* Saved total time in mS since timer was enabled */
 static volatile u32_t systick_timems;
@@ -68,8 +73,10 @@ extern uint32_t SystemCoreClock;
  * Public functions
  ****************************************************************************/
 
+#if (defined(CHIP_LPC43XX) && defined(CORE_M0))
+
 /* Enable LWIP tick and interrupt */
-void lwipSysTick_Enable(uint32_t period)
+void SysTick_Enable(uint32_t period)
 {
 	saved_period = period;
 
@@ -86,7 +93,7 @@ void lwipSysTick_Enable(uint32_t period)
 }
 
 /* Disable LWIP tick */
-void lwipSysTick_Disable(void)
+void SysTick_Disable(void)
 {
 	Chip_RIT_Disable(LPC_RITIMER);
 }
@@ -97,7 +104,7 @@ void lwipSysTick_Disable(void)
  * @note	This function keeps a timebase for LWIP that can be
  * used for other functions.
  */
-void OSEK_ISR_RIT_IRQHandler(void)
+void RIT_IRQHandler(void)
 {
 	/* Clear RITimer Interrupt, Reload counter value */
 	Chip_RIT_ClearInt(LPC_RITIMER);
@@ -106,6 +113,35 @@ void OSEK_ISR_RIT_IRQHandler(void)
 	/* Increment tick count */
 	systick_timems += saved_period;
 }
+
+#else
+
+/* Enable LWIP tick and interrupt */
+void SysTick_Enable(uint32_t period)
+{
+	saved_period = period;
+	SysTick_Config((SystemCoreClock * period) / 1000);
+}
+
+/* Disable LWIP tick */
+void SysTick_Disable(void)
+{
+	SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
+}
+
+/**
+ * @brief	SysTick IRQ handler and timebase management
+ * @return	Nothing
+ * @note	This function keeps a timebase for LWIP that can be
+ * used for other functions.
+ */
+void SysTick_Handler(void)
+{
+	/* Increment tick count */
+	systick_timems += saved_period;
+}
+
+#endif
 
 /* Get the current systick time in milliSeconds */
 uint32_t SysTick_GetMS(void)
@@ -135,3 +171,4 @@ u32_t sys_now(void)
  * @}
  */
 
+#endif /* NO_SYS == 1 */
