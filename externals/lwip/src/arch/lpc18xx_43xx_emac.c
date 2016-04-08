@@ -809,7 +809,7 @@ s32_t lpc_tx_ready(struct netif *netif)
  * @note	This function handles the transmit, receive, and error interrupt of
  * the LPC118xx/43xx. This is meant to be used when NO_SYS=0.
  */
-void ETH_IRQHandler(void)
+void OSEK_ISR_ETH_IRQHandler(void)
 {
 #if NO_SYS == 1
 	/* Interrupts are not used without an RTOS */
@@ -863,6 +863,15 @@ void lpc_emac_set_speed(int mbs_100)
 	else {
 		LPC_ETHERNET->MAC_CONFIG &= ~MAC_CFG_FES;
 	}
+}
+
+/* Returns the MAC address assigned to this board */
+void Board_ENET_GetMacADDR(uint8_t *mcaddr)
+{
+   /* TODO FIXME!! Get MAC address from I2C memory!! */
+	uint8_t boardmac[] = {0x00, 0x60, 0x37, 0x12, 0x34, 0x56};
+
+	memcpy(mcaddr, boardmac, 6);
 }
 
 /* LWIP 18xx/43xx EMAC initialization function */

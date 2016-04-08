@@ -4,6 +4,22 @@
          /* Build for RMII interface */
          #define USE_RMII
          #define BOARD_ENET_PHY_ADDR	0x00
+- Dentro del archivo lpc se realizan los siguientes cambios
+
+      void OSEK_ISR_ETH_IRQHandler(void)
+         en L812 aprox, en lugar de
+      void ETH_IRQHandler(void)
+
+      Agrego en L867 aprox
+      /* Returns the MAC address assigned to this board */
+      void Board_ENET_GetMacADDR(uint8_t *mcaddr)
+      {
+         /* TODO FIXME!! Get MAC address from I2C memory!! */
+         uint8_t boardmac[] = {0x00, 0x60, 0x37, 0x12, 0x34, 0x56};
+
+         memcpy(mcaddr, boardmac, 6);
+      }
+      
 - Se cambia el #include "lpc_phy.h" por #include "arch/lpc_phy.h" del archivo lpc18xx_43xx_emac.c
 - Copiar el archivo lpc_board_nxp_lpcxpresso_4337/inc/lpc_phy.h dentro de lwip/inc/arch/
 - Copiar lo siguiente dentro de lpc_phy.h
