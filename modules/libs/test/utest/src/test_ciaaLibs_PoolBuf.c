@@ -37,7 +37,7 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Libs CIAA Libraries
  ** @{ */
 /** \addtogroup ModuleTests Module Tests
  ** @{ */
@@ -116,12 +116,12 @@ void test_ciaaLibs_poolBufLockAndFree(void) {
    element = ciaaLibs_poolBufLock(&pool);
    TEST_ASSERT_EQUAL_PTR(NULL, element);
 
-   ret = ciaaLibs_poolBufFree(&pool, &pool_buf[0]);
+   ret = ciaaLibs_poolBufFree(&pool, &pool_buf[1]);
    TEST_ASSERT_EQUAL_INT(1, ret);
 
-   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(6, 0);
+   ciaaLibs_getFirstNotSetBit_ExpectAndReturn(5, 1);
    element = ciaaLibs_poolBufLock(&pool);
-   TEST_ASSERT_EQUAL_PTR(&pool_buf[0], element);
+   TEST_ASSERT_EQUAL_PTR(&pool_buf[1], element);
 }
 
 /** @} doxygen end group definition */
