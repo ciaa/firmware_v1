@@ -1,6 +1,7 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro
+# Copyright 2014, 2016, Mariano Cerdeiro
+# All rights reserved.
 #
 # This file is part of CIAA Firmware.
 #
@@ -34,7 +35,7 @@
 # library
 LIBS 				  += libs
 # version
-libs_VERSION      = 0.1.0
+libs_VERSION      = 0.2.0
 # library path
 libs_PATH 			= $(ROOT_DIR)$(DS)modules$(DS)libs
 # library source path
