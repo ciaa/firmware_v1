@@ -71,6 +71,10 @@ typedef struct {
  **
  ** \param[in] sem sempahore to be initialized
  ** \return a positive value if success, negative if an error occursdd
+ **
+ ** \remakrs Is of semaphores is discourages in an OSEK environment. In an
+ **          OSEK-OS environment is better to use GetResource and
+ **          ReleaseResource interfaces.
  **/
 extern int8_t ciaaPOSIX_sem_init(sem_t * const sem);
 
@@ -80,6 +84,10 @@ extern int8_t ciaaPOSIX_sem_init(sem_t * const sem);
  **
  ** \param[inout] sem sempahore to wait for
  ** \return a possitive valie if success, negative if an erros occurs
+ **
+ ** \remakrs Is of semaphores is discourages in an OSEK environment. In an
+ **          OSEK-OS environment is better to use GetResource and
+ **          ReleaseResource interfaces.
  **/
 extern int8_t ciaaPOSIX_sem_wait(sem_t * const sem);
 
@@ -89,6 +97,10 @@ extern int8_t ciaaPOSIX_sem_wait(sem_t * const sem);
  **
  ** \param[inout] sem sempahore to be returned
  ** \return a possitive valie if success, negative if an erros occurs
+ **
+ ** \remakrs Is of semaphores is discourages in an OSEK environment. In an
+ **          OSEK-OS environment is better to use GetResource and
+ **          ReleaseResource interfaces.
  **/
 extern int8_t ciaaPOSIX_sem_post(sem_t * const sem);
 

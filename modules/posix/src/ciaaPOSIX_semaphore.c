@@ -34,7 +34,7 @@
  *
  */
 
-/** \brief CIAA Devices source file
+/** \brief CIAA Semaphores source file
  **
  ** This header file describes the Devices.
  **
@@ -53,7 +53,15 @@
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
-sem_t * ciaaPOSIX_semVar[TASKS_COUNT] = {NULL};
+/** \brief Semaphore Variables
+ **
+ ** This structure is used to indicate which semaphore is blocking a specific
+ ** task. If the pointer is null the task is not beeing blocked by any
+ ** semaphore, if there is a pointer the pointer indicates which sem. is
+ ** blocking this task.
+ **
+ **/
+sem_t * ciaaPOSIX_semVar[TASKS_COUNT] = { NULL };
 
 /*==================[internal functions declaration]=========================*/
 
@@ -95,6 +103,9 @@ extern int8_t ciaaPOSIX_sem_post(sem_t * const sem)
    TaskType taskID;
    bool found = false;
 
+   /* if the counter is already 0 the user is calling more post than wait for
+    * a semaphore... TODO maybe in the future we can improve and report
+    * an error here. */
    ciaaPOSIX_assert(0 < sem->counter);
 
    GetResource(POSIXR);
@@ -103,13 +114,21 @@ extern int8_t ciaaPOSIX_sem_post(sem_t * const sem)
       ReleaseResource(POSIXR);
    } else {
       /* other task is also wairing and shall be activated */
+      /* TODO here is a lot of work to do, this can be imporved a lot,
+       * e.g. here we are freeing the next task by id but not by priority
+       * so this make generate conflicts, neither is we have a first come
+       * first serve strategy regarding the sempahore :(. */
       for(taskID = 0; (TASKS_COUNT > taskID) && (false == found); taskID++) {
          if (sem == ciaaPOSIX_semVar[taskID]){
             ciaaPOSIX_semVar[taskID] = NULL;
             found = true;
          }
       }
+      /* if the counter is not 0 but we do not found any task waiting for this
+       * semaphore something goes really wrong :(. */
       ciaaPOSIX_assert(true == found);
+
+      /* decrement the counter */
       sem->counter--;
       ReleaseResource(POSIXR);
 
