@@ -117,6 +117,9 @@ extern void ciaaPOSIX_sleepMainFunction(void)
 {
    uint32_t taskID;
 
+   /* TODO the implementation is not high performance, :( every
+    * time it will be checked for each task if the delay has expire
+    * inlusive if no task has call sleep... :( */
    for(taskID = 0; TASKS_COUNT > taskID; taskID++) {
       if (0 < ciaaPOSIX_sleeps[taskID])
       {
@@ -131,7 +134,7 @@ extern void ciaaPOSIX_sleepMainFunction(void)
          }
       }
    }
-}
+} /* end of ciaaPOSIX_sleepMainFunction */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

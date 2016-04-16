@@ -1,6 +1,8 @@
 /* Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * Copyright 2016, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -41,12 +43,17 @@
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
+ ** @{ */
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_semaphore.h"
+#include "ciaaPOSIX_stdlib.h"
+#include "ciaaPOSIX_assert.h"
+#include "Os_Internal.h"
 
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
+sem_t * ciaaPOSIX_semVar[TASKS_COUNT] = {NULL};
 
 /*==================[internal functions declaration]=========================*/
 
@@ -59,20 +66,57 @@
 /*==================[external functions definition]==========================*/
 extern int8_t ciaaPOSIX_sem_init(sem_t * const sem)
 {
-   (void)sem;
-   return 0;
+   sem->counter = 0;
 }
 
 extern int8_t ciaaPOSIX_sem_wait(sem_t * const sem)
 {
-   (void)sem;
-   return 0;
+   TaskType taskID;
+
+   ciaaPOSIX_assert(255 > sem->counter);
+   GetTaskID(&taskID);
+
+   GetResource(POSIXR);
+   sem->counter++;
+   if (1 == sem->counter) {
+      ReleaseResource(POSIXR);
+   } else {
+      ciaaPOSIX_semVar[taskID] = sem;
+      ReleaseResource(POSIXR);
+      WaitEvent(POSIXE);
+      ClearEvent(POSIXE);
+   }
+
+   return 1;
 }
 
 extern int8_t ciaaPOSIX_sem_post(sem_t * const sem)
 {
-   (void)sem;
-   return 0;
+   TaskType taskID;
+   bool found = false;
+
+   ciaaPOSIX_assert(0 < sem->counter);
+
+   GetResource(POSIXR);
+   sem->counter--;
+   if (0 == sem->counter) {
+      ReleaseResource(POSIXR);
+   } else {
+      /* other task is also wairing and shall be activated */
+      for(taskID = 0; (TASKS_COUNT > taskID) && (false == found); taskID++) {
+         if (sem == ciaaPOSIX_semVar[taskID]){
+            ciaaPOSIX_semVar[taskID] = NULL;
+            found = true;
+         }
+      }
+      ciaaPOSIX_assert(true == found);
+      sem->counter--;
+      ReleaseResource(POSIXR);
+
+      SetEvent(taskID-1, POSIXE);
+   }
+
+   return 1;
 }
 
 /** @} doxygen end group definition */

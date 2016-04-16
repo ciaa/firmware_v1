@@ -70,6 +70,11 @@ typedef uint32_t useconds_t;
  **
  ** Sleeps the calling application for a number of seconds.
  **
+ ** \param[in] seconds seconds to sleep the execution of the calling task.
+ ** \return 0
+ **
+ ** \remarks in posix this funcion may also return some value in seconds,
+ **          but this is not possible as far as signals are not supported.
  **/
 extern uint32_t ciaaPOSIX_sleep(uint32_t seconds);
 

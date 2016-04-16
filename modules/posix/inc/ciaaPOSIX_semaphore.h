@@ -1,6 +1,8 @@
 /* Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * Copyright 2016, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -57,7 +59,7 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 typedef struct {
-   uint8_t test;
+   uint8_t counter;
 } sem_t;
 
 /*==================[external data declaration]==============================*/
