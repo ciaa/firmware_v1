@@ -1,4 +1,4 @@
-/* Copyright 2015,Diego Ezequiel Vommaro
+/* Copyright 2015, 2016 Diego Ezequiel Vommaro
  * Copyright 2015, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
@@ -69,16 +69,17 @@
 #include "rtcs_example.h"         /* <= own header */
 
 /*==================[macros and definitions]=================================*/
-#define INPUT_PLANT_QTY 1    /* <= quantity of plant inputs */
-#define OUTPUT_PLANT_QTY 2   /* <= quantity of plant outputs */
-#define STATE_VAR_QTY 2      /* <= quantity of plant state variables */
-#define FREQ_SAMPLING 1000    /* <= control loop frequency */
-#define INACTIVE_POINTS 1     /* <= quantity of points in zero of the input step */
-#define ACTIVE_POINTS 100     /* <= quantity of points in one of the input step */
-#define TOTAL_POINTS (INACTIVE_POINTS + ACTIVE_POINTS)   /* <= total points of the step */
-#define KR 3.1847F            /* <= gain of the reference input */
-#define KR2 2.9755F           /* <= gain of the reference input */
-#define KR3 2.1834F           /* <= gain of the reference input */
+#define INPUT_PLANT_QTY 1     /* <= quantity of plant inputs */
+#define OUTPUT_PLANT_QTY 2    /* <= quantity of plant outputs */
+#define STATE_VAR_QTY 2       /* <= quantity of plant state variables */
+#define INITIAL_DELAY_MS 100         /* <= initial delay of the Control Task (It's optional) */
+#define CONTROL_TASK_PERIOD_MS 100   /* <= control task period (It's inverse to control frequency) */
+#define BUFFER_SIZE 20         /* <= Size of buffer to send by serial port */
+#define ADJUST_CONSTANT 1000.0F     /* <= Adjust constant to send to PC as char data */
+#define INACTIVE_POINTS 125   /* <= quantity of points in zero of the input step */
+#define ACTIVE_POINTS 250     /* <= quantity of points in one of the input step */
+#define TOTAL_POINTS 500      /* <= total points of the step */
+#define KR 2.9755F            /* <= gain of the reference input */
 
 /*==================[internal data declaration]==============================*/
 
@@ -91,6 +92,18 @@
  * Device path /dev/dio/out/0
  */
 static int32_t fd_out;
+
+/** \brief File descriptor of the USB uart
+ *
+ * Device path /dev/serial/uart/1
+ */
+static int32_t fd_uart1;
+
+/** \brief File descriptor of the RS232 uart
+ *
+ * Device path /dev/serial/uart/2
+ */
+static int32_t fd_uart2;
 
 /** \brief Fundamental matrix data of an electric plant
  **
@@ -214,6 +227,12 @@ static float u_in[TOTAL_POINTS];
  **/
 static float r_in[TOTAL_POINTS];
 
+/** \brief Index of the control reference signal
+ **
+ ** RLC circuit
+ **/
+static uint32_t index = 0;
+
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -264,12 +283,12 @@ void ErrorHook(void)
    ShutdownOS(0);
 }
 
-/** \brief Main task
+/** \brief Initial task
  *
- * This task is started automatically in the application mode 1.
- * It executes one off-line example for each supported controller
+ * This task started automatically in the application mode 1.
+ * It initializes the needed hardware and initializes The Real Time Control System Module (rtcs)
  */
-TASK(MainTask)
+TASK(InitTask)
 {
    uint32_t k;
 
@@ -277,15 +296,24 @@ TASK(MainTask)
    ciaak_start();
 
    /* print message (only on x86) */
-   ciaaPOSIX_printf("Main Task...\n");
+   ciaaPOSIX_printf("Init Task...\n");
 
    /* open CIAA digital outputs */
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 
-   /*Real tiem control system init*/
-   Rtcs_Init();
+   /* open UART connected to USB bridge (FT2232) */
+   fd_uart1 = ciaaPOSIX_open("/dev/serial/uart/1", ciaaPOSIX_O_RDWR);
 
-   /* matrix initialization */
+   /* open UART connected to RS232 connector */
+   fd_uart2 = ciaaPOSIX_open("/dev/serial/uart/2", ciaaPOSIX_O_RDWR);
+
+   /* change baud rate for uart usb */
+   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);
+
+   /* change FIFO TRIGGER LEVEL for uart usb */
+   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL, (void *)ciaaFIFO_TRIGGER_LEVEL3);
+
+   /* matrix initialization to simulate the RLC plant */
    ciaaLibs_MatrixInit(&fund_matrix, STATE_VAR_QTY, STATE_VAR_QTY, CIAA_LIBS_FLOAT_32, fund_matrix_data);
    ciaaLibs_MatrixInit(&tran_matrix, STATE_VAR_QTY, INPUT_PLANT_QTY, CIAA_LIBS_FLOAT_32, tran_matrix_data);
    ciaaLibs_MatrixInit(&c_matrix, OUTPUT_PLANT_QTY, STATE_VAR_QTY, CIAA_LIBS_FLOAT_32, c_matrix_data);
@@ -296,198 +324,93 @@ TASK(MainTask)
    ciaaLibs_MatrixInit(&y_aux_vector, OUTPUT_PLANT_QTY, 1, CIAA_LIBS_FLOAT_32, y_aux_vector_data);
    ciaaLibs_MatrixInit(&u_vector, INPUT_PLANT_QTY, 1, CIAA_LIBS_FLOAT_32, u_vector_data);
 
-   /* control efforts vector initialization */
+   /* control efforts and reference vectors initialization */
    for(k = 0; k < INACTIVE_POINTS; k++)
    {
+      r_in[k] = 0.0F;
       u_in[k] = 0.0F;
    }
-   for(k = INACTIVE_POINTS; k < TOTAL_POINTS; k++)
+   for(k = INACTIVE_POINTS; k < (INACTIVE_POINTS + ACTIVE_POINTS); k++)
    {
       u_in[k] = 1.0F;
-   }
-
-   /* control reference vector initialization */
-   for(k = 0; k < INACTIVE_POINTS; k++)
-   {
-      r_in[k] = 0.0F;
-   }
-   for(k = INACTIVE_POINTS; k < TOTAL_POINTS; k++)
-   {
       r_in[k] = 1.0F * KR;
    }
-
-   /* print message (only on x86) */
-   ciaaPOSIX_printf("\nOpen loop without controller:\n");
-
-   /* simulation cycle */
-   for(k = 0; k < TOTAL_POINTS; k++)
+   for(k = (INACTIVE_POINTS + ACTIVE_POINTS); k < TOTAL_POINTS; k++)
    {
-     *u_vector_data = u_in[k];
-     ciaaLibs_MatrixMul_float(&fund_matrix, &x_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&tran_matrix, &u_vector, &x_aux_vector);
-     ciaaLibs_MatrixAdd_float(&x_vector, &x_aux_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&c_matrix, &x_vector, &y_vector);
-     ciaaLibs_MatrixMul_float(&d_matrix, &u_vector, &y_aux_vector);
-     ciaaLibs_MatrixAdd_float(&y_vector, &y_aux_vector, &y_vector);
-     ciaaPOSIX_printf("%f %f %d\n", x_vector_data[0], x_vector_data[1], k);
-   }
-
-   /* print message (only on x86) */
-   ciaaPOSIX_printf("\nClosed loop without observer:\n");
-
-   /* reset of the system's state */
-   for(k = 0; k < STATE_VAR_QTY; k++)
-   {
-      x_vector_data[k]=0.0F;
-   }
-
-   /* closed loop simulation cycle */
-   for(k = 0; k < TOTAL_POINTS; k++)
-   {
-     Rtcs_InputRefX1_system_1(&r_in[k]);
-     Rtcs_InputY1_system_1(&x_vector_data[0]);
-     Rtcs_InputY2_system_1(&x_vector_data[1]);
-     Rtcs_system_1_1ms();
-     ciaaLibs_MatrixMul_float(&fund_matrix, &x_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&tran_matrix, &u_vector, &x_aux_vector);
-     ciaaLibs_MatrixAdd_float(&x_vector, &x_aux_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&c_matrix, &x_vector, &y_vector);
-     ciaaLibs_MatrixMul_float(&d_matrix, &u_vector, &y_aux_vector);
-     ciaaLibs_MatrixAdd_float(&y_vector, &y_aux_vector, &y_vector);
-     ciaaPOSIX_printf("%f %f %d\n", x_vector_data[0], x_vector_data[1], k);
-   }
-
-   /* print message (only on x86) */
-   ciaaPOSIX_printf("\nClosed loop with observer:\n");
-
-   /* control reference vector initialization */
-   for(k = 0; k < INACTIVE_POINTS; k++)
-   {
+      u_in[k] = 0.0F;
       r_in[k] = 0.0F;
    }
-   for(k = INACTIVE_POINTS; k < TOTAL_POINTS; k++)
-   {
-      r_in[k] = 1.0F * KR2;
-   }
 
-   /* reset of the system's state */
-   for(k = 0; k < STATE_VAR_QTY; k++)
-   {
-      x_vector_data[k]=0.0F;
-   }
+   /*Real tiem control system init*/
+   Rtcs_Init();
 
-   /* closed loop simulation cycle */
-   for(k = 0; k < TOTAL_POINTS; k++)
-   {
-     Rtcs_InputRefX1_system_2(&r_in[k]);
-     Rtcs_InputY1_system_2(&x_vector_data[0]);
-     Rtcs_system_2_1ms();
-     ciaaLibs_MatrixMul_float(&fund_matrix, &x_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&tran_matrix, &u_vector, &x_aux_vector);
-     ciaaLibs_MatrixAdd_float(&x_vector, &x_aux_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&c_matrix, &x_vector, &y_vector);
-     ciaaLibs_MatrixMul_float(&d_matrix, &u_vector, &y_aux_vector);
-     ciaaLibs_MatrixAdd_float(&y_vector, &y_aux_vector, &y_vector);
-     ciaaPOSIX_printf("%f %f %d\n", x_vector_data[0], x_vector_data[1], k);
-   }
+   /* Activate Control task */
+   SetRelAlarm(ActivateControlTask, INITIAL_DELAY_MS, CONTROL_TASK_PERIOD_MS);
 
-   /* print message (only on x86) */
-   ciaaPOSIX_printf("\nClosed loop with reduced observer:\n");
+   /* terminate task */
+   TerminateTask();
+}
 
-   /* control reference vector initialization */
-   for(k = 0; k < INACTIVE_POINTS; k++)
-   {
-      r_in[k] = 0.0F;
-   }
-   for(k = INACTIVE_POINTS; k < TOTAL_POINTS; k++)
-   {
-      r_in[k] = 1.0F * KR3;
-   }
+/** \brief Control task
+ *
+ * This task controls the RLC plant wich is simulated here
+ */
+TASK(ControlTask)
+{
+   float data_to_send;
+   int8_t buf[BUFFER_SIZE];
 
-   /* reset of the system's state */
-   for(k = 0; k < STATE_VAR_QTY; k++)
-   {
-      x_vector_data[k]=0.0F;
-   }
+#ifndef OPEN_LOOP
+   /* Start closed loop control section */
 
-   /* closed loop simulation cycle */
-   for(k = 0; k < TOTAL_POINTS; k++)
-   {
-     Rtcs_InputRefX1_system_3(&r_in[k]);
-     Rtcs_InputY1_system_3(&x_vector_data[0]);
-     Rtcs_system_3_1ms();
-     ciaaLibs_MatrixMul_float(&fund_matrix, &x_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&tran_matrix, &u_vector, &x_aux_vector);
-     ciaaLibs_MatrixAdd_float(&x_vector, &x_aux_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&c_matrix, &x_vector, &y_vector);
-     ciaaLibs_MatrixMul_float(&d_matrix, &u_vector, &y_aux_vector);
-     ciaaLibs_MatrixAdd_float(&y_vector, &y_aux_vector, &y_vector);
-     ciaaPOSIX_printf("%f %f %d\n", x_vector_data[0], x_vector_data[1], k);
-   }
+   /* Load measurement vector */
+   Rtcs_InputY1_PlantRLC(&x_vector_data[0]);
 
-   /* print message (only on x86) */
-   ciaaPOSIX_printf("\nClosed loop regulator without observer:\n");
+   /* Load reference vector */
+   Rtcs_InputRefX1_PlantRLC(&r_in[index]);
 
-   /* set of initial values of the system's state */
-   x_vector_data[0] = 1.0F;
-   x_vector_data[1] = 0.001F;
+   /* Controller function of the RLC plant (it should be called every 1 milisecond) */
+   Rtcs_PlantRLC_1ms();
 
-   /* closed loop simulation cycle */
-   for(k = 0; k < TOTAL_POINTS; k++)
-   {
-     Rtcs_InputY1_system_4(&x_vector_data[0]);
-     Rtcs_InputY2_system_4(&x_vector_data[1]);
-     Rtcs_system_4_1ms();
-     ciaaLibs_MatrixMul_float(&fund_matrix, &x_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&tran_matrix, &u_vector, &x_aux_vector);
-     ciaaLibs_MatrixAdd_float(&x_vector, &x_aux_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&c_matrix, &x_vector, &y_vector);
-     ciaaLibs_MatrixMul_float(&d_matrix, &u_vector, &y_aux_vector);
-     ciaaLibs_MatrixAdd_float(&y_vector, &y_aux_vector, &y_vector);
-     ciaaPOSIX_printf("%f %f %d\n", x_vector_data[0], x_vector_data[1], k);
-   }
+   /* End closed loop control section */
+#endif
 
-   /* print message (only on x86) */
-   ciaaPOSIX_printf("\nClosed loop regulator with observer:\n");
+   /* Start plant simulation section (delete this section when the plant is a real process) */
 
-   /* set of initial values of the system's state */
-   x_vector_data[0] = 1.0F;
-   x_vector_data[1] = 0.001F;
+   /* Calculate the next point of the RLC plant simulation */
+#ifdef OPEN_LOOP
+   *u_vector_data = u_in[index];
+#endif
+   ciaaLibs_MatrixMul_float(&fund_matrix, &x_vector, &x_vector);
+   ciaaLibs_MatrixMul_float(&tran_matrix, &u_vector, &x_aux_vector);
+   ciaaLibs_MatrixAdd_float(&x_vector, &x_aux_vector, &x_vector);
+   ciaaLibs_MatrixMul_float(&c_matrix, &x_vector, &y_vector);
+   ciaaLibs_MatrixMul_float(&d_matrix, &u_vector, &y_aux_vector);
+   ciaaLibs_MatrixAdd_float(&y_vector, &y_aux_vector, &y_vector);
 
-   /* closed loop simulation cycle */
-   for(k = 0; k < TOTAL_POINTS; k++)
-   {
-     Rtcs_InputY1_system_5(&x_vector_data[0]);
-     Rtcs_system_5_1ms();
-     ciaaLibs_MatrixMul_float(&fund_matrix, &x_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&tran_matrix, &u_vector, &x_aux_vector);
-     ciaaLibs_MatrixAdd_float(&x_vector, &x_aux_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&c_matrix, &x_vector, &y_vector);
-     ciaaLibs_MatrixMul_float(&d_matrix, &u_vector, &y_aux_vector);
-     ciaaLibs_MatrixAdd_float(&y_vector, &y_aux_vector, &y_vector);
-     ciaaPOSIX_printf("%f %f %d\n", x_vector_data[0], x_vector_data[1], k);
-   }
+   /* Send output of the RLC plant simulation to stdout (on x86 only) */
+   ciaaPOSIX_printf("%fmV %fmA %d\n", x_vector_data[0]*1000, x_vector_data[1]*1000, index);
 
-   /* print message (only on x86) */
-   ciaaPOSIX_printf("\nClosed loop regulator with reduced observer:\n");
+#if (ARCH == cortexM4)
+   /* Send output of the RLC plant simulation to PC */
+   data_to_send = (int32_t)(x_vector_data[0] * ADJUST_CONSTANT);
+   MyItoa(data_to_send, buf);
+   ciaaPOSIX_write(fd_uart1, buf, ciaaPOSIX_strlen((char *)buf));
+   ciaaPOSIX_write(fd_uart1, "mV ", 3);
+   data_to_send = (int32_t)(x_vector_data[1] * ADJUST_CONSTANT);
+   MyItoa(data_to_send, buf);
+   ciaaPOSIX_write(fd_uart1, buf, ciaaPOSIX_strlen((char *)buf));
+   ciaaPOSIX_write(fd_uart1, "mA ", 3);
+   MyItoa(index, buf);
+   ciaaPOSIX_write(fd_uart1, buf, ciaaPOSIX_strlen((char *)buf));
+   ciaaPOSIX_write(fd_uart1, "\n", 1);
+#endif
+   /* End plant simulation section */
 
-   /* reset of the system's state */
-   x_vector_data[0] = 1.0F;
-   x_vector_data[1] = 0.001F;
-
-   /* closed loop simulation cycle */
-   for(k = 0; k < TOTAL_POINTS; k++)
-   {
-     Rtcs_InputY1_system_6(&x_vector_data[0]);
-     Rtcs_system_6_1ms();
-     ciaaLibs_MatrixMul_float(&fund_matrix, &x_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&tran_matrix, &u_vector, &x_aux_vector);
-     ciaaLibs_MatrixAdd_float(&x_vector, &x_aux_vector, &x_vector);
-     ciaaLibs_MatrixMul_float(&c_matrix, &x_vector, &y_vector);
-     ciaaLibs_MatrixMul_float(&d_matrix, &u_vector, &y_aux_vector);
-     ciaaLibs_MatrixAdd_float(&y_vector, &y_aux_vector, &y_vector);
-     ciaaPOSIX_printf("%f %f %d\n", x_vector_data[0], x_vector_data[1], k);
-   }
+   /* Increment reference signal index */
+   index++;
+   index %= ACTIVE_POINTS;
+   
    /* terminate task */
    TerminateTask();
 }
@@ -495,8 +418,9 @@ TASK(MainTask)
 /** \brief Send Control Efforts to plant
  *
  * This function sends control efforts to plant.
+ * In this case, it sends to the input vector (u_vector_data) of the simulated plant
  */
-extern void SendControlEffort_1 (float *data, uint16_t num_elements)
+extern void SendControlEffort (float *data, uint16_t num_elements)
 {
    float *u_vector_data_ptr = u_vector_data;
 
@@ -507,78 +431,50 @@ extern void SendControlEffort_1 (float *data, uint16_t num_elements)
    }
 }
 
-/** \brief Send Control Efforts to plant
- *
- * This function sends control efforts to plant.
+/** \brief Convert one integer to characters to s string
+ **
+ ** This function converts one integer to characters.
  */
-extern void SendControlEffort_2 (float *data, uint16_t num_elements)
+extern void MyItoa(int32_t num, int8_t *s)
 {
-   float *u_vector_data_ptr = u_vector_data;
+   int32_t i, sign;
 
-   while(num_elements > 0u)
+   /* record sign  */
+   if ((sign = num) < 0)
+      /* make num positive */
+      num = -num;
+   i = 0;
+   /* generate digits in reverse order */
+   do
    {
-     *u_vector_data_ptr++ = *data++;
-     num_elements--;
+      /* get next digit */
+      s[i++] = num % 10 + '0';
+   }  
+   /* delete it */
+   while ((num /= 10) > 0);
+   if (sign < 0)
+   {
+      s[i++] = '-';
    }
+   s[i] = '\0';
+   /* invert the order of characteres*/
+   StringReverse(s);
 }
 
-/** \brief Send Control Efforts to plant
- *
- * This function sends control efforts to plant.
+/** \brief Invert the order in a string
+ **
+ ** This function inverts the order in a string.
  */
-extern void SendControlEffort_3 (float *data, uint16_t num_elements)
+extern void StringReverse(int8_t *s)
 {
-   float *u_vector_data_ptr = u_vector_data;
+   int32_t i, j;
+   int8_t c;
 
-   while(num_elements > 0u)
+   for (i = 0, j = ciaaPOSIX_strlen((char *)s)-1; i<j; i++, j--)
    {
-     *u_vector_data_ptr++ = *data++;
-     num_elements--;
-   }
-}
-
-/** \brief Send Control Efforts to plant
- *
- * This function sends control efforts to plant.
- */
-extern void SendControlEffort_4 (float *data, uint16_t num_elements)
-{
-   float *u_vector_data_ptr = u_vector_data;
-
-   while(num_elements > 0u)
-   {
-     *u_vector_data_ptr++ = *data++;
-     num_elements--;
-   }
-}
-
-/** \brief Send Control Efforts to plant
- *
- * This function sends control efforts to plant.
- */
-extern void SendControlEffort_5 (float *data, uint16_t num_elements)
-{
-   float *u_vector_data_ptr = u_vector_data;
-
-   while(num_elements > 0u)
-   {
-     *u_vector_data_ptr++ = *data++;
-     num_elements--;
-   }
-}
-
-/** \brief Send Control Efforts to plant
- *
- * This function sends control efforts to plant.
- */
-extern void SendControlEffort_6 (float *data, uint16_t num_elements)
-{
-   float *u_vector_data_ptr = u_vector_data;
-
-   while(num_elements > 0u)
-   {
-     *u_vector_data_ptr++ = *data++;
-     num_elements--;
+      c = s[i];
+      s[i] = s[j];
+      s[j] = c;
    }
 }
 /** @} doxygen end group definition */
