@@ -152,7 +152,7 @@ kconfig              ?= $(LINUX_TOOLS_PATH)$(DS)kconfig$(DS)kconfig-qtconf
 
 ###############################################################################
 # CIAA Firmware version information
-CIAA_FIRMWARE_VER     = Upa-1.0.0
+CIAA_FIRMWARE_VER     = master-0.0.0
 
 ###############################################################################
 # get OS
