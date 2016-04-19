@@ -88,7 +88,7 @@ ARCH           ?= mips
 CPUTYPE        ?= pic32
 CPU            ?= pic32mz
 COMPILER       ?= gcc
-endif 
+endif
 
 # Default values for edu_ciaa_nxp
 ifeq ($(BOARD),edu_ciaa_nxp)
@@ -114,13 +114,6 @@ CPU            ?= mk60fx512vlq15
 COMPILER       ?= gcc
 endif
 
-# Default values for MSP-EXP430G2
-ifeq ($(BOARD), MSP-EXP430G2)
-ARCH           ?= msp430
-CPUTYPE        ?= msp430g2x
-CPU            ?= msp430g2231
-COMPILER       ?= gcc
-endif
 
 # Default values for msp_exp430f5529
 ifeq ($(BOARD), msp_exp430f5529)
@@ -289,7 +282,7 @@ endif
 
 CFLAGS  += $(foreach inc, $(INCLUDE), -I $(inc))
 CFLAGS  += -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DBOARD=$(BOARD)
-	
+
 TARGET_NAME ?= $(BIN_DIR)$(DS)$(PROJECT_NAME)
 
 LD_TARGET = $(TARGET_NAME).$(LD_EXTENSION)
@@ -327,7 +320,7 @@ $(LIB_DIR)$(DS)$(strip $(1)).a : $(2)
 	@echo ' '
 endef
 
- 
+
 OBJ_FILES = $(notdir $(patsubst %.c,%.o,$(patsubst %.s,%.o,$(patsubst %.S,%.o,$(SRC_FILES)))))
 OIL_4_GEN += $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(POIL_FILES))), $(ETC_DIR)$(DS)$(OIL)) $(OIL_FILES)
 OIL_4_GEN_DEP += $(notdir $(foreach OIL, $(notdir $(patsubst %.poil,%.oil,$(POIL_FILES))), $(ETC_DIR)$(DS)$(OIL))) $(OIL_FILES)
@@ -351,7 +344,7 @@ FILES_TO_MOCK = $(foreach DIR, $(DIRS), $(wildcard $(DIR)inc$(DS)*.h))
 
 FILES_MOCKED = $(foreach MOCKED, $(FILES_TO_MOCK), $(MOCKS_OUT_DIR)$(DS)mock_$(notdir $(MOCKED)))
 
- 
+
 
 ###############################################################################
 # rule for tst_<mod>[_file]
@@ -380,10 +373,10 @@ endif
 ifeq ($(tst_file),all)
 tst_file :=
 endif
-	
+
 # include corresponding makefile
 include modules$(DS)$(tst_mod)$(DS)mak$(DS)Makefile
-	
+
 # include test makefile
 include modules$(DS)$(tst_mod)$(DS)test$(DS)utest$(DS)mak$(DS)Makefile
 
@@ -547,7 +540,7 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo ===============================================================================
 	@echo Compiling 'c' file: $<
 	@echo ' '
-	$(CC) $(CFLAGS) $(call cp4c,$<) -o $(OBJ_DIR)$(DS)$@ 
+	$(CC) $(CFLAGS) $(call cp4c,$<) -o $(OBJ_DIR)$(DS)$@
 
 ifeq ($(MAKE_DEPENDENCIES),1)
 	@echo ' '
@@ -578,7 +571,7 @@ endif
 	@echo Compiling 'asm' with C preprocessing file: $<
 	@echo ' '
 	$(CC) $(CFLAGS) -x assembler-with-cpp $(call cp4c,$<) -o $(OBJ_DIR)$(DS)$@
-  
+
 ###############################################################################
 # Incremental Build (IDE: Build)
 # link rule
@@ -588,10 +581,10 @@ $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$($(LIB)_OBJ
 
 # New rules for project dependencies
 $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:.o=.d))))
- 
+
 # libs with contains sources
 LIBS_WITH_SRC	= $(foreach LIB, $(LIBS), $(if $(filter %.c,$($(LIB)_SRC_FILES)),$(LIB)))
- 
+
 
 $(PROJECT_NAME) : $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
@@ -602,7 +595,7 @@ $(PROJECT_NAME) : $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(PROJECT_NAME)
- 
+
 	$(POST_BUILD)
 
 ###############################################################################
@@ -652,14 +645,14 @@ doxygen:
 ###############################################################################
 # openocd inclusion
 ifeq ($(ARCH),x86)
-	
+
 else
 ifeq ($(ARCH),msp430)
 
 else
 # if CPU is not entered shows an error
 ifeq ($(CPU),)
-	
+
 else
 ifeq ($(OPENOCD_CFG),)
 
@@ -702,7 +695,7 @@ endif
 # mspdebug inclusion
 ifeq ($(ARCH),msp430)
 include modules$(DS)tools$(DS)mspdebug$(DS)mak$(DS)Makefile
-endif 
+endif
 
 ###############################################################################
 # mspdebug rule
@@ -743,7 +736,7 @@ else
 ifeq ($(ARCH),msp430)
 	@echo ===============================================================================
 	@echo Starting mspdebug and erasing...
- 
+
 	$(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(FLASH_ERASE_COMMAND)
 else
 # if CPU is not entered shows an error
@@ -806,7 +799,7 @@ ifeq ($(CPU),)
 	@echo ERROR: The CPU variable of your makefile is empty.
 else
 ifeq ( $(OPENOCD_CFG), )
-	@echo ERROR: Your CPU: $(CPU) may not be supported... 
+	@echo ERROR: Your CPU: $(CPU) may not be supported...
 else
 	@echo ===============================================================================
 	@echo Starting OpenOCD and downloading...
@@ -1167,13 +1160,12 @@ ifeq ($(CPUTYPE),lpc43xx)
 else
 	@echo '$(CPUTYPE) not supported for multicore.'
 endif
- 
+
 
 ###############################################################################
 # generate dissasembly and other files
-dis: 
-	@echo "*** Generating dissasembly ***"	 
-	$(OBJD) -D $(LD_TARGET) > "$(subst .out,,$(LD_TARGET))_DIS.TXT"
-	@echo "*** Generating sections file ***"	 
+dis:
+	@echo "*** Generating dissasembly ***"
+	$(OBJD) -D  -S $(LD_TARGET) > "$(subst .out,,$(LD_TARGET))_DIS.TXT"
+	@echo "*** Generating sections file ***"
 	$(OBJD) -h $(LD_TARGET) > "$(subst .out,,$(LD_TARGET))_SEC.TXT"
-

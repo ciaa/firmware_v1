@@ -159,13 +159,16 @@ extern "C" {
 #define CIAAPLATFORM_REGLENGTH      64
 #endif
 
-#endif
+#endif //ARCH == x86
 
 #if (ARCH == msp430)
 #if (  CPUTYPE == msp430  )
 #define CIAAPLATFORM_REGLENGTH      16
 #endif
+#if (  CPUTYPE == msp430x  )
+#define CIAAPLATFORM_REGLENGTH      32
 #endif
+#endif //ARCH == msp430
 
 /****** CIAAPLATFORM_ENDIANESS ******/
 #define CIAAPLATFORM_BIGENDIAN      0

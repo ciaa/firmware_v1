@@ -81,7 +81,7 @@ typedef struct
  * This microcontroller hasn't any IO library provided by TI so the
  * imlementation is done directly using registers.
  */
-#if (msp_ext430f5529 == BOARD)
+#if (msp_exp430f5529 == BOARD)
 const ciaaDriverDio_dioType ciaaDriverDio_Inputs[] = { {1.7} , {2.2}  };
 const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {1.0}, {8.1}, {8.3} };
 #endif
@@ -135,7 +135,7 @@ static ciaaDriverConstType const ciaaDriverDioConst =
 static void ciaa_msp430f5529_gpio_init(void)
 {
  unsigned short i;
-#if( msp_ext430f5529 == BOARD )
+#if( msp_exp430f5529 == BOARD )
 	for(i=0;i<ciaaDriverDio_InputCount;i++)
 	{ 
 		GPIO_setAsInputPin(ciaaDriverDio_Inputs[i].port, 1<<ciaaDriverDio_Inputs[i].pin );		//como entrada

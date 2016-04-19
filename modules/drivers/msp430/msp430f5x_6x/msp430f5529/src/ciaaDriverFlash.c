@@ -1,4 +1,7 @@
-/* Copyright 2015, ...
+/* Copyright 2014, Daniel Cohen
+ * Copyright 2014, Esteban Volentini
+ * Copyright 2014, Matias Giori
+ * Copyright 2014, Franco Salinas
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,11 +34,21 @@
  *
  */
 
+/** \brief CIAA Flash Driver for LPC4337
+ **
+ ** Implements the Flash Driver for LPC4337
+ **
+ **/
+
+/** \addtogroup CIAA_Firmware CIAA Firmware
+ ** @{ */
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup Flash Flash Drivers
+ ** @{ */
+
 /*==================[inclusions]=============================================*/
-#include "ciaaDriverUart.h"
-#include "ciaaPOSIX_stdlib.h"
-#include "ciaaPOSIX_stdio.h"
-#include "os.h"
+#include "ciaaDriverFlash.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -50,13 +63,43 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
+{
+   return device;
+}
+
+extern int32_t ciaaDriverFlash_close(ciaaDevices_deviceType const * const device)
+{
+   return -1;
+}
+
+extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
+{
+   int32_t ret = -1;
+
+   return ret;
+}
+
+extern ssize_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t const size)
+{
+   ssize_t ret = -1;
+
+   return ret;
+}
+
+extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
+{
+   ssize_t ret = -1;
+
+   return ret;
+}
+
 void ciaaDriverFlash_init(void)
 {
 
 }
 
 /*==================[interrupt handlers]=====================================*/
-
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

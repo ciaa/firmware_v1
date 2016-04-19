@@ -80,11 +80,12 @@
 /*==================[internal functions declaration]=========================*/
 #include "msp430.h"
 
+
 void __attribute__((constructor))myctor()
 {
   WDTCTL = WDTPW | WDTHOLD;		// Stop watchdog timer
-
 }
+
 /*==================[internal data definition]===============================*/
 
 /** \brief File descriptor for digital output ports
@@ -92,11 +93,10 @@ void __attribute__((constructor))myctor()
  * Device path /dev/dio/out/0
  */
 static int32_t fd_out;
-volatile char asdfasdf=1;
+
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-
 
 
 /*==================[external functions definition]==========================*/

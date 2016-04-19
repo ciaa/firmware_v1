@@ -53,8 +53,6 @@
 #include "ciaak.h"       /* <= ciaa kernel header */
 #include "os.h"
 
-ssize_t variable_culo   ;
-ssize_t variable_culo   ;
 
 /*==================[macros and definitions]=================================*/
 #define ciaaBlockDevices_MAXDEVICES          20
@@ -355,4 +353,3 @@ extern void ciaaBlockDevices_readIndication(ciaaDevices_deviceType const * const
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
