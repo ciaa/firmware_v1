@@ -162,7 +162,8 @@ static int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * cons
 
          /* perform the and operation between the block brought and the new data */
          for(buffer_index = 0; buffer_index < write_size; buffer_index++, data_index++)
-            buffer[buffer_index] &= data[data_index];
+            //buffer[buffer_index] &= data[data_index];   //DEBUG
+            buffer[buffer_index] = data[data_index];
 
          /* write in to the previously sought position */
          ret = fwrite(buffer, 1, write_size, flash->storage);

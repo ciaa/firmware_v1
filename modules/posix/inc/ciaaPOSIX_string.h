@@ -71,6 +71,16 @@ extern "C" {
  **/
 extern char * ciaaPOSIX_strcpy(char * s1, char const * s2);
 
+/** \brief string copy at most n characters
+ **
+ ** \param[in] s1 destination buffer
+ ** \param[in] s2 string to be copied
+ ** \param[in] n maximal count of characters to be copied
+ ** \return s1
+ **
+ **/
+extern char * ciaaPOSIX_strncpy(char *s1, const char *s2, size_t n);
+
 /** \brief get string length
  **
  ** \param[in] s string to compute the length

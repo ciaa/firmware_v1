@@ -74,6 +74,21 @@ extern char * ciaaPOSIX_strcpy(char * s1, char const * s2)
    return s1;
 }
 
+extern char * ciaaPOSIX_strncpy(char *s1, char const *s2, size_t n)
+{
+    char *s = s1;
+    while (n > 0 && *s2 != '\0') {
+	*s++ = *s2++;
+	--n;
+    }
+    while (n > 0) {
+	*s++ = '\0';
+	--n;
+    }
+    return s1;
+}
+
+
 extern size_t ciaaPOSIX_strlen(char const * s) {
    uint32_t length = 0;
 

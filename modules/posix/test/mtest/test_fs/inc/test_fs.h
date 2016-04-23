@@ -1,8 +1,6 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
- * Copyright 2015, Mariano Cerdeiro
+/* Copyright 2014, ACSE & CADIEEL
+ *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *    CADIEEL: http://www.cadieel.org.ar
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -35,83 +33,47 @@
  *
  */
 
-#ifndef CIAADRIVERFLASH_INTERNAL_H
-#define CIAADRIVERFLASH_INTERNAL_H
-/** \brief Internal Header file of Flash Driver
+#ifndef TEST_FILESYSTEM_H
+#define TEST_FILESYSTEM_H
+
+/** \brief Test File System header file
+ **
+ ** This is the module test of the File System CIAA Firmware
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup MTests CIAA Firmware Module Tests
  ** @{ */
-/** \addtogroup Flash Flash Drivers
+/** \addtogroup Block File System Tests
  ** @{ */
+
+/*
+ * Initials     Name
+ * ---------------------------
+ * MZ         Marcos Ziegler
+ */
+
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20160101 v0.0.1 MZ Initial version
+ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaPOSIX_stdbool.h"
-#include <stdio.h>
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*==================[macros]=================================================*/
-/** Define host filename to use a serial port 0 */
-#ifndef CIAADRVFLASH_FILENAME
-   #define CIAADRVFLASH_FILENAME    "FLASH.BIN"
-#endif
 
-/** Define flash block size in bytes */
-#ifndef CIAADRVFLASH_BLOCK_SIZE
-   #define CIAADRVFLASH_BLOCK_SIZE  512
-#endif
-
-/** Define flash memory size in blocks */
-#ifndef CIAADRVFLASH_BLOCK_CANT
-   #define CIAADRVFLASH_BLOCK_CANT  2048
-#endif
-
-/** Define flahs memory size in bytes */
-#define CIAADRVFLASH_SIZE           (CIAADRVFLASH_BLOCK_SIZE * CIAADRVFLASH_BLOCK_CANT)
-
-
-#if (CIAADRVFLASH_BLOCK_SIZE == 256)
-   #define CIAADRVFLASH_BLOCK_BITS     8
-#elif (CIAADRVFLASH_BLOCK_SIZE == 512)
-   #define CIAADRVFLASH_BLOCK_BITS     9
-#elif (CIAADRVFLASH_BLOCK_SIZE == 1024)
-   #define CIAADRVFLASH_BLOCK_BITS     10
-#elif (CIAADRVFLASH_BLOCK_SIZE == 2048)
-   #define CIAADRVFLASH_BLOCK_BITS     11
-#else
-   #error "Flash block size not supported"
-#endif
 /*==================[typedef]================================================*/
-/** \brief Flash Type */
-typedef struct {
-   char const * filename;                 /** <= Pointer to file name */
-   uint32_t position;                     /** <= Courrent position */
-   FILE * storage;                        /** <= Pointer to file storage */
-} ciaaDriverFlash_flashType;
 
 /*==================[external data declaration]==============================*/
-/** \brief Uart 0 */
-extern ciaaDriverFlash_flashType ciaaDriverFlash_flash;
 
 /*==================[external functions declaration]=========================*/
-//extern void ciaaDriverFlash_flash0_rxIndication(void);
 
-//extern void ciaaDriverFlash_flash0_txConfirmation(void);
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAADRIVERFLASH_INTERNAL_H */
+#endif /* #ifndef TEST_FILESYSTEM_H */
+

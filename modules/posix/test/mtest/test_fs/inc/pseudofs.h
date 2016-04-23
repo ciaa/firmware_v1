@@ -1,8 +1,6 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
- * Copyright 2015, Mariano Cerdeiro
+/* Copyright 2014, ACSE & CADIEEL
+ *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *    CADIEEL: http://www.cadieel.org.ar
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -35,76 +33,75 @@
  *
  */
 
-#ifndef CIAADRIVERFLASH_INTERNAL_H
-#define CIAADRIVERFLASH_INTERNAL_H
-/** \brief Internal Header file of Flash Driver
+#ifndef PSEUDOFS_H
+#define PSEUDOFS_H
+
+/** \brief Header of the in-RAM file system implementation
+ **
+ ** Contains data structures for the lower layer
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup Filesystem pseudofs driver
  ** @{ */
-/** \addtogroup Flash Flash Drivers
- ** @{ */
+
+/*
+ * Initials     Name
+ * ---------------------------
+ * MZ      Marcos Ziegler
+ */
+
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20160101 v0.0.1 MZ initial version
+ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaPOSIX_stdbool.h"
-#include <stdio.h>
+
+#include "vfs.h"
 
 /*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*==================[macros]=================================================*/
-/** Define host filename to use a serial port 0 */
-#ifndef CIAADRVFLASH_FILENAME
-   #define CIAADRVFLASH_FILENAME    "FLASH.BIN"
-#endif
 
-/** Define flash block size in bytes */
-#ifndef CIAADRVFLASH_BLOCK_SIZE
-   #define CIAADRVFLASH_BLOCK_SIZE  512
-#endif
+#define PSEUDOFS_MIN_ALLOC_SIZE 512
 
-/** Define flash memory size in blocks */
-#ifndef CIAADRVFLASH_BLOCK_CANT
-   #define CIAADRVFLASH_BLOCK_CANT  2048
-#endif
-
-/** Define flahs memory size in bytes */
-#define CIAADRVFLASH_SIZE           (CIAADRVFLASH_BLOCK_SIZE * CIAADRVFLASH_BLOCK_CANT)
-
-
-#if (CIAADRVFLASH_BLOCK_SIZE == 256)
-   #define CIAADRVFLASH_BLOCK_BITS     8
-#elif (CIAADRVFLASH_BLOCK_SIZE == 512)
-   #define CIAADRVFLASH_BLOCK_BITS     9
-#elif (CIAADRVFLASH_BLOCK_SIZE == 1024)
-   #define CIAADRVFLASH_BLOCK_BITS     10
-#elif (CIAADRVFLASH_BLOCK_SIZE == 2048)
-   #define CIAADRVFLASH_BLOCK_BITS     11
-#else
-   #error "Flash block size not supported"
-#endif
 /*==================[typedef]================================================*/
-/** \brief Flash Type */
-typedef struct {
-   char const * filename;                 /** <= Pointer to file name */
-   uint32_t position;                     /** <= Courrent position */
-   FILE * storage;                        /** <= Pointer to file storage */
-} ciaaDriverFlash_flashType;
+
+/** \brief pseudofs file metadata info
+ **
+ **/
+struct pseudofs_node_info
+{
+   int dummy;
+};
+
+/** \brief pseudofs file system info
+ **
+ **/
+struct pseudofs_fs_info
+{
+   int dummy;         /* FIXME: Ahora este fs no tiene info. Tiene q haber dummy para no hacer malloc(0) */
+};
+
+/** \brief pseudofs file info
+ **
+ **/
+struct pseudofs_file_info
+{
+   uint16_t index;   /* number of file in FS */
+   uint32_t file_size;
+   uint32_t alloc_size;
+   uint32_t pointer;   /* address of the current data in bytes */
+   uint8_t *data;
+};
 
 /*==================[external data declaration]==============================*/
-/** \brief Uart 0 */
-extern ciaaDriverFlash_flashType ciaaDriverFlash_flash;
-
 /*==================[external functions declaration]=========================*/
-//extern void ciaaDriverFlash_flash0_rxIndication(void);
 
-//extern void ciaaDriverFlash_flash0_txConfirmation(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -112,6 +109,6 @@ extern ciaaDriverFlash_flashType ciaaDriverFlash_flash;
 #endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAADRIVERFLASH_INTERNAL_H */
+#endif /* #ifndef PSEUDOFS_H */
+
