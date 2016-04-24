@@ -91,9 +91,9 @@ TODO:
  **/
 extern vnode_t *vfs_create_child(vnode_t *parent, const char *name, size_t namelen, mode_t mode);
 
-/** \brief 
+/** \brief
  **
- ** 
+ **
  **
  ** \param[in] node
  ** \param[in] path
@@ -104,7 +104,7 @@ static int vfs_get_mntpt_path_rec(vnode_t *node, char *path, uint16_t *len_p);
 
 /** \brief get the path relative to the mountpoint
  **
- ** 
+ **
  **
  ** \param[in] node node whose mount point path is to be found
  ** \param[out] path string which will contain the mountpoint path
@@ -115,7 +115,7 @@ static int vfs_get_mntpt_path(vnode_t *node, char *path, uint16_t *len_p);
 
 /** \brief alloc memory for new node and initialize contents
  **
- ** 
+ **
  **
  ** \param[in] name
  ** \param[in] name_len
@@ -133,13 +133,13 @@ static vnode_t *vfs_node_alloc(const char *name, size_t name_len);
 static void vfs_node_free(vnode_t *node);
 
 /** \brief create subtree given a path
- **  
+ **
  ** Devuelve -1 si el directorio ya existia
  ** Crea directorios intermedios
  ** TODO: Si recibe un path sin el '/' inicial, es un relative path. Crea el arbol a partir del nodo entregado
  ** Si esta el '/' inicial, crea el arbol a partir del root,  como ahora
  ** La hoja creada es de tipe VFS_FTREG
- ** 
+ **
  ** \param[in] path
  ** \param[out] inode_p
  ** \return -1 if the directory already exists FIXME
@@ -160,7 +160,7 @@ static int vfs_inode_search(char **path_p, vnode_t **ret_node_p);
 
 /** \brief get a driver of a specified filesystem by name
  **
- ** 
+ **
  **
  ** \param[in] driver_name name of the driver as given in its corresponding filesystem_driver struct
  ** \return pointer to searched fs driver if success, NULL otherwise
@@ -170,14 +170,14 @@ static struct filesystem_driver *vfs_get_driver(const char *driver_name);
 /** \brief initialize file descriptor table
  **
  ** alloc memory, initialize values, etc.
- ** 
+ **
  ** \return -1 if an error occurs, in other case 0
  **/
 static int file_descriptor_table_init(void);
 
-/** \brief 
+/** \brief
  **
- ** 
+ **
  **
  ** \param[in] node the new file descriptor will be linked to this file
  ** \return pointer to created descriptor structure if success, else NULL
@@ -186,7 +186,7 @@ static struct file_desc *file_desc_create(vnode_t *node);
 
 /** \brief free a file descriptor
  **
- ** 
+ **
  **
  ** \param[in] file_desc descriptor to be freed
  ** \return -1 if an error occurs, in other case 0
@@ -195,7 +195,7 @@ static int file_desc_destroy(struct file_desc *file_desc);
 
 /** \brief get a descriptor structure by its number
  **
- ** 
+ **
  **
  ** \param[in] index requested descriptor structure index
  ** \return -1 if an error occurs, in other case 0
@@ -207,14 +207,14 @@ static struct file_desc *file_desc_get(uint16_t index);
 /** \brief Nodo root
  *
  * Es el nodo padre de todo el vfs.
- * 
+ *
  */
 static vnode_t *vfs_root_inode = NULL;
 
 /** \brief Filesystem drivers declaration
  *
  * Declaro los drivers que va a utilizar el vfs. Estan definidos en sus respectivos archivos
- * 
+ *
  */
 extern struct filesystem_driver ext2_driver;
 extern struct filesystem_driver pseudofs_driver;
@@ -223,7 +223,7 @@ extern struct filesystem_driver blockdev_driver;
 /** \brief Filesystem drivers table
  *
  * Tabla utilizada por vfs_get_driver() para buscar el driver solicitado
- * 
+ *
  */
 static struct filesystem_driver *vfs_fsdriver_table[] =
 {
@@ -236,8 +236,8 @@ static struct filesystem_driver *vfs_fsdriver_table[] =
 
 /** \brief Filesystem drivers table
  *
- * Tabla de descriptores de archivo. 
- * 
+ * Tabla de descriptores de archivo.
+ *
  */
 static struct file_descriptor_table _f_tab;
 static struct file_descriptor_table *file_desc_tab_p = &_f_tab;
@@ -358,7 +358,6 @@ static int vfs_inode_reserve(const char *path, vnode_t **inode_p)
       //ciaaPOSIX_printf("vfs_inode_reserve(): %s, %d\n", p_start, (int)(p_end-p_start));
       if(p_end==p_start)
       {
-         
          return -1;
       }
       child = vfs_create_child(inode, p_start, (uint32_t)(p_end-p_start), 0);
@@ -485,7 +484,7 @@ static struct file_desc *file_desc_create(vnode_t *node)
 
    if(file_desc_tab_p->n_busy_desc >= FILE_DESC_MAX)
       return NULL;
-   
+
    for(i=0; i<FILE_DESC_MAX; i++)
    {
       if(file_desc_tab_p->table[i] == NULL)
@@ -505,7 +504,6 @@ static struct file_desc *file_desc_create(vnode_t *node)
    file_desc_tab_p->table[i] = file;
    file_desc_tab_p->n_busy_desc++;
 
-   
    file->node = node;
    file->index = i;
 
@@ -589,7 +587,6 @@ extern vnode_t *vfs_create_child(vnode_t *parent, const char *name, size_t namel
    child->f_info.file_pointer=0;
    child->f_info.down_layer_info=NULL;
    return child;
-   
 }
 
 extern int ciaaFS_init(void)
@@ -651,8 +648,8 @@ extern int ciaaFS_init(void)
 
 /** \brief Format a device
  *
- * 
- * 
+ *
+ *
  */
 extern int ciaaFS_format(const char *device_path, const char *fs_type)
 {
@@ -699,7 +696,7 @@ extern int ciaaFS_format(const char *device_path, const char *fs_type)
 /** \brief VFS mount
  *
  * Ir a la definicion de POSIX
- * 
+ *
  */
 extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type)
 {
@@ -1038,7 +1035,7 @@ extern int ciaaFS_unlink(const char *path)
    {
       /* File not found */
       return -1;
-   } 
+   }
    if(target_inode->n_info.type != VFS_FTREG)
    {
       /* Not a regular file, can not unlink */
@@ -1061,7 +1058,7 @@ extern int ciaaFS_unlink(const char *path)
    {
       /* Filesystem op failed */
       return -1;
-   } 
+   }
    /* Remove node from vfs */
    /*vfs_del_leaf(node);*/
 

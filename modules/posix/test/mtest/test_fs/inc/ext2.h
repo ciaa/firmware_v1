@@ -296,7 +296,7 @@ struct ext2fs_dinode {
    uint32_t   i_atime;   /*    8: Acces time */      //8
    uint32_t   i_ctime;   /*   12: Create time */      //12
    uint32_t   i_mtime;   /*   16: Modification time */   //16
-   uint32_t   i_dtime;   /*   20: Deletion time */      
+   uint32_t   i_dtime;   /*   20: Deletion time */
    uint16_t   i_gid;   /*  24: Owner GID */
    uint16_t   i_links_count;   /*  26: File link count */
    uint32_t   i_blocks;   /*  28: Blocks count */

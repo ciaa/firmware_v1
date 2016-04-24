@@ -102,7 +102,7 @@
  ** what kind of file this node represents
  **
  **/
-typedef enum   {   
+typedef enum   {
       VFS_FTREG,   //Regular file node
       VFS_FTDIR,   //Directory file node
       VFS_FTBLK,   //Block device node
@@ -176,8 +176,8 @@ struct node_info
  **/
 struct filesystem_info
 {
-   struct filesystem_driver *drv; // file system driver 
-   ciaaDevices_deviceType const * device; // block device, where is this file system 
+   struct filesystem_driver *drv; // file system driver
+   ciaaDevices_deviceType const * device; // block device, where is this file system
    void             *down_layer_info; // file system information (extended information)
 };
 
@@ -290,7 +290,7 @@ extern int ciaaFS_init(void);
  ** \param[in] fs_type string indicating the filesystem type
  **               EXT2:
  **               BOLCKDEV:
- **               PSEUDOFS: 
+ **               PSEUDOFS:
  ** \return -1 if an error occurs, 0 if success
  **/
 extern int ciaaFS_format(const char *device_path, const char *fs_type);
@@ -304,7 +304,7 @@ extern int ciaaFS_format(const char *device_path, const char *fs_type);
  ** \param[in] fs_type string indicating the filesystem type
  **               EXT2:
  **               BOLCKDEV:
- **               PSEUDOFS: 
+ **               PSEUDOFS:
  ** \return -1 if an error occurs, 0 if success
  **/
 extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type);

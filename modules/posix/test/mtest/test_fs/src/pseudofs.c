@@ -109,7 +109,7 @@ static struct fsdriver_operations pseudofs_operations =
 /*==================[external data definition]===============================*/
 
 //Variable global. Se declarara extern en vfs.c
-struct filesystem_driver pseudofs_driver = 
+struct filesystem_driver pseudofs_driver =
 {
    "pseudofs",
    &pseudofs_operations

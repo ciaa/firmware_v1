@@ -91,7 +91,7 @@ FIXME:
 
 /** \brief Adds an entry in the directory with given parameters
  **
- ** 
+ **
  **
  ** \param[in] node directory node in which to add entry
  ** \param[in] ino the new entry will have this inode number
@@ -112,7 +112,7 @@ static int ext2_dir_add_entry(vnode_t *node, uint32_t ino, char *name, uint16_t 
 
 /** \brief Delete an entry in the given directory
  **
- ** 
+ **
  **
  ** \param[in] node directory node in which to delete entry
  ** \param[in] name name of the entry to be deleted
@@ -223,7 +223,7 @@ static int ext2_mount_load_rec(vnode_t *dir_node);
  **/
 static void print_superblock(struct ext2sb * superblock);
 
-/** \brief print the contents of the given ext2 group descriptor structure 
+/** \brief print the contents of the given ext2 group descriptor structure
  **
  ** \param[in] gd pointer to the raw group descriptor structure to be printed
  ** \return -1 if an error occurs, in other case 0
@@ -802,7 +802,7 @@ static int ext2_format(vnode_t *dev_node)
    uint8_t *bitmap_buffer;
    struct ext2fs_dinode node;
    struct ext2fs_direct dir;
-   
+
    uint16_t i,j,aux,group_index;
    uint16_t ngroups, nblocks_gd, inodes_per_group, inodeblocks_per_group,
             minmetablocks_per_group,  nblocks_last_group, dev_bsize, nblocks_group_overhead;
@@ -1610,7 +1610,7 @@ static int ext2_block_map(const vnode_t * dest_node, uint32_t file_block, uint32
     * Cuando el file_block esta dentro del nivel actual, se sale del loop.
     * A file_block se le va restando la cantidad de bloques del nivel actual.
     * Al finalizar el loop, file_block es el offset dentro del nivel correspondiente
-    * block_level queda con el nivel de indireccion, 
+    * block_level queda con el nivel de indireccion,
     */
    /* Me fijo si me paso de la cantidad de bloques del nivel
     * 1024B/4B=256bloques
@@ -2560,7 +2560,7 @@ static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block)
       ciaaPOSIX_free(bitmap_buffer);
       return -1;
    }
-   
+
    /*Busco un bit libre en el bitmap
     *En primer lugar busco un byte que contenga un bit en 0 (libre)
     */
