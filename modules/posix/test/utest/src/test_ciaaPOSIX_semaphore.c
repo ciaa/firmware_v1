@@ -1,6 +1,5 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
+/* Copyright 2016, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -32,7 +31,7 @@
  *
  */
 
-/** \brief This file implements the test of the Devices
+/** \brief This file implements the semaphore tests
  **
  **/
 
@@ -45,7 +44,8 @@
 
 /*==================[inclusions]=============================================*/
 #include "unity.h"
-#include "ciaaDevices.h"
+#include "ciaaPOSIX_semaphore.h"
+#include "mock_os.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -56,6 +56,10 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
+TaskType MyGetTaskIDTaskID;
+
+char const * const ciaaPOSIX_assert_msg = \
+      "ASSERT Failed in %s:%d in expression %s\n";
 
 /*==================[internal functions definition]==========================*/
 
@@ -66,7 +70,6 @@
  **
  **/
 void setUp(void) {
-    /* perform the initialization of ciaa Devices */
 }
 
 /** \brief tear Down function
@@ -77,28 +80,61 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-void doNothing(void) {
+
+StatusType MyGetTaskID(TaskRefType TaskID, int cmock_num_calls)
+{
+   (void)cmock_num_calls;
+   *TaskID = MyGetTaskIDTaskID;
+   return E_OK;
 }
 
 
-
-
-/** \brief test POSIX test add new device
- **
- ** trys to add a new device
+/** \brief test init
  **
  **/
-void testAddDevice(void) {
+void test_ciaaPOSIX_sem_init(void) {
+   sem_t sem;
+   int ret;
+
+   ret = ciaaPOSIX_sem_init(&sem);
+
+   /* open group specify that this interfaces returns -1 if an error occurs,
+    * any other value indicates success. */
+   TEST_ASSERT_TRUE(-1 != ret);
 }
 
-/** \brief test POSIX get device
- **
- ** get a device
- **
- **/
-void testGetDevice(void) {
-}
+void test_ciaaPOSIX_sem(void) {
+   sem_t sem;
+   int ret;
 
+   ret = ciaaPOSIX_sem_init(&sem);
+   TEST_ASSERT_TRUE(-1 != ret);
+
+   GetTaskID_StubWithCallback(MyGetTaskID);
+
+   MyGetTaskIDTaskID = 0;
+   GetResource_ExpectAndReturn(POSIXR, E_OK);
+   ReleaseResource_ExpectAndReturn(POSIXR, E_OK);
+
+   ret = ciaaPOSIX_sem_wait(&sem);
+   TEST_ASSERT_EQUAL_INT(0, ret);
+
+   MyGetTaskIDTaskID = 1;
+   GetResource_ExpectAndReturn(POSIXR, E_OK);
+   ReleaseResource_ExpectAndReturn(POSIXR, E_OK);
+   WaitEvent_ExpectAndReturn(POSIXE, E_OK);
+   ClearEvent_ExpectAndReturn(POSIXE, E_OK);
+
+   ret = ciaaPOSIX_sem_wait(&sem);
+   TEST_ASSERT_EQUAL_INT(0, ret);
+
+   MyGetTaskIDTaskID = 0;
+   GetResource_ExpectAndReturn(POSIXR, E_OK);
+   ReleaseResource_ExpectAndReturn(POSIXR, E_OK);
+   SetEvent_ExpectAndReturn(1, POSIXE, E_OK);
+   ret = ciaaPOSIX_sem_post(&sem);
+   TEST_ASSERT_EQUAL_INT(0, ret);
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -75,6 +75,7 @@ sem_t * ciaaPOSIX_semVar[TASKS_COUNT] = { NULL };
 extern int8_t ciaaPOSIX_sem_init(sem_t * const sem)
 {
    sem->counter = 0;
+   return 1;
 }
 
 extern int8_t ciaaPOSIX_sem_wait(sem_t * const sem)
@@ -95,7 +96,7 @@ extern int8_t ciaaPOSIX_sem_wait(sem_t * const sem)
       ClearEvent(POSIXE);
    }
 
-   return 1;
+   return 0;
 }
 
 extern int8_t ciaaPOSIX_sem_post(sem_t * const sem)
@@ -119,7 +120,7 @@ extern int8_t ciaaPOSIX_sem_post(sem_t * const sem)
        * so this make generate conflicts, neither is we have a first come
        * first serve strategy regarding the sempahore :(. */
       for(taskID = 0; (TASKS_COUNT > taskID) && (false == found); taskID++) {
-         if (sem == ciaaPOSIX_semVar[taskID]){
+         if (sem == ciaaPOSIX_semVar[taskID]) {
             ciaaPOSIX_semVar[taskID] = NULL;
             found = true;
          }
@@ -135,7 +136,7 @@ extern int8_t ciaaPOSIX_sem_post(sem_t * const sem)
       SetEvent(taskID-1, POSIXE);
    }
 
-   return 1;
+   return 0;
 }
 
 /** @} doxygen end group definition */
