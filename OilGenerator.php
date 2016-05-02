@@ -318,6 +318,10 @@ class OilGenerator
 
       require_once($file);
 
+      if (! isset($this->helper)) {
+         $this->helper = new stdClass();
+      }
+
       $this->helper->$helperName = new $helperClassName($this->config,$this->definitions,$this->log);
    }
 

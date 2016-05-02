@@ -49,8 +49,9 @@
 /** \addtogroup Generator
  ** @{ */
 
+error_reporting(E_ALL);
 
-/*==================[inclusions]=============================================*/
+/*==================rinclusions]=============================================*/
 require_once("FileWriter.php");
 require_once("OilGenerator.php");
 
