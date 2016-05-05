@@ -221,7 +221,7 @@ class OilGenerator
 
       if (count($templateFiles)==0)
       {
-         $this->log->halt("at least one tempalte file shall be provided");
+         $this->log->halt("at least one template file shall be provided");
          exit(1);
       }
 

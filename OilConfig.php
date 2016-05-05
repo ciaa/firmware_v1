@@ -68,7 +68,9 @@ class OilConfig {
       $parser = new OilParser();
       $parser->loadFile($file);
       $parser->parse();
-      $this->config = $parser->getOil();
+      foreach ($parser->getOil() as $item) {
+          $this->config[] = $item;
+      }
    }
 
    function setConfig($config)
