@@ -164,6 +164,26 @@ class OilConfig {
 
    }
 
+   /* convert config priority to real osek priority */
+   function priority2osekPriority($tasks)
+   {
+      $priorities = array();
+      foreach ($tasks as $task)
+      {
+         $priorities[] = $this->getValue("/OSEK/" . $task, "PRIORITY");
+      }
+      $priorities = remove_doubles($priorities);
+
+      $priority = array();
+      foreach ($priorities as $count=>$prio)
+      {
+         $priority[$prio] = $count;
+      }
+      arsort($priority);
+      return $priority;
+   }
+
+
    function dump()
    {
       var_dump($this->config);

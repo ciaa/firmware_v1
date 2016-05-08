@@ -397,7 +397,7 @@ class OilGenerator
          {
             $outfile = $this->writer->open($file,$baseOutDir,$directorySeparator);
             $this->writer->start();
-            require_once($file);
+            $this->isolatedInclude($file);
             $this->writer->close();
             $runagain = $this->isMak($outfile, $runagain);
          }
@@ -414,6 +414,9 @@ class OilGenerator
          $this->log->info("a makefile was generated, generation process will be executed again");
          system("make generate");
       }
+   }
+   public function isolatedInclude($file) {
+      require_once($file);
    }
 }
 

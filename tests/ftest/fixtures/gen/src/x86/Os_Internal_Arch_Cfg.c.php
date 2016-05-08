@@ -62,6 +62,9 @@
 
 /*==================[external data definition]===============================*/
 <?php
+
+$tasks = $this->helper->multicore->getLocalList("/OSEK", "TASK");
+
 foreach ($tasks as $task)
 {
    print "/** \brief $task context */\n";

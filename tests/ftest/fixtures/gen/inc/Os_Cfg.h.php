@@ -131,6 +131,8 @@ foreach ($counters as $count=>$counter)
 }
 print "\n";
 
+$os = $this->config->getList("/OSEK","OS");
+
 $errorhook=$this->config->getValue("/OSEK/" . $os[0],"ERRORHOOK");
 if ($errorhook == "TRUE")
 {

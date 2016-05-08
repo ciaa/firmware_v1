@@ -82,6 +82,8 @@ foreach ($tasks as $task)
 }
 print "\n";
 
+$priority = $this->config->priority2osekPriority($tasks);
+
 /* Ready List */
 foreach ($priority as $prio)
 {
