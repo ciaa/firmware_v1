@@ -239,7 +239,7 @@ class OilGenerator
       return array($this->verbose, $definitions, $configFiles, $baseOutDir[0], $templateFiles,$directorySeparator[0], $helperFiles);
    }
 
-   public function checkFiles( $configFiles, $baseOutDir, $templateFiles, $helperFiles)
+   public function checkFilesOrExit( $configFiles, $baseOutDir, $templateFiles, $helperFiles)
    {
       $ok = true;
       foreach ($configFiles as $file)
@@ -274,7 +274,11 @@ class OilGenerator
             $ok = false;
          }
       }
-      return $ok;
+
+      if (! $ok) {
+         $this->log->halt("Missing files");
+         exit(1);
+      }
    }
 
    function isMak($outfile, $runagain)
@@ -297,7 +301,6 @@ class OilGenerator
       $this->writer = $writer;
       $this->log = new Log($writer);
       $this->writer->setLog($this->log);
-
    }
 
    public function getNames($file)
@@ -309,7 +312,6 @@ class OilGenerator
 
    public function loadHelper($file)
    {
-
       list($helperName,$helperClassName)=$this->getNames($file);
 
       $this->log->info("   loading helper    : $file");
@@ -325,28 +327,7 @@ class OilGenerator
       $this->helper->$helperName = new $helperClassName($this->config,$this->definitions,$this->log);
    }
 
-   public function run($args)
-   {
-
-      $path = dirname(array_shift($args));
-
-      list($verbose, $this->definitions, $configFiles, $baseOutDir, $templateFiles,$directorySeparator, $helperFiles)= $this->processArgs($args);
-
-      $this->log->setVerbose($verbose);
-      if ($verbose)
-      {
-         print "ciaaFirmware RTOS Generator - Copyright 2008, 2009, 2015 Mariano Cerdeiro\n";
-         print "                              Copyright 2014, ACSE & CADIEEL\n";
-         print "         ACSE : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/\n";
-         print "         CADIEEL: http://www.cadieel.org.ar\n";
-         print "         All rights reserved.\n\n";
-      }
-
-      if ( ! $this->checkFiles($configFiles, $baseOutDir , $templateFiles, $helperFiles) )
-      {
-         $this->log->halt("Missing files");
-         exit(1);
-      }
+   public function showFeedback($configFiles, $baseOutDir, $templateFiles, $helperFiles) {
       if ($this->verbose)
       {
          $this->log->info("list of configuration files:");
@@ -372,21 +353,40 @@ class OilGenerator
 
          $this->log->info("output directory: " . $baseOutDir);
       }
+   }
 
-      $this->config = new OilConfig();
-      $runagain = false;
+   public function showHeader($verbose)
+   {
+      if ($verbose)
+      {
+         print "ciaaFirmware RTOS Generator - Copyright 2008, 2009, 2015 Mariano Cerdeiro\n";
+         print "                              Copyright 2014, ACSE & CADIEEL\n";
+         print "         ACSE : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/\n";
+         print "         CADIEEL: http://www.cadieel.org.ar\n";
+         print "         All rights reserved.\n\n";
+      }
+   }
+
+   public function parseOilFiles($configFiles)
+   {
       foreach ($configFiles as $file)
       {
          $this->log->info("reading " . $file);
          $this->config->parseOilFile($file);
       }
+   }
 
+   public function loadHelpers($helperFiles)
+   {
       foreach ($helperFiles as $file)
       {
          $this->log->info("loading " . $file);
          $this->loadHelper($file);
       }
+   }
 
+   public function renderTemplates($templateFiles, $baseOutDir, $directorySeparator, $runagain)
+   {
       foreach ($templateFiles as $file)
       {
          if(!file_exists($file))
@@ -395,16 +395,42 @@ class OilGenerator
          }
          else
          {
-            $outfile = $this->writer->open($file,$baseOutDir,$directorySeparator);
+            $outfile = $this->writer->open($file, $baseOutDir, $directorySeparator);
             $this->writer->start();
             $clone = clone($this);
             $clone->isolatedInclude($file);
-
             $this->writer->close();
-
             $runagain = $this->isMak($outfile, $runagain);
          }
       }
+      return $runagain;
+   }
+
+   public function run($args)
+   {
+      $path = dirname(array_shift($args));
+
+      list($verbose, $this->definitions, $configFiles, $baseOutDir, $templateFiles,$directorySeparator, $helperFiles)= $this->processArgs($args);
+
+      $this->log->setVerbose($verbose);
+
+      $this->showHeader($verbose);
+
+      $this->checkFilesOrExit($configFiles, $baseOutDir , $templateFiles, $helperFiles);
+
+      $this->showFeedback($configFiles, $baseOutDir, $templateFiles, $helperFiles);
+
+      $this->config = new OilConfig();
+
+      $runagain = false;
+
+      $this->parseOilFiles($configFiles);
+
+      $this->loadHelpers($helperFiles);
+
+      //TODO. I (CFP) am sure that it should be $runagain = $runagain || ....
+
+      $runagain = $this->renderTemplates($templateFiles, $baseOutDir, $directorySeparator, $runagain);
 
       $this->log->info($this->log->getReport());
 
@@ -412,12 +438,14 @@ class OilGenerator
       {
          exit(1);
       }
+
       if($runagain == true)
       {
          $this->log->info("a makefile was generated, generation process will be executed again");
          system("make generate");
       }
    }
+
    public function isolatedInclude($file) {
       require_once($file);
    }
