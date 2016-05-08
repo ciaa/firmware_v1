@@ -1,4 +1,5 @@
 /* Copyright 2016, Mariano Cerdeiro
+ * Copyright 2016, Diego Ezequiel Vommaro 
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -61,7 +62,7 @@
  ** \param[in] toSleep counts to sleep the execution of the calling task.
  **
  **/
-void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
+static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
 
 /*==================[internal data definition]===============================*/
 uint32_t ciaaPOSIX_counter = 0;
@@ -70,7 +71,7 @@ int32_t ciaaPOSIX_sleeps[TASKS_COUNT] = {-1};
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
+static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
 {
    TaskType taskID;
 

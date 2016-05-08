@@ -59,6 +59,22 @@ TASK dummyTask {
     SCHEDULE = NON;
 }
 
+TASK dummyTask2 {
+    PRIORITY = 1;
+    ACTIVATION = 1;
+    STACK = 512;
+    TYPE = BASIC;
+    SCHEDULE = NON;
+}
+
+TASK dummyTask3 {
+    PRIORITY = 1;
+    ACTIVATION = 1;
+    STACK = 512;
+    TYPE = BASIC;
+    SCHEDULE = NON;
+}
+
 RESOURCE = POSIXR;
 
 EVENT = POSIXE;

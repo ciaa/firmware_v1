@@ -55,6 +55,16 @@
 /** \addtogroup FreeOSEK_Os_Global
  ** @{ */
 
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20150619 v0.1.4 MaCe fix issue #279
+ * 20090719 v0.1.3 MaCe rename file to Os_
+ * 20090424 v0.1.2 MaCe add counters defines
+ * 20090128 v0.1.1 MaCe add MEMMAP off configuration
+ * 20080810 v0.1.0 MaCe initial version
+ */
+
 /*==================[inclusions]=============================================*/
 
 /*==================[macros]=================================================*/
@@ -65,6 +75,10 @@
 
 /** \brief Task Definition */
 #define dummyTask 0
+/** \brief Task Definition */
+#define dummyTask2 1
+/** \brief Task Definition */
+#define dummyTask3 2
 
 
 /** \brief Definition of the Event POSIXE */
@@ -161,6 +175,10 @@ extern void ErrorHook(void);
 
 /** \brief Task Declaration of Task dummyTask */
 DeclareTask(dummyTask);
+/** \brief Task Declaration of Task dummyTask2 */
+DeclareTask(dummyTask2);
+/** \brief Task Declaration of Task dummyTask3 */
+DeclareTask(dummyTask3);
 
 
 
