@@ -397,8 +397,11 @@ class OilGenerator
          {
             $outfile = $this->writer->open($file,$baseOutDir,$directorySeparator);
             $this->writer->start();
-            $this->isolatedInclude($file);
+            $clone = clone($this);
+            $clone->isolatedInclude($file);
+
             $this->writer->close();
+
             $runagain = $this->isMak($outfile, $runagain);
          }
       }
