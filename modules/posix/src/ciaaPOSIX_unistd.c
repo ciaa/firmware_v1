@@ -54,13 +54,52 @@
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
+/** \brief ciaaPOSIX_sleepAlgorithm
+ **
+ ** Sleeps the calling application and reload the global counter if required
+ **
+ ** \param[in] toSleep counts to sleep the execution of the calling task.
+ **
+ **/
+void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
 
 /*==================[internal data definition]===============================*/
-uint32_t ciaaPOSIX_sleeps[TASKS_COUNT] = {0};
+uint32_t ciaaPOSIX_counter = 0;
+int32_t ciaaPOSIX_sleeps[TASKS_COUNT] = {-1};
 
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
+void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
+{
+   TaskType taskID;
+
+   if(ciaaPOSIX_counter)
+   {
+      if(toSleep < ciaaPOSIX_counter)
+      {
+         for(taskID = 0; TASKS_COUNT > taskID; taskID++)
+         {
+            if(ciaaPOSIX_sleeps[taskID] > -1)
+               ciaaPOSIX_sleeps[taskID] += (int32_t)(ciaaPOSIX_counter - toSleep);
+         }
+
+         ciaaPOSIX_counter = toSleep;
+      }
+   }
+   else
+   {
+      ciaaPOSIX_counter = toSleep;
+   }
+
+   GetTaskID(&taskID);
+
+   ciaaPOSIX_sleeps[taskID] = (int32_t)(toSleep - ciaaPOSIX_counter);
+
+   /* wait for the posix event */
+   WaitEvent(POSIXE);
+   ClearEvent(POSIXE);
+}
 
 /*==================[external functions definition]==========================*/
 extern uint32_t ciaaPOSIX_sleep(uint32_t seconds)
@@ -69,16 +108,13 @@ extern uint32_t ciaaPOSIX_sleep(uint32_t seconds)
    TaskType taskID;
 
    /* ensure that the seconds can be stored in 10ms counts */
-   ciaaPOSIX_assert(42949672U > seconds);
+   ciaaPOSIX_assert(21474836U > seconds);
 
+   /* store the sleep time in 10ms counts */
    toSleep = seconds * 100;
-   GetTaskID(&taskID);
 
-   ciaaPOSIX_sleeps[taskID] = toSleep;
-
-   /* wait for the posix event */
-   WaitEvent(POSIXE);
-   ClearEvent(POSIXE);
+   /* sleep time processing*/
+   ciaaPOSIX_sleepAlgorithm(toSleep);
 
    return 0;
 }
@@ -101,13 +137,8 @@ extern int32_t ciaaPOSIX_usleep(useconds_t useconds)
       toSleep = (useconds + (CIAAPOSIX_MAINFUNCTION_PERIODUS-1))
          / CIAAPOSIX_MAINFUNCTION_PERIODUS;
 
-      GetTaskID(&taskID);
-
-      ciaaPOSIX_sleeps[taskID] = toSleep;
-
-      /* wait for the posix event */
-      WaitEvent(POSIXE);
-      ClearEvent(POSIXE);
+      /* sleep time processing */
+      ciaaPOSIX_sleepAlgorithm(toSleep);
    }
 
    return ret;
@@ -117,23 +148,47 @@ extern void ciaaPOSIX_sleepMainFunction(void)
 {
    uint32_t taskID;
 
-   /* TODO the implementation is not high performance, :( every
-    * time it will be checked for each task if the delay has expire
-    * inlusive if no task has call sleep... :( */
-   for(taskID = 0; TASKS_COUNT > taskID; taskID++) {
-      if (0 < ciaaPOSIX_sleeps[taskID])
+   if(0 < ciaaPOSIX_counter)
+   {
+      if(CIAAPOSIX_MAINFUNCTION_PERIODMS < ciaaPOSIX_counter)
       {
-         if (CIAAPOSIX_MAINFUNCTION_PERIODMS < ciaaPOSIX_sleeps[taskID])
+         ciaaPOSIX_counter -= CIAAPOSIX_MAINFUNCTION_PERIODMS;
+      }
+      else
+      {
+         ciaaPOSIX_counter = 2147483600U;
+
+         for(taskID = 0; TASKS_COUNT > taskID; taskID++)
          {
-            ciaaPOSIX_sleeps[taskID] -= CIAAPOSIX_MAINFUNCTION_PERIODMS;
+            if (0 == ciaaPOSIX_sleeps[taskID])
+            {
+               ciaaPOSIX_sleeps[taskID] = -1;
+               SetEvent(taskID, POSIXE);
+            }
+            else if(0 < ciaaPOSIX_sleeps[taskID])
+            {
+               if(ciaaPOSIX_counter > ciaaPOSIX_sleeps[taskID])
+                  ciaaPOSIX_counter = ciaaPOSIX_sleeps[taskID];
+            }
+         }
+         if (2147483600U == ciaaPOSIX_counter)
+         {
+            ciaaPOSIX_counter = 0;
          }
          else
          {
-            ciaaPOSIX_sleeps[taskID] = 0;
-            SetEvent(taskID, POSIXE);
+            for(taskID = 0; TASKS_COUNT > taskID; taskID++)
+            {
+               if(0 < ciaaPOSIX_sleeps[taskID])
+               {
+                  ciaaPOSIX_sleeps[taskID] -= ciaaPOSIX_counter;
+               }
+            }
          }
+
       }
    }
+
 } /* end of ciaaPOSIX_sleepMainFunction */
 
 /** @} doxygen end group definition */
