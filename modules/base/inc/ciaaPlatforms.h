@@ -85,6 +85,7 @@ extern "C" {
 /** \brief ARCH msp430 */
 #define msp430                5
 
+
 /****** CPUTYPE macro definitions ******/
 /*** CPUTYPES for ARCH=x86 ***/
 /** \brief CPUTTYPE ia32 */
@@ -103,8 +104,7 @@ extern "C" {
 #define pic32                 1
 
 /*** CPUTYPES for ARCH=msp430 ***/
-#define msp430g2x             1
-#define msp430f5x_6x          2
+#define msp430f5x_6x          1
 
 /****** CPU macro definitions ******/
 /*** CPU for ARCH=x86 CPUTYPE=ia32 ***/
@@ -120,11 +120,8 @@ extern "C" {
 /*** CPU for ARCH=mips CPUTYPE=pic32 ***/
 #define pic32mz               3
 
-/*** CPU for ARCH=msp430 CPUTYPE=msp430g2x_ ***/
-#define msp430g2231    	      4
-
 /*** CPU for ARCH=msp430 CPUTYPE=msp430f5x_6x ***/
-#define msp430f5529           5
+#define msp430f5529           4
 
 /****** BOARDS macro definitions ******/
 /*** BOARD for ARCH=x86 CPUTYPE=ia32 ***/

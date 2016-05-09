@@ -530,7 +530,7 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo ===============================================================================
 	@echo Generate OIL File $(ETC_DIR)$(DS)$(notdir $@) from $^
 	@echo ' '
-	$(CC) -E -x c++ -Imodules$(DS)base$(DS)inc -DBOARD=$(BOARD) -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) $^ | grep -v "^#.*" > $(ETC_DIR)$(DS)$(notdir $@)
+	$(CC) -E -x c++ -Imodules$(DS)base$(DS)inc -DBOARD=$(BOARD) -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) $^ | grep -v "^#.*"  > $(ETC_DIR)$(DS)$(notdir $@)
 
 ###############################################################################
 
@@ -595,7 +595,7 @@ $(PROJECT_NAME) : $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Post Building $(PROJECT_NAME)
-
+	@echo ' '
 	$(POST_BUILD)
 
 ###############################################################################
@@ -672,7 +672,7 @@ ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
 else
 ifeq ($(ARCH),msp430)
-	@echo ERROR: MSP430 do not support OpenOCD, use mspdebug instead.
+	@echo ERROR: MSP430 does not support OpenOCD, use mspdebug instead.
 else
 # if CPU is not entered shows an error
 ifeq ($(CPU),)

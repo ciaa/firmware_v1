@@ -425,7 +425,7 @@ void GPIO_clearInterrupt(uint8_t selectedPort,
     uint16_t baseAddress = GPIO_PORT_TO_BASE[selectedPort];
 
     #ifndef NDEBUG
-    if(baseAddress == 0xFFFF)
+    if(baseAddress == 0xFFFF)º
     {
         return;
     }

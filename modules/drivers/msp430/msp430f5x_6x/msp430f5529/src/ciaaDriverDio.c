@@ -55,7 +55,7 @@
 
 /*==================[macros and definitions]=================================*/
 
- 
+
 /** \brief Managed input count */
 #define ciaaDriverDio_InputCount (sizeof(ciaaDriverDio_Inputs) / sizeof(ciaaDriverDio_dioType))
 
@@ -63,7 +63,7 @@
 #define ciaaDriverDio_OutputCount (sizeof(ciaaDriverDio_Outputs) / sizeof(ciaaDriverDio_dioType))
 
 /** \brief Pointer to Devices */
-typedef struct  
+typedef struct
 {
    ciaaDevices_deviceType * const * const devices;
    uint8_t countOfDevices;
@@ -114,13 +114,13 @@ static ciaaDevices_deviceType ciaaDriverDio_out0 = {
    NULL                            /** <= NULL no lower layer */
 };
 
-static ciaaDevices_deviceType * const ciaaDioDevices[] = 
+static ciaaDevices_deviceType * const ciaaDioDevices[] =
 {
    &ciaaDriverDio_in0,
    &ciaaDriverDio_out0
 };
 
-static ciaaDriverConstType const ciaaDriverDioConst = 
+static ciaaDriverConstType const ciaaDriverDioConst =
 {
    ciaaDioDevices,
    2
@@ -137,7 +137,7 @@ static void ciaa_msp430f5529_gpio_init(void)
  unsigned short i;
 #if( msp_exp430f5529 == BOARD )
 	for(i=0;i<ciaaDriverDio_InputCount;i++)
-	{ 
+	{
 		GPIO_setAsInputPin(ciaaDriverDio_Inputs[i].port, 1<<ciaaDriverDio_Inputs[i].pin );		//como entrada
 	}
 
@@ -159,15 +159,15 @@ static void ciaa_msp430f5529_gpio_init(void)
 static void ciaa_msp430f5529_writeOutput(uint8_t outputNumber, uint8_t value)
 {
 	if (outputNumber < ciaaDriverDio_OutputCount)
-	{ 
+	{
 		if( value!=0)
 		{
-		GPIO_setOutputLowOnPin(ciaaDriverDio_Outputs[outputNumber].port,1<<ciaaDriverDio_Outputs[outputNumber].pin) ; 
+		GPIO_setOutputLowOnPin(ciaaDriverDio_Outputs[outputNumber].port,1<<ciaaDriverDio_Outputs[outputNumber].pin) ;
 		}
 		else
 		{
-		GPIO_setOutputHighOnPin(ciaaDriverDio_Outputs[outputNumber].port,1<<ciaaDriverDio_Outputs[outputNumber].pin) ; 
-		}     
+		GPIO_setOutputHighOnPin(ciaaDriverDio_Outputs[outputNumber].port,1<<ciaaDriverDio_Outputs[outputNumber].pin) ;
+		}
 	}
 }
 
@@ -211,7 +211,7 @@ static int8_t ciaa_msp430f5529_readOutput(uint8_t outputNumber)
  *  \param[in] readFunction function used to read pins (normally ciaa_msp430f5529_readOutput or ciaa_msp430f5529_readInput)
  *  \return number bytes required in buffer to store bits
  */
-static int32_t ciaa_msp430f5529_readPins(int32_t pinCount, uint8_t * buffer, size_t size, int32_t (*readFunction)(uint32_t))
+static int32_t ciaa_msp430f5529_readPins(int32_t pinCount, uint8_t * buffer, size_t size, int8_t (*readFunction)(uint8_t))
 {
    int32_t count, i, j;
 
@@ -331,7 +331,7 @@ void ciaaDriverDio_init(void)
    ciaa_msp430f5529_gpio_init();
 
    /* add dio driver to the list of devices */
-   for(loopi = 0; loopi < ciaaDriverDioConst.countOfDevices; loopi++) 
+   for(loopi = 0; loopi < ciaaDriverDioConst.countOfDevices; loopi++)
 {
       /* add each device */
       ciaaDioDevices_addDriver(ciaaDriverDioConst.devices[loopi]);

@@ -62,7 +62,7 @@ MODS ?= modules$(DS)posix           \
 
 
 #system configurations
-#-include Makefile.sys
+
 
 # configuration for the system
 CFLAGS += -D CIAA_HEAP_MEM_SIZE=200
