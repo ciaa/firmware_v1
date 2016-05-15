@@ -1,8 +1,6 @@
 ###############################################################################
 #
-# Copyright 2014, Mariano Cerdeiro
-# Copyright 2014, 2015, Juan Cecconi (UTN-FRBA)
-# Copyright 2014, ACSE & CADIEEL
+# Copyright 2016, Gerardo Puga
 #    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
 #    CADIEEL: http://www.cadieel.org.ar
 #
