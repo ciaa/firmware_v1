@@ -122,20 +122,6 @@ class Log
 
    }
 
-   /** \brief Abort Generator Function
-   **
-   ** This function shall be used to report an error and abort the generation.
-   ** Don't use this function to report information or warnings.
-   **
-   ** \param[in] msg string containing the error message to be reported.
-   **/
-   function halt($msg)
-   {
-      $this->writer->pause();
-      $this->error($msg);
-      $this->writer->close();
-   }
-
    public function getReport()
    {
       return "Generation Finished with WARNINGS: " .$this->warnings . " and ERRORS: " . $this->errors;

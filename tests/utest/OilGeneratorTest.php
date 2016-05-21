@@ -98,6 +98,57 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
       );
    }
 
+   public function testProcessArgs_Ok()
+   {
+      $og = new OilGenerator(new StdoutWriter());
+      $og->processArgs(array('-c','mock.oil','-o','mockdir','-t','mocktemplate'));
+
+   }
+
+  /**
+   * @expectedException OilGeneratorException
+   */
+   public function testProcessArgs_missing_config()
+   {
+      $og = new OilGenerator(new StdoutWriter());
+      $og->processArgs(array('-o','mockdir','-t','mocktemplate'));
+   }
+
+  /**
+   * @expectedException OilGeneratorException
+   */
+   public function testProcessArgs_missing_config_value()
+   {
+      $og = new OilGenerator(new StdoutWriter());
+      $og->processArgs(array('-c','-o','mockdir','-t','mocktemplate'));
+   }
+
+   /**
+   * @expectedException OilGeneratorException
+   */
+   public function testProcessArgs_missing_output_dir()
+   {
+      $og = new OilGenerator(new StdoutWriter());
+      $og->processArgs(array('-c','mock.oil','-t','mocktemplate'));
+   }
+
+   /**
+   * @expectedException OilGeneratorException
+   */
+   public function testProcessArgs_missing_helper_value()
+   {
+      $og = new OilGenerator(new StdoutWriter());
+      $og->processArgs(array('-c','mock.oil','-o','mockdir','-H', '-t','mocktemplate'));
+   }
+
+   /**
+   * @expectedException OilGeneratorException
+   */
+   public function testProcessArgs_missing_template()
+   {
+      $og = new OilGenerator(new StdoutWriter());
+      $og->processArgs(array('-c','mock.oil','-o','mockdir','-t'));
+   }
 }
 
 /** @} doxygen end group definition */

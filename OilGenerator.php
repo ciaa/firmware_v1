@@ -52,6 +52,7 @@
 /*==================[inclusions]=============================================*/
 require_once("OilConfig.php");
 require_once("Log.php");
+require_once("OilGeneratorException.php");
 /*=================[user functions]============================================*/
 
 class OilGenerator
@@ -73,11 +74,6 @@ class OilGenerator
       return false;
 
    }
-
-   /*=================[end of user functions]=====================================*/
-
-   /*=================[global variables]==========================================*/
-
 
    function printCmdLine()
    {
@@ -140,6 +136,7 @@ class OilGenerator
       $templateFiles=array();
       $directorySeparator=array();
       $helperFiles=array();
+      $atLeastOneHelper = false;
 
       foreach ($args as $arg)
       {
@@ -159,11 +156,12 @@ class OilGenerator
          case "-v":
             $this->verbose = true;
             break;
+         case "-H":
+            $atLeastOneHelper = true;
          case "-c":
          case "-o":
          case "-t":
          case "-b":
-         case "-H":
             $oldarg = $arg;
             break;
          default:
@@ -190,7 +188,7 @@ class OilGenerator
                   $baseOutDir[]= $arg;
                   break;
                case "-t":
-                  /* add generated file */
+                  /* add template file */
                   $templateFiles[] = $arg;
                   break;
                case "-b":
@@ -198,8 +196,7 @@ class OilGenerator
                   $directorySeparator[] = $arg;
                   break;
                default:
-                  $this->log->halt("invalid argument: " . $arg);
-                  exit(1);
+                  throw new OilGeneratorException('invalid argument: '. $arg, 1);
                   break;
                }
             }
@@ -207,28 +204,29 @@ class OilGenerator
          }
       }
 
+      if ($atLeastOneHelper && count($helperFiles) == 0)
+      {
+         throw new OilGeneratorException('at least one helper file shall be provided', 8);
+      }
+
       if (count($configFiles)==0)
       {
-         $this->log->halt("at least one config file shall be provided");
-         exit(1);
+         throw new OilGeneratorException('at least one config file shall be provided', 2);
       }
 
       if (count($baseOutDir)!=1)
       {
-         $this->log->halt("exactly one output directory shall be provided");
-         exit(1);
+         throw new OilGeneratorException('exactly one output directory shall be provided', 3);
       }
 
       if (count($templateFiles)==0)
       {
-         $this->log->halt("at least one template file shall be provided");
-         exit(1);
+         throw new OilGeneratorException('at least one template file shall be provided', 4);
       }
 
       if (count($directorySeparator)>1)
       {
-         $this->log->halt("no more than one path delimiter shall be provided");
-         exit(1);
+         throw new OilGeneratorException('no more than one path delimiter shall be provided', 5);
       }
 
       if (count($directorySeparator == 0 ))
@@ -276,8 +274,7 @@ class OilGenerator
       }
 
       if (! $ok) {
-         $this->log->halt("Missing files");
-         exit(1);
+         throw new OilGeneratorException('Missing files', 6);
       }
    }
 
@@ -408,41 +405,46 @@ class OilGenerator
 
    public function run($args)
    {
-      $path = dirname(array_shift($args));
+      try {
+         $path = dirname(array_shift($args));
 
-      list($verbose, $this->definitions, $configFiles, $baseOutDir, $templateFiles,$directorySeparator, $helperFiles)= $this->processArgs($args);
+         list($verbose, $this->definitions, $configFiles, $baseOutDir, $templateFiles,$directorySeparator, $helperFiles)= $this->processArgs($args);
 
-      $this->log->setVerbose($verbose);
+         $this->log->setVerbose($verbose);
 
-      $this->showHeader($verbose);
+         $this->showHeader($verbose);
 
-      $this->checkFilesOrExit($configFiles, $baseOutDir , $templateFiles, $helperFiles);
+         $this->checkFilesOrExit($configFiles, $baseOutDir , $templateFiles, $helperFiles);
 
-      $this->showFeedback($configFiles, $baseOutDir, $templateFiles, $helperFiles);
+         $this->showFeedback($configFiles, $baseOutDir, $templateFiles, $helperFiles);
 
-      $this->config = new OilConfig();
+         $this->config = new OilConfig();
 
-      $runagain = false;
+         $runagain = false;
 
-      $this->parseOilFiles($configFiles);
+         $this->parseOilFiles($configFiles);
 
-      $this->loadHelpers($helperFiles);
+         $this->loadHelpers($helperFiles);
 
-      //TODO. I (CFP) am sure that it should be $runagain = $runagain || ....
+         //TODO. I (CFP) am sure that it should be $runagain = $runagain || ....
 
-      $runagain = $this->renderTemplates($templateFiles, $baseOutDir, $directorySeparator, $runagain);
+         $runagain = $this->renderTemplates($templateFiles, $baseOutDir, $directorySeparator, $runagain);
 
-      $this->log->info($this->log->getReport());
+         $this->log->info($this->log->getReport());
 
-      if ($this->log->getErrors() > 0)
-      {
-         exit(1);
-      }
+         if ($this->log->getErrors() > 0)
+         {
+            throw new OilGeneratorException('please report this error', 7);
+         }
 
-      if($runagain == true)
-      {
-         $this->log->info("a makefile was generated, generation process will be executed again");
-         system("make generate");
+         if($runagain == true)
+         {
+            $this->log->info("a makefile was generated, generation process will be executed again");
+            system("make generate");
+         }
+      } catch (OilGeneratorException $e) {
+         $this->log->error($e->getMessage());
+         exit($e->getCode());
       }
    }
 
