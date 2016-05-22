@@ -1,5 +1,5 @@
 <?php
- /* Copyright 2015, Carlos Pantelides
+ /* Copyright 2016, Carlos Pantelides
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -27,16 +27,18 @@
  * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
  * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ :* ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
 
+require_once('OutputWriter.php');
+
 /** \brief FreeOSEK Generator
  **
- ** This file implements a File Writer utility
+ ** This file implements a Writer utility
  **
- ** \file FileWriter.php
+ ** \file NullWriter.php
  **
  **/
 
@@ -44,60 +46,23 @@
  ** @{ */
 /** \addtogroup Generator
  ** @{ */
-require_once("OutputWriter.php");
-
-class FileWriter extends OutputWriter
+class NullWriter extends OutputWriter
 {
+   public function close() {}
 
-   private $ob_file;
+   public function ob_file_callback($buffer) {}
 
-   public function printMsg($msg)
-   {
-      print $msg;
-   }
+   public function flush() {}
 
-   public function outputFileName($file,$baseOutDir,$directorySeparator)
-   {
-      $outfile = substr($file, 0, strlen($file)-4);
-      $outfile = substr($outfile, strpos($outfile, $directorySeparator)+strlen($directorySeparator) -1);
-      $outfile = $baseOutDir . $outfile;
-      return $outfile;
-   }
+   public function start() {}
 
-   public function open($file,$baseOutDir,$directorySeparator)
-   {
-      $outfile = $this->outputFileName($file,$baseOutDir,$directorySeparator);
+   public function pause() {}
 
-      $this->log->info("buffering ". $file . " to " . $outfile);
+   public function resume() {}
 
-      if(!file_exists(dirname($outfile)))
-      {
-         mkdir(dirname($outfile), 0777, TRUE);
-      }
-      if(file_exists($outfile))
-      {
-         $exists = true;
-         if(file_exists($outfile . ".old"))
-         {
-            unlink($outfile . ".old");
-         }
-         rename($outfile, $outfile . ".old");
-      }
-      $this->ob_file = fopen($outfile, "w");
-      return $outfile;
-   }
+   public function setLog($log) {}
 
-   public function close()
-   {
-      $this->buffering=false;
-      $this->flush();
-      fclose($this->ob_file);
-   }
-
-   public function ob_file_callback($buffer)
-   {
-      fwrite($this->ob_file,$buffer);
-   }
+   public function printMsg($msg) {}
 }
 
 /** @} doxygen end group definition */

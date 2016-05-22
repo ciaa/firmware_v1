@@ -47,8 +47,9 @@
 
 /*==================[inclusions]=============================================*/
 require_once(dirname(__FILE__) . '/../../OilGenerator.php');
-require_once(dirname(__FILE__) . '/../../StdoutWriter.php');
+require_once(dirname(__FILE__) . '/../../NullWriter.php');
 require_once(dirname(__FILE__) . '/../../FileWriter.php');
+require_once(dirname(__FILE__) . '/../../NullWriter.php');
 
 /*==================[class definition]=======================================*/
 /** \brief Oil Generator Test Class Implementation
@@ -74,7 +75,7 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
    {
       $f1=dirname(__FILE__). "/fixtures/$f1";
       $f2=dirname(__FILE__). "/fixtures/$f2";
-      $writer = new StdoutWriter();
+      $writer = new NullWriter();
       $generator = new OilGenerator($writer);
       $this->assertEquals($expected, $generator->compareFiles($f1,$f2), $msg);
 
@@ -91,7 +92,7 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
 
    public function testGetNames()
    {
-      $generator = new OilGenerator(new StdoutWriter());
+      $generator = new OilGenerator(new NullWriter());
       $this->assertEquals(
          array("dummyHelper","DummyHelper"),
          $generator->getNames('modules/rtos/generator/tests/ftest/fixtures/gen/DummyHelper.php')
@@ -100,26 +101,40 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
 
    public function testProcessArgs_Ok()
    {
-      $og = new OilGenerator(new StdoutWriter());
+      $og = new OilGenerator(new NullWriter());
       $og->processArgs(array('-c','mock.oil','-o','mockdir','-t','mocktemplate'));
-
    }
 
-  /**
+   public function testProcessArgs_MultiOk()
+   {
+      $og = new OilGenerator(new NullWriter());
+      $og->processArgs(array('-c','mock.oil','mock2.oil','-o','mockdir','-t','mocktemplate','mocktemplate2'));
+   }
+
+   /**
+   * @expectedException OilGeneratorException
+   */
+   public function testProcessArgs_bad_multi_dir()
+   {
+      $og = new OilGenerator(new NullWriter());
+      $og->processArgs(array('-c','mock.oil','-o','mockdir','mockdir2','-t','mocktemplate'));
+   }
+
+   /**
    * @expectedException OilGeneratorException
    */
    public function testProcessArgs_missing_config()
    {
-      $og = new OilGenerator(new StdoutWriter());
+      $og = new OilGenerator(new NullWriter());
       $og->processArgs(array('-o','mockdir','-t','mocktemplate'));
    }
 
-  /**
+   /**
    * @expectedException OilGeneratorException
    */
    public function testProcessArgs_missing_config_value()
    {
-      $og = new OilGenerator(new StdoutWriter());
+      $og = new OilGenerator(new NullWriter());
       $og->processArgs(array('-c','-o','mockdir','-t','mocktemplate'));
    }
 
@@ -128,7 +143,7 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
    */
    public function testProcessArgs_missing_output_dir()
    {
-      $og = new OilGenerator(new StdoutWriter());
+      $og = new OilGenerator(new NullWriter());
       $og->processArgs(array('-c','mock.oil','-t','mocktemplate'));
    }
 
@@ -137,7 +152,7 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
    */
    public function testProcessArgs_missing_helper_value()
    {
-      $og = new OilGenerator(new StdoutWriter());
+      $og = new OilGenerator(new NullWriter());
       $og->processArgs(array('-c','mock.oil','-o','mockdir','-H', '-t','mocktemplate'));
    }
 
@@ -146,9 +161,102 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
    */
    public function testProcessArgs_missing_template()
    {
-      $og = new OilGenerator(new StdoutWriter());
+      $og = new OilGenerator(new NullWriter());
       $og->processArgs(array('-c','mock.oil','-o','mockdir','-t'));
    }
+
+   /**
+   * expectedException OilGeneratorException
+   */
+   public function testCheckFileOrFail_ok()
+   {
+      $og = new OilGenerator(new NullWriter());
+      $dir = dirname(__FILE__). '/../../../../../out';
+      $file = dirname(__FILE__). '/fixtures/fileA.txt';
+
+      $configFiles = array($file);
+      $baseOutDir = $dir;
+      $templateFiles =  array($file);
+      $helperFiles = array($file);
+
+      $og->checkFilesOrFail($configFiles, $baseOutDir, $templateFiles, $helperFiles);
+   }
+
+   /**
+   * @expectedException OilGeneratorException
+   */
+   public function testCheckFileOrFail_bad_config()
+   {
+      $og = new OilGenerator(new NullWriter());
+      $dir = dirname(__FILE__). '/../../../../../out';
+      $file = dirname(__FILE__). '/fixtures/fileA.txt';
+      $fileNoExists = dirname(__FILE__). '/fixtures/noExists';
+
+      $configFiles = array($fileNoExists);
+      $baseOutDir = $dir;
+      $templateFiles =  array($file);
+      $helperFiles = array($file);
+
+      $og->checkFilesOrFail($configFiles, $baseOutDir, $templateFiles, $helperFiles);
+   }
+
+   /**
+   * @expectedException OilGeneratorException
+   */
+   public function testCheckFileOrFail_bad_outdir()
+   {
+      $og = new OilGenerator(new NullWriter());
+      $dir = dirname(__FILE__). '/../../../../../out';
+      $file = dirname(__FILE__). '/fixtures/fileA.txt';
+      $dirNoExists = dirname(__FILE__). '/../../../../../noout';
+
+      $configFiles = array($file);
+      $baseOutDir = $dirNoExists;
+      $templateFiles =  array($file);
+      $helperFiles = array($file);
+
+      $og->checkFilesOrFail($configFiles, $baseOutDir, $templateFiles, $helperFiles);
+   }
+
+   /**
+   * @expectedException OilGeneratorException
+   */
+   public function testCheckFileOrFail_bad_template()
+   {
+      $og = new OilGenerator(new NullWriter());
+      $dir = dirname(__FILE__). '/../../../../../out';
+      $file = dirname(__FILE__). '/fixtures/fileA.txt';
+      $fileNoExists = dirname(__FILE__). '/fixtures/noExists';
+
+      $configFiles = array($file);
+      $baseOutDir = $dir;
+      $templateFiles =  array($fileNoExists);
+      $helperFiles = array($file);
+
+      $og->checkFilesOrFail($configFiles, $baseOutDir, $templateFiles, $helperFiles);
+   }
+
+   /**
+   * @expectedException OilGeneratorException
+   */
+   public function testCheckFileOrFail_bad_helper()
+   {
+      $og = new OilGenerator(new NullWriter());
+      $dir = dirname(__FILE__). '/../../../../../out';
+      $file = dirname(__FILE__). '/fixtures/fileA.txt';
+      $fileNoExists = dirname(__FILE__). '/fixtures/noExists';
+
+      $configFiles = array($file);
+      $baseOutDir = $dir;
+      $templateFiles =  array($file);
+      $helperFiles = array($fileNoExists);
+
+      $og->checkFilesOrFail($configFiles, $baseOutDir, $templateFiles, $helperFiles);
+   }
+
+
+
+
 }
 
 /** @} doxygen end group definition */

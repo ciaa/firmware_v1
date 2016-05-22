@@ -75,6 +75,7 @@ class OilGenerator
 
    }
 
+   // TODO: evaluate using $this->writer->printMsg()
    function printCmdLine()
    {
       print "INFO: the generator was called as follow:\nINFO: ";
@@ -85,6 +86,7 @@ class OilGenerator
       print "\n";
    }
 
+   // TODO: evaluate using $this->writer->printMsg()
    function printInfo()
    {
       print "INFO: ------ LICENSE START ------\n";
@@ -113,6 +115,7 @@ class OilGenerator
       print "INFO: ------- LICENSE END -------\n";
    }
 
+   // TODO: evaluate using $this->writer->printMsg()
    function printHelp()
    {
       print "php generator.php [-l] [-h] [--cmdline] [-b PATH ] [-Ddef[=definition]] -c <CONFIG_1> [<CONFIG_N>] -o <OUTPUTDIR> -t <TEMPLATE_1> [<TEMPLATE_N>] [ -H <HELPER_1> [HELPER_N]]>\n";
@@ -237,7 +240,7 @@ class OilGenerator
       return array($this->verbose, $definitions, $configFiles, $baseOutDir[0], $templateFiles,$directorySeparator[0], $helperFiles);
    }
 
-   public function checkFilesOrExit( $configFiles, $baseOutDir, $templateFiles, $helperFiles)
+   public function checkFilesOrFail( $configFiles, $baseOutDir, $templateFiles, $helperFiles)
    {
       $ok = true;
       foreach ($configFiles as $file)
@@ -352,6 +355,7 @@ class OilGenerator
       }
    }
 
+   // TODO: evaluate using $this->writer->printMsg()
    public function showHeader($verbose)
    {
       if ($verbose)
@@ -414,7 +418,7 @@ class OilGenerator
 
          $this->showHeader($verbose);
 
-         $this->checkFilesOrExit($configFiles, $baseOutDir , $templateFiles, $helperFiles);
+         $this->checkFilesOrFail($configFiles, $baseOutDir , $templateFiles, $helperFiles);
 
          $this->showFeedback($configFiles, $baseOutDir, $templateFiles, $helperFiles);
 

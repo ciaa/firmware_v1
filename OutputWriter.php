@@ -56,6 +56,8 @@ abstract class OutputWriter
 
    abstract function ob_file_callback($buffer);
 
+   abstract function printMsg($msg);
+
    public function flush()
    {
       if (! $this->flushed)

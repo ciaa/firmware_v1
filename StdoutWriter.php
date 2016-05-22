@@ -34,9 +34,9 @@
 
 /** \brief FreeOSEK Generator
  **
- ** This file implements a File Writer utility
+ ** This file implements a Stdout Writer utility
  **
- ** \file FileWriter.php
+ ** \file StdoutWriter.php
  **
  **/
 
@@ -66,6 +66,10 @@ class StdoutWriter extends OutputWriter
       print $buffer;
    }
 
+   public function printMsg($msg)
+   {
+      print $msg;
+   }
 }
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

@@ -79,7 +79,7 @@ class Log
 
       if ($this->verbose)
       {
-         print "INFO: " . $msg . "\n";
+         $this->writer->printMsg("INFO: " . $msg . "\n");
       }
       $this->writer->resume();
 
@@ -95,8 +95,7 @@ class Log
    function warning($msg)
    {
       $this->writer->pause();
-
-      print "WARNING: " . $msg . "\n";
+      $this->writer->printMsg("WARNING: " . $msg . "\n");
       $this->warnings++;
       $this->writer->resume();
 
@@ -115,8 +114,7 @@ class Log
    function error($msg)
    {
       $this->writer->pause();
-
-      print "ERROR: " . $msg . "\n";
+      $this->writer->printMsg("ERROR: " . $msg . "\n");
       $this->errors++;
       $this->writer->resume();
 
