@@ -253,7 +253,7 @@ class OilGenerator
       {
          if(!file_exists($file))
          {
-            $this->log->error("Template $file does not exists");
+            $this->log->error("Template $file does not exist");
             $ok = false;
          }
       }
@@ -268,7 +268,7 @@ class OilGenerator
       {
          if(!file_exists($file))
          {
-            $this->log->error("Helper $file does not exists");
+            $this->log->error("Helper $file does not exist");
             $ok = false;
          }
       }
@@ -311,17 +311,41 @@ class OilGenerator
    {
       list($helperName,$helperClassName)=$this->getNames($file);
 
-      $this->log->info("   loading helper    : $file");
+      $this->log->info("   helper file       : $file");
       $this->log->info("   helper name       : $helperName");
       $this->log->info("   helper class name : $helperClassName");
 
-      require_once($file);
+      if ( class_exists($helperClassName))
+      {
+         $this->log->warning("   class '$helperClassName' already exists, not loading again");
+      }
+      else
+      {
+         $this->log->info("   loading...");
 
+         if (! @include_once($file) ) 
+         {
+            throw new OilGeneratorException("Helper '$file' not found", 9);
+         }
+       
+         if (! class_exists($helperClassName))
+         {
+            throw new OilGeneratorException("Helper '$file' does not define class '$helperClassName'", 11);
+         }
+
+         if ( ! is_subclass_of($helperClassName, 'Helper'))
+         {
+            throw new OilGeneratorException("Helper '$file'  define a class '$helperClassName' that does not extend class Helper", 122);
+
+         }
+      }
       if (! isset($this->helper)) {
          $this->helper = new stdClass();
       }
-
-      $this->helper->$helperName = new $helperClassName($this->config,$this->definitions,$this->log);
+      if (! isset($this->helper->$helperName))
+      {
+         $this->helper->$helperName = new $helperClassName($this->config,$this->definitions,$this->log);
+      }
    }
 
    public function showFeedback($configFiles, $baseOutDir, $templateFiles, $helperFiles) {
@@ -388,7 +412,7 @@ class OilGenerator
       {
          if(!file_exists($file))
          {
-            $this->log->error("Template $file does not exists");
+            $this->log->error("Template $file does not exist");
          }
          else
          {
