@@ -75,60 +75,57 @@ class OilGenerator
 
    }
 
-   // TODO: evaluate using $this->writer->printMsg()
    function printCmdLine()
    {
-      print "INFO: the generator was called as follow:\nINFO: ";
+      $this->writer->printMsg("INFO: the generator was called as follow:\nINFO: ");
       foreach ($_SERVER['argv'] as $arg)
       {
-         print "$arg ";
+         $this->writer->printMsg( "$arg ");
       }
-      print "\n";
+      $this->writer->printMsg( "\n");
    }
 
-   // TODO: evaluate using $this->writer->printMsg()
    function printInfo()
    {
-      print "INFO: ------ LICENSE START ------\n";
-      print "INFO: This file is part of CIAA Firmware.\n";
-      print "INFO: Redistribution and use in source and binary forms, with or without\n";
-      print "INFO: modification, are permitted provided that the following conditions are met:\n";
-      print "INFO: 1. Redistributions of source code must retain the above copyright notice,\n";
-      print "INFO: this list of conditions and the following disclaimer.\n";
-      print "INFO: 2. Redistributions in binary form must reproduce the above copyright notice,\n";
-      print "INFO: this list of conditions and the following disclaimer in the documentation\n";
-      print "INFO: and/or other materials provided with the distribution.\n";
-      print "INFO: 3. Neither the name of the copyright holder nor the names of its\n";
-      print "INFO: contributors may be used to endorse or promote products derived from this\n";
-      print "INFO: software without specific prior written permission.\n";
-      print "INFO: THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\n";
-      print "INFO: AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n";
-      print "INFO: IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE\n";
-      print "INFO: ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE\n";
-      print "INFO: LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\n";
-      print "INFO: CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF\n";
-      print "INFO: SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS\n";
-      print "INFO: INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN\n";
-      print "INFO: CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n";
-      print "INFO: ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n";
-      print "INFO: POSSIBILITY OF SUCH DAMAGE.\n";
-      print "INFO: ------- LICENSE END -------\n";
+      $this->writer->printMsg( "INFO: ------ LICENSE START ------\n");
+      $this->writer->printMsg( "INFO: This file is part of CIAA Firmware.\n");
+      $this->writer->printMsg( "INFO: Redistribution and use in source and binary forms, with or without\n");
+      $this->writer->printMsg( "INFO: modification, are permitted provided that the following conditions are met:\n");
+      $this->writer->printMsg( "INFO: 1. Redistributions of source code must retain the above copyright notice,\n");
+      $this->writer->printMsg( "INFO: this list of conditions and the following disclaimer.\n");
+      $this->writer->printMsg( "INFO: 2. Redistributions in binary form must reproduce the above copyright notice,\n");
+      $this->writer->printMsg( "INFO: this list of conditions and the following disclaimer in the documentation\n");
+      $this->writer->printMsg( "INFO: and/or other materials provided with the distribution.\n");
+      $this->writer->printMsg( "INFO: 3. Neither the name of the copyright holder nor the names of its\n");
+      $this->writer->printMsg( "INFO: contributors may be used to endorse or promote products derived from this\n");
+      $this->writer->printMsg( "INFO: software without specific prior written permission.\n");
+      $this->writer->printMsg( "INFO: THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"\n");
+      $this->writer->printMsg( "INFO: AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n");
+      $this->writer->printMsg( "INFO: IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE\n");
+      $this->writer->printMsg( "INFO: ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE\n");
+      $this->writer->printMsg( "INFO: LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR\n");
+      $this->writer->printMsg( "INFO: CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF\n");
+      $this->writer->printMsg( "INFO: SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS\n");
+      $this->writer->printMsg( "INFO: INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN\n");
+      $this->writer->printMsg( "INFO: CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)\n");
+      $this->writer->printMsg( "INFO: ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE\n");
+      $this->writer->printMsg( "INFO: POSSIBILITY OF SUCH DAMAGE.\n");
+      $this->writer->printMsg( "INFO: ------- LICENSE END -------\n");
    }
 
-   // TODO: evaluate using $this->writer->printMsg()
    function printHelp()
    {
-      print "php generator.php [-l] [-h] [--cmdline] [-b PATH ] [-Ddef[=definition]] -c <CONFIG_1> [<CONFIG_N>] -o <OUTPUTDIR> -t <TEMPLATE_1> [<TEMPLATE_N>] [ -H <HELPER_1> [HELPER_N]]>\n";
-      print "      -c   indicate the configuration input files\n";
-      print "      -o   output directory\n";
-      print "      -t   indicates the templates to be processed\n";
-      print "   optional parameters:\n";
-      print "      -b   relative base path (default \"/templates/\")\n";
-      print "      -H   load helpers\n";
-      print "      -h   display this help\n";
-      print "      -l   displays a short license overview\n";
-      print "      -D   defines\n";
-      print "      --cmdline print the command line\n";
+      $this->writer->printMsg( "php generator.php [-l] [-h] [--cmdline] [-b PATH ] [-Ddef[=definition]] -c <CONFIG_1> [<CONFIG_N>] -o <OUTPUTDIR> -t <TEMPLATE_1> [<TEMPLATE_N>] [ -H <HELPER_1> [HELPER_N]]>\n");
+      $this->writer->printMsg( "      -c   indicate the configuration input files\n");
+      $this->writer->printMsg( "      -o   output directory\n");
+      $this->writer->printMsg( "      -t   indicates the templates to be processed\n");
+      $this->writer->printMsg( "   optional parameters:\n");
+      $this->writer->printMsg( "      -b   relative base path (default \"/templates/\")\n");
+      $this->writer->printMsg( "      -H   load helpers\n");
+      $this->writer->printMsg( "      -h   display this help\n");
+      $this->writer->printMsg( "      -l   displays a short license overview\n");
+      $this->writer->printMsg( "      -D   defines\n");
+      $this->writer->printMsg( "      --cmdline print the command line\n");
    }
 
    function processArgs($args)
@@ -355,16 +352,15 @@ class OilGenerator
       }
    }
 
-   // TODO: evaluate using $this->writer->printMsg()
    public function showHeader($verbose)
    {
       if ($verbose)
       {
-         print "ciaaFirmware RTOS Generator - Copyright 2008, 2009, 2015 Mariano Cerdeiro\n";
-         print "                              Copyright 2014, ACSE & CADIEEL\n";
-         print "         ACSE : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/\n";
-         print "         CADIEEL: http://www.cadieel.org.ar\n";
-         print "         All rights reserved.\n\n";
+         $this->writer->printMsg( "ciaaFirmware RTOS Generator - Copyright 2008, 2009, 2015 Mariano Cerdeiro\n");
+         $this->writer->printMsg( "                              Copyright 2014, ACSE & CADIEEL\n");
+         $this->writer->printMsg( "         ACSE : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/\n");
+         $this->writer->printMsg( "         CADIEEL: http://www.cadieel.org.ar\n");
+         $this->writer->printMsg( "         All rights reserved.\n\n");
       }
    }
 
