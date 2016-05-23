@@ -50,6 +50,7 @@ require_once(dirname(__FILE__) . '/../../OilGenerator.php');
 require_once(dirname(__FILE__) . '/../../NullWriter.php');
 require_once(dirname(__FILE__) . '/../../FileWriter.php');
 require_once(dirname(__FILE__) . '/../../NullWriter.php');
+require_once(dirname(__FILE__) . '/../../BufferWriter.php');
 
 /*==================[class definition]=======================================*/
 /** \brief Oil Generator Test Class Implementation
@@ -263,6 +264,67 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
 
       $og->checkFilesOrFail($configFiles, $baseOutDir, $templateFiles, $helperFiles);
    }
+
+   public function testCheckFileNaming_NoWarnings()
+   {
+      $bw = new BufferWriter($buffer);
+      $og = new OilGenerator($bw);
+
+      $configFiles = array('c1.oil','c2.oilx','c3.OIL','c4.OILX');
+      $templateFiles = array('t.h.php','t.c.php','t.C.PHP','t.H.PHP');
+      $helperFiles = array('h1.php','h2.PHP');
+      $og->checkFileNaming($configFiles, $templateFiles, $helperFiles);
+      $this->assertEquals(0, count($bw->getBuffer()));
+   }
+
+   public function testCheckFileNaming_configWarnings()
+   {
+      $bw = new BufferWriter($buffer);
+      $og = new OilGenerator($bw);
+
+      $configFiles = array('c2.txt');
+      $templateFiles = array();
+      $helperFiles = array();
+      $og->checkFileNaming($configFiles, $templateFiles, $helperFiles);
+      $this->assertEquals(1, count($bw->getBuffer()));
+   }
+
+   public function testCheckFileNaming_templateWarnings()
+   {
+      $bw = new BufferWriter($buffer);
+      $og = new OilGenerator($bw);
+
+      $configFiles = array();
+      $templateFiles = array('t.xxC.PHP');
+      $helperFiles = array();
+      $og->checkFileNaming($configFiles, $templateFiles, $helperFiles);
+      $this->assertEquals(1, count($bw->getBuffer()));
+   }
+
+   public function testCheckFileNaming_helperWarnings()
+   {
+      $bw = new BufferWriter($buffer);
+      $og = new OilGenerator($bw);
+
+      $configFiles = array();
+      $templateFiles = array();
+      $helperFiles = array('h1.bat','h2.PHP');
+      $og->checkFileNaming($configFiles, $templateFiles, $helperFiles);
+      $this->assertEquals(1, count($bw->getBuffer()));
+   }
+
+   public function testCheckFileNaming_MultipleWarnings()
+   {
+      $bw = new BufferWriter($buffer);
+      $og = new OilGenerator($bw);
+
+      $configFiles = array('c1.txt');
+      $templateFiles = array('t.xxh.php','t.c');
+      $helperFiles = array('h1.txt','h2.txt','h3.c','h4.h');
+      $og->checkFileNaming($configFiles, $templateFiles, $helperFiles);
+      $this->assertEquals(7, count($bw->getBuffer()));
+   }
+
 }
 
 /** @} doxygen end group definition */
