@@ -237,6 +237,31 @@ class OilGenerator
       return array($this->verbose, $definitions, $configFiles, $baseOutDir[0], $templateFiles,$directorySeparator[0], $helperFiles);
    }
 
+   public function checkFileNaming($configFiles, $templateFiles, $helperFiles)
+   {
+      foreach($configFiles as $pos=>$file)
+      {
+         if (!  preg_match ( '/.*\.oilx{0,1}$/i' , $file))
+         {
+            $this->log->warning("The config file $file should be .oil or .oilx");
+         }
+      }
+      foreach($templateFiles as $pos=>$file)
+      {
+         if (!  preg_match ( '/.*\.[hc]\.php$/i' , $file))
+         {
+            $this->log->warning("The template file $file should be .h.php or .c.php");
+         }
+      }
+      foreach($helperFiles as $pos=>$file)
+      {
+         if (!  preg_match ( '/.*\.php$/i' , $file))
+         {
+            $this->log->warning("The helper file $file should be .php");
+         }
+      }
+   }
+
    public function checkFilesOrFail( $configFiles, $baseOutDir, $templateFiles, $helperFiles)
    {
       $ok = true;
@@ -437,6 +462,8 @@ class OilGenerator
          $this->log->setVerbose($verbose);
 
          $this->showHeader($verbose);
+
+         $this->checkFileNaming($configFiles, $templateFiles, $helperFiles);
 
          $this->checkFilesOrFail($configFiles, $baseOutDir , $templateFiles, $helperFiles);
 

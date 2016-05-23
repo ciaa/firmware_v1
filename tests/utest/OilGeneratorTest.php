@@ -108,7 +108,17 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
    public function testProcessArgs_MultiOk()
    {
       $og = new OilGenerator(new NullWriter());
-      $og->processArgs(array('-c','mock.oil','mock2.oil','-o','mockdir','-t','mocktemplate','mocktemplate2'));
+      $expected = array(
+         false,
+         array(),
+         array('mock.oil','mock2.oil'),
+         'mockdir',
+         array('mocktemplate','mocktemplate2'),
+         '/gen/',
+         array('helper1.php','helper2.php')
+      );
+      $args = $og->processArgs(array('-c','mock.oil','mock2.oil','-o','mockdir','-t','mocktemplate','mocktemplate2','-H','helper1.php','helper2.php'));
+      $this->assertEquals($expected,$args);
    }
 
    /**
@@ -253,10 +263,6 @@ class OilGeneratorTest extends PHPUnit_Framework_TestCase
 
       $og->checkFilesOrFail($configFiles, $baseOutDir, $templateFiles, $helperFiles);
    }
-
-
-
-
 }
 
 /** @} doxygen end group definition */
