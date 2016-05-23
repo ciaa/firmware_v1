@@ -32,17 +32,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  */
-class DummyHelper
-{
-   private $config;
-   private $definitions;
-   private $log;
 
+require_once('./modules/rtos/gen/ginc/Helper.php');
+
+class DummyHelper extends Helper
+{
    function __construct($config, $definitions,$log)
    {
-      $this->config = $config;
-      $this->definitions = $definitions;
-      $this->log = $log;
+      parent::__construct($config, $definitions,$log);
    }
 
    function method($arg1, $arg2)

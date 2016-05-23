@@ -323,11 +323,11 @@ class OilGenerator
       {
          $this->log->info("   loading...");
 
-         if (! @include_once($file) ) 
+         if (! @include_once($file) )
          {
             throw new OilGeneratorException("Helper '$file' not found", 9);
          }
-       
+
          if (! class_exists($helperClassName))
          {
             throw new OilGeneratorException("Helper '$file' does not define class '$helperClassName'", 11);
