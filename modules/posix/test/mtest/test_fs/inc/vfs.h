@@ -103,70 +103,121 @@
  **
  **/
 typedef enum   {
-      VFS_FTREG,   //Regular file node
-      VFS_FTDIR,   //Directory file node
-      VFS_FTBLK,   //Block device node
-      VFS_FTUNKNOWN   //Unknown
+      VFS_FTREG,   /* Regular file node */
+      VFS_FTDIR,   /* Directory file node */
+      VFS_FTBLK,   /* Block device node */
+      VFS_FTUNKNOWN   /* Unknown */
       } node_type_t;
 
-/** \brief File permissions
- **
- ** This is a field in the vnode structure which indicates
- ** what permissions the user has on the file
- **
- **/
-typedef enum { ENUM2} access_mode_t;
-
 typedef struct vfs_node vnode_t;
-struct file_desc;
+typedef struct file_desc file_desc_t;
+
+/** \brief prepare lower layer file data to be read/write/seek
+ ** 
+ **/
+typedef   int    (*file_open_t)(file_desc_t *file_desc);
+
+/** \brief free resources.
+ ** 
+ **/
+typedef   int    (*file_close_t)(file_desc_t *file_desc);
+
+/** \brief read disk data to memory
+ ** 
+ **/
+typedef   size_t (*file_read_t)(file_desc_t *desc, void *buf, size_t size);
+
+/** \brief write no-memory data to disk
+ ** 
+ **/
+typedef   size_t (*file_write_t)(file_desc_t *desc, void *buf, size_t size);
+
+/** \brief manipulates the underlying device parameters of special files
+ ** ?
+ **/
+typedef   int    (*file_ioctl_t)(file_desc_t *desc, int request);
+
+/** \brief Set parameters or allocate structures of lower layer to enable it
+ ** 
+ **/
+typedef   int (*fs_init_t)(void *par);
+
+/** \brief Formats the device according to the file system specifications
+ ** 
+ **/
+typedef   int (*fs_format_t)(vnode_t *dev_node);
+
+/** \brief Mount  a formatted device on a root directory
+ ** 
+ **/
+typedef   int (*fs_mount_t)(vnode_t *dev_node, vnode_t *dest_node);
+
+/** \brief Create a new file in parent_node directory
+ ** 
+ **/
+typedef   int (*fs_create_node_t)(vnode_t *parent_node, vnode_t *child_node);
+
+/** \brief Delete a file from the parent_node directory
+ ** 
+ **/
+typedef   int (*fs_delete_node_t)(vnode_t *parent_node, vnode_t *child_node);
+
+/** \brief Truncate file size to length bytes
+ ** 
+ **/
+typedef   int (*fs_truncate_t)(vnode_t *node, uint32_t length);
+
+/** \brief  unmounts a file system from the hierarchical file system
+ ** 
+ **/
+typedef   int (*fs_umount_t)(vnode_t *node);
 
 /** \brief Filesystem driver methods
  **
  ** Collection of functions of a particular driver
  **
  **/
-struct fsdriver_operations
-{
-   int    (*file_open)(struct file_desc *file_desc);
-   int    (*file_close)(struct file_desc *file_desc);
-   size_t (*file_read)(struct file_desc *desc, void *buf, size_t size);
-   size_t (*file_write)(struct file_desc *desc, void *buf, size_t size);
-   int    (*file_ioctl)(struct file_desc *desc, int request);
 
-   int (*fs_init)(void *par);
-   int (*fs_format)(vnode_t *dev_node);
-   int (*fs_mount)(vnode_t *dev_node, vnode_t *dest_node);
-   int (*fs_create_node)(vnode_t *parent_node, vnode_t *child_node);
-   int (*fs_delete_node)(vnode_t *parent_node, vnode_t *child_node);
-   int (*fs_truncate)(vnode_t *node, uint32_t length);
-   int (*fs_umount)(vnode_t *node);
-};
+typedef struct fsdriver_operations
+{
+   file_open_t      file_open;
+   file_close_t     file_close;
+   file_read_t      file_read;
+   file_write_t     file_write;
+   file_ioctl_t     file_ioctl;
+
+   fs_init_t        fs_init;
+   fs_format_t      fs_format;
+   fs_mount_t       fs_mount;
+   fs_create_node_t fs_create_node;
+   fs_delete_node_t fs_delete_node;
+   fs_truncate_t    fs_truncate;
+   fs_umount_t      fs_umount;
+} fsdriver_operations_t;
 
 /** \brief File system driver
  **
  ** TODO:#define DECLARE_FILE_SYSTEM_DRIVER(fs_driver_)
- **    Crear una macro que agregue un driver en particular desde un archivo
- **    Primero declara extern del array de drivers y despues agrega el elemento
+ ** It would be better if a macro was created which adds the drivers defined
+ ** in all the file system modules to an array automatically
  **/
-struct filesystem_driver
+typedef struct filesystem_driver
 {
-   const char            *driver_name;
-   const struct fsdriver_operations   *driver_op;
-};
+   const char                  *driver_name;
+   const fsdriver_operations_t *driver_op;
+} filesystem_driver_t;
 
 /** \brief VFS metadata information
  **
  ** Contains upper layer node information, independent of the lower layer
- **
+ ** 
  **/
-//Aca va informacion del lock, etc.
-struct node_info
+typedef struct node_info
 {
    node_type_t type;
-   access_mode_t mode;// discrete access mode Read-Write-Execution
-   bool   is_mount_dir;
-   void             *down_layer_info; // on disk metadata information
-};
+   bool        is_mount_dir;
+   void        *down_layer_info; /* on-memory metadata information */
+} node_info_t;
 
 
 /** \brief VFS file system information
@@ -174,12 +225,12 @@ struct node_info
  ** Contains upper layer file system information, independent of the lower layer
  **
  **/
-struct filesystem_info
+typedef struct filesystem_info
 {
-   struct filesystem_driver *drv; // file system driver
-   ciaaDevices_deviceType const * device; // block device, where is this file system
-   void             *down_layer_info; // file system information (extended information)
-};
+   filesystem_driver_t          *drv; /* file system driver */
+   ciaaDevices_deviceType const *device; /* device where this fs resides */
+   void                         *down_layer_info; /* file system on-memory information */
+} filesystem_info_t;
 
 
 /** \brief VFS file information
@@ -187,14 +238,14 @@ struct filesystem_info
  ** Contains upper layer file information, independent of the lower layer
  **
  **/
-struct file_info
+typedef struct file_info
 {
-   char file_name[FS_NAME_MAX + 1];
-   uint8_t file_namlen;
+   char     file_name[FS_NAME_MAX + 1];
+   uint8_t  file_namlen;
    uint32_t file_pointer;
    uint32_t file_size;
-   void             *down_layer_info;
-};
+   void     *down_layer_info;
+} file_info_t;
 
 /** \brief vnode structure
  **
@@ -203,48 +254,37 @@ struct file_info
  **/
 struct vfs_node
 {
-   struct vfs_node *parent_node;      //Link to upper level inode
-   struct vfs_node *sibling_node;     // Link to same level inode
-   struct vfs_node *child_node;    // Link to lower level inode
+   struct vfs_node   *parent_node;   /* Link to upper level inode */
+   struct vfs_node   *sibling_node;  /* Link to same level inode */
+   struct vfs_node   *child_node;    /* Link to lower level inode */
 
-   struct node_info n_info;
-   struct filesystem_info fs_info;
-   struct file_info f_info;
+   node_info_t       n_info;
+   filesystem_info_t fs_info;
+   file_info_t       f_info;
 };
-
-/*
-
-File descriptor v0.1: Utilizo una estructura struct file_descriptor_table. Tiene un arreglo de punteros a file_desc y un numero que indica la cantidad de file_desc ocupados. Puede haber hasta FILE_DESC_MAX descriptores.
-typedef struct file_descriptor_table
-{
-   struct file_desc *table[FILE_DESC_MAX];
-   size_t n_busy_desc;
-}
-
-*/
 
 /** \brief File descriptor type
  **
  ** Contains information of an open file in a task
  **
  **/
-struct file_desc
+typedef struct file_desc
 {
    vnode_t *node;
-   size_t cursor;
-   size_t index;   //TODO: Mejorar esto. Posicion dentro del array de fdesc. Dependiente de la implementacion.
-};
+   size_t  cursor;
+   size_t  index;   /* TODO: Should improve the implementation */
+} file_desc_t;
 
 /** \brief File descriptor table
  **
  **
  **
  **/
-struct file_descriptor_table
+typedef struct file_descriptor_table
 {
-   struct file_desc *table[FILE_DESC_MAX];
-   size_t n_busy_desc;
-};
+   file_desc_t *table[FILE_DESC_MAX];
+   size_t      n_busy_desc;
+} file_descriptor_table_t;
 
 
 
@@ -253,7 +293,7 @@ struct file_descriptor_table
 
 /** \brief Create a new child
  **
- ** Crea un hijo al nodo parent, de nombre name con longitud namelen.
+ ** Allocate a node, whose name will be name of length namelen, and link it to parent node.
  **
  ** \param[in] parent parent of the new node
  ** \param[in] name how the new node will be named
@@ -263,6 +303,26 @@ struct file_descriptor_table
  **
  **/
 extern vnode_t *vfs_create_child(vnode_t *parent, const char *name, size_t namelen, mode_t mode);
+
+/** \brief Unlink a node and delete it from vfs
+ **
+ ** This function may be used in other modules. Must be extern
+ ** Doesnt free lower layer info. Must free this data in lower layer functions
+ **
+ ** \param[in] child points to node to be deleted
+ ** \return 0 if success, else -1
+ **/
+extern int vfs_delete_child(vnode_t *child);
+
+/** \brief free a node
+ **
+ ** preconditions:
+ **    Elements from lower layers in inode were already freed
+ **
+ ** \param[in] node node which will be deleted
+ ** \return 0 if success, -1 if error
+ **/
+extern int vfs_node_free(vnode_t *node);
 
 /** \brief Print the tree structure
  **
@@ -308,6 +368,15 @@ extern int ciaaFS_format(const char *device_path, const char *fs_type);
  ** \return -1 if an error occurs, 0 if success
  **/
 extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type);
+
+/** \brief umount a filesystem
+ **
+ ** umounts a file system given in target_path. Removes the corresponding subtree
+ **
+ ** \param[in] target_path path of the file system to be unmounted
+ ** \return -1 if an error occurs, 0 if success
+ **/
+extern int ciaaFS_umount(const char *target_path);
 
 /** \brief Create a new directory
  **

@@ -50,7 +50,7 @@
 /*
  * Initials     Name
  * ---------------------------
- * MZ		Marcos Ziegler
+ * MZ           Marcos Ziegler
  */
 
 /*

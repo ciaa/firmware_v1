@@ -48,7 +48,7 @@
 /*
  * Initials     Name
  * ---------------------------
- * MZ		Marcos Ziegler
+ * MZ           Marcos Ziegler
  */
 
 /*
@@ -76,7 +76,7 @@
  ** \param[in] file
  ** \return -1 if an error occurs, in other case 0
  **/
-static int blockdriver_open(struct file_desc *file);
+static int blockdriver_open(file_desc_t *file);
 
 /** \brief truncate given file data
  **
@@ -84,7 +84,7 @@ static int blockdriver_open(struct file_desc *file);
  ** \param[in]
  ** \return -1 if an error occurs, in other case 0
  **/
-static int blockdriver_close(struct file_desc *file);
+static int blockdriver_close(file_desc_t *file);
 
 /** \brief truncate given file data
  **
@@ -93,7 +93,7 @@ static int blockdriver_close(struct file_desc *file);
  ** \param[in] size number of bytes to be written
  ** \return    the count of written bytes is returned
  **/
-static size_t blockdriver_read(struct file_desc *file, void *buf, size_t size);
+static size_t blockdriver_read(file_desc_t *file, void *buf, size_t size);
 
 /** \brief truncate given file data
  **
@@ -102,22 +102,22 @@ static size_t blockdriver_read(struct file_desc *file, void *buf, size_t size);
  ** \param[in] size number of bytes to be written
  ** \return    the count of written bytes is returned
  **/
-static size_t blockdriver_write(struct file_desc *file, void *buf, size_t size);
+static size_t blockdriver_write(file_desc_t *file, void *buf, size_t size);
 
 /*==================[internal functions definition]==========================*/
 
-static int blockdriver_open(struct file_desc *file)
+static int blockdriver_open(file_desc_t *file)
 {
    file->node->f_info.file_pointer = 0;
    return 0;
 }
 
-static int blockdriver_close(struct file_desc *file)
+static int blockdriver_close(file_desc_t *file)
 {
    return 0;
 }
 
-static size_t blockdriver_read(struct file_desc *file, void *buf, size_t size)
+static size_t blockdriver_read(file_desc_t *file, void *buf, size_t size)
 {
    uint32_t pointer;
    ciaaDevices_deviceType const *device;
@@ -137,7 +137,7 @@ static size_t blockdriver_read(struct file_desc *file, void *buf, size_t size)
    return ret;
 }
 
-static size_t blockdriver_write(struct file_desc *file, void *buf, size_t size)
+static size_t blockdriver_write(file_desc_t *file, void *buf, size_t size)
 {
    uint32_t pointer;
    ciaaDevices_deviceType const *device;
@@ -146,7 +146,7 @@ static size_t blockdriver_write(struct file_desc *file, void *buf, size_t size)
    pointer = file->node->f_info.file_pointer;
    device = file->node->fs_info.device;
    ret = ciaaBlockDevices_lseek(device, pointer, SEEK_SET);
-   if(ret!=pointer)
+   if(ret != pointer)
    {
       ciaaPOSIX_printf("ext2_get_superblock: Fallo seek\n");
       return 0;
@@ -156,7 +156,13 @@ static size_t blockdriver_write(struct file_desc *file, void *buf, size_t size)
    return ret;
 }
 
-static int blockdriver_ioctl(struct file_desc *file, int request)
+/** \brief throw a command to the file
+ **
+ ** \param[in] file file to be controlled
+ ** \param[in] request command to be executed to the file
+ ** \return -1 if an error occurs, in other case 0
+ **/
+static int blockdriver_ioctl(file_desc_t *file, int request)
 {
    ciaaDevices_deviceType const *device;
    size_t ret;
@@ -168,7 +174,7 @@ static int blockdriver_ioctl(struct file_desc *file, int request)
 
 /*==================[internal data definition]===============================*/
 
-static struct fsdriver_operations blockdriver_operations =
+static fsdriver_operations_t blockdriver_operations =
 {
    blockdriver_open,
    blockdriver_close,
@@ -191,7 +197,7 @@ static struct fsdriver_operations blockdriver_operations =
  *
  * It will be declared as "extern" in vfs.c, so its visible to function vfs_get_driver()
  */
-struct filesystem_driver blockdev_driver =
+filesystem_driver_t blockdev_driver =
 {
    "BLOCKDEV",
    &blockdriver_operations

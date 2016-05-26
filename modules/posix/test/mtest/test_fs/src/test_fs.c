@@ -49,17 +49,13 @@
 /*
  * Initials     Name
  * ---------------------------
- * MaCe         Mariano Cerdeiro
- * EV           Esteban Volentini
- * FS           Franco J. Salinas Mendoza
+ * MZ           Marcos Ziegler
  */
 
 /*
  * modification history (new versions first)
  * -----------------------------------------------------------
- * 20150327 v0.0.3 FS   bugs fixed
- * 20150314 v0.0.2 EV   improved tests
- * 20150130 v0.0.1 MaCe Initial version
+ * 20160101 v0.0.1 MZ Initial version
  */
 
 /*==================[inclusions]=============================================*/
@@ -330,7 +326,7 @@ static int test_check_buffer(uint8_t *buffer, uint16_t size)
    {
       if(buffer[i] != i%10 + 0x30)
       {
-         ciaaPOSIX_printf("%c\t\t%c\n",buffer[i],i%10 + 0x30);
+         //ciaaPOSIX_printf("%c\t\t%c\n",buffer[i],i%10 + 0x30);
       }
    }
    if(i==size)

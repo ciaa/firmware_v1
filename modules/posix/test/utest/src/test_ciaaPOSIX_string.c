@@ -101,6 +101,27 @@ void test_ciaaPOSIX_strcpy(void) {
    TEST_ASSERT_TRUE(0 == strcmp(buffer, "/first/second"));
 }
 
+/** \brief test strncpy
+ **
+ ** test the function ciaaPOSIX_strncpy. TODO: Add more cases
+ **
+ **/
+void test_ciaaPOSIX_strncpy(void) {
+   char buffer[100];
+   char *ret;
+   uint32_t loopi;
+
+   for(loopi = 0; loopi < sizeof(buffer); loopi++)
+   {
+      buffer[loopi] = 0;
+   }
+   ret = ciaaPOSIX_strncpy(buffer, "/dev", 4);
+   TEST_ASSERT_TRUE(&buffer[0] == ret); /* "The strncpy() function shall return s1" */
+   TEST_ASSERT_TRUE(0 == strcmp(buffer, "/dev"));
+   ciaaPOSIX_strcpy(ciaaPOSIX_strncpy(buffer, "/first", 6), "/second", 2);
+   TEST_ASSERT_TRUE(0 == strcmp(buffer, "/sirst"));
+}
+
 /** \brief test strcat
  **
  ** test the function ciaaPOSIX_strcat

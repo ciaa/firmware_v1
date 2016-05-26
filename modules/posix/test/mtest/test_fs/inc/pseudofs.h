@@ -74,30 +74,30 @@
 /** \brief pseudofs file metadata info
  **
  **/
-struct pseudofs_node_info
+typedef struct pseudofs_node_info
 {
    int dummy;
-};
+} pseudofs_node_info_t;
 
 /** \brief pseudofs file system info
  **
  **/
-struct pseudofs_fs_info
+typedef struct pseudofs_fs_info
 {
-   int dummy;         /* FIXME: Ahora este fs no tiene info. Tiene q haber dummy para no hacer malloc(0) */
-};
+   int dummy;   /* FIXME: dummy variable, to avoid calling malloc(0) */
+} pseudofs_fs_info_t;
 
 /** \brief pseudofs file info
  **
  **/
-struct pseudofs_file_info
+typedef struct pseudofs_file_info
 {
    uint16_t index;   /* number of file in FS */
    uint32_t file_size;
    uint32_t alloc_size;
    uint32_t pointer;   /* address of the current data in bytes */
    uint8_t *data;
-};
+} pseudofs_file_info_t;
 
 /*==================[external data declaration]==============================*/
 /*==================[external functions declaration]=========================*/

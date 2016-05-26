@@ -35,8 +35,11 @@
 
 /** \brief Short description of this file
  **
- ** TODO Long description of this file
- **
+ ** Contains the file system POSIX API, vfs implementation and file descriptor (file objects) implementation.
+ ** The POSIX API contains common functions as open(), close(), read(), write().
+ ** The VFS is an abstraction layer over the many file system implementations.
+ ** File objects are structures that relate an open file with a process in execution.
+ ** File objects have fields such as corresponding node and current position in file.
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
@@ -47,7 +50,7 @@
 /*
  * Initials     Name
  * ---------------------------
- * MZ		Marcos Ziegler
+ * MZ           Marcos Ziegler
  */
 
 /*
@@ -58,9 +61,9 @@
 
 /*
 TODO:
--Utilizar solo memoria estatica, salvo excepciones que lo justifiquen
--Agregar mutex o semaforos o colas segun corresponda para soportar multitasking
--Implementar un file system para el root, para asi no necesitar de un device real para crear archivos
+-Use only static memory
+-Multitasking support: Mutex, semaphores and queues
+-Implement a default root filesystem, to create files in ram
 */
 
 /*==================[inclusions]=============================================*/
@@ -79,25 +82,13 @@ TODO:
 
 /*==================[internal functions declaration]=========================*/
 
-/** \brief Create a node and link it as its parents child
- **
- ** This function may be used in other modules. Must be extern
- **
- ** \param[in] parent directory in which to create the node
- ** \param[in] name name of the new child
- ** \param[in] namelen length of name string
- ** \param[in] mode attributes of the new file
- ** \return created node if success, else NULL
- **/
-extern vnode_t *vfs_create_child(vnode_t *parent, const char *name, size_t namelen, mode_t mode);
-
-/** \brief
+/** \brief Auxiliary recursive function of vfs_get_mntpt_path()
  **
  **
  **
- ** \param[in] node
- ** \param[in] path
- ** \param[in] len_p
+ ** \param[in] node node whose path is to be found
+ ** \param[out] path path string returned
+ ** \param[out] len_p pointer to the path size variable
  ** \return -1 if an error occurs, in other case 0
  **/
 static int vfs_get_mntpt_path_rec(vnode_t *node, char *path, uint16_t *len_p);
@@ -123,22 +114,12 @@ static int vfs_get_mntpt_path(vnode_t *node, char *path, uint16_t *len_p);
  **/
 static vnode_t *vfs_node_alloc(const char *name, size_t name_len);
 
-/** \brief free a node
- **
- ** preconditions:
- **    Supongo que ya estan liberados de memoria los elementos internos de node
- **
- ** \param[in] node which will be deleted
- **/
-static void vfs_node_free(vnode_t *node);
-
 /** \brief create subtree given a path
  **
- ** Devuelve -1 si el directorio ya existia
- ** Crea directorios intermedios
- ** TODO: Si recibe un path sin el '/' inicial, es un relative path. Crea el arbol a partir del nodo entregado
- ** Si esta el '/' inicial, crea el arbol a partir del root,  como ahora
- ** La hoja creada es de tipe VFS_FTREG
+ ** Creates intermediate directories
+ ** TODO: Implement tree creation from relative path too
+ ** Path must contain initial '/', indicating its a root path
+ ** Created leaf will be VFS_FTREG type
  **
  ** \param[in] path
  ** \param[out] inode_p
@@ -165,7 +146,7 @@ static int vfs_inode_search(char **path_p, vnode_t **ret_node_p);
  ** \param[in] driver_name name of the driver as given in its corresponding filesystem_driver struct
  ** \return pointer to searched fs driver if success, NULL otherwise
  **/
-static struct filesystem_driver *vfs_get_driver(const char *driver_name);
+static filesystem_driver_t *vfs_get_driver(const char *driver_name);
 
 /** \brief initialize file descriptor table
  **
@@ -182,7 +163,7 @@ static int file_descriptor_table_init(void);
  ** \param[in] node the new file descriptor will be linked to this file
  ** \return pointer to created descriptor structure if success, else NULL
  **/
-static struct file_desc *file_desc_create(vnode_t *node);
+static file_desc_t *file_desc_create(vnode_t *node);
 
 /** \brief free a file descriptor
  **
@@ -191,7 +172,7 @@ static struct file_desc *file_desc_create(vnode_t *node);
  ** \param[in] file_desc descriptor to be freed
  ** \return -1 if an error occurs, in other case 0
  **/
-static int file_desc_destroy(struct file_desc *file_desc);
+static int file_desc_destroy(file_desc_t *file_desc);
 
 /** \brief get a descriptor structure by its number
  **
@@ -200,32 +181,32 @@ static int file_desc_destroy(struct file_desc *file_desc);
  ** \param[in] index requested descriptor structure index
  ** \return -1 if an error occurs, in other case 0
  **/
-static struct file_desc *file_desc_get(uint16_t index);
+static file_desc_t *file_desc_get(uint16_t index);
 
 /*==================[internal data definition]===============================*/
 
-/** \brief Nodo root
- *
- * Es el nodo padre de todo el vfs.
- *
+/** \brief Root inode
+ * 
+ * Root inode of the entire vfs
+ * 
  */
 static vnode_t *vfs_root_inode = NULL;
 
 /** \brief Filesystem drivers declaration
  *
- * Declaro los drivers que va a utilizar el vfs. Estan definidos en sus respectivos archivos
- *
+ * Here are the drivers defined in the lower layer file system implementations (in ext2.c, fat.c, etc.)
+ * 
  */
-extern struct filesystem_driver ext2_driver;
-extern struct filesystem_driver pseudofs_driver;
-extern struct filesystem_driver blockdev_driver;
+extern filesystem_driver_t ext2_driver;
+extern filesystem_driver_t pseudofs_driver;
+extern filesystem_driver_t blockdev_driver;
 
 /** \brief Filesystem drivers table
  *
- * Tabla utilizada por vfs_get_driver() para buscar el driver solicitado
+ * Driver table used by vfs_get_driver() to retrieve requested driver
  *
  */
-static struct filesystem_driver *vfs_fsdriver_table[] =
+static filesystem_driver_t *vfs_fsdriver_table[] =
 {
    &ext2_driver,
    &blockdev_driver,
@@ -234,13 +215,13 @@ static struct filesystem_driver *vfs_fsdriver_table[] =
    NULL
 };
 
-/** \brief Filesystem drivers table
+/** \brief File descriptors table
  *
- * Tabla de descriptores de archivo.
+ * TODO: Every thread should have its own table
  *
  */
-static struct file_descriptor_table _f_tab;
-static struct file_descriptor_table *file_desc_tab_p = &_f_tab;
+static file_descriptor_table_t _f_tab;
+static file_descriptor_table_t *file_desc_tab_p = &_f_tab;
 
 
 /*==================[external data definition]===============================*/
@@ -264,11 +245,13 @@ static int vfs_get_mntpt_path_rec(vnode_t *node, char *path, uint16_t *len_p)
 {
    uint16_t name_len;
    int ret;
-   if(node->n_info.is_mount_dir==false)
-   ret = vfs_get_mntpt_path_rec(node->parent_node, path, len_p);
-   if(ret)
+   if(false == node->n_info.is_mount_dir)
    {
-      return -1;
+      ret = vfs_get_mntpt_path_rec(node->parent_node, path, len_p);
+      if(ret)
+      {
+         return -1;
+      }
    }
    name_len = ciaaPOSIX_strlen(node->f_info.file_name);
    if(*len_p + name_len > FS_PATH_MAX-1)
@@ -301,8 +284,8 @@ static vnode_t *vfs_node_alloc(const char *name, size_t name_len)
       return NULL;
    }
    new_node = (vnode_t *) ciaaPOSIX_malloc(sizeof(vnode_t));
-   ASSERT_MSG(new_node!=NULL, "\tvfs_node_alloc(): !(*name) || name_len > FS_NAME_MAX failed");
-   if (new_node == NULL)
+   ASSERT_MSG(NULL != new_node, "\tvfs_node_alloc(): !(*name) || name_len > FS_NAME_MAX failed");
+   if (NULL == new_node)
    {
       return NULL;
    }
@@ -314,19 +297,15 @@ static vnode_t *vfs_node_alloc(const char *name, size_t name_len)
    return new_node;
 }
 
-/*Supongo que ya estan liberados de memoria los elementos internos de vnode_t*/
-static void vfs_node_free(vnode_t *node)
+extern int vfs_node_free(vnode_t *node)
 {
    /* Iterate over all the siblings until node found. Then link previous node to next node */
-   if(node!=NULL)
+   if(NULL != node)
       ciaaPOSIX_free(node);
+   return 0;
 }
 
-//Devuelve -1 si el directorio ya existia
-//Crea directorios intermedios
-//TODO: Si recibe un path sin el '/' inicial, es un relative path. Crea el arbol a partir del nodo entregado
-//Si esta el '/' inicial, crea el arbol a partir del root,  como ahora
-//La hoja creada es de tipe VFS_FTREG
+/* TODO: If error, eliminate the subtree */
 static int vfs_inode_reserve(const char *path, vnode_t **inode_p)
 {
    int ret;
@@ -338,45 +317,42 @@ static int vfs_inode_reserve(const char *path, vnode_t **inode_p)
    ASSERT_MSG(ret, "\tvfs_inode_reserve(): Node already exists");
    if(!ret)
    {
-      //El nodo ya existe
+      /* node already exists */
       return -1;
    }
-// *path_p va a apuntar al primer caracter del primer elemento del path que no se encuentra en el arbol
-// *ret_node_p va a apuntar al ultimo nodo valido del arbol incluido en el path.
-//ciaaPOSIX_printf("vfs_inode_reserve():Primer elemento que no se encuentra: %s\n", aux_path);
-//ciaaPOSIX_printf("vfs_inode_reserve():Ultimo nodo valido: %s\n", inode->f_info.file_name);
-   //Ahora inode apunta al ultimo nodo valido, por lo que hay que empezar creando inode->child
-   //Ahora path apunta al primer caracter del primer elemento del path a crear, por lo que
-   //inode->child debe ser nombrado a partir de este elemento.
+   /* Now inode points to the last found node in path, por lo que hay que empezar creando inode->child
+    * inode->child_node will be the first non existing element in the new subtree
+    * aux_path points to the first character of the first non existent element in path. So inode->child_node
+    * should be named as this element
+    */
    p_start=p_end=aux_path;
-   for(p_start=aux_path; *p_start=='/'; p_start++);   //Salteo los '/' iniciales
+   for(p_start=aux_path; *p_start=='/'; p_start++);   /* skip initial '/'s */
    while(1)
    {
       for(p_end=p_start; *p_end!='\0' && *p_end!='/'; p_end++);
-      //Ahora p_start y p_end apuntan al siguiente elemento del path
-      //Node tendria que apuntar al nodo recien creado
-      //ciaaPOSIX_printf("vfs_inode_reserve(): %s, %d\n", p_start, (int)(p_end-p_start));
-      if(p_end==p_start)
+      /* Now p_start and p_end point to the next element in path string.
+       * "node" should point to the new node
+       */
+      if(p_end == p_start)
       {
          return -1;
       }
       child = vfs_create_child(inode, p_start, (uint32_t)(p_end-p_start), 0);
-      ciaaPOSIX_printf("vfs_inode_reserve(): Created child with name:%*s and length:%u\n",child->f_info.file_namlen, child->f_info.file_name, child->f_info.file_namlen);
       *inode_p = child;
-      ASSERT_MSG(child!=NULL, "\tvfs_inode_reserve(): vfs_create_child() failed");
-      if(child == NULL)
+      ASSERT_MSG(NULL != child, "\tvfs_inode_reserve(): vfs_create_child() failed");
+      if(NULL == child)
       {
          return -1;
       }
       inode=child;
       for(p_start=p_end;*p_start=='/';p_start++);
-      /* Cuando termina estoy en la primera letra despues del '/' */
-      if(*p_start=='\0')//Llegue al fin del path que busco
+      /* When the loop finishes, p_start points to the first character after '/' */
+      if('\0' == *p_start)/* End of the searched path reached */
       {
-         /* El ultimo node es el que corresponde */
+         /* Last node found is the requested node */
          return 0;
       }
-      /* Queda camino por seguir. El nodo creado es un directorio */
+      /* Must go onto the next iteration. Created node is directory by default */
       child->n_info.type = VFS_FTDIR;
    }
 }
@@ -388,7 +364,7 @@ static int vfs_inode_search(char **path_p, vnode_t **ret_node_p)
    uint32_t ret;
    vnode_t *node;
 
-    if (*path_p==NULL || (*path_p)[0]=='\0' || *(path_p)[0]!='/')
+    if (NULL == *path_p || (*path_p)[0] == '\0' || *(path_p)[0] != '/')
    {
       *ret_node_p = NULL;
       return -1;
@@ -397,71 +373,78 @@ static int vfs_inode_search(char **path_p, vnode_t **ret_node_p)
    *ret_node_p = node = vfs_root_inode;
 
    p_start = p_end = *path_p;
-   for(;*p_start=='/';p_start++);   /* Cuando termina estoy en la primera letra despues del '/' */
+   /* When the loop finishes, p_start points to the first characer after '/' */
+   for(;*p_start=='/';p_start++);
    *path_p = p_start;
-   if(*p_start=='\0')   /* En el path solo habian '/'. Devuelvo el root */
+   if('\0' == *p_start)   /* Path only has '/'. Return root inode */
    {
       *ret_node_p=vfs_root_inode;
       return 0;
    }
-   for(p_end=p_start; *p_end!='\0' && *p_end!='/'; p_end++);
-   node = node->child_node;   /* Comienzo en el primer nivel debajo del root */
-   while(node!=NULL)   /* Si el nodo es NULL significa que ninguno de los hermanos del nivel coincide con el
-                        * elemento del path, entonces el path no es valido
-                        */
+   for(p_end=p_start; '\0' != *p_end && '/' != *p_end; p_end++);
+   node = node->child_node;   /* Start at the first level after root */
+   /* Loop: If node is null in this iteration, it means that in this level, none of the siblings
+    * matches the path element. The path is then not valid.
+    */
+   while(NULL != node)
    {
-      /* Los caracteres que conforman el elemento del path van a estar comprendidos entre p_start y p_end.
-       * p_start apunta a la primera letra del elemento. p_end apunta al siguiente caracter de la ultima letra del elemento.
+      /* p_start and p_end point to the beginning and end of the element in the path string to be
+       * processed in this iteration.
+       * p_start points to the first character of the element.
+       * p_end points to the character next to the last character of the element
        */
-      pnamelen = p_end-p_start;   /* Longitud del nombre entre '/' sin contar el '\0' */
-      while(node!=NULL)
+      pnamelen = p_end-p_start;   /* Length of the name between '/' not counting '\0' */
+      while(NULL != node)
       {
          ret = ciaaPOSIX_strncmp(p_start, node->f_info.file_name, pnamelen);
          if(!ret)
          {
-            ciaaPOSIX_printf("\tCoincidieron %s con %s\n",p_start,node->f_info.file_name);
-            /* Coinciden los nombres, tengo que analizar el hijo */
+            /* Names match. Must analyze the child node */
             break;
          }
-      /* El nombre del nodo no coincide con el elemento del path. Tengo que comparar el mismo elemento del path
-       * con el siguiente nodo del mismo nivel.
-       * Tener que comparar el mismo elemento del path significa que p_start y p_end no deben cambiar
-       */
+      /* node name does not match with the path element. Try with the next node in the current level */
          node = node->sibling_node;
       }
-      if(node==NULL)
+      if(NULL == node)
       {
-         /* Al iterar sobre los hermanos no se encontro ningun elemento del path que coincida con el
-          * nombre de alguno de los nodos de ese nivel del arbol, asi que el path es invalido.
-          * *ret_node_p va a apuntar al ultimo nodo valido del path
+         /* Didnt find a node in this level whose name matches the path element searched.
+          * So this is an invalid path
+          * ret_node_p will point to the last matching node found
           */
          return -1;
       }
-      /* El elemento del path coincide con el nombre del nodo. Hay que seguir con el siguiente elemento
-       * del path en el siguiente nivel del arbol de nodos
+      /* The path element matches with the name of this node.
+       * Iterate again in the next element of the tree to find the node matching the next element in path
+       *
        */
       *ret_node_p = node;
       node = node->child_node;
       p_start = p_end;
-      for(;*p_start=='/';p_start++);   //Cuando termina estoy en la primera letra despues del '/'
+      /* When the loop finishes, p_start points to the first char after '/' */
+      for(; '/' == *p_start; p_start++);
       *path_p = p_start;
-      if(*p_start=='\0')            //Llegue al fin del path que busco
+      if('\0' == *p_start)   /* The end of the searched path has been reached */
       {
-         /* El ultimo node es el que corresponde */
+         /* Last node found is the one that must be returned. Success */
          return 0;
       }
-      for(p_end=p_start; *p_end!='\0' && *p_end!='/'; p_end++);
-      /* Cuando termina p_end esta en el '/' que sigue O p_end esta en el '\0' si era ultimo elemento del path */
+      /* When this loop finishes, p_end points to the '/' after the last path element found.
+       * If the last path element found is the last elment of the searched path,
+       * p_end will point to the '\0' character of the path string.
+       */
+      for(p_end = p_start; '\0' != *p_end && '/' != *p_end; p_end++);
    }
-   /* El path contiene mas elementos que la profundidad del arbol, no existe el nodo buscado. Devuelvo fallido */
+   /* The path contains more elements than the tree depth.
+    * Searched node doesnt exist. Failure
+    */
    return -1;
 }
 
-static struct filesystem_driver *vfs_get_driver(const char *driver_name)
+static filesystem_driver_t *vfs_get_driver(const char *driver_name)
 {
    int i;
 
-   for(i=0; vfs_fsdriver_table[i]!=NULL; i++)
+   for(i=0; NULL != vfs_fsdriver_table[i]; i++)
    {
       if(!ciaaPOSIX_strcmp(driver_name, vfs_fsdriver_table[i]->driver_name))
          return vfs_fsdriver_table[i];
@@ -473,13 +456,13 @@ static struct filesystem_driver *vfs_get_driver(const char *driver_name)
 
 static int file_descriptor_table_init(void)
 {
-   ciaaPOSIX_memset(file_desc_tab_p, 0, sizeof(struct file_descriptor_table));
+   ciaaPOSIX_memset(file_desc_tab_p, 0, sizeof(file_descriptor_table_t));
    return 0;
 }
 
-static struct file_desc *file_desc_create(vnode_t *node)
+static file_desc_t *file_desc_create(vnode_t *node)
 {
-   struct file_desc *file;
+   file_desc_t *file;
    uint16_t i;
 
    if(file_desc_tab_p->n_busy_desc >= FILE_DESC_MAX)
@@ -487,18 +470,18 @@ static struct file_desc *file_desc_create(vnode_t *node)
 
    for(i=0; i<FILE_DESC_MAX; i++)
    {
-      if(file_desc_tab_p->table[i] == NULL)
+      if(NULL == file_desc_tab_p->table[i])
          break;
    }
    ciaaPOSIX_printf("file_desc_create(): Indice obtenido: %d\n", i);
    /* Ahora i es el indice del primer file_desc desocupado en la tabla */
-   if(i==FILE_DESC_MAX)   /* No hay file_desc libres */
+   if(FILE_DESC_MAX == i)   /* No hay file_desc libres */
       return NULL;
    /* Allocate new descriptor */
-   file = (struct file_desc *) ciaaPOSIX_malloc(sizeof(struct file_desc));
-   if(file == NULL)
+   file = (file_desc_t *) ciaaPOSIX_malloc(sizeof(file_desc_t));
+   if(NULL == file)
       return NULL;
-   ciaaPOSIX_memset(file, 0, sizeof(struct file_desc));
+   ciaaPOSIX_memset(file, 0, sizeof(file_desc_t));
    file->node = node;
 
    file_desc_tab_p->table[i] = file;
@@ -510,7 +493,7 @@ static struct file_desc *file_desc_create(vnode_t *node)
    return file;
 }
 
-static int file_desc_destroy(struct file_desc *file_desc)
+static int file_desc_destroy(file_desc_t *file_desc)
 {
    uint16_t index;
 
@@ -522,7 +505,7 @@ static int file_desc_destroy(struct file_desc *file_desc)
    return 0;
 }
 
-struct file_desc *file_desc_get(uint16_t index)
+file_desc_t *file_desc_get(uint16_t index)
 {
 
    if(index >= FILE_DESC_MAX)
@@ -540,7 +523,7 @@ static int vfs_print_tree_rec(vnode_t *node, int level)
 {
    int ret, i;
 
-   if(node==NULL)
+   if(NULL == node)
    {
       return 0;
    }
@@ -575,18 +558,72 @@ extern vnode_t *vfs_create_child(vnode_t *parent, const char *name, size_t namel
    vnode_t *child;
 
    child = vfs_node_alloc(name, namelen);
-   ASSERT_MSG(child!=NULL, "\tvfs_create_child(): vfs_node_alloc() failed");
-   if(child == NULL)
+   ASSERT_MSG(NULL != child, "\tvfs_create_child(): vfs_node_alloc() failed");
+   if(NULL == child)
       return NULL;
    child->sibling_node = parent->child_node;
    parent->child_node = child;
    child->parent_node = parent;
    /* Copio la informacion de filesystem. No hago copia nueva, solo apunto a lo del padre */
-   ciaaPOSIX_memcpy(&(child->fs_info), &(parent->fs_info), sizeof(struct filesystem_info));
+   ciaaPOSIX_memcpy(&(child->fs_info), &(parent->fs_info), sizeof(filesystem_info_t));
    child->f_info.file_name[namelen] = '\0';
-   child->f_info.file_pointer=0;
-   child->f_info.down_layer_info=NULL;
+   child->f_info.file_pointer = 0;
+   child->f_info.down_layer_info = NULL;
    return child;
+}
+
+extern int vfs_delete_child(vnode_t *child)
+{
+   vnode_t *node_p, *auxnode_p;
+   int ret;
+   /* child->sibling_node == NULL: Single child
+    * child->parent_node == NULL: Root inode
+    * Must delete child. Special case if child to delete is head child.
+    * General case: 
+    * 
+    * 
+    */
+   ASSERT_MSG(NULL != child, "vfs_delete_child(): Node doesnt exist");
+   if(NULL == child)
+   {
+      /* Node does not exist. Error */
+      return -1;
+   }
+   ASSERT_MSG(NULL != child->parent_node, "vfs_delete_child(): Cant delete root inode");
+   if(NULL == child->parent_node)
+   {
+      /* Root inode. Cant delete it */
+      return -1;
+   }
+   /* Find previous sibling node (not a double-linked list :() */
+   node_p = child->parent_node->child_node;   /* Head of children list */
+   ASSERT_MSG(NULL != node_p, "vfs_delete_child(): Parent dont match child tree");
+   if(NULL == node_p)
+   {
+      return -1;
+   }
+   auxnode_p = NULL;
+   while(node_p != child && NULL != node_p)
+   {
+      auxnode_p = node_p;
+      node_p = node_p->sibling_node;
+   }
+   /* now auxnode_p points to the previous sibling of node_p */
+   if(NULL == node_p)
+   {
+      /* Could not find this node in the list of children of its own parent. Parents dont match, should never happen.
+       * System consistency error.
+       */
+      return -1;
+   }
+   auxnode_p->sibling_node = node_p->sibling_node;
+   ret = vfs_node_free(child);
+   if(ret)
+   {
+      return -1;
+   }
+
+   return 0;
 }
 
 extern int ciaaFS_init(void)
@@ -596,7 +633,7 @@ extern int ciaaFS_init(void)
    ciaaDevices_deviceType * device;
 
    vfs_root_inode = (vnode_t *) ciaaPOSIX_malloc(sizeof(vnode_t));
-   if(vfs_root_inode==NULL)
+   if(NULL == vfs_root_inode)
    {
       return -1;
    }
@@ -612,7 +649,7 @@ extern int ciaaFS_init(void)
    /* Crear dispositivos */
    ret = vfs_inode_reserve("/dev/block/fd/0", &aux_inode);
    ASSERT_MSG(-1 != ret, "vfs_init(): vfs_inode_reserve() failed");
-   if(aux_inode == NULL)
+   if(NULL == aux_inode)
    {
       /* No se pudo crear el nodo */
       return -1;
@@ -620,24 +657,24 @@ extern int ciaaFS_init(void)
 
    aux_inode->n_info.type = VFS_FTBLK;
    aux_inode->fs_info.device = ciaaDevices_getDevice("/dev/block/fd/0");
-   ASSERT_MSG(aux_inode->fs_info.device!=NULL, "vfs_init(): vfs_get_driver() failed");
-   if(aux_inode->fs_info.device == NULL)
+   ASSERT_MSG(NULL != aux_inode->fs_info.device, "vfs_init(): vfs_get_driver() failed");
+   if(NULL == aux_inode->fs_info.device)
    {
       return -1;
    }
    device = ciaaBlockDevices_open("/dev/block/fd/0", (ciaaDevices_deviceType *)aux_inode->fs_info.device, ciaaPOSIX_O_RDWR);
-   ASSERT_MSG(device!=NULL, "vfs_init(): failed to open device");
+   ASSERT_MSG(NULL != device, "vfs_init(): failed to open device");
 
    aux_inode->fs_info.drv = vfs_get_driver("BLOCKDEV");
-   ASSERT_MSG(aux_inode->fs_info.drv != NULL, "vfs_init(): vfs_get_driver() failed");
-   if(aux_inode->fs_info.drv == NULL)
+   ASSERT_MSG(NULL != aux_inode->fs_info.drv, "vfs_init(): vfs_get_driver() failed");
+   if(NULL == aux_inode->fs_info.drv)
    {
       return -1;
    }
 
    ret = vfs_inode_reserve("/dev/char/fd/0", &aux_inode);
    ASSERT_MSG(-1 != ret, "vfs_init(): vfs_inode_reserve() failed");
-   if(aux_inode == NULL)
+   if(NULL == aux_inode)
    {
       /* No se pudo crear el nodo */
       return -1;
@@ -655,12 +692,12 @@ extern int ciaaFS_format(const char *device_path, const char *fs_type)
 {
    vnode_t *devnode;
    char *devpath;
-   struct filesystem_driver *fs_driver;
+   filesystem_driver_t *fs_driver;
    int ret;
 
    devpath = (char *)device_path;
    ret = vfs_inode_search(&devpath, &devnode);
-   ASSERT_MSG(ret==0, "mount(): format() failed. Device doesnt exist");
+   ASSERT_MSG(0 == ret, "mount(): format() failed. Device doesnt exist");
    if(ret)
    {
       /* El nodo del device no existe */
@@ -668,15 +705,15 @@ extern int ciaaFS_format(const char *device_path, const char *fs_type)
    }
 
    fs_driver = vfs_get_driver(fs_type);
-   ASSERT_MSG(fs_driver!=NULL, "format(): Device node not valid");
-   if(fs_driver == NULL)
+   ASSERT_MSG(NULL != fs_driver, "format(): Device node not valid");
+   if(NULL == fs_driver)
    {
       /* No existe un driver con el nombre dado */
       return -1;
    }
 
-   ASSERT_MSG(devnode->n_info.type == VFS_FTBLK, "format(): Target file not a device");
-   if(devnode->n_info.type != VFS_FTBLK)
+   ASSERT_MSG(VFS_FTBLK == devnode->n_info.type, "format(): Target file not a device");
+   if(VFS_FTBLK != devnode->n_info.type)
    {
       /* El supuesto nodo device no es device */
       return -1;
@@ -684,7 +721,7 @@ extern int ciaaFS_format(const char *device_path, const char *fs_type)
 
    /* Llamo a la funcion de bajo nivel */
    ret = fs_driver->driver_op->fs_format(devnode);
-   ASSERT_MSG(ret==0, "format(): Lower layer format failed");
+   ASSERT_MSG(0 == ret, "format(): Lower layer format failed");
    if(ret)
    {
       /* Fallo el format de bajo nivel */
@@ -701,61 +738,102 @@ extern int ciaaFS_format(const char *device_path, const char *fs_type)
 extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type)
 {
    char *devpath, *tpath;
-   struct filesystem_driver *fs_driver;
+   filesystem_driver_t *fs_driver;
    int ret;
    vnode_t *targetnode, *devnode;
 
-   /* TODO: Agregar el tema de crear un nuevo nodo donde agregar el mount, validar que no existe */
-   /* En Nuttx hace ret = inode_reserve(target, &mountpt_inode); target es el path del dir destino */
-   /* Cancela si ya existe un node en el path
-    */
    tpath = target_path;
    ret = vfs_inode_reserve(tpath, &targetnode);
-   ASSERT_MSG(ret==0, "mount(): vfs_inode_reserve() failed creating target node");
+   ASSERT_MSG(0 == ret, "mount(): vfs_inode_reserve() failed creating target node");
    if(ret)
    {
-      /* El directorio ya existe */
+      /* The directory already exists */
+      /* FIXME: It should not be needed that the dir doesnt exist.
+       * Should overwrite new mount in node
+       */
       return -1;
    }
    devpath = device_path;
    ret = vfs_inode_search(&devpath, &devnode);
-   ASSERT_MSG(ret==0, "mount(): vfs_inode_search() failed. Device doesnt exist");
+   ASSERT_MSG(0 == ret, "mount(): vfs_inode_search() failed. Device doesnt exist");
    if(ret)
    {
-      /* El nodo del device no existe */
+      /* The device node doesnt exist */
       return -1;
    }
-   ASSERT_MSG(devnode->n_info.type == VFS_FTBLK, "mount(): Device node not valid");
-   if(devnode->n_info.type != VFS_FTBLK)
+   ASSERT_MSG(VFS_FTBLK == devnode->n_info.type, "mount(): Device node not valid");
+   if(VFS_FTBLK != devnode->n_info.type)
    {
-      /* El supuesto nodo device no es device */
+      /* Not a device node */
       return -1;
    }
    fs_driver = vfs_get_driver(fs_type);
-   ASSERT_MSG(fs_driver!=NULL, "mount(): Device node not valid");
-   if(fs_driver == NULL)
+   ASSERT_MSG(NULL != fs_driver, "mount(): Device node not valid");
+   if(NULL == fs_driver)
    {
-      /* No existe un driver con el nombre dado */
+      /* Driver doesnt exist */
       return -1;
    }
-   /* Lleno los campos que corresponden del target inode */
+   /* Fill the target directory vnode fields */
    targetnode->fs_info.drv = fs_driver;
    targetnode->fs_info.device = devnode->fs_info.device;
    targetnode->n_info.is_mount_dir = true;
-   /* Llamo a la funcion de bajo nivel */
+   /* Call the lower layer method */
    ret = fs_driver->driver_op->fs_mount(devnode, targetnode);
-   ASSERT_MSG(ret==0, "mount(): Lower layer mount failed");
+   ASSERT_MSG(0 == ret, "mount(): Lower layer mount failed");
    if(ret)
    {
-      /* Fallo el mount de bajo nivel */
+      /* Lower layer mount failed */
+      return -1;
+   }
+   return 0;
+}
+
+/* Cant support over mounting. Directory must be empty to mount. 
+ * Umount eliminates mount root node
+ */
+/* TODO: Check if exists an open file who belongs to this mount */
+extern int ciaaFS_umount(const char *target_path)
+{
+   char *tpath;
+   filesystem_driver_t *fs_driver;
+   int ret;
+   vnode_t *targetnode;
+
+   tpath = (char *)target_path;
+   ret = vfs_inode_search(&tpath, &targetnode);
+   ASSERT_MSG(0 == ret, "umount(): vfs_inode_search() failed. Mountpoint doesnt exist");
+   if(ret)
+   {
+      /* The device node doesnt exist */
+      return -1;
+   }
+   ASSERT_MSG(true == targetnode->n_info.is_mount_dir, "umount(): Target not a mountpoint");
+   if(true != targetnode->n_info.is_mount_dir)
+   {
+      /* Not a mountpoint */
+      return -1;
+   }
+
+   /* Call the lower layer method */
+   fs_driver = targetnode->fs_info.drv;
+   if(NULL == fs_driver->driver_op->fs_umount)
+   {
+      /* method not supported */
+      return -1;
+   }
+   ret = fs_driver->driver_op->fs_umount(targetnode);
+   ASSERT_MSG(0 == ret, "mount(): Lower layer mount failed");
+   if(ret)
+   {
+      /* Lower layer mount failed */
       return -1;
    }
    return 0;
 }
 
 /*
- *  TODO: No puedo crear un subarbol, solo un archivo. Validar que en el path dado el unico elemento inexistente
- *  es el ultimo.
+ *   TODO: Current implementation can create a subtree. Should only create a leaf. Validate path.
  */
 extern int ciaaFS_mkdir(const char *dir_path, mode_t mode)
 {
@@ -763,22 +841,21 @@ extern int ciaaFS_mkdir(const char *dir_path, mode_t mode)
   int               ret;
 
    char *tpath = (char *) dir_path;
-   /*Creo un nodo pelado en el dir_path*/
-   /*vfs_inode_reserve hereda los atributos de fs del padre*/
+   /* Create an empty node in dir_path */
+   /* vfs_inode_reserve(): The new node inherits the fathers fs info */
    ret = vfs_inode_reserve(tpath, &dir_inode_p);
    if(ret)
    {
-      /* El directorio ya existe */
+      /* Directory already exists */
       return -1;
    }
-   /*Lleno los campos del nodo*/
+   /* Fill the vnode fields */
    dir_inode_p->n_info.type = VFS_FTDIR;
-   /*Los atributos de fs ya fueron heredados mediante vfs_inode_reserve*/
    parent_inode_p = dir_inode_p->parent_node;
    ret = (dir_inode_p->fs_info).drv->driver_op->fs_create_node(parent_inode_p, dir_inode_p);
    if(ret)
    {
-      /* TODO: No se pudo crear el nodo de la capa inferior. Manejar la situacion */
+      /* Could not create lower layer node. Handle the issue */
       return -1;
    }
 
@@ -787,108 +864,99 @@ extern int ciaaFS_mkdir(const char *dir_path, mode_t mode)
 
 extern int ciaaFS_rmdir(const char *dir_path)
 {
-   vnode_t *dir_inode_p, *parent_inode_p;
-   char
+   vnode_t *target_inode;
    int               ret;
+   char *auxpath;
 
-   char *tpath = (char *) dir_path;
-   /*Creo un nodo pelado en el dir_path*/
-   /*vfs_inode_reserve hereda los atributos de fs del padre*/
-   if(dir_path->parent_node == NULL)
+   auxpath = (char *) dir_path;
+   ret = vfs_inode_search(&auxpath, &target_inode);   /* Return 0 if node found */
+   ASSERT_MSG(0 == ret, "mount(): vfs_inode_search() failed. Device doesnt exist");
+   if(ret)
+   {
+      /* The directory doesnt exist */
+      return -1;
+   }
+
+   if(NULL == target_inode->parent_node)
    {
       /* Cannot erase root */
       return -1;
    }
 
-   auxpath = (char *) path;
-   ret = vfs_inode_search(&auxpath, &target_inode);   /* Devuelve 0 si encuentra el nodo */
-   /*Lleno los campos del nodo*/
-   dir_inode_p->n_info.type = VFS_FTDIR;
-   /*Los atributos de fs ya fueron heredados mediante vfs_inode_reserve*/
-   parent_inode_p = dir_inode_p->parent_node;
-   ret = (dir_inode_p->fs_info).drv->driver_op->fs_create_node(parent_inode_p, dir_inode_p);
-   if(ret)
-   {
-      /* TODO: No se pudo crear el nodo de la capa inferior. Manejar la situacion */
-      return -1;
-   }
+   /* TODO */
 
    return 0;
 }
 
 /*
- *  TODO: No puedo crear un subarbol, solo un archivo. Validar que en el path dado el unico elemento inexistente
- *  es el ultimo.
+ *   TODO: Current implementation can create a subtree. Should only create a leaf. Validate path.
  */
 extern int ciaaFS_open(const char *path, int flags) {
 
    vnode_t *target_inode, *parent_inode;
-   struct file_desc *file;
+   file_desc_t *file;
    char *auxpath;
    int ret, fd;
 
    auxpath = (char *) path;
-   ret = vfs_inode_search(&auxpath, &target_inode);   /* Devuelve 0 si encuentra el nodo */
-   if (ret)   /* El nodo no existia, hay que crear uno nuevo si la opcion esta dada, sino error */
+   ret = vfs_inode_search(&auxpath, &target_inode);   /* Return 0 if node found */
+   if (ret)
    {
-      ciaaPOSIX_printf("open(): El nodo no existia, hay que crear uno nuevo\n");
+      /* Node does not exist. Must create a new file if VFS_O_CREAT set */
       if (flags & VFS_O_CREAT)
       {
-         ciaaPOSIX_printf("open(): Se dio orden de crearlo, lo creo\n");
-         /* Creo un nodo pelado en el dir_path */
-         /* vfs_inode_reserve hereda los atributos de fs del padre */
+         /* Create empty node in dir_path */
+         /* vfs_inode_reserve(): The new node inherits the fathers fs info */
          auxpath= (char *)path;
          ret = vfs_inode_reserve(auxpath, &target_inode);
-         ASSERT_MSG(target_inode!=NULL, "open(): vfs_inode_reserve() failed");
-         if(target_inode==NULL)
+         ASSERT_MSG(NULL != target_inode, "open(): vfs_inode_reserve() failed");
+         if(NULL == target_inode)
          {
-            /* Hubo un error al crear el nodo */
+            /* Error when allocating node */
             return -1;
          }
          target_inode->n_info.type = VFS_FTREG;
-         /* Llenar todos los campos como kcreat */
-         /* Creo el archivo en la capa inferior */
+         /* Create node in lower layer */
          parent_inode = target_inode->parent_node;
          ret = target_inode->fs_info.drv->driver_op->fs_create_node(parent_inode, target_inode);
          ASSERT_MSG(ret>=0, "open(): fs_create_node() failed");
          if(ret)
          {
-            /* No se pudo crear el nodo a bajo nivel. Manejar la situacion */
+            /* Could not create lower layer node. Handle the issue */
             return -1;
          }
       }
       else
       {
-         /* El nodo no existia pero no se dio la orden de crearlo. Devuelvo error */
+         /* Node does not exist, but VFS_O_CREAT not set. Error */
          return -1;
       }
    }
    else      /* El nodo ya existe, no hay que crearlo, solo abrir el archivo */
    {
-      /* When used with O_CREAT, if the file already exists it is an error
-       * and the open() will fail
+      /* Node exists. Only open the file.
+       * If O_CREAT was set, if the file already exists it is an error.
        */
       if ((flags & VFS_O_EXCL) && (flags & VFS_O_CREAT))
       {
          return -1;
       }
-
-      if(target_inode->n_info.type == VFS_FTDIR)
+      /* TODO: Contemplate more cases of filetypes */
+      if(VFS_FTDIR == target_inode->n_info.type || VFS_FTUNKNOWN == target_inode->n_info.type)
       {
-         /* No puedo abrir un directorio o un nodo desconocido */
          return -1;
       }
    }
 
    file = file_desc_create(target_inode);
-   ASSERT_MSG(file!=NULL, "open(): file_desc_create() failed");
-   if(file == NULL)
+   ASSERT_MSG(NULL != file, "open(): file_desc_create() failed");
+   if(NULL == file)
    {
       return -1;
    }
    fd = file->index;
    ret = file->node->fs_info.drv->driver_op->file_open(file);
-   ASSERT_MSG(ret>=0, "open(): file_open() failed");
+   ASSERT_MSG(ret >= 0, "open(): file_open() failed");
    if(ret)
    {
       file_desc_destroy(file);
@@ -900,14 +968,13 @@ extern int ciaaFS_open(const char *path, int flags) {
 
 extern int ciaaFS_close(int fd)
 {
-   struct file_desc *file;
+   file_desc_t *file;
    ssize_t ret;
 
-   /* Obtener el descriptor de archivo a partir de fd */
+   /* Get the file object from the file descriptor */
    file = file_desc_get(fd);
-   /* Validar el descriptor de archivo */
-   ASSERT_MSG(file!=NULL, "read(): file_desc_get() failed");
-   if(file==NULL)
+   ASSERT_MSG(NULL != file, "read(): file_desc_get() failed");
+   if(NULL == file)
    {
       /* Invalid file descriptor */
       return -1;
@@ -922,32 +989,30 @@ extern int ciaaFS_close(int fd)
 
 extern ssize_t ciaaFS_read(int fd, void *buf, size_t nbytes)
 {
-   struct file_desc *file;
+   file_desc_t *file;
    ssize_t ret;
 
-   /* Obtener el descriptor de archivo a partir de fd */
+   /* Get the file object from the file descriptor */
    file = file_desc_get(fd);
-   /* Validar el descriptor de archivo */
-   ASSERT_MSG(file!=NULL, "read(): file_desc_get() failed");
-   if(file==NULL)
+   ASSERT_MSG(NULL != file, "read(): file_desc_get() failed");
+   if(NULL == file)
    {
       /* Invalid file descriptor */
       return -1;
    }
 
-   /* Verificar que el driver soporta lectura */
-   /* No. Error */
-   if(file->node->fs_info.drv->driver_op->file_read == NULL)
+   /* Verify that the lower layer driver implements the read operation */
+   if(NULL == file->node->fs_info.drv->driver_op->file_read)
    {
-      /* El archivo no soporta lectura */
+      /* Driver doesnt support read */
       return 1;
    }
-   /* Rutina de lectura del driver */
+   /* Lower layer read operation */
    ret = file->node->fs_info.drv->driver_op->file_read(file, buf, nbytes);
-   ASSERT_MSG(ret==nbytes, "read(): file_read() failed");
-   if(ret!=nbytes)
+   ASSERT_MSG(ret == nbytes, "read(): file_read() failed");
+   if(ret != nbytes)
    {
-      /* Setear ERROR para indicar que no se pudo leer todo */
+      /* TODO: Set ERROR to show that could not read nbytes */
       return ret;
    }
    return ret;
@@ -955,32 +1020,30 @@ extern ssize_t ciaaFS_read(int fd, void *buf, size_t nbytes)
 
 extern ssize_t ciaaFS_write(int fd, void *buf, size_t nbytes)
 {
-   struct file_desc *file;
+   file_desc_t *file;
    ssize_t ret;
 
-   /* Obtener el descriptor de archivo a partir de fd */
+   /* Get the file object from the file descriptor */
    file = file_desc_get(fd);
-   /* Validar el descriptor de archivo */
-   ASSERT_MSG(file!=NULL, "read(): file_desc_get() failed");
-   if(file==NULL)
+   ASSERT_MSG(NULL != file, "read(): file_desc_get() failed");
+   if(NULL == file)
    {
       /* Invalid file descriptor */
       return -1;
    }
 
-   /* Verificar que el driver soporta escritura */
-   /*No. Error*/
-   if(file->node->fs_info.drv->driver_op->file_write == NULL)
+   /* Verify that the lower layer driver implements the write operation */
+   if(NULL == file->node->fs_info.drv->driver_op->file_write)
    {
-      /* El archivo no soporta escritura */
+      /* Driver doesnt support write */
       return 1;
    }
-   /* Rutina de escritura del driver */
+   /* Lower layer write operation */
    ret = file->node->fs_info.drv->driver_op->file_write(file, buf, nbytes);
-   ASSERT_MSG(ret==nbytes, "write(): file_write() failed");
+   ASSERT_MSG(ret == nbytes, "write(): file_write() failed");
    if(ret!=nbytes)
    {
-      /* Setear ERROR para indicar que no se pudo escribir todo */
+      /* TODO: Set ERROR to show that could not write nbytes */
       return ret;
    }
    return ret;
@@ -988,19 +1051,17 @@ extern ssize_t ciaaFS_write(int fd, void *buf, size_t nbytes)
 
 extern ssize_t ciaaFS_lseek(int fd, ssize_t offset, int whence)
 {
-   struct file_desc *file;
+   file_desc_t *file;
    ssize_t pos;
 
-   /* Obtener el descriptor de archivo a partir de fd */
+   /* Get the file object from the file descriptor */
    file = file_desc_get(fd);
-   /* Validar el descriptor de archivo */
-   ASSERT_MSG(file!=NULL, "read(): file_desc_get() failed");
-   if(file==NULL)
+   ASSERT_MSG(NULL != file, "read(): file_desc_get() failed");
+   if(NULL == file)
    {
       /* Invalid file descriptor */
       return -1;
    }
-
    pos=0;
    switch(whence)
    {
@@ -1019,51 +1080,54 @@ extern ssize_t ciaaFS_lseek(int fd, ssize_t offset, int whence)
    {
       file->node->f_info.file_pointer = (uint32_t) pos;
    }
+
    return file->node->f_info.file_pointer;
 }
 
 extern int ciaaFS_unlink(const char *path)
 {
    vnode_t *target_inode;
-   struct filesystem_driver *driver;
+   filesystem_driver_t *driver;
    char *auxpath;
    int ret;
 
    auxpath = (char *) path;
-   ret = vfs_inode_search(&auxpath, &target_inode);   /* Devuelve 0 si encuentra el nodo */
+   ret = vfs_inode_search(&auxpath, &target_inode);   /* Return 0 if node found */
    if(ret)
    {
       /* File not found */
       return -1;
    }
-   if(target_inode->n_info.type != VFS_FTREG)
+   if(VFS_FTREG != target_inode->n_info.type)
    {
       /* Not a regular file, can not unlink */
       return -1;
    }
    driver = target_inode->fs_info.drv;
-   if(driver == NULL)
+   if(NULL == driver)
    {
       /*No driver. Fatal error*/
       return -1;
    }
-   if(driver->driver_op->fs_delete_node == NULL)
+   if(NULL == driver->driver_op->fs_delete_node)
    {
       /*The filesystem driver does not support this method*/
       return -1;
    }
-
    ret = driver->driver_op->fs_delete_node(target_inode->parent_node, target_inode);
    if(ret)
    {
       /* Filesystem op failed */
       return -1;
    }
-   /* Remove node from vfs */
-   /*vfs_del_leaf(node);*/
-
-	return 0;
-
+   /* TODO: Remove node from vfs */
+   ret = vfs_delete_child(target_inode);
+   if(ret)
+   {
+      /* Filesystem op failed */
+      return -1;
+   }
+   return 0;
 }
 
 /** @} doxygen end group definition */
