@@ -51,54 +51,54 @@
 
 uint16_t BattBak_unlockBackupSubSystem(uint16_t baseAddress)
 {
-    HWREG8(baseAddress + OFS_BAKCTL) &= ~(LOCKBAK);
-    return (HWREG8(baseAddress + OFS_BAKCTL) & LOCKBAK);
+	HWREG8(baseAddress + OFS_BAKCTL) &= ~(LOCKBAK);
+	return (HWREG8(baseAddress + OFS_BAKCTL) & LOCKBAK);
 }
 
 void BattBak_enableBackupSupplyToADC(uint16_t baseAddress)
 {
-    HWREG8(baseAddress + OFS_BAKCTL) |= BAKADC;
+	HWREG8(baseAddress + OFS_BAKCTL) |= BAKADC;
 }
 
 void BattBak_disableBackupSupplyToADC(uint16_t baseAddress)
 {
-    HWREG8(baseAddress + OFS_BAKCTL) &= ~(BAKADC);
+	HWREG8(baseAddress + OFS_BAKCTL) &= ~(BAKADC);
 }
 
 void BattBak_switchToBackupSupplyManually(uint16_t baseAddress)
 {
-    HWREG8(baseAddress + OFS_BAKCTL) |= BAKSW;
+	HWREG8(baseAddress + OFS_BAKCTL) |= BAKSW;
 }
 
 void BattBak_disable(uint16_t baseAddress)
 {
-    HWREG8(baseAddress + OFS_BAKCTL) |= BAKDIS;
+	HWREG8(baseAddress + OFS_BAKCTL) |= BAKDIS;
 }
 
 void BattBak_initAndEnableCharger(uint16_t baseAddress,
                                   uint8_t chargerEndVoltage,
                                   uint8_t chargeCurrent)
 {
-    HWREG16(baseAddress +
-            OFS_BAKCHCTL) = CHPWD + chargerEndVoltage + chargeCurrent + CHEN;
+	HWREG16(baseAddress +
+	        OFS_BAKCHCTL) = CHPWD + chargerEndVoltage + chargeCurrent + CHEN;
 }
 
 void BattBak_disableCharger(uint16_t baseAddress)
 {
-    HWREG16(baseAddress + OFS_BAKCHCTL) = CHPWD;
+	HWREG16(baseAddress + OFS_BAKCHCTL) = CHPWD;
 }
 
 void BattBak_setBackupRAMData(uint16_t baseAddress,
                               uint8_t backupRAMSelect,
                               uint16_t data)
 {
-    HWREG16(baseAddress + backupRAMSelect) = data;
+	HWREG16(baseAddress + backupRAMSelect) = data;
 }
 
 uint16_t BattBak_getBackupRAMData(uint16_t baseAddress,
                                   uint8_t backupRAMSelect)
 {
-    return (HWREG16(baseAddress + backupRAMSelect));
+	return (HWREG16(baseAddress + backupRAMSelect));
 }
 
 #endif

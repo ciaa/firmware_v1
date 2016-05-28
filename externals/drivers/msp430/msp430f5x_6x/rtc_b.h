@@ -62,20 +62,20 @@ extern "C"
 //*****************************************************************************
 typedef struct Calendar
 {
-    //! Seconds of minute between 0-59
-    uint8_t Seconds;
-    //! Minutes of hour between 0-59
-    uint8_t Minutes;
-    //! Hour of day between 0-23
-    uint8_t Hours;
-    //! Day of week between 0-6
-    uint8_t DayOfWeek;
-    //! Day of month between 1-31
-    uint8_t DayOfMonth;
-    //! Month between 0-11
-    uint8_t Month;
-    //! Year between 0-4095
-    uint16_t Year;
+	//! Seconds of minute between 0-59
+	uint8_t Seconds;
+	//! Minutes of hour between 0-59
+	uint8_t Minutes;
+	//! Hour of day between 0-23
+	uint8_t Hours;
+	//! Day of week between 0-6
+	uint8_t DayOfWeek;
+	//! Day of month between 1-31
+	uint8_t DayOfMonth;
+	//! Month between 0-11
+	uint8_t Month;
+	//! Year between 0-4095
+	uint16_t Year;
 } Calendar;
 
 //*****************************************************************************
@@ -86,22 +86,22 @@ typedef struct Calendar
 //*****************************************************************************
 typedef struct RTC_B_configureCalendarAlarmParam
 {
-    //! Is the alarm condition for the minutes.
-    //! \n Valid values are:
-    //! - \b RTC_B_ALARMCONDITION_OFF [Default]
-    uint8_t minutesAlarm;
-    //! Is the alarm condition for the hours.
-    //! \n Valid values are:
-    //! - \b RTC_B_ALARMCONDITION_OFF [Default]
-    uint8_t hoursAlarm;
-    //! Is the alarm condition for the day of week.
-    //! \n Valid values are:
-    //! - \b RTC_B_ALARMCONDITION_OFF [Default]
-    uint8_t dayOfWeekAlarm;
-    //! Is the alarm condition for the day of the month.
-    //! \n Valid values are:
-    //! - \b RTC_B_ALARMCONDITION_OFF [Default]
-    uint8_t dayOfMonthAlarm;
+	//! Is the alarm condition for the minutes.
+	//! \n Valid values are:
+	//! - \b RTC_B_ALARMCONDITION_OFF [Default]
+	uint8_t minutesAlarm;
+	//! Is the alarm condition for the hours.
+	//! \n Valid values are:
+	//! - \b RTC_B_ALARMCONDITION_OFF [Default]
+	uint8_t hoursAlarm;
+	//! Is the alarm condition for the day of week.
+	//! \n Valid values are:
+	//! - \b RTC_B_ALARMCONDITION_OFF [Default]
+	uint8_t dayOfWeekAlarm;
+	//! Is the alarm condition for the day of the month.
+	//! \n Valid values are:
+	//! - \b RTC_B_ALARMCONDITION_OFF [Default]
+	uint8_t dayOfMonthAlarm;
 } RTC_B_configureCalendarAlarmParam;
 
 //*****************************************************************************

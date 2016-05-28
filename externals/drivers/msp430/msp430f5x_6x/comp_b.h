@@ -61,67 +61,67 @@ extern "C"
 //*****************************************************************************
 typedef struct Comp_B_initParam
 {
-    //! Selects the input to the positive terminal.
-    //! \n Valid values are:
-    //! - \b COMP_B_INPUT0 [Default]
-    //! - \b COMP_B_INPUT1
-    //! - \b COMP_B_INPUT2
-    //! - \b COMP_B_INPUT3
-    //! - \b COMP_B_INPUT4
-    //! - \b COMP_B_INPUT5
-    //! - \b COMP_B_INPUT6
-    //! - \b COMP_B_INPUT7
-    //! - \b COMP_B_INPUT8
-    //! - \b COMP_B_INPUT9
-    //! - \b COMP_B_INPUT10
-    //! - \b COMP_B_INPUT11
-    //! - \b COMP_B_INPUT12
-    //! - \b COMP_B_INPUT13
-    //! - \b COMP_B_INPUT14
-    //! - \b COMP_B_INPUT15
-    //! - \b COMP_B_VREF
-    uint8_t positiveTerminalInput;
-    //! Selects the input to the negative terminal.
-    //! \n Valid values are:
-    //! - \b COMP_B_INPUT0 [Default]
-    //! - \b COMP_B_INPUT1
-    //! - \b COMP_B_INPUT2
-    //! - \b COMP_B_INPUT3
-    //! - \b COMP_B_INPUT4
-    //! - \b COMP_B_INPUT5
-    //! - \b COMP_B_INPUT6
-    //! - \b COMP_B_INPUT7
-    //! - \b COMP_B_INPUT8
-    //! - \b COMP_B_INPUT9
-    //! - \b COMP_B_INPUT10
-    //! - \b COMP_B_INPUT11
-    //! - \b COMP_B_INPUT12
-    //! - \b COMP_B_INPUT13
-    //! - \b COMP_B_INPUT14
-    //! - \b COMP_B_INPUT15
-    //! - \b COMP_B_VREF
-    uint8_t negativeTerminalInput;
-    //! Selects the power mode at which the Comp_B module will operate at.
-    //! \n Valid values are:
-    //! - \b COMP_B_POWERMODE_HIGHSPEED [Default]
-    //! - \b COMP_B_POWERMODE_NORMALMODE
-    //! - \b COMP_B_POWERMODE_ULTRALOWPOWER
-    uint16_t powerModeSelect;
-    //! Controls the output filter delay state, which is either off or enabled
-    //! with a specified delay level. This parameter is device specific and
-    //! delay levels should be found in the device's datasheet.
-    //! \n Valid values are:
-    //! - \b COMP_B_FILTEROUTPUT_OFF [Default]
-    //! - \b COMP_B_FILTEROUTPUT_DLYLVL1
-    //! - \b COMP_B_FILTEROUTPUT_DLYLVL2
-    //! - \b COMP_B_FILTEROUTPUT_DLYLVL3
-    //! - \b COMP_B_FILTEROUTPUT_DLYLVL4
-    uint8_t outputFilterEnableAndDelayLevel;
-    //! Controls if the output will be inverted or not
-    //! \n Valid values are:
-    //! - \b COMP_B_NORMALOUTPUTPOLARITY [Default]
-    //! - \b COMP_B_INVERTEDOUTPUTPOLARITY
-    uint16_t invertedOutputPolarity;
+	//! Selects the input to the positive terminal.
+	//! \n Valid values are:
+	//! - \b COMP_B_INPUT0 [Default]
+	//! - \b COMP_B_INPUT1
+	//! - \b COMP_B_INPUT2
+	//! - \b COMP_B_INPUT3
+	//! - \b COMP_B_INPUT4
+	//! - \b COMP_B_INPUT5
+	//! - \b COMP_B_INPUT6
+	//! - \b COMP_B_INPUT7
+	//! - \b COMP_B_INPUT8
+	//! - \b COMP_B_INPUT9
+	//! - \b COMP_B_INPUT10
+	//! - \b COMP_B_INPUT11
+	//! - \b COMP_B_INPUT12
+	//! - \b COMP_B_INPUT13
+	//! - \b COMP_B_INPUT14
+	//! - \b COMP_B_INPUT15
+	//! - \b COMP_B_VREF
+	uint8_t positiveTerminalInput;
+	//! Selects the input to the negative terminal.
+	//! \n Valid values are:
+	//! - \b COMP_B_INPUT0 [Default]
+	//! - \b COMP_B_INPUT1
+	//! - \b COMP_B_INPUT2
+	//! - \b COMP_B_INPUT3
+	//! - \b COMP_B_INPUT4
+	//! - \b COMP_B_INPUT5
+	//! - \b COMP_B_INPUT6
+	//! - \b COMP_B_INPUT7
+	//! - \b COMP_B_INPUT8
+	//! - \b COMP_B_INPUT9
+	//! - \b COMP_B_INPUT10
+	//! - \b COMP_B_INPUT11
+	//! - \b COMP_B_INPUT12
+	//! - \b COMP_B_INPUT13
+	//! - \b COMP_B_INPUT14
+	//! - \b COMP_B_INPUT15
+	//! - \b COMP_B_VREF
+	uint8_t negativeTerminalInput;
+	//! Selects the power mode at which the Comp_B module will operate at.
+	//! \n Valid values are:
+	//! - \b COMP_B_POWERMODE_HIGHSPEED [Default]
+	//! - \b COMP_B_POWERMODE_NORMALMODE
+	//! - \b COMP_B_POWERMODE_ULTRALOWPOWER
+	uint16_t powerModeSelect;
+	//! Controls the output filter delay state, which is either off or enabled
+	//! with a specified delay level. This parameter is device specific and
+	//! delay levels should be found in the device's datasheet.
+	//! \n Valid values are:
+	//! - \b COMP_B_FILTEROUTPUT_OFF [Default]
+	//! - \b COMP_B_FILTEROUTPUT_DLYLVL1
+	//! - \b COMP_B_FILTEROUTPUT_DLYLVL2
+	//! - \b COMP_B_FILTEROUTPUT_DLYLVL3
+	//! - \b COMP_B_FILTEROUTPUT_DLYLVL4
+	uint8_t outputFilterEnableAndDelayLevel;
+	//! Controls if the output will be inverted or not
+	//! \n Valid values are:
+	//! - \b COMP_B_NORMALOUTPUTPOLARITY [Default]
+	//! - \b COMP_B_INVERTEDOUTPUTPOLARITY
+	uint16_t invertedOutputPolarity;
 } Comp_B_initParam;
 
 //*****************************************************************************
@@ -132,26 +132,26 @@ typedef struct Comp_B_initParam
 //*****************************************************************************
 typedef struct Comp_B_configureReferenceVoltageParam
 {
-    //! Decides the source and max amount of Voltage that can be used as a
-    //! reference.
-    //! \n Valid values are:
-    //! - \b COMP_B_VREFBASE_VCC
-    //! - \b COMP_B_VREFBASE1_5V
-    //! - \b COMP_B_VREFBASE2_0V
-    //! - \b COMP_B_VREFBASE2_5V
-    uint16_t supplyVoltageReferenceBase;
-    //! Is the numerator of the equation to generate the reference voltage for
-    //! the lower limit reference voltage.
-    uint16_t lowerLimitSupplyVoltageFractionOf32;
-    //! Is the numerator of the equation to generate the reference voltage for
-    //! the upper limit reference voltage.
-    uint16_t upperLimitSupplyVoltageFractionOf32;
-    //!  is the reference accuracy setting of the Comp_B. Clocked is for low
-    //! power/low accuracy.
-    //! \n Valid values are:
-    //! - \b COMP_B_ACCURACY_STATIC
-    //! - \b COMP_B_ACCURACY_CLOCKED
-    uint16_t referenceAccuracy;
+	//! Decides the source and max amount of Voltage that can be used as a
+	//! reference.
+	//! \n Valid values are:
+	//! - \b COMP_B_VREFBASE_VCC
+	//! - \b COMP_B_VREFBASE1_5V
+	//! - \b COMP_B_VREFBASE2_0V
+	//! - \b COMP_B_VREFBASE2_5V
+	uint16_t supplyVoltageReferenceBase;
+	//! Is the numerator of the equation to generate the reference voltage for
+	//! the lower limit reference voltage.
+	uint16_t lowerLimitSupplyVoltageFractionOf32;
+	//! Is the numerator of the equation to generate the reference voltage for
+	//! the upper limit reference voltage.
+	uint16_t upperLimitSupplyVoltageFractionOf32;
+	//!  is the reference accuracy setting of the Comp_B. Clocked is for low
+	//! power/low accuracy.
+	//! \n Valid values are:
+	//! - \b COMP_B_ACCURACY_STATIC
+	//! - \b COMP_B_ACCURACY_CLOCKED
+	uint16_t referenceAccuracy;
 } Comp_B_configureReferenceVoltageParam;
 
 //*****************************************************************************

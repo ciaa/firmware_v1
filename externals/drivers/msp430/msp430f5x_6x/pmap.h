@@ -61,17 +61,17 @@ extern "C"
 //*****************************************************************************
 typedef struct PMAP_initPortsParam
 {
-    //! Is the pointer to init Data
-    const uint8_t* portMapping;
-    //! Is the pointer start of first PMAP to initialize
-    uint8_t* PxMAPy;
-    //! Is the number of Ports to initialize
-    uint8_t numberOfPorts;
-    //! Is used to enable/disable reconfiguration
-    //! \n Valid values are:
-    //! - \b PMAP_ENABLE_RECONFIGURATION
-    //! - \b PMAP_DISABLE_RECONFIGURATION [Default]
-    uint8_t portMapReconfigure;
+	//! Is the pointer to init Data
+	const uint8_t* portMapping;
+	//! Is the pointer start of first PMAP to initialize
+	uint8_t* PxMAPy;
+	//! Is the number of Ports to initialize
+	uint8_t numberOfPorts;
+	//! Is used to enable/disable reconfiguration
+	//! \n Valid values are:
+	//! - \b PMAP_ENABLE_RECONFIGURATION
+	//! - \b PMAP_DISABLE_RECONFIGURATION [Default]
+	uint8_t portMapReconfigure;
 } PMAP_initPortsParam;
 
 //*****************************************************************************

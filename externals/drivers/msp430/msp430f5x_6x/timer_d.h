@@ -70,61 +70,61 @@ extern "C"
 //*****************************************************************************
 typedef struct Timer_D_initUpModeParam
 {
-    //! Selects Clock source.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKSOURCE_EXTERNAL_TDCLK [Default]
-    //! - \b TIMER_D_CLOCKSOURCE_ACLK
-    //! - \b TIMER_D_CLOCKSOURCE_SMCLK
-    //! - \b TIMER_D_CLOCKSOURCE_INVERTED_EXTERNAL_TDCLK
-    uint16_t clockSource;
-    //! Is the divider for clock source.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_1 [Default]
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_2
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_3
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_4
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_5
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_6
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_7
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_8
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_10
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_12
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_14
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_16
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_20
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_24
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_28
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_32
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_40
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_48
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_56
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_64
-    uint16_t clockSourceDivider;
-    //! Is the selected clock mode register values.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKINGMODE_EXTERNAL_CLOCK [Default]
-    //! - \b TIMER_D_CLOCKINGMODE_HIRES_LOCAL_CLOCK
-    //! - \b TIMER_D_CLOCKINGMODE_AUXILIARY_CLK
-    uint16_t clockingMode;
-    //! Is the specified timer period. This is the value that gets written into
-    //! the CCR0. Limited to 16 bits [uint16_t]
-    uint16_t timerPeriod;
-    //! Is to enable or disable timer interrupt
-    //! \n Valid values are:
-    //! - \b TIMER_D_TDIE_INTERRUPT_ENABLE
-    //! - \b TIMER_D_TDIE_INTERRUPT_DISABLE [Default]
-    uint16_t timerInterruptEnable_TDIE;
-    //! Is to enable or disable timer CCR0 captureComapre interrupt.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CCIE_CCR0_INTERRUPT_ENABLE
-    //! - \b TIMER_D_CCIE_CCR0_INTERRUPT_DISABLE [Default]
-    uint16_t captureCompareInterruptEnable_CCR0_CCIE;
-    //! Decides if timer clock divider, count direction, count need to be
-    //! reset.
-    //! \n Valid values are:
-    //! - \b TIMER_D_DO_CLEAR
-    //! - \b TIMER_D_SKIP_CLEAR [Default]
-    uint16_t timerClear;
+	//! Selects Clock source.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKSOURCE_EXTERNAL_TDCLK [Default]
+	//! - \b TIMER_D_CLOCKSOURCE_ACLK
+	//! - \b TIMER_D_CLOCKSOURCE_SMCLK
+	//! - \b TIMER_D_CLOCKSOURCE_INVERTED_EXTERNAL_TDCLK
+	uint16_t clockSource;
+	//! Is the divider for clock source.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_1 [Default]
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_2
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_3
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_4
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_5
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_6
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_7
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_8
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_10
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_12
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_14
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_16
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_20
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_24
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_28
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_32
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_40
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_48
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_56
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_64
+	uint16_t clockSourceDivider;
+	//! Is the selected clock mode register values.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKINGMODE_EXTERNAL_CLOCK [Default]
+	//! - \b TIMER_D_CLOCKINGMODE_HIRES_LOCAL_CLOCK
+	//! - \b TIMER_D_CLOCKINGMODE_AUXILIARY_CLK
+	uint16_t clockingMode;
+	//! Is the specified timer period. This is the value that gets written into
+	//! the CCR0. Limited to 16 bits [uint16_t]
+	uint16_t timerPeriod;
+	//! Is to enable or disable timer interrupt
+	//! \n Valid values are:
+	//! - \b TIMER_D_TDIE_INTERRUPT_ENABLE
+	//! - \b TIMER_D_TDIE_INTERRUPT_DISABLE [Default]
+	uint16_t timerInterruptEnable_TDIE;
+	//! Is to enable or disable timer CCR0 captureComapre interrupt.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CCIE_CCR0_INTERRUPT_ENABLE
+	//! - \b TIMER_D_CCIE_CCR0_INTERRUPT_DISABLE [Default]
+	uint16_t captureCompareInterruptEnable_CCR0_CCIE;
+	//! Decides if timer clock divider, count direction, count need to be
+	//! reset.
+	//! \n Valid values are:
+	//! - \b TIMER_D_DO_CLEAR
+	//! - \b TIMER_D_SKIP_CLEAR [Default]
+	uint16_t timerClear;
 } Timer_D_initUpModeParam;
 
 //*****************************************************************************
@@ -135,34 +135,34 @@ typedef struct Timer_D_initUpModeParam
 //*****************************************************************************
 typedef struct Timer_D_initCompareModeParam
 {
-    //! Selects the Capture register being used.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_0
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_1
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_2
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_3
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_4
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_5
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_6
-    uint16_t compareRegister;
-    //! Is to enable or disable timer captureComapre interrupt.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CAPTURECOMPARE_INTERRUPT_ENABLE
-    //! - \b TIMER_D_CAPTURECOMPARE_INTERRUPT_DISABLE [Default]
-    uint16_t compareInterruptEnable;
-    //! Specifies the output mode.
-    //! \n Valid values are:
-    //! - \b TIMER_D_OUTPUTMODE_OUTBITVALUE [Default]
-    //! - \b TIMER_D_OUTPUTMODE_SET
-    //! - \b TIMER_D_OUTPUTMODE_TOGGLE_RESET
-    //! - \b TIMER_D_OUTPUTMODE_SET_RESET
-    //! - \b TIMER_D_OUTPUTMODE_TOGGLE
-    //! - \b TIMER_D_OUTPUTMODE_RESET
-    //! - \b TIMER_D_OUTPUTMODE_TOGGLE_SET
-    //! - \b TIMER_D_OUTPUTMODE_RESET_SET
-    uint16_t compareOutputMode;
-    //! Is the count to be compared with in compare mode
-    uint16_t compareValue;
+	//! Selects the Capture register being used.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_0
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_1
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_2
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_3
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_4
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_5
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_6
+	uint16_t compareRegister;
+	//! Is to enable or disable timer captureComapre interrupt.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CAPTURECOMPARE_INTERRUPT_ENABLE
+	//! - \b TIMER_D_CAPTURECOMPARE_INTERRUPT_DISABLE [Default]
+	uint16_t compareInterruptEnable;
+	//! Specifies the output mode.
+	//! \n Valid values are:
+	//! - \b TIMER_D_OUTPUTMODE_OUTBITVALUE [Default]
+	//! - \b TIMER_D_OUTPUTMODE_SET
+	//! - \b TIMER_D_OUTPUTMODE_TOGGLE_RESET
+	//! - \b TIMER_D_OUTPUTMODE_SET_RESET
+	//! - \b TIMER_D_OUTPUTMODE_TOGGLE
+	//! - \b TIMER_D_OUTPUTMODE_RESET
+	//! - \b TIMER_D_OUTPUTMODE_TOGGLE_SET
+	//! - \b TIMER_D_OUTPUTMODE_RESET_SET
+	uint16_t compareOutputMode;
+	//! Is the count to be compared with in compare mode
+	uint16_t compareValue;
 } Timer_D_initCompareModeParam;
 
 //*****************************************************************************
@@ -173,53 +173,53 @@ typedef struct Timer_D_initCompareModeParam
 //*****************************************************************************
 typedef struct Timer_D_initContinuousModeParam
 {
-    //! Selects Clock source.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKSOURCE_EXTERNAL_TDCLK [Default]
-    //! - \b TIMER_D_CLOCKSOURCE_ACLK
-    //! - \b TIMER_D_CLOCKSOURCE_SMCLK
-    //! - \b TIMER_D_CLOCKSOURCE_INVERTED_EXTERNAL_TDCLK
-    uint16_t clockSource;
-    //! Is the divider for clock source.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_1 [Default]
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_2
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_3
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_4
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_5
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_6
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_7
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_8
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_10
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_12
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_14
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_16
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_20
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_24
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_28
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_32
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_40
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_48
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_56
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_64
-    uint16_t clockSourceDivider;
-    //! Is the selected clock mode register values.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKINGMODE_EXTERNAL_CLOCK [Default]
-    //! - \b TIMER_D_CLOCKINGMODE_HIRES_LOCAL_CLOCK
-    //! - \b TIMER_D_CLOCKINGMODE_AUXILIARY_CLK
-    uint16_t clockingMode;
-    //! Is to enable or disable timer interrupt
-    //! \n Valid values are:
-    //! - \b TIMER_D_TDIE_INTERRUPT_ENABLE
-    //! - \b TIMER_D_TDIE_INTERRUPT_DISABLE [Default]
-    uint16_t timerInterruptEnable_TDIE;
-    //! Decides if timer clock divider, count direction, count need to be
-    //! reset.
-    //! \n Valid values are:
-    //! - \b TIMER_D_DO_CLEAR
-    //! - \b TIMER_D_SKIP_CLEAR [Default]
-    uint16_t timerClear;
+	//! Selects Clock source.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKSOURCE_EXTERNAL_TDCLK [Default]
+	//! - \b TIMER_D_CLOCKSOURCE_ACLK
+	//! - \b TIMER_D_CLOCKSOURCE_SMCLK
+	//! - \b TIMER_D_CLOCKSOURCE_INVERTED_EXTERNAL_TDCLK
+	uint16_t clockSource;
+	//! Is the divider for clock source.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_1 [Default]
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_2
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_3
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_4
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_5
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_6
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_7
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_8
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_10
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_12
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_14
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_16
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_20
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_24
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_28
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_32
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_40
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_48
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_56
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_64
+	uint16_t clockSourceDivider;
+	//! Is the selected clock mode register values.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKINGMODE_EXTERNAL_CLOCK [Default]
+	//! - \b TIMER_D_CLOCKINGMODE_HIRES_LOCAL_CLOCK
+	//! - \b TIMER_D_CLOCKINGMODE_AUXILIARY_CLK
+	uint16_t clockingMode;
+	//! Is to enable or disable timer interrupt
+	//! \n Valid values are:
+	//! - \b TIMER_D_TDIE_INTERRUPT_ENABLE
+	//! - \b TIMER_D_TDIE_INTERRUPT_DISABLE [Default]
+	uint16_t timerInterruptEnable_TDIE;
+	//! Decides if timer clock divider, count direction, count need to be
+	//! reset.
+	//! \n Valid values are:
+	//! - \b TIMER_D_DO_CLEAR
+	//! - \b TIMER_D_SKIP_CLEAR [Default]
+	uint16_t timerClear;
 } Timer_D_initContinuousModeParam;
 
 //*****************************************************************************
@@ -230,60 +230,60 @@ typedef struct Timer_D_initContinuousModeParam
 //*****************************************************************************
 typedef struct Timer_D_initUpDownModeParam
 {
-    //! Selects Clock source.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKSOURCE_EXTERNAL_TDCLK [Default]
-    //! - \b TIMER_D_CLOCKSOURCE_ACLK
-    //! - \b TIMER_D_CLOCKSOURCE_SMCLK
-    //! - \b TIMER_D_CLOCKSOURCE_INVERTED_EXTERNAL_TDCLK
-    uint16_t clockSource;
-    //! Is the divider for clock source.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_1 [Default]
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_2
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_3
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_4
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_5
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_6
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_7
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_8
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_10
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_12
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_14
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_16
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_20
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_24
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_28
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_32
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_40
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_48
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_56
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_64
-    uint16_t clockSourceDivider;
-    //! Is the selected clock mode register values.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKINGMODE_EXTERNAL_CLOCK [Default]
-    //! - \b TIMER_D_CLOCKINGMODE_HIRES_LOCAL_CLOCK
-    //! - \b TIMER_D_CLOCKINGMODE_AUXILIARY_CLK
-    uint16_t clockingMode;
-    //! Is the specified timer period
-    uint16_t timerPeriod;
-    //! Is to enable or disable timer interrupt
-    //! \n Valid values are:
-    //! - \b TIMER_D_TDIE_INTERRUPT_ENABLE
-    //! - \b TIMER_D_TDIE_INTERRUPT_DISABLE [Default]
-    uint16_t timerInterruptEnable_TDIE;
-    //! Is to enable or disable timer CCR0 captureComapre interrupt.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CCIE_CCR0_INTERRUPT_ENABLE
-    //! - \b TIMER_D_CCIE_CCR0_INTERRUPT_DISABLE [Default]
-    uint16_t captureCompareInterruptEnable_CCR0_CCIE;
-    //! Decides if timer clock divider, count direction, count need to be
-    //! reset.
-    //! \n Valid values are:
-    //! - \b TIMER_D_DO_CLEAR
-    //! - \b TIMER_D_SKIP_CLEAR [Default]
-    uint16_t timerClear;
+	//! Selects Clock source.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKSOURCE_EXTERNAL_TDCLK [Default]
+	//! - \b TIMER_D_CLOCKSOURCE_ACLK
+	//! - \b TIMER_D_CLOCKSOURCE_SMCLK
+	//! - \b TIMER_D_CLOCKSOURCE_INVERTED_EXTERNAL_TDCLK
+	uint16_t clockSource;
+	//! Is the divider for clock source.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_1 [Default]
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_2
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_3
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_4
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_5
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_6
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_7
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_8
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_10
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_12
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_14
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_16
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_20
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_24
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_28
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_32
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_40
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_48
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_56
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_64
+	uint16_t clockSourceDivider;
+	//! Is the selected clock mode register values.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKINGMODE_EXTERNAL_CLOCK [Default]
+	//! - \b TIMER_D_CLOCKINGMODE_HIRES_LOCAL_CLOCK
+	//! - \b TIMER_D_CLOCKINGMODE_AUXILIARY_CLK
+	uint16_t clockingMode;
+	//! Is the specified timer period
+	uint16_t timerPeriod;
+	//! Is to enable or disable timer interrupt
+	//! \n Valid values are:
+	//! - \b TIMER_D_TDIE_INTERRUPT_ENABLE
+	//! - \b TIMER_D_TDIE_INTERRUPT_DISABLE [Default]
+	uint16_t timerInterruptEnable_TDIE;
+	//! Is to enable or disable timer CCR0 captureComapre interrupt.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CCIE_CCR0_INTERRUPT_ENABLE
+	//! - \b TIMER_D_CCIE_CCR0_INTERRUPT_DISABLE [Default]
+	uint16_t captureCompareInterruptEnable_CCR0_CCIE;
+	//! Decides if timer clock divider, count direction, count need to be
+	//! reset.
+	//! \n Valid values are:
+	//! - \b TIMER_D_DO_CLEAR
+	//! - \b TIMER_D_SKIP_CLEAR [Default]
+	uint16_t timerClear;
 } Timer_D_initUpDownModeParam;
 
 //*****************************************************************************
@@ -294,54 +294,54 @@ typedef struct Timer_D_initUpDownModeParam
 //*****************************************************************************
 typedef struct Timer_D_initHighResGeneratorInRegulatedModeParam
 {
-    //! Selects Clock source.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKSOURCE_EXTERNAL_TDCLK [Default]
-    //! - \b TIMER_D_CLOCKSOURCE_ACLK
-    //! - \b TIMER_D_CLOCKSOURCE_SMCLK
-    //! - \b TIMER_D_CLOCKSOURCE_INVERTED_EXTERNAL_TDCLK
-    uint16_t clockSource;
-    //! Is the divider for clock source.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_1 [Default]
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_2
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_3
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_4
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_5
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_6
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_7
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_8
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_10
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_12
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_14
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_16
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_20
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_24
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_28
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_32
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_40
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_48
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_56
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_64
-    uint16_t clockSourceDivider;
-    //! Is the selected clock mode register values.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKINGMODE_EXTERNAL_CLOCK [Default]
-    //! - \b TIMER_D_CLOCKINGMODE_HIRES_LOCAL_CLOCK
-    //! - \b TIMER_D_CLOCKINGMODE_AUXILIARY_CLK
-    uint16_t clockingMode;
-    //! Selects the high resolution multiply factor.
-    //! \n Valid values are:
-    //! - \b TIMER_D_HIGHRES_CLK_MULTIPLY_FACTOR_8x
-    //! - \b TIMER_D_HIGHRES_CLK_MULTIPLY_FACTOR_16x
-    uint8_t highResClockMultiplyFactor;
-    //! Selects the high resolution divider.
-    //! \n Valid values are:
-    //! - \b TIMER_D_HIGHRES_CLK_DIVIDER_1
-    //! - \b TIMER_D_HIGHRES_CLK_DIVIDER_2
-    //! - \b TIMER_D_HIGHRES_CLK_DIVIDER_4
-    //! - \b TIMER_D_HIGHRES_CLK_DIVIDER_8
-    uint8_t highResClockDivider;
+	//! Selects Clock source.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKSOURCE_EXTERNAL_TDCLK [Default]
+	//! - \b TIMER_D_CLOCKSOURCE_ACLK
+	//! - \b TIMER_D_CLOCKSOURCE_SMCLK
+	//! - \b TIMER_D_CLOCKSOURCE_INVERTED_EXTERNAL_TDCLK
+	uint16_t clockSource;
+	//! Is the divider for clock source.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_1 [Default]
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_2
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_3
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_4
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_5
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_6
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_7
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_8
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_10
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_12
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_14
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_16
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_20
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_24
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_28
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_32
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_40
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_48
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_56
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_64
+	uint16_t clockSourceDivider;
+	//! Is the selected clock mode register values.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKINGMODE_EXTERNAL_CLOCK [Default]
+	//! - \b TIMER_D_CLOCKINGMODE_HIRES_LOCAL_CLOCK
+	//! - \b TIMER_D_CLOCKINGMODE_AUXILIARY_CLK
+	uint16_t clockingMode;
+	//! Selects the high resolution multiply factor.
+	//! \n Valid values are:
+	//! - \b TIMER_D_HIGHRES_CLK_MULTIPLY_FACTOR_8x
+	//! - \b TIMER_D_HIGHRES_CLK_MULTIPLY_FACTOR_16x
+	uint8_t highResClockMultiplyFactor;
+	//! Selects the high resolution divider.
+	//! \n Valid values are:
+	//! - \b TIMER_D_HIGHRES_CLK_DIVIDER_1
+	//! - \b TIMER_D_HIGHRES_CLK_DIVIDER_2
+	//! - \b TIMER_D_HIGHRES_CLK_DIVIDER_4
+	//! - \b TIMER_D_HIGHRES_CLK_DIVIDER_8
+	uint8_t highResClockDivider;
 } Timer_D_initHighResGeneratorInRegulatedModeParam;
 
 //*****************************************************************************
@@ -352,65 +352,65 @@ typedef struct Timer_D_initHighResGeneratorInRegulatedModeParam
 //*****************************************************************************
 typedef struct Timer_D_combineTDCCRToOutputPWMParam
 {
-    //! Selects Clock source.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKSOURCE_EXTERNAL_TDCLK [Default]
-    //! - \b TIMER_D_CLOCKSOURCE_ACLK
-    //! - \b TIMER_D_CLOCKSOURCE_SMCLK
-    //! - \b TIMER_D_CLOCKSOURCE_INVERTED_EXTERNAL_TDCLK
-    uint16_t clockSource;
-    //! Is the divider for clock source.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_1 [Default]
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_2
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_3
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_4
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_5
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_6
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_7
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_8
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_10
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_12
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_14
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_16
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_20
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_24
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_28
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_32
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_40
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_48
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_56
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_64
-    uint16_t clockSourceDivider;
-    //! Is the selected clock mode register values.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKINGMODE_EXTERNAL_CLOCK [Default]
-    //! - \b TIMER_D_CLOCKINGMODE_HIRES_LOCAL_CLOCK
-    //! - \b TIMER_D_CLOCKINGMODE_AUXILIARY_CLK
-    uint16_t clockingMode;
-    //! Is the specified timer period
-    uint16_t timerPeriod;
-    //! Selects desired CCR registers to combine
-    //! \n Valid values are:
-    //! - \b TIMER_D_COMBINE_CCR1_CCR2
-    //! - \b TIMER_D_COMBINE_CCR3_CCR4 - (available on Timer_D5, Timer_D7)
-    //! - \b TIMER_D_COMBINE_CCR5_CCR6 - (available only on Timer_D7)
-    uint16_t combineCCRRegistersCombination;
-    //! Specifies the output mode.
-    //! \n Valid values are:
-    //! - \b TIMER_D_OUTPUTMODE_OUTBITVALUE [Default]
-    //! - \b TIMER_D_OUTPUTMODE_SET
-    //! - \b TIMER_D_OUTPUTMODE_TOGGLE_RESET
-    //! - \b TIMER_D_OUTPUTMODE_SET_RESET
-    //! - \b TIMER_D_OUTPUTMODE_TOGGLE
-    //! - \b TIMER_D_OUTPUTMODE_RESET
-    //! - \b TIMER_D_OUTPUTMODE_TOGGLE_SET
-    //! - \b TIMER_D_OUTPUTMODE_RESET_SET
-    uint16_t compareOutputMode;
-    //! Specifies the dutycycle for the generated waveform
-    uint16_t dutyCycle1;
-    //! Specifies the dutycycle for the generated waveform
-    uint16_t dutyCycle2;
+	//! Selects Clock source.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKSOURCE_EXTERNAL_TDCLK [Default]
+	//! - \b TIMER_D_CLOCKSOURCE_ACLK
+	//! - \b TIMER_D_CLOCKSOURCE_SMCLK
+	//! - \b TIMER_D_CLOCKSOURCE_INVERTED_EXTERNAL_TDCLK
+	uint16_t clockSource;
+	//! Is the divider for clock source.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_1 [Default]
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_2
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_3
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_4
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_5
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_6
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_7
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_8
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_10
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_12
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_14
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_16
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_20
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_24
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_28
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_32
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_40
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_48
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_56
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_64
+	uint16_t clockSourceDivider;
+	//! Is the selected clock mode register values.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKINGMODE_EXTERNAL_CLOCK [Default]
+	//! - \b TIMER_D_CLOCKINGMODE_HIRES_LOCAL_CLOCK
+	//! - \b TIMER_D_CLOCKINGMODE_AUXILIARY_CLK
+	uint16_t clockingMode;
+	//! Is the specified timer period
+	uint16_t timerPeriod;
+	//! Selects desired CCR registers to combine
+	//! \n Valid values are:
+	//! - \b TIMER_D_COMBINE_CCR1_CCR2
+	//! - \b TIMER_D_COMBINE_CCR3_CCR4 - (available on Timer_D5, Timer_D7)
+	//! - \b TIMER_D_COMBINE_CCR5_CCR6 - (available only on Timer_D7)
+	uint16_t combineCCRRegistersCombination;
+	//! Specifies the output mode.
+	//! \n Valid values are:
+	//! - \b TIMER_D_OUTPUTMODE_OUTBITVALUE [Default]
+	//! - \b TIMER_D_OUTPUTMODE_SET
+	//! - \b TIMER_D_OUTPUTMODE_TOGGLE_RESET
+	//! - \b TIMER_D_OUTPUTMODE_SET_RESET
+	//! - \b TIMER_D_OUTPUTMODE_TOGGLE
+	//! - \b TIMER_D_OUTPUTMODE_RESET
+	//! - \b TIMER_D_OUTPUTMODE_TOGGLE_SET
+	//! - \b TIMER_D_OUTPUTMODE_RESET_SET
+	uint16_t compareOutputMode;
+	//! Specifies the dutycycle for the generated waveform
+	uint16_t dutyCycle1;
+	//! Specifies the dutycycle for the generated waveform
+	uint16_t dutyCycle2;
 } Timer_D_combineTDCCRToOutputPWMParam;
 
 //*****************************************************************************
@@ -421,57 +421,57 @@ typedef struct Timer_D_combineTDCCRToOutputPWMParam
 //*****************************************************************************
 typedef struct Timer_D_initCaptureModeParam
 {
-    //! Selects the Capture register being used. Refer to datasheet to ensure
-    //! the device has the capture compare register being used
-    //! \n Valid values are:
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_0
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_1
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_2
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_3
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_4
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_5
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_6
-    uint16_t captureRegister;
-    //! Is the capture mode selected.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CAPTUREMODE_NO_CAPTURE [Default]
-    //! - \b TIMER_D_CAPTUREMODE_RISING_EDGE
-    //! - \b TIMER_D_CAPTUREMODE_FALLING_EDGE
-    //! - \b TIMER_D_CAPTUREMODE_RISING_AND_FALLING_EDGE
-    uint16_t captureMode;
-    //! Decides the Input Select
-    //! \n Valid values are:
-    //! - \b TIMER_D_CAPTURE_INPUTSELECT_CCIxA [Default]
-    //! - \b TIMER_D_CAPTURE_INPUTSELECT_CCIxB
-    //! - \b TIMER_D_CAPTURE_INPUTSELECT_GND
-    //! - \b TIMER_D_CAPTURE_INPUTSELECT_Vcc
-    uint16_t captureInputSelect;
-    //! Decides if capture source should be synchronized with timer clock
-    //! \n Valid values are:
-    //! - \b TIMER_D_CAPTURE_ASYNCHRONOUS [Default]
-    //! - \b TIMER_D_CAPTURE_SYNCHRONOUS
-    uint16_t synchronizeCaptureSource;
-    //! Is to enable or disabel capture interrupt
-    //! \n Valid values are:
-    //! - \b TIMER_D_CAPTURE_INTERRUPT_ENABLE
-    //! - \b TIMER_D_CAPTURE_INTERRUPT_DISABLE [Default]
-    uint16_t captureInterruptEnable;
-    //! Specifies the output mode.
-    //! \n Valid values are:
-    //! - \b TIMER_D_OUTPUTMODE_OUTBITVALUE [Default]
-    //! - \b TIMER_D_OUTPUTMODE_SET
-    //! - \b TIMER_D_OUTPUTMODE_TOGGLE_RESET
-    //! - \b TIMER_D_OUTPUTMODE_SET_RESET
-    //! - \b TIMER_D_OUTPUTMODE_TOGGLE
-    //! - \b TIMER_D_OUTPUTMODE_RESET
-    //! - \b TIMER_D_OUTPUTMODE_TOGGLE_SET
-    //! - \b TIMER_D_OUTPUTMODE_RESET_SET
-    uint16_t captureOutputMode;
-    //! Specifies single/dual capture mode.
-    //! \n Valid values are:
-    //! - \b TIMER_D_SINGLE_CAPTURE_MODE - value],
-    //! - \b TIMER_D_DUAL_CAPTURE_MODE
-    uint8_t channelCaptureMode;
+	//! Selects the Capture register being used. Refer to datasheet to ensure
+	//! the device has the capture compare register being used
+	//! \n Valid values are:
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_0
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_1
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_2
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_3
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_4
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_5
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_6
+	uint16_t captureRegister;
+	//! Is the capture mode selected.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CAPTUREMODE_NO_CAPTURE [Default]
+	//! - \b TIMER_D_CAPTUREMODE_RISING_EDGE
+	//! - \b TIMER_D_CAPTUREMODE_FALLING_EDGE
+	//! - \b TIMER_D_CAPTUREMODE_RISING_AND_FALLING_EDGE
+	uint16_t captureMode;
+	//! Decides the Input Select
+	//! \n Valid values are:
+	//! - \b TIMER_D_CAPTURE_INPUTSELECT_CCIxA [Default]
+	//! - \b TIMER_D_CAPTURE_INPUTSELECT_CCIxB
+	//! - \b TIMER_D_CAPTURE_INPUTSELECT_GND
+	//! - \b TIMER_D_CAPTURE_INPUTSELECT_Vcc
+	uint16_t captureInputSelect;
+	//! Decides if capture source should be synchronized with timer clock
+	//! \n Valid values are:
+	//! - \b TIMER_D_CAPTURE_ASYNCHRONOUS [Default]
+	//! - \b TIMER_D_CAPTURE_SYNCHRONOUS
+	uint16_t synchronizeCaptureSource;
+	//! Is to enable or disabel capture interrupt
+	//! \n Valid values are:
+	//! - \b TIMER_D_CAPTURE_INTERRUPT_ENABLE
+	//! - \b TIMER_D_CAPTURE_INTERRUPT_DISABLE [Default]
+	uint16_t captureInterruptEnable;
+	//! Specifies the output mode.
+	//! \n Valid values are:
+	//! - \b TIMER_D_OUTPUTMODE_OUTBITVALUE [Default]
+	//! - \b TIMER_D_OUTPUTMODE_SET
+	//! - \b TIMER_D_OUTPUTMODE_TOGGLE_RESET
+	//! - \b TIMER_D_OUTPUTMODE_SET_RESET
+	//! - \b TIMER_D_OUTPUTMODE_TOGGLE
+	//! - \b TIMER_D_OUTPUTMODE_RESET
+	//! - \b TIMER_D_OUTPUTMODE_TOGGLE_SET
+	//! - \b TIMER_D_OUTPUTMODE_RESET_SET
+	uint16_t captureOutputMode;
+	//! Specifies single/dual capture mode.
+	//! \n Valid values are:
+	//! - \b TIMER_D_SINGLE_CAPTURE_MODE - value],
+	//! - \b TIMER_D_DUAL_CAPTURE_MODE
+	uint8_t channelCaptureMode;
 } Timer_D_initCaptureModeParam;
 
 //*****************************************************************************
@@ -481,67 +481,67 @@ typedef struct Timer_D_initCaptureModeParam
 //*****************************************************************************
 typedef struct Timer_D_outputPWMParam
 {
-    //! Selects Clock source.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKSOURCE_EXTERNAL_TDCLK [Default]
-    //! - \b TIMER_D_CLOCKSOURCE_ACLK
-    //! - \b TIMER_D_CLOCKSOURCE_SMCLK
-    //! - \b TIMER_D_CLOCKSOURCE_INVERTED_EXTERNAL_TDCLK
-    uint16_t clockSource;
-    //! Is the divider for clock source.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_1 [Default]
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_2
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_3
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_4
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_5
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_6
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_7
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_8
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_10
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_12
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_14
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_16
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_20
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_24
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_28
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_32
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_40
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_48
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_56
-    //! - \b TIMER_D_CLOCKSOURCE_DIVIDER_64
-    uint16_t clockSourceDivider;
-    //! Is the selected clock mode register values.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CLOCKINGMODE_EXTERNAL_CLOCK [Default]
-    //! - \b TIMER_D_CLOCKINGMODE_HIRES_LOCAL_CLOCK
-    //! - \b TIMER_D_CLOCKINGMODE_AUXILIARY_CLK
-    uint16_t clockingMode;
-    //! Is the specified timer period
-    uint16_t timerPeriod;
-    //! Selects the compare register being used.
-    //! \n Valid values are:
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_0
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_1
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_2
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_3
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_4
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_5
-    //! - \b TIMER_D_CAPTURECOMPARE_REGISTER_6
-    uint16_t compareRegister;
-    //! Specifies the output mode.
-    //! \n Valid values are:
-    //! - \b TIMER_D_OUTPUTMODE_OUTBITVALUE [Default]
-    //! - \b TIMER_D_OUTPUTMODE_SET
-    //! - \b TIMER_D_OUTPUTMODE_TOGGLE_RESET
-    //! - \b TIMER_D_OUTPUTMODE_SET_RESET
-    //! - \b TIMER_D_OUTPUTMODE_TOGGLE
-    //! - \b TIMER_D_OUTPUTMODE_RESET
-    //! - \b TIMER_D_OUTPUTMODE_TOGGLE_SET
-    //! - \b TIMER_D_OUTPUTMODE_RESET_SET
-    uint16_t compareOutputMode;
-    //! Specifies the dutycycle for the generated waveform
-    uint16_t dutyCycle;
+	//! Selects Clock source.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKSOURCE_EXTERNAL_TDCLK [Default]
+	//! - \b TIMER_D_CLOCKSOURCE_ACLK
+	//! - \b TIMER_D_CLOCKSOURCE_SMCLK
+	//! - \b TIMER_D_CLOCKSOURCE_INVERTED_EXTERNAL_TDCLK
+	uint16_t clockSource;
+	//! Is the divider for clock source.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_1 [Default]
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_2
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_3
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_4
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_5
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_6
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_7
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_8
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_10
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_12
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_14
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_16
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_20
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_24
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_28
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_32
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_40
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_48
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_56
+	//! - \b TIMER_D_CLOCKSOURCE_DIVIDER_64
+	uint16_t clockSourceDivider;
+	//! Is the selected clock mode register values.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CLOCKINGMODE_EXTERNAL_CLOCK [Default]
+	//! - \b TIMER_D_CLOCKINGMODE_HIRES_LOCAL_CLOCK
+	//! - \b TIMER_D_CLOCKINGMODE_AUXILIARY_CLK
+	uint16_t clockingMode;
+	//! Is the specified timer period
+	uint16_t timerPeriod;
+	//! Selects the compare register being used.
+	//! \n Valid values are:
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_0
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_1
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_2
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_3
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_4
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_5
+	//! - \b TIMER_D_CAPTURECOMPARE_REGISTER_6
+	uint16_t compareRegister;
+	//! Specifies the output mode.
+	//! \n Valid values are:
+	//! - \b TIMER_D_OUTPUTMODE_OUTBITVALUE [Default]
+	//! - \b TIMER_D_OUTPUTMODE_SET
+	//! - \b TIMER_D_OUTPUTMODE_TOGGLE_RESET
+	//! - \b TIMER_D_OUTPUTMODE_SET_RESET
+	//! - \b TIMER_D_OUTPUTMODE_TOGGLE
+	//! - \b TIMER_D_OUTPUTMODE_RESET
+	//! - \b TIMER_D_OUTPUTMODE_TOGGLE_SET
+	//! - \b TIMER_D_OUTPUTMODE_RESET_SET
+	uint16_t compareOutputMode;
+	//! Specifies the dutycycle for the generated waveform
+	uint16_t dutyCycle;
 } Timer_D_outputPWMParam;
 
 //*****************************************************************************

@@ -62,31 +62,31 @@ extern "C"
 //*****************************************************************************
 typedef struct TEC_initExternalFaultInputParam
 {
-    //! Is the selected external fault
-    //! \n Valid values are:
-    //! - \b TEC_EXTERNAL_FAULT_0
-    //! - \b TEC_EXTERNAL_FAULT_1
-    //! - \b TEC_EXTERNAL_FAULT_2
-    //! - \b TEC_EXTERNAL_FAULT_3
-    //! - \b TEC_EXTERNAL_FAULT_4
-    //! - \b TEC_EXTERNAL_FAULT_5
-    //! - \b TEC_EXTERNAL_FAULT_6
-    uint8_t selectedExternalFault;
-    //! Is the selected signal type
-    //! \n Valid values are:
-    //! - \b TEC_EXTERNAL_FAULT_SIGNALTYPE_EDGE_SENSITIVE [Default]
-    //! - \b TEC_EXTERNAL_FAULT_SIGNALTYPE_LEVEL_SENSITIVE
-    uint16_t signalType;
-    //! Is the selected signal hold
-    //! \n Valid values are:
-    //! - \b TEC_EXTERNAL_FAULT_SIGNAL_NOT_HELD [Default]
-    //! - \b TEC_EXTERNAL_FAULT_SIGNAL_HELD
-    uint8_t signalHold;
-    //! Is the selected signal type
-    //! \n Valid values are:
-    //! - \b TEC_EXTERNAL_FAULT_POLARITY_FALLING_EDGE_OR_LOW_LEVEL [Default]
-    //! - \b TEC_EXTERNAL_FAULT_POLARITY_RISING_EDGE_OR_HIGH_LEVEL
-    uint8_t polarityBit;
+	//! Is the selected external fault
+	//! \n Valid values are:
+	//! - \b TEC_EXTERNAL_FAULT_0
+	//! - \b TEC_EXTERNAL_FAULT_1
+	//! - \b TEC_EXTERNAL_FAULT_2
+	//! - \b TEC_EXTERNAL_FAULT_3
+	//! - \b TEC_EXTERNAL_FAULT_4
+	//! - \b TEC_EXTERNAL_FAULT_5
+	//! - \b TEC_EXTERNAL_FAULT_6
+	uint8_t selectedExternalFault;
+	//! Is the selected signal type
+	//! \n Valid values are:
+	//! - \b TEC_EXTERNAL_FAULT_SIGNALTYPE_EDGE_SENSITIVE [Default]
+	//! - \b TEC_EXTERNAL_FAULT_SIGNALTYPE_LEVEL_SENSITIVE
+	uint16_t signalType;
+	//! Is the selected signal hold
+	//! \n Valid values are:
+	//! - \b TEC_EXTERNAL_FAULT_SIGNAL_NOT_HELD [Default]
+	//! - \b TEC_EXTERNAL_FAULT_SIGNAL_HELD
+	uint8_t signalHold;
+	//! Is the selected signal type
+	//! \n Valid values are:
+	//! - \b TEC_EXTERNAL_FAULT_POLARITY_FALLING_EDGE_OR_LOW_LEVEL [Default]
+	//! - \b TEC_EXTERNAL_FAULT_POLARITY_RISING_EDGE_OR_HIGH_LEVEL
+	uint8_t polarityBit;
 } TEC_initExternalFaultInputParam;
 
 //*****************************************************************************

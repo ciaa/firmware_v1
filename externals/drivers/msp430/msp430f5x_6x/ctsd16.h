@@ -62,78 +62,78 @@ extern "C"
 //*****************************************************************************
 typedef struct CTSD16_initConverterAdvancedParam
 {
-    //! The converter to initialize.
-    //! \n Valid values are:
-    //! - \b CTSD16_CONVERTER_0
-    //! - \b CTSD16_CONVERTER_1
-    //! - \b CTSD16_CONVERTER_2
-    //! - \b CTSD16_CONVERTER_3
-    //! - \b CTSD16_CONVERTER_4
-    //! - \b CTSD16_CONVERTER_5
-    //! - \b CTSD16_CONVERTER_6
-    uint8_t converter;
-    //! Determines whether the converter will do continuous samples or a single
-    //! sample
-    //! \n Valid values are:
-    //! - \b CTSD16_CONTINUOUS_MODE [Default]
-    //! - \b CTSD16_SINGLE_MODE
-    uint16_t conversionMode;
-    //! \n Valid values are:
-    //! - \b CTSD16_NOT_GROUPED
-    //! - \b CTSD16_GROUPED [Default]
-    uint8_t groupEnable;
-    //! Selects oversampling ratio for the converter
-    //! \n Valid values are:
-    //! - \b CTSD16_INPUT_CH0
-    //! - \b CTSD16_INPUT_CH1
-    //! - \b CTSD16_INPUT_CH2
-    //! - \b CTSD16_INPUT_CH3
-    //! - \b CTSD16_INPUT_CH4
-    //! - \b CTSD16_INPUT_CH5
-    //! - \b CTSD16_INPUT_CH6
-    //! - \b CTSD16_INPUT_CH7
-    //! - \b CTSD16_INPUT_CH8
-    //! - \b CTSD16_INPUT_CH9
-    //! - \b CTSD16_INPUT_CH10
-    //! - \b CTSD16_INPUT_CH11
-    //! - \b CTSD16_INPUT_CH12
-    //! - \b CTSD16_INPUT_CH13
-    //! - \b CTSD16_INPUT_CH14
-    //! - \b CTSD16_INPUT_CH15
-    //! - \b CTSD16_INPUT_CH16
-    //! - \b CTSD16_INPUT_CH17
-    //! - \b CTSD16_INPUT_CH18
-    uint8_t inputChannel;
-    //! Selects how the data format of the results
-    //! \n Valid values are:
-    //! - \b CTSD16_DATA_FORMAT_BINARY [Default]
-    //! - \b CTSD16_DATA_FORMAT_2COMPLEMENT
-    uint8_t dataFormat;
-    //! Determines the rail-to-rail input enabled or disabled.
-    //! \n Valid values are:
-    //! - \b CTSD16_RTR_INPUT_ENABLE
-    //! - \b CTSD16_RTR_INPUT_DISABLE [Default]
-    uint16_t railToRailInput;
-    //! Selects the delay for the interrupt
-    //! \n Valid values are:
-    //! - \b CTSD16_FIRST_SAMPLE_INTERRUPT
-    //! - \b CTSD16_FOURTH_SAMPLE_INTERRUPT [Default]
-    uint16_t interruptDelay;
-    //! Selects oversampling ratio for the converter
-    //! \n Valid values are:
-    //! - \b CTSD16_OVERSAMPLE_32
-    //! - \b CTSD16_OVERSAMPLE_64
-    //! - \b CTSD16_OVERSAMPLE_128
-    //! - \b CTSD16_OVERSAMPLE_256 [Default]
-    uint16_t oversampleRatio;
-    //! Selects the gain for the converter
-    //! \n Valid values are:
-    //! - \b CTSD16_GAIN_1 [Default]
-    //! - \b CTSD16_GAIN_2
-    //! - \b CTSD16_GAIN_4
-    //! - \b CTSD16_GAIN_8
-    //! - \b CTSD16_GAIN_16
-    uint8_t gain;
+	//! The converter to initialize.
+	//! \n Valid values are:
+	//! - \b CTSD16_CONVERTER_0
+	//! - \b CTSD16_CONVERTER_1
+	//! - \b CTSD16_CONVERTER_2
+	//! - \b CTSD16_CONVERTER_3
+	//! - \b CTSD16_CONVERTER_4
+	//! - \b CTSD16_CONVERTER_5
+	//! - \b CTSD16_CONVERTER_6
+	uint8_t converter;
+	//! Determines whether the converter will do continuous samples or a single
+	//! sample
+	//! \n Valid values are:
+	//! - \b CTSD16_CONTINUOUS_MODE [Default]
+	//! - \b CTSD16_SINGLE_MODE
+	uint16_t conversionMode;
+	//! \n Valid values are:
+	//! - \b CTSD16_NOT_GROUPED
+	//! - \b CTSD16_GROUPED [Default]
+	uint8_t groupEnable;
+	//! Selects oversampling ratio for the converter
+	//! \n Valid values are:
+	//! - \b CTSD16_INPUT_CH0
+	//! - \b CTSD16_INPUT_CH1
+	//! - \b CTSD16_INPUT_CH2
+	//! - \b CTSD16_INPUT_CH3
+	//! - \b CTSD16_INPUT_CH4
+	//! - \b CTSD16_INPUT_CH5
+	//! - \b CTSD16_INPUT_CH6
+	//! - \b CTSD16_INPUT_CH7
+	//! - \b CTSD16_INPUT_CH8
+	//! - \b CTSD16_INPUT_CH9
+	//! - \b CTSD16_INPUT_CH10
+	//! - \b CTSD16_INPUT_CH11
+	//! - \b CTSD16_INPUT_CH12
+	//! - \b CTSD16_INPUT_CH13
+	//! - \b CTSD16_INPUT_CH14
+	//! - \b CTSD16_INPUT_CH15
+	//! - \b CTSD16_INPUT_CH16
+	//! - \b CTSD16_INPUT_CH17
+	//! - \b CTSD16_INPUT_CH18
+	uint8_t inputChannel;
+	//! Selects how the data format of the results
+	//! \n Valid values are:
+	//! - \b CTSD16_DATA_FORMAT_BINARY [Default]
+	//! - \b CTSD16_DATA_FORMAT_2COMPLEMENT
+	uint8_t dataFormat;
+	//! Determines the rail-to-rail input enabled or disabled.
+	//! \n Valid values are:
+	//! - \b CTSD16_RTR_INPUT_ENABLE
+	//! - \b CTSD16_RTR_INPUT_DISABLE [Default]
+	uint16_t railToRailInput;
+	//! Selects the delay for the interrupt
+	//! \n Valid values are:
+	//! - \b CTSD16_FIRST_SAMPLE_INTERRUPT
+	//! - \b CTSD16_FOURTH_SAMPLE_INTERRUPT [Default]
+	uint16_t interruptDelay;
+	//! Selects oversampling ratio for the converter
+	//! \n Valid values are:
+	//! - \b CTSD16_OVERSAMPLE_32
+	//! - \b CTSD16_OVERSAMPLE_64
+	//! - \b CTSD16_OVERSAMPLE_128
+	//! - \b CTSD16_OVERSAMPLE_256 [Default]
+	uint16_t oversampleRatio;
+	//! Selects the gain for the converter
+	//! \n Valid values are:
+	//! - \b CTSD16_GAIN_1 [Default]
+	//! - \b CTSD16_GAIN_2
+	//! - \b CTSD16_GAIN_4
+	//! - \b CTSD16_GAIN_8
+	//! - \b CTSD16_GAIN_16
+	uint8_t gain;
 } CTSD16_initConverterAdvancedParam;
 
 //*****************************************************************************

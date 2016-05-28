@@ -61,64 +61,64 @@ extern "C"
 //*****************************************************************************
 typedef struct SD24_B_initParam
 {
-    //! Selects the clock that will be used as the SD24_B core
-    //! \n Valid values are:
-    //! - \b SD24_B_CLOCKSOURCE_MCLK [Default]
-    //! - \b SD24_B_CLOCKSOURCE_SMCLK
-    //! - \b SD24_B_CLOCKSOURCE_ACLK
-    //! - \b SD24_B_CLOCKSOURCE_SD24CLK
-    uint16_t clockSourceSelect;
-    //! Selects the amount that the clock will be predivided
-    //! \n Valid values are:
-    //! - \b SD24_B_PRECLOCKDIVIDER_1 [Default]
-    //! - \b SD24_B_PRECLOCKDIVIDER_2
-    //! - \b SD24_B_PRECLOCKDIVIDER_4
-    //! - \b SD24_B_PRECLOCKDIVIDER_8
-    //! - \b SD24_B_PRECLOCKDIVIDER_16
-    //! - \b SD24_B_PRECLOCKDIVIDER_32
-    //! - \b SD24_B_PRECLOCKDIVIDER_64
-    //! - \b SD24_B_PRECLOCKDIVIDER_128
-    uint16_t clockPreDivider;
-    //! Selects the amount that the clock will be divided.
-    //! \n Valid values are:
-    //! - \b SD24_B_CLOCKDIVIDER_1 [Default]
-    //! - \b SD24_B_CLOCKDIVIDER_2
-    //! - \b SD24_B_CLOCKDIVIDER_3
-    //! - \b SD24_B_CLOCKDIVIDER_4
-    //! - \b SD24_B_CLOCKDIVIDER_5
-    //! - \b SD24_B_CLOCKDIVIDER_6
-    //! - \b SD24_B_CLOCKDIVIDER_7
-    //! - \b SD24_B_CLOCKDIVIDER_8
-    //! - \b SD24_B_CLOCKDIVIDER_9
-    //! - \b SD24_B_CLOCKDIVIDER_10
-    //! - \b SD24_B_CLOCKDIVIDER_11
-    //! - \b SD24_B_CLOCKDIVIDER_12
-    //! - \b SD24_B_CLOCKDIVIDER_13
-    //! - \b SD24_B_CLOCKDIVIDER_14
-    //! - \b SD24_B_CLOCKDIVIDER_15
-    //! - \b SD24_B_CLOCKDIVIDER_16
-    //! - \b SD24_B_CLOCKDIVIDER_17
-    //! - \b SD24_B_CLOCKDIVIDER_18
-    //! - \b SD24_B_CLOCKDIVIDER_19
-    //! - \b SD24_B_CLOCKDIVIDER_20
-    //! - \b SD24_B_CLOCKDIVIDER_21
-    //! - \b SD24_B_CLOCKDIVIDER_22
-    //! - \b SD24_B_CLOCKDIVIDER_23
-    //! - \b SD24_B_CLOCKDIVIDER_24
-    //! - \b SD24_B_CLOCKDIVIDER_25
-    //! - \b SD24_B_CLOCKDIVIDER_26
-    //! - \b SD24_B_CLOCKDIVIDER_27
-    //! - \b SD24_B_CLOCKDIVIDER_28
-    //! - \b SD24_B_CLOCKDIVIDER_29
-    //! - \b SD24_B_CLOCKDIVIDER_30
-    //! - \b SD24_B_CLOCKDIVIDER_31
-    //! - \b SD24_B_CLOCKDIVIDER_32
-    uint16_t clockDivider;
-    //! Selects the reference source for the SD24_B core
-    //! \n Valid values are:
-    //! - \b SD24_B_REF_EXTERNAL [Default]
-    //! - \b SD24_B_REF_INTERNAL
-    uint16_t referenceSelect;
+	//! Selects the clock that will be used as the SD24_B core
+	//! \n Valid values are:
+	//! - \b SD24_B_CLOCKSOURCE_MCLK [Default]
+	//! - \b SD24_B_CLOCKSOURCE_SMCLK
+	//! - \b SD24_B_CLOCKSOURCE_ACLK
+	//! - \b SD24_B_CLOCKSOURCE_SD24CLK
+	uint16_t clockSourceSelect;
+	//! Selects the amount that the clock will be predivided
+	//! \n Valid values are:
+	//! - \b SD24_B_PRECLOCKDIVIDER_1 [Default]
+	//! - \b SD24_B_PRECLOCKDIVIDER_2
+	//! - \b SD24_B_PRECLOCKDIVIDER_4
+	//! - \b SD24_B_PRECLOCKDIVIDER_8
+	//! - \b SD24_B_PRECLOCKDIVIDER_16
+	//! - \b SD24_B_PRECLOCKDIVIDER_32
+	//! - \b SD24_B_PRECLOCKDIVIDER_64
+	//! - \b SD24_B_PRECLOCKDIVIDER_128
+	uint16_t clockPreDivider;
+	//! Selects the amount that the clock will be divided.
+	//! \n Valid values are:
+	//! - \b SD24_B_CLOCKDIVIDER_1 [Default]
+	//! - \b SD24_B_CLOCKDIVIDER_2
+	//! - \b SD24_B_CLOCKDIVIDER_3
+	//! - \b SD24_B_CLOCKDIVIDER_4
+	//! - \b SD24_B_CLOCKDIVIDER_5
+	//! - \b SD24_B_CLOCKDIVIDER_6
+	//! - \b SD24_B_CLOCKDIVIDER_7
+	//! - \b SD24_B_CLOCKDIVIDER_8
+	//! - \b SD24_B_CLOCKDIVIDER_9
+	//! - \b SD24_B_CLOCKDIVIDER_10
+	//! - \b SD24_B_CLOCKDIVIDER_11
+	//! - \b SD24_B_CLOCKDIVIDER_12
+	//! - \b SD24_B_CLOCKDIVIDER_13
+	//! - \b SD24_B_CLOCKDIVIDER_14
+	//! - \b SD24_B_CLOCKDIVIDER_15
+	//! - \b SD24_B_CLOCKDIVIDER_16
+	//! - \b SD24_B_CLOCKDIVIDER_17
+	//! - \b SD24_B_CLOCKDIVIDER_18
+	//! - \b SD24_B_CLOCKDIVIDER_19
+	//! - \b SD24_B_CLOCKDIVIDER_20
+	//! - \b SD24_B_CLOCKDIVIDER_21
+	//! - \b SD24_B_CLOCKDIVIDER_22
+	//! - \b SD24_B_CLOCKDIVIDER_23
+	//! - \b SD24_B_CLOCKDIVIDER_24
+	//! - \b SD24_B_CLOCKDIVIDER_25
+	//! - \b SD24_B_CLOCKDIVIDER_26
+	//! - \b SD24_B_CLOCKDIVIDER_27
+	//! - \b SD24_B_CLOCKDIVIDER_28
+	//! - \b SD24_B_CLOCKDIVIDER_29
+	//! - \b SD24_B_CLOCKDIVIDER_30
+	//! - \b SD24_B_CLOCKDIVIDER_31
+	//! - \b SD24_B_CLOCKDIVIDER_32
+	uint16_t clockDivider;
+	//! Selects the reference source for the SD24_B core
+	//! \n Valid values are:
+	//! - \b SD24_B_REF_EXTERNAL [Default]
+	//! - \b SD24_B_REF_INTERNAL
+	uint16_t referenceSelect;
 } SD24_B_initParam;
 
 //*****************************************************************************
@@ -128,40 +128,40 @@ typedef struct SD24_B_initParam
 //*****************************************************************************
 typedef struct SD24_B_initConverterParam
 {
-    //! Selects the converter that will be configured. Check datasheet for
-    //! available converters on device.
-    //! \n Valid values are:
-    //! - \b SD24_B_CONVERTER_0
-    //! - \b SD24_B_CONVERTER_1
-    //! - \b SD24_B_CONVERTER_2
-    //! - \b SD24_B_CONVERTER_3
-    //! - \b SD24_B_CONVERTER_4
-    //! - \b SD24_B_CONVERTER_5
-    //! - \b SD24_B_CONVERTER_6
-    //! - \b SD24_B_CONVERTER_7
-    uint8_t converter;
-    //! Selects how the data will be aligned in result
-    //! \n Valid values are:
-    //! - \b SD24_B_ALIGN_RIGHT [Default]
-    //! - \b SD24_B_ALIGN_LEFT
-    uint8_t alignment;
-    //! Selects what will trigger the start of the converter
-    //! \n Valid values are:
-    //! - \b SD24_B_CONVERSION_SELECT_SD24SC [Default]
-    //! - \b SD24_B_CONVERSION_SELECT_EXT1
-    //! - \b SD24_B_CONVERSION_SELECT_EXT2
-    //! - \b SD24_B_CONVERSION_SELECT_EXT3
-    //! - \b SD24_B_CONVERSION_SELECT_GROUP0
-    //! - \b SD24_B_CONVERSION_SELECT_GROUP1
-    //! - \b SD24_B_CONVERSION_SELECT_GROUP2
-    //! - \b SD24_B_CONVERSION_SELECT_GROUP3
-    uint8_t startSelect;
-    //! Determines whether the converter will do continuous samples or a single
-    //! sample
-    //! \n Valid values are:
-    //! - \b SD24_B_CONTINUOUS_MODE [Default]
-    //! - \b SD24_B_SINGLE_MODE
-    uint8_t conversionMode;
+	//! Selects the converter that will be configured. Check datasheet for
+	//! available converters on device.
+	//! \n Valid values are:
+	//! - \b SD24_B_CONVERTER_0
+	//! - \b SD24_B_CONVERTER_1
+	//! - \b SD24_B_CONVERTER_2
+	//! - \b SD24_B_CONVERTER_3
+	//! - \b SD24_B_CONVERTER_4
+	//! - \b SD24_B_CONVERTER_5
+	//! - \b SD24_B_CONVERTER_6
+	//! - \b SD24_B_CONVERTER_7
+	uint8_t converter;
+	//! Selects how the data will be aligned in result
+	//! \n Valid values are:
+	//! - \b SD24_B_ALIGN_RIGHT [Default]
+	//! - \b SD24_B_ALIGN_LEFT
+	uint8_t alignment;
+	//! Selects what will trigger the start of the converter
+	//! \n Valid values are:
+	//! - \b SD24_B_CONVERSION_SELECT_SD24SC [Default]
+	//! - \b SD24_B_CONVERSION_SELECT_EXT1
+	//! - \b SD24_B_CONVERSION_SELECT_EXT2
+	//! - \b SD24_B_CONVERSION_SELECT_EXT3
+	//! - \b SD24_B_CONVERSION_SELECT_GROUP0
+	//! - \b SD24_B_CONVERSION_SELECT_GROUP1
+	//! - \b SD24_B_CONVERSION_SELECT_GROUP2
+	//! - \b SD24_B_CONVERSION_SELECT_GROUP3
+	uint8_t startSelect;
+	//! Determines whether the converter will do continuous samples or a single
+	//! sample
+	//! \n Valid values are:
+	//! - \b SD24_B_CONTINUOUS_MODE [Default]
+	//! - \b SD24_B_SINGLE_MODE
+	uint8_t conversionMode;
 } SD24_B_initConverterParam;
 
 //*****************************************************************************
@@ -172,72 +172,72 @@ typedef struct SD24_B_initConverterParam
 //*****************************************************************************
 typedef struct SD24_B_initConverterAdvancedParam
 {
-    //! Selects the converter that will be configured. Check datasheet for
-    //! available converters on device.
-    //! \n Valid values are:
-    //! - \b SD24_B_CONVERTER_0
-    //! - \b SD24_B_CONVERTER_1
-    //! - \b SD24_B_CONVERTER_2
-    //! - \b SD24_B_CONVERTER_3
-    //! - \b SD24_B_CONVERTER_4
-    //! - \b SD24_B_CONVERTER_5
-    //! - \b SD24_B_CONVERTER_6
-    //! - \b SD24_B_CONVERTER_7
-    uint8_t converter;
-    //! Selects how the data will be aligned in result
-    //! \n Valid values are:
-    //! - \b SD24_B_ALIGN_RIGHT [Default]
-    //! - \b SD24_B_ALIGN_LEFT
-    uint8_t alignment;
-    //! Selects what will trigger the start of the converter
-    //! \n Valid values are:
-    //! - \b SD24_B_CONVERSION_SELECT_SD24SC [Default]
-    //! - \b SD24_B_CONVERSION_SELECT_EXT1
-    //! - \b SD24_B_CONVERSION_SELECT_EXT2
-    //! - \b SD24_B_CONVERSION_SELECT_EXT3
-    //! - \b SD24_B_CONVERSION_SELECT_GROUP0
-    //! - \b SD24_B_CONVERSION_SELECT_GROUP1
-    //! - \b SD24_B_CONVERSION_SELECT_GROUP2
-    //! - \b SD24_B_CONVERSION_SELECT_GROUP3
-    uint8_t startSelect;
-    //! Determines whether the converter will do continuous samples or a single
-    //! sample
-    //! \n Valid values are:
-    //! - \b SD24_B_CONTINUOUS_MODE [Default]
-    //! - \b SD24_B_SINGLE_MODE
-    uint8_t conversionMode;
-    //! Selects how the data format of the results
-    //! \n Valid values are:
-    //! - \b SD24_B_DATA_FORMAT_BINARY [Default]
-    //! - \b SD24_B_DATA_FORMAT_2COMPLEMENT
-    uint8_t dataFormat;
-    //! Selects the delay for the interrupt
-    //! \n Valid values are:
-    //! - \b SD24_B_FOURTH_SAMPLE_INTERRUPT [Default]
-    //! - \b SD24_B_THIRD_SAMPLE_INTERRUPT
-    //! - \b SD24_B_SECOND_SAMPLE_INTERRUPT
-    //! - \b SD24_B_FIRST_SAMPLE_INTERRUPT
-    uint8_t sampleDelay;
-    //! Selects oversampling ratio for the converter
-    //! \n Valid values are:
-    //! - \b SD24_B_OVERSAMPLE_32
-    //! - \b SD24_B_OVERSAMPLE_64
-    //! - \b SD24_B_OVERSAMPLE_128
-    //! - \b SD24_B_OVERSAMPLE_256
-    //! - \b SD24_B_OVERSAMPLE_512
-    //! - \b SD24_B_OVERSAMPLE_1024
-    uint16_t oversampleRatio;
-    //! Selects the gain for the converter
-    //! \n Valid values are:
-    //! - \b SD24_B_GAIN_1 [Default]
-    //! - \b SD24_B_GAIN_2
-    //! - \b SD24_B_GAIN_4
-    //! - \b SD24_B_GAIN_8
-    //! - \b SD24_B_GAIN_16
-    //! - \b SD24_B_GAIN_32
-    //! - \b SD24_B_GAIN_64
-    //! - \b SD24_B_GAIN_128
-    uint8_t gain;
+	//! Selects the converter that will be configured. Check datasheet for
+	//! available converters on device.
+	//! \n Valid values are:
+	//! - \b SD24_B_CONVERTER_0
+	//! - \b SD24_B_CONVERTER_1
+	//! - \b SD24_B_CONVERTER_2
+	//! - \b SD24_B_CONVERTER_3
+	//! - \b SD24_B_CONVERTER_4
+	//! - \b SD24_B_CONVERTER_5
+	//! - \b SD24_B_CONVERTER_6
+	//! - \b SD24_B_CONVERTER_7
+	uint8_t converter;
+	//! Selects how the data will be aligned in result
+	//! \n Valid values are:
+	//! - \b SD24_B_ALIGN_RIGHT [Default]
+	//! - \b SD24_B_ALIGN_LEFT
+	uint8_t alignment;
+	//! Selects what will trigger the start of the converter
+	//! \n Valid values are:
+	//! - \b SD24_B_CONVERSION_SELECT_SD24SC [Default]
+	//! - \b SD24_B_CONVERSION_SELECT_EXT1
+	//! - \b SD24_B_CONVERSION_SELECT_EXT2
+	//! - \b SD24_B_CONVERSION_SELECT_EXT3
+	//! - \b SD24_B_CONVERSION_SELECT_GROUP0
+	//! - \b SD24_B_CONVERSION_SELECT_GROUP1
+	//! - \b SD24_B_CONVERSION_SELECT_GROUP2
+	//! - \b SD24_B_CONVERSION_SELECT_GROUP3
+	uint8_t startSelect;
+	//! Determines whether the converter will do continuous samples or a single
+	//! sample
+	//! \n Valid values are:
+	//! - \b SD24_B_CONTINUOUS_MODE [Default]
+	//! - \b SD24_B_SINGLE_MODE
+	uint8_t conversionMode;
+	//! Selects how the data format of the results
+	//! \n Valid values are:
+	//! - \b SD24_B_DATA_FORMAT_BINARY [Default]
+	//! - \b SD24_B_DATA_FORMAT_2COMPLEMENT
+	uint8_t dataFormat;
+	//! Selects the delay for the interrupt
+	//! \n Valid values are:
+	//! - \b SD24_B_FOURTH_SAMPLE_INTERRUPT [Default]
+	//! - \b SD24_B_THIRD_SAMPLE_INTERRUPT
+	//! - \b SD24_B_SECOND_SAMPLE_INTERRUPT
+	//! - \b SD24_B_FIRST_SAMPLE_INTERRUPT
+	uint8_t sampleDelay;
+	//! Selects oversampling ratio for the converter
+	//! \n Valid values are:
+	//! - \b SD24_B_OVERSAMPLE_32
+	//! - \b SD24_B_OVERSAMPLE_64
+	//! - \b SD24_B_OVERSAMPLE_128
+	//! - \b SD24_B_OVERSAMPLE_256
+	//! - \b SD24_B_OVERSAMPLE_512
+	//! - \b SD24_B_OVERSAMPLE_1024
+	uint16_t oversampleRatio;
+	//! Selects the gain for the converter
+	//! \n Valid values are:
+	//! - \b SD24_B_GAIN_1 [Default]
+	//! - \b SD24_B_GAIN_2
+	//! - \b SD24_B_GAIN_4
+	//! - \b SD24_B_GAIN_8
+	//! - \b SD24_B_GAIN_16
+	//! - \b SD24_B_GAIN_32
+	//! - \b SD24_B_GAIN_64
+	//! - \b SD24_B_GAIN_128
+	uint8_t gain;
 } SD24_B_initConverterAdvancedParam;
 
 //*****************************************************************************

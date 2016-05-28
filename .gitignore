@@ -3,6 +3,7 @@
 /**/.settings
 /**/RemoteSystemsTempFiles
 /**/Debug
+/**/out
 *.launch
 *.cproject
 *.project

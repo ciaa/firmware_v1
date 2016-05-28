@@ -61,87 +61,87 @@ extern "C"
 //*****************************************************************************
 typedef struct DMA_initParam
 {
-    //! Is the specified channel to initialize.
-    //! \n Valid values are:
-    //! - \b DMA_CHANNEL_0
-    //! - \b DMA_CHANNEL_1
-    //! - \b DMA_CHANNEL_2
-    //! - \b DMA_CHANNEL_3
-    //! - \b DMA_CHANNEL_4
-    //! - \b DMA_CHANNEL_5
-    //! - \b DMA_CHANNEL_6
-    //! - \b DMA_CHANNEL_7
-    uint8_t channelSelect;
-    //! Is the transfer mode of the selected channel.
-    //! \n Valid values are:
-    //! - \b DMA_TRANSFER_SINGLE [Default] - Single transfer, transfers
-    //!    disabled after transferAmount of transfers.
-    //! - \b DMA_TRANSFER_BLOCK - Multiple transfers of transferAmount,
-    //!    transfers disabled once finished.
-    //! - \b DMA_TRANSFER_BURSTBLOCK - Multiple transfers of transferAmount
-    //!    interleaved with CPU activity, transfers disabled once finished.
-    //! - \b DMA_TRANSFER_REPEATED_SINGLE - Repeated single transfer by
-    //!    trigger.
-    //! - \b DMA_TRANSFER_REPEATED_BLOCK - Multiple transfers of transferAmount
-    //!    by trigger.
-    //! - \b DMA_TRANSFER_REPEATED_BURSTBLOCK - Multiple transfers of
-    //!    transferAmount by trigger interleaved with CPU activity.
-    uint16_t transferModeSelect;
-    //! Is the amount of transfers to complete in a block transfer mode, as
-    //! well as how many transfers to complete before the interrupt flag is
-    //! set. Valid value is between 1-65535, if 0, no transfers will occur.
-    uint16_t transferSize;
-    //! Is the source that will trigger the start of each transfer, note that
-    //! the sources are device specific.
-    //! \n Valid values are:
-    //! - \b DMA_TRIGGERSOURCE_0 [Default]
-    //! - \b DMA_TRIGGERSOURCE_1
-    //! - \b DMA_TRIGGERSOURCE_2
-    //! - \b DMA_TRIGGERSOURCE_3
-    //! - \b DMA_TRIGGERSOURCE_4
-    //! - \b DMA_TRIGGERSOURCE_5
-    //! - \b DMA_TRIGGERSOURCE_6
-    //! - \b DMA_TRIGGERSOURCE_7
-    //! - \b DMA_TRIGGERSOURCE_8
-    //! - \b DMA_TRIGGERSOURCE_9
-    //! - \b DMA_TRIGGERSOURCE_10
-    //! - \b DMA_TRIGGERSOURCE_11
-    //! - \b DMA_TRIGGERSOURCE_12
-    //! - \b DMA_TRIGGERSOURCE_13
-    //! - \b DMA_TRIGGERSOURCE_14
-    //! - \b DMA_TRIGGERSOURCE_15
-    //! - \b DMA_TRIGGERSOURCE_16
-    //! - \b DMA_TRIGGERSOURCE_17
-    //! - \b DMA_TRIGGERSOURCE_18
-    //! - \b DMA_TRIGGERSOURCE_19
-    //! - \b DMA_TRIGGERSOURCE_20
-    //! - \b DMA_TRIGGERSOURCE_21
-    //! - \b DMA_TRIGGERSOURCE_22
-    //! - \b DMA_TRIGGERSOURCE_23
-    //! - \b DMA_TRIGGERSOURCE_24
-    //! - \b DMA_TRIGGERSOURCE_25
-    //! - \b DMA_TRIGGERSOURCE_26
-    //! - \b DMA_TRIGGERSOURCE_27
-    //! - \b DMA_TRIGGERSOURCE_28
-    //! - \b DMA_TRIGGERSOURCE_29
-    //! - \b DMA_TRIGGERSOURCE_30
-    //! - \b DMA_TRIGGERSOURCE_31
-    uint8_t triggerSourceSelect;
-    //! Is the specified size of transfers.
-    //! \n Valid values are:
-    //! - \b DMA_SIZE_SRCWORD_DSTWORD [Default]
-    //! - \b DMA_SIZE_SRCBYTE_DSTWORD
-    //! - \b DMA_SIZE_SRCWORD_DSTBYTE
-    //! - \b DMA_SIZE_SRCBYTE_DSTBYTE
-    uint8_t transferUnitSelect;
-    //! Is the type of trigger that the trigger signal needs to be to start a
-    //! transfer.
-    //! \n Valid values are:
-    //! - \b DMA_TRIGGER_RISINGEDGE [Default]
-    //! - \b DMA_TRIGGER_HIGH - A trigger would be a high signal from the
-    //!    trigger source, to be held high through the length of the
-    //!    transfer(s).
-    uint8_t triggerTypeSelect;
+	//! Is the specified channel to initialize.
+	//! \n Valid values are:
+	//! - \b DMA_CHANNEL_0
+	//! - \b DMA_CHANNEL_1
+	//! - \b DMA_CHANNEL_2
+	//! - \b DMA_CHANNEL_3
+	//! - \b DMA_CHANNEL_4
+	//! - \b DMA_CHANNEL_5
+	//! - \b DMA_CHANNEL_6
+	//! - \b DMA_CHANNEL_7
+	uint8_t channelSelect;
+	//! Is the transfer mode of the selected channel.
+	//! \n Valid values are:
+	//! - \b DMA_TRANSFER_SINGLE [Default] - Single transfer, transfers
+	//!    disabled after transferAmount of transfers.
+	//! - \b DMA_TRANSFER_BLOCK - Multiple transfers of transferAmount,
+	//!    transfers disabled once finished.
+	//! - \b DMA_TRANSFER_BURSTBLOCK - Multiple transfers of transferAmount
+	//!    interleaved with CPU activity, transfers disabled once finished.
+	//! - \b DMA_TRANSFER_REPEATED_SINGLE - Repeated single transfer by
+	//!    trigger.
+	//! - \b DMA_TRANSFER_REPEATED_BLOCK - Multiple transfers of transferAmount
+	//!    by trigger.
+	//! - \b DMA_TRANSFER_REPEATED_BURSTBLOCK - Multiple transfers of
+	//!    transferAmount by trigger interleaved with CPU activity.
+	uint16_t transferModeSelect;
+	//! Is the amount of transfers to complete in a block transfer mode, as
+	//! well as how many transfers to complete before the interrupt flag is
+	//! set. Valid value is between 1-65535, if 0, no transfers will occur.
+	uint16_t transferSize;
+	//! Is the source that will trigger the start of each transfer, note that
+	//! the sources are device specific.
+	//! \n Valid values are:
+	//! - \b DMA_TRIGGERSOURCE_0 [Default]
+	//! - \b DMA_TRIGGERSOURCE_1
+	//! - \b DMA_TRIGGERSOURCE_2
+	//! - \b DMA_TRIGGERSOURCE_3
+	//! - \b DMA_TRIGGERSOURCE_4
+	//! - \b DMA_TRIGGERSOURCE_5
+	//! - \b DMA_TRIGGERSOURCE_6
+	//! - \b DMA_TRIGGERSOURCE_7
+	//! - \b DMA_TRIGGERSOURCE_8
+	//! - \b DMA_TRIGGERSOURCE_9
+	//! - \b DMA_TRIGGERSOURCE_10
+	//! - \b DMA_TRIGGERSOURCE_11
+	//! - \b DMA_TRIGGERSOURCE_12
+	//! - \b DMA_TRIGGERSOURCE_13
+	//! - \b DMA_TRIGGERSOURCE_14
+	//! - \b DMA_TRIGGERSOURCE_15
+	//! - \b DMA_TRIGGERSOURCE_16
+	//! - \b DMA_TRIGGERSOURCE_17
+	//! - \b DMA_TRIGGERSOURCE_18
+	//! - \b DMA_TRIGGERSOURCE_19
+	//! - \b DMA_TRIGGERSOURCE_20
+	//! - \b DMA_TRIGGERSOURCE_21
+	//! - \b DMA_TRIGGERSOURCE_22
+	//! - \b DMA_TRIGGERSOURCE_23
+	//! - \b DMA_TRIGGERSOURCE_24
+	//! - \b DMA_TRIGGERSOURCE_25
+	//! - \b DMA_TRIGGERSOURCE_26
+	//! - \b DMA_TRIGGERSOURCE_27
+	//! - \b DMA_TRIGGERSOURCE_28
+	//! - \b DMA_TRIGGERSOURCE_29
+	//! - \b DMA_TRIGGERSOURCE_30
+	//! - \b DMA_TRIGGERSOURCE_31
+	uint8_t triggerSourceSelect;
+	//! Is the specified size of transfers.
+	//! \n Valid values are:
+	//! - \b DMA_SIZE_SRCWORD_DSTWORD [Default]
+	//! - \b DMA_SIZE_SRCBYTE_DSTWORD
+	//! - \b DMA_SIZE_SRCWORD_DSTBYTE
+	//! - \b DMA_SIZE_SRCBYTE_DSTBYTE
+	uint8_t transferUnitSelect;
+	//! Is the type of trigger that the trigger signal needs to be to start a
+	//! transfer.
+	//! \n Valid values are:
+	//! - \b DMA_TRIGGER_RISINGEDGE [Default]
+	//! - \b DMA_TRIGGER_HIGH - A trigger would be a high signal from the
+	//!    trigger source, to be held high through the length of the
+	//!    transfer(s).
+	uint8_t triggerTypeSelect;
 } DMA_initParam;
 
 //*****************************************************************************

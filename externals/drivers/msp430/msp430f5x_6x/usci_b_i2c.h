@@ -61,18 +61,18 @@ extern "C"
 //*****************************************************************************
 typedef struct USCI_B_I2C_initMasterParam
 {
-    //! Is the clocksource.
-    //! \n Valid values are:
-    //! - \b USCI_B_I2C_CLOCKSOURCE_ACLK
-    //! - \b USCI_B_I2C_CLOCKSOURCE_SMCLK
-    uint8_t selectClockSource;
-    //! Is the rate of the clock supplied to the I2C module.
-    uint32_t i2cClk;
-    //! Set up for selecting data transfer rate.
-    //! \n Valid values are:
-    //! - \b USCI_B_I2C_SET_DATA_RATE_400KBPS
-    //! - \b USCI_B_I2C_SET_DATA_RATE_100KBPS
-    uint32_t dataRate;
+	//! Is the clocksource.
+	//! \n Valid values are:
+	//! - \b USCI_B_I2C_CLOCKSOURCE_ACLK
+	//! - \b USCI_B_I2C_CLOCKSOURCE_SMCLK
+	uint8_t selectClockSource;
+	//! Is the rate of the clock supplied to the I2C module.
+	uint32_t i2cClk;
+	//! Set up for selecting data transfer rate.
+	//! \n Valid values are:
+	//! - \b USCI_B_I2C_SET_DATA_RATE_400KBPS
+	//! - \b USCI_B_I2C_SET_DATA_RATE_100KBPS
+	uint32_t dataRate;
 } USCI_B_I2C_initMasterParam;
 
 //*****************************************************************************

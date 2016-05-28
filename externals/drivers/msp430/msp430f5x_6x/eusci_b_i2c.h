@@ -62,27 +62,27 @@ extern "C"
 //*****************************************************************************
 typedef struct EUSCI_B_I2C_initMasterParam
 {
-    //! Is the clocksource.
-    //! \n Valid values are:
-    //! - \b EUSCI_B_I2C_CLOCKSOURCE_ACLK
-    //! - \b EUSCI_B_I2C_CLOCKSOURCE_SMCLK
-    uint8_t selectClockSource;
-    //! Is the rate of the clock supplied to the I2C module (the frequency in
-    //! Hz of the clock source specified in selectClockSource).
-    uint32_t i2cClk;
-    //! Setup for selecting data transfer rate.
-    //! \n Valid values are:
-    //! - \b EUSCI_B_I2C_SET_DATA_RATE_400KBPS
-    //! - \b EUSCI_B_I2C_SET_DATA_RATE_100KBPS
-    uint32_t dataRate;
-    //! Sets threshold for automatic STOP or UCSTPIFG
-    uint8_t byteCounterThreshold;
-    //! Sets up the STOP condition generation.
-    //! \n Valid values are:
-    //! - \b EUSCI_B_I2C_NO_AUTO_STOP
-    //! - \b EUSCI_B_I2C_SET_BYTECOUNT_THRESHOLD_FLAG
-    //! - \b EUSCI_B_I2C_SEND_STOP_AUTOMATICALLY_ON_BYTECOUNT_THRESHOLD
-    uint8_t autoSTOPGeneration;
+	//! Is the clocksource.
+	//! \n Valid values are:
+	//! - \b EUSCI_B_I2C_CLOCKSOURCE_ACLK
+	//! - \b EUSCI_B_I2C_CLOCKSOURCE_SMCLK
+	uint8_t selectClockSource;
+	//! Is the rate of the clock supplied to the I2C module (the frequency in
+	//! Hz of the clock source specified in selectClockSource).
+	uint32_t i2cClk;
+	//! Setup for selecting data transfer rate.
+	//! \n Valid values are:
+	//! - \b EUSCI_B_I2C_SET_DATA_RATE_400KBPS
+	//! - \b EUSCI_B_I2C_SET_DATA_RATE_100KBPS
+	uint32_t dataRate;
+	//! Sets threshold for automatic STOP or UCSTPIFG
+	uint8_t byteCounterThreshold;
+	//! Sets up the STOP condition generation.
+	//! \n Valid values are:
+	//! - \b EUSCI_B_I2C_NO_AUTO_STOP
+	//! - \b EUSCI_B_I2C_SET_BYTECOUNT_THRESHOLD_FLAG
+	//! - \b EUSCI_B_I2C_SEND_STOP_AUTOMATICALLY_ON_BYTECOUNT_THRESHOLD
+	uint8_t autoSTOPGeneration;
 } EUSCI_B_I2C_initMasterParam;
 
 //*****************************************************************************
@@ -92,20 +92,20 @@ typedef struct EUSCI_B_I2C_initMasterParam
 //*****************************************************************************
 typedef struct EUSCI_B_I2C_initSlaveParam
 {
-    //! 7-bit slave address
-    uint8_t slaveAddress;
-    //! Own address Offset referred to- 'x' value of UCBxI2COAx.
-    //! \n Valid values are:
-    //! - \b EUSCI_B_I2C_OWN_ADDRESS_OFFSET0
-    //! - \b EUSCI_B_I2C_OWN_ADDRESS_OFFSET1
-    //! - \b EUSCI_B_I2C_OWN_ADDRESS_OFFSET2
-    //! - \b EUSCI_B_I2C_OWN_ADDRESS_OFFSET3
-    uint8_t slaveAddressOffset;
-    //! Selects if the specified address is enabled or disabled.
-    //! \n Valid values are:
-    //! - \b EUSCI_B_I2C_OWN_ADDRESS_DISABLE
-    //! - \b EUSCI_B_I2C_OWN_ADDRESS_ENABLE
-    uint32_t slaveOwnAddressEnable;
+	//! 7-bit slave address
+	uint8_t slaveAddress;
+	//! Own address Offset referred to- 'x' value of UCBxI2COAx.
+	//! \n Valid values are:
+	//! - \b EUSCI_B_I2C_OWN_ADDRESS_OFFSET0
+	//! - \b EUSCI_B_I2C_OWN_ADDRESS_OFFSET1
+	//! - \b EUSCI_B_I2C_OWN_ADDRESS_OFFSET2
+	//! - \b EUSCI_B_I2C_OWN_ADDRESS_OFFSET3
+	uint8_t slaveAddressOffset;
+	//! Selects if the specified address is enabled or disabled.
+	//! \n Valid values are:
+	//! - \b EUSCI_B_I2C_OWN_ADDRESS_DISABLE
+	//! - \b EUSCI_B_I2C_OWN_ADDRESS_ENABLE
+	uint32_t slaveOwnAddressEnable;
 } EUSCI_B_I2C_initSlaveParam;
 
 //*****************************************************************************

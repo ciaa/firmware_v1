@@ -62,36 +62,36 @@ extern "C"
 //*****************************************************************************
 typedef struct EUSCI_B_SPI_initMasterParam
 {
-    //! Selects Clock source.
-    //! \n Valid values are:
-    //! - \b EUSCI_B_SPI_CLOCKSOURCE_ACLK
-    //! - \b EUSCI_B_SPI_CLOCKSOURCE_SMCLK
-    uint8_t selectClockSource;
-    //! Is the frequency of the selected clock source
-    uint32_t clockSourceFrequency;
-    //! Is the desired clock rate for SPI communication
-    uint32_t desiredSpiClock;
-    //! Controls the direction of the receive and transmit shift register.
-    //! \n Valid values are:
-    //! - \b EUSCI_B_SPI_MSB_FIRST
-    //! - \b EUSCI_B_SPI_LSB_FIRST [Default]
-    uint16_t msbFirst;
-    //! Is clock phase select.
-    //! \n Valid values are:
-    //! - \b EUSCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT [Default]
-    //! - \b EUSCI_B_SPI_PHASE_DATA_CAPTURED_ONFIRST_CHANGED_ON_NEXT
-    uint16_t clockPhase;
-    //! Is clock polarity select
-    //! \n Valid values are:
-    //! - \b EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_HIGH
-    //! - \b EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_LOW [Default]
-    uint16_t clockPolarity;
-    //! Is SPI mode select
-    //! \n Valid values are:
-    //! - \b EUSCI_B_SPI_3PIN
-    //! - \b EUSCI_B_SPI_4PIN_UCxSTE_ACTIVE_HIGH
-    //! - \b EUSCI_B_SPI_4PIN_UCxSTE_ACTIVE_LOW
-    uint16_t spiMode;
+	//! Selects Clock source.
+	//! \n Valid values are:
+	//! - \b EUSCI_B_SPI_CLOCKSOURCE_ACLK
+	//! - \b EUSCI_B_SPI_CLOCKSOURCE_SMCLK
+	uint8_t selectClockSource;
+	//! Is the frequency of the selected clock source
+	uint32_t clockSourceFrequency;
+	//! Is the desired clock rate for SPI communication
+	uint32_t desiredSpiClock;
+	//! Controls the direction of the receive and transmit shift register.
+	//! \n Valid values are:
+	//! - \b EUSCI_B_SPI_MSB_FIRST
+	//! - \b EUSCI_B_SPI_LSB_FIRST [Default]
+	uint16_t msbFirst;
+	//! Is clock phase select.
+	//! \n Valid values are:
+	//! - \b EUSCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT [Default]
+	//! - \b EUSCI_B_SPI_PHASE_DATA_CAPTURED_ONFIRST_CHANGED_ON_NEXT
+	uint16_t clockPhase;
+	//! Is clock polarity select
+	//! \n Valid values are:
+	//! - \b EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_HIGH
+	//! - \b EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_LOW [Default]
+	uint16_t clockPolarity;
+	//! Is SPI mode select
+	//! \n Valid values are:
+	//! - \b EUSCI_B_SPI_3PIN
+	//! - \b EUSCI_B_SPI_4PIN_UCxSTE_ACTIVE_HIGH
+	//! - \b EUSCI_B_SPI_4PIN_UCxSTE_ACTIVE_LOW
+	uint16_t spiMode;
 } EUSCI_B_SPI_initMasterParam;
 
 //*****************************************************************************
@@ -101,27 +101,27 @@ typedef struct EUSCI_B_SPI_initMasterParam
 //*****************************************************************************
 typedef struct EUSCI_B_SPI_initSlaveParam
 {
-    //! Controls the direction of the receive and transmit shift register.
-    //! \n Valid values are:
-    //! - \b EUSCI_B_SPI_MSB_FIRST
-    //! - \b EUSCI_B_SPI_LSB_FIRST [Default]
-    uint16_t msbFirst;
-    //! Is clock phase select.
-    //! \n Valid values are:
-    //! - \b EUSCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT [Default]
-    //! - \b EUSCI_B_SPI_PHASE_DATA_CAPTURED_ONFIRST_CHANGED_ON_NEXT
-    uint16_t clockPhase;
-    //! Is clock polarity select
-    //! \n Valid values are:
-    //! - \b EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_HIGH
-    //! - \b EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_LOW [Default]
-    uint16_t clockPolarity;
-    //! Is SPI mode select
-    //! \n Valid values are:
-    //! - \b EUSCI_B_SPI_3PIN
-    //! - \b EUSCI_B_SPI_4PIN_UCxSTE_ACTIVE_HIGH
-    //! - \b EUSCI_B_SPI_4PIN_UCxSTE_ACTIVE_LOW
-    uint16_t spiMode;
+	//! Controls the direction of the receive and transmit shift register.
+	//! \n Valid values are:
+	//! - \b EUSCI_B_SPI_MSB_FIRST
+	//! - \b EUSCI_B_SPI_LSB_FIRST [Default]
+	uint16_t msbFirst;
+	//! Is clock phase select.
+	//! \n Valid values are:
+	//! - \b EUSCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT [Default]
+	//! - \b EUSCI_B_SPI_PHASE_DATA_CAPTURED_ONFIRST_CHANGED_ON_NEXT
+	uint16_t clockPhase;
+	//! Is clock polarity select
+	//! \n Valid values are:
+	//! - \b EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_HIGH
+	//! - \b EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_LOW [Default]
+	uint16_t clockPolarity;
+	//! Is SPI mode select
+	//! \n Valid values are:
+	//! - \b EUSCI_B_SPI_3PIN
+	//! - \b EUSCI_B_SPI_4PIN_UCxSTE_ACTIVE_HIGH
+	//! - \b EUSCI_B_SPI_4PIN_UCxSTE_ACTIVE_LOW
+	uint16_t spiMode;
 } EUSCI_B_SPI_initSlaveParam;
 
 //*****************************************************************************
@@ -132,10 +132,10 @@ typedef struct EUSCI_B_SPI_initSlaveParam
 //*****************************************************************************
 typedef struct EUSCI_B_SPI_changeMasterClockParam
 {
-    //! Is the frequency of the selected clock source
-    uint32_t clockSourceFrequency;
-    //! Is the desired clock rate for SPI communication
-    uint32_t desiredSpiClock;
+	//! Is the frequency of the selected clock source
+	uint32_t clockSourceFrequency;
+	//! Is the desired clock rate for SPI communication
+	uint32_t desiredSpiClock;
 } EUSCI_B_SPI_changeMasterClockParam;
 
 //*****************************************************************************

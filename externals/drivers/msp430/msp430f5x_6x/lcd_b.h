@@ -61,67 +61,67 @@ extern "C"
 //*****************************************************************************
 typedef struct LCD_B_initParam
 {
-    //! Selects the clock that will be used by the LCD.
-    //! \n Valid values are:
-    //! - \b LCD_B_CLOCKSOURCE_ACLK [Default]
-    //! - \b LCD_B_CLOCKSOURCE_VLOCLK
-    uint16_t clockSource;
-    //! Selects the divider for LCD_frequency.
-    //! \n Valid values are:
-    //! - \b LCD_B_CLOCKDIVIDER_1 [Default]
-    //! - \b LCD_B_CLOCKDIVIDER_2
-    //! - \b LCD_B_CLOCKDIVIDER_3
-    //! - \b LCD_B_CLOCKDIVIDER_4
-    //! - \b LCD_B_CLOCKDIVIDER_5
-    //! - \b LCD_B_CLOCKDIVIDER_6
-    //! - \b LCD_B_CLOCKDIVIDER_7
-    //! - \b LCD_B_CLOCKDIVIDER_8
-    //! - \b LCD_B_CLOCKDIVIDER_9
-    //! - \b LCD_B_CLOCKDIVIDER_10
-    //! - \b LCD_B_CLOCKDIVIDER_11
-    //! - \b LCD_B_CLOCKDIVIDER_12
-    //! - \b LCD_B_CLOCKDIVIDER_13
-    //! - \b LCD_B_CLOCKDIVIDER_14
-    //! - \b LCD_B_CLOCKDIVIDER_15
-    //! - \b LCD_B_CLOCKDIVIDER_16
-    //! - \b LCD_B_CLOCKDIVIDER_17
-    //! - \b LCD_B_CLOCKDIVIDER_18
-    //! - \b LCD_B_CLOCKDIVIDER_19
-    //! - \b LCD_B_CLOCKDIVIDER_20
-    //! - \b LCD_B_CLOCKDIVIDER_21
-    //! - \b LCD_B_CLOCKDIVIDER_22
-    //! - \b LCD_B_CLOCKDIVIDER_23
-    //! - \b LCD_B_CLOCKDIVIDER_24
-    //! - \b LCD_B_CLOCKDIVIDER_25
-    //! - \b LCD_B_CLOCKDIVIDER_26
-    //! - \b LCD_B_CLOCKDIVIDER_27
-    //! - \b LCD_B_CLOCKDIVIDER_28
-    //! - \b LCD_B_CLOCKDIVIDER_29
-    //! - \b LCD_B_CLOCKDIVIDER_30
-    //! - \b LCD_B_CLOCKDIVIDER_31
-    //! - \b LCD_B_CLOCKDIVIDER_32
-    uint16_t clockDivider;
-    //! Selects the prescalar for frequency.
-    //! \n Valid values are:
-    //! - \b LCD_B_CLOCKPRESCALAR_1 [Default]
-    //! - \b LCD_B_CLOCKPRESCALAR_2
-    //! - \b LCD_B_CLOCKPRESCALAR_4
-    //! - \b LCD_B_CLOCKPRESCALAR_8
-    //! - \b LCD_B_CLOCKPRESCALAR_16
-    //! - \b LCD_B_CLOCKPRESCALAR_32
-    uint16_t clockPrescalar;
-    //! Selects LCD mux rate.
-    //! \n Valid values are:
-    //! - \b LCD_B_STATIC [Default]
-    //! - \b LCD_B_2_MUX
-    //! - \b LCD_B_3_MUX
-    //! - \b LCD_B_4_MUX
-    uint16_t muxRate;
-    //! Sets LCD segment on/off.
-    //! \n Valid values are:
-    //! - \b LCD_B_SEGMENTS_DISABLED [Default]
-    //! - \b LCD_B_SEGMENTS_ENABLED
-    uint16_t segments;
+	//! Selects the clock that will be used by the LCD.
+	//! \n Valid values are:
+	//! - \b LCD_B_CLOCKSOURCE_ACLK [Default]
+	//! - \b LCD_B_CLOCKSOURCE_VLOCLK
+	uint16_t clockSource;
+	//! Selects the divider for LCD_frequency.
+	//! \n Valid values are:
+	//! - \b LCD_B_CLOCKDIVIDER_1 [Default]
+	//! - \b LCD_B_CLOCKDIVIDER_2
+	//! - \b LCD_B_CLOCKDIVIDER_3
+	//! - \b LCD_B_CLOCKDIVIDER_4
+	//! - \b LCD_B_CLOCKDIVIDER_5
+	//! - \b LCD_B_CLOCKDIVIDER_6
+	//! - \b LCD_B_CLOCKDIVIDER_7
+	//! - \b LCD_B_CLOCKDIVIDER_8
+	//! - \b LCD_B_CLOCKDIVIDER_9
+	//! - \b LCD_B_CLOCKDIVIDER_10
+	//! - \b LCD_B_CLOCKDIVIDER_11
+	//! - \b LCD_B_CLOCKDIVIDER_12
+	//! - \b LCD_B_CLOCKDIVIDER_13
+	//! - \b LCD_B_CLOCKDIVIDER_14
+	//! - \b LCD_B_CLOCKDIVIDER_15
+	//! - \b LCD_B_CLOCKDIVIDER_16
+	//! - \b LCD_B_CLOCKDIVIDER_17
+	//! - \b LCD_B_CLOCKDIVIDER_18
+	//! - \b LCD_B_CLOCKDIVIDER_19
+	//! - \b LCD_B_CLOCKDIVIDER_20
+	//! - \b LCD_B_CLOCKDIVIDER_21
+	//! - \b LCD_B_CLOCKDIVIDER_22
+	//! - \b LCD_B_CLOCKDIVIDER_23
+	//! - \b LCD_B_CLOCKDIVIDER_24
+	//! - \b LCD_B_CLOCKDIVIDER_25
+	//! - \b LCD_B_CLOCKDIVIDER_26
+	//! - \b LCD_B_CLOCKDIVIDER_27
+	//! - \b LCD_B_CLOCKDIVIDER_28
+	//! - \b LCD_B_CLOCKDIVIDER_29
+	//! - \b LCD_B_CLOCKDIVIDER_30
+	//! - \b LCD_B_CLOCKDIVIDER_31
+	//! - \b LCD_B_CLOCKDIVIDER_32
+	uint16_t clockDivider;
+	//! Selects the prescalar for frequency.
+	//! \n Valid values are:
+	//! - \b LCD_B_CLOCKPRESCALAR_1 [Default]
+	//! - \b LCD_B_CLOCKPRESCALAR_2
+	//! - \b LCD_B_CLOCKPRESCALAR_4
+	//! - \b LCD_B_CLOCKPRESCALAR_8
+	//! - \b LCD_B_CLOCKPRESCALAR_16
+	//! - \b LCD_B_CLOCKPRESCALAR_32
+	uint16_t clockPrescalar;
+	//! Selects LCD mux rate.
+	//! \n Valid values are:
+	//! - \b LCD_B_STATIC [Default]
+	//! - \b LCD_B_2_MUX
+	//! - \b LCD_B_3_MUX
+	//! - \b LCD_B_4_MUX
+	uint16_t muxRate;
+	//! Sets LCD segment on/off.
+	//! \n Valid values are:
+	//! - \b LCD_B_SEGMENTS_DISABLED [Default]
+	//! - \b LCD_B_SEGMENTS_ENABLED
+	uint16_t segments;
 } LCD_B_initParam;
 
 extern const LCD_B_initParam LCD_B_INIT_PARAM;

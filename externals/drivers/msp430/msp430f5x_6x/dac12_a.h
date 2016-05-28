@@ -61,72 +61,72 @@ extern "C"
 //*****************************************************************************
 typedef struct DAC12_A_initParam
 {
-    //! Decides which DAC12_A sub-module to configure.
-    //! \n Valid values are:
-    //! - \b DAC12_A_SUBMODULE_0
-    //! - \b DAC12_A_SUBMODULE_1
-    uint8_t submoduleSelect;
-    //! Selects the output pin that the selected DAC12_A module will output to.
-    //! \n Valid values are:
-    //! - \b DAC12_A_OUTPUT_1 [Default]
-    //! - \b DAC12_A_OUTPUT_2
-    uint16_t outputSelect;
-    //! Is the upper limit voltage that the data can be converted in to.
-    //! \n Valid values are:
-    //! - \b DAC12_A_VREF_INT [Default]
-    //! - \b DAC12_A_VREF_AVCC
-    //! - \b DAC12_A_VREF_EXT - For devices with CTSD16, use Ref module
-    //!    Ref_enableReferenceVoltageOutput/Ref__disableReferenceVoltageOutput
-    //!    to select VeREF(external reference signal) or VREFBG(internally
-    //!    generated reference signal)
-    uint16_t positiveReferenceVoltage;
-    //! Is the multiplier of the Vout voltage.
-    //! \n Valid values are:
-    //! - \b DAC12_A_VREFx1 [Default]
-    //! - \b DAC12_A_VREFx2
-    //! - \b DAC12_A_VREFx3
-    uint16_t outputVoltageMultiplier;
-    //! Is the setting of the settling speed and current of the Vref+ and the
-    //! Vout buffer.
-    //! \n Valid values are:
-    //! - \b DAC12_A_AMP_OFF_PINOUTHIGHZ [Default] - Initialize the DAC12_A
-    //!    Module with settings, but do not turn it on.
-    //! - \b DAC12_A_AMP_OFF_PINOUTLOW - Initialize the DAC12_A Module with
-    //!    settings, and allow it to take control of the selected output pin to
-    //!    pull it low (Note: this takes control away port mapping module).
-    //! - \b DAC12_A_AMP_LOWIN_LOWOUT - Select a slow settling speed and
-    //!    current for Vref+ input buffer and for Vout output buffer.
-    //! - \b DAC12_A_AMP_LOWIN_MEDOUT - Select a slow settling speed and
-    //!    current for Vref+ input buffer and a medium settling speed and
-    //!    current for Vout output buffer.
-    //! - \b DAC12_A_AMP_LOWIN_HIGHOUT - Select a slow settling speed and
-    //!    current for Vref+ input buffer and a high settling speed and current
-    //!    for Vout output buffer.
-    //! - \b DAC12_A_AMP_MEDIN_MEDOUT - Select a medium settling speed and
-    //!    current for Vref+ input buffer and for Vout output buffer.
-    //! - \b DAC12_A_AMP_MEDIN_HIGHOUT - Select a medium settling speed and
-    //!    current for Vref+ input buffer and a high settling speed and current
-    //!    for Vout output buffer.
-    //! - \b DAC12_A_AMP_HIGHIN_HIGHOUT - Select a high settling speed and
-    //!    current for Vref+ input buffer and for Vout output buffer.
-    uint8_t amplifierSetting;
-    //! Selects the trigger that will start a conversion.
-    //! \n Valid values are:
-    //! - \b DAC12_A_TRIGGER_ENCBYPASS [Default] - Automatically converts data
-    //!    as soon as it is written into the data buffer. (Note: Do not use
-    //!    this selection if grouping DAC's).
-    //! - \b DAC12_A_TRIGGER_ENC - Requires a call to enableConversions() to
-    //!    allow a conversion, but starts a conversion as soon as data is
-    //!    written to the data buffer (Note: with DAC12_A module's grouped,
-    //!    data has to be set in BOTH DAC12_A data buffers to start a
-    //!    conversion).
-    //! - \b DAC12_A_TRIGGER_TA - Requires a call to enableConversions() to
-    //!    allow a conversion, and a rising edge of Timer_A's Out1 (TA1) to
-    //!    start a conversion.
-    //! - \b DAC12_A_TRIGGER_TB - Requires a call to enableConversions() to
-    //!    allow a conversion, and a rising edge of Timer_B's Out2 (TB2) to
-    //!    start a conversion.
-    uint16_t conversionTriggerSelect;
+	//! Decides which DAC12_A sub-module to configure.
+	//! \n Valid values are:
+	//! - \b DAC12_A_SUBMODULE_0
+	//! - \b DAC12_A_SUBMODULE_1
+	uint8_t submoduleSelect;
+	//! Selects the output pin that the selected DAC12_A module will output to.
+	//! \n Valid values are:
+	//! - \b DAC12_A_OUTPUT_1 [Default]
+	//! - \b DAC12_A_OUTPUT_2
+	uint16_t outputSelect;
+	//! Is the upper limit voltage that the data can be converted in to.
+	//! \n Valid values are:
+	//! - \b DAC12_A_VREF_INT [Default]
+	//! - \b DAC12_A_VREF_AVCC
+	//! - \b DAC12_A_VREF_EXT - For devices with CTSD16, use Ref module
+	//!    Ref_enableReferenceVoltageOutput/Ref__disableReferenceVoltageOutput
+	//!    to select VeREF(external reference signal) or VREFBG(internally
+	//!    generated reference signal)
+	uint16_t positiveReferenceVoltage;
+	//! Is the multiplier of the Vout voltage.
+	//! \n Valid values are:
+	//! - \b DAC12_A_VREFx1 [Default]
+	//! - \b DAC12_A_VREFx2
+	//! - \b DAC12_A_VREFx3
+	uint16_t outputVoltageMultiplier;
+	//! Is the setting of the settling speed and current of the Vref+ and the
+	//! Vout buffer.
+	//! \n Valid values are:
+	//! - \b DAC12_A_AMP_OFF_PINOUTHIGHZ [Default] - Initialize the DAC12_A
+	//!    Module with settings, but do not turn it on.
+	//! - \b DAC12_A_AMP_OFF_PINOUTLOW - Initialize the DAC12_A Module with
+	//!    settings, and allow it to take control of the selected output pin to
+	//!    pull it low (Note: this takes control away port mapping module).
+	//! - \b DAC12_A_AMP_LOWIN_LOWOUT - Select a slow settling speed and
+	//!    current for Vref+ input buffer and for Vout output buffer.
+	//! - \b DAC12_A_AMP_LOWIN_MEDOUT - Select a slow settling speed and
+	//!    current for Vref+ input buffer and a medium settling speed and
+	//!    current for Vout output buffer.
+	//! - \b DAC12_A_AMP_LOWIN_HIGHOUT - Select a slow settling speed and
+	//!    current for Vref+ input buffer and a high settling speed and current
+	//!    for Vout output buffer.
+	//! - \b DAC12_A_AMP_MEDIN_MEDOUT - Select a medium settling speed and
+	//!    current for Vref+ input buffer and for Vout output buffer.
+	//! - \b DAC12_A_AMP_MEDIN_HIGHOUT - Select a medium settling speed and
+	//!    current for Vref+ input buffer and a high settling speed and current
+	//!    for Vout output buffer.
+	//! - \b DAC12_A_AMP_HIGHIN_HIGHOUT - Select a high settling speed and
+	//!    current for Vref+ input buffer and for Vout output buffer.
+	uint8_t amplifierSetting;
+	//! Selects the trigger that will start a conversion.
+	//! \n Valid values are:
+	//! - \b DAC12_A_TRIGGER_ENCBYPASS [Default] - Automatically converts data
+	//!    as soon as it is written into the data buffer. (Note: Do not use
+	//!    this selection if grouping DAC's).
+	//! - \b DAC12_A_TRIGGER_ENC - Requires a call to enableConversions() to
+	//!    allow a conversion, but starts a conversion as soon as data is
+	//!    written to the data buffer (Note: with DAC12_A module's grouped,
+	//!    data has to be set in BOTH DAC12_A data buffers to start a
+	//!    conversion).
+	//! - \b DAC12_A_TRIGGER_TA - Requires a call to enableConversions() to
+	//!    allow a conversion, and a rising edge of Timer_A's Out1 (TA1) to
+	//!    start a conversion.
+	//! - \b DAC12_A_TRIGGER_TB - Requires a call to enableConversions() to
+	//!    allow a conversion, and a rising edge of Timer_B's Out2 (TB2) to
+	//!    start a conversion.
+	uint16_t conversionTriggerSelect;
 } DAC12_A_initParam;
 
 //*****************************************************************************

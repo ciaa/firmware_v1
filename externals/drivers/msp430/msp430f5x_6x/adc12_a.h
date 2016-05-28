@@ -62,67 +62,67 @@ extern "C"
 //*****************************************************************************
 typedef struct ADC12_A_configureMemoryParam
 {
-    //! Is the selected memory buffer to set the configuration for.
-    //! \n Valid values are:
-    //! - \b ADC12_A_MEMORY_0 [Default]
-    //! - \b ADC12_A_MEMORY_1
-    //! - \b ADC12_A_MEMORY_2
-    //! - \b ADC12_A_MEMORY_3
-    //! - \b ADC12_A_MEMORY_4
-    //! - \b ADC12_A_MEMORY_5
-    //! - \b ADC12_A_MEMORY_6
-    //! - \b ADC12_A_MEMORY_7
-    //! - \b ADC12_A_MEMORY_8
-    //! - \b ADC12_A_MEMORY_9
-    //! - \b ADC12_A_MEMORY_10
-    //! - \b ADC12_A_MEMORY_11
-    //! - \b ADC12_A_MEMORY_12
-    //! - \b ADC12_A_MEMORY_13
-    //! - \b ADC12_A_MEMORY_14
-    //! - \b ADC12_A_MEMORY_15
-    uint8_t memoryBufferControlIndex;
-    //! Is the input that will store the converted data into the specified
-    //! memory buffer.
-    //! \n Valid values are:
-    //! - \b ADC12_A_INPUT_A0 [Default]
-    //! - \b ADC12_A_INPUT_A1
-    //! - \b ADC12_A_INPUT_A2
-    //! - \b ADC12_A_INPUT_A3
-    //! - \b ADC12_A_INPUT_A4
-    //! - \b ADC12_A_INPUT_A5
-    //! - \b ADC12_A_INPUT_A6
-    //! - \b ADC12_A_INPUT_A7
-    //! - \b ADC12_A_INPUT_A8
-    //! - \b ADC12_A_INPUT_A9
-    //! - \b ADC12_A_INPUT_TEMPSENSOR
-    //! - \b ADC12_A_INPUT_BATTERYMONITOR
-    //! - \b ADC12_A_INPUT_A12
-    //! - \b ADC12_A_INPUT_A13
-    //! - \b ADC12_A_INPUT_A14
-    //! - \b ADC12_A_INPUT_A15
-    uint8_t inputSourceSelect;
-    //! Is the reference voltage source to set as the upper limit for the
-    //! conversion stored in the specified memory.
-    //! \n Valid values are:
-    //! - \b ADC12_A_VREFPOS_AVCC [Default]
-    //! - \b ADC12_A_VREFPOS_EXT
-    //! - \b ADC12_A_VREFPOS_INT
-    uint8_t positiveRefVoltageSourceSelect;
-    //! Is the reference voltage source to set as the lower limit for the
-    //! conversion stored in the specified memory.
-    //! \n Valid values are:
-    //! - \b ADC12_A_VREFNEG_AVSS [Default]
-    //! - \b ADC12_A_VREFNEG_EXT
-    uint8_t negativeRefVoltageSourceSelect;
-    //! Indicates that the specified memory buffer will be the end of the
-    //! sequence if a sequenced conversion mode is selected
-    //! \n Valid values are:
-    //! - \b ADC12_A_NOTENDOFSEQUENCE [Default] - The specified memory buffer
-    //!    will NOT be the end of the sequence OR a sequenced conversion mode
-    //!    is not selected.
-    //! - \b ADC12_A_ENDOFSEQUENCE - The specified memory buffer will be the
-    //!    end of the sequence.
-    uint8_t endOfSequence;
+	//! Is the selected memory buffer to set the configuration for.
+	//! \n Valid values are:
+	//! - \b ADC12_A_MEMORY_0 [Default]
+	//! - \b ADC12_A_MEMORY_1
+	//! - \b ADC12_A_MEMORY_2
+	//! - \b ADC12_A_MEMORY_3
+	//! - \b ADC12_A_MEMORY_4
+	//! - \b ADC12_A_MEMORY_5
+	//! - \b ADC12_A_MEMORY_6
+	//! - \b ADC12_A_MEMORY_7
+	//! - \b ADC12_A_MEMORY_8
+	//! - \b ADC12_A_MEMORY_9
+	//! - \b ADC12_A_MEMORY_10
+	//! - \b ADC12_A_MEMORY_11
+	//! - \b ADC12_A_MEMORY_12
+	//! - \b ADC12_A_MEMORY_13
+	//! - \b ADC12_A_MEMORY_14
+	//! - \b ADC12_A_MEMORY_15
+	uint8_t memoryBufferControlIndex;
+	//! Is the input that will store the converted data into the specified
+	//! memory buffer.
+	//! \n Valid values are:
+	//! - \b ADC12_A_INPUT_A0 [Default]
+	//! - \b ADC12_A_INPUT_A1
+	//! - \b ADC12_A_INPUT_A2
+	//! - \b ADC12_A_INPUT_A3
+	//! - \b ADC12_A_INPUT_A4
+	//! - \b ADC12_A_INPUT_A5
+	//! - \b ADC12_A_INPUT_A6
+	//! - \b ADC12_A_INPUT_A7
+	//! - \b ADC12_A_INPUT_A8
+	//! - \b ADC12_A_INPUT_A9
+	//! - \b ADC12_A_INPUT_TEMPSENSOR
+	//! - \b ADC12_A_INPUT_BATTERYMONITOR
+	//! - \b ADC12_A_INPUT_A12
+	//! - \b ADC12_A_INPUT_A13
+	//! - \b ADC12_A_INPUT_A14
+	//! - \b ADC12_A_INPUT_A15
+	uint8_t inputSourceSelect;
+	//! Is the reference voltage source to set as the upper limit for the
+	//! conversion stored in the specified memory.
+	//! \n Valid values are:
+	//! - \b ADC12_A_VREFPOS_AVCC [Default]
+	//! - \b ADC12_A_VREFPOS_EXT
+	//! - \b ADC12_A_VREFPOS_INT
+	uint8_t positiveRefVoltageSourceSelect;
+	//! Is the reference voltage source to set as the lower limit for the
+	//! conversion stored in the specified memory.
+	//! \n Valid values are:
+	//! - \b ADC12_A_VREFNEG_AVSS [Default]
+	//! - \b ADC12_A_VREFNEG_EXT
+	uint8_t negativeRefVoltageSourceSelect;
+	//! Indicates that the specified memory buffer will be the end of the
+	//! sequence if a sequenced conversion mode is selected
+	//! \n Valid values are:
+	//! - \b ADC12_A_NOTENDOFSEQUENCE [Default] - The specified memory buffer
+	//!    will NOT be the end of the sequence OR a sequenced conversion mode
+	//!    is not selected.
+	//! - \b ADC12_A_ENDOFSEQUENCE - The specified memory buffer will be the
+	//!    end of the sequence.
+	uint8_t endOfSequence;
 } ADC12_A_configureMemoryParam;
 
 //*****************************************************************************
