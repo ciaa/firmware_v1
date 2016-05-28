@@ -113,22 +113,22 @@ typedef struct vfs_node vnode_t;
 typedef struct file_desc file_desc_t;
 
 /** \brief prepare lower layer file data to be read/write/seek
- ** 
+ **
  **/
 typedef   int    (*file_open_t)(file_desc_t *file_desc);
 
 /** \brief free resources.
- ** 
+ **
  **/
 typedef   int    (*file_close_t)(file_desc_t *file_desc);
 
 /** \brief read disk data to memory
- ** 
+ **
  **/
 typedef   size_t (*file_read_t)(file_desc_t *desc, void *buf, size_t size);
 
 /** \brief write no-memory data to disk
- ** 
+ **
  **/
 typedef   size_t (*file_write_t)(file_desc_t *desc, void *buf, size_t size);
 
@@ -138,37 +138,37 @@ typedef   size_t (*file_write_t)(file_desc_t *desc, void *buf, size_t size);
 typedef   int    (*file_ioctl_t)(file_desc_t *desc, int request);
 
 /** \brief Set parameters or allocate structures of lower layer to enable it
- ** 
+ **
  **/
 typedef   int (*fs_init_t)(void *par);
 
 /** \brief Formats the device according to the file system specifications
- ** 
+ **
  **/
 typedef   int (*fs_format_t)(vnode_t *dev_node);
 
 /** \brief Mount  a formatted device on a root directory
- ** 
+ **
  **/
 typedef   int (*fs_mount_t)(vnode_t *dev_node, vnode_t *dest_node);
 
 /** \brief Create a new file in parent_node directory
- ** 
+ **
  **/
 typedef   int (*fs_create_node_t)(vnode_t *parent_node, vnode_t *child_node);
 
 /** \brief Delete a file from the parent_node directory
- ** 
+ **
  **/
 typedef   int (*fs_delete_node_t)(vnode_t *parent_node, vnode_t *child_node);
 
 /** \brief Truncate file size to length bytes
- ** 
+ **
  **/
 typedef   int (*fs_truncate_t)(vnode_t *node, uint32_t length);
 
 /** \brief  unmounts a file system from the hierarchical file system
- ** 
+ **
  **/
 typedef   int (*fs_umount_t)(vnode_t *node);
 
@@ -210,7 +210,7 @@ typedef struct filesystem_driver
 /** \brief VFS metadata information
  **
  ** Contains upper layer node information, independent of the lower layer
- ** 
+ **
  **/
 typedef struct node_info
 {

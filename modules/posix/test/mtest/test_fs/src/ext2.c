@@ -1435,7 +1435,7 @@ static int ext2_umount_subtree_rec(vnode_t *root)
          return -1;
       }
    }
-   
+
    if(NULL != root->n_info.down_layer_info)
    {
       ciaaPOSIX_free(root->n_info.down_layer_info);
@@ -1638,7 +1638,7 @@ static int ext2_buf_read_file(vnode_t * dest_node, uint8_t *buf, uint32_t size, 
 }
 
 /* Map file block number to disk block number
- * 
+ *
  */
 static int ext2_block_map(const vnode_t * dest_node, uint32_t file_block, uint32_t *device_block_p)
 {

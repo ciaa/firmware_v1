@@ -186,16 +186,16 @@ static file_desc_t *file_desc_get(uint16_t index);
 /*==================[internal data definition]===============================*/
 
 /** \brief Root inode
- * 
+ *
  * Root inode of the entire vfs
- * 
+ *
  */
 static vnode_t *vfs_root_inode = NULL;
 
 /** \brief Filesystem drivers declaration
  *
  * Here are the drivers defined in the lower layer file system implementations (in ext2.c, fat.c, etc.)
- * 
+ *
  */
 extern filesystem_driver_t ext2_driver;
 extern filesystem_driver_t pseudofs_driver;
@@ -579,9 +579,9 @@ extern int vfs_delete_child(vnode_t *child)
    /* child->sibling_node == NULL: Single child
     * child->parent_node == NULL: Root inode
     * Must delete child. Special case if child to delete is head child.
-    * General case: 
-    * 
-    * 
+    * General case:
+    *
+    *
     */
    ASSERT_MSG(NULL != child, "vfs_delete_child(): Node doesnt exist");
    if(NULL == child)
@@ -789,7 +789,7 @@ extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type)
    return 0;
 }
 
-/* Cant support over mounting. Directory must be empty to mount. 
+/* Cant support over mounting. Directory must be empty to mount.
  * Umount eliminates mount root node
  */
 /* TODO: Check if exists an open file who belongs to this mount */
