@@ -1,0 +1,138 @@
+/* Copyright 2014, 2015, Mariano Cerdeiro                                    */
+/* Copyright 2014, Pablo Ridolfi                                             */
+/* Copyright 2014, Juan Cecconi                                              */
+/* Copyright 2014, Gustavo Muro                                              */
+/*                                                                           */
+/* This file is part of CIAA Firmware.                                       */
+/*                                                                           */
+/* Redistribution and use in source and binary forms, with or without        */
+/* modification, are permitted provided that the following conditions are    */
+/* met:                                                                      */
+/*                                                                           */
+/* 1. Redistributions of source code must retain the above copyright notice, */
+/*    this list of conditions and the following disclaimer.                  */
+/*                                                                           */
+/* 2. Redistributions in binary form must reproduce the above copyright      */
+/*    notice, this list of conditions and the following disclaimer in the    */
+/*    documentation and/or other materials provided with the distribution.   */
+/*                                                                           */
+/* 3. Neither the name of the copyright holder nor the names of its          */
+/*    contributors may be used to endorse or promote products derived from   */
+/*    this software without specific prior written permission.               */
+/*                                                                           */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS       */
+/* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED */
+/* TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A           */
+/* PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER */
+/* OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,  */
+/* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,       */
+/* PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR        */
+/* PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF    */
+/* LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING      */
+/* NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS        */
+/* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.              */
+/*                                                                           */
+/*****************************************************************************/
+/*  HisIO example DIL configuration file                                     */
+/*                                                                           */
+/*  This file describes the current Drivers configuration.                   */
+/*  References:                                                              */
+/*  - API IO Driver http://portal.automotive-his.de/images/pdf/              */
+/*                         StandardSoftware/api_iodriver_2_1_3.pdf           */
+/*  - API IO Library http://portal.automotive-his.de/images/pdf/             */
+/*                   StandardSoftware/api_iolibrary_2.0.3.pdf                */
+/*                                                                           */
+/*  NOTE: These both standard specify DIL (Driver Implementation Language,   */
+/*        but the CIAA-Firmware defines a litle different way to keep        */
+/*        compatibility with OIL used for OSEK.                              */
+/*****************************************************************************/
+
+DIL DIL {
+
+   DIO MyDioConfig {
+      ERRORHOOK = TRUE;
+
+      PIN LED1 {
+         PORT = 2;
+         PIN = 10;
+         DIRECTION = IO_OUTPUT_INIT_LOW;
+         INVERTED = TRUE;
+      }
+      PIN LED2 {
+         PORT = 2;
+         PIN = 11;
+         DIRECTION = IO_OUTPUT_INIT_LOW;
+         INVERTED = TRUE;
+      }
+      PIN LED3 {
+         PORT = 2;
+         PIN = 12;
+         DIRECTION = IO_OUTPUT_INIT_LOW;
+         INVERTED = TRUE;
+      }
+      PIN LED0_R {
+         PORT = 2;
+         PIN = 0;
+         DIRECTION = IO_OUTPUT_INIT_LOW;
+         INVERTED = TRUE;
+      }
+      PIN LED0_G {
+         PORT = 2;
+         PIN = 1;
+         DIRECTION = IO_OUTPUT_INIT_LOW;
+         INVERTED = TRUE;
+      }
+      PIN LED0_B {
+         PORT = 2;
+         PIN = 2;
+         DIRECTION = IO_OUTPUT_INIT_LOW;
+         INVERTED = TRUE;
+      }
+
+      PIN KEY1 {
+         PORT = 1;
+         PIN = 0;
+         DIRECTION = IO_INPUT;
+         INVERTED = FALSE;
+      }
+      PIN KEY2 {
+         PORT = 1;
+         PIN = 1;
+         DIRECTION = IO_INPUT;
+         INVERTED = FALSE;
+      }
+      PIN KEY3 {
+         PORT = 1;
+         PIN = 2;
+         DIRECTION = IO_INPUT;
+         INVERTED = FALSE;
+      }
+      PIN KEY4 {
+         PORT = 1;
+         PIN = 6;
+         DIRECTION = IO_INPUT;
+         INVERTED = FALSE;
+      }
+      PORT BUS0 {
+         PORT = 0;
+         SIZE = IO_PORT_SIZE_8;
+         MASK = FFFFFFFF;
+         DIRECTION = IO_INPUT;
+         INVERTED = TRUE;
+      }
+      PORT BUS1 {
+         PORT = 1;
+         SIZE = IO_PORT_SIZE_16;
+         MASK = 55555555;
+         DIRECTION = IO_OUTPUT_INIT_LOW;
+         INVERTED = FALSE;
+      }
+      PORT BUS2 {
+         PORT = 2;
+         SIZE = IO_PORT_SIZE_32;
+         MASK = AAAAAAAA;
+         DIRECTION = IO_OUTPUT_INIT_HIGH;
+         INVERTED = FALSE;
+      }
+   }
+};

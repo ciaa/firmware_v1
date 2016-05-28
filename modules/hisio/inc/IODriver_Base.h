@@ -1,4 +1,4 @@
-/* Copyright 2016, Franco Bucafusco (BuckLabs)
+/* Copyright 2015, Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,18 +31,31 @@
  *
  */
 
-#ifndef CIAADRIVERDIO_INTERNAL_H
-#define CIAADRIVERDIO_INTERNAL_H
-/** \brief Internal Header file of DIO Driver
+#ifndef IODRIVER_BASE_H
+#define IODRIVER_BASE_H
+/** \brief IO Drivers base header file
+ **
+ ** This file contains the basic declarations and definitions of
+ ** the IO Drivers.
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup HISIO HisIO Module
  ** @{ */
-/** \addtogroup DIO DIO Drivers
- ** @{ */
+
+/*
+ * Initials     Name
+ * ---------------------------
+ * MaCe         Mariano Cerdeiro
+ */
+
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20151222 v0.0.1 MaCe initial version
+ */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
@@ -53,17 +66,48 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief Possible return values of IO_ErrorType
+ **
+ ** Values between 0 and 15 are reserved for the IO Library, between 16 and 63
+ ** for the IO Drivers and between 64 and 127 are implementation specific.
+ ** Values above 127 are reserved for future implementations.
+ **
+ **/
+#ifndef IO_E_OK
+#define IO_E_OK                  0
+#endif
+#ifndef IO_E_BUSY
+#define IO_E_BUSY                1
+#endif
+#ifndef IO_E_UNKNOWN_MODE
+#define IO_E_UNKNOWN_MODE        2
+#endif
+#define IO_E_FCN_SUSPENDED       16
+#define IO_E_PARAM_IGNORED       17
+#define IO_E_INVALID_CHANNEL_ID  18
+#define IO_E_INVALID_VALUE       19
+#define IO_E_INVALID_SIZE        20
+#define IO_E_INVALID_POSITION    21
+#define IO_E_INVALID_NOTIF_TYPE  22
 
+#define IO_HIGH                  1
+#define IO_LOW                   0
 /*==================[typedef]================================================*/
-/** \brief Dio Type */
+typedef uint8_t IO_ErrorType;
 
+#if IO_PORT_SIZE == IO_PORT_SIZE_8
+typedef uint8_t IO_ValueType;
+#elif IO_PORT_SIZE == IO_PORT_SIZE_16
+typedef uint16_t IO_ValueType;
+#elif IO_PORT_SIZE == IO_PORT_SIZE_32
+typedef uint32_t IO_ValueType;
+#else
+#error Not supported IO_PORT_SIZE has been defined
+#endif
 
-typedef struct _ciaaDriverDio_dioType
-{
-	uint32_t port;
-	uint32_t pin;
-} ciaaDriverDio_dioType;
+typedef int IO_ChannelType;
 
+typedef int IO_ModeType;
 
 /*==================[external data declaration]==============================*/
 
@@ -75,7 +119,6 @@ typedef struct _ciaaDriverDio_dioType
 #endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAADRIVERDIO_INTERNAL_H */
+#endif /* #ifndef IODRIVER_BASE_H */
 

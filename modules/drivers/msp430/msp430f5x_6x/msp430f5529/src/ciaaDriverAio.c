@@ -97,40 +97,40 @@ static void ciaaDriverAio_dacIRQHandler(ciaaDevices_deviceType const * const dev
 
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverAio_open(char const * path,
-      ciaaDevices_deviceType * device, uint8_t const oflag)
+                                                   ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-   return device;
+	return device;
 }
 
 extern int32_t ciaaDriverAio_close(ciaaDevices_deviceType const * const device)
 {
-   int32_t ret = -1;
+	int32_t ret = -1;
 
 
-   return ret;
+	return ret;
 }
 
 extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
-   int32_t ret = -1;
+	int32_t ret = -1;
 
 
-   return ret;
+	return ret;
 }
 
 extern ssize_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t const size)
 {
-   ssize_t ret = -1;
+	ssize_t ret = -1;
 
-   return ret;
+	return ret;
 }
 
 extern ssize_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
 
-   ssize_t ret = -1;
+	ssize_t ret = -1;
 
-   return ret;
+	return ret;
 }
 
 void ciaaDriverAio_init(void)

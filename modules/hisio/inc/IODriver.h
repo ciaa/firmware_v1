@@ -1,4 +1,4 @@
-/* Copyright 2016, Franco Bucafusco (BuckLabs)
+/* Copyright 2015, Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,21 +31,37 @@
  *
  */
 
-#ifndef CIAADRIVERDIO_INTERNAL_H
-#define CIAADRIVERDIO_INTERNAL_H
-/** \brief Internal Header file of DIO Driver
+#ifndef IODRIVER_H
+#define IODRIVER_H
+/** \brief IO Drivers header file
+ **
+ ** This file contains is the IO Drivers header file.
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
- ** @{ */
-/** \addtogroup DIO DIO Drivers
+/** \addtogroup HISIO HisIO Module
  ** @{ */
 
+/*
+ * Initials     Name
+ * ---------------------------
+ * MaCe         Mariano Cerdeiro
+ */
+
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20151222 v0.0.1 MaCe initial version
+ */
+
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
+#include "IODriver_Base.h"
+#include "IODriver_Cfg.h"
+#if (HISIO_DIO_ENABLE == HISIO_TRUE)
+#include "Dio.h"
+#endif
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -55,15 +71,6 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Dio Type */
-
-
-typedef struct _ciaaDriverDio_dioType
-{
-	uint32_t port;
-	uint32_t pin;
-} ciaaDriverDio_dioType;
-
 
 /*==================[external data declaration]==============================*/
 
@@ -75,7 +82,6 @@ typedef struct _ciaaDriverDio_dioType
 #endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAADRIVERDIO_INTERNAL_H */
+#endif /* #ifndef IODRIVER_H */
 

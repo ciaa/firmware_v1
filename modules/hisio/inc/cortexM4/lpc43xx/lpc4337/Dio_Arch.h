@@ -1,4 +1,5 @@
-/* Copyright 2016, Franco Bucafusco (BuckLabs)
+/* Copyright 2015, Mariano Cerdeiro
+ * Copyright 2016, Juan Cecconi
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,21 +32,34 @@
  *
  */
 
-#ifndef CIAADRIVERDIO_INTERNAL_H
-#define CIAADRIVERDIO_INTERNAL_H
-/** \brief Internal Header file of DIO Driver
+#ifndef DIO_ARCH_H
+#define DIO_ARCH_H
+/** \brief Dio Architecture Drivers header file
+ **
+ ** This file contains is the Dio Architecture dependend Drivers header file.
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
- ** @{ */
-/** \addtogroup DIO DIO Drivers
+/** \addtogroup HISIO HisIO Module
  ** @{ */
 
+/*
+ * Initials     Name
+ * ---------------------------
+ * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi 
+ * JuCe         Juan Manuel Cruz
+ */
+
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20160107 v0.0.1 JuCe initial version
+ */
+
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -55,19 +69,25 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Dio Type */
-
-
-typedef struct _ciaaDriverDio_dioType
-{
-	uint32_t port;
-	uint32_t pin;
-} ciaaDriverDio_dioType;
-
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief
+ **/
+extern IO_ErrorType Dio_InitSync_Arch(void * address);
+
+/** \brief
+ **/
+extern void Dio_SetSync_Arch(IO_ChannelType channel, IO_ValueType value);
+
+/** \brief
+ **/
+extern IO_ValueType Dio_GetSync_Arch(IO_ChannelType channel);
+
+/** \brief
+ **/
+extern void Dio_ToggleSync_Arch(IO_ChannelType channel);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -75,7 +95,6 @@ typedef struct _ciaaDriverDio_dioType
 #endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAADRIVERDIO_INTERNAL_H */
+#endif /* #ifndef DIO_ARCH_H */
 

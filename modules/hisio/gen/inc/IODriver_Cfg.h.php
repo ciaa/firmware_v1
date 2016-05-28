@@ -1,4 +1,4 @@
-/* Copyright 2016, Franco Bucafusco (BuckLabs)
+/* Copyright 2015, Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,21 +31,43 @@
  *
  */
 
-#ifndef CIAADRIVERDIO_INTERNAL_H
-#define CIAADRIVERDIO_INTERNAL_H
-/** \brief Internal Header file of DIO Driver
+#ifndef IODRIVER_CFG_H
+#define IODRIVER_CFG_H
+/** \brief IO Driver Configuration File
+ **
+ ** This file contains the IO Driver configuration
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
- ** @{ */
-/** \addtogroup DIO DIO Drivers
+/** \addtogroup HISIO HisIO Module
  ** @{ */
 
+/*
+ * Initials     Name
+ * ---------------------------
+ * MaCe         Mariano Cerdeiro
+ */
+
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20151222 v0.0.1 MaCe initial version
+ */
+
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
+<?php
+if ( $config->getCount("/DIL", "DIO") > 0) {
+   print "#include \"Dio_Cfg.h\"          /* Include Dio Driver */\n";
+}
+if ( $config->getCount("/DIL", "PWM") > 0) {
+   print "#include \"Pwm_Cfg.h\"          /* Include Pwm Driver */\n";
+}
+if ( $config->getCount("/DIL", "PWD") > 0) {
+   print "#include \"Pwd_Cfg.h\"          /* Include Pwd Driver */\n";
+}
+?>
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -55,15 +77,6 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Dio Type */
-
-
-typedef struct _ciaaDriverDio_dioType
-{
-	uint32_t port;
-	uint32_t pin;
-} ciaaDriverDio_dioType;
-
 
 /*==================[external data declaration]==============================*/
 
@@ -75,7 +88,6 @@ typedef struct _ciaaDriverDio_dioType
 #endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAADRIVERDIO_INTERNAL_H */
+#endif /* #ifndef IODRIVER_CFG_H */
 

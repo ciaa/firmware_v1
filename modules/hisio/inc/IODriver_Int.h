@@ -1,4 +1,4 @@
-/* Copyright 2016, Franco Bucafusco (BuckLabs)
+/* Copyright 2015, Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,21 +31,34 @@
  *
  */
 
-#ifndef CIAADRIVERDIO_INTERNAL_H
-#define CIAADRIVERDIO_INTERNAL_H
-/** \brief Internal Header file of DIO Driver
+#ifndef IODRIVER_INT_H
+#define IODRIVER_INT_H
+/** \brief IO Drivers Internal header file
+ **
+ ** This file contains is the IO Internal Drivers header file.
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup HISIO HisIO Module
  ** @{ */
-/** \addtogroup DIO DIO Drivers
- ** @{ */
+
+/*
+ * Initials     Name
+ * ---------------------------
+ * MaCe         Mariano Cerdeiro
+ */
+
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20151222 v0.0.1 MaCe initial version
+ */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "IODriver.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -53,17 +66,27 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief Returns the DIO Driver Version
+ **
+ ** \remarks This function shall be implemented as a macro, this is
+ **          required on the specification.
+ **/
+#define Dio_GetVersionOfDriver   IO_Version(0,0,1,0);
+
+#if 0
+#if (HISIO_DIO_ERRORHOOK == HISIO_DISABLE)
+/** \brief Reads a hardware pin
+ **
+ ** See description of Dio_GetSync as function declaration.
+ **
+ **/
+#define Dio_SetSync              Dio_SetSync_Arch
+
+#define Dio_GetSync              Dio_GetSync_Arch
+#endif /* #if (HISIO_DIO_ERRORHOOK == HISIO_DISABLE) */
+#endif
 
 /*==================[typedef]================================================*/
-/** \brief Dio Type */
-
-
-typedef struct _ciaaDriverDio_dioType
-{
-	uint32_t port;
-	uint32_t pin;
-} ciaaDriverDio_dioType;
-
 
 /*==================[external data declaration]==============================*/
 
@@ -75,7 +98,6 @@ typedef struct _ciaaDriverDio_dioType
 #endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAADRIVERDIO_INTERNAL_H */
+#endif /* #ifndef IODRIVER_INT_H */
 

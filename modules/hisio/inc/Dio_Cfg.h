@@ -1,4 +1,5 @@
-/* Copyright 2016, Franco Bucafusco (BuckLabs)
+/* Copyright 2015, Mariano Cerdeiro
+ * Copyright 2016, Juan Cecconi
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,21 +32,35 @@
  *
  */
 
-#ifndef CIAADRIVERDIO_INTERNAL_H
-#define CIAADRIVERDIO_INTERNAL_H
-/** \brief Internal Header file of DIO Driver
+#ifndef DIO_CFG_H
+#define DIO_CFG_H
+/** \brief DIO Driver Configuration File
+ **
+ ** This file contains the DIO Driver configuration
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup HISIO HisIO Module
  ** @{ */
-/** \addtogroup DIO DIO Drivers
- ** @{ */
+
+/*
+ * Initials     Name
+ * ---------------------------
+ * MaCe         Mariano Cerdeiro
+ * JuCe         Juan Cecconi 
+ */
+
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20151222 v0.0.1 MaCe initial version
+ */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "Dio_Cfg_Arch.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -53,17 +68,22 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+#define DIO_CONFIG_PIN_DIRECTION_UNUSED                   0x00000001UL
+#define DIO_CONFIG_PIN_DIRECTION_INPUT                    0x00000002UL
+#define DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW          0x00000004UL
+#define DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH         0x00000008UL
+#define DIO_CONFIG_PIN_INVERTED                           0x00000010UL
+
+#define DIO_CONFIG_PORT_DIRECTION_UNUSED                  0x00000001UL
+#define DIO_CONFIG_PORT_DIRECTION_INPUT                   0x00000002UL
+#define DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_LOW         0x00000004UL
+#define DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_HIGH        0x00000008UL
+#define DIO_CONFIG_PORT_INVERTED                          0x00000010UL
+#define DIO_CONFIG_PORT_SIZE_8                            0x00000020UL
+#define DIO_CONFIG_PORT_SIZE_16                           0x00000040UL
+#define DIO_CONFIG_PORT_SIZE_32                           0x00000080UL
 
 /*==================[typedef]================================================*/
-/** \brief Dio Type */
-
-
-typedef struct _ciaaDriverDio_dioType
-{
-	uint32_t port;
-	uint32_t pin;
-} ciaaDriverDio_dioType;
-
 
 /*==================[external data declaration]==============================*/
 
@@ -75,7 +95,5 @@ typedef struct _ciaaDriverDio_dioType
 #endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
-/** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAADRIVERDIO_INTERNAL_H */
-
+#endif /* #ifndef DIO_CFG_H */

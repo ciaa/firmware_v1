@@ -65,8 +65,8 @@
 /** \brief Pointer to Devices */
 typedef struct
 {
-   ciaaDevices_deviceType * const * const devices;
-   uint8_t countOfDevices;
+	ciaaDevices_deviceType * const * const devices;
+	uint8_t countOfDevices;
 } ciaaDriverConstType;
 
 /*==================[internal data declaration]==============================*/
@@ -87,43 +87,45 @@ const ciaaDriverDio_dioType ciaaDriverDio_Outputs[] =  { {1.0}, {8.1}, {8.3} };
 #endif
 
 /** \brief Device for DIO 0 */
-static ciaaDevices_deviceType ciaaDriverDio_in0 = {
-   "in/0",                          /** <= driver name */
-   ciaaDriverDio_open,             /** <= open function */
-   ciaaDriverDio_close,            /** <= close function */
-   ciaaDriverDio_read,             /** <= read function */
-   ciaaDriverDio_write,            /** <= write function */
-   ciaaDriverDio_ioctl,            /** <= ioctl function */
-   NULL,                           /** <= seek function is not provided */
-   NULL,                           /** <= upper layer */
-   NULL,                           /** <= layer */
-   NULL                            /** <= NULL no lower layer */
+static ciaaDevices_deviceType ciaaDriverDio_in0 =
+{
+	"in/0",                          /** <= driver name */
+	ciaaDriverDio_open,             /** <= open function */
+	ciaaDriverDio_close,            /** <= close function */
+	ciaaDriverDio_read,             /** <= read function */
+	ciaaDriverDio_write,            /** <= write function */
+	ciaaDriverDio_ioctl,            /** <= ioctl function */
+	NULL,                           /** <= seek function is not provided */
+	NULL,                           /** <= upper layer */
+	NULL,                           /** <= layer */
+	NULL                            /** <= NULL no lower layer */
 };
 
 /** \brief Device for DIO 1 */
-static ciaaDevices_deviceType ciaaDriverDio_out0 = {
-   "out/0",                          /** <= driver name */
-   ciaaDriverDio_open,             /** <= open function */
-   ciaaDriverDio_close,            /** <= close function */
-   ciaaDriverDio_read,             /** <= read function */
-   ciaaDriverDio_write,            /** <= write function */
-   ciaaDriverDio_ioctl,            /** <= ioctl function */
-   NULL,                           /** <= seek function is not provided */
-   NULL,                           /** <= upper layer */
-   NULL,                           /** <= layer */
-   NULL                            /** <= NULL no lower layer */
+static ciaaDevices_deviceType ciaaDriverDio_out0 =
+{
+	"out/0",                          /** <= driver name */
+	ciaaDriverDio_open,             /** <= open function */
+	ciaaDriverDio_close,            /** <= close function */
+	ciaaDriverDio_read,             /** <= read function */
+	ciaaDriverDio_write,            /** <= write function */
+	ciaaDriverDio_ioctl,            /** <= ioctl function */
+	NULL,                           /** <= seek function is not provided */
+	NULL,                           /** <= upper layer */
+	NULL,                           /** <= layer */
+	NULL                            /** <= NULL no lower layer */
 };
 
 static ciaaDevices_deviceType * const ciaaDioDevices[] =
 {
-   &ciaaDriverDio_in0,
-   &ciaaDriverDio_out0
+	&ciaaDriverDio_in0,
+	&ciaaDriverDio_out0
 };
 
 static ciaaDriverConstType const ciaaDriverDioConst =
 {
-   ciaaDioDevices,
-   2
+	ciaaDioDevices,
+	2
 };
 
 /*==================[external data definition]===============================*/
@@ -134,21 +136,21 @@ static ciaaDriverConstType const ciaaDriverDioConst =
  */
 static void ciaa_msp430f5529_gpio_init(void)
 {
- unsigned short i;
+	unsigned short i;
 #if( msp_exp430f5529 == BOARD )
-	for(i=0;i<ciaaDriverDio_InputCount;i++)
+	for(i=0; i<ciaaDriverDio_InputCount; i++)
 	{
 		GPIO_setAsInputPin(ciaaDriverDio_Inputs[i].port, 1<<ciaaDriverDio_Inputs[i].pin );		//como entrada
 	}
 
-   	/* LEDs */
-	for(i=0;i<ciaaDriverDio_OutputCount;i++)
+	/* LEDs */
+	for(i=0; i<ciaaDriverDio_OutputCount; i++)
 	{
 		GPIO_setOutputLowOnPin(ciaaDriverDio_Outputs[i].port,1<<ciaaDriverDio_Outputs[i].pin); 	//lo apago
 		GPIO_setAsOutputPin(ciaaDriverDio_Outputs[i].port, 1<<ciaaDriverDio_Outputs[i].pin);	//como salida
 	}
 #else
-   #error please define BOARD variable!
+#error please define BOARD variable!
 #endif
 }
 
@@ -162,11 +164,11 @@ static void ciaa_msp430f5529_writeOutput(uint8_t outputNumber, uint8_t value)
 	{
 		if( value!=0)
 		{
-		GPIO_setOutputLowOnPin(ciaaDriverDio_Outputs[outputNumber].port,1<<ciaaDriverDio_Outputs[outputNumber].pin) ;
+			GPIO_setOutputLowOnPin(ciaaDriverDio_Outputs[outputNumber].port,1<<ciaaDriverDio_Outputs[outputNumber].pin) ;
 		}
 		else
 		{
-		GPIO_setOutputHighOnPin(ciaaDriverDio_Outputs[outputNumber].port,1<<ciaaDriverDio_Outputs[outputNumber].pin) ;
+			GPIO_setOutputHighOnPin(ciaaDriverDio_Outputs[outputNumber].port,1<<ciaaDriverDio_Outputs[outputNumber].pin) ;
 		}
 	}
 }
@@ -177,14 +179,14 @@ static void ciaa_msp430f5529_writeOutput(uint8_t outputNumber, uint8_t value)
  */
 static int8_t ciaa_msp430f5529_readInput(uint8_t inputNumber)
 {
-   int8_t rv = -1;
+	int8_t rv = -1;
 
-   if (inputNumber < ciaaDriverDio_InputCount)
-   {
+	if (inputNumber < ciaaDriverDio_InputCount)
+	{
 		rv = GPIO_getInputPinValue(ciaaDriverDio_Inputs[inputNumber].port,1<<ciaaDriverDio_Inputs[inputNumber].pin);
-   }
+	}
 
-   return rv;
+	return rv;
 }
 
 /** \brief read managed output
@@ -193,15 +195,15 @@ static int8_t ciaa_msp430f5529_readInput(uint8_t inputNumber)
  */
 static int8_t ciaa_msp430f5529_readOutput(uint8_t outputNumber)
 {
-   int8_t rv = -1;
+	int8_t rv = -1;
 
-   if (outputNumber < ciaaDriverDio_OutputCount)
-   {
-	//TODO PROBAR QUE EL PIN REFLEJE EL VALOR DE POUT
+	if (outputNumber < ciaaDriverDio_OutputCount)
+	{
+		//TODO PROBAR QUE EL PIN REFLEJE EL VALOR DE POUT
 		rv = GPIO_getInputPinValue(ciaaDriverDio_Outputs[outputNumber].port,1<<ciaaDriverDio_Outputs[outputNumber].pin);
-   }
+	}
 
-   return rv;
+	return rv;
 }
 
 /** \brief pack bit states in byte buffer
@@ -213,129 +215,129 @@ static int8_t ciaa_msp430f5529_readOutput(uint8_t outputNumber)
  */
 static int32_t ciaa_msp430f5529_readPins(int32_t pinCount, uint8_t * buffer, size_t size, int8_t (*readFunction)(uint8_t))
 {
-   int32_t count, i, j;
+	int32_t count, i, j;
 
-   /* amount of bytes necessary to store all input states */
-   count = pinCount >> 3; /* ciaaDriverDio_InputCount / 8 */
-   if( (pinCount & 0x07) != 0) /* (ciaaDriverDio_InputCount % 8) != 0 */
-   {
-      count += 1;
-   }
+	/* amount of bytes necessary to store all input states */
+	count = pinCount >> 3; /* ciaaDriverDio_InputCount / 8 */
+	if( (pinCount & 0x07) != 0) /* (ciaaDriverDio_InputCount % 8) != 0 */
+	{
+		count += 1;
+	}
 
-   /* adjust gpios to read according to provided buffer length */
-   if(count > size)
-   {
-      count = size;
-   }
+	/* adjust gpios to read according to provided buffer length */
+	if(count > size)
+	{
+		count = size;
+	}
 
-   /* read and store all inputs in user buffer */
-   ciaaPOSIX_memset(buffer, 0, count);
+	/* read and store all inputs in user buffer */
+	ciaaPOSIX_memset(buffer, 0, count);
 
-   for(i = 0, j = 0; (i < pinCount) && (j < count); i++)
-   {
-      buffer[j] |= readFunction(i) << (i - 8 * j);
-      if((i > 0) && ((i & 0x07)==0))
-      {
-         j++;
-      }
-   }
+	for(i = 0, j = 0; (i < pinCount) && (j < count); i++)
+	{
+		buffer[j] |= readFunction(i) << (i - 8 * j);
+		if((i > 0) && ((i & 0x07)==0))
+		{
+			j++;
+		}
+	}
 
-   return count;
+	return count;
 }
 
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-   return device;
+	return device;
 }
 
 extern int32_t ciaaDriverDio_close(ciaaDevices_deviceType const * const device)
 {
-   return 0;
+	return 0;
 }
 
 extern int32_t ciaaDriverDio_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
-   return -1;
+	return -1;
 }
 
 extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, uint8_t * buffer, size_t size)
 {
-   ssize_t ret = -1;
+	ssize_t ret = -1;
 
-   if(device == ciaaDioDevices[0])
-   {
-      /* accessing to inputs */
-      ret = ciaa_msp430f5529_readPins(ciaaDriverDio_InputCount, buffer, size, ciaa_msp430f5529_readInput);
-   }
-   else if(device == ciaaDioDevices[1])
-   {
-      /* accessing to outputs */
-      ret = ciaa_msp430f5529_readPins(ciaaDriverDio_OutputCount, buffer, size, ciaa_msp430f5529_readOutput);
-   }
-   else
-   {
-      /* Invalid device */
-      ret = -1;
-   }
+	if(device == ciaaDioDevices[0])
+	{
+		/* accessing to inputs */
+		ret = ciaa_msp430f5529_readPins(ciaaDriverDio_InputCount, buffer, size, ciaa_msp430f5529_readInput);
+	}
+	else if(device == ciaaDioDevices[1])
+	{
+		/* accessing to outputs */
+		ret = ciaa_msp430f5529_readPins(ciaaDriverDio_OutputCount, buffer, size, ciaa_msp430f5529_readOutput);
+	}
+	else
+	{
+		/* Invalid device */
+		ret = -1;
+	}
 
-   return ret;
+	return ret;
 }
 
 extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
-   ssize_t ret = -1;
+	ssize_t ret = -1;
 
-   if(size != 0)
-   {
-      if(device == ciaaDioDevices[0])
-      {
-         /* Inputs can't be written. */
-         ret = -1;
-      }
-      else if(device == ciaaDioDevices[1])
-      {
-         /* Write outputs */
-         int32_t i, j;
+	if(size != 0)
+	{
+		if(device == ciaaDioDevices[0])
+		{
+			/* Inputs can't be written. */
+			ret = -1;
+		}
+		else if(device == ciaaDioDevices[1])
+		{
+			/* Write outputs */
+			int32_t i, j;
 
-         /* set outputs according to bits defined in user buffer */
-         for(i = 0, j = 0; (i < ciaaDriverDio_OutputCount) && (j < size); i++)
-         {
-            ciaa_msp430f5529_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
+			/* set outputs according to bits defined in user buffer */
+			for(i = 0, j = 0; (i < ciaaDriverDio_OutputCount) && (j < size); i++)
+			{
+				ciaa_msp430f5529_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
 
-            if( (i > 0) && ((i & 0x07) == 0) )
-            {
-               j++;
-            }
-         }
+				if( (i > 0) && ((i & 0x07) == 0) )
+				{
+					j++;
+				}
+			}
 
-         if((ciaaDriverDio_OutputCount & 0x07) != 0)
-         {
-            j++;
-         }
-         ret = j;
-      }
-      else
-      {
-         ret = -1;
-      }
-   }
-   return ret;
+			if((ciaaDriverDio_OutputCount & 0x07) != 0)
+			{
+				j++;
+			}
+			ret = j;
+		}
+		else
+		{
+			ret = -1;
+		}
+	}
+	return ret;
 }
 
 void ciaaDriverDio_init(void)
 {
-   uint8_t loopi;
+	uint8_t loopi;
 
-   /* low level GPIO peripheral initialization */
-   ciaa_msp430f5529_gpio_init();
+	/* low level GPIO peripheral initialization */
+	ciaa_msp430f5529_gpio_init();
 
-   /* add dio driver to the list of devices */
-   for(loopi = 0; loopi < ciaaDriverDioConst.countOfDevices; loopi++)
-{
-      /* add each device */
-      ciaaDioDevices_addDriver(ciaaDriverDioConst.devices[loopi]);
-   }
+	/* add dio driver to the list of devices */
+	for(loopi = 0; loopi < ciaaDriverDioConst.countOfDevices; loopi++)
+	{
+		/* add each device */
+		ciaaDioDevices_addDriver(ciaaDriverDioConst.devices[loopi]);
+	}
 }
 
 /*==================[interrupt handlers]=====================================*/

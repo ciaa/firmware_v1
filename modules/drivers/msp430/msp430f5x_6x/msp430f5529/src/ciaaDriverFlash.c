@@ -65,33 +65,33 @@
 /*==================[external functions definition]==========================*/
 extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
-   return device;
+	return device;
 }
 
 extern int32_t ciaaDriverFlash_close(ciaaDevices_deviceType const * const device)
 {
-   return -1;
+	return -1;
 }
 
 extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
 {
-   int32_t ret = -1;
+	int32_t ret = -1;
 
-   return ret;
+	return ret;
 }
 
 extern ssize_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t const size)
 {
-   ssize_t ret = -1;
+	ssize_t ret = -1;
 
-   return ret;
+	return ret;
 }
 
 extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
-   ssize_t ret = -1;
+	ssize_t ret = -1;
 
-   return ret;
+	return ret;
 }
 
 void ciaaDriverFlash_init(void)

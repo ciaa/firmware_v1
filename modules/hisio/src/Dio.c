@@ -1,4 +1,4 @@
-/* Copyright 2016, Franco Bucafusco (BuckLabs)
+/* Copyright 2015, Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,51 +31,84 @@
  *
  */
 
-#ifndef CIAADRIVERDIO_INTERNAL_H
-#define CIAADRIVERDIO_INTERNAL_H
-/** \brief Internal Header file of DIO Driver
+/** \brief IO DIO Driver source file
+ **
+ ** This file contains is the Dio driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup HISIO HisIO Module
  ** @{ */
-/** \addtogroup DIO DIO Drivers
- ** @{ */
+
+/*
+ * Initials     Name
+ * ---------------------------
+ * MaCe         Mariano Cerdeiro
+ */
+
+/*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20151222 v0.0.1 MaCe initial version
+ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
+#include "IODriver_Int.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[typedef]================================================*/
-/** \brief Dio Type */
+/*==================[internal functions declaration]=========================*/
 
+/*==================[internal data definition]===============================*/
 
-typedef struct _ciaaDriverDio_dioType
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+extern IO_ErrorType Dio_InitSync(void * address)
 {
-	uint32_t port;
-	uint32_t pin;
-} ciaaDriverDio_dioType;
-
-
-/*==================[external data declaration]==============================*/
-
-/*==================[external functions declaration]=========================*/
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+   IO_ErrorType ret;
+   
+   ret = Dio_InitSync_Arch(address);
+   return ret;
 }
-#endif
-/** @} doxygen end group definition */
+
+extern IO_ValueType Dio_GetSync(IO_ChannelType channel)
+{
+   return Dio_GetSync_Arch(channel);
+}
+
+extern void Dio_SetSync(IO_ChannelType channel, IO_ValueType value)
+{
+   Dio_SetSync_Arch(channel, value);
+}
+
+extern void Dio_ToggleSync(IO_ChannelType channel)
+{
+   Dio_ToggleSync_Arch(channel);
+}
+
+extern IO_ValueType Dio_GetPortSync(IO_ChannelType channel)
+{
+   return 0xFF;
+}
+
+extern void Dio_SetPortSync(IO_ChannelType channel, IO_ValueType value)
+{
+
+}
+
+extern void Dio_SetPortMaskedSync(IO_ChannelType channel, IO_ValueType value, IO_ValueType mask)
+{
+
+}
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAADRIVERDIO_INTERNAL_H */
 
