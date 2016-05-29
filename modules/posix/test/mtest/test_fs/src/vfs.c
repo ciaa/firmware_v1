@@ -73,6 +73,7 @@ TODO:
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_stdbool.h"
 #include "vfs.h"
+#include "ciaaLibs_PoolBuf.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -223,6 +224,10 @@ static filesystem_driver_t *vfs_fsdriver_table[] =
 static file_descriptor_table_t _f_tab;
 static file_descriptor_table_t *file_desc_tab_p = &_f_tab;
 
+/** \brief Vnode memory pool
+ *
+ */
+CIAALIBS_POOLDECLARE(vfs_vnode_pool, vnode_t, 20);
 
 /*==================[external data definition]===============================*/
 
