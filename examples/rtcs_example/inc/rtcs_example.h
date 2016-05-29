@@ -1,4 +1,4 @@
-/* Copyright 2015,Diego Ezequiel Vommaro
+/* Copyright 2015, 2016 Diego Ezequiel Vommaro
  * Copyright 2015, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
@@ -77,52 +77,25 @@
  ** \param[in] data pointer to float data
  ** \param[in] num_elements Size of float data vector
  **/
-extern void SendControlEffort_1 (float *data, uint16_t num_elements);
+extern void SendControlEffort (float *data, uint16_t num_elements);
 
-/** \brief Sending of the control efforts to the actuators
+/** \brief Convert one integer to characters to s string
  **
- ** Sends control effort to the actuators.
+ ** This function converts one integer to characters.
  **
- ** \param[in] data pointer to float data
- ** \param[in] num_elements Size of float data vector
+ ** \param[in] num numbre to convert to string
+ ** \param[in] s pointer to target string
  **/
-extern void SendControlEffort_2 (float *data, uint16_t num_elements);
+extern void MyItoa(int32_t num, int8_t *s);
 
-/** \brief Sending of the control efforts to the actuators
+/** \brief Invert the order in a string
  **
- ** Sends control effort to the actuators.
+ ** This function inverts the order in a string.
  **
- ** \param[in] data pointer to float data
- ** \param[in] num_elements Size of float data vector
+ ** \param[in] s pointer to invert string
  **/
-extern void SendControlEffort_3 (float *data, uint16_t num_elements);
+extern void StringReverse(int8_t *s);
 
-/** \brief Sending of the control efforts to the actuators
- **
- ** Sends control effort to the actuators.
- **
- ** \param[in] data pointer to float data
- ** \param[in] num_elements Size of float data vector
- **/
-extern void SendControlEffort_4 (float *data, uint16_t num_elements);
-
-/** \brief Sending of the control efforts to the actuators
- **
- ** Sends control effort to the actuators.
- **
- ** \param[in] data pointer to float data
- ** \param[in] num_elements Size of float data vector
- **/
-extern void SendControlEffort_5 (float *data, uint16_t num_elements);
-
-/** \brief Sending of the control efforts to the actuators
- **
- ** Sends control effort to the actuators.
- **
- ** \param[in] data pointer to float data
- ** \param[in] num_elements Size of float data vector
- **/
-extern void SendControlEffort_6 (float *data, uint16_t num_elements);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

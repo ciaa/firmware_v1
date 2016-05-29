@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2016, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -36,9 +37,9 @@
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Libs CIAA Libraries
  ** @{ */
-/** \addtogroup ModuleTests Module Tests
+/** \addtogroup UnitTests Unit Tests
  ** @{ */
 
 /*==================[inclusions]=============================================*/
@@ -149,6 +150,31 @@ void  test_ciaaLibs_clearBit(void) {
 
    ciaaLibs_clearBit(val, 6);
    TEST_ASSERT_EQUAL_INT(0x39, val);
+}
+
+void test_ciaaLibs_getFirstNotSetBit(void) {
+   int8_t val;
+
+   val = ciaaLibs_getFirstNotSetBit(0xffffffffu);
+   TEST_ASSERT_EQUAL_INT(-1, val);
+
+   val = ciaaLibs_getFirstNotSetBit(0xffffu);
+   TEST_ASSERT_EQUAL_INT(16, val);
+
+   val = ciaaLibs_getFirstNotSetBit(0xfffffu);
+   TEST_ASSERT_EQUAL_INT(20, val);
+
+   val = ciaaLibs_getFirstNotSetBit(0xff07fu);
+   TEST_ASSERT_EQUAL_INT(7, val);
+
+   val = ciaaLibs_getFirstNotSetBit(0xfbffu);
+   TEST_ASSERT_EQUAL_INT(10, val);
+
+   val = ciaaLibs_getFirstNotSetBit(0xbfffffffu);
+   TEST_ASSERT_EQUAL_INT(30, val);
+
+   val = ciaaLibs_getFirstNotSetBit(0xdfffffffu);
+   TEST_ASSERT_EQUAL_INT(29, val);
 }
 
 /** @} doxygen end group definition */
