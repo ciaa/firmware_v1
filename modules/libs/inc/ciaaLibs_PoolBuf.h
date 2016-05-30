@@ -73,10 +73,10 @@ extern "C" {
    type name ## _buf[(size)];                   \
    uint32_t name ## _status[(size)/32] = { 0 }; \
    ciaaLibs_poolBufType name = {                \
-      (size),                                   \
+      size,                                     \
       sizeof(type),                             \
       name ## _status,                          \
-      name ## _buf                              \
+      (uint8_t *) name ## _buf                              \
    };
 
 

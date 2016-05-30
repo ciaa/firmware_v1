@@ -179,7 +179,7 @@ static int file_desc_destroy(file_desc_t *file_desc);
  **
  **
  **
- ** \param[in] index requested descriptor structure index
+ ** \param[in] index requested descriptor structure modules/posix/test/mtest/test_fs/src/vfs.c:230:1: warning: initialization from incompatible pointer typeindex
  ** \return -1 if an error occurs, in other case 0
  **/
 static file_desc_t *file_desc_get(uint16_t index);
@@ -224,10 +224,15 @@ static filesystem_driver_t *vfs_fsdriver_table[] =
 static file_descriptor_table_t _f_tab;
 static file_descriptor_table_t *file_desc_tab_p = &_f_tab;
 
-/** \brief Vnode memory pool
+/** \brief vnode memory pool
  *
  */
-CIAALIBS_POOLDECLARE(vfs_vnode_pool, vnode_t, 20);
+CIAALIBS_POOLDECLARE(vfs_vnode_pool, vnode_t, 32)
+
+/** \brief file descriptor memory pool
+ *
+ */
+CIAALIBS_POOLDECLARE(vfs_fdesc_pool, file_desc_t, 32)
 
 /*==================[external data definition]===============================*/
 
@@ -288,7 +293,7 @@ static vnode_t *vfs_node_alloc(const char *name, size_t name_len)
    {
       return NULL;
    }
-   new_node = (vnode_t *) ciaaPOSIX_malloc(sizeof(vnode_t));
+   new_node = (vnode_t *) ciaaLibs_poolBufLock(&vfs_vnode_pool);
    ASSERT_MSG(NULL != new_node, "\tvfs_node_alloc(): !(*name) || name_len > FS_NAME_MAX failed");
    if (NULL == new_node)
    {
@@ -304,9 +309,17 @@ static vnode_t *vfs_node_alloc(const char *name, size_t name_len)
 
 extern int vfs_node_free(vnode_t *node)
 {
-   /* Iterate over all the siblings until node found. Then link previous node to next node */
+   int ret;
+
    if(NULL != node)
-      ciaaPOSIX_free(node);
+   {
+      ciaaPOSIX_memset(node, 0, sizeof(vnode_t));
+      ret = ciaaLibs_poolBufFree(&vfs_vnode_pool, node);
+      if(ret)
+      {
+         return -1;
+      }
+   }
    return 0;
 }
 
@@ -483,7 +496,7 @@ static file_desc_t *file_desc_create(vnode_t *node)
    if(FILE_DESC_MAX == i)   /* No hay file_desc libres */
       return NULL;
    /* Allocate new descriptor */
-   file = (file_desc_t *) ciaaPOSIX_malloc(sizeof(file_desc_t));
+   file = (file_desc_t *) ciaaLibs_poolBufLock(&vfs_fdesc_pool);
    if(NULL == file)
       return NULL;
    ciaaPOSIX_memset(file, 0, sizeof(file_desc_t));
@@ -501,9 +514,14 @@ static file_desc_t *file_desc_create(vnode_t *node)
 static int file_desc_destroy(file_desc_t *file_desc)
 {
    uint16_t index;
+   int ret;
 
    index = file_desc->index;
-   ciaaPOSIX_free(file_desc_tab_p->table[index]);
+   ret = ciaaLibs_poolBufFree(&vfs_fdesc_pool, file_desc_tab_p->table[index]);
+   if(ret)
+   {
+      return -1;
+   }
    file_desc_tab_p->table[index] = NULL;
    if(file_desc_tab_p->n_busy_desc)
       file_desc_tab_p->n_busy_desc--;
@@ -637,7 +655,7 @@ extern int ciaaFS_init(void)
    int ret;
    ciaaDevices_deviceType * device;
 
-   vfs_root_inode = (vnode_t *) ciaaPOSIX_malloc(sizeof(vnode_t));
+   vfs_root_inode = (vnode_t *) ciaaLibs_poolBufLock(&vfs_vnode_pool);;
    if(NULL == vfs_root_inode)
    {
       return -1;
