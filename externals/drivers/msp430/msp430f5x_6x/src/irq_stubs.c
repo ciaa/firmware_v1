@@ -9,9 +9,9 @@ The MSP430 has within each IRQ vector , many signals available.
 However it doesn have a way of disabling all of them just changing one flag.
 SEE SLAS590 (TABLE 4)
 */
-void MSP430_EnableIRQ(unsigned int irQ_number)
+void MSP430_EnableIRQ(unsigned char irQ_number)
 {
-	switch(irQ_number)
+	switch( irQ_number )
 	{
 		case 0: // => "RTC",
 			/* RTCRDYIE, RTCTEVIE, RTCAIE, RT0PSIE, RT1PSIE */
@@ -75,7 +75,7 @@ void MSP430_EnableIRQ(unsigned int irQ_number)
 		case 10: // => "USB_UBM",
 			/* USB interrupts */
 			USBPWRCTL |= VBOFFIE|VBONIE|VUOVLIE;
-			USBPLLIR |= USBOORIE|USBLOSIE|USBOOLIE; 
+			USBPLLIR |= USBOORIE|USBLOSIE|USBOOLIE;
 			USBIEPCNF_0 |=USBIIE;
 			USBOEPCNF_0 |=USBIIE;
 			USBIEPIE = 0XFF;
@@ -171,7 +171,7 @@ void MSP430_EnableIRQ(unsigned int irQ_number)
 
 /*
 */
-void MSP430_DisableIRQ(unsigned int irQ_number)
+void MSP430_DisableIRQ(unsigned char irQ_number)
 {
    switch(irQ_number)
    {
@@ -331,5 +331,3 @@ void MSP430_DisableIRQ(unsigned int irQ_number)
          break;
      }
 }
-
-
