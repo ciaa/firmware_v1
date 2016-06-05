@@ -46,9 +46,17 @@
 #include "unity.h"
 #include "ciaaPOSIX_unistd.h"
 #include "mock_os.h"
+#include "mock_ciaaPOSIX_stdio.h"
 #include "Os_Internal.h"
 
 /*==================[macros and definitions]=================================*/
+#define CIAAPOSIX_MAINFUNCTION_PERIODUS 10000
+
+#define CIAAPOSIX_MAINFUNCTION_PERIODMS ((CIAAPOSIX_MAINFUNCTION_PERIODUS)/1000)
+
+#define SLEEP_TIME_TO_COUNTS (1000 / CIAAPOSIX_MAINFUNCTION_PERIODMS)
+
+#define MAX_SECONDS (MAX_COUNTS / SLEEP_TIME_TO_COUNTS)
 
 /*==================[internal data declaration]==============================*/
 
@@ -96,8 +104,19 @@ StatusType MyGetTaskID(TaskRefType TaskID, int cmock_num_calls)
  **
  **/
 void test_ciaaPOSIX_sleep(void) {
+   int ret;
 
-   TEST_ASSERT_EQUAL_INT(0, TASKS_COUNT);
+   GetTaskID_StubWithCallback(MyGetTaskID);
+   ciaaPOSIX_printf_IgnoreAndReturn(-1);
+   WaitEvent_IgnoreAndReturn(-1);
+   ClearEvent_IgnoreAndReturn(-1);
+
+   MyGetTaskIDTaskID = 0;
+
+   ret = ciaaPOSIX_sleep(MAX_SECONDS-1);
+   TEST_ASSERT_EQUAL_INT(0, ret);
+
+//   TEST_ASSERT_EQUAL_INT(0, TASKS_COUNT);
 }
 
 /** \brief test usleep

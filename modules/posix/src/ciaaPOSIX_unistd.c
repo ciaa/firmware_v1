@@ -50,7 +50,11 @@
 /*==================[macros and definitions]=================================*/
 #define CIAAPOSIX_MAINFUNCTION_PERIODUS 10000
 
-#define CIAAPOSIX_MAINFUNCTION_PERIODMS ((CIAAPOSIX_MAINFUNCTION_PERIODUS)/10)
+#define CIAAPOSIX_MAINFUNCTION_PERIODMS ((CIAAPOSIX_MAINFUNCTION_PERIODUS)/1000)
+
+#define SLEEP_TIME_TO_COUNTS (1000 / CIAAPOSIX_MAINFUNCTION_PERIODMS)
+
+#define MAX_SECONDS (MAX_COUNTS / SLEEP_TIME_TO_COUNTS)
 
 /*==================[internal data declaration]==============================*/
 
@@ -65,8 +69,8 @@
 static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
 
 /*==================[internal data definition]===============================*/
-bool sleeping_tasks = false;
-bool ciaaPOSIX_sleeping_states[TASKS_COUNT]={false};
+//bool sleeping_tasks = false;
+//bool ciaaPOSIX_sleeping_states[TASKS_COUNT]={false};
 uint32_t counts_to_wakeup = 0;
 uint32_t ciaaPOSIX_counter = 0;
 uint32_t ciaaPOSIX_sleeps[TASKS_COUNT]={0};
@@ -77,29 +81,32 @@ uint32_t ciaaPOSIX_sleeps[TASKS_COUNT]={0};
 static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
 {
    TaskType taskID;
+   uint32_t aux_counter = getSleepingCounts(ciaaPOSIX_counter);
 
    /* Are there sleeping tasks? */
-   if(sleeping_tasks)
+   if(isTaskSleeping(ciaaPOSIX_counter))
    {
-      if((counts_to_wakeup - ciaaPOSIX_counter) > (toSleep - ciaaPOSIX_counter))
+      if((counts_to_wakeup - aux_counter) > (toSleep - aux_counter))
       {
-         counts_to_wakeup = toSleep + ciaaPOSIX_counter;
+         counts_to_wakeup = toSleep + aux_counter;
+         /* Remove status bit if any */
+         resetSleepingState(counts_to_wakeup);
       }
    }
    /* So, there is a sleeping task now */
    else
    {
-      sleeping_tasks = true;
+      setSleepingState(ciaaPOSIX_counter);
    }
 
    /* Get task id */
    GetTaskID(&taskID);
 
    /* Store counts */
-   ciaaPOSIX_sleeps[taskID] = (int32_t)(toSleep + ciaaPOSIX_counter);
+   ciaaPOSIX_sleeps[taskID] = (toSleep + aux_counter);
 
    /* Set sleeping task state for this task */
-   ciaaPOSIX_sleeping_states[taskID] = true;
+   setSleepingState(ciaaPOSIX_sleeps[taskID]);
 
    /* wait for the posix event */
    WaitEvent(POSIXE);
@@ -110,13 +117,12 @@ static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
 extern uint32_t ciaaPOSIX_sleep(uint32_t seconds)
 {
    uint32_t toSleep;
-   TaskType taskID;
 
    /* ensure that the seconds can be stored in 10ms counts */
-   ciaaPOSIX_assert(42949672U > seconds);
+   ciaaPOSIX_assert((uint32_t)MAX_SECONDS > seconds);
 
    /* store the sleep time in 10ms counts */
-   toSleep = seconds * 100;
+   toSleep = seconds * SLEEP_TIME_TO_COUNTS;
 
    /* sleep time processing*/
    ciaaPOSIX_sleepAlgorithm(toSleep);
@@ -128,7 +134,6 @@ extern int32_t ciaaPOSIX_usleep(useconds_t useconds)
 {
    int32_t ret = 0;
    uint32_t toSleep;
-   TaskType taskID;
 
 #if (CIAAPOSIX_DEBUG == CIAAPOSIX_ENABLE)
    if (1000000 >= useconds)
@@ -152,44 +157,45 @@ extern int32_t ciaaPOSIX_usleep(useconds_t useconds)
 extern void ciaaPOSIX_sleepMainFunction(void)
 {
    uint32_t taskID;
-   uint32_t aux_distance;
+   uint32_t aux_counter = getSleepingCounts(ciaaPOSIX_counter);
+   uint32_t aux_task_counter = 0;
+   uint32_t aux_distance = MAX_COUNTS;
 
    /* Are there sleeping tasks? */
-   if(sleeping_tasks)
+   if(isTaskSleeping(ciaaPOSIX_counter))
    {
-      ciaaPOSIX_counter++;
+      aux_counter++;
 
       /* Is it time to wake up? */
-      if(counts_to_wakeup == ciaaPOSIX_counter)
+      if(counts_to_wakeup == aux_counter)
       {
-         /* Maximum distance to find the minimum */
-         aux_distance = 4294967295U;
-
          /* Explore the task array to find task or tasks \
             to wake up and the next counts to wake up if any */
          for(taskID = 0; TASKS_COUNT > taskID; taskID++)
          {
-            if (ciaaPOSIX_sleeping_states[taskID])
+            aux_task_counter = getSleepingCounts(ciaaPOSIX_sleeps[taskID]);
+
+            if (isTaskSleeping(ciaaPOSIX_sleeps[taskID]))
             {
-               if(counts_to_wakeup == ciaaPOSIX_sleeps[taskID])
+               if(counts_to_wakeup == aux_task_counter)
                {
-                  ciaaPOSIX_sleeping_states[taskID] = false;
+                  resetSleepingState(ciaaPOSIX_sleeps[taskID]);
                   SetEvent(taskID, POSIXE);
                }
                else
                {
-                  if(aux_distance > (ciaaPOSIX_sleeps[taskID] - ciaaPOSIX_counter))
+                  if(aux_distance > (aux_task_counter - aux_counter))
                   {
-                     aux_distance = ciaaPOSIX_sleeps[taskID] - ciaaPOSIX_counter;
-                     counts_to_wakeup = ciaaPOSIX_sleeps[taskID];
+                     aux_distance = aux_task_counter - aux_counter;
+                     counts_to_wakeup = aux_task_counter;
                   }
                }
             }
          }
          /* there are not sleeping tasks */
-         if (429467295U == aux_distance)
+         if (MAX_COUNTS == aux_distance)
          {
-            sleeping_tasks = false;
+            resetSleepingState(ciaaPOSIX_counter);
          }
       }
    }
