@@ -56,6 +56,8 @@
 
 #define MAX_SECONDS (MAX_COUNTS / SLEEP_TIME_TO_COUNTS)
 
+#define MAX_USECONDS (UINT32_MAX - (CIAAPOSIX_MAINFUNCTION_PERIODUS-2))
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -69,13 +71,11 @@
 static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
 
 /*==================[internal data definition]===============================*/
-//bool sleeping_tasks = false;
-//bool ciaaPOSIX_sleeping_states[TASKS_COUNT]={false};
+
+/*==================[external data definition]===============================*/
 uint32_t counts_to_wakeup = 0;
 uint32_t ciaaPOSIX_counter = 0;
 uint32_t ciaaPOSIX_sleeps[TASKS_COUNT]={0};
-
-/*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
 static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
@@ -89,6 +89,7 @@ static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
       if((counts_to_wakeup - aux_counter) > (toSleep - aux_counter))
       {
          counts_to_wakeup = toSleep + aux_counter;
+
          /* Remove status bit if any */
          resetSleepingState(counts_to_wakeup);
       }
@@ -97,6 +98,11 @@ static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
    else
    {
       setSleepingState(ciaaPOSIX_counter);
+
+      counts_to_wakeup = toSleep + aux_counter;
+
+      /* Remove status bit if any */
+      resetSleepingState(counts_to_wakeup);
    }
 
    /* Get task id */
@@ -143,12 +149,19 @@ extern int32_t ciaaPOSIX_usleep(useconds_t useconds)
    else
 #endif
    {
-      /* calculate how many main function cycles shall be sleep */
-      toSleep = (useconds + (CIAAPOSIX_MAINFUNCTION_PERIODUS-1))
+      if(MAX_USECONDS > useconds)
+      {
+         /* calculate how many main function cycles shall be sleep */
+         toSleep = (useconds + (CIAAPOSIX_MAINFUNCTION_PERIODUS-1))
          / CIAAPOSIX_MAINFUNCTION_PERIODUS;
 
-      /* sleep time processing */
-      ciaaPOSIX_sleepAlgorithm(toSleep);
+         /* sleep time processing */
+         ciaaPOSIX_sleepAlgorithm(toSleep);
+      }
+      else
+      {
+         ret = -1;
+      }
    }
 
    return ret;
