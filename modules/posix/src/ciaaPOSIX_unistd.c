@@ -86,7 +86,7 @@ static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
    /* Are there sleeping tasks? */
    if(isTaskSleeping(ciaaPOSIX_counter))
    {
-      if((counts_to_wakeup - aux_counter) > (toSleep - aux_counter))
+      if((counts_to_wakeup - aux_counter) > toSleep)
       {
          counts_to_wakeup = toSleep + aux_counter;
 
@@ -192,18 +192,17 @@ extern void ciaaPOSIX_sleepMainFunction(void)
             to wake up and the next counts to wake up if any */
          for(taskID = 0; TASKS_COUNT > taskID; taskID++)
          {
-            aux_task_counter = getSleepingCounts(ciaaPOSIX_sleeps[taskID]);
-
             if (isTaskSleeping(ciaaPOSIX_sleeps[taskID]))
             {
-               if(counts_to_wakeup == aux_task_counter)
+               aux_task_counter = getSleepingCounts(ciaaPOSIX_sleeps[taskID]);
+               if(aux_counter == aux_task_counter)
                {
                   resetSleepingState(ciaaPOSIX_sleeps[taskID]);
                   SetEvent(taskID, POSIXE);
                }
                else
                {
-                  if(aux_distance > (aux_task_counter - aux_counter))
+                  if(aux_distance > (uint32_t)(aux_task_counter - aux_counter))
                   {
                      aux_distance = aux_task_counter - aux_counter;
                      counts_to_wakeup = aux_task_counter;
