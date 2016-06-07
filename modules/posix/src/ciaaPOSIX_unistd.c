@@ -63,7 +63,7 @@
 /*==================[internal functions declaration]=========================*/
 /** \brief ciaaPOSIX_sleepAlgorithm
  **
- ** Sleeps the calling application and reload the global counter if required
+ ** Sleeps the current task and reload the global counter if required
  **
  ** \param[in] toSleep counts to sleep the execution of the calling task.
  **
@@ -170,14 +170,20 @@ extern int32_t ciaaPOSIX_usleep(useconds_t useconds)
 extern void ciaaPOSIX_sleepMainFunction(void)
 {
    uint32_t taskID;
-   uint32_t aux_counter = getSleepingCounts(ciaaPOSIX_counter);
+   uint32_t aux_counter;
    uint32_t aux_task_counter = 0;
    uint32_t aux_distance = MAX_COUNTS;
 
    /* Are there sleeping tasks? */
    if(isTaskSleeping(ciaaPOSIX_counter))
    {
-      aux_counter++;
+      /* Increment counter */
+      ciaaPOSIX_counter++;
+      /* Set sleeping state bit if there was overflow */
+      setSleepingState(ciaaPOSIX_counter);
+
+      /* Load sleeping counts */
+      aux_counter = getSleepingCounts(ciaaPOSIX_counter);
 
       /* Is it time to wake up? */
       if(counts_to_wakeup == aux_counter)
