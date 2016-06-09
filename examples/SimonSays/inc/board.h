@@ -1,4 +1,5 @@
-/* Copyright 2016, 
+/* Copyright 2016, Alvaro Alonso Bivou <alonso.bivou@gmail.com>
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,8 +31,8 @@
  *
  */
 
-#ifndef _BOARD_H_
-#define _BOARD_H_
+#ifndef BOARD_H
+#define BOARD_H
 /** \brief board description implementation for EDU-CIAA
  **
  ** This is used on the Simon Says game example.
@@ -52,40 +53,27 @@ extern "C" {
 #endif
 /*==================[macros]=================================================*/
 /** \brief definition for inputs, outputs and pwm devices for POSIX drivers*/
-#define ENTRADAS        "/dev/dio/in/0"
-#define SALIDAS         "/dev/dio/out/0"
-#define SALIDAS_PWM     "/dev/dio/pwm/2"
+#define INPUTS        "/dev/dio/in/0"
+#define OUTPUTS         "/dev/dio/out/0"
 
 #if (edu_ciaa_nxp == BOARD)
 /** board definition of EDU-CIAA */
-#define LED_RGB_ROJO    0x01
-#define LED_RGB_VERDE   0x02
-#define LED_RGB_AZUL    0x04
-#define LED_AMARILLO    0x08
-#define LED_ROJO        0x10
-#define LED_VERDE       0x20
+#define RGB_RED_LED    	0x01
+#define RGB_GREEN_LED   0x02
+#define RGB_BLUE_LED    0x04
+#define YELLOW_LED    	0x08
+#define RED_LED        	0x10
+#define GREEN_LED       0x20
 
-#define LED_R           LED_RGB_ROJO
-#define LED_G           LED_RGB_VERDE
-#define LED_B           LED_RGB_AZUL
-#define LED_1           LED_AMARILLO
-#define LED_2           LED_ROJO
-#define LED_3           LED_VERDE
+#define LED_			RGB_BLUE_LED
 
-#define TECLA_1         0x01
-#define TECLA_2         0x02
-#define TECLA_3         0x04
-#define TECLA_4         0x08
+#define BUTTON_1		0x01
+#define BUTTON_2		0x02
+#define BUTTON_3		0x04
+#define BUTTON_4		0x08
 
-#define TEC_1           TECLA_1
-#define TEC_2           TECLA_2
-#define TEC_3           TECLA_3
-#define TEC_4           TECLA_4
+#define BUTTON_			BUTTON_1
 
-#define PULS_0          TECLA_1
-#define PULS_1          TECLA_2
-#define PULS_2          TECLA_3
-#define PULS_3          TECLA_4
 #endif
 
 /*==================[cplusplus]==============================================*/
@@ -95,4 +83,4 @@ extern "C" {
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif
+#endif /* #ifndef BOARD_H */

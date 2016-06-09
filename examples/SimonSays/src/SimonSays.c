@@ -1,4 +1,5 @@
 /* Copyright 2016, Alvaro Alonso Bivou <alonso.bivou@gmail.com>
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -59,7 +60,7 @@
 #include "SimonSays.h"
 
 /*==================[macros and definitions]=================================*/
-#define FLANCO(TECLA) ((inputs_now ^ inputs_old) & (inputs_now & (TECLA)))
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -80,13 +81,9 @@ static int32_t buttons_fd;
  * IDLE: The machine is waiting for an input 
  */
 static states state = IDLE;
-/** \brief Array of the sequence to be displayed by the leds
- * Initial State or state after reset is IDLE
- * IDLE: The machine is waiting for an input 
- */
-static uint8_t sequence[]={1, 2, 0, 1, 3, 3, 1, 2, 1, 0, 1, 1, 0, 1, 2, 2, 3, 3, 1, 1, 2, 1, 1, 3, 3, 3, 1, 0, 2, 1, 0, 0, 3, 0, 2, 1, 3, 2, 0, 3, 2, 0, 2, 2, 0, 2, 2, 1, 0, 0, 3, 2, 2, 2, 2, 1, 2, 2, 2, 0, 2, 2, 3, 2, 2, 1, 3, 2, 3, 2, 3, 3, 1, 1, 2, 0, 0, 0, 2, 1, 1, 2, 1, 3, 2, 0, 3, 3, 3, 2, 3, 3, 0, 0, 0, 0, 2, 3, 0, 1};
-static uint8_t leds[] = {LED_B, LED_1, LED_2, LED_3};
-static int level=1;
+/** \brief Array of the sequence to be displayed by the leds **/
+static const uint8_t sequence[]={1, 2, 0, 1, 3, 3, 1, 2, 1, 0, 1, 1, 0, 1, 2, 2, 3, 3, 1, 1, 2, 1, 1, 3, 3, 3, 1, 0, 2, 1, 0, 0, 3, 0, 2, 1, 3, 2, 0, 3, 2, 0, 2, 2, 0, 2, 2, 1, 0, 0, 3, 2, 2, 2, 2, 1, 2, 2, 2, 0, 2, 2, 3, 2, 2, 1, 3, 2, 3, 2, 3, 3, 1, 1, 2, 0, 0, 0, 2, 1, 1, 2, 1, 3, 2, 0, 3, 3, 3, 2, 3, 3, 0, 0, 0, 0, 2, 3, 0, 1};
+static uint8_t level=1;
 
 /*==================[external data definition]===============================*/
 
@@ -145,14 +142,14 @@ TASK(InitTask)
    /* init CIAA kernel and devices */
    ciaak_start();
    /* open CIAA digital outputs & inputs */
-   leds_fd = ciaaPOSIX_open(SALIDAS, ciaaPOSIX_O_RDWR);
-   buttons_fd = ciaaPOSIX_open(ENTRADAS, ciaaPOSIX_O_RDONLY);
+   leds_fd = ciaaPOSIX_open(OUTPUTS, ciaaPOSIX_O_RDWR);
+   buttons_fd = ciaaPOSIX_open(INPUTS, ciaaPOSIX_O_RDONLY);
    /* activate periodic task:
-    *  - InputTask: it updates the user inputs.
     *  - OutputTask: it updates the game outputs.
+    *  - InputTask: it updates the user inputs, starts immediately.
     */
-   SetRelAlarm(ActivateInputTask, START_DELAY_MS, REFRESH_RATE_INPUT_MS);
-   SetRelAlarm(ActivateOutputTask, START_DELAY_MS, REFRESH_RATE_OUTPUT_MS);
+   SetRelAlarm(ActivateOutputTask, START_DELAY_OUTPUT_MS, REFRESH_RATE_OUTPUT_MS);
+   SetRelAlarm(ActivateInputTask, 0, REFRESH_RATE_INPUT_MS);
    /* terminate task */
    TerminateTask();
 }
@@ -182,35 +179,29 @@ TASK(InputTask)
       {
       /* IDLE State: it is waiting for an user inputs*/
       case IDLE:
-         if(FLANCO(TECLA_1|TECLA_2|TECLA_3|TECLA_4))
-            state = START;
+         /* Buttons has change state*/
+         state = (inputs_old ^ inputs_now) ? START : IDLE;
          break;
       /* Listen State: it checks if the user input is correct or not */
       case LISTEN:
-         if(FLANCO(TECLA_1|TECLA_2|TECLA_3|TECLA_4))
+         /* Buttons has change state and is the correct button*/
+         if(~inputs_old & inputs_now & (BUTTON_<<sequence[index]))
          {
-            if(((sequence[index]==0) && FLANCO(TECLA_1)) || //
-            ((sequence[index]==1) && FLANCO(TECLA_2)) || //
-            ((sequence[index]==2) && FLANCO(TECLA_3)) || //
-            ((sequence[index]==3) && FLANCO(TECLA_4)))
-            {
-               index++;
-               state = (index == level) ? INCREASE : LISTEN;
-            }
-            else
-            {
-               index = 0;
-               state = FAIL;
-            }
+            index++;
+            state = (index == level) ? INCREASE : LISTEN;
+         }
+         else
+         {
+            state = FAIL;
          }
          break;
       /* Increase State: it moves the game to the next level */
       case INCREASE:
-         index = 0;
          level = (level < sizeof(sequence)) ? (level+1) : 1;
          state = SEQUENCE;
         break;
       default:
+         index = 0;
       break;
    }
    /* store the buttons state */
@@ -236,29 +227,25 @@ TASK(OutputTask)
       {
       /* Start State: It flash all the leds to show the game has started */
       case START:
-         outputs = (leds[0]|leds[1]|leds[2]|leds[3]);
+         outputs = (RGB_BLUE_LED | YELLOW_LED | RED_LED | GREEN_LED);
+         level = 1;
          state = SEQUENCE;
          break;
       /* Sequence State: Flash a single led that correspond according to 
        *                 the sequence */
       case SEQUENCE:
-         outputs = leds[sequence[index]];
-         // or
-         //outputs = LED_RGB_AZUL<<sequence[index];
-         index ++;
-         if(index == level){
-            state =LISTEN;
-            index = 0;
-         }
+         outputs = LED_<<sequence[index];
+         index++;
+         state =  (index == level) ? LISTEN : SEQUENCE;
         break;
-      /* Fail State: It flash all the leds showing the game has ended */
+      /* Fail State: It flash all the leds showing the level reached in the game */
       case FAIL:
-         outputs = (leds[0]|leds[1]|leds[2]|leds[3]);
-         state = IDLE;
-         level = 0;
-         index = 0; 
+         outputs = (RGB_BLUE_LED | YELLOW_LED | RED_LED | GREEN_LED);
+         index++;
+         state =  (index == level) ? IDLE : FAIL;
          break;
       default:
+         index = 0;
       break;
    }
    /* update leds states */

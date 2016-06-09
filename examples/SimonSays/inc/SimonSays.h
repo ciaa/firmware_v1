@@ -1,4 +1,5 @@
 /* Copyright 2016, Alvaro Alonso Bivou <alonso.bivou@gmail.com>
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -69,9 +70,26 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief REFRESH_RATE_INPUT_MS: (aka polling cycle) is the time 
+ ** in milliseconds in which the status of input buttons are 
+ ** actively sampled (polling).
+ **
+ ** Range: 50 ~ 100    
+ **/
 #define REFRESH_RATE_INPUT_MS 50
+
+/** \brief REFRESH_RATE_OUTPUT_MS: is the time in milliseconds that
+ ** a given led will remain in its state until the next change. 
+ **
+ ** This value could became a variable in further versions
+ ** in order to speed up the sequence in higher levels of the game.
+ **/
 #define REFRESH_RATE_OUTPUT_MS 1000
-#define START_DELAY_MS 350
+
+/** \brief  START_DELAY_OUTPUT_MS: is the time in milliseconds for
+ ** the output task to start.
+ **/
+#define START_DELAY_OUTPUT_MS 350
 
 /*==================[typedef]================================================*/
 /** \brief Enum of states for the States Machine
@@ -89,5 +107,5 @@ typedef enum {IDLE, START, SEQUENCE, LISTEN, INCREASE, FAIL} states;
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef TEMPLATE_FILE_H */
+#endif /* #ifndef SIMONSAYS_H */
 
