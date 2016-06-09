@@ -185,24 +185,26 @@ TASK(InputTask)
       /* Listen State: it checks if the user input is correct or not */
       case LISTEN:
          /* Buttons has change state and is the correct button*/
-         if(~inputs_old & inputs_now & (BUTTON_<<sequence[index]))
+         if((~inputs_old) & (inputs_now) & (BUTTON_<<sequence[index]))
          {
             index++;
             state = (index == level) ? INCREASE : LISTEN;
          }
-         else
+         else if(inputs_old ^ inputs_now)
          {
+            index = 0;
             state = FAIL;
          }
          break;
       /* Increase State: it moves the game to the next level */
       case INCREASE:
+         index = 0;
          level = (level < sizeof(sequence)) ? (level+1) : 1;
          state = SEQUENCE;
-        break;
+         break;
       default:
          index = 0;
-      break;
+         break;
    }
    /* store the buttons state */
    inputs_old = inputs_now;
@@ -229,6 +231,7 @@ TASK(OutputTask)
       case START:
          outputs = (RGB_BLUE_LED | YELLOW_LED | RED_LED | GREEN_LED);
          level = 1;
+         index = 0;
          state = SEQUENCE;
          break;
       /* Sequence State: Flash a single led that correspond according to 
@@ -237,7 +240,7 @@ TASK(OutputTask)
          outputs = LED_<<sequence[index];
          index++;
          state =  (index == level) ? LISTEN : SEQUENCE;
-        break;
+         break;
       /* Fail State: It flash all the leds showing the level reached in the game */
       case FAIL:
          outputs = (RGB_BLUE_LED | YELLOW_LED | RED_LED | GREEN_LED);
@@ -246,7 +249,7 @@ TASK(OutputTask)
          break;
       default:
          index = 0;
-      break;
+         break;
    }
    /* update leds states */
    ciaaPOSIX_write(leds_fd, &outputs, 1);
