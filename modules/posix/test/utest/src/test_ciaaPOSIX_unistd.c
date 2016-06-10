@@ -126,7 +126,7 @@ void setUp(void) {
    int i;
 
    SetEvent_StubWithCallback(SetEvent_stub);
-   
+
    WaitEvent_flag = false;
    ClearEvent_flag = false;
    SetEvent_flag = false;
