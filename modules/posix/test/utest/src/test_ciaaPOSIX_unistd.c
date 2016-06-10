@@ -68,9 +68,10 @@
 
 /*==================[external data definition]===============================*/
 TaskType MyGetTaskIDTaskID;
-uint32_t WaitEvent_flag = 0;
-uint32_t ClearEvent_flag = 0;
-uint32_t SetEvent_flag = 0;
+bool WaitEvent_flag = false;
+bool ClearEvent_flag = false;
+bool SetEvent_flag = false;
+bool ciaaPOSIX_sleepsTest[TASKS_COUNT] = {false};
 
 char const * const ciaaPOSIX_assert_msg = \
       "ASSERT Failed in %s:%d in expression %s\n";
@@ -87,14 +88,14 @@ void setUp(void) {
 
    int i;
 
-   WaitEvent_flag = 0;
-   ClearEvent_flag = 0;
-   SetEvent_flag = 0;
-   counts_to_wakeup = 0;
-   ciaaPOSIX_counter = 0;
+   WaitEvent_flag = false;
+   ClearEvent_flag = false;
+   SetEvent_flag = false;
 
    for(i=0;i<TASKS_COUNT;i++)
-      ciaaPOSIX_sleeps[i]=0;
+   {
+      ciaaPOSIX_sleepsTest[i] = false;
+   }
 }
 
 /** \brief tear Down function
@@ -115,17 +116,21 @@ StatusType MyGetTaskID(TaskRefType TaskID, int cmock_num_calls)
 
 StatusType WaitEvent_stub(EventMaskType Mask, int cmock_num_calls)
 {
-   WaitEvent_flag++;
+   WaitEvent_flag = true;
 }
 
 StatusType ClearEvent_stub(EventMaskType Mask, int cmock_num_calls)
 {
-   ClearEvent_flag++;
+   ClearEvent_flag = true;
+
+   ciaaPOSIX_sleepsTest[MyGetTaskIDTaskID] = true;
 }
 
-StatusType SetEvent_stub(EventMaskType Mask, int cmock_num_calls)
+StatusType SetEvent_stub(TaskType TaskID, EventMaskType Mask, int cmock_num_calls)
 {
-   SetEvent_flag++;
+   SetEvent_flag = true;
+
+   ciaaPOSIX_sleepsTest[TaskID] = false;
 }
 
 /** \brief test ciaaPOSIX_sleep
@@ -147,6 +152,11 @@ void test_ciaaPOSIX_sleep_01(void) {
    /* Set Task ID */
    MyGetTaskIDTaskID = 0;
 
+   /* There are not sleeping tasks */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
+
    /* Call function to test */
    ret = ciaaPOSIX_sleep(MAX_SECONDS-1);
 
@@ -154,15 +164,14 @@ void test_ciaaPOSIX_sleep_01(void) {
    /* return OK */
    TEST_ASSERT_EQUAL_INT(0, ret);
    /* call WaitEvent function */
-   TEST_ASSERT_EQUAL_UINT32(1, WaitEvent_flag);
+   TEST_ASSERT_TRUE(WaitEvent_flag);
    /* call ClearEvent function */
-   TEST_ASSERT_EQUAL_UINT32(1, ClearEvent_flag);
-   /* Now, there is a sleeping function */
-   TEST_ASSERT_EQUAL_UINT32(1 << STATE_BIT, isTaskSleeping(ciaaPOSIX_counter));
-   /* Correct value of counts to wake up the task */
-   TEST_ASSERT_EQUAL_UINT32((MAX_SECONDS - 1)*SLEEP_TIME_TO_COUNTS, counts_to_wakeup);
-   TEST_ASSERT_EQUAL_UINT32((MAX_SECONDS - 1)*SLEEP_TIME_TO_COUNTS, getSleepingCounts(ciaaPOSIX_sleeps[0]));
-   TEST_ASSERT_EQUAL_UINT32(1 << STATE_BIT, isTaskSleeping(ciaaPOSIX_sleeps[0]));
+   TEST_ASSERT_TRUE(ClearEvent_flag);
+   /* Task 0 is sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[0]);
+   /* The other tasks are not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 }
 
 /** \brief test ciaaPOSIX_sleep
@@ -173,7 +182,7 @@ void test_ciaaPOSIX_sleep_01(void) {
 void test_ciaaPOSIX_sleep_02(void) {
 
    /* Internal data */
-   int ret_1, ret_2;
+   int ret;
 
    /* Set behaivor and stubs */
    GetTaskID_StubWithCallback(MyGetTaskID);
@@ -184,29 +193,49 @@ void test_ciaaPOSIX_sleep_02(void) {
    /* Set Task ID */
    MyGetTaskIDTaskID = 0;
 
+   /* There are not sleeping tasks */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
+
    /* Set initial condition for this test */
-   ret_1 = ciaaPOSIX_sleep(MAX_SECONDS - 1);
+   ret = ciaaPOSIX_sleep(MAX_SECONDS - 1);
+
+   /* ASSERTs */
+   /* return OK */
+   TEST_ASSERT_EQUAL_INT(0, ret);
+   /* call WaitEvent function */
+   TEST_ASSERT_TRUE(WaitEvent_flag);
+   /* call ClearEvent function */
+   TEST_ASSERT_TRUE(ClearEvent_flag);
+   /* Task 0 is sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[0]);
+   /* The other tasks are not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 
    /* Set Task ID */
    MyGetTaskIDTaskID = 1;
 
+   /* Reset Wait and Clear flags */
+   WaitEvent_flag = false;
+   ClearEvent_flag = false;
+
    /* Call function to test */
-   ret_2 = ciaaPOSIX_sleep(MAX_SECONDS - 2);
+   ret = ciaaPOSIX_sleep(MAX_SECONDS - 2);
 
    /* ASSERTs */
    /* return OK */
-   TEST_ASSERT_EQUAL_INT(0, ret_1);
-   TEST_ASSERT_EQUAL_INT(0, ret_2);
+   TEST_ASSERT_EQUAL_INT(0, ret);
    /* call WaitEvent function */
-   TEST_ASSERT_EQUAL_UINT32(2, WaitEvent_flag);
+   TEST_ASSERT_TRUE(WaitEvent_flag);
    /* call ClearEvent function */
-   TEST_ASSERT_EQUAL_UINT32(2, ClearEvent_flag);
-   /* there is a sleeping function */
-   TEST_ASSERT_EQUAL_UINT32(1 << STATE_BIT, isTaskSleeping(ciaaPOSIX_counter));
-   /* Correct value of counts to wake up the task */
-   TEST_ASSERT_EQUAL_UINT32((MAX_SECONDS - 2)*SLEEP_TIME_TO_COUNTS, counts_to_wakeup);
-   TEST_ASSERT_EQUAL_UINT32((MAX_SECONDS - 2)*SLEEP_TIME_TO_COUNTS, getSleepingCounts(ciaaPOSIX_sleeps[1]));
-   TEST_ASSERT_EQUAL_UINT32(1 << STATE_BIT, isTaskSleeping(ciaaPOSIX_sleeps[1]));
+   TEST_ASSERT_TRUE(ClearEvent_flag);
+   /* Task 0 and 1 are sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[1]);
+   /* The other tasks are not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 }
 
 /** \brief test ciaaPOSIX_sleep
@@ -218,7 +247,7 @@ void test_ciaaPOSIX_sleep_02(void) {
 void test_ciaaPOSIX_sleep_03(void) {
 
    /* Internal data */
-   int ret_1, ret_2;
+   int ret;
 
    /* Set behaivor and stubs */
    GetTaskID_StubWithCallback(MyGetTaskID);
@@ -229,29 +258,49 @@ void test_ciaaPOSIX_sleep_03(void) {
    /* Set Task ID */
    MyGetTaskIDTaskID = 0;
 
+   /* There are not sleeping tasks */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
+
    /* Set initial condition for this test */
-   ret_1 = ciaaPOSIX_sleep(MAX_SECONDS - 3);
+   ret = ciaaPOSIX_sleep(MAX_SECONDS - 3);
+
+   /* ASSERTs */
+   /* return OK */
+   TEST_ASSERT_EQUAL_INT(0, ret);
+   /* call WaitEvent function */
+   TEST_ASSERT_TRUE(WaitEvent_flag);
+   /* call ClearEvent function */
+   TEST_ASSERT_TRUE(ClearEvent_flag);
+   /* Task 0 is sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[0]);
+   /* The other tasks are not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 
    /* Set Task ID */
    MyGetTaskIDTaskID = 1;
 
+   /* Reset Wait and Clear flags */
+   WaitEvent_flag = false;
+   ClearEvent_flag = false;
+
    /* Call function to test */
-   ret_2 = ciaaPOSIX_sleep(MAX_SECONDS - 2);
+   ret = ciaaPOSIX_sleep(MAX_SECONDS - 2);
 
    /* ASSERTs */
    /* return OK */
-   TEST_ASSERT_EQUAL_INT(0, ret_1);
-   TEST_ASSERT_EQUAL_INT(0, ret_2);
+   TEST_ASSERT_EQUAL_INT(0, ret);
    /* call WaitEvent function */
-   TEST_ASSERT_EQUAL_UINT32(2, WaitEvent_flag);
+   TEST_ASSERT_TRUE(WaitEvent_flag);
    /* call ClearEvent function */
-   TEST_ASSERT_EQUAL_UINT32(2, ClearEvent_flag);
-   /* there is a sleeping function */
-   TEST_ASSERT_EQUAL_UINT32(1 << STATE_BIT, isTaskSleeping(ciaaPOSIX_counter));
-   /* Correct value of counts to wake up the task */
-   TEST_ASSERT_EQUAL_UINT32((MAX_SECONDS - 3)*SLEEP_TIME_TO_COUNTS, counts_to_wakeup);
-   TEST_ASSERT_EQUAL_UINT32((MAX_SECONDS - 2)*SLEEP_TIME_TO_COUNTS, getSleepingCounts(ciaaPOSIX_sleeps[1]));
-   TEST_ASSERT_EQUAL_UINT32(1 << STATE_BIT, isTaskSleeping(ciaaPOSIX_sleeps[1]));
+   TEST_ASSERT_TRUE(ClearEvent_flag);
+   /* Task 0 and 1 are sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[1]);
+   /* The other tasks are not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 }
 
 /** \brief test ciaaPOSIX_usleep function
@@ -261,7 +310,7 @@ void test_ciaaPOSIX_sleep_03(void) {
  **/
 void test_ciaaPOSIX_usleep_01(void) {
    /* Internal data */
-   int ret_1, ret_2;
+   int ret;
 
    /* Set behaivor and stubs */
    GetTaskID_StubWithCallback(MyGetTaskID);
@@ -272,29 +321,49 @@ void test_ciaaPOSIX_usleep_01(void) {
    /* Set Task ID */
    MyGetTaskIDTaskID = 0;
 
+   /* There are not sleeping tasks */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
+
    /* Set initial condition for this test */
-   ret_1 = ciaaPOSIX_usleep(1000001);
+   ret = ciaaPOSIX_usleep(1000001);
+
+   /* ASSERTs */
+   /* return OK */
+   TEST_ASSERT_EQUAL_INT(0, ret);
+   /* call WaitEvent function */
+   TEST_ASSERT_TRUE(WaitEvent_flag);
+   /* call ClearEvent function */
+   TEST_ASSERT_TRUE(ClearEvent_flag);
+   /* Task 0 and 1 are sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[0]);
+   /* The other tasks are not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 
    /* Set Task ID */
    MyGetTaskIDTaskID = 1;
 
+   /* Reset Wait and Clear flags */
+   WaitEvent_flag = false;
+   ClearEvent_flag = false;
+
    /* Call function to test */
-   ret_2 = ciaaPOSIX_usleep(1010001);
+   ret = ciaaPOSIX_usleep(1010001);
 
    /* ASSERTs */
    /* return OK */
-   TEST_ASSERT_EQUAL_INT(0, ret_1);
-   TEST_ASSERT_EQUAL_INT(0, ret_2);
+   TEST_ASSERT_EQUAL_INT(0, ret);
    /* call WaitEvent function */
-   TEST_ASSERT_EQUAL_UINT32(2, WaitEvent_flag);
+   TEST_ASSERT_TRUE(WaitEvent_flag);
    /* call ClearEvent function */
-   TEST_ASSERT_EQUAL_UINT32(2, ClearEvent_flag);
-   /* there is a sleeping function */
-   TEST_ASSERT_EQUAL_UINT32(1 << STATE_BIT, isTaskSleeping(ciaaPOSIX_counter));
-   /* Correct value of counts to wake up the task */
-   TEST_ASSERT_EQUAL_UINT32(101, counts_to_wakeup);
-   TEST_ASSERT_EQUAL_UINT32(102, getSleepingCounts(ciaaPOSIX_sleeps[1]));
-   TEST_ASSERT_EQUAL_UINT32(1 << STATE_BIT, isTaskSleeping(ciaaPOSIX_sleeps[1]));
+   TEST_ASSERT_TRUE(ClearEvent_flag);
+   /* Task 0 and 1 are sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[1]);
+   /* The other tasks are not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 }
 
 /** \brief test ciaaPOSIX_usleep function
@@ -304,7 +373,7 @@ void test_ciaaPOSIX_usleep_01(void) {
  **/
 void test_ciaaPOSIX_usleep_02(void) {
    /* Internal data */
-   int ret_1, ret_2;
+   int ret;
 
    /* Set behaivor and stubs */
    GetTaskID_StubWithCallback(MyGetTaskID);
@@ -315,19 +384,35 @@ void test_ciaaPOSIX_usleep_02(void) {
    /* Set Task ID */
    MyGetTaskIDTaskID = 0;
 
+   /* There are not sleeping tasks */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
+
    /* Set initial condition for this test */
-   ret_1 = ciaaPOSIX_usleep(999999);
+   ret = ciaaPOSIX_usleep(999999);
+
+   /* ASSERTs */
+   /* return ERROR */
+   TEST_ASSERT_EQUAL_INT(-1, ret);
+   /* There are not sleeping tasks */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 
    /* Set Task ID */
    MyGetTaskIDTaskID = 1;
 
    /* Call function to test */
-   ret_2 = ciaaPOSIX_usleep(MAX_USECONDS);
+   ret = ciaaPOSIX_usleep(MAX_USECONDS);
 
    /* ASSERTs */
    /* return ERROR */
-   TEST_ASSERT_EQUAL_INT(-1, ret_1);
-   TEST_ASSERT_EQUAL_INT(-1, ret_2);
+   TEST_ASSERT_EQUAL_INT(-1, ret);
+   /* There are not sleeping tasks */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 }
 
 /** \brief test ciaaPOSIX_sleepMainFunction
@@ -336,27 +421,14 @@ void test_ciaaPOSIX_usleep_02(void) {
  **
  **/
 void test_ciaaPOSIX_sleepMainFunction_01(void) {
-   /* Internal data */
-   uint32_t i;
-   uint32_t aux_counts_to_wakeup;
-   uint32_t aux_ciaaPOSIX_counter;
-   uint32_t aux_ciaaPOSIX_sleeps[TASKS_COUNT];
-
-   /* Initial conditions */
-   aux_counts_to_wakeup = counts_to_wakeup;
-   aux_ciaaPOSIX_counter = ciaaPOSIX_counter;
-   for(i=0; i < TASKS_COUNT; i++)
-   {
-      aux_ciaaPOSIX_sleeps[i] = ciaaPOSIX_sleeps[i];
-   }
 
    /* Call function to test */
    ciaaPOSIX_sleepMainFunction();
 
-   /* ASSERTs (Nothing must change) */
-   TEST_ASSERT_EQUAL_UINT32(aux_counts_to_wakeup, counts_to_wakeup);
-   TEST_ASSERT_EQUAL_UINT32(aux_ciaaPOSIX_counter, ciaaPOSIX_counter);
-   TEST_ASSERT_EQUAL_UINT32_ARRAY(aux_ciaaPOSIX_sleeps, ciaaPOSIX_sleeps, TASKS_COUNT);
+   /* There are not sleeping tasks */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 }
 
 /** \brief test ciaaPOSIX_sleepMainFunction
@@ -366,8 +438,7 @@ void test_ciaaPOSIX_sleepMainFunction_01(void) {
  **/
 void test_ciaaPOSIX_sleepMainFunction_02(void) {
    /* Internal data */
-   uint32_t ret_1;
-   uint32_t aux_ciaaPOSIX_sleeps[TASKS_COUNT] = {0};
+   uint32_t ret;
 
    /* Set behaivor and stubs */
    GetTaskID_StubWithCallback(MyGetTaskID);
@@ -378,18 +449,19 @@ void test_ciaaPOSIX_sleepMainFunction_02(void) {
    /* Initial conditions */
    /* Set Task ID */
    MyGetTaskIDTaskID = 0;
-   ret_1 = ciaaPOSIX_sleep(1);
-   aux_ciaaPOSIX_sleeps[MyGetTaskIDTaskID] = ((1*100)|(1 << STATE_BIT));
+   ret = ciaaPOSIX_sleep(1);
 
    /* Call function to test */
    ciaaPOSIX_sleepMainFunction();
 
    /* ASSERTs */
    /* return OK */
-   TEST_ASSERT_EQUAL_INT(0, ret_1);
-   TEST_ASSERT_EQUAL_UINT32(1*100, counts_to_wakeup);
-   TEST_ASSERT_EQUAL_UINT32(1|(1 << STATE_BIT), ciaaPOSIX_counter);
-   TEST_ASSERT_EQUAL_UINT32_ARRAY(aux_ciaaPOSIX_sleeps, ciaaPOSIX_sleeps, TASKS_COUNT);
+   TEST_ASSERT_EQUAL_INT(0, ret);
+   /* Task 0 is sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[0]);
+   /* The other tasks are not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 }
 
 /** \brief test ciaaPOSIX_sleepMainFunction
@@ -399,8 +471,7 @@ void test_ciaaPOSIX_sleepMainFunction_02(void) {
  **/
 void test_ciaaPOSIX_sleepMainFunction_03(void) {
    /* Internal data */
-   uint32_t ret_1, ret_2, i;
-   uint32_t aux_ciaaPOSIX_sleeps[TASKS_COUNT] = {0};
+   uint32_t ret, i;
 
    /* Set behaivor and stubs */
    GetTaskID_StubWithCallback(MyGetTaskID);
@@ -412,12 +483,29 @@ void test_ciaaPOSIX_sleepMainFunction_03(void) {
    /* Initial conditions */
    /* Set Task ID */
    MyGetTaskIDTaskID = 0;
-   ret_1 = ciaaPOSIX_sleep(1);
-   aux_ciaaPOSIX_sleeps[MyGetTaskIDTaskID] = (1*100);
+   ret = ciaaPOSIX_sleep(1);
+
+   /* ASSERTs */
+   /* return OK */
+   TEST_ASSERT_EQUAL_INT(0, ret);
+   /* Task 0 is sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[0]);
+   /* The other tasks are not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
+
    /* Set Task ID */
    MyGetTaskIDTaskID = 2;
-   ret_2 = ciaaPOSIX_sleep(2);
-   aux_ciaaPOSIX_sleeps[MyGetTaskIDTaskID] = ((2*100)|(1 << STATE_BIT));
+   ret = ciaaPOSIX_sleep(2);
+
+   /* ASSERTs */
+   /* return OK */
+   TEST_ASSERT_EQUAL_INT(0, ret);
+   /* Task 0 and 1 are sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[2]);
+   /* The other tasks are not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
 
    /* Call function to test */
    for(i = 0; i < (1*100); i++)
@@ -426,15 +514,13 @@ void test_ciaaPOSIX_sleepMainFunction_03(void) {
    }
 
    /* ASSERTs */
-   /* return OK */
-   TEST_ASSERT_EQUAL_INT(0, ret_1);
-   TEST_ASSERT_EQUAL_INT(0, ret_2);
-   TEST_ASSERT_EQUAL_UINT32(1*200, counts_to_wakeup);
-   TEST_ASSERT_EQUAL_UINT32((1*100)|(1 << STATE_BIT), ciaaPOSIX_counter);
-   TEST_ASSERT_EQUAL_UINT32_ARRAY(aux_ciaaPOSIX_sleeps, ciaaPOSIX_sleeps, TASKS_COUNT);
+   /* Task 2 is sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[2]);
+   /* The other tasks are not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
    /* call SetEvent function */
-   TEST_ASSERT_EQUAL_UINT32(1, SetEvent_flag);
-
+   TEST_ASSERT_TRUE(SetEvent_flag);
 }
 
 /** \brief test ciaaPOSIX_sleepMainFunction
@@ -444,8 +530,7 @@ void test_ciaaPOSIX_sleepMainFunction_03(void) {
  **/
 void test_ciaaPOSIX_sleepMainFunction_04(void) {
    /* Internal data */
-   uint32_t ret_1, i;
-   uint32_t aux_ciaaPOSIX_sleeps[TASKS_COUNT] = {0};
+   uint32_t ret, i;
 
    /* Set behaivor and stubs */
    GetTaskID_StubWithCallback(MyGetTaskID);
@@ -457,8 +542,16 @@ void test_ciaaPOSIX_sleepMainFunction_04(void) {
    /* Initial conditions */
    /* Set Task ID */
    MyGetTaskIDTaskID = 2;
-   ret_1 = ciaaPOSIX_sleep(2);
-   aux_ciaaPOSIX_sleeps[MyGetTaskIDTaskID] = ((2*100));
+   ret = ciaaPOSIX_sleep(2);
+
+   /* ASSERTs */
+   /* return OK */
+   TEST_ASSERT_EQUAL_INT(0, ret);
+   /* Task 0 and 1 are sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[2]);
+   /* The other tasks are not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
 
    /* Call function to test */
    for(i = 0; i < (2*100); i++)
@@ -468,12 +561,13 @@ void test_ciaaPOSIX_sleepMainFunction_04(void) {
 
    /* ASSERTs */
    /* return OK */
-   TEST_ASSERT_EQUAL_INT(0, ret_1);
-   TEST_ASSERT_EQUAL_UINT32(200, counts_to_wakeup);
-   TEST_ASSERT_EQUAL_UINT32((2*100), ciaaPOSIX_counter);
-   TEST_ASSERT_EQUAL_UINT32_ARRAY(aux_ciaaPOSIX_sleeps, ciaaPOSIX_sleeps, TASKS_COUNT);
+   TEST_ASSERT_EQUAL_INT(0, ret);
+   /* There are not sleeping tasks */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
    /* call SetEvent function */
-   TEST_ASSERT_EQUAL_UINT32(1, SetEvent_flag);
+   TEST_ASSERT_TRUE(SetEvent_flag);
 }
 
 /** \brief test ciaaPOSIX_sleepMainFunction
@@ -483,8 +577,7 @@ void test_ciaaPOSIX_sleepMainFunction_04(void) {
  **/
 void test_ciaaPOSIX_sleepMainFunction_05(void) {
    /* Internal data */
-   uint32_t ret_1, ret_2, ret_3, i;
-   uint32_t aux_ciaaPOSIX_sleeps[TASKS_COUNT] = {0};
+   uint32_t ret, i;
 
    /* Set behaivor and stubs */
    GetTaskID_StubWithCallback(MyGetTaskID);
@@ -496,16 +589,21 @@ void test_ciaaPOSIX_sleepMainFunction_05(void) {
    /* Initial conditions */
    /* Set Task ID */
    MyGetTaskIDTaskID = 0;
-   ret_1 = ciaaPOSIX_sleep(1);
-   aux_ciaaPOSIX_sleeps[MyGetTaskIDTaskID] = (1*100);
+   ret = ciaaPOSIX_sleep(1);
+
    /* Set Task ID */
    MyGetTaskIDTaskID = 1;
-   ret_2 = ciaaPOSIX_sleep(2);
-   aux_ciaaPOSIX_sleeps[MyGetTaskIDTaskID] = ((2*100)|(1 << STATE_BIT));
+   ret = ciaaPOSIX_sleep(2);
+
+   /* return OK */
+   TEST_ASSERT_EQUAL_INT(0, ret);
+
    /* Set Task ID */
    MyGetTaskIDTaskID = 2;
-   ret_3 = ciaaPOSIX_sleep(3);
-   aux_ciaaPOSIX_sleeps[MyGetTaskIDTaskID] = ((3*100)|(1 << STATE_BIT));
+   ret = ciaaPOSIX_sleep(3);
+
+   /* return OK */
+   TEST_ASSERT_EQUAL_INT(0, ret);
 
    /* Call function to test */
    for(i = 0; i < (1*100); i++)
@@ -515,14 +613,14 @@ void test_ciaaPOSIX_sleepMainFunction_05(void) {
 
    /* ASSERTs */
    /* return OK */
-   TEST_ASSERT_EQUAL_INT(0, ret_1);
-   TEST_ASSERT_EQUAL_INT(0, ret_2);
-   TEST_ASSERT_EQUAL_INT(0, ret_3);
-   TEST_ASSERT_EQUAL_UINT32(1*200, counts_to_wakeup);
-   TEST_ASSERT_EQUAL_UINT32((1*100)|(1 << STATE_BIT), ciaaPOSIX_counter);
-   TEST_ASSERT_EQUAL_UINT32_ARRAY(aux_ciaaPOSIX_sleeps, ciaaPOSIX_sleeps, TASKS_COUNT);
+   TEST_ASSERT_EQUAL_INT(0, ret);
+   /* The task 0 is not sleeping */
+   TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
+   /* The others tasks are sleeping */
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[1]);
+   TEST_ASSERT_TRUE(ciaaPOSIX_sleepsTest[2]);
    /* call SetEvent function */
-   TEST_ASSERT_EQUAL_UINT32(1, SetEvent_flag);
+   TEST_ASSERT_TRUE(SetEvent_flag);
 }
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

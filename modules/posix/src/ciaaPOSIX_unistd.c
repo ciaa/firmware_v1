@@ -59,6 +59,14 @@
 #define MAX_USECONDS (UINT32_MAX - (CIAAPOSIX_MAINFUNCTION_PERIODUS-2))
 
 /*==================[internal data declaration]==============================*/
+/** \brief Remaining counts to wake up the next task */
+static uint32_t counts_to_wakeup;
+
+/** \brief Current counts */
+static uint32_t ciaaPOSIX_counter;
+
+/** task list where are allocated its sleeping state */
+static uint32_t ciaaPOSIX_sleeps[];
 
 /*==================[internal functions declaration]=========================*/
 /** \brief ciaaPOSIX_sleepAlgorithm
@@ -71,11 +79,11 @@
 static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
 
 /*==================[internal data definition]===============================*/
+static uint32_t counts_to_wakeup = 0;
+static uint32_t ciaaPOSIX_counter = 0;
+static uint32_t ciaaPOSIX_sleeps[TASKS_COUNT]={0};
 
 /*==================[external data definition]===============================*/
-uint32_t counts_to_wakeup = 0;
-uint32_t ciaaPOSIX_counter = 0;
-uint32_t ciaaPOSIX_sleeps[TASKS_COUNT]={0};
 
 /*==================[internal functions definition]==========================*/
 static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)

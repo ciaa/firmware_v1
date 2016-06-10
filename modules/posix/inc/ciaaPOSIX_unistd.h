@@ -110,9 +110,6 @@ extern "C" {
 typedef uint32_t useconds_t;
 
 /*==================[external data declaration]==============================*/
-extern uint32_t counts_to_wakeup;
-extern uint32_t ciaaPOSIX_counter;
-extern uint32_t ciaaPOSIX_sleeps[];
 
 /*==================[external functions declaration]=========================*/
 /** \brief ciaaPOSIX sleep
