@@ -62,7 +62,7 @@ extern "C" {
 
 /* UNITY_EXCLUDE_STDINT_H macro is used in Unit Test Enviroment */
 #ifdef UNITY_EXCLUDE_STDINT_H
-   void ciaaPOSIX_assert(uint32_t expr);
+   void ciaaPOSIX_assert(int expr);
 #else
 #define ciaaPOSIX_assert(expr)                                             \
    ciaaPOSIX__assert(__FILE__, __LINE__, (expr))
