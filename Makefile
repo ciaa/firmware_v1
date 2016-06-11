@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # Copyright 2014, 2015, Mariano Cerdeiro
-# Copyright 2014, 2015, Juan Cecconi (Numetron, UTN-FRBA)
+# Copyright 2014, 2015, 2016, Juan Cecconi (Numetron, UTN-FRBA)
 # Copyright 2014, 2015, Esteban Volentini (LabMicro, UNT)
 # All rights reserved
 #
@@ -565,6 +565,7 @@ generate : gen.intermediate
 $(rtos_GENERATED_FILES) : gen.intermediate
 .INTERMEDIATE: gen.intermediate
 gen.intermediate : $(OIL_4_GEN_DEP)
+ifneq ($(strip $(OIL_FILES) $(POIL_FILES)),)
 ifdef MCORE
 	@echo "*** Generating OSEK using multicore options! ***"
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
@@ -578,6 +579,12 @@ else
 	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
 		-c $(OIL_4_GEN) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+endif
+else
+	@echo ' '
+	@echo ===============================================================================
+	@echo "Skipping Generator...there is not a config file (*.oil/*.oilx/*.poil) available (project without RTOS or baremetal project)"
+	@echo ' '
 endif
 
 ###############################################################################

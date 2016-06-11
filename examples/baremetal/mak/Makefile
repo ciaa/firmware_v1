@@ -1,6 +1,7 @@
 ###############################################################################
 #
 # Copyright 2015, Mariano Cerdeiro
+# Copyright 2016, Juan Cecconi
 # All rights reserved.
 #
 # This file is part of CIAA Firmware.
@@ -42,8 +43,6 @@ $(PROJECT_NAME)_SRC_PATH  += $(PROJECT_PATH)$(DS)src
 INC_FILES            += $(PROJECT_PATH)$(DS)inc
 # library source files
 SRC_FILES            += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
-# configuration for OSEK-OS
-OIL_FILES            += $(PROJECT_PATH)$(DS)etc$(DS)$(PROJECT_NAME).oil
 # Modules needed for this example
 MODS 						+= externals$(DS)drivers
 
