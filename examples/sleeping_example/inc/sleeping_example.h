@@ -1,4 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2016, Diego Ezequiel Vommaro
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,57 +30,35 @@
  *
  */
 
-#ifndef _CIAAPOSIX_ASSERT_H_
-#define _CIAAPOSIX_ASSERT_H_
-/** \brief ciaa POSIX assert header file
+#ifndef SLEEPING_EXAMPLE_H
+#define SLEEPING_EXAMPLE_H
+/** \brief Sleeping_example example header file
  **
- ** ciaa POSIX assert header file
+ ** This is a mini example of the CIAA Firmware
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Examples CIAA Firmware Examples
+ ** @{ */
+/** \addtogroup Blinking Blinking example header file
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdio.h"
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*==================[macros]=================================================*/
-#define ciaaPOSIX__assert(file, line, expr)                                \
-   if ((expr)==0)                                                          \
-   {                                                                       \
-      (void)ciaaPOSIX_printf(ciaaPOSIX_assert_msg,                         \
-            (file), (line), #expr);                                        \
-      while(1==1);                                                         \
-   }
-
-/* UNITY_EXCLUDE_STDINT_H macro is used in Unit Test Enviroment */
-#ifdef CIAA_UNIT_TEST
-   void ciaaPOSIX_assert(int expr);
-#else
-#define ciaaPOSIX_assert(expr)                                             \
-   ciaaPOSIX__assert(__FILE__, __LINE__, (expr))
-#endif
 
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
-extern char const * const ciaaPOSIX_assert_msg;
 
 /*==================[external functions declaration]=========================*/
+extern void ciaaPOSIX_sleepMainFunction(void);
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_ASSERT_H_ */
+#endif /* #ifndef SLEEPING_EXAMPLE_H */
 
