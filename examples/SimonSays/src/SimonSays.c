@@ -83,7 +83,7 @@ static int32_t buttons_fd;
 static states state = IDLE;
 /** \brief Array of the sequence to be displayed by the leds **/
 static const uint8_t sequence[]={1, 2, 0, 1, 3, 3, 1, 2, 1, 0, 1, 1, 0, 1, 2, 2, 3, 3, 1, 1, 2, 1, 1, 3, 3, 3, 1, 0, 2, 1, 0, 0, 3, 0, 2, 1, 3, 2, 0, 3, 2, 0, 2, 2, 0, 2, 2, 1, 0, 0, 3, 2, 2, 2, 2, 1, 2, 2, 2, 0, 2, 2, 3, 2, 2, 1, 3, 2, 3, 2, 3, 3, 1, 1, 2, 0, 0, 0, 2, 1, 1, 2, 1, 3, 2, 0, 3, 3, 3, 2, 3, 3, 0, 0, 0, 0, 2, 3, 0, 1};
-static uint8_t level=1;
+static uint8_t level=0;
 
 /*==================[external data definition]===============================*/
 
@@ -163,7 +163,7 @@ TASK(InitTask)
  */
 TASK(InputTask)
 {
-   uint8_t inputs_now, outputs;
+   uint8_t inputs_now, button_pressed, outputs;
    static uint8_t inputs_old;
    static uint8_t index=0;
 
@@ -171,39 +171,43 @@ TASK(InputTask)
    ciaaPOSIX_read(buttons_fd, &inputs_now, 1);
    /* inverse button logic */
    inputs_now = ~inputs_now;
-   /* light led pressed */
-   outputs = (inputs_now<<2);
-   ciaaPOSIX_write(leds_fd, &outputs, 1);
+   /* detect changed button state */
+   button_pressed = (~inputs_old) & (inputs_now);
    /* States Machine */
    switch(state)
       {
       /* IDLE State: it is waiting for an user inputs*/
       case IDLE:
          /* Buttons has change state*/
-         state = (inputs_old ^ inputs_now) ? START : IDLE;
+         if(button_pressed & ANY_BUTTON)
+            state = START;
          break;
       /* Listen State: it checks if the user input is correct or not */
       case LISTEN:
+         /* light led pressed */
+         outputs = (inputs_now<<2);
+         ciaaPOSIX_write(leds_fd, &outputs, 1);
          /* Buttons has change state and is the correct button*/
-         if((~inputs_old) & (inputs_now) & (BUTTON_<<sequence[index]))
+         if(button_pressed & (BUTTON_<<sequence[index]))
          {
+            state = (index < level) ? LISTEN : INCREASE;
             index++;
-            state = (index == level) ? INCREASE : LISTEN;
          }
-         else if(inputs_old ^ inputs_now)
+         /* Buttons has change state but is NOT the correct button*/
+         else if(button_pressed & ANY_BUTTON)
          {
-            index = 0;
             state = FAIL;
          }
          break;
       /* Increase State: it moves the game to the next level */
       case INCREASE:
+         outputs = 0;
          index = 0;
-         level = (level < sizeof(sequence)) ? (level+1) : 1;
+         ciaaPOSIX_write(leds_fd, &outputs, 1);
          state = SEQUENCE;
+         level = (level < sizeof(sequence)) ? (level+1) : 0;
          break;
       default:
-         index = 0;
          break;
    }
    /* store the buttons state */
@@ -221,7 +225,7 @@ TASK(InputTask)
  */
 TASK(OutputTask)
 {
-   uint8_t outputs=0x00;
+   static uint8_t outputs=0x00;
    static uint8_t index=0;
 
    /* States Machine */
@@ -229,27 +233,27 @@ TASK(OutputTask)
       {
       /* Start State: It flash all the leds to show the game has started */
       case START:
-         outputs = (RGB_BLUE_LED | YELLOW_LED | RED_LED | GREEN_LED);
-         level = 1;
-         index = 0;
-         state = SEQUENCE;
+         state =  (index > 1) ? SEQUENCE : START;
+         outputs = (state == SEQUENCE) ? 0 : outputs^ALL_LED;
+         index = (state == SEQUENCE) ? 0 : (index+1);
+         level = 0;
          break;
       /* Sequence State: Flash a single led that correspond according to 
        *                 the sequence */
       case SEQUENCE:
-         outputs = LED_<<sequence[index];
-         index++;
-         state =  (index == level) ? LISTEN : SEQUENCE;
+         state =  (index > (level*2)) ? LISTEN : SEQUENCE;
+         outputs = (state == LISTEN) ? 0 : outputs^(LED_<<sequence[index/2]);
+         index = (state == LISTEN) ? 0 : (index+1);
          break;
       /* Fail State: It flash all the leds showing the level reached in the game */
       case FAIL:
-         outputs = (RGB_BLUE_LED | YELLOW_LED | RED_LED | GREEN_LED);
-         index++;
-         state =  (index == level) ? IDLE : FAIL;
+         state =  (index > (level*2)) ? IDLE : FAIL;
+         outputs = (state == IDLE) ? 0 : outputs^ALL_LED;
+         index = (state == IDLE) ? 0 : (index+1);
          break;
       default:
-         index = 0;
-         break;
+         outputs=0x00;
+         break;   
    }
    /* update leds states */
    ciaaPOSIX_write(leds_fd, &outputs, 1);

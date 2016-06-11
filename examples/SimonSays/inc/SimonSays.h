@@ -84,7 +84,7 @@ extern "C" {
  ** This value could became a variable in further versions
  ** in order to speed up the sequence in higher levels of the game.
  **/
-#define REFRESH_RATE_OUTPUT_MS 1000
+#define REFRESH_RATE_OUTPUT_MS 500
 
 /** \brief  START_DELAY_OUTPUT_MS: is the time in milliseconds for
  ** the output task to start.
