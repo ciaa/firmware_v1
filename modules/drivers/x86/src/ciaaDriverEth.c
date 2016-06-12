@@ -1,7 +1,4 @@
-/* Copyright 2014, 2016 Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
+/* Copyright 2016, Mariano cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,67 +31,52 @@
  *
  */
 
-#ifndef BLINKING_LWIP_H
-#define BLINKING_LWIP_H
-/** \brief Blinking LWIP example header file
+/** \brief CIAA Eth Driver for x86
  **
- ** This is a mini example of the CIAA Firmware using LWIP
+ ** Implements the Eth Driver for x86
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Examples CIAA Firmware Examples
+/** \addtogroup Drivers CIAA Drivers
  ** @{ */
-/** \addtogroup Blinking_LWIP Blinking LWIP example header file
+/** \addtogroup ETH Eth Drivers
  ** @{ */
-
-/*
- * Initials     Name
- * ---------------------------
- *
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
- */
 
 /*==================[inclusions]=============================================*/
-#include "lwip/init.h"
-#include "lwip/opt.h"
-#include "lwip/sys.h"
-#include "lwip/memp.h"
-#include "lwip/tcpip.h"
-#include "lwip/ip_addr.h"
-#include "lwip/netif.h"
-#include "lwip/timers.h"
-#include "netif/etharp.h"
+#include "ciaaDriverEth.h"
 
-#if LWIP_DHCP
-#include "lwip/dhcp.h"
-#endif
+/** from LWIP */
 
-#if 0
-#include "arch/lpc_phy.h"
-#include "arch/lpc18xx_43xx_emac.h"
-#include "arch/lpc_arch.h"
-#endif
 
-#include "echo.h"
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[internal data definition]===============================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+
+void ciaaDriverEth_init(void)
+{
+
+}
+
+void ciaaDriverEth_mainFunction(void)
+{
+
+}
+/*==================[interrupt handlers]=====================================*/
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef BLINKING_LWIP_H */
 

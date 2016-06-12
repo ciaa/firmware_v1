@@ -1,7 +1,4 @@
-/* Copyright 2014, 2016 Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
+/* Copyright 2016, Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,55 +31,27 @@
  *
  */
 
-#ifndef BLINKING_LWIP_H
-#define BLINKING_LWIP_H
-/** \brief Blinking LWIP example header file
+#ifndef CIAADRIVERETH_H
+#define CIAADRIVERETH_H
+/** \brief CIAA Ethernet driver header file
  **
- ** This is a mini example of the CIAA Firmware using LWIP
+ ** This files contains the header file of the CIAA Ethernet driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Examples CIAA Firmware Examples
+/** \addtogroup Drivers CIAA Drivers
  ** @{ */
-/** \addtogroup Blinking_LWIP Blinking LWIP example header file
+/** \addtogroup ETH Ethernet Drivers
  ** @{ */
-
-/*
- * Initials     Name
- * ---------------------------
- *
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * yyyymmdd v0.0.1 initials initial version
- */
 
 /*==================[inclusions]=============================================*/
-#include "lwip/init.h"
-#include "lwip/opt.h"
-#include "lwip/sys.h"
-#include "lwip/memp.h"
-#include "lwip/tcpip.h"
-#include "lwip/ip_addr.h"
-#include "lwip/netif.h"
-#include "lwip/timers.h"
-#include "netif/etharp.h"
 
-#if LWIP_DHCP
-#include "lwip/dhcp.h"
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
 #endif
-
-#if 0
-#include "arch/lpc_phy.h"
-#include "arch/lpc18xx_43xx_emac.h"
-#include "arch/lpc_arch.h"
-#endif
-
-#include "echo.h"
 
 /*==================[macros]=================================================*/
 
@@ -91,10 +60,21 @@
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief initialize the Ethenet deriver
+ **
+ ** Is called at system startup.
+ **/
+extern void ciaaDriverEth_init(void);
 
-/** @} doxygen end group definition */
+/** \brief main function of the ethernet driver
+ **/
+extern void ciaaDriverEth_mainFunction(void);
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef BLINKING_LWIP_H */
+#endif /* #ifndef CIAADRIVERETH_H */
 

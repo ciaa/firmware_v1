@@ -65,6 +65,10 @@ extern "C"
 /* Array of slow memory address ranges for LPC_CHECK_SLOWMEM */
 #define LPC_SLOWMEM_ARRAY
 
+/* Build for RMII interface */
+#define USE_RMII
+#define BOARD_ENET_PHY_ADDR	0x01
+
 #ifdef __cplusplus
 }
 #endif

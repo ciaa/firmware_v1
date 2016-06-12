@@ -39,7 +39,7 @@
 #include "netif/etharp.h"
 #include "netif/ppp_oe.h"
 
-#include "arch/lpc_18xx43xx_emac_config.h"
+#include "lpc_18xx43xx_emac_config.h"
 #include "arch/lpc18xx_43xx_emac.h"
 
 #include "chip.h"
@@ -109,7 +109,7 @@ struct lpc_enetdata {
 	sys_sem_t RxSem;/**< RX receive thread wakeup semaphore */
 	sys_sem_t TxCleanSem;	/**< TX cleanup thread wakeup semaphore */
 	sys_mutex_t TXLockMutex;/**< TX critical section mutex */
-	xSemaphoreHandle xTXDCountSem;	/**< TX free buffer counting semaphore */
+	SemaphoreHandle_t xTXDCountSem;	/**< TX free buffer counting semaphore */
 #endif
 };
 
@@ -572,7 +572,7 @@ static err_t low_level_init(struct netif *netif)
 	struct lpc_enetdata *lpc_netifdata = netif->state;
 
 	/* Initialize via Chip ENET function */
-	Chip_ENET_Init(LPC_ETHERNET);
+	Chip_ENET_Init(LPC_ETHERNET, BOARD_ENET_PHY_ADDR);
 
 	/* Save MAC address */
 	Chip_ENET_SetADDR(LPC_ETHERNET, netif->hwaddr);

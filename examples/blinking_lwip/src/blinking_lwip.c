@@ -1,7 +1,8 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2016 Mariano Cerdeiro
  * Copyright 2014, Pablo Ridolfi
  * Copyright 2014, Juan Cecconi
  * Copyright 2014, Gustavo Muro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -51,8 +52,8 @@
  * ---------------------------
  * MaCe         Mariano Cerdeiro
  * PR           Pablo Ridolfi
- * JuCe         Juan Cecconi 
- * GMuro        Gustavo Muro  
+ * JuCe         Juan Cecconi
+ * GMuro        Gustavo Muro
  */
 
 /*
@@ -110,9 +111,6 @@ TASK(InitTask)
    /* open CIAA digital outputs */
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 
-   /* start lwip stack */
-   ciaaLWIP_start();
-
    /* start TCP echo example */
    echo_init();
 
@@ -149,7 +147,7 @@ TASK(PeriodicTask)
    while(1)
    {
       /* lwip stack periodic loop */
-      ciaaLWIP_loop();
+      ciaaDriverEth_mainFunction();
    }
 }
 
