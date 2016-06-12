@@ -1,4 +1,8 @@
 /* Copyright 2016, Alvaro Alonso Bivou <alonso.bivou@gmail.com>
+ * Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
+ * Copyright 2014, Gustavo Muro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -53,6 +57,7 @@
  /*
  * modification history (new versions first)
  * -----------------------------------------------------------
+ * 20160611 v0.0.2   AA   random sequence option
  * 20160607 v0.0.1   AA   first functional version
  */
 
@@ -82,7 +87,12 @@ static int32_t buttons_fd;
  */
 static states state = IDLE;
 /** \brief Array of the sequence to be displayed by the leds **/
+#if RANDOM_SEQUENCE
+static uint8_t sequence[100];
+#else
 static const uint8_t sequence[]={1, 2, 0, 1, 3, 3, 1, 2, 1, 0, 1, 1, 0, 1, 2, 2, 3, 3, 1, 1, 2, 1, 1, 3, 3, 3, 1, 0, 2, 1, 0, 0, 3, 0, 2, 1, 3, 2, 0, 3, 2, 0, 2, 2, 0, 2, 2, 1, 0, 0, 3, 2, 2, 2, 2, 1, 2, 2, 2, 0, 2, 2, 3, 2, 2, 1, 3, 2, 3, 2, 3, 3, 1, 1, 2, 0, 0, 0, 2, 1, 1, 2, 1, 3, 2, 0, 3, 3, 3, 2, 3, 3, 0, 0, 0, 0, 2, 3, 0, 1};
+#endif
+/** \brief Initial level of the game **/
 static uint8_t level=0;
 
 /*==================[external data definition]===============================*/
@@ -163,15 +173,18 @@ TASK(InitTask)
  */
 TASK(InputTask)
 {
+   /* buffer variables for input and output */
    uint8_t inputs_now, button_pressed, outputs;
+   /* inputs store from the previous execution of InputTask */
    static uint8_t inputs_old;
+   /* current index of the sequence array*/
    static uint8_t index=0;
 
    /* refresh buttons states */
-   ciaaPOSIX_read(buttons_fd, &inputs_now, 1);
+   (void)ciaaPOSIX_read(buttons_fd, &inputs_now, 1);
    /* inverse button logic */
    inputs_now = ~inputs_now;
-   /* detect changed button state */
+   /* detect a change on buttons state */
    button_pressed = (~inputs_old) & (inputs_now);
    /* States Machine */
    switch(state)
@@ -180,13 +193,23 @@ TASK(InputTask)
       case IDLE:
          /* Buttons has change state*/
          if(button_pressed & ANY_BUTTON)
+         {
             state = START;
+#if RANDOM_SEQUENCE
+            /* seed random number generator */
+            srand(inputs_now); 
+            /* complete the sequence array with random numbers */
+            for(index=0; index<sizeof(sequence); index++)
+               sequence[index] = (uint8_t)(rand()%4);
+            index=0;
+#endif
+         }
          break;
       /* Listen State: it checks if the user input is correct or not */
       case LISTEN:
          /* light led pressed */
          outputs = (inputs_now<<2);
-         ciaaPOSIX_write(leds_fd, &outputs, 1);
+         (void)ciaaPOSIX_write(leds_fd, &outputs, 1);
          /* Buttons has change state and is the correct button*/
          if(button_pressed & (BUTTON_<<sequence[index]))
          {
@@ -203,7 +226,7 @@ TASK(InputTask)
       case INCREASE:
          outputs = 0;
          index = 0;
-         ciaaPOSIX_write(leds_fd, &outputs, 1);
+         (void)ciaaPOSIX_write(leds_fd, &outputs, 1);
          state = SEQUENCE;
          level = (level < sizeof(sequence)) ? (level+1) : 0;
          break;
@@ -219,13 +242,15 @@ TASK(InputTask)
 /** \brief Output Task
  *
  * This task is started automatically every time that the alarm
- * ActivateInputTask expires: every REFRESH_RATE_OUTPUT_MS.
+ * ActivateOutputTask expires: every REFRESH_RATE_OUTPUT_MS.
  * This is a refresh task for updating leds states
  *
  */
 TASK(OutputTask)
 {
+   /* buffer variable for POXIS_write function */
    static uint8_t outputs=0x00;
+   /* Current index of the sequence array*/
    static uint8_t index=0;
 
    /* States Machine */
@@ -256,7 +281,7 @@ TASK(OutputTask)
          break;   
    }
    /* update leds states */
-   ciaaPOSIX_write(leds_fd, &outputs, 1);
+   (void)ciaaPOSIX_write(leds_fd, &outputs, 1);
    /* terminate task */
    TerminateTask();
 }

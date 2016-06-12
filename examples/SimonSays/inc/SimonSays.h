@@ -1,4 +1,8 @@
 /* Copyright 2016, Alvaro Alonso Bivou <alonso.bivou@gmail.com>
+ * Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
+ * Copyright 2014, Gustavo Muro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -59,6 +63,7 @@
  */
 
 /*==================[inclusions]=============================================*/
+#include "stdlib.h"			  /* <= standard library */
 #include "os.h"               /* <= operating system header */
 #include "ciaaPOSIX_stdio.h"  /* <= device handler header */
 #include "ciaak.h"            /* <= ciaa kernel header */
@@ -70,6 +75,9 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief  RANDOM_SEQUENCE: choose if the sequence must be generated at random.
+ **/
+#define RANDOM_SEQUENCE true
 /** \brief REFRESH_RATE_INPUT_MS: (aka polling cycle) is the time 
  ** in milliseconds in which the status of input buttons are 
  ** actively sampled (polling).
