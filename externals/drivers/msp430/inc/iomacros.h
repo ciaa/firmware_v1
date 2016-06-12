@@ -1,7 +1,7 @@
 /*******************************************************************************
  *  iomacros.h -
  *
- *  Copyright (C) 2003-2013 Texas Instruments Incorporated - http://www.ti.com/
+ *  Copyright (C) 2003-2016 Texas Instruments Incorporated - http://www.ti.com/
  *
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions
@@ -50,7 +50,18 @@
 #define const_sfra(x,x_) x=x_
 #define const_sfrl(x,x_) x=x_
 
+//workarround https://e2e.ti.com/support/microcontrollers/msp430/f/166/t/503954
+#define sfr_b(x)
+#define sfr_w(x)
+#define sfr_a(x)
+#define sfr_l(x)
+
 #else
+
+#define sfr_b(x) extern volatile unsigned char x
+#define sfr_w(x) extern volatile unsigned int x
+#define sfr_a(x) extern volatile unsigned long int x
+#define sfr_l(x) extern volatile unsigned long int x
 
 #define sfrb_(x,x_) extern volatile unsigned char x __asm__(#x_)
 #define sfrw_(x,x_) extern volatile unsigned int x __asm__(#x_)
@@ -67,9 +78,9 @@
 #define const_sfra(x,x_) const sfra_(x,x_)
 #define const_sfrl(x,x_) const sfrl_(x,x_)
 
-#define __interrupt(vec) __attribute__((__interrupt__(vec)))
+#define __interrupt __attribute__((__interrupt__))
+#define __interrupt_vec(vec) __attribute__((interrupt(vec)))
 
 #endif /* defined(__ASSEMBLER__) */
 
 #endif /* _IOMACROS_H_ */
-

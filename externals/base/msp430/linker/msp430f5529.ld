@@ -1,5 +1,5 @@
 /* ============================================================================ */
-/* Copyright (c) 2015, Texas Instruments Incorporated                           */
+/* Copyright (c) 2016, Texas Instruments Incorporated                           */
 /*  All rights reserved.                                                        */
 /*                                                                              */
 /*  Redistribution and use in source and binary forms, with or without          */
@@ -31,7 +31,7 @@
 /* ============================================================================ */
 
 /* This file supports MSP430F5529 devices. */
-/* Version: 1.173 */
+/* Version: 1.188 */
 /* Default linker script, for normal executables */
 
 OUTPUT_ARCH(msp430)
@@ -39,15 +39,16 @@ ENTRY(_start)
 
 MEMORY {
   SFR              : ORIGIN = 0x0000, LENGTH = 0x0010 /* END=0x0010, size 16 */
-  PERIPHERAL_8BIT  : ORIGIN = 0x0010, LENGTH = 0x00F0 /* END=0x0100, size 240 */
-  PERIPHERAL_16BIT : ORIGIN = 0x0100, LENGTH = 0x0100 /* END=0x0200, size 256 */
+  BSL              : ORIGIN = 0x1000, LENGTH = 0x0800
   RAM              : ORIGIN = 0x2400, LENGTH = 0x2000 /* END=0x43FF, size 8192 */
+  USBRAM           : ORIGIN = 0x1C00, LENGTH = 0x0800
   INFOMEM          : ORIGIN = 0x1800, LENGTH = 0x0200 /* END=0x19FF, size 512 as 4 128-byte segments */
   INFOA            : ORIGIN = 0x1980, LENGTH = 0x0080 /* END=0x19FF, size 128 */
   INFOB            : ORIGIN = 0x1900, LENGTH = 0x0080 /* END=0x197F, size 128 */
   INFOC            : ORIGIN = 0x1880, LENGTH = 0x0080 /* END=0x18FF, size 128 */
   INFOD            : ORIGIN = 0x1800, LENGTH = 0x0080 /* END=0x187F, size 128 */
   ROM (rx)         : ORIGIN = 0x4400, LENGTH = 0xBB80 /* END=0xFF7F, size 48000 */
+  HIROM (rx)       : ORIGIN = 0x00010000, LENGTH = 0x000143FF
   VECT1            : ORIGIN = 0xFF80, LENGTH = 0x0002
   VECT2            : ORIGIN = 0xFF82, LENGTH = 0x0002
   VECT3            : ORIGIN = 0xFF84, LENGTH = 0x0002
@@ -112,9 +113,6 @@ MEMORY {
   VECT62           : ORIGIN = 0xFFFA, LENGTH = 0x0002
   VECT63           : ORIGIN = 0xFFFC, LENGTH = 0x0002
   RESETVEC         : ORIGIN = 0xFFFE, LENGTH = 0x0002
-  BSL              : ORIGIN = 0x1000, LENGTH = 0x0800
-  USBRAM           : ORIGIN = 0x1C00, LENGTH = 0x0800
-  HIROM (rx)       : ORIGIN = 0x00010000, LENGTH = 0x000143FF
 }
 
 SECTIONS
@@ -198,9 +196,6 @@ SECTIONS
     . = ALIGN(2);
     *(.rodata .rodata.* .gnu.linkonce.r.* .const .const:*)
     *(.rodata1)
-
-    *(.eh_frame_hdr)
-    KEEP (*(.eh_frame))
     KEEP (*(.gcc_except_table)) *(.gcc_except_table.*)
     PROVIDE (__preinit_array_start = .);
     KEEP (*(.preinit_array))
@@ -213,7 +208,17 @@ SECTIONS
     KEEP (*(.fini_array))
     KEEP (*(SORT(.fini_array.*)))
     PROVIDE (__fini_array_end = .);
-    LONG(0); /* Sentinel.  */
+  } > ROM
+
+  /* Note: This is a separate .rodata section for sections which are
+     read only but which older linkers treat as read-write.
+     This prevents older linkers from marking the entire .rodata
+     section as read-write.  */
+  .rodata2 : 
+  {
+    . = ALIGN(2);
+    *(.eh_frame_hdr)
+    KEEP (*(.eh_frame))
 
     /* gcc uses crtbegin.o to find the start of the constructors, so
        we make sure it is first.  Because this is a wildcard, it
@@ -296,8 +301,9 @@ SECTIONS
   } > RAM
   PROVIDE (__bsssize = SIZEOF(.bss));
 
-  /* This section contains data that is not initialised at startup.  */
-  .noinit :
+  /* This section contains data that is not initialised during load
+     or application reset.  */
+  .noinit (NOLOAD) :
   {
     . = ALIGN(2);
     PROVIDE (__noinit_start = .);
@@ -306,8 +312,28 @@ SECTIONS
     PROVIDE (__noinit_end = .);
   } > RAM
 
-  _end = .;
-  PROVIDE (end = .);
+  /* We create this section so that "end" will always be in the
+     RAM region (matching .stack below), even if the .bss
+     section is empty.  */
+  .heap (NOLOAD) :
+  {
+    . = ALIGN(2);
+    __heap_start__ = .;
+    _end = __heap_start__;
+    PROVIDE (end = .); 
+    KEEP (*(.heap))
+    _end = .;
+    PROVIDE (end = .);
+    /* This word is here so that the section is not empty, and thus
+       not discarded by the linker.  The actual value does not matter
+       and is ignored.  */
+    LONG(0);
+    __heap_end__ = .;
+    __HeapLimit = __heap_end__;
+  } > RAM
+  /* WARNING: Do not place anything in RAM here.
+     The heap section must be the last section in RAM and the stack
+     section must be placed at the very end of the RAM region.  */
 
   .stack (ORIGIN (RAM) + LENGTH(RAM)) :
   {
@@ -414,4 +440,11 @@ SECTIONS
 
   /DISCARD/ : { *(.note.GNU-stack) }
 }
+
+
+/****************************************************************************/
+/* Include peripherals memory map                                           */
+/****************************************************************************/
+
+INCLUDE  msp430f5529_symbols.ld
 

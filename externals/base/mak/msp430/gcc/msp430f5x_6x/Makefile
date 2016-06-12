@@ -33,8 +33,12 @@
 ###############################################################################
 
 LINKER_SCRIPT ?= $(CPU).ld
+LINKER_SCRIPT2 ?= $(CPU)_symbols.ld
 
-LFLAGS +=  -T "externals/base/msp430/linker/$(LINKER_SCRIPT)" # -nostartfiles  # -nostdlib
+LFLAGS +=    -T "externals/base/msp430/linker/$(LINKER_SCRIPT)" -L "externals/base/msp430/linker"  # -nostartfiles  # -nostdlib
+
+#https://e2e.ti.com/support/development_tools/code_composer_studio/f/81/t/503571
+
 
 # this file needs to be compiled separated and not added to a library
 #SRC_FILES                  += $(ext_base_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(D)src$(DS)crp.c

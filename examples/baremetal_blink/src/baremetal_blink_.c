@@ -51,20 +51,20 @@ void myctor()
 }
 
 
-__attribute__((__interrupt__(PORT1_VECTOR),naked))
+__attribute__((__interrupt_vec__(PORT1_VECTOR),naked))
 void unused_irq()
 {
     /* Do something. */;
 }
        
 /*
-__attribute__( (__interrupt__(PORT1_VECTOR)))
+__attribute__( (__interrupt_vec__(PORT1_VECTOR)))
 port1_isr (void)
 {
 
 }*/
 
-__attribute__( (weak, alias("unused_irq"),__interrupt__(PORT2_VECTOR)))
+__attribute__( (weak, alias("unused_irq"),__interrupt_vec__(PORT2_VECTOR)))
 port2_isr (void)
 {
 
@@ -85,7 +85,7 @@ extern unsigned char * 	__romdatastart;
 extern unsigned int 	__romdatacopysize;
 /*
 //ESCRIBIENDO EL VECTOR DE RESET //ESTA ES LA FORMA DE DEFINIR
-__attribute__((__interrupt__(RESET_VECTOR),naked)) //__attribute__((__interrupt__(RESET_VECTOR)))
+__attribute__((__interrupt_vec__(RESET_VECTOR),naked)) //__attribute__((__interrupt_vec__(RESET_VECTOR)))
 reset_vector (void)
 {
 	WDTCTL = WDTPW | WDTHOLD;		        // Stop watchdog timer
