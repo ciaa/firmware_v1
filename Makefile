@@ -1066,6 +1066,12 @@ rtostests:
 	@echo LOGFULL:$(OUT_DIR)$(DS)rtos$(DS)doc$(DS)ctest$(DS)ctestfull.log>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo TESTS:$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)cfg$(DS)ctestcases.cfg>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
 	@echo TESTCASES:$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)cfg$(DS)testcases.cfg>>$(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+
+ifeq ($(ARCH),msp430)
+#For MSP430 we will use directly the proxy for deal with all erasing/programming/debuggin the target for tests.
+	@echo GDBPROXY:$(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) >> $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf
+endif
+
 	$(ROOT_DIR)$(DS)modules$(DS)rtos$(DS)tst$(DS)ctest$(DS)bin$(DS)ctest.pl -f $(OUT_DIR)$(DS)doc$(DS)ctest$(DS)ctest.cnf $(RTOSTESTS_CTEST) $(RTOSTESTS_SUBTEST)
 
 ###############################################################################

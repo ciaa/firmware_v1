@@ -79,7 +79,7 @@
 #define const_sfrl(x,x_) const sfrl_(x,x_)
 
 #define __interrupt __attribute__((__interrupt__))
-#define __interrupt_vec(vec) __attribute__((interrupt(vec)))
+#define interrupt_vec(vec) __attribute__((interrupt(vec)))
 
 #endif /* defined(__ASSEMBLER__) */
 
