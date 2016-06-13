@@ -1,4 +1,4 @@
-/* Copyright 2016, Mariano cerdeiro
+/* Copyright 2016, Juan Cecconi
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,9 +31,11 @@
  *
  */
 
-/** \brief CIAA Eth Driver for x86
+#ifndef CIAADRIVERETH_INTERNAL_H
+#define CIAADRIVERETH_INTERNAL_H
+/** \brief CIAA Ethernet driver internal header file for x86
  **
- ** Implements the Eth Driver for x86
+ ** This files contains the internal header file of the CIAA Ethernet driver
  **
  **/
 
@@ -41,43 +43,31 @@
  ** @{ */
 /** \addtogroup Drivers CIAA Drivers
  ** @{ */
-/** \addtogroup ETH Eth Drivers
+/** \addtogroup ETH Ethernet Drivers
  ** @{ */
-
+ 
 /*==================[inclusions]=============================================*/
-#include "ciaaDriverEth.h"
-#include "ciaaDriverEth_Internal.h"
 
-/** from LWIP */
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
+/*==================[macros]=================================================*/
 
-/*==================[macros and definitions]=================================*/
+/*==================[typedef]================================================*/
 
-/*==================[internal data declaration]==============================*/
+/*==================[external data declaration]==============================*/
 
-/*==================[internal functions declaration]=========================*/
+/*==================[external functions declaration]=========================*/
 
-/*==================[internal data definition]===============================*/
-
-/*==================[external data definition]===============================*/
-
-/*==================[internal functions definition]==========================*/
-
-/*==================[external functions definition]==========================*/
-
-void ciaaDriverEth_init(void)
-{
-
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
 }
-
-void ciaaDriverEth_mainFunction(void)
-{
-
-}
-/*==================[interrupt handlers]=====================================*/
-
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+#endif /* #ifndef _CIAADRIVERETH_INTERNAL_H_ */
 

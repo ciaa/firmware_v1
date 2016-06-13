@@ -1,4 +1,5 @@
 /* Copyright 2016, Mariano cerdeiro
+ * Copyright 2016, Juan Cecconi
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,9 +32,9 @@
  *
  */
 
-/** \brief CIAA Eth Driver for x86
+/** \brief CIAA Eth Driver for k60_120
  **
- ** Implements the Eth Driver for x86
+ ** Implements the Eth Driver for k60_120
  **
  **/
 
