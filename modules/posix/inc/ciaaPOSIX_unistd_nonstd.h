@@ -1,8 +1,4 @@
 /* Copyright 2016, Diego Ezequiel Vommaro
- * Copyright 2014, Mariano Cerdeiro
- * Copyright 2014, Pablo Ridolfi
- * Copyright 2014, Juan Cecconi
- * Copyright 2014, Gustavo Muro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -35,22 +31,26 @@
  *
  */
 
-#ifndef SLEEPING_EXAMPLE_H
-#define SLEEPING_EXAMPLE_H
-/** \brief Sleeping_example example header file
+#ifndef CIAAPOSIX_UNISTD_NONSTD_H
+#define CIAAPOSIX_UNISTD_NONSTD_H
+/** \brief ciaa POSIX unistd non standard header file
  **
- ** This is a mini example of the CIAA Firmware
+ ** ciaa POSIX unistd non standard header file
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Examples CIAA Firmware Examples
- ** @{ */
-/** \addtogroup Blinking Blinking example header file
+/** \addtogroup POSIX POSIX Implementation
  ** @{ */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdint.h"
+
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*==================[macros]=================================================*/
 
@@ -59,10 +59,14 @@
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+extern void ciaaPOSIX_sleepMainFunction(void);
 
-/** @} doxygen end group definition */
+/*==================[cplusplus]==============================================*/
+#ifdef __cplusplus
+}
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef SLEEPING_EXAMPLE_H */
+#endif /* #ifndef CIAAPOSIX_UNISTD_NONSTD_H */
 

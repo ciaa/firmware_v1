@@ -43,7 +43,7 @@
 /** \addtogroup POSIX POSIX Implementation
  ** @{ */
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_unistd.h"
+#include "ciaaPOSIX_unistd_Internal.h"
 #include "ciaaPOSIX_assert.h"
 #include "Os_Internal.h"
 
@@ -60,13 +60,13 @@
 
 /*==================[internal data declaration]==============================*/
 /** \brief Remaining counts to wake up the next task */
-static uint32_t counts_to_wakeup;
+static ciaaPOSIX_counter_t ciaaPOSIX_next_to_wake;
 
 /** \brief Current counts */
-static uint32_t ciaaPOSIX_counter;
+static ciaaPOSIX_counter_t ciaaPOSIX_counter;
 
 /** task list where are allocated its sleeping state */
-static uint32_t ciaaPOSIX_sleeps[];
+static ciaaPOSIX_counter_t ciaaPOSIX_sleeps[];
 
 /*==================[internal functions declaration]=========================*/
 /** \brief ciaaPOSIX_sleepAlgorithm
@@ -79,9 +79,9 @@ static uint32_t ciaaPOSIX_sleeps[];
 static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
 
 /*==================[internal data definition]===============================*/
-static uint32_t counts_to_wakeup = 0;
-static uint32_t ciaaPOSIX_counter = 0;
-static uint32_t ciaaPOSIX_sleeps[TASKS_COUNT]={0};
+static ciaaPOSIX_counter_t ciaaPOSIX_next_to_wake = {0, 0};
+static ciaaPOSIX_counter_t ciaaPOSIX_counter = {0, 0};
+static ciaaPOSIX_counter_t ciaaPOSIX_sleeps[TASKS_COUNT]={0, 0};
 
 /*==================[external data definition]===============================*/
 
@@ -89,38 +89,31 @@ static uint32_t ciaaPOSIX_sleeps[TASKS_COUNT]={0};
 static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
 {
    TaskType taskID;
-   uint32_t aux_counter = getSleepingCounts(ciaaPOSIX_counter);
 
    /* Are there sleeping tasks? */
-   if(isTaskSleeping(ciaaPOSIX_counter))
+   if(ciaaPOSIX_counter.isCounting)
    {
-      if((counts_to_wakeup - aux_counter) > toSleep)
+      if((ciaaPOSIX_next_to_wake.counter - ciaaPOSIX_counter.counter) > toSleep)
       {
-         counts_to_wakeup = toSleep + aux_counter;
-
-         /* Remove status bit if any */
-         resetSleepingState(counts_to_wakeup);
+         ciaaPOSIX_next_to_wake.counter = toSleep + ciaaPOSIX_counter.counter;
       }
    }
    /* So, there is a sleeping task now */
    else
    {
-      setSleepingState(ciaaPOSIX_counter);
+      ciaaPOSIX_counter.isCounting = 1;
 
-      counts_to_wakeup = toSleep + aux_counter;
-
-      /* Remove status bit if any */
-      resetSleepingState(counts_to_wakeup);
+      ciaaPOSIX_next_to_wake.counter = toSleep + ciaaPOSIX_counter.counter;
    }
 
    /* Get task id */
    GetTaskID(&taskID);
 
-   /* Store counts */
-   ciaaPOSIX_sleeps[taskID] = (toSleep + aux_counter);
+   /* Set sleeping state for this task */
+   ciaaPOSIX_sleeps[taskID].isCounting = 1;
 
-   /* Set sleeping task state for this task */
-   setSleepingState(ciaaPOSIX_sleeps[taskID]);
+   /* Store counts */
+   ciaaPOSIX_sleeps[taskID].counter = (toSleep + ciaaPOSIX_counter.counter);
 
    /* wait for the posix event */
    WaitEvent(POSIXE);
@@ -178,42 +171,34 @@ extern int32_t ciaaPOSIX_usleep(useconds_t useconds)
 extern void ciaaPOSIX_sleepMainFunction(void)
 {
    uint32_t taskID;
-   uint32_t aux_counter;
-   uint32_t aux_task_counter = 0;
    uint32_t aux_distance = MAX_COUNTS;
 
    /* Are there sleeping tasks? */
-   if(isTaskSleeping(ciaaPOSIX_counter))
+   if(ciaaPOSIX_counter.isCounting)
    {
       /* Increment counter */
-      ciaaPOSIX_counter++;
-      /* Set sleeping state bit if there was overflow */
-      setSleepingState(ciaaPOSIX_counter);
-
-      /* Load sleeping counts */
-      aux_counter = getSleepingCounts(ciaaPOSIX_counter);
+      ciaaPOSIX_counter.counter++;
 
       /* Is it time to wake up? */
-      if(counts_to_wakeup == aux_counter)
+      if(ciaaPOSIX_next_to_wake.counter == ciaaPOSIX_counter.counter)
       {
-         /* Explore the task array to find task or tasks \
-            to wake up and the next counts to wake up if any */
+         /* Explore the task array to find tasks to wake up \
+            and the next counts to wake up if any */
          for(taskID = 0; TASKS_COUNT > taskID; taskID++)
          {
-            if (isTaskSleeping(ciaaPOSIX_sleeps[taskID]))
+            if (ciaaPOSIX_sleeps[taskID].isCounting)
             {
-               aux_task_counter = getSleepingCounts(ciaaPOSIX_sleeps[taskID]);
-               if(aux_counter == aux_task_counter)
+               if(ciaaPOSIX_counter.counter == ciaaPOSIX_sleeps[taskID].counter)
                {
-                  resetSleepingState(ciaaPOSIX_sleeps[taskID]);
+                  ciaaPOSIX_sleeps[taskID].isCounting = 0;
                   SetEvent(taskID, POSIXE);
                }
                else
                {
-                  if(aux_distance > (uint32_t)(aux_task_counter - aux_counter))
+                  if(aux_distance > (ciaaPOSIX_sleeps[taskID].counter - ciaaPOSIX_counter.counter))
                   {
-                     aux_distance = aux_task_counter - aux_counter;
-                     counts_to_wakeup = aux_task_counter;
+                     aux_distance = ciaaPOSIX_sleeps[taskID].counter - ciaaPOSIX_counter.counter;
+                     ciaaPOSIX_next_to_wake.counter = ciaaPOSIX_sleeps[taskID].counter;
                   }
                }
             }
@@ -221,7 +206,7 @@ extern void ciaaPOSIX_sleepMainFunction(void)
          /* there are not sleeping tasks */
          if (MAX_COUNTS == aux_distance)
          {
-            resetSleepingState(ciaaPOSIX_counter);
+            ciaaPOSIX_counter.isCounting = 0;
          }
       }
    }

@@ -44,7 +44,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "unity.h"
-#include "ciaaPOSIX_unistd.h"
+#include "ciaaPOSIX_unistd_Internal.h"
 #include "mock_os.h"
 #include "mock_ciaaPOSIX_stdio.h"
 #include "Os_Internal.h"

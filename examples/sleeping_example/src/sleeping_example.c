@@ -1,4 +1,9 @@
 /* Copyright 2016, Diego Ezequiel Vommaro
+ * Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
+ * Copyright 2014, Gustavo Muro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -137,7 +142,7 @@ TASK(InitTask)
    SetRelAlarm(ActivatePeriodicTask, 350, 10);
 
    /* Activates the Blinking task */
-   ActivateTask(BlinkingTask);
+   ActivateTask(BlinkingTask1);
 
    /* Activates the Blinking task 2 */
    ActivateTask(BlinkingTask2);
@@ -149,13 +154,12 @@ TASK(InitTask)
    TerminateTask();
 }
 
-/** \brief Blinking Task
+/** \brief Blinking Task 1
  *
- * This task is started automatically every time that the alarm
- * ActivatePeriodicTask expires.
+ * This task never terminates. Only sleeps and blink a led when wakes up
  *
  */
-TASK(BlinkingTask)
+TASK(BlinkingTask1)
 {
    uint8_t outputs;
 
@@ -177,10 +181,9 @@ TASK(BlinkingTask)
    TerminateTask();
 }
 
-/** \brief Blinking Task
+/** \brief Blinking Task 2
  *
- * This task is started automatically every time that the alarm
- * ActivatePeriodicTask expires.
+ * This task never terminates. Only sleeps and blink a led when wakes up
  *
  */
 TASK(BlinkingTask2)
@@ -205,10 +208,9 @@ TASK(BlinkingTask2)
    TerminateTask();
 }
 
-/** \brief Blinking Task
+/** \brief Blinking Task 3
  *
- * This task is started automatically every time that the alarm
- * ActivatePeriodicTask expires.
+ * This task never terminates. Only sleeps and blink a led when wakes up
  *
  */
 TASK(BlinkingTask3)

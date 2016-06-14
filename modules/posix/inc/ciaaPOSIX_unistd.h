@@ -46,7 +46,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
-#include "ciaaLibs_Maths.h"
+#include "ciaaPOSIX_unistd_nonstd.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -54,51 +54,6 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#define STATE_BIT 31
-#define SLEEPING_STATE_MASK (1 << STATE_BIT)
-#define MAX_COUNTS (~(SLEEPING_STATE_MASK))
-
-/** \brief Sets sleeping state of a task
- **
- ** \param[inout] var variable to set most significant bit
- **
- **/
-#define setSleepingState(var)       \
-   ciaaLibs_setBit(var, STATE_BIT)
-
-/** \brief Clears sleeping state of a task
- **
- ** \param[inout] var variable to reset most significant bit
- **
- **/
-#define resetSleepingState(var)     \
-   ciaaLibs_clearBit(var, STATE_BIT)
-
-/** \brief Get sleeping state of a task
- **
- ** \param[in] var variable to reset most significant bit
- ** \return The task state
- **/
-#define isTaskSleeping(var)       \
-   ((var) & SLEEPING_STATE_MASK)
-
-/** \brief Set sleeping counts of a task
- **
- ** \param[inout] var variable to set sleeping counts
- ** \param[in] counts counts to sleep
- **/
-#define setSleepingCounts(var, counts)       \
-   ( (var) &= SLEEPING_STATE_MASK )          \
-   ( (counts) &= (~SLEEPING_STATE_MASK) )    \
-   ( (var) |= (counts))
-
-/** \brief Get sleeping counts of a task
- **
- ** \param[in] var variable to get sleeping counts
- ** \return The sleeping counts
- **/
-#define getSleepingCounts(var)       \
-   ( (var) & (~SLEEPING_STATE_MASK) )
 
 /*==================[typedef]================================================*/
 /** \brief micro seconds type
