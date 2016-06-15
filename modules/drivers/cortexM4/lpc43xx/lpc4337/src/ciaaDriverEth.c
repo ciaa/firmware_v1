@@ -43,7 +43,7 @@
  ** @{ */
 /** \addtogroup ETH Eth Drivers
  ** @{ */
-
+#ifdef CIAA_NET_IP
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverEth.h"
 #include "chip.h"
@@ -184,7 +184,7 @@ void ciaaDriverEth_mainFunction(void)
 
 }
 /*==================[interrupt handlers]=====================================*/
-
+#endif
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
