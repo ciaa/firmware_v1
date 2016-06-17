@@ -146,7 +146,7 @@ void USCI_A_UART_enableInterrupt(uint16_t baseAddress,
 {
 	uint8_t locMask;
 
-	locMask = (mask & (USCI_A_UART_RECEIVE_INTERRUPT | USCI_A_UART_TRANSMIT_INTERRUPT));
+	locMask = (mask & (USCI_A_UART_RECEIVE_INTERRUPT | USCI_A_UART_TRANSMIT_INTERRUPT) );
 	HWREG8(baseAddress + OFS_UCAxIE) |= locMask;
 
 	locMask = (mask & (USCI_A_UART_RECEIVE_ERRONEOUSCHAR_INTERRUPT | USCI_A_UART_BREAKCHAR_INTERRUPT) );
@@ -158,13 +158,12 @@ void USCI_A_UART_disableInterrupt(uint16_t baseAddress,
 {
 	uint8_t locMask;
 
-	if(locMask = (mask & (USCI_A_UART_RECEIVE_INTERRUPT
-	                      | USCI_A_UART_TRANSMIT_INTERRUPT)))
+	if(locMask = (mask & (USCI_A_UART_RECEIVE_INTERRUPT | USCI_A_UART_TRANSMIT_INTERRUPT) ) )
 	{
 		HWREG8(baseAddress + OFS_UCAxIE) &= ~locMask;
 	}
 
-	if(locMask = (mask & (USCI_A_UART_RECEIVE_ERRONEOUSCHAR_INTERRUPT     | USCI_A_UART_BREAKCHAR_INTERRUPT) ))
+	if( ( locMask = (mask & (USCI_A_UART_RECEIVE_ERRONEOUSCHAR_INTERRUPT  | USCI_A_UART_BREAKCHAR_INTERRUPT ) ) ) )
 	{
 		HWREG8(baseAddress + OFS_UCAxCTL1) &= ~locMask;
 	}
