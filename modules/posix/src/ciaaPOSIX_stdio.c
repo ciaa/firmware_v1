@@ -40,6 +40,7 @@
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
+ ** @{ */
 /*==================[inclusions]=============================================*/
 #include "ciaak.h"            /* <= ciaa kernel header */
 #include "ciaaPlatforms.h"
@@ -333,4 +334,3 @@ extern int32_t ciaaPOSIX_printf(const char * format, ...)
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

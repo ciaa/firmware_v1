@@ -41,6 +41,7 @@
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
+ ** @{ */
 /*==================[inclusions]=============================================*/
 #include "ciaaMemory.h"
 
@@ -73,4 +74,3 @@ void ciaaMemory_SetFree (void (*pf) (void*))
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

@@ -41,6 +41,7 @@
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
+ ** @{ */
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_semaphore.h"
 
@@ -78,4 +79,3 @@ extern int8_t ciaaPOSIX_sem_post(sem_t * const sem)
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
