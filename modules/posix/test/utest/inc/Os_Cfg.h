@@ -65,6 +65,10 @@
 
 /** \brief Task Definition */
 #define dummyTask 0
+/** \brief Task Definition */
+#define dummyTask2 1
+/** \brief Task Definition */
+#define dummyTask3 2
 
 
 /** \brief Definition of the Event POSIXE */
@@ -161,6 +165,10 @@ extern void ErrorHook(void);
 
 /** \brief Task Declaration of Task dummyTask */
 DeclareTask(dummyTask);
+/** \brief Task Declaration of Task dummyTask2 */
+DeclareTask(dummyTask2);
+/** \brief Task Declaration of Task dummyTask3 */
+DeclareTask(dummyTask3);
 
 
 

@@ -1,4 +1,9 @@
 /* Copyright 2014, Mariano Cerdeiro
+ * Copyright 2014, Pablo Ridolfi
+ * Copyright 2014, Juan Cecconi
+ * Copyright 2014, Gustavo Muro
+ * Copyright 2016, Alvaro Alonso Bivou <alonso.bivou@gmail.com>
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,21 +35,39 @@
  *
  */
 
-#ifndef _CIAAPOSIX_ASSERT_H_
-#define _CIAAPOSIX_ASSERT_H_
-/** \brief ciaa POSIX assert header file
+#ifndef SIMONSAYS_H
+#define SIMONSAYS_H
+/** \brief Simon Says game implementation for EDU-CIAA
  **
- ** ciaa POSIX assert header file
- **
+ ** This is the Simon Says game. The light sequence must be 
+ ** replicated by the user pressing the buttons.
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Examples CIAA Firmware Examples
+ ** @{ */
+/** \addtogroup Game Simon example source file
  ** @{ */
 
+/*
+ * Initials     Name
+ * ---------------------------
+ * AA         Alvaro Alonso
+ */
+
+ /*
+ * modification history (new versions first)
+ * -----------------------------------------------------------
+ * 20160607 v0.0.1   AA   first functional version
+ */
+
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdio.h"
+#include "stdlib.h"			  /* <= standard library */
+#include "os.h"               /* <= operating system header */
+#include "ciaaPOSIX_stdio.h"  /* <= device handler header */
+#include "ciaak.h"            /* <= ciaa kernel header */
+#include "board.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -52,26 +75,36 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#define ciaaPOSIX__assert(file, line, expr)                                \
-   if ((expr)==0)                                                          \
-   {                                                                       \
-      (void)ciaaPOSIX_printf(ciaaPOSIX_assert_msg,                         \
-            (file), (line), #expr);                                        \
-      while(1==1);                                                         \
-   }
+/** \brief  RANDOM_SEQUENCE: choose if the sequence must be generated at random.
+ **/
+#define RANDOM_SEQUENCE true
+/** \brief REFRESH_RATE_INPUT_MS: (aka polling cycle) is the time 
+ ** in milliseconds in which the status of input buttons are 
+ ** actively sampled (polling).
+ **
+ ** Range: 50 ~ 100    
+ **/
+#define REFRESH_RATE_INPUT_MS 50
 
-/* UNITY_EXCLUDE_STDINT_H macro is used in Unit Test Enviroment */
-#ifdef CIAA_UNIT_TEST
-   void ciaaPOSIX_assert(int expr);
-#else
-#define ciaaPOSIX_assert(expr)                                             \
-   ciaaPOSIX__assert(__FILE__, __LINE__, (expr))
-#endif
+/** \brief REFRESH_RATE_OUTPUT_MS: is the time in milliseconds that
+ ** a given led will remain in its state until the next change. 
+ **
+ ** This value could became a variable in further versions
+ ** in order to speed up the sequence in higher levels of the game.
+ **/
+#define REFRESH_RATE_OUTPUT_MS 500
+
+/** \brief  START_DELAY_OUTPUT_MS: is the time in milliseconds for
+ ** the output task to start.
+ **/
+#define START_DELAY_OUTPUT_MS 350
 
 /*==================[typedef]================================================*/
+/** \brief Enum of states for the States Machine
+ */
+typedef enum {IDLE, START, SEQUENCE, LISTEN, INCREASE, FAIL} states;
 
 /*==================[external data declaration]==============================*/
-extern char const * const ciaaPOSIX_assert_msg;
 
 /*==================[external functions declaration]=========================*/
 
@@ -82,5 +115,5 @@ extern char const * const ciaaPOSIX_assert_msg;
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_ASSERT_H_ */
+#endif /* #ifndef SIMONSAYS_H */
 

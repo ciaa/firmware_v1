@@ -1,4 +1,6 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2016, Mariano cerdeiro
+ * Copyright 2016, Juan Cecconi
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,57 +32,53 @@
  *
  */
 
-#ifndef _CIAAPOSIX_ASSERT_H_
-#define _CIAAPOSIX_ASSERT_H_
-/** \brief ciaa POSIX assert header file
+/** \brief CIAA Eth Driver for k60_120
  **
- ** ciaa POSIX assert header file
+ ** Implements the Eth Driver for k60_120
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup ETH Eth Drivers
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdio.h"
+#include "ciaaDriverEth.h"
+#include "ciaaDriverEth_Internal.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/** from LWIP */
 
-/*==================[macros]=================================================*/
-#define ciaaPOSIX__assert(file, line, expr)                                \
-   if ((expr)==0)                                                          \
-   {                                                                       \
-      (void)ciaaPOSIX_printf(ciaaPOSIX_assert_msg,                         \
-            (file), (line), #expr);                                        \
-      while(1==1);                                                         \
-   }
 
-/* UNITY_EXCLUDE_STDINT_H macro is used in Unit Test Enviroment */
-#ifdef CIAA_UNIT_TEST
-   void ciaaPOSIX_assert(int expr);
-#else
-#define ciaaPOSIX_assert(expr)                                             \
-   ciaaPOSIX__assert(__FILE__, __LINE__, (expr))
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[typedef]================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[external data declaration]==============================*/
-extern char const * const ciaaPOSIX_assert_msg;
+/*==================[internal functions declaration]=========================*/
 
-/*==================[external functions declaration]=========================*/
+/*==================[internal data definition]===============================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[external data definition]===============================*/
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+
+void ciaaDriverEth_init(void)
+{
+
 }
-#endif
+
+void ciaaDriverEth_mainFunction(void)
+{
+
+}
+/*==================[interrupt handlers]=====================================*/
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_ASSERT_H_ */
 

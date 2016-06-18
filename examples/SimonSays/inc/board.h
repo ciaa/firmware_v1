@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2016, Alvaro Alonso Bivou <alonso.bivou@gmail.com>
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,50 +31,52 @@
  *
  */
 
-#ifndef _CIAAPOSIX_ASSERT_H_
-#define _CIAAPOSIX_ASSERT_H_
-/** \brief ciaa POSIX assert header file
+#ifndef BOARD_H
+#define BOARD_H
+/** \brief board description implementation for EDU-CIAA
  **
- ** ciaa POSIX assert header file
- **
+ ** This is used on the Simon Says game example.
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Examples CIAA Firmware Examples
+ ** @{ */
+/** \addtogroup Game Simon example source file
  ** @{ */
 
-/*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdio.h"
 
+/*==================[inclusions]=============================================*/
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /*==================[macros]=================================================*/
-#define ciaaPOSIX__assert(file, line, expr)                                \
-   if ((expr)==0)                                                          \
-   {                                                                       \
-      (void)ciaaPOSIX_printf(ciaaPOSIX_assert_msg,                         \
-            (file), (line), #expr);                                        \
-      while(1==1);                                                         \
-   }
+/** \brief definition for inputs, outputs and pwm devices for POSIX drivers*/
+#define INPUTS        "/dev/dio/in/0"
+#define OUTPUTS         "/dev/dio/out/0"
 
-/* UNITY_EXCLUDE_STDINT_H macro is used in Unit Test Enviroment */
-#ifdef CIAA_UNIT_TEST
-   void ciaaPOSIX_assert(int expr);
-#else
-#define ciaaPOSIX_assert(expr)                                             \
-   ciaaPOSIX__assert(__FILE__, __LINE__, (expr))
+#if (edu_ciaa_nxp == BOARD)
+/** board definition of EDU-CIAA */
+#define RGB_RED_LED    	0x01
+#define RGB_GREEN_LED   0x02
+#define RGB_BLUE_LED    0x04
+#define YELLOW_LED    	0x08
+#define RED_LED        	0x10
+#define GREEN_LED       0x20
+
+#define LED_			RGB_BLUE_LED
+#define ALL_LED			(RGB_BLUE_LED | YELLOW_LED | RED_LED | GREEN_LED)
+
+#define BUTTON_1		0x01
+#define BUTTON_2		0x02
+#define BUTTON_3		0x04
+#define BUTTON_4		0x08
+
+#define BUTTON_			BUTTON_1
+#define ANY_BUTTON		(BUTTON_1 | BUTTON_2 | BUTTON_3 | BUTTON_4)
+
 #endif
-
-/*==================[typedef]================================================*/
-
-/*==================[external data declaration]==============================*/
-extern char const * const ciaaPOSIX_assert_msg;
-
-/*==================[external functions declaration]=========================*/
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -82,5 +85,4 @@ extern char const * const ciaaPOSIX_assert_msg;
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_ASSERT_H_ */
-
+#endif /* #ifndef BOARD_H */

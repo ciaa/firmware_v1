@@ -1,6 +1,8 @@
 /* Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
+ * Copyright 2016, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -57,7 +59,7 @@ extern "C" {
 
 /*==================[typedef]================================================*/
 typedef struct {
-   uint8_t test;
+   uint8_t counter;
 } sem_t;
 
 /*==================[external data declaration]==============================*/
@@ -68,7 +70,11 @@ typedef struct {
  ** Performs the initialization of the semaphroe sem
  **
  ** \param[in] sem sempahore to be initialized
- ** \return a positive value if success, negative if an error occursdd
+ ** \return a positive value if success, negative if an error occurs.
+ **
+ ** \remakrs Is of semaphores is discourages in an OSEK environment. In an
+ **          OSEK-OS environment is better to use GetResource and
+ **          ReleaseResource interfaces.
  **/
 extern int8_t ciaaPOSIX_sem_init(sem_t * const sem);
 
@@ -78,6 +84,12 @@ extern int8_t ciaaPOSIX_sem_init(sem_t * const sem);
  **
  ** \param[inout] sem sempahore to wait for
  ** \return a possitive valie if success, negative if an erros occurs
+ **
+ ** \remakrs Is of semaphores is discourages in an OSEK environment. In an
+ **          OSEK-OS environment is better to use GetResource and
+ **          ReleaseResource interfaces.
+ **
+ ** \remarks Never use this interface from interrupt context.
  **/
 extern int8_t ciaaPOSIX_sem_wait(sem_t * const sem);
 
@@ -87,6 +99,12 @@ extern int8_t ciaaPOSIX_sem_wait(sem_t * const sem);
  **
  ** \param[inout] sem sempahore to be returned
  ** \return a possitive valie if success, negative if an erros occurs
+ **
+ ** \remakrs Is of semaphores is discourages in an OSEK environment. In an
+ **          OSEK-OS environment is better to use GetResource and
+ **          ReleaseResource interfaces.
+ **
+ ** \remarks Never use this interface from interrupt context.
  **/
 extern int8_t ciaaPOSIX_sem_post(sem_t * const sem);
 
