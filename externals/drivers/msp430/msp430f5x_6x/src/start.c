@@ -1,6 +1,12 @@
 #include "msp430.h"
-//#include <unistd.h>
 
+/*
+      static void __attribute__((naked, section(".crt_0001disable_watchdog"), used))
+      disable_watchdog (void)
+      {
+         WDTCTL = WDTPW | WDTHOLD;
+      }
+*/
 /*
 volatile unsigned char i;
 
@@ -20,3 +26,10 @@ void myctor(void) {
 
 void (*funcptr)(void)  __attribute__ ((section ( ".ctors"))) =myctor;
 */
+/*
+extern __bssstart;
+volatile unsigned short caca;
+void dummy_function()
+{
+     caca= __bssstart;
+}*/ //esto funciona
