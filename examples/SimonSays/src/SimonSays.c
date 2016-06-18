@@ -1,8 +1,8 @@
-/* Copyright 2016, Alvaro Alonso Bivou <alonso.bivou@gmail.com>
- * Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, Mariano Cerdeiro
  * Copyright 2014, Pablo Ridolfi
  * Copyright 2014, Juan Cecconi
  * Copyright 2014, Gustavo Muro
+ * Copyright 2016, Alvaro Alonso Bivou <alonso.bivou@gmail.com>
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
