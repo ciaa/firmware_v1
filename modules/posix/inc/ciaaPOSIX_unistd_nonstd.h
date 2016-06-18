@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2016, Diego Ezequiel Vommaro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,11 +31,11 @@
  *
  */
 
-#ifndef _CIAAPOSIX_ASSERT_H_
-#define _CIAAPOSIX_ASSERT_H_
-/** \brief ciaa POSIX assert header file
+#ifndef CIAAPOSIX_UNISTD_NONSTD_H
+#define CIAAPOSIX_UNISTD_NONSTD_H
+/** \brief ciaa POSIX unistd non standard header file
  **
- ** ciaa POSIX assert header file
+ ** ciaa POSIX unistd non standard header file
  **
  **/
 
@@ -44,7 +45,7 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdio.h"
+#include "ciaaPOSIX_stdint.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -52,28 +53,13 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#define ciaaPOSIX__assert(file, line, expr)                                \
-   if ((expr)==0)                                                          \
-   {                                                                       \
-      (void)ciaaPOSIX_printf(ciaaPOSIX_assert_msg,                         \
-            (file), (line), #expr);                                        \
-      while(1==1);                                                         \
-   }
-
-/* UNITY_EXCLUDE_STDINT_H macro is used in Unit Test Enviroment */
-#ifdef CIAA_UNIT_TEST
-   void ciaaPOSIX_assert(int expr);
-#else
-#define ciaaPOSIX_assert(expr)                                             \
-   ciaaPOSIX__assert(__FILE__, __LINE__, (expr))
-#endif
 
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
-extern char const * const ciaaPOSIX_assert_msg;
 
 /*==================[external functions declaration]=========================*/
+extern void ciaaPOSIX_sleepMainFunction(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -82,5 +68,5 @@ extern char const * const ciaaPOSIX_assert_msg;
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_ASSERT_H_ */
+#endif /* #ifndef CIAAPOSIX_UNISTD_NONSTD_H */
 

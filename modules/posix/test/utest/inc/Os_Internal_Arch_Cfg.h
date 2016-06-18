@@ -1,4 +1,11 @@
-/* Copyright 2014, Mariano Cerdeiro
+/********************************************************
+ * DO NOT CHANGE THIS FILE, IT IS GENERATED AUTOMATICALY*
+ ********************************************************/
+
+/* Copyright 2008, 2009 Mariano Cerdeiro
+ * Copyright 2014, ACSE & CADIEEL
+ *      ACSE: http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
+ *      CADIEEL: http://www.cadieel.org.ar
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,57 +37,57 @@
  *
  */
 
-#ifndef _CIAAPOSIX_ASSERT_H_
-#define _CIAAPOSIX_ASSERT_H_
-/** \brief ciaa POSIX assert header file
+#ifndef _OS_INTERNAL_ARCH_CFG_H_
+#define _OS_INTERNAL_ARCH_CFG_H_
+/** \brief FreeOSEK Os Generated Internal Architecture Configuration Header File
  **
- ** ciaa POSIX assert header file
+ ** This file content the internal generated architecture dependent
+ ** configuration of FreeOSEK Os.
  **
+ ** \file Os_Internal_Arch_Cfg.h
  **/
 
-/** \addtogroup CIAA_Firmware CIAA Firmware
+/** \addtogroup FreeOSEK
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup FreeOSEK_Os
+ ** @{ */
+/** \addtogroup FreeOSEK_Os_Internal
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdio.h"
-
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*==================[macros]=================================================*/
-#define ciaaPOSIX__assert(file, line, expr)                                \
-   if ((expr)==0)                                                          \
-   {                                                                       \
-      (void)ciaaPOSIX_printf(ciaaPOSIX_assert_msg,                         \
-            (file), (line), #expr);                                        \
-      while(1==1);                                                         \
-   }
-
-/* UNITY_EXCLUDE_STDINT_H macro is used in Unit Test Enviroment */
-#ifdef CIAA_UNIT_TEST
-   void ciaaPOSIX_assert(int expr);
-#else
-#define ciaaPOSIX_assert(expr)                                             \
-   ciaaPOSIX__assert(__FILE__, __LINE__, (expr))
-#endif
+#define INTERRUPTS_COUNT      32
 
 /*==================[typedef]================================================*/
+/** \brief Task Context Type */
+#if ( CPUTYPE == ia64 )
+typedef struct {
+   uint64 tss_rsp;
+   uint64 tss_rbp;
+   uint64 tss_rip;
+} TaskContextType;
+#elif ( CPUTYPE == ia32 )
+typedef struct {
+   uint32 tss_esp;
+   uint32 tss_ebp;
+   uint32 tss_eip;
+} TaskContextType;
+#endif
+
+/** \brief Task Context Type */
+typedef TaskContextType* TaskContextRefType;
+
+/** \brief InterruptType Type definition */
+typedef void (*InterruptType)(void);
 
 /*==================[external data declaration]==============================*/
-extern char const * const ciaaPOSIX_assert_msg;
+extern InterruptType InterruptTable[INTERRUPTS_COUNT];
 
 /*==================[external functions declaration]=========================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_ASSERT_H_ */
-
+#endif /* #ifndef _OS_INTERNAL_ARCH_CFG_H_ */

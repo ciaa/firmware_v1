@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2016, Diego Ezequiel Vommaro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,11 +31,11 @@
  *
  */
 
-#ifndef _CIAAPOSIX_ASSERT_H_
-#define _CIAAPOSIX_ASSERT_H_
-/** \brief ciaa POSIX assert header file
+#ifndef CIAAPOSIX_UNISTD_INTERNAL_H
+#define CIAAPOSIX_UNISTD_INTERNAL_H
+/** \brief ciaa POSIX unistd Internal header file
  **
- ** ciaa POSIX assert header file
+ ** ciaa POSIX unistd Internal header file
  **
  **/
 
@@ -44,7 +45,8 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdio.h"
+#include "ciaaPOSIX_unistd.h"
+#include "ciaaLibs_Maths.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -52,26 +54,66 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#define ciaaPOSIX__assert(file, line, expr)                                \
-   if ((expr)==0)                                                          \
-   {                                                                       \
-      (void)ciaaPOSIX_printf(ciaaPOSIX_assert_msg,                         \
-            (file), (line), #expr);                                        \
-      while(1==1);                                                         \
-   }
+/* Position of the state bit that indicates if the task is sleeping or not*/
+#define STATE_BIT 31
 
-/* UNITY_EXCLUDE_STDINT_H macro is used in Unit Test Enviroment */
-#ifdef CIAA_UNIT_TEST
-   void ciaaPOSIX_assert(int expr);
-#else
-#define ciaaPOSIX_assert(expr)                                             \
-   ciaaPOSIX__assert(__FILE__, __LINE__, (expr))
-#endif
+/* Bit mask used to set and reset sleeping state */
+#define SLEEPING_STATE_MASK (1 << STATE_BIT)
+
+/* Maximum counts for the counter */
+#define MAX_COUNTS (~(SLEEPING_STATE_MASK))
+
+/** \brief Sets sleeping state of a task
+ **
+ ** \param[inout] var variable to set most significant bit
+ **
+ **/
+#define setSleepingState(var)       \
+   ciaaLibs_setBit(var, STATE_BIT)
+
+/** \brief Clears sleeping state of a task
+ **
+ ** \param[inout] var variable to reset most significant bit
+ **
+ **/
+#define resetSleepingState(var)     \
+   ciaaLibs_clearBit(var, STATE_BIT)
+
+/** \brief Get sleeping state of a task
+ **
+ ** \param[in] var variable to reset most significant bit
+ ** \return The task state
+ **/
+#define isTaskSleeping(var)       \
+   ((var) & SLEEPING_STATE_MASK)
+
+/** \brief Set sleeping counts of a task
+ **
+ ** \param[inout] var variable to set sleeping counts
+ ** \param[in] counts counts to sleep
+ **/
+#define setSleepingCounts(var, counts)       \
+   ( (var) &= SLEEPING_STATE_MASK )          \
+   ( (counts) &= (~SLEEPING_STATE_MASK) )    \
+   ( (var) |= (counts))
+
+/** \brief Get sleeping counts of a task
+ **
+ ** \param[in] var variable to get sleeping counts
+ ** \return The sleeping counts
+ **/
+#define getSleepingCounts(var)       \
+   ( (var) & (~SLEEPING_STATE_MASK) )
 
 /*==================[typedef]================================================*/
+/** \brief The counters have 1 bit for state and 31 bits for counts */
+typedef struct ciaaPOSIX_counter_type
+{
+   uint32_t isCounting : 1;
+   uint32_t counter : 31;
+}ciaaPOSIX_counter_t;
 
 /*==================[external data declaration]==============================*/
-extern char const * const ciaaPOSIX_assert_msg;
 
 /*==================[external functions declaration]=========================*/
 
@@ -82,5 +124,5 @@ extern char const * const ciaaPOSIX_assert_msg;
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAAPOSIX_ASSERT_H_ */
+#endif /* #ifndef CIAAPOSIX_UNISTD_INTERNAL_H */
 
