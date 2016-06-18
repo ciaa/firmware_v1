@@ -53,3 +53,5 @@ ext_lwip_SRC_FILES += $(wildcard $(ext_lwip_SRC_PATH)$(DS)*.c)	\
    $(wildcard $(ext_lwip_SRC_PATH)$(DS)core$(DS)snmp$(DS)*.c)   \
    $(wildcard $(ext_lwip_SRC_PATH)$(DS)netif$(DS)*.c)
 
+# for ciaaDriverEth.h
+CFLAGS += -DCIAA_NET_IP

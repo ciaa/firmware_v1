@@ -53,6 +53,10 @@
 #include "ciaaDriverDio.h"
 #include "ciaaDriverEth.h"
 
+#ifndef CIAA_NET_IP
+  void ciaaDriverEth_init(void){ return ;}
+#endif
+
 #include "ciaaPOSIX_stdlib.h"
 
 /*==================[macros and definitions]=================================*/
