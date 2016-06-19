@@ -53,3 +53,6 @@ ext_lwip_SRC_FILES += $(wildcard $(ext_lwip_SRC_PATH)$(DS)*.c)	\
    $(wildcard $(ext_lwip_SRC_PATH)$(DS)core$(DS)snmp$(DS)*.c)   \
    $(wildcard $(ext_lwip_SRC_PATH)$(DS)netif$(DS)*.c)
 
+# Enable this feature in the ciaak
+CFLAGS += -DCIAA_CFG_NET_IP
+

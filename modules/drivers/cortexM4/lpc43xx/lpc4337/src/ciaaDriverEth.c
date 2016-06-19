@@ -45,6 +45,7 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
+#ifdef CIAA_CFG_NET_IP
 #include "ciaaDriverEth.h"
 #include "chip.h"
 
@@ -184,6 +185,12 @@ void ciaaDriverEth_mainFunction(void)
 
 }
 /*==================[interrupt handlers]=====================================*/
+
+#else /* #ifdef CIAA_CFG_NET_IP */
+/* some C compilers may have problems by compiling an empty file, this is not
+ * allowed in the standard */
+typedef unsigned char dummy;
+#endif /* #ifdef CIAA_CFG_NET_IP */
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
