@@ -50,7 +50,7 @@
 /*==================[inclusions]=============================================*/
 #include "Rtcs_Internal.h"
 <?php
-$pdefs = $config->getList("/RTCS","INCLUDE_FILE");
+$pdefs = $this->config->getList("/RTCS","INCLUDE_FILE");
 $count = 1;
 foreach ($pdefs as $pdef)
 {
@@ -75,7 +75,7 @@ foreach ($pdefs as $pdef)
 /*==================[external functions definition]==========================*/
 <?php
 /* get controllers */
-$controllers = $config->getList("/RTCS","StateFeedback");
+$controllers = $this->config->getList("/RTCS","StateFeedback");
 ?>
 <?php
 $count = 0;
@@ -83,7 +83,7 @@ foreach ($controllers as $controller)
 {
 ?>
 /* Public function that executes the controller of the <?=$controller;?> system */
-extern void Rtcs_<?=$controller;?>_<?=$config->getValue("/RTCS/" . $controller, "PERIOD")?>ms (void)
+extern void Rtcs_<?=$controller;?>_<?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>ms (void)
 {
    if(Rtcs_state == ACTIVE)
    {
@@ -101,11 +101,11 @@ foreach ($controllers as $controller)
 {
 ?>
 <?php
-$system_type = $config->getValue("/RTCS/" . $controller, "SYSTEM_TYPE");
+$system_type = $this->config->getValue("/RTCS/" . $controller, "SYSTEM_TYPE");
 if ($system_type == "CONTROL_SYSTEM"): ?>
 <?php
 $subcount = 0;
-$subcount_max = $config->getValue("/RTCS/" . $controller, "X_SIZE");
+$subcount_max = $this->config->getValue("/RTCS/" . $controller, "X_SIZE");
 while ($subcount < $subcount_max)
 {
 ?>
@@ -123,7 +123,7 @@ $subcount++;
 <?php endif ?>
 <?php
 $subcount = 0;
-$subcount_max = $config->getValue("/RTCS/" . $controller, "Y_SIZE");
+$subcount_max = $this->config->getValue("/RTCS/" . $controller, "Y_SIZE");
 while ($subcount < $subcount_max)
 {
 ?>
@@ -148,7 +148,7 @@ foreach ($controllers as $controller)
 {
 ?>
 /* Public function that executes the "worst case" of the controller of the <?=$controller;?> system */
-extern void Rtcs_WorstCase_<?=$controller;?>_<?=$config->getValue("/RTCS/" . $controller, "PERIOD")?>ms (void)
+extern void Rtcs_WorstCase_<?=$controller;?>_<?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>ms (void)
 {
    if(Rtcs_state == ACTIVE)
    {
