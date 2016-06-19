@@ -313,9 +313,10 @@ extern int vfs_node_free(vnode_t *node)
 
    if(NULL != node)
    {
-      ciaaPOSIX_memset(node, 0, sizeof(vnode_t));
+      //ciaaPOSIX_memset(node, 0, sizeof(vnode_t));
       ret = ciaaLibs_poolBufFree(&vfs_vnode_pool, node);
-      if(ret)
+      ASSERT_MSG(1 == ret, "vfs_node_free(): ciaaLibs_poolBufFree() failed");
+      if(1 != ret)
       {
          return -1;
       }
@@ -518,7 +519,8 @@ static int file_desc_destroy(file_desc_t *file_desc)
 
    index = file_desc->index;
    ret = ciaaLibs_poolBufFree(&vfs_fdesc_pool, file_desc_tab_p->table[index]);
-   if(ret)
+   ASSERT_MSG(1 == ret, "\tfile_desc_destroy(): ciaaLibs_poolBufFree() failed");
+   if(ret != 1)
    {
       return -1;
    }
@@ -618,7 +620,7 @@ extern int vfs_delete_child(vnode_t *child)
       /* Root inode. Cant delete it */
       return -1;
    }
-   /* Find previous sibling node (not a double-linked list :() */
+   /* Find previous sibling node (not a double-linked list :( ) */
    node_p = child->parent_node->child_node;   /* Head of children list */
    ASSERT_MSG(NULL != node_p, "vfs_delete_child(): Parent dont match child tree");
    if(NULL == node_p)
@@ -626,12 +628,14 @@ extern int vfs_delete_child(vnode_t *child)
       return -1;
    }
    auxnode_p = NULL;
+   /* node_p points to the head of the children list */
    while(node_p != child && NULL != node_p)
    {
       auxnode_p = node_p;
       node_p = node_p->sibling_node;
    }
    /* now auxnode_p points to the previous sibling of node_p */
+   ASSERT_MSG(NULL != node_p, "vfs_delete_child(): Parents dont match");
    if(NULL == node_p)
    {
       /* Could not find this node in the list of children of its own parent. Parents dont match, should never happen.
@@ -639,8 +643,13 @@ extern int vfs_delete_child(vnode_t *child)
        */
       return -1;
    }
-   auxnode_p->sibling_node = node_p->sibling_node;
+   if(auxnode_p == NULL)
+      /* Free head child */
+      child->parent_node->child_node = node_p->sibling_node;
+   else
+      auxnode_p->sibling_node = node_p->sibling_node;
    ret = vfs_node_free(child);
+   ASSERT_MSG(-1 < ret, "vfs_delete_child(): Couldnt free node");
    if(ret)
    {
       return -1;
@@ -996,13 +1005,14 @@ extern int ciaaFS_close(int fd)
 
    /* Get the file object from the file descriptor */
    file = file_desc_get(fd);
-   ASSERT_MSG(NULL != file, "read(): file_desc_get() failed");
+   ASSERT_MSG(NULL != file, "ciaaFS_close(): file_desc_get() failed");
    if(NULL == file)
    {
       /* Invalid file descriptor */
       return -1;
    }
    ret = file_desc_destroy(file);
+   ASSERT_MSG(0 == ret, "ciaaFS_close(): file_desc_destroy() failed");
    if(ret)
    {
       return -1;
@@ -1032,6 +1042,7 @@ extern ssize_t ciaaFS_read(int fd, void *buf, size_t nbytes)
    }
    /* Lower layer read operation */
    ret = file->node->fs_info.drv->driver_op->file_read(file, buf, nbytes);
+   ciaaPOSIX_printf("ciaaFS_read(): Expected to read %lu bytes, read %lu bytes\n", nbytes, ret);
    ASSERT_MSG(ret == nbytes, "read(): file_read() failed");
    if(ret != nbytes)
    {
@@ -1116,28 +1127,33 @@ extern int ciaaFS_unlink(const char *path)
 
    auxpath = (char *) path;
    ret = vfs_inode_search(&auxpath, &target_inode);   /* Return 0 if node found */
+   ASSERT_MSG(0 == ret, "unlink(): vfs_inode_search() failed");
    if(ret)
    {
       /* File not found */
       return -1;
    }
+   ASSERT_MSG(VFS_FTREG == target_inode->n_info.type, "unlink(): not a regular file");
    if(VFS_FTREG != target_inode->n_info.type)
    {
       /* Not a regular file, can not unlink */
       return -1;
    }
    driver = target_inode->fs_info.drv;
+   ASSERT_MSG(NULL != driver, "unlink(): driver not available");
    if(NULL == driver)
    {
       /*No driver. Fatal error*/
       return -1;
    }
+   ASSERT_MSG(NULL != driver->driver_op->fs_delete_node, "unlink(): delete op not available");
    if(NULL == driver->driver_op->fs_delete_node)
    {
       /*The filesystem driver does not support this method*/
       return -1;
    }
    ret = driver->driver_op->fs_delete_node(target_inode->parent_node, target_inode);
+   ASSERT_MSG(0 == ret, "unlink(): lower layer unlink failed");
    if(ret)
    {
       /* Filesystem op failed */
@@ -1145,6 +1161,7 @@ extern int ciaaFS_unlink(const char *path)
    }
    /* TODO: Remove node from vfs */
    ret = vfs_delete_child(target_inode);
+   ASSERT_MSG(0 == ret, "unlink(): vfs_delete_child() failed");
    if(ret)
    {
       /* Filesystem op failed */

@@ -236,10 +236,8 @@ TASK(InitTask)
    ASSERT_MSG(-1 < ret, "Trying to create dir3 failed");
 
    fd2 = ciaaFS_open("/mount/ext2/dir2/file2", VFS_O_CREAT);
-   ciaaPOSIX_printf("fd2: %d\n", fd2);
    ASSERT_MSG(-1 < fd2, "Trying to open file2 failed");
    fd3 = ciaaFS_open("/mount/ext2/dir2/file3", VFS_O_CREAT);
-   ciaaPOSIX_printf("fd3: %d\n", fd3);
    ASSERT_MSG(-1 < fd3, "Trying to open file3 failed");
 
    ret = ciaaFS_close(fd0);
@@ -268,24 +266,29 @@ TASK(InitTask)
 
    ciaaPOSIX_memset(buffer, 0, TEST_BUFFER_SIZE);
    lret = ciaaFS_read(fd0, buffer, TEST_BUFFER_SIZE);
-   ASSERT_MSG(lret==TEST_BUFFER_SIZE, "Trying to open file0 for read failed");
+   ASSERT_MSG(lret==TEST_BUFFER_SIZE, "Trying to read file0 failed");
 
    ret = test_check_buffer(buffer, TEST_BUFFER_SIZE);
-   ASSERT_MSG(lret==TEST_BUFFER_SIZE, "Trying to open file0 for read failed");
+   ASSERT_MSG(lret==TEST_BUFFER_SIZE, "read data corrupt");
 
    lret = ciaaFS_read(fd0, buffer, TEST_BUFFER_SIZE);
-   ASSERT_MSG(lret==0, "Read beyon file0 limits. Implementation error");
+   ASSERT_MSG(lret==0, "Read beyond file0 limits. Implementation error");
 
-   ShutdownOS(E_OK);
    ASSERT_SEQ(6);
 
-   lret = ciaaFS_read(fd2, buffer, 50);
-   ASSERT_MSG(50 == lret, "Trying to read blockdevice failed");
-   ciaaPOSIX_printf("Imprimo /mount/ext2/dir2/file2\n");
-   for(j=0; j<50; j++)
-      ciaaPOSIX_printf("%c",*((uint8_t *)buffer + j));
+   ret=vfs_print_tree();
+   ret = ciaaFS_close(fd0);
+   ASSERT_MSG(0 == ret, "Trying to close fd0 failed");
 
-   ASSERT_SEQ(7);
+   ret = ciaaFS_unlink("/mount/ext2/dir2/file2");
+   ASSERT_MSG(-1 < ret, "Trying to unlink file2 failed");
+   ret = ciaaFS_unlink("/mount/ext2/dir2/file3");
+   ASSERT_MSG(-1 < ret, "Trying to unlink file3 failed");
+   fd0 = ciaaFS_open("/mount/ext2/dir2/file4", VFS_O_CREAT);
+   ASSERT_MSG(-1 < fd0, "Trying to create file4 failed");
+   fd1 = ciaaFS_open("/mount/ext2/dir2/file5", VFS_O_CREAT);
+   ASSERT_MSG(-1 < fd1, "Trying to create file5 failed");
+   ret=vfs_print_tree();
    ShutdownOS(E_OK);
 
    /* terminate task */

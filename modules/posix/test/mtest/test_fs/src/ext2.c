@@ -121,13 +121,6 @@ static int ext2_dir_add_entry(vnode_t *node, uint32_t ino, char *name, uint16_t 
  **/
 static int ext2_dir_delete_entry(vnode_t *node, char *name, uint16_t namlen);
 
-/** \brief print information about the entries in a directory
- **
- ** \param[in] dir_node node whose contents are to be printed
- ** \return -1 if an error occurs, in other case 0
- **/
-static int ext2_dir_print(vnode_t *dir_node);
-
 /** \brief maps a block number in sequential file position to the corresponding disk block number
  **
  ** \param[in] dest_node node of file in which to map the block
@@ -415,6 +408,32 @@ static int ext2_umount(vnode_t *node);
  **/
 static int ext2_umount_subtree_rec(vnode_t *root);
 
+/** \brief Read data from an offset in a block device
+ **
+ ** read nbyte from the block device device in offset offset from the beginning
+ **
+ ** \param[in]  device  device to be read
+ ** \param[in]  buf     buffer to store the read data
+ ** \param[in]  offset  offset from the beginning of the device
+ ** \param[in]  nbyte   count of bytes to be read
+ ** \return     the count of bytes read
+ **/
+static ssize_t ext2_device_buf_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, off_t const offset,
+                                 size_t const nbyte);
+
+/** \brief Writes data to an offset of a block device
+ **
+ ** Writes nbyte to the file descriptor fildes from the buffer buf
+ **
+ ** \param[in]  device  device to be written
+ ** \param[in]  buf     buffer with the data to be written
+ ** \param[in]  offset  offset from the beginning of the device
+ ** \param[in]  nbyte   count of bytes to be written
+ ** \return     the count of bytes written
+ **/
+static ssize_t ext2_device_buf_write(ciaaDevices_deviceType const * const device, uint8_t * const buf, off_t const offset,
+                                 size_t const nbyte);
+
 /*==================[internal data definition]===============================*/
 
 /** \brief ext2 driver operations
@@ -471,13 +490,9 @@ static void assert_msg(int cond, char* msg, char * file, int line)
 int ext2_get_superblock(ciaaDevices_deviceType const * device, ext2_superblock_t * sb_p)
 {
    int32_t ret;
-   ret = ciaaBlockDevices_lseek(device, EXT2_SBOFF, SEEK_SET);
-   if(ret!=EXT2_SBOFF)
-   {
-      return -1;
-   }
-   ret = ciaaBlockDevices_read(device, (uint8_t *)sb_p, EXT2_SBSIZE);
-   if(ret!=EXT2_SBSIZE)
+
+   ret = ext2_device_buf_read(device, (uint8_t *)sb_p, EXT2_SBOFF, EXT2_SBSIZE);
+   if(ret)
    {
       return -1;
    }
@@ -586,16 +601,12 @@ static int ext2_read_inode(vnode_t *dest_node, uint32_t inumber)
    inode_offset = EXT2_SBOFF + ((((fsinfo->e2fs_gd)[inode_group]).inode_table)-1)*(fsinfo->s_block_size) +
          ((inumber-1)%fsinfo->e2sb.s_inodes_per_group)*(fsinfo->e2sb.s_inode_size);
 
-   ret = ciaaBlockDevices_lseek(bdev, inode_offset, SEEK_SET);
-   if(ret!=inode_offset)
+   ret = ext2_device_buf_read(bdev, (uint8_t *)ninfo, inode_offset, sizeof(ext2_inode_t));
+   if(ret)
    {
       return -1;
    }
-   ret = ciaaBlockDevices_read(bdev, (uint8_t *)ninfo, sizeof(ext2_inode_t));
-   if(ret!=sizeof(ext2_inode_t))
-   {
-      return -1;
-   }
+
    finfo->f_inumber = inumber;
    finfo->f_group = inode_group;
    ciaaPOSIX_memcpy(&(finfo->f_di), ninfo, sizeof(ext2_inode_t));
@@ -620,13 +631,8 @@ static int ext2_write_inode(vnode_t *node)
             ((finfo->f_inumber - 1) % fsinfo->e2sb.s_inodes_per_group) *   /* Offset inside the inode_table */
             fsinfo->e2sb.s_inode_size;
 
-   ret = ciaaBlockDevices_lseek(bdev, offset, SEEK_SET);
-   if(ret!=offset)
-   {
-      return -1;
-   }
-   ret = ciaaBlockDevices_write(bdev, (uint8_t *) &(finfo->f_di), sizeof(ext2_inode_t));
-   if(ret!=sizeof(ext2_inode_t))
+   ret = ext2_device_buf_write(bdev, (uint8_t *)&(finfo->f_di), offset, sizeof(ext2_inode_t));
+   if(ret)
    {
       return -1;
    }
@@ -634,6 +640,11 @@ static int ext2_write_inode(vnode_t *node)
    return 0;
 }
 
+/* Objetivo: Reemplazar todos los malloc con un buffer unico de 1KB.
+ * Problema: Si por ejemplo el bloque es de 2KB, los entries no estan alineados a 1KB, sino a 2KB
+ * Es decir, pueden aparecer entries que ocupen el final de un bloque de 1KB y el principio del otro
+ * Con un bloque de 1KB no puedo abarcar el entry entero. Tengo que buscar una solucion a eso.
+ */
 static int ext2_search_directory(vnode_t *dir_node, const char *dir_name, int length,
       uint32_t *inumber_p)
 {
@@ -693,47 +704,7 @@ static int ext2_search_directory(vnode_t *dir_node, const char *dir_name, int le
    return -1; /* Error, directory not found */
 }
 
-/* For debugging purposes */
-static int ext2_dir_print(vnode_t *dir_node)
-{
-   uint8_t *data_pointer;
-   int ret;
-   uint32_t lret; /* Big number return */
 
-   ext2_inode_t * ninfo;
-   ext2_file_info_t *finfo;
-   ext2_fs_info_t *fsinfo;
-
-   ninfo = (ext2_inode_t *)dir_node->n_info.down_layer_info;
-   finfo = (ext2_file_info_t *)dir_node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)dir_node->fs_info.down_layer_info;
-
-   ASSERT_MSG(NULL != ninfo && NULL != finfo && NULL != fsinfo, "ext2_dir_print(): El archivo no fue correctamente abierto");
-
-   if(NULL == ninfo || NULL == finfo || NULL == fsinfo)
-   {
-      return -1;
-   }
-   dir_node->f_info.file_pointer = finfo->f_pointer = 0;
-   data_pointer=(uint8_t*)ciaaPOSIX_malloc(fsinfo->s_block_size);/* FIXME: Malloc of entire file size. Not good */
-   if(NULL == data_pointer)
-   {
-      return -1;
-   }
-   ret = ext2_buf_read_file(dir_node, (uint8_t*)data_pointer, fsinfo->s_block_size, &lret);
-   if(ret)
-   {
-      ciaaPOSIX_free(data_pointer);
-      return -1;
-   }
-   if(lret!=finfo->f_di.i_size)
-   {
-      return -1;
-   }
-
-   ciaaPOSIX_free(data_pointer);
-   return 0; /* Error, directory not found */
-}
 
 static node_type_t ext2type_to_vfstype(uint8_t ext2_type)
 {
@@ -841,7 +812,7 @@ static int ext2_format(vnode_t *dev_node)
    superblock.s_state = 1;                /* File system state. EXT2_VALID_FS */
    superblock.s_errors = 1;               /* Behaviour when detecting errors. EXT2_ERRORS_CONTINUE */
    superblock.s_lastcheck = 0;         /* time of last check */
-   superblock.s_rev_level = 0;         /* Good old rev */
+   superblock.s_rev_level = 1;         /* Good old rev */
    superblock.s_first_ino = 11;         /* First non-reserved inode. EXT2_GOOD_OLD_FIRST_INO */
    superblock.s_inode_size = 128;           /* size of inode structure. EXT2_GOOD_OLD_INODE_SIZE */
    superblock.s_block_group_nr = 0;       /* block group # of this superblock */
@@ -939,10 +910,6 @@ static int ext2_format(vnode_t *dev_node)
 
       free_inodes_count += gd_buffer[group_index].free_inodes_count;
       gd_buffer[group_index].used_dirs_count = 0;
-      ciaaPOSIX_printf( "\nGroup descriptor #%d:\nfree_inodes_count:%d free_blocks_count:%d block_bitmap:%d inode_bitmap:%d inode_table:%d\n", group_index, gd_buffer[group_index].free_inodes_count,
-                        gd_buffer[group_index].free_blocks_count,
-                        gd_buffer[group_index].block_bitmap, gd_buffer[group_index].inode_bitmap,
-                        gd_buffer[group_index].inode_table);
    }
    /* These values change as new files are created */
    superblock.s_free_inodes_count = free_inodes_count;
@@ -956,34 +923,20 @@ static int ext2_format(vnode_t *dev_node)
        * Boot block dont count as group 1 block
        */
 
-      ret = ciaaBlockDevices_lseek(bdev, group_offset, SEEK_SET);
-      ASSERT_MSG(ret==group_offset, "ext2_format(): ciaaBlockDevices_lseek() failed");
-      if(ret!=group_offset)
+      ret = ext2_device_buf_write(bdev, (uint8_t *)&superblock, group_offset, sizeof(ext2_superblock_t));
+      if(ret)
       {
          ciaaPOSIX_free(gd_buffer);
          return -1;
       }
-      ret = ciaaBlockDevices_write(bdev, (uint8_t *)&superblock, sizeof(ext2_superblock_t));
-      ASSERT_MSG(ret==sizeof(ext2_superblock_t), "ext2_format(): ciaaBlockDevices_write() failed");
-      if(ret!=sizeof(ext2_superblock_t))
+
+      ret = ext2_device_buf_write(bdev, (uint8_t *)gd_buffer, group_offset + EXT2_SBSIZE, sizeof(ext2_gd_t)*ngroups);
+      if(ret)
       {
          ciaaPOSIX_free(gd_buffer);
          return -1;
       }
-      ret = ciaaBlockDevices_lseek(bdev, group_offset + EXT2_SBSIZE, SEEK_SET);
-      ASSERT_MSG(ret==group_offset + EXT2_SBSIZE, "ext2_format(): ciaaBlockDevices_lseek() failed");
-      if(ret!=group_offset+EXT2_SBSIZE)
-      {
-         ciaaPOSIX_free(gd_buffer);
-         return -1;
-      }
-      ret = ciaaBlockDevices_write(bdev, (uint8_t *)gd_buffer, sizeof(ext2_gd_t)*ngroups);
-      ASSERT_MSG(ret==sizeof(ext2_gd_t)*ngroups, "ext2_format(): ciaaBlockDevices_write() failed");
-      if(ret!=sizeof(ext2_gd_t)*ngroups)
-      {
-         ciaaPOSIX_free(gd_buffer);
-         return -1;
-      }
+
    }
    /* Now write block and inode bitmaps to disk */
    /* Alloc memory to cover 1 entire block */
@@ -1023,28 +976,13 @@ static int ext2_format(vnode_t *dev_node)
          setbit(bitmap_buffer,i);
       }
 
-      ret = ciaaBlockDevices_lseek(bdev, gd_buffer[group_index].block_bitmap * dev_bsize, SEEK_SET);
-      ASSERT_MSG(ret==gd_buffer[group_index].block_bitmap*dev_bsize, "ext2_format(): ciaaBlockDevices_lseek() failed");
-      if(ret!=gd_buffer[group_index].block_bitmap * dev_bsize)
+      ret = ext2_device_buf_write(bdev, (uint8_t *)bitmap_buffer, gd_buffer[group_index].block_bitmap * dev_bsize, dev_bsize);
+      if(ret)
       {
          ciaaPOSIX_free(bitmap_buffer);
          ciaaPOSIX_free(gd_buffer);
          return -1;
       }
-      ret = ciaaBlockDevices_write(bdev, (uint8_t *)bitmap_buffer, dev_bsize);
-      ASSERT_MSG(ret==dev_bsize, "ext2_format(): ciaaBlockDevices_write() failed");
-      if(ret!=dev_bsize)
-      {
-         ciaaPOSIX_free(bitmap_buffer);
-         ciaaPOSIX_free(gd_buffer);
-         return -1;
-      }
-   }
-
-   ciaaPOSIX_printf("\n\nBlock Bitmap\n");
-   for(i=0; i<dev_bsize; i++)
-   {
-      ciaaPOSIX_printf("%u:%02x ", i, bitmap_buffer[i]);
    }
 
    /* Inode bitmap */
@@ -1062,29 +1000,14 @@ static int ext2_format(vnode_t *dev_node)
          for (i = 0; i < EXT2_FIRSTINO; i++)
             setbit(bitmap_buffer, i);
       }
-
-      ret = ciaaBlockDevices_lseek(bdev, gd_buffer[group_index].inode_bitmap * dev_bsize, SEEK_SET);
-      ASSERT_MSG(ret==gd_buffer[group_index].inode_bitmap*dev_bsize, "ext2_format(): ciaaBlockDevices_lseek() failed");
-      if(ret!=gd_buffer[group_index].inode_bitmap * dev_bsize)
+      ret = ext2_device_buf_write(bdev, (uint8_t *)bitmap_buffer, gd_buffer[group_index].inode_bitmap*dev_bsize, dev_bsize);
+      if(ret)
       {
          ciaaPOSIX_free(bitmap_buffer);
          ciaaPOSIX_free(gd_buffer);
          return -1;
       }
-      ret = ciaaBlockDevices_write(bdev, (uint8_t *)bitmap_buffer, dev_bsize);
-      ASSERT_MSG(ret==dev_bsize, "ext2_format(): ciaaBlockDevices_write() failed");
-      if(ret!=dev_bsize)
-      {
-         ciaaPOSIX_free(bitmap_buffer);
-         ciaaPOSIX_free(gd_buffer);
-         return -1;
-      }
-   }
 
-   ciaaPOSIX_printf("\n\next2_format(): Inode Bitmap\n");
-   for(i=0; i<dev_bsize; i++)
-   {
-      ciaaPOSIX_printf("%u:%02x ", i, bitmap_buffer[i]);
    }
 
    /* Create root directory */
@@ -1100,17 +1023,8 @@ static int ext2_format(vnode_t *dev_node)
 
    /* Reserve free block in first group for root directory data */
    /* This block will be assigned to node.i_block[0] */
-   ret = ciaaBlockDevices_lseek(bdev, gd_buffer[0].block_bitmap * dev_bsize, SEEK_SET);   /*Block bitmap*/
-   ASSERT_MSG(ret==gd_buffer[0].block_bitmap*dev_bsize, "ext2_format(): ciaaBlockDevices_lseek() failed");
-   if(ret!=gd_buffer[0].block_bitmap*dev_bsize)
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      ciaaPOSIX_free(gd_buffer);
-      return -1;
-   }
-   ret = ciaaBlockDevices_read(bdev, (uint8_t *)bitmap_buffer, dev_bsize);
-   ASSERT_MSG(ret==dev_bsize, "ext2_format(): ciaaBlockDevices_read() failed");
-   if(ret!=dev_bsize)
+   ret = ext2_device_buf_read(bdev, (uint8_t *)bitmap_buffer, gd_buffer[0].block_bitmap*dev_bsize, dev_bsize);
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       ciaaPOSIX_free(gd_buffer);
@@ -1131,17 +1045,8 @@ static int ext2_format(vnode_t *dev_node)
       }
    }
    /* Write the modified bitmap to disk */
-   ret = ciaaBlockDevices_lseek(bdev, gd_buffer[0].block_bitmap * dev_bsize, SEEK_SET);   /*Block bitmap*/
-   ASSERT_MSG(ret==gd_buffer[0].block_bitmap*dev_bsize, "ext2_format(): ciaaBlockDevices_lseek() failed");
-   if(ret!=gd_buffer[0].block_bitmap*dev_bsize)
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      ciaaPOSIX_free(gd_buffer);
-      return -1;
-   }
-   ret = ciaaBlockDevices_write(bdev, (uint8_t *)bitmap_buffer, dev_bsize);
-   ASSERT_MSG(ret==dev_bsize, "ext2_format(): ciaaBlockDevices_write() failed");
-   if(ret!=dev_bsize)
+   ret = ext2_device_buf_write(bdev, (uint8_t *)bitmap_buffer, gd_buffer[0].block_bitmap*dev_bsize, dev_bsize);
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       ciaaPOSIX_free(gd_buffer);
@@ -1152,20 +1057,10 @@ static int ext2_format(vnode_t *dev_node)
    gd_buffer[0].free_blocks_count--;
    gd_buffer[0].free_inodes_count--;
    gd_buffer[0].used_dirs_count++;
-   ciaaPOSIX_printf("\next2_format(): Block #%d reserved\n", node.i_block[0]);
 
    /* Refresh book keeping data in group descriptor */
-   ret = ciaaBlockDevices_lseek(bdev, EXT2_GDOFF, SEEK_SET);   /* First group descriptor */
-   ASSERT_MSG(ret==EXT2_GDOFF, "ext2_format(): ciaaBlockDevices_lseek() failed");
-   if(ret!=EXT2_GDOFF)
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      ciaaPOSIX_free(gd_buffer);
-      return -1;
-   }
-   ret = ciaaBlockDevices_write(bdev, (uint8_t *)&gd_buffer[0], sizeof(ext2_gd_t));
-   ASSERT_MSG(ret==sizeof(ext2_gd_t), "ext2_format(): ciaaBlockDevices_write() failed");
-   if(ret!=sizeof(ext2_gd_t))
+   ret = ext2_device_buf_write(bdev, (uint8_t *)&gd_buffer[0], EXT2_GDOFF, sizeof(ext2_gd_t));
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       ciaaPOSIX_free(gd_buffer);
@@ -1173,19 +1068,9 @@ static int ext2_format(vnode_t *dev_node)
    }
 
    /* Fill root inode */
-   ret = ciaaBlockDevices_lseek(bdev, gd_buffer[0].inode_table * dev_bsize +
-         superblock.s_inode_size, SEEK_SET);   /* Second inode in table. ROOT INODE */
-   ASSERT_MSG(ret==gd_buffer[0].inode_table * dev_bsize + superblock.s_inode_size,
-               "ext2_format(): ciaaBlockDevices_lseek() failed");
-   if(ret!=gd_buffer[0].inode_table * dev_bsize + superblock.s_inode_size)
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      ciaaPOSIX_free(gd_buffer);
-      return -1;
-   }
-   ret = ciaaBlockDevices_write(bdev, (uint8_t *)&node, sizeof(ext2_inode_t));
-   ASSERT_MSG(ret==sizeof(ext2_inode_t), "ext2_format(): ciaaBlockDevices_write() failed");
-   if(ret!=sizeof(ext2_inode_t))
+   ret = ext2_device_buf_write(bdev, (uint8_t *)&node, gd_buffer[0].inode_table * dev_bsize +
+                               superblock.s_inode_size, sizeof(ext2_inode_t)); /* Second inode in table. ROOT INODE */
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       ciaaPOSIX_free(gd_buffer);
@@ -1201,26 +1086,8 @@ static int ext2_format(vnode_t *dev_node)
    dir.file_type = 2;
    ciaaPOSIX_strcpy(dir.name, ".");
 
-   ret = ciaaBlockDevices_lseek(bdev, node.i_block[0]*dev_bsize, SEEK_SET);   /* First entry, "." */
-   ASSERT_MSG(ret==node.i_block[0]*dev_bsize, "ext2_format(): ciaaBlockDevices_lseek() failed");
-   if(ret!=node.i_block[0]*dev_bsize)
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      ciaaPOSIX_free(gd_buffer);
-      return -1;
-   }
-   ret = ciaaBlockDevices_write(bdev, (uint8_t *)&dir, sizeof(ext2_direntry_t));
-   ASSERT_MSG(ret==sizeof(ext2_direntry_t), "ext2_format(): ciaaBlockDevices_write() failed");
-   if(ret!=sizeof(ext2_direntry_t))
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      ciaaPOSIX_free(gd_buffer);
-      return -1;
-   }
-
-   ret = ciaaBlockDevices_lseek(bdev, node.i_block[0]*dev_bsize + dir.rec_len, SEEK_SET);   /* Second entry, ".." */
-   ASSERT_MSG(ret==node.i_block[0]*dev_bsize+dir.rec_len, "ext2_format(): ciaaBlockDevices_lseek() failed");
-   if(ret!=node.i_block[0]*dev_bsize+dir.rec_len)
+   ret = ext2_device_buf_write(bdev, (uint8_t *)&dir, node.i_block[0]*dev_bsize, sizeof(ext2_direntry_t)); /* First entry, "." */
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       ciaaPOSIX_free(gd_buffer);
@@ -1234,9 +1101,8 @@ static int ext2_format(vnode_t *dev_node)
    dir.file_type = 2;
    ciaaPOSIX_strcpy(dir.name, "..");
 
-   ret = ciaaBlockDevices_write(bdev, (uint8_t *)&dir, sizeof(ext2_direntry_t));
-   ASSERT_MSG(ret==sizeof(ext2_direntry_t), "ext2_format(): ciaaBlockDevices_write() failed");
-   if(ret!=sizeof(ext2_direntry_t))
+   ret = ext2_device_buf_write(bdev, (uint8_t *)&dir, node.i_block[0]*dev_bsize+12, sizeof(ext2_direntry_t)); /* Second entry, ".." */
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       ciaaPOSIX_free(gd_buffer);
@@ -1272,7 +1138,7 @@ static int ext2_mount(vnode_t *dev_node, vnode_t *dest_node)
    {
       return -1;
    }
-   fsinfo=dest_node->fs_info.down_layer_info=(ext2_fs_info_t *)ciaaPOSIX_malloc(sizeof(ext2_fs_info_t));
+   fsinfo=dest_node->fs_info.down_layer_info=(ext2_fs_info_t *) ciaaPOSIX_malloc(sizeof(ext2_fs_info_t));
    ASSERT_MSG(NULL != fsinfo, "ext2_mount(): Mem error, could not alloc fsinfo");
    if(NULL == fsinfo)
    {
@@ -1298,17 +1164,8 @@ static int ext2_mount(vnode_t *dev_node, vnode_t *dest_node)
    {
       return -1;
    }
-   ret = ciaaBlockDevices_lseek(bdev, EXT2_GDOFF, SEEK_SET);
-   ASSERT_MSG(EXT2_GDOFF == ret, "ext2_mount(): lseek gd failed");
-   if(EXT2_GDOFF != ret)
-   {
-      ciaaPOSIX_free(fsinfo->e2fs_gd);
-      return -1;
-   }
-
-   ret = ciaaBlockDevices_read(bdev, (uint8_t *)fsinfo->e2fs_gd, fsinfo->s_groups_count*(sizeof(ext2_gd_t)));
-   ASSERT_MSG(ret==fsinfo->s_groups_count*(sizeof(ext2_gd_t)), "ext2_mount(): read gd failed");
-   if(ret!=fsinfo->s_groups_count*(sizeof(ext2_gd_t)))
+   ret = ext2_device_buf_read(bdev, (uint8_t *)fsinfo->e2fs_gd, EXT2_GDOFF, fsinfo->s_groups_count*(sizeof(ext2_gd_t)));
+   if(ret)
    {
       ciaaPOSIX_free(fsinfo->e2fs_gd);
       return -1;
@@ -1348,10 +1205,12 @@ static int ext2_delete_node(vnode_t *parent_node, vnode_t *child_node)
    if(VFS_FTDIR == child_node->n_info.type)
    {
       ret = ext2_delete_directory_file(parent_node, child_node);
+      ASSERT_MSG(-1 < ret, "ext2_delete_node(): ext2_delete_directory_file() failed");
    }
    else if(VFS_FTREG == child_node->n_info.type)
    {
       ret = ext2_delete_regular_file(parent_node,child_node);
+      ASSERT_MSG(-1 < ret, "ext2_delete_node(): ext2_delete_regular_file() failed");
    }
    else
    {
@@ -1502,15 +1361,11 @@ static size_t ext2_file_write(file_desc_t *desc, void *buf, size_t size)
          return 0;
       }
       /* write to current block */
-      ret = ciaaBlockDevices_lseek(bdev, (device_block<<(10+fsinfo->e2sb.s_log_block_size))+write_offset, SEEK_SET);
-      if(ret!=(device_block<<(10+fsinfo->e2sb.s_log_block_size))+write_offset)
+      ret = ext2_device_buf_write(bdev, (uint8_t *)buf + buf_pos,
+                                  (device_block<<(10+fsinfo->e2sb.s_log_block_size))+write_offset, write_size);
+      if(ret)
       {
-         return 0;
-      }
-      ret = ciaaBlockDevices_write(bdev, (uint8_t *)buf + buf_pos, write_size);
-      if(ret!=write_size)
-      {
-         return 0;
+         return -1;
       }
       /* update iterators */
       finfo->f_pointer += write_size;
@@ -1563,7 +1418,6 @@ static int ext2_buf_read_file(vnode_t * dest_node, uint8_t *buf, uint32_t size, 
    block_shift = (uint16_t)fsinfo->e2sb.s_log_block_size + 10;
    block_mask = (uint32_t)block_size-1;
    finfo->f_pointer = dest_node->f_info.file_pointer;
-   ciaaPOSIX_printf("ext2_buf_read_file(): Offset pointer: %u\n", finfo->f_pointer);
    file_block = finfo->f_pointer >> block_shift;
    block_offset = finfo->f_pointer & block_mask;
 
@@ -1609,21 +1463,13 @@ static int ext2_buf_read_file(vnode_t * dest_node, uint8_t *buf, uint32_t size, 
       else
          read_size = total_remainder_size;
 
-      ret = ciaaBlockDevices_lseek(device, device_offset, SEEK_SET);
-      if(ret!=device_offset)
+      ret = ext2_device_buf_read(device, (uint8_t *)(buf+buf_pos), device_offset, read_size);
+      if(ret)
       {
          if(NULL != total_read_size_p)
             *total_read_size_p = buf_pos;
          return -1;
       }
-      ret = ciaaBlockDevices_read(device, (uint8_t *)(buf+buf_pos), read_size);
-      if(ret!=read_size)
-      {
-         if(NULL != total_read_size_p)
-            *total_read_size_p = buf_pos;
-         return -1;
-      }
-
       buf_pos+=read_size;
       finfo->f_pointer+=read_size;
       total_remainder_size-=read_size;
@@ -1721,13 +1567,8 @@ static int ext2_block_map(const vnode_t * dest_node, uint32_t file_block, uint32
                         ((file_block & (((1<<shift_single_block_level)-1))<<(shift_block_level))
                         >> shift_block_level) * sizeof(uint32_t) );
 
-      ret = ciaaBlockDevices_lseek(device, index_offset, SEEK_SET);
-      if(ret!=index_offset)
-      {
-         return -1;
-      }
-      ret = ciaaBlockDevices_read(device, (uint8_t *)temp_block_num, sizeof(uint32_t));
-      if(ret!=sizeof(uint32_t))
+      ret = ext2_device_buf_read(device, (uint8_t *)temp_block_num, index_offset, sizeof(uint32_t));
+      if(ret)
       {
          return -1;
       }
@@ -1765,6 +1606,7 @@ static int ext2_mount_load(vnode_t *dir_node)
 
 
 /* Precondition: mount root inode must be initialized */
+/* FIXME: Use static memory. Eliminate malloc */
 static int ext2_mount_load_rec(vnode_t *dir_node)
 {
 
@@ -1781,8 +1623,7 @@ static int ext2_mount_load_rec(vnode_t *dir_node)
 
    /* Read directory entries from beginning */
    dir_node->f_info.file_pointer = finfo->f_pointer = 0;
-   ciaaPOSIX_printf("ext2_mount_load_rec: Pido %d bytes para el archivo\n", finfo->f_di.i_size);
-   data_pointer=(uint8_t*)ciaaPOSIX_malloc(finfo->f_di.i_size);
+   data_pointer=(uint8_t*) ciaaPOSIX_malloc(finfo->f_di.i_size);
    /* FIXME: Malloc of entire file size */
    ASSERT_MSG(NULL != data_pointer, "ext2_mount_load_rec(): Mem error");
    if(data_pointer == NULL)
@@ -1894,7 +1735,7 @@ static int ext2_create_regular_file(vnode_t *parent_node, vnode_t *node)
  */
 
    int ret;
-   uint32_t new_inumber;
+   uint32_t new_inumber, aux;
 
    ext2_inode_t * ninfo;
    ext2_file_info_t *finfo, *parent_finfo;
@@ -1904,7 +1745,7 @@ static int ext2_create_regular_file(vnode_t *parent_node, vnode_t *node)
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
 
    finfo = (ext2_file_info_t *) ciaaPOSIX_malloc(sizeof(ext2_file_info_t));
-   ASSERT_MSG(NULL != finfo, "Mem error");
+   ASSERT_MSG(NULL != finfo, "ext2_create_regular_file(): Mem error");
    if(NULL == finfo)
    {
       return -1;
@@ -1922,15 +1763,14 @@ static int ext2_create_regular_file(vnode_t *parent_node, vnode_t *node)
 
    /* Reserve a inode bit. This function modifies bookkeeping info on memory */
    ret = ext2_alloc_inode_bit(node, &new_inumber);
-   ASSERT_MSG(0 == ret, "ext2_alloc_inode_bit() failed");
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_alloc_inode_bit() failed");
    if(ret)
    {
       return -1;
    }
-
    /* Reserve a data block for the new node. This function modifies node on memory */
-   ret = ext2_file_map_alloc(node, 0, NULL);
-   ASSERT_MSG(0 == ret, "ext2_file_map_alloc() failed");
+   ret = ext2_file_map_alloc(node, 0, &aux);
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_file_map_alloc() failed");
    if(ret)
    {
       return -1;
@@ -1942,21 +1782,9 @@ static int ext2_create_regular_file(vnode_t *parent_node, vnode_t *node)
    finfo->f_di.i_ctime = 0;
    finfo->f_di.i_flags = 0;
 
-   ret = ext2_dir_print(parent_node);
-   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): El archivo no fue correctamente abierto");
-   if(ret)
-   {
-      return -1;
-   }
    /* Add new entry in parent dir data.  This function modifies node, gd & sb if new block reserved */
    ret = ext2_dir_add_entry(parent_node, new_inumber, node->f_info.file_name, node->f_info.file_namlen, EXT2_FT_REG_FILE);
-   ASSERT_MSG(0 == ret, "ext2_dir_add_entry() failed");
-   if(ret)
-   {
-      return -1;
-   }
-   ret = ext2_dir_print(parent_node);
-   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): El archivo no fue correctamente abierto");
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_dir_add_entry() failed");
    if(ret)
    {
       return -1;
@@ -1967,27 +1795,27 @@ static int ext2_create_regular_file(vnode_t *parent_node, vnode_t *node)
    parent_finfo->f_di.i_links_count++;
    /* Write inode in its disk position */
    ret = ext2_write_inode(node);
-   ASSERT_MSG(0 == ret, "ext2_write_inode() failed");
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_write_inode() failed");
    if(ret)
    {
       return -1;
    }
    /* Write modified parent node to disk */
    ret = ext2_write_inode(parent_node);
-   ASSERT_MSG(0 == ret, "ext2_write_inode() failed");
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_write_inode() failed");
    if(ret)
    {
       return -1;
    }
    ret = ext2_write_inode(node);
-   ASSERT_MSG(0 == ret, "ext2_write_inode() failed");
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_write_inode() failed");
    if(ret)
    {
       return -1;
    }
    /* Write to disk the modified sb and gd */
    ret = ext2_fsinfo_flush(node);
-   ASSERT_MSG(0 == ret, "ext2_fsinfo_flush() failed");
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_fsinfo_flush() failed");
    if(ret)
    {
       return -1;
@@ -2013,19 +1841,22 @@ static int ext2_delete_regular_file(vnode_t *parent_node, vnode_t *node)
    for(fblock = 0; fblock <= file_blocks; fblock++)
    {
       ret = ext2_block_map(node, fblock, &device_block);
+      ASSERT_MSG(0 == ret, "ext2_delete_regular_file(): ext2_block_map() failed");
       if(ret)
       {
          return -1;
       }
       ret = ext2_dealloc_block_bit(node, device_block);
+      ASSERT_MSG(0 == ret, "ext2_delete_regular_file(): ext2_dealloc_block_bit() failed");
       if(ret)
       {
          return -1;
       }
    }
+
    /* clear inode in inode table */
-   ciaaPOSIX_memset(&(finfo->f_di), 0, sizeof(ext2_inode_t));
    ret = ext2_dir_delete_entry(parent_node, node->f_info.file_name, node->f_info.file_namlen);
+   ASSERT_MSG(0 == ret, "ext2_delete_regular_file(): ext2_dir_delete_entry() failed");
    if(ret)
    {
       return -1;
@@ -2033,24 +1864,29 @@ static int ext2_delete_regular_file(vnode_t *parent_node, vnode_t *node)
    parent_finfo->f_di.i_links_count--;
    /* dealloc bit in inode bitmap */
    ret = ext2_dealloc_inode_bit(node);
+   ASSERT_MSG(0 == ret, "ext2_delete_regular_file(): ext2_dealloc_inode_bit() failed");
    if(ret)
    {
       return -1;
    }
    /* Write parent node to disk */
    ret = ext2_write_inode(parent_node);
+   ASSERT_MSG(0 == ret, "ext2_delete_regular_file(): ext2_write_inode() failed");
    if(ret)
    {
       return -1;
    }
    /* Erase on-disk node, which means, clear all bits in its memory space */
+   ciaaPOSIX_memset(&(finfo->f_di), 0, sizeof(ext2_inode_t));
    ret = ext2_write_inode(node);
+   ASSERT_MSG(0 == ret, "ext2_delete_regular_file(): ext2_write_inode() failed");
    if(ret)
    {
       return -1;
    }
    /* Write modified sb & gd */
    ret = ext2_fsinfo_flush(node);
+   ASSERT_MSG(0 == ret, "ext2_delete_regular_file(): ext2_fsinfo_flush() failed");
    if(ret)
    {
       return -1;
@@ -2075,7 +1911,7 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
  * 7.Refresh bookkeeping info in superblock and group descriptor
  */
    int ret;
-   uint32_t new_inumber;
+   uint32_t new_inumber, aux;
 
    ext2_inode_t * ninfo;
    ext2_file_info_t *finfo, *parent_finfo;
@@ -2107,7 +1943,7 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
    {
       return -1;
    }
-   ret = ext2_file_map_alloc(node, 0, NULL);
+   ret = ext2_file_map_alloc(node, 0, &aux);
    if(ret)
    {
       return -1;
@@ -2279,17 +2115,10 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
    }
 
    /* Read node bitmap to bitmap_buffer */
-   ret = ciaaBlockDevices_lseek(bdev, (fsinfo->e2fs_gd[group_index].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size),
-         SEEK_SET);
-   ASSERT_MSG(ret == (fsinfo->e2fs_gd[group_index].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size), "ext2_alloc_inode_bit(): ciaaBlockDevices_lseek() failed");
-   if(ret!=(fsinfo->e2fs_gd[group_index].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size))
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      return -1;
-   }
-   ret = ciaaBlockDevices_read(bdev, (uint8_t *)bitmap_buffer, fsinfo->s_block_size);
-   ASSERT_MSG(ret == fsinfo->s_block_size, "ext2_alloc_inode_bit(): ciaaBlockDevices_read() failed");
-   if(ret != fsinfo->s_block_size)
+   ret = ext2_device_buf_read(bdev, (uint8_t *)bitmap_buffer,
+                              (fsinfo->e2fs_gd[group_index].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size),
+                              fsinfo->s_block_size);
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       return -1;
@@ -2325,17 +2154,10 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
     */
    *new_inumber_p = group_index * fsinfo->e2sb.s_inodes_per_group + n + 1;
    /* Write modified bitmap to disk */
-   ret = ciaaBlockDevices_lseek(bdev, (fsinfo->e2fs_gd[group_index].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size),
-         SEEK_SET);
-   ASSERT_MSG(ret == (fsinfo->e2fs_gd[group_index].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size), "ext2_alloc_inode_bit(): ciaaBlockDevices_lseek() failed");
-   if(ret != (fsinfo->e2fs_gd[group_index].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size))
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      return -1;
-   }
-   ret = ciaaBlockDevices_write(bdev, (uint8_t *)bitmap_buffer, fsinfo->s_block_size);
-   ASSERT_MSG(ret == fsinfo->s_block_size, "ext2_alloc_inode_bit(): ciaaBlockDevices_write() failed");
-   if(ret!=fsinfo->s_block_size)
+   ret = ext2_device_buf_write(bdev, (uint8_t *)bitmap_buffer,
+                              (fsinfo->e2fs_gd[group_index].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size),
+                              fsinfo->s_block_size);
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       return -1;
@@ -2353,7 +2175,7 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
 static int ext2_dealloc_inode_bit(vnode_t *node)
 {
    int ret;
-   uint32_t n;
+   uint32_t n, i;
    uint8_t *bitmap_buffer;
 
    ciaaDevices_deviceType const *bdev;
@@ -2372,34 +2194,25 @@ static int ext2_dealloc_inode_bit(vnode_t *node)
    }
 
    /* Read bitmap to bitmap_buffer */
-   ret = ciaaBlockDevices_lseek(bdev, (fsinfo->e2fs_gd[finfo->f_group].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size),
-         SEEK_SET);
-   if(ret!=(fsinfo->e2fs_gd[finfo->f_group].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size))
+   ret = ext2_device_buf_read(bdev, (uint8_t *)bitmap_buffer,
+                              (fsinfo->e2fs_gd[finfo->f_group].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size),
+                              fsinfo->s_block_size);
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       return -1;
    }
-   ret = ciaaBlockDevices_read(bdev, (uint8_t *)bitmap_buffer, fsinfo->s_block_size);
-   if(ret!=fsinfo->s_block_size)
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      return -1;
-   }
+
    /* n is the node number relative to the current group descriptor.
     * Must deallocate bit n of current group descriptors node bimap
     */
    n = finfo->f_inumber - (finfo->f_group * fsinfo->e2sb.s_inodes_per_group) - 1;
    clrbit(bitmap_buffer, n);
    /* Write modified bitmap to disk */
-   ret = ciaaBlockDevices_lseek(bdev, (fsinfo->e2fs_gd[finfo->f_group].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size),
-         SEEK_SET);
-   if(ret != (fsinfo->e2fs_gd[finfo->f_group].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size))
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      return -1;
-   }
-   ret = ciaaBlockDevices_write(bdev, (uint8_t *)bitmap_buffer, fsinfo->s_block_size);
-   if(ret != fsinfo->s_block_size)
+   ret = ext2_device_buf_write(bdev, (uint8_t *)bitmap_buffer,
+                              (fsinfo->e2fs_gd[finfo->f_group].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size),
+                              fsinfo->s_block_size);
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       return -1;
@@ -2415,11 +2228,12 @@ static int ext2_dealloc_inode_bit(vnode_t *node)
 
 
 /* TODO: Validate arguments */
+/*FIXME: Borro el bloque determinado por el numero contenido en new_block. Pero new_block puede no estar inicializado */
 static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *device_block_p)
 {
    int ret;
    uint32_t block_pos, new_block, temp_block_num, index_offset;
-   uint8_t shift_block_level, shift_single_block_level, block_level;
+   uint8_t shift_block_level, shift_single_block_level, block_level, flag_new_block;
    uint8_t *block_buffer;
 
    ciaaDevices_deviceType const *bdev;
@@ -2430,12 +2244,11 @@ static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *dev
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
    fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
 
-   if(NULL != device_block_p)
-   {
-      *device_block_p = 0;
-   }
+   if(NULL == device_block_p)
+      return -1;
+   flag_new_block = 0;   /* To tell if a new file block is being allocated */
+   *device_block_p = 0;
    block_pos = file_block;
-   ciaaPOSIX_printf("ext2_file_map_alloc(): Map block #%u of file in node %u\n", file_block, finfo->f_inumber);
    if (block_pos < N_DIRECT_BLOCKS)
    {
       if(0 == finfo->f_di.i_block[block_pos])
@@ -2448,108 +2261,97 @@ static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *dev
          }
          finfo->f_di.i_block[block_pos] = new_block;
          finfo->f_di.i_blocks += fsinfo->sectors_in_block;
+         flag_new_block = 1;
       }
-      if(NULL != device_block_p)
-      {
-         *device_block_p = finfo->f_di.i_block[block_pos];
-      }
-      block_buffer = ciaaPOSIX_malloc(fsinfo->s_block_size);
-      if(NULL == block_buffer)
-      {
-         return -1;
-      }
-      ciaaPOSIX_memset(block_buffer, 0, fsinfo->s_block_size);
-      ret = ciaaBlockDevices_lseek(bdev, new_block<<(10+fsinfo->e2sb.s_log_block_size), SEEK_SET);
-      if(ret!=new_block<<(10+fsinfo->e2sb.s_log_block_size))
-      {
-         ciaaPOSIX_free(block_buffer);
-         return -1;
-      }
-      ret = ciaaBlockDevices_write(bdev, (uint8_t *)block_buffer, fsinfo->s_block_size);
-      if(ret!=fsinfo->s_block_size)
-      {
-         ciaaPOSIX_free(block_buffer);
-         return -1;
-      }
-      ciaaPOSIX_free(block_buffer);
-      return 0;
+      *device_block_p = finfo->f_di.i_block[block_pos];
    }
-   /*
-    * 0:EXT2_DIR_BLOCK-1
-    * EXT2_DIR_BLOCK:EXT2_DIR_BLOCK+(1<<shift_single_block_level)-1
-    * EXT2_DIR_BLOCK+(1<<shift_single_block_level):EXT2_DIR_BLOCK+(1<<shift_single_block_level)+(1<<2*(shift_single_block_level))-1
-    * EXT2_DIR_BLOCK+(1<<shift_single_block_level)+(1<<2*(shift_single_block_level))-1:
-    * EXT2_DIR_BLOCK+(1<<shift_single_block_level)+(1<<2*(shift_single_block_level))+(1<<3*(shift_single_block_level))-1
-    */
-   /* Wanto to calculate shift_block_level */
-   shift_single_block_level = 256-1;
-   block_pos -= N_DIRECT_BLOCKS;
-   for (   shift_block_level=0, block_level=1;
-      block_pos >= (int32_t)1<<(shift_single_block_level+shift_block_level);
-      block_pos -= (int32_t)1<<(shift_single_block_level+shift_block_level),
-      shift_block_level += shift_single_block_level, block_level++)
+   else
    {
-      if (block_level > N_INDIRECT_BLOCKS)
+      /*
+       * 0:EXT2_DIR_BLOCK-1
+       * EXT2_DIR_BLOCK:EXT2_DIR_BLOCK+(1<<shift_single_block_level)-1
+       * EXT2_DIR_BLOCK+(1<<shift_single_block_level):EXT2_DIR_BLOCK+(1<<shift_single_block_level)+(1<<2*(shift_single_block_level))-1
+       * EXT2_DIR_BLOCK+(1<<shift_single_block_level)+(1<<2*(shift_single_block_level))-1:
+       * EXT2_DIR_BLOCK+(1<<shift_single_block_level)+(1<<2*(shift_single_block_level))+(1<<3*(shift_single_block_level))-1
+       */
+      /* Wanto to calculate shift_block_level */
+      shift_single_block_level = 8;   /* 1<<8 == 256. 256 entries each block */
+      block_pos -= N_DIRECT_BLOCKS;
+      for (   shift_block_level=0, block_level=1;
+         block_pos >= (int32_t)1<<(shift_single_block_level+shift_block_level);
+         block_pos -= (int32_t)1<<(shift_single_block_level+shift_block_level),
+         shift_block_level += shift_single_block_level, block_level++)
       {
-         *device_block_p = 0;
-         return -1;
+         if (block_level > N_INDIRECT_BLOCKS)
+         {
+            *device_block_p = 0;
+            return -1;
+         }
       }
-   }
-
-   temp_block_num = finfo->f_di.i_block[N_DIRECT_BLOCKS - 1 + block_level];
-   if (0 == temp_block_num)
-   {
-      ret = ext2_alloc_block_bit(node, &temp_block_num);
-      if(ret)
-      {
-         *device_block_p = 0;
-         return -1;
-      }
-      finfo->f_di.i_block[N_DIRECT_BLOCKS - 1 + block_level] = temp_block_num;
-      finfo->f_di.i_blocks += fsinfo->sectors_in_block;
-   }
-   /* block_level will tell the indirection level. shift_block_level is the shift of the mask */
-   for (;block_level;block_level--)
-   {
-      /* Calculate offset of the indirect block number contained in the current indirect block */
-      index_offset =   (temp_block_num << (10+fsinfo->e2sb.s_log_block_size)) + (
-                       block_pos & (( ((1<<shift_single_block_level)-1) << shift_block_level)
-                       >> shift_block_level) * sizeof(uint32_t));
-      /* Read next indirection levels block */
-      ret = ciaaBlockDevices_lseek(bdev, index_offset, SEEK_SET);
-      if(ret!=index_offset)
-      {
-         *device_block_p = 0;
-         return -1;
-      }
-      ret = ciaaBlockDevices_read(bdev, (uint8_t *)temp_block_num, sizeof(uint32_t));
-      if(ret!=sizeof(uint32_t))
-      {
-         *device_block_p = 0;
-         return -1;
-      }
-      /* Block number was not allocated. Allocate a block and write its number in the found position */
+   
+      temp_block_num = finfo->f_di.i_block[N_DIRECT_BLOCKS - 1 + block_level];
       if (0 == temp_block_num)
       {
          ret = ext2_alloc_block_bit(node, &temp_block_num);
          if(ret)
          {
+            *device_block_p = 0;
             return -1;
          }
-         ret = ciaaBlockDevices_lseek(bdev, index_offset, SEEK_SET);
-         if(ret != index_offset)
+         finfo->f_di.i_block[N_DIRECT_BLOCKS - 1 + block_level] = temp_block_num;
+         finfo->f_di.i_blocks += fsinfo->sectors_in_block;
+      }
+      /* block_level will tell the indirection level. shift_block_level is the shift of the mask */
+      for (;block_level;block_level--)
+      {
+         /* Calculate offset of the indirect block number contained in the current indirect block */
+         index_offset =   (temp_block_num << (10+fsinfo->e2sb.s_log_block_size)) +
+                          (( block_pos & (/*Mask*/((1<<shift_single_block_level)-1) << shift_block_level/*/Mask*/) )
+                          >> shift_block_level) * sizeof(uint32_t);
+         /* Read next indirection levels block */
+         ret = ext2_device_buf_read(bdev, (uint8_t *)temp_block_num, index_offset, sizeof(uint32_t));
+         if(ret)
          {
             *device_block_p = 0;
             return -1;
          }
-         ret = ciaaBlockDevices_write(bdev, (uint8_t *)temp_block_num, sizeof(uint32_t));
-         if(ret != sizeof(uint32_t))
+         /* Block number was not allocated. Allocate a block and write its number in the found position */
+         if (0 == temp_block_num)
          {
-            *device_block_p = 0;
-            return -1;
+            ret = ext2_alloc_block_bit(node, &temp_block_num);
+            if(ret)
+            {
+               return -1;
+            }
+            ret = ext2_device_buf_write(bdev, (uint8_t *)temp_block_num, index_offset, sizeof(uint32_t));
+            if(ret)
+            {
+               *device_block_p = 0;
+               return -1;
+            }
+            flag_new_block = 1;
          }
       }
    }
+   if(1 == flag_new_block)
+   {
+      /* Erase the contents of the new reserved block */
+      block_buffer = (uint8_t *) ciaaPOSIX_malloc(fsinfo->s_block_size);
+      if(NULL == block_buffer)
+      {
+         return -1;
+      }
+      ciaaPOSIX_memset(block_buffer, 0, fsinfo->s_block_size);
+      ret = ext2_device_buf_write(bdev, (uint8_t *)block_buffer, new_block<<(10+fsinfo->e2sb.s_log_block_size),
+                                    fsinfo->s_block_size);
+      if(ret)
+      {
+         ciaaPOSIX_free(block_buffer);
+         return -1;
+      }
+      ciaaPOSIX_free(block_buffer);
+   }
+
    return 0;
 }
 
@@ -2579,16 +2381,11 @@ static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block)
       return -1;
    }
 
-   /* Read bimap from disk to the bitmap buffer */
-   ret = ciaaBlockDevices_lseek(bdev, fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size, SEEK_SET);
-   if(ret!=fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size)
-   {
-      *block = 0;
-      ciaaPOSIX_free(bitmap_buffer);
-      return -1;
-   }
-   ret = ciaaBlockDevices_read(bdev, (uint8_t *)bitmap_buffer, fsinfo->s_block_size);
-   if(ret!=fsinfo->s_block_size)
+   /* Read bitmap from disk to the bitmap buffer */
+   ret = ext2_device_buf_read(bdev, (uint8_t *)bitmap_buffer,
+                              fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size,
+                              fsinfo->s_block_size);
+   if(ret)
    {
       *block = 0;
       ciaaPOSIX_free(bitmap_buffer);
@@ -2597,7 +2394,7 @@ static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block)
    /* Search a free bit in bitmap
     * First search for a non 0xFF byte, then find out which is the first zero bit in that byte
     */
-   for(i = 0; i<fsinfo->s_block_size && bitmap_buffer[i] == 0xFF; i++)
+   for(i = 0; i<fsinfo->s_block_size && bitmap_buffer[i] == 0xFF; i++);
    if(i >= fsinfo->s_block_size)
    {
       /* No free blocks in this group */
@@ -2620,15 +2417,10 @@ static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block)
       return -1;   /* Should never happen */
    }
    /* Write modified bitmap to disk again */
-   ret = ciaaBlockDevices_lseek(bdev, fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size, SEEK_SET);
-   if(ret!=fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size)
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      *block = 0;
-      return -1;
-   }
-   ret = ciaaBlockDevices_write(bdev, (uint8_t *)bitmap_buffer, fsinfo->s_block_size);
-   if(ret!=fsinfo->s_block_size)
+   ret = ext2_device_buf_write(bdev, (uint8_t *)bitmap_buffer,
+                              fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size,
+                              fsinfo->s_block_size);
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       *block = 0;
@@ -2659,20 +2451,17 @@ static int ext2_dealloc_block_bit(vnode_t * node, uint32_t block)
 
    /* Alloc memory for a block */
    bitmap_buffer = (uint8_t *) ciaaPOSIX_malloc(fsinfo->s_block_size);
+   ASSERT_MSG(NULL != bitmap_buffer, "ext2_dealloc_block_bit(): ciaaPOSIX_malloc() failed");
    if(NULL == bitmap_buffer)
    {
       return -1;
    }
 
    /* Read bitmap from disk */
-   ret = ciaaBlockDevices_lseek(bdev, fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size, SEEK_SET);
-   if(ret!=fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size)
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      return -1;
-   }
-   ret = ciaaBlockDevices_read(bdev, (uint8_t *)bitmap_buffer, fsinfo->s_block_size);
-   if(ret!=fsinfo->s_block_size)
+   ret = ext2_device_buf_read(bdev, (uint8_t *)bitmap_buffer,
+                              fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size,
+                              fsinfo->s_block_size);
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       return -1;
@@ -2682,14 +2471,10 @@ static int ext2_dealloc_block_bit(vnode_t * node, uint32_t block)
    clrbit(bitmap_buffer, b);
 
    /* Write modified bitmap to disk */
-   ret = ciaaBlockDevices_lseek(bdev, fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size, SEEK_SET);
-   if(ret!=fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size)
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      return -1;
-   }
-   ret = ciaaBlockDevices_write(bdev, (uint8_t *)bitmap_buffer, fsinfo->s_block_size);
-   if(ret!=fsinfo->s_block_size)
+   ret = ext2_device_buf_write(bdev, (uint8_t *)bitmap_buffer,
+                              fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size,
+                              fsinfo->s_block_size);
+   if(ret)
    {
       ciaaPOSIX_free(bitmap_buffer);
       return -1;
@@ -2697,18 +2482,45 @@ static int ext2_dealloc_block_bit(vnode_t * node, uint32_t block)
    fsinfo->e2fs_gd[finfo->f_group].free_blocks_count++;
    fsinfo->e2sb.s_free_blocks_count++;
    ciaaPOSIX_free(bitmap_buffer);
-   return -1;
+   return 0;
 }
+
+/*
+Alternativa1: Leer de a 1024 bytes. Si queda un entry cortado por la mitad, tratar de armar los datos de alguna forma
+Alternativa2: Leer primero 1024 bytes. Si se que este entry se va a tener que partir, recargo el buffer leyendo desde donde empieza el entry actual
+
+Contenido: 8bytes
+Nombre: alineado a 4 bytes
+Ejemplo: Tengo solo los entries . y ..
+.:4 2 1 1 1 3; ..:4 2 1 1 2 2
+0 a 11 (12); 12 a 21 (12); 22 a 2047 (2024)
+
+La estructura ext2_direntry soporta nombres de hasta EXT2_MAXNAMELEN bytes. Podria guardar el entry anterior y tenerlo de backup por si el entry actual no puede ser completamente leido. 
+Podria implementar una funcion del estilo ext2_get_next_entry(ext2_direntry_t *, )
+
+Podria utilizar un buffer circular.
+Opcion 1: Escribir 1024 bytes en el buffer. Ir leyendo los entries. Aca hay varios casos, asumo bloque de 2KB:
+1) Tengo solo . y .. . reclen de .. apunta al final: Leo primero el entry de ., luego el entry de .. . Reclen me dice que ahora apunte a 2048. COMPLETAR
+2) Tengo ., .., luego un entry que comienza en 1016 y tiene name largo.
+
+Dificil usar un buffer circular ya que tendria que utilizar un buffer auxiliar.
+
+Leo 1024 bytes. Leo los entries uno a uno, guardandolos en una estructura y procesandolos. Salto segun reclen. Llego al entry cortado por la mitad
+
+dpointer = start_pointer;
+inode, rec_len, name_len, file_type, name[EXT2_MAXNAMELEN]
+dpointer = (ext2_direntry_t *)((char*)dpointer + dpointer->rec_len);
+
+*/
 
 static int ext2_dir_add_entry(vnode_t *node, uint32_t ino, char *name, uint16_t namlen, uint8_t type)
 {
-   int ret, i;
-   /*pointer is the file pointer. data_block is the block where pointer points, mapped to disk*/
-   uint32_t data_block, pointer;
-   uint16_t new_entry_size;
-   uint8_t *block_buffer;
+   uint32_t data_block, block_offset, file_pointer;
+   uint16_t new_entry_size, entry_pointer;
+   int ret;
    uint8_t flag_entry_found = 0;
-   ext2_direntry_t *start_pointer, *end_pointer, *dpointer;
+   ext2_direntry_t ext2_dir_entry_buffer;
+   ext2_direntry_t *ext2_dir_entry_buffer_p;
 
    ciaaDevices_deviceType const *bdev;
    ext2_file_info_t *finfo;
@@ -2717,73 +2529,67 @@ static int ext2_dir_add_entry(vnode_t *node, uint32_t ino, char *name, uint16_t 
    bdev = node->fs_info.device;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
    fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   ext2_dir_entry_buffer_p = &ext2_dir_entry_buffer;
 
    new_entry_size = DENTRY_MIN_SIZE + namlen;
    /* Align required_space to 4 bytes. Directory entry rule */
    new_entry_size += (new_entry_size & 0x03) ? (4 - (new_entry_size & 0x03)) : 0;
-   block_buffer = (uint8_t *) ciaaPOSIX_malloc(fsinfo->s_block_size);
-   ASSERT_MSG(NULL != block_buffer, "ext2_dir_add_entry(): Mem error");
-   if(NULL == block_buffer)
+
+   /* size must be multiple of block size. Dont consider special cases */
+   /* jump from block to block in every iteration */
+   for(file_pointer = 0; file_pointer < finfo->f_di.i_size; file_pointer += fsinfo->s_block_size)
    {
-      return -1;
-   }
-   for (pointer = 0; pointer<finfo->f_di.i_size; pointer += fsinfo->s_block_size)
-   {
-      ret = ext2_file_map_alloc(node, pointer>>(10+fsinfo->e2sb.s_log_block_size), &data_block);
-      ASSERT_MSG(0 == ret, "ext2_dir_add_entry(): ext2_file_map_alloc() failed");
+      /* Map file block to disk block. Result in data_block */
+      ret = ext2_file_map_alloc(node, file_pointer>>(10+fsinfo->e2sb.s_log_block_size), &data_block);
       if(ret)
       {
          return -1;
       }
-      /* Read data block from directory */
-      ret = ciaaBlockDevices_lseek(bdev, data_block<<(10+fsinfo->e2sb.s_log_block_size) , SEEK_SET);
-      ASSERT_MSG(ret == data_block<<(10+fsinfo->e2sb.s_log_block_size), "ext2_dir_add_entry(): ciaaBlockDevices_lseek() failed");
-      if(ret != data_block<<(10+fsinfo->e2sb.s_log_block_size))
+      /* block_offset points to the first byte address of the current block */
+      block_offset = data_block<<(10+fsinfo->e2sb.s_log_block_size);
+      /* entry pointer iterates sequentially over the entries until it reaches the end of the block */
+      for(entry_pointer = 0; entry_pointer < fsinfo->s_block_size; entry_pointer += ext2_dir_entry_buffer.rec_len)
       {
-         ciaaPOSIX_free(block_buffer);
-         return -1;
-      }
-      ret = ciaaBlockDevices_read(bdev, (uint8_t *)block_buffer, fsinfo->s_block_size);
-      ASSERT_MSG(ret == fsinfo->s_block_size, "ext2_dir_add_entry(): ciaaBlockDevices_read() failed");
-      if(ret != fsinfo->s_block_size)
-      {
-         ciaaPOSIX_free(block_buffer);
-         return -1;
-      }
-
-      /* Search an empty entry in this block */
-      start_pointer = (ext2_direntry_t *)block_buffer;
-      end_pointer = (ext2_direntry_t *)(block_buffer + fsinfo->s_block_size);
-      for(dpointer = start_pointer, i = 0; dpointer<end_pointer && i<10;
-         dpointer = (ext2_direntry_t *)((char*)dpointer + dpointer->rec_len), i++)
-      {
-         if (0 == dpointer->inode)
+         /* Read entry fields, except for the name. 8 bytes in total */
+         ret = ext2_device_buf_read(bdev, (uint8_t *)&ext2_dir_entry_buffer, block_offset + entry_pointer, 8);
+         if(ret)
+         {
+            return -1;
+         }
+         if (0 == ext2_dir_entry_buffer.inode)
          {
             /* Free entry found. Check if it has space for the new entry */
-            if (new_entry_size <= dpointer->rec_len)
+            if (new_entry_size <= ext2_dir_entry_buffer.rec_len)
             {
                flag_entry_found = 1;
                break;
             }
          }
          /* See if there is enough space in padding to add new entry */
-         if ( new_entry_size <= (dpointer->rec_len - DENTRY_TOTAL_SIZE(dpointer)) )
+         if ( new_entry_size <= (ext2_dir_entry_buffer.rec_len - DENTRY_TOTAL_SIZE(ext2_dir_entry_buffer_p)) )
          {
             /* Enough space to alloc new entry
              * Must shrink the previous entry before adding the new
              */
-            new_entry_size = dpointer->rec_len - DENTRY_TOTAL_SIZE(dpointer);
-            dpointer->rec_len = DENTRY_TOTAL_SIZE(dpointer);
-            dpointer = (ext2_direntry_t *)((char*)dpointer + dpointer->rec_len);
-            dpointer->rec_len = new_entry_size;
+            /* Calculate the padding size, this will be the rec_len of the new entry */
+            new_entry_size = ext2_dir_entry_buffer.rec_len - DENTRY_TOTAL_SIZE(ext2_dir_entry_buffer_p);
+            /* Update current entry so that rec_len points to the start of the new entry */
+            ext2_dir_entry_buffer.rec_len = DENTRY_TOTAL_SIZE(ext2_dir_entry_buffer_p);
+            ret = ext2_device_buf_write(bdev, (uint8_t *)&ext2_dir_entry_buffer, block_offset + entry_pointer, 8);
+            /* Point to the next entry */
+            entry_pointer += ext2_dir_entry_buffer.rec_len;
+            ext2_dir_entry_buffer.rec_len = new_entry_size;
             /* Flag to tell that an entry has been found */
             flag_entry_found = 1;
             break;
          }
+
       }
       if(flag_entry_found)
       {
-         /* dpointer keeps the address of the new entry */
+         /* entry_pointer keeps the address of the new entry
+          * block_offset keeps the address of the block to be modified
+          */
          break;
       }
    }
@@ -2795,61 +2601,42 @@ static int ext2_dir_add_entry(vnode_t *node, uint32_t ino, char *name, uint16_t 
       ASSERT_MSG(0 == ret, "ext2_dir_add_entry(): ext2_file_map_alloc() failed");
       if(ret)
       {
-         ciaaPOSIX_free(block_buffer);
-         return -1;
-      }
-      /* Read new directory data block */
-      ret = ciaaBlockDevices_lseek(bdev, data_block<<(10+fsinfo->e2sb.s_log_block_size) , SEEK_SET);
-      ASSERT_MSG(ret == data_block<<(10+fsinfo->e2sb.s_log_block_size), "ext2_dir_add_entry(): ciaaBlockDevices_lseek() failed");
-      if(ret != data_block<<(10+fsinfo->e2sb.s_log_block_size))
-      {
-         ciaaPOSIX_free(block_buffer);
-         return -1;
-      }
-      ret = ciaaBlockDevices_read(bdev, (uint8_t *)block_buffer, fsinfo->s_block_size);
-      ASSERT_MSG(ret == fsinfo->s_block_size, "ext2_dir_add_entry(): ciaaBlockDevices_read() failed");
-      if(ret != fsinfo->s_block_size)
-      {
-         ciaaPOSIX_free(block_buffer);
          return -1;
       }
       /* New directory size adds 1 block */
       finfo->f_di.i_size += fsinfo->s_block_size;
-      dpointer = (ext2_direntry_t*) block_buffer;
-      dpointer->rec_len = fsinfo->s_block_size;
+      /* block_offset points to the first byte address of the current block  */
+      block_offset = data_block<<(10+fsinfo->e2sb.s_log_block_size);
+      entry_pointer = 0;
+      ext2_dir_entry_buffer.rec_len = fsinfo->s_block_size;
    }
    /* dpointer now points to a new valid entry. block_buffer contains the modified block with the new entry */
-   dpointer->inode = ino;
-   dpointer->file_type = type;
-   ciaaPOSIX_memcpy(dpointer->name, name, namlen);
-   dpointer->name_len = namlen;
-   /* Write modified block with the new entry to disk */
-   ret = ciaaBlockDevices_lseek(bdev, data_block<<(10+fsinfo->e2sb.s_log_block_size) , SEEK_SET);
-   ASSERT_MSG(ret == data_block<<(10+fsinfo->e2sb.s_log_block_size), "ext2_dir_add_entry(): ciaaBlockDevices_lseek() failed");
-   if(ret != data_block<<(10+fsinfo->e2sb.s_log_block_size))
+   ext2_dir_entry_buffer.inode = ino;
+   ext2_dir_entry_buffer.file_type = type;
+   ext2_dir_entry_buffer.name_len = namlen;
+   /* Write the new entry to disk */
+   ret = ext2_device_buf_write(bdev, (uint8_t *)&ext2_dir_entry_buffer, block_offset + entry_pointer, 8);
+   if(ret)
    {
-      ciaaPOSIX_free(block_buffer);
       return -1;
    }
-   ret = ciaaBlockDevices_write(bdev, (uint8_t *)block_buffer, fsinfo->s_block_size);
-   ASSERT_MSG(ret == fsinfo->s_block_size, "ext2_dir_add_entry(): ciaaBlockDevices_lseek() failed");
-   if(ret!=fsinfo->s_block_size)
+   /* write the entry name to disk*/
+   ret = ext2_device_buf_write(bdev, (uint8_t *)name, block_offset + entry_pointer + 8, ext2_dir_entry_buffer.name_len);
+   if(ret)
    {
-      ciaaPOSIX_free(block_buffer);
       return -1;
    }
-   ciaaPOSIX_free(block_buffer);
-   return 0;
+
+  return 0;
 }
 
 static int ext2_dir_delete_entry(vnode_t *node, char *name, uint16_t namlen)
 {
+   uint32_t data_block, block_offset, file_pointer, aux;
+   uint16_t entry_pointer, prev_entry_pointer;
    int ret;
-   uint32_t data_block;
-   uint32_t pointer;
-   uint8_t *block_buffer;
-   uint8_t flag_found = 0;
-   ext2_direntry_t *start_pointer, *end_pointer, *dpointer, *prev_dpointer;
+   uint8_t flag_entry_found = 0;
+   ext2_direntry_t ext2_dir_entry_buffer;
 
    ciaaDevices_deviceType const *bdev;
    ext2_file_info_t *finfo;
@@ -2859,91 +2646,96 @@ static int ext2_dir_delete_entry(vnode_t *node, char *name, uint16_t namlen)
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
    fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
 
-   block_buffer = (uint8_t *) ciaaPOSIX_malloc(fsinfo->s_block_size);
-   if(NULL == block_buffer)
+   /* size must be multiple of block size. Dont consider special cases */
+   /* jump from block to block in every iteration */
+   for(file_pointer = 0; file_pointer < finfo->f_di.i_size; file_pointer += fsinfo->s_block_size)
    {
-      return -1;
-   }
-   for (pointer = 0; pointer<finfo->f_di.i_size; pointer+=fsinfo->s_block_size)
-   {
-      ret = ext2_block_map(node, pointer>>(10+fsinfo->e2sb.s_log_block_size), &data_block);
+      /* Map file block to disk block. Result in data_block */
+      ret = ext2_file_map_alloc(node, file_pointer>>(10+fsinfo->e2sb.s_log_block_size), &data_block);
+      //ret = ext2_block_map(node, file_pointer>>(10+fsinfo->e2sb.s_log_block_size), &data_block);
       if(ret)
       {
          return -1;
       }
-      if(!data_block)
+      /* block_offset points to the first byte address of the current block */
+      block_offset = data_block<<(10+fsinfo->e2sb.s_log_block_size);
+      /* entry pointer iterates sequentially over the entries until it reaches the end of the block */
+      for(entry_pointer = 0, prev_entry_pointer = 0; entry_pointer < fsinfo->s_block_size;
+            entry_pointer += ext2_dir_entry_buffer.rec_len)
       {
-         return -1;
-      }
-      /* Read current directory block */
-      ret = ciaaBlockDevices_lseek(bdev, data_block<<(10+fsinfo->e2sb.s_log_block_size) , SEEK_SET);
-      if(ret != data_block<<(10+fsinfo->e2sb.s_log_block_size))
-      {
-         ciaaPOSIX_free(block_buffer);
-         return -1;
-      }
-      ret = ciaaBlockDevices_read(bdev, (uint8_t *)block_buffer, fsinfo->s_block_size);
-      if(ret != fsinfo->s_block_size)
-      {
-         ciaaPOSIX_free(block_buffer);
-         return -1;
-      }
-
-      /* Search the entry in this block */
-      /* When starting, dpointer is the first entry, so no previous entry */
-      prev_dpointer = NULL;
-      start_pointer = (ext2_direntry_t *)block_buffer;
-      end_pointer = (ext2_direntry_t *)(block_buffer + fsinfo->s_block_size);
-      for(dpointer = start_pointer; dpointer<end_pointer;
-         dpointer = (ext2_direntry_t *)((char*)dpointer + dpointer->rec_len))
-      {
-         if (0 != dpointer->inode)
+         /* Read entry fields, except for the name. 8 bytes in total */
+         ret = ext2_device_buf_read(bdev, (uint8_t *)&ext2_dir_entry_buffer, block_offset + entry_pointer, 8);
+         if(ret)
          {
-         /* Nonempty entry found. Is it the requested entry? */
-            if ((dpointer->name_len == namlen) &&
-               (!ciaaPOSIX_strncmp(dpointer->name, name, dpointer->name_len)))
+            return -1;
+         }
+         if (0 != ext2_dir_entry_buffer.inode)
+         {
+            if(ext2_dir_entry_buffer.name_len == namlen)
             {
-               flag_found = 1;
+               /* Read the name of the entry */
+               ret = ext2_device_buf_read(bdev, (uint8_t *)((uint8_t *)&ext2_dir_entry_buffer + 8), block_offset + entry_pointer + 8,
+                                          ext2_dir_entry_buffer.name_len);
+               if(ret)
+               {
+                  return -1;
+               }
+               if(!ciaaPOSIX_strncmp(ext2_dir_entry_buffer.name, name, ext2_dir_entry_buffer.name_len))
+               {
+                  flag_entry_found = 1;
+                  break;
+               }
             }
          }
-         if (flag_found) {
-            /* Requested entry found. Delete it */
-            dpointer->inode = 0;
-            /* Now we have cleared dentry, if it's not the first one,
-             * merge it with previous one.  Since we assume, that
-             * existing dentry must be correct, there is no way to
-             * spann a data block.
-             */
-            if (prev_dpointer)
-            {
-               /* Previous entry now spans deleted entry
-                * Deleted entry is now padding of previous entry
-                */
-               prev_dpointer->rec_len += dpointer->rec_len;
-            }
-            /* Write modified block back to disk */
-            ret = ciaaBlockDevices_lseek(bdev, data_block<<(10+fsinfo->e2sb.s_log_block_size) , SEEK_SET);
-            if(ret!=data_block<<(10+fsinfo->e2sb.s_log_block_size))
-            {
-               ciaaPOSIX_free(block_buffer);
-               return -1;
-            }
-            ret = ciaaBlockDevices_write(bdev, (uint8_t *)block_buffer, fsinfo->s_block_size);
-            if(ret!=fsinfo->s_block_size)
-            {
-               ciaaPOSIX_free(block_buffer);
-               return -1;
-            }
-            /* Required entry found and deleted */
-            ciaaPOSIX_free(block_buffer);
-            return 0;
-         }
-         prev_dpointer = dpointer;
+         prev_entry_pointer = entry_pointer;
+      }
+      if(flag_entry_found)
+      {
+         /* entry_pointer keeps the address of the entry to be deleted
+          * block_offset keeps the address of the block to be modified
+          */
+         break;
       }
    }
-   /* Required entry not found in dir */
-   ciaaPOSIX_free(block_buffer);
-   return -1;
+   if (flag_entry_found)
+   {
+      /* Requested entry found. Delete it */
+      ext2_dir_entry_buffer.inode = 0;
+      ret = ext2_device_buf_write(bdev, (uint8_t *)&ext2_dir_entry_buffer, block_offset + entry_pointer, 8);
+      if(ret)
+      {
+         return -1;
+      }
+      /* Now we have cleared dentry, if it's not the first one,
+       * merge it with previous one.  Since we assume, that
+       * existing dentry must be correct, there is no way to
+       * spann a data block.
+       */
+      if (entry_pointer)
+      {
+         /* entry_pointer does not point to the first entry
+          * Previous entry now spans deleted entry
+          * Deleted entry is now padding of previous entry
+          */
+         aux = ext2_dir_entry_buffer.rec_len;
+         ret = ext2_device_buf_read(bdev, (uint8_t *)&ext2_dir_entry_buffer, block_offset + prev_entry_pointer, 8);
+         if(ret)
+         {
+            return -1;
+         }
+         ext2_dir_entry_buffer.rec_len += aux;
+         ret = ext2_device_buf_write(bdev, (uint8_t *)&ext2_dir_entry_buffer, block_offset + prev_entry_pointer, 8);
+         if(ret)
+         {
+            return -1;
+         }
+      }
+   }
+   else
+   {
+      return -1;
+   }
+   return 0;
 }
 
 /* Writes the on-memory sb and gd to disk */
@@ -2965,31 +2757,56 @@ static int ext2_fsinfo_flush(vnode_t *node)
       /* If the block size is 1024, block 0 is boot block, block 1 is superblock. Blocks 1 to 8192 are group 1 blocks
        * Boot block dont count as group 1 block
        */
-      ret = ciaaBlockDevices_lseek(bdev, group_offset, SEEK_SET);
-      ASSERT_MSG(ret == group_offset, "ext2_fsinfo_flush(): ciaaBlockDevices_lseek() failed");
-      if(ret != group_offset)
+      ret = ext2_device_buf_write(bdev, (uint8_t *)&(fsinfo->e2sb), group_offset, sizeof(ext2_superblock_t));
+      if(ret)
       {
          return -1;
       }
-      ret = ciaaBlockDevices_write(bdev, (uint8_t *)&(fsinfo->e2sb), sizeof(ext2_superblock_t));
-      ASSERT_MSG(ret == sizeof(ext2_superblock_t), "ext2_fsinfo_flush(): ciaaBlockDevices_write() failed");
-      if(ret != sizeof(ext2_superblock_t))
-      {
-         return -1;
-      }
-      ret = ciaaBlockDevices_lseek(bdev, group_offset + EXT2_SBSIZE, SEEK_SET);
-      ASSERT_MSG(ret == group_offset+EXT2_SBSIZE, "ext2_fsinfo_flush(): ciaaBlockDevices_lseek() failed");
-      if(ret != group_offset + EXT2_SBSIZE)
-      {
-         return -1;
-      }
-      ret = ciaaBlockDevices_write(bdev, (uint8_t *)fsinfo->e2fs_gd, sizeof(ext2_gd_t) * fsinfo->s_groups_count);
-      ASSERT_MSG(ret == sizeof(ext2_gd_t) * fsinfo->s_groups_count, "ext2_fsinfo_flush(): ciaaBlockDevices_write() failed");
-      if(ret != sizeof(ext2_gd_t)*fsinfo->s_groups_count)
+      ret = ext2_device_buf_write(bdev, (uint8_t *)fsinfo->e2fs_gd, group_offset + EXT2_SBSIZE,
+                                    sizeof(ext2_gd_t) * fsinfo->s_groups_count);
+      if(ret)
       {
          return -1;
       }
    }
+   return 0;
+}
+
+static ssize_t ext2_device_buf_read(ciaaDevices_deviceType const * const device, uint8_t * const buf, off_t const offset,
+                                 size_t const nbyte)
+{
+   ssize_t ret;
+
+   ret = ciaaBlockDevices_lseek(device, offset, SEEK_SET);
+   if(ret!=offset)
+   {
+      return -1;
+   }
+   ret = ciaaBlockDevices_read(device, buf, nbyte);
+   if(ret!=nbyte)
+   {
+      return -1;
+   }
+
+   return 0;
+}
+
+static ssize_t ext2_device_buf_write(ciaaDevices_deviceType const * const device, uint8_t * const buf, off_t const offset,
+                                 size_t const nbyte)
+{
+   ssize_t ret;
+
+   ret = ciaaBlockDevices_lseek(device, offset, SEEK_SET);
+   if(ret!=offset)
+   {
+      return -1;
+   }
+   ret = ciaaBlockDevices_write(device, buf, nbyte);
+   if(ret!=nbyte)
+   {
+      return -1;
+   }
+
    return 0;
 }
 

@@ -217,7 +217,6 @@ typedef struct ext2sb
  ** ext2 file system block group descriptor
  **
  **/
-
 typedef struct ext2_gd
 {
     uint32_t  block_bitmap;        /* Blocks bitmap block */
