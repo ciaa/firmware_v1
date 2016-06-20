@@ -62,7 +62,6 @@ TASK InitTask {
     TYPE = BASIC;
     SCHEDULE = NON;
     RESOURCE = POSIXR;
-    EVENT = POSIXE;
 }
 
 TASK SerialEchoTask {

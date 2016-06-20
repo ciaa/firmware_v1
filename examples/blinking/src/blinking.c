@@ -78,13 +78,6 @@
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
-#include "msp430.h"
-
-
-void __attribute__((constructor))myctor()
-{
-  WDTCTL = WDTPW | WDTHOLD;		// Stop watchdog timer
-}
 
 /*==================[internal data definition]===============================*/
 
@@ -98,7 +91,6 @@ static int32_t fd_out;
 
 /*==================[internal functions definition]==========================*/
 
-
 /*==================[external functions definition]==========================*/
 /** \brief Main function
  *
@@ -111,9 +103,6 @@ static int32_t fd_out;
  */
 int main(void)
 {
-
-
-
     /* Starts the operating system in the Application Mode 1 */
     /* This example has only one Application Mode */
     StartOS(AppMode1);
