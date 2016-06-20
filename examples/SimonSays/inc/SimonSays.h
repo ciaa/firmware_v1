@@ -39,7 +39,7 @@
 #define SIMONSAYS_H
 /** \brief Simon Says game implementation for EDU-CIAA
  **
- ** This is the Simon Says game. The light sequence must be 
+ ** This is the Simon Says game. The light sequence must be
  ** replicated by the user pressing the buttons.
  **/
 
@@ -78,16 +78,16 @@ extern "C" {
 /** \brief  RANDOM_SEQUENCE: choose if the sequence must be generated at random.
  **/
 #define RANDOM_SEQUENCE true
-/** \brief REFRESH_RATE_INPUT_MS: (aka polling cycle) is the time 
- ** in milliseconds in which the status of input buttons are 
+/** \brief REFRESH_RATE_INPUT_MS: (aka polling cycle) is the time
+ ** in milliseconds in which the status of input buttons are
  ** actively sampled (polling).
  **
- ** Range: 50 ~ 100    
+ ** Range: 50 ~ 100
  **/
 #define REFRESH_RATE_INPUT_MS 50
 
 /** \brief REFRESH_RATE_OUTPUT_MS: is the time in milliseconds that
- ** a given led will remain in its state until the next change. 
+ ** a given led will remain in its state until the next change.
  **
  ** This value could became a variable in further versions
  ** in order to speed up the sequence in higher levels of the game.
