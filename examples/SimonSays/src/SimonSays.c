@@ -37,7 +37,7 @@
 
 /** \brief Simon Says game implementation for EDU-CIAA
  **
- ** This is the Simon Says game. The light sequence must be 
+ ** This is the Simon Says game. The light sequence must be
  ** replicated by the user pressing the buttons.
  **/
 
@@ -83,7 +83,7 @@ static int32_t leds_fd;
 static int32_t buttons_fd;
 /** \brief Current state of the States Machine
  * Initial State or state after reset is IDLE
- * IDLE: The machine is waiting for an input 
+ * IDLE: The machine is waiting for an input
  */
 static states state = IDLE;
 /** \brief Array of the sequence to be displayed by the leds **/
@@ -197,7 +197,7 @@ TASK(InputTask)
             state = START;
 #if RANDOM_SEQUENCE
             /* seed random number generator */
-            srand(inputs_now); 
+            srand(inputs_now);
             /* complete the sequence array with random numbers */
             for(index=0; index<sizeof(sequence); index++)
                sequence[index] = (uint8_t)(rand()%4);
@@ -263,7 +263,7 @@ TASK(OutputTask)
          index = (state == SEQUENCE) ? 0 : (index+1);
          level = 0;
          break;
-      /* Sequence State: Flash a single led that correspond according to 
+      /* Sequence State: Flash a single led that correspond according to
        *                 the sequence */
       case SEQUENCE:
          state =  (index > (level*2)) ? LISTEN : SEQUENCE;
@@ -278,7 +278,7 @@ TASK(OutputTask)
          break;
       default:
          outputs=0x00;
-         break;   
+         break;
    }
    /* update leds states */
    (void)ciaaPOSIX_write(leds_fd, &outputs, 1);
