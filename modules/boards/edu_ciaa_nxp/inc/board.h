@@ -1,6 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2015, Pablo Ridolfi
- * Copyright 2016, Esteban Volentini (LabMicro - UNT)
+/* Copyright 2016, Esteban Volentini (LabMicro - UNT)
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -33,22 +31,20 @@
  *
  */
 
-#ifndef CIAADRIVERDIO_INTERNAL_H
-#define CIAADRIVERDIO_INTERNAL_H
-/** \brief Internal Header file of DIO Driver
+#ifndef BOARD_H
+#define BOARD_H
+/** \brief External Header file of EDU_CIAA_NXP Board
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup Boards CIAA Boards
  ** @{ */
-/** \addtogroup DIO DIO Drivers
+/** \addtogroup EDU_CIAA_NXP EDU_CIAA_NXP Board
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "chip.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -56,23 +52,66 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief input device */
+#define DIGITAL_INPUTS_DEVICE    "/dev/dio/gpio/0"
+
+/** \brief output device */
+#define DIGITAL_OUTPUT_DEVICE    "/dev/dio/gpio/1"
+
+#define DIGITAL_OUTPUT_1         0x01
+#define DIGITAL_OUTPUT_2         0x02
+#define DIGITAL_OUTPUT_3         0x04
+#define DIGITAL_OUTPUT_4         0x08
+#define DIGITAL_OUTPUT_5         0x10
+#define DIGITAL_OUTPUT_6         0x20
+
+#define DIGITAL_INPUT_1          0x01
+#define DIGITAL_INPUT_2          0x02
+#define DIGITAL_INPUT_3          0x04
+#define DIGITAL_INPUT_4          0x08
+
+/** \brief Keys device */
+#define KEYS                     DIGITAL_INPUTS_DEVICE
+
+/** \brief Leds device */
+#define LEDS                     DIGITAL_OUTPUT_DEVICE
+
+/** \brief Red channel of rgb led mask */
+#define LED_R                    DIGITAL_OUTPUT_1
+/** \brief Green channel of rgb led mask */
+#define LED_G                    DIGITAL_OUTPUT_2
+/** \brief Blue channel of rgb led mask */
+#define LED_B                    DIGITAL_OUTPUT_3
+/** \brief Single yellow led mask */
+#define LED_1                    DIGITAL_OUTPUT_4
+/** \brief Single red led mask */
+#define LED_2                    DIGITAL_OUTPUT_5
+/** \brief Single green led mask */
+#define LED_3                    DIGITAL_OUTPUT_6
+
+#define LED_RGB_RED              LED_R
+#define LED_RGB_GREEN            LED_G
+#define LED_RGB_BLUE             LED_B
+#define LED_YELLOW               LED_1
+#define LED_RED                  LED_2
+#define LED_GREEN                LED_3
+
+#define KEY_1                    DIGITAL_INPUT_1
+#define KEY_2                    DIGITAL_INPUT_2
+#define KEY_3                    DIGITAL_INPUT_3
+#define KEY_4                    DIGITAL_INPUT_4
+
+#define TEC_1                    KEY_1
+#define TEC_2                    KEY_2
+#define TEC_3                    KEY_3
+#define TEC_4                    KEY_4
+
+#define PULS_0                   KEY_1
+#define PULS_1                   KEY_2
+#define PULS_2                   KEY_3
+#define PULS_3                   KEY_4
 
 /*==================[typedef]================================================*/
-/** \brief Dio pin type */
-typedef struct ciaaDriverDio_pinStructuc
-{
-   PINMUX_GRP_T scu;                      /** <= SCU configuration strcuture */
-   uint8_t gpio;                          /** <= GPIO port number */
-   uint8_t pin;                           /** <= GPIO pin number */
-   bool output;                           /** <= Pin is used as output */
-} ciaaDriverDio_pinType;
-
-/** \brief Dio port pin collection type */
-typedef struct ciaaDriverDio_portStructuc
-{
-   ciaaDriverDio_pinType const * pins;    /** <= Pointer to array of pins */
-   uint8_t count;                         /** <= Count of pins in structure */
-} ciaaDriverDio_portType;
 
 /*==================[external data declaration]==============================*/
 
@@ -86,4 +125,4 @@ typedef struct ciaaDriverDio_portStructuc
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* CIAADRIVERDIO_INTERNAL_H */
+#endif /* BOARD_H */

@@ -1,5 +1,6 @@
 /* Copyright 2014, Mariano Cerdeiro
  * Copyright 2015, Pablo Ridolfi
+ * Copyright 2016, Esteban Volentini (LabMicro - UNT)
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -32,8 +33,8 @@
  *
  */
 
-#ifndef _CIAADRIVERDIO_INTERNAL_H_
-#define _CIAADRIVERDIO_INTERNAL_H_
+#ifndef CIAADRIVERDIO_INTERNAL_H
+#define CIAADRIVERDIO_INTERNAL_H
 /** \brief Internal Header file of DIO Driver
  **
  **/
@@ -47,6 +48,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "chip.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -56,12 +58,21 @@ extern "C" {
 /*==================[macros]=================================================*/
 
 /*==================[typedef]================================================*/
-/** \brief Dio Type */
-typedef struct
+/** \brief Dio pin type */
+typedef struct ciaaDriverDio_pinStructuc
 {
-   uint32_t port;
-   uint32_t pin;
-}ciaaDriverDio_dioType;
+   PINMUX_GRP_T scu;                      /** <= SCU configuration strcuture */
+   uint8_t gpio;                          /** <= GPIO port number */
+   uint8_t pin;                           /** <= GPIO pin number */
+   bool output;                           /** <= Pin is used as output */
+} ciaaDriverDio_pinType;
+
+/** \brief Dio port pin collection type */
+typedef struct ciaaDriverDio_portStructuc
+{
+   ciaaDriverDio_pinType const * pins;    /** <= Pointer to array of pins */
+   uint8_t count;                         /** <= Count of pins in structure */
+} ciaaDriverDio_portType;
 
 /*==================[external data declaration]==============================*/
 
@@ -75,4 +86,4 @@ typedef struct
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAADRIVERDIO_INTERNAL_H_ */
+#endif /* CIAADRIVERDIO_INTERNAL_H */

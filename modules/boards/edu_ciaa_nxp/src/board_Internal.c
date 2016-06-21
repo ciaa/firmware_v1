@@ -1,6 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2015, Pablo Ridolfi
- * Copyright 2016, Esteban Volentini (LabMicro - UNT)
+/* Copyright 2014, 2015 Pablo Ridolfi (UTN-FRBA)
+ * Copyright 2016 Esteban Volentini (LabMicro - UNT)
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -33,57 +32,64 @@
  *
  */
 
-#ifndef CIAADRIVERDIO_INTERNAL_H
-#define CIAADRIVERDIO_INTERNAL_H
-/** \brief Internal Header file of DIO Driver
+/** \brief Internal source file of EDU_CIAA_NXP Board
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup Boards CIAA Boards
  ** @{ */
-/** \addtogroup DIO DIO Drivers
+/** \addtogroup EDU_CIAA_NXP EDU_CIAA_NXP Board
  ** @{ */
+
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "chip.h"
+#include "board_Internal.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+/*==================[macros and definitions]=================================*/
 
-/*==================[macros]=================================================*/
+/*==================[internal data declaration]==============================*/
 
-/*==================[typedef]================================================*/
-/** \brief Dio pin type */
-typedef struct ciaaDriverDio_pinStructuc
-{
-   PINMUX_GRP_T scu;                      /** <= SCU configuration strcuture */
-   uint8_t gpio;                          /** <= GPIO port number */
-   uint8_t pin;                           /** <= GPIO pin number */
-   bool output;                           /** <= Pin is used as output */
-} ciaaDriverDio_pinType;
+/*==================[internal functions declaration]=========================*/
 
-/** \brief Dio port pin collection type */
-typedef struct ciaaDriverDio_portStructuc
-{
-   ciaaDriverDio_pinType const * pins;    /** <= Pointer to array of pins */
-   uint8_t count;                         /** <= Count of pins in structure */
-} ciaaDriverDio_portType;
+/*==================[internal data definition]===============================*/
 
-/*==================[external data declaration]==============================*/
+const ciaaDriverDio_pinType ciaaDriverDio_pins0[] = {
+   { { 1, 0, MD_PUP|MD_EZI|MD_ZI|FUNC0 }, 0, 4, false },
+   { { 1, 1, MD_PUP|MD_EZI|MD_ZI|FUNC0 }, 0, 8, false },
+   { { 1, 2, MD_PUP|MD_EZI|MD_ZI|FUNC0 }, 0, 9, false },
+   { { 1, 6, MD_PUP|MD_EZI|MD_ZI|FUNC0 }, 1, 9, false },
+};
 
-/*==================[external functions declaration]=========================*/
+const ciaaDriverDio_pinType ciaaDriverDio_pins1[] = {
+   { { 2,  0, MD_PUP|MD_EZI|FUNC4 }, 5,  0, true },
+   { { 2,  1, MD_PUP|MD_EZI|FUNC4 }, 5,  1, true },
+   { { 2,  2, MD_PUP|MD_EZI|FUNC4 }, 5,  2, true },
+   { { 2, 10, MD_PUP|MD_EZI|FUNC0 }, 0, 14, true },
+   { { 2, 11, MD_PUP|MD_EZI|FUNC0 }, 1, 11, true },
+   { { 2, 12, MD_PUP|MD_EZI|FUNC0 }, 1, 12, true },
+};
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
+/*==================[external data definition]===============================*/
+
+const ciaaDriverDio_portType ciaaDriverDio_port0 = {
+   ciaaDriverDio_pins0,
+   4
+};
+
+const ciaaDriverDio_portType ciaaDriverDio_port1 = {
+   ciaaDriverDio_pins1,
+   6
+};
+
+/*==================[internal functions definition]==========================*/
+
+/*==================[external functions definition]==========================*/
+
+/*==================[interrupt handlers]=====================================*/
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* CIAADRIVERDIO_INTERNAL_H */

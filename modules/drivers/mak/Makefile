@@ -42,12 +42,15 @@ drivers_VERSION		= 0.1.0
 # library path
 drivers_PATH 	       = $(ROOT_DIR)$(DS)modules$(DS)drivers
 # library source path
-drivers_SRC_PATH      = $(drivers_PATH)$(DS)src
+drivers_SRC_PATH      = $(drivers_PATH)$(DS)src                      \
+   $(boards_PATH)$(DS)$(BOARD)$(DS)src
+
 # library include path
-drivers_INC_PATH 	    = $(drivers_PATH)$(DS)inc                      \
+drivers_INC_PATH 	    = $(drivers_PATH)$(DS)inc                    \
    $(drivers_PATH)$(DS)$(ARCH)$(DS)inc                               \
    $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc                \
-   $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
+   $(drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc     \
+   $(boards_PATH)$(DS)$(BOARD)$(DS)inc
 
 # library source files
 drivers_SRC_FILES     = $(wildcard $(drivers_SRC_PATH)$(DS)*.c)

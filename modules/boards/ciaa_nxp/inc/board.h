@@ -1,6 +1,4 @@
-/* Copyright 2014, Mariano Cerdeiro
- * Copyright 2015, Pablo Ridolfi
- * Copyright 2016, Esteban Volentini (LabMicro - UNT)
+/* Copyright 2016, Esteban Volentini (LabMicro - UNT)
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -33,22 +31,20 @@
  *
  */
 
-#ifndef CIAADRIVERDIO_INTERNAL_H
-#define CIAADRIVERDIO_INTERNAL_H
-/** \brief Internal Header file of DIO Driver
+#ifndef BOARD_H
+#define BOARD_H
+/** \brief External Header file of CIAA_NXP Board
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Drivers CIAA Drivers
+/** \addtogroup Boards CIAA Boards
  ** @{ */
-/** \addtogroup DIO DIO Drivers
+/** \addtogroup CIAA_NXP CIAA_NXP Board
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "chip.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -56,23 +52,31 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/** \brief input device */
+#define DIGITAL_INPUTS_DEVICE    "/dev/dio/gpio/0"
+
+/** \brief output device */
+#define DIGITAL_OUTPUT_DEVICE    "/dev/dio/gpio/1"
+
+#define DIGITAL_OUTPUT_1         0x01
+#define DIGITAL_OUTPUT_2         0x02
+#define DIGITAL_OUTPUT_3         0x04
+#define DIGITAL_OUTPUT_4         0x08
+#define DIGITAL_OUTPUT_5         0x10
+#define DIGITAL_OUTPUT_6         0x20
+#define DIGITAL_OUTPUT_7         0x40
+#define DIGITAL_OUTPUT_8         0x80
+
+#define DIGITAL_INPUT_1          0x01
+#define DIGITAL_INPUT_2          0x02
+#define DIGITAL_INPUT_3          0x04
+#define DIGITAL_INPUT_4          0x08
+#define DIGITAL_INPUT_5          0x10
+#define DIGITAL_INPUT_6          0x20
+#define DIGITAL_INPUT_7          0x40
+#define DIGITAL_INPUT_8          0x80
 
 /*==================[typedef]================================================*/
-/** \brief Dio pin type */
-typedef struct ciaaDriverDio_pinStructuc
-{
-   PINMUX_GRP_T scu;                      /** <= SCU configuration strcuture */
-   uint8_t gpio;                          /** <= GPIO port number */
-   uint8_t pin;                           /** <= GPIO pin number */
-   bool output;                           /** <= Pin is used as output */
-} ciaaDriverDio_pinType;
-
-/** \brief Dio port pin collection type */
-typedef struct ciaaDriverDio_portStructuc
-{
-   ciaaDriverDio_pinType const * pins;    /** <= Pointer to array of pins */
-   uint8_t count;                         /** <= Count of pins in structure */
-} ciaaDriverDio_portType;
 
 /*==================[external data declaration]==============================*/
 
@@ -86,4 +90,4 @@ typedef struct ciaaDriverDio_portStructuc
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* CIAADRIVERDIO_INTERNAL_H */
+#endif /* BOARD_H */

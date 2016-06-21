@@ -72,6 +72,7 @@
 #include "ciaaPOSIX_string.h" /* <= string header */
 #include "ciaak.h"            /* <= ciaa kernel header */
 #include "blinking.h"         /* <= own header */
+#include "board.h"            /* <= board definitions header */
 
 /*==================[macros and definitions]=================================*/
 
@@ -150,7 +151,7 @@ TASK(InitTask)
    ciaaPOSIX_printf("Init Task...\n");
 
    /* open CIAA digital outputs */
-   fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
+   fd_out = ciaaPOSIX_open(DIGITAL_OUTPUTS_DEVICE, ciaaPOSIX_O_RDWR);
 
    /* activate periodic task:
     *  - for the first time after 350 ticks (350 ms)
@@ -177,7 +178,7 @@ TASK(PeriodicTask)
 
    /* blink output */
    ciaaPOSIX_read(fd_out, &outputs, 1);
-   outputs ^= 0x20;
+   outputs ^= DIGITAL_OUTPUT_6;
    ciaaPOSIX_write(fd_out, &outputs, 1);
 
    /* terminate task */
