@@ -40,6 +40,7 @@ MSPDEBUG_BIN 		   	= mspdebug
 # mspdebug protocol
 ifeq ($(BOARD),msp_exp430f5529)
 MSPDEBUG_PROTOCOL		= rf2500
+MSPDEBUG_OPTIONS		= -v 3300
 endif
 
 # mspdebug dependent makefile
