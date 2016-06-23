@@ -436,7 +436,7 @@ code_sanity:
 osek_oil_gen_tst:
 PWD =$(shell pwd)
 SHUNIT = $(PWD)$(DS)externals$(DS)shunit$(DS)shunit2.sh
-TESTS = $(PWD)$(DS)modules$(DS)rtos$(DS)generator$(DS)tests$(DS)ftest
+TESTS = $(PWD)$(DS)modules$(DS)tools$(DS)generator$(DS)tests$(DS)ftest
 FIXTURES = $(TESTS)$(DS)fixtures
 EXPECTED = $(TESTS)$(DS)expected
 TMP = $(TESTS)$(DS)tmp
@@ -444,7 +444,7 @@ osek_oil_gen_tst: code_sanity
 	@echo ' '
 	@echo ===============================================================================
 	@echo Unit testing the module rtos_gen
-	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)rtos$(DS)generator$(DS)tests$(DS)utest$(DS)
+	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)tools$(DS)generator$(DS)tests$(DS)utest$(DS)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Functional testing the module rtos_gen
@@ -568,7 +568,7 @@ gen.intermediate : $(OIL_4_GEN_DEP)
 ifneq ($(strip $(OIL_FILES) $(POIL_FILES)),)
 ifdef MCORE
 	@echo "*** Generating OSEK using multicore options! ***"
-	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
+	php modules$(DS)tools$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DMCORE=$(MCORE) \
 		-c $(OIL_FILES) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 else
@@ -576,7 +576,7 @@ else
 	@echo ===============================================================================
 	@echo Run RTOS Generator
 	@echo ' '
-	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
+	php modules$(DS)tools$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
 		-c $(OIL_4_GEN) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 endif

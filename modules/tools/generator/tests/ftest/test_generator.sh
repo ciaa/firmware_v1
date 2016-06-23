@@ -34,7 +34,7 @@
 testBlinkingExampleFull() {
    rm -rf ${TMP}${DS}*
 
-   php modules${DS}rtos${DS}generator${DS}generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
+   php modules${DS}tools${DS}generator${DS}generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
       -t ${FIXTURES}${DS}gen${DS}inc${DS}Os_Internal_Cfg.h.php \
          ${FIXTURES}${DS}gen${DS}inc${DS}Os_Cfg.h.php \
@@ -78,7 +78,7 @@ testBlinkingExampleFull() {
 testOneTemplate() {
    rm -rf ${TMP}${DS}*
 
-   php modules${DS}rtos${DS}generator${DS}generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
+   php modules${DS}tools${DS}generator${DS}generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
       -t ${FIXTURES}${DS}gen${DS}inc${DS}Os_Internal_Cfg.h.php \
       -b ${DS}gen${DS} \
@@ -95,7 +95,7 @@ testOneTemplate() {
 }
 
 testOutputPath() {
-   php modules${DS}rtos${DS}generator${DS}generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
+   php modules${DS}tools${DS}generator${DS}generator.php -v -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
       -t "${FIXTURES}${DS}gen${DS}inc${DS}Os_Internal_Cfg.h.php" \
       -b ${DS}gen${DS} \
@@ -109,7 +109,7 @@ testOutputPath() {
 }
 
 testHelper() {
-   php modules${DS}rtos${DS}generator${DS}generator.php -v -DARCH=x85 -DCPUTYPE=ia32 -DCPU=none \
+   php modules${DS}tools${DS}generator${DS}generator.php -v -DARCH=x85 -DCPUTYPE=ia32 -DCPU=none \
    -c ${FIXTURES}${DS}blinking.oil \
    -t ${FIXTURES}${DS}templates${DS}template_for_helper_testing.php \
    -b ${DS}templates${DS} \

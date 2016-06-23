@@ -30,7 +30,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 testNoFileOutput() {
-   local OUTPUT=$(php modules${DS}rtos${DS}generator${DS}tests${DS}ftest${DS}stdoutWriterLauncher.php  -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
+   local OUTPUT=$(php modules${DS}tools${DS}generator${DS}tests${DS}ftest${DS}stdoutWriterLauncher.php  -DARCH=x86 -DCPUTYPE=ia32 -DCPU=none \
       -c ${FIXTURES}${DS}blinking.oil \
       -t ${FIXTURES}${DS}gen${DS}inc${DS}Os_Internal_Cfg.h.php \
       -H modules${DS}rtos${DS}gen${DS}ginc${DS}Multicore.php \
