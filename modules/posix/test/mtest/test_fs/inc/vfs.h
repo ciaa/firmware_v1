@@ -69,6 +69,8 @@
 
 /*==================[macros]=================================================*/
 
+/** \brief Max in-memory vnodes allowed */
+#define VFS_NODES_MAX 32
 /** \brief Max length of a filename */
 #define FS_NAME_MAX 30
 /** \brief Max length of an absolute path string */
@@ -407,6 +409,15 @@ extern int ciaaFS_mkdir(const char *dir_path, mode_t mode);
  **/
 extern int ciaaFS_open(const char *path, int flags);
 
+/** \brief Deletes the file in the path given
+ **
+ **
+ ** \param[in] path path of the file to be deleted
+ ** \return    -1 if failed, 0 if success.
+ **
+ **/
+extern int ciaaFS_unlink(const char *path);
+
 /** \brief Close a file descriptor
  **
  ** Closes the file descriptor fildes
@@ -421,6 +432,7 @@ extern int ciaaFS_open(const char *path, int flags);
  **          calling other of this function using the same file handler.
  **/
 extern int ciaaFS_close(int fd);
+
 /** \brief Reads from a file descriptor
  **
  ** Reads nbyte from the file descriptor fildes and store them in buf.

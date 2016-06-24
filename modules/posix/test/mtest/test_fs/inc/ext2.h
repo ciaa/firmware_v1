@@ -68,6 +68,8 @@
 
 /*==================[macros]=================================================*/
 
+#define EXT2_MAX_MOUNTS 32
+#define EXT2_BLOCK_BUFFER_SIZE 1024
 #define EXT2_PATH_MAX 50
 
 /** \brief Blank block size */
@@ -209,7 +211,7 @@ typedef struct ext2sb
    uint8_t    s_prealloc_blocks;       /* 204: # of blocks to preallocate when creating regular file */
    uint8_t    s_prealloc_dir_blocks;   /* 205: # of blocks to preallocate when creating directory */
    uint8_t    s_alignment[2];          /* 206: 4 byte alignment */
-   uint8_t    padding[816];            /* 208: Not used fields from here on. Padding */
+   //uint8_t    padding[816];            /* 208: Not used fields from here on. Padding */
 } ext2_superblock_t;
 
 /** \brief ext2 group descriptor

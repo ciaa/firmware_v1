@@ -227,7 +227,7 @@ static file_descriptor_table_t *file_desc_tab_p = &_f_tab;
 /** \brief vnode memory pool
  *
  */
-CIAALIBS_POOLDECLARE(vfs_vnode_pool, vnode_t, 32)
+CIAALIBS_POOLDECLARE(vfs_vnode_pool, vnode_t, VFS_NODES_MAX)
 
 /** \brief file descriptor memory pool
  *
