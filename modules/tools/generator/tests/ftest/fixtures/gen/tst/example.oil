@@ -1,0 +1,35 @@
+OS	ExampleOS {
+	STATUS = EXTENDED;
+   STARTUPHOOK = FALSE;
+   ERRORHOOK = FALSE;
+   SHUTDOWNHOOK = FALSE;
+};
+
+TASK TaskA {
+   PRIORITY = 2;
+   SCHEDULE = FULL;
+   ACTIVATION = 1;
+   AUTOSTART = TRUE {
+      APPMODE = AppMode1;
+      };
+   RESOURCE = Resource1;
+   EVENT = Event1;
+	STACK = 1024;
+	TYPE = EXTENDED;
+};
+
+TASK TaskB {
+	PRIORITY = 3;
+	SCHEDULE = FULL;
+	ACTIVATION = 2;
+	AUTOSTART = FALSE;
+	RESOURCE = Resource1;
+	STACK = 1024;
+	TYPE = BASIC;
+}
+
+APPMODE AppMode1;
+
+EVENT Event1;
+
+RESOURCE Resource1;
