@@ -395,7 +395,7 @@ void test_ciaaPOSIX_usleep_01(void) {
    TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 
    /* Set initial condition for this test */
-   ret = ciaaPOSIX_usleep(1000001);
+   ret = ciaaPOSIX_usleep(999999);
 
    /* ASSERTs */
    /* return OK */
@@ -436,7 +436,7 @@ void test_ciaaPOSIX_usleep_02(void) {
    TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 
    /* Set initial condition for this test */
-   ret = ciaaPOSIX_usleep(999999);
+   ret = ciaaPOSIX_usleep(1000000);
 
    /* ASSERTs */
    /* return ERROR */

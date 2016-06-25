@@ -143,7 +143,7 @@ extern int32_t ciaaPOSIX_usleep(useconds_t useconds)
    uint32_t toSleep;
 
 #if (CIAAPOSIX_DEBUG == CIAAPOSIX_ENABLE)
-   if (1000000 >= useconds)
+   if (1000000 <= useconds)
    {
       ret = -1;
    }
