@@ -2,7 +2,7 @@
 #
 #   exclude-dir="out" \
 #
-# keep synchronized with checker 
+# keep synchronized with checker
 
 TRAILING=$( egrep --files-with-matches --recursive " +$" \
    --include="*.c" \
