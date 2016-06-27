@@ -2,9 +2,9 @@
 #
 #   exclude-dir="out" \
 #
-# keep synchronized with fixer
+# keep synchronized with checker 
 
-TRAILING=$( egrep --with-filename --line-number --recursive " +$" \
+TRAILING=$( egrep --files-with-matches --recursive " +$" \
    --include="*.c" \
    --include="*.C" \
    --include="*.h" \
@@ -18,9 +18,10 @@ TRAILING=$( egrep --with-filename --line-number --recursive " +$" \
    * )
 
 if [ "$TRAILING"  ] ; then
-   echo "FAIL, there are trailing spaces"
-   echo "$TRAILING"
-   exit 1
+   for FILE in $TRAILING; do
+      echo "Fixing trailing spaces: $FILE"
+      sed -i -e 's/ *$//' "$FILE"
+   done
 else
    echo "Trailing spaces OK"
 fi

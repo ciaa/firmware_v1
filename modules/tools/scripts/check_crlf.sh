@@ -4,7 +4,7 @@
 #
 # keep synchronized with fixer
 
-TRAILING=$( egrep --with-filename --line-number --recursive " +$" \
+CRLF=$( egrep --recursive --files-with-matches "^" \
    --include="*.c" \
    --include="*.C" \
    --include="*.h" \
@@ -17,10 +17,10 @@ TRAILING=$( egrep --with-filename --line-number --recursive " +$" \
    --exclude-dir="\.git" \
    * )
 
-if [ "$TRAILING"  ] ; then
-   echo "FAIL, there are trailing spaces"
-   echo "$TRAILING"
-   exit 1
+if [ "$CRLF"  ] ; then
+   echo "FAIL, there are files with DOS EOL (CRLF)"
+   echo "$CRLF"
 else
-   echo "Trailing spaces OK"
+   echo "EOL OK"
 fi
+
