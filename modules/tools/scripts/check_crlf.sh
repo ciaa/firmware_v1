@@ -20,6 +20,7 @@ CRLF=$( egrep --recursive --files-with-matches "^" \
 if [ "$CRLF"  ] ; then
    echo "FAIL, there are files with DOS EOL (CRLF)"
    echo "$CRLF"
+   exit 1
 else
    echo "EOL OK"
 fi

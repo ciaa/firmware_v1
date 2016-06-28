@@ -2,7 +2,7 @@
 #
 # Copyright 2014, 2015, Mariano Cerdeiro
 # Copyright 2014, 2015, 2016, Juan Cecconi (Numetron, UTN-FRBA)
-# Copyright 2014, 2015, Esteban Volentini (LabMicro, UNT)
+# Copyright 2014, 2015, 2016, Esteban Volentini (LabMicro, UNT)
 # All rights reserved
 #
 # This file is part of CIAA Firmware.
@@ -210,6 +210,15 @@ endif
 endif
 endif
 
+###############################################################################
+# Code sanity chech and fix in every compilation
+ifeq ($(CODE_SANITY),CHECK)
+ifeq ($(CODE_SANITY),FIX)
+CHECK_AND_FIX_CODE += fix_code_sanity
+else
+CHECK_AND_FIX_CODE += code_sanity
+endif
+endif
 ###############################################################################
 # get root dir
 ROOT_DIR := .
@@ -425,12 +434,35 @@ mocks:
 	ruby externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)lib$(DS)cmock.rb -omodules$(DS)tools$(DS)ceedling$(DS)project.yml $(FILES_TO_MOCK)
 
 ###############################################################################
-# rule to check trailing spaces
+# rule to check code sanity
 code_sanity:
+	@echo ' '
+	@echo ===============================================================================
+	@echo Checking for carriage return
+	@./modules/tools/scripts/check_crlf.sh
 	@echo ' '
 	@echo ===============================================================================
 	@echo Checking for trailing spaces
 	@./modules/tools/scripts/check_trailing_spaces.sh
+	@echo ' '
+	@echo ===============================================================================
+	@echo Checking for code identation
+	@./modules/tools/scripts/check_indentation.sh
+
+fix_code_sanity:
+	@echo ' '
+	@echo ===============================================================================
+	@echo Fixing carriage return errors
+	@./modules/tools/scripts/fix_crlf.sh
+	@echo ' '
+	@echo ===============================================================================
+	@echo Fixing trailing spaces errors
+	@./modules/tools/scripts/fix_trailing_spaces.sh
+	@echo ' '
+	@echo ===============================================================================
+	@echo Checking for code identation
+	@./modules/tools/scripts/check_indentation.sh
+
 ###############################################################################
 # rule to run osek oil generator tests
 osek_oil_gen_tst:
@@ -530,7 +562,7 @@ $(foreach LIB, $(LIBS), $(eval -include $(addprefix $(OBJ_DIR)$(DS),$(OBJ_FILES:
 # libs with contains sources
 LIBS_WITH_SRC	= $(foreach LIB, $(LIBS), $(if $(filter %.c,$($(LIB)_SRC_FILES)),$(LIB)))
 
-$(PROJECT_NAME) : $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
+$(PROJECT_NAME): $(CHECK_AND_FIX_CODE) $(rtos_GENERATED_FILES) $(LIBS_WITH_SRC) $(OBJ_FILES)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking file: $(LD_TARGET)
@@ -860,7 +892,7 @@ info:
 
 ###############################################################################
 # clean
-.PHONY: clean generate all run multicore
+.PHONY: clean generate all run multicore code_sanity
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
