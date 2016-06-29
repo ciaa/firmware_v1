@@ -21,7 +21,7 @@ The files `lpc_board_nxp_lpcxpresso_4337/inc/lpc_phy.h` and `lpc_board_nxp_lpcxp
 
 see `patches/`
 
-## Actualizaciones
+## Updates
 
 After update lpcopen pay attention to the patches and apply them. Test before mmaking a merge request.
 
