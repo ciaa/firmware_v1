@@ -1,8 +1,8 @@
 lwipSysTick_Enable and mor LWIP
 ===================================================================
-diff -urN lwip/externals/lwip/src/arch/lpc18xx_43xx_systick_arch.c lwip-ciaa/externals/lwip_ciaa/src/arch/lpc18xx_43xx_systick_arch.c
+diff -urN lwip/externals/lwip/src/arch/lpc18xx_43xx_systick_arch.c lwip-ciaa/externals/lwip/src/arch/lpc18xx_43xx_systick_arch.c
 --- lwip/externals/lwip/src/arch/lpc18xx_43xx_systick_arch.c	2014-02-06 08:00:40.000000000 -0300
-+++ lwip-ciaa/externals/lwip_ciaa/src/arch/lpc18xx_43xx_systick_arch.c	2016-06-23 10:25:43.485002438 -0300
++++ lwip-ciaa/externals/lwip/src/arch/lpc18xx_43xx_systick_arch.c	2016-06-23 10:25:43.485002438 -0300
 @@ -31,8 +31,6 @@
  
  #include "lwip/opt.h"
