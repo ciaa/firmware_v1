@@ -6,7 +6,9 @@ The LPCOpen v2.16 LPCXpresso can be download from [LPCOPEN-SOFTWARE-FOR-LPC43XX:
 
 The copyright for each file taken is wrote in the sourcecode file.
 
-There is a script whics downloads lpcopen. copy files and apply patches which ard attached.
+There is a script whichs downloads lpcopen, copy files and apply patches attached in patches directory.
+
+The script may be called typing `bash download_and_patch.sh root_firmware_dir` and could be called via some Makefile taget.
 
 
 ## Copied files
