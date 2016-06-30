@@ -13,7 +13,6 @@ LWIPDIR="externals/lwip"
 
 cd $ROOT_DIR # voy al raiz
 
-# TODO tal vez descargar en algún lugar de out/
 mkdir -p out/download/lpcopen_2_16
 
 cat > out/download/.gitignore << EOF
