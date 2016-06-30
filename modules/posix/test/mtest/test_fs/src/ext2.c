@@ -138,6 +138,7 @@ static int ext2_block_map(const vnode_t * dest_node, uint32_t file_block, uint32
  ** \return -1 if an error occurs, in other case 0
  **/
 static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block);
+static int ext2_alloc_block_bit2(vnode_t * node, uint32_t *block);
 
 /** \brief mark the given block as free
  **
@@ -146,6 +147,7 @@ static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block);
  ** \return -1 if an error occurs, in other case 0
  **/
 static int ext2_dealloc_block_bit(vnode_t * node, uint32_t block);
+static int ext2_dealloc_block_bit2(vnode_t * node, uint32_t block);
 
 /** \brief find a free inode and mark it as used
  **
@@ -209,7 +211,6 @@ static int ext2_mount_load(vnode_t *dir_node);
  ** \return -1 if an error occurs, in other case 0
  **/
 static int ext2_mount_load_rec(vnode_t *dir_node);
-static int ext2_mount_load_rec2(vnode_t *dir_node);
 
 /** \brief print the formatted contents of the given ext2 superblock structure
  **
@@ -1178,6 +1179,9 @@ static int ext2_mount(vnode_t *dev_node, vnode_t *dest_node)
    fsinfo->s_block_size = 1024 << fsinfo->e2sb.s_log_block_size;
    fsinfo->sectors_in_block = fsinfo->s_block_size >> 9;   /* s_block_size/512 */
    fsinfo->s_inodes_per_block = (fsinfo->s_block_size)/(fsinfo->e2sb.s_inode_size);
+   /* Size of the block chunks to be read in buffer */
+   fsinfo->s_buff_size = EXT2_BLOCK_BUFFER_SIZE > fsinfo->s_block_size ? EXT2_BLOCK_BUFFER_SIZE : fsinfo->s_block_size;
+   fsinfo->s_buff_per_block = fsinfo->s_block_size / fsinfo->s_buff_size;      /* How much chunks per block */
 
    fsinfo->e2fs_gd = (ext2_gd_t *)ciaaPOSIX_malloc(fsinfo->s_groups_count*sizeof(ext2_gd_t));
    ciaaPOSIX_printf("ext2_mount(): Malloc of %d bytes\n", fsinfo->s_groups_count*sizeof(ext2_gd_t));
@@ -2183,7 +2187,6 @@ static int ext2_delete_directory_file(vnode_t *parent_node, vnode_t *node)
       node->n_info.down_layer_info = NULL;
    }
    return 0;
-   return 0;
 }
 
 /* Alloc policy: First free bit found, starting from beginning. Linear search, no optimization.
@@ -2194,9 +2197,8 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
    /* Search a group with free inode. Retrieve the free inode number */
    /* TODO: Slow allocation primitive. Should optimize */
    int ret;
-   uint32_t i,j,n;
-   uint16_t group_index;
-   uint8_t *bitmap_buffer;
+   uint32_t i,j,n, block_offset;
+   uint16_t group_index, segment_index, segment_offset;
 
    ciaaDevices_deviceType const *bdev;
    ext2_file_info_t *finfo;
@@ -2215,44 +2217,50 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
    ASSERT_MSG(group_index<fsinfo->s_groups_count, "ext2_alloc_inode_bit(): No group with free inodes");
    if(group_index >= fsinfo->s_groups_count)
    {
-      /* All gd indicate that the group is full */
+      /* All gd indicate that the group is full. No inode available */
       return -1;
    }
-   /* Alloc memory for bitmap buffer */
-   bitmap_buffer = (uint8_t *) ciaaPOSIX_malloc(fsinfo->s_block_size);
-   ASSERT_MSG(NULL != bitmap_buffer, "ext2_alloc_inode_bit(): Mem error");
-   if(NULL == bitmap_buffer)
+   block_offset = (fsinfo->e2fs_gd[group_index].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size);
+   for(segment_index=0, segment_offset = 0; segment_index < fsinfo->s_buff_per_block;
+         segment_index++, segment_offset += fsinfo->s_buff_size)
    {
-      return -1;
+      /* Read node bitmap to bitmap_buffer */
+      ret = ext2_device_buf_read(bdev, (uint8_t *)ext2_block_buffer,
+                                 block_offset + segment_offset,
+                                 fsinfo->s_buff_size);
+      if(ret)
+      {
+         return -1;
+      }
+      /* Search for a free byte in bitmap, which means, bit whose value is 0 */
+      /* First search a byte whose value is not FF, which means, it contains a 0 bit */
+      for(i = 0; i<fsinfo->s_buff_size && 0XFFU == ext2_block_buffer[i]; i++);
+      ASSERT_MSG(i<fsinfo->s_buff_size, "ext2_alloc_inode_bit(): No free byte. Descriptor error");
+      if(i >= fsinfo->s_buff_size)
+      {
+         /* No free bit found in this block segment. Continue with next segment */
+         continue;
+      }
+      /* Found byte with free bit in bitmap. The block segment that contains this byte is stored
+       * in ext2_block_buffer. The byte position in the segment is i. The segment offset is segment_offset
+       */
+      break;
    }
-
-   /* Read node bitmap to bitmap_buffer */
-   ret = ext2_device_buf_read(bdev, (uint8_t *)bitmap_buffer,
-                              (fsinfo->e2fs_gd[group_index].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size),
-                              fsinfo->s_block_size);
-   if(ret)
+   if(segment_index >= fsinfo->s_buff_per_block)
    {
-      ciaaPOSIX_free(bitmap_buffer);
-      return -1;
-   }
-   /* Search for a free bitmap, which means,bit whose value is 0 */
-   /* First search a byte whose value is not FF, which means, it contains a 0 bit */
-   for(i = 0; i<fsinfo->s_block_size && 0XFFU == bitmap_buffer[i]; i++);
-   ASSERT_MSG(i<fsinfo->s_block_size, "ext2_alloc_inode_bit(): No free byte. Descriptor error");
-   if(i >= fsinfo->s_block_size)
-   {
-      /* No free bit found
+      /* No free bit found in bitmap
        * Metadata inconsistency error. Group descriptor shows that there is a free bit available
        */
       return -1;
    }
+
    /* Find free bit inside the found byte */
    for(j = 0; j < 8; j++)
    {
-      if(!(bitmap_buffer[i] & (1<<j)))
+      if(!(ext2_block_buffer[i] & (1<<j)))
       {
-         bitmap_buffer[i] |= (1<<j);
-         n = 8*i + j;
+         ext2_block_buffer[i] |= (1<<j);
+         n = 8*i + j;   /* Bit offset inside segment */
          break;
       }
    }
@@ -2261,17 +2269,16 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
    {
       return -1;   /* Should never happen */
    }
-   /* n is the free block number relative to the current group descriptor.
+   /* segment_offset*8 + n is the free block number relative to the current group.
     * Must calculate absolute inode number
     */
-   *new_inumber_p = group_index * fsinfo->e2sb.s_inodes_per_group + n + 1;
+   *new_inumber_p = group_index * fsinfo->e2sb.s_inodes_per_group + (segment_offset<<3) + n + 1;
    /* Write modified bitmap to disk */
-   ret = ext2_device_buf_write(bdev, (uint8_t *)bitmap_buffer,
-                              (fsinfo->e2fs_gd[group_index].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size),
-                              fsinfo->s_block_size);
+   ret = ext2_device_buf_write(bdev, (uint8_t *)ext2_block_buffer,
+                              block_offset + segment_offset,
+                              fsinfo->s_buff_size);
    if(ret)
    {
-      ciaaPOSIX_free(bitmap_buffer);
       return -1;
    }
    /* Refresh in-memory bookkeeping info. The caller should write it to disk */
@@ -2287,8 +2294,8 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
 static int ext2_dealloc_inode_bit(vnode_t *node)
 {
    int ret;
-   uint32_t n;
-   uint8_t *bitmap_buffer;
+   uint32_t bitmap_offset, n;
+   uint8_t bitmap_byte;
 
    ciaaDevices_deviceType const *bdev;
    ext2_file_info_t *finfo;
@@ -2298,35 +2305,22 @@ static int ext2_dealloc_inode_bit(vnode_t *node)
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
    fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
 
-   /* Alloc memory for bitmap buffer */
-   bitmap_buffer = (uint8_t *) ciaaPOSIX_malloc(fsinfo->s_block_size);
-   if(NULL == bitmap_buffer)
-   {
-      return -1;
-   }
-
-   /* Read bitmap to bitmap_buffer */
-   ret = ext2_device_buf_read(bdev, (uint8_t *)bitmap_buffer,
-                              (fsinfo->e2fs_gd[finfo->f_group].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size),
-                              fsinfo->s_block_size);
-   if(ret)
-   {
-      ciaaPOSIX_free(bitmap_buffer);
-      return -1;
-   }
-
-   /* n is the node number relative to the current group descriptor.
-    * Must deallocate bit n of current group descriptors node bimap
-    */
+   /* n is the inode number relative to current group, so its the bit offset in inode bitmap */
+   /* n>>3 (n/8) is then the byte offset in the bitmap where the bit of current node resides */
    n = finfo->f_inumber - (finfo->f_group * fsinfo->e2sb.s_inodes_per_group) - 1;
-   clrbit(bitmap_buffer, n);
-   /* Write modified bitmap to disk */
-   ret = ext2_device_buf_write(bdev, (uint8_t *)bitmap_buffer,
-                              (fsinfo->e2fs_gd[finfo->f_group].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size),
-                              fsinfo->s_block_size);
+   /* Read bitmap to bitmap_buffer */
+   bitmap_offset = (fsinfo->e2fs_gd[finfo->f_group].inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size);
+   ret = ext2_device_buf_read(bdev, (uint8_t *)&bitmap_byte, bitmap_offset + (n>>3), sizeof(uint8_t));
    if(ret)
    {
-      ciaaPOSIX_free(bitmap_buffer);
+      return -1;
+   }
+   /* Clear bit from target byte */
+   bitmap_byte &= (uint8_t)~(1<<(n&0x07));
+   /* Write modified bitmap byte to disk */
+   ret = ext2_device_buf_write(bdev, (uint8_t *)&bitmap_byte, bitmap_offset + (n>>3), sizeof(uint8_t));
+   if(ret)
+   {
       return -1;
    }
    /* Refresh on-memory bookkeeping info. Caller should write them to disk */
@@ -2344,9 +2338,9 @@ static int ext2_dealloc_inode_bit(vnode_t *node)
 static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *device_block_p)
 {
    int ret;
-   uint32_t block_pos, new_block, temp_block_num, index_offset;
+   uint32_t block_pos, new_block, temp_block_num, index_offset, block_offset, segment_offset;
    uint8_t shift_block_level, shift_single_block_level, block_level, flag_new_block;
-   uint8_t *block_buffer;
+   uint8_t segment_index;
 
    ciaaDevices_deviceType const *bdev;
    ext2_file_info_t *finfo;
@@ -2400,7 +2394,7 @@ static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *dev
             return -1;
          }
       }
-   
+
       temp_block_num = finfo->f_di.i_block[N_DIRECT_BLOCKS - 1 + block_level];
       if (0 == temp_block_num)
       {
@@ -2448,20 +2442,20 @@ static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *dev
    if(1 == flag_new_block)
    {
       /* Erase the contents of the new reserved block */
-      block_buffer = (uint8_t *) ciaaPOSIX_malloc(fsinfo->s_block_size);
-      if(NULL == block_buffer)
+      block_offset = new_block<<(10+fsinfo->e2sb.s_log_block_size);
+      ciaaPOSIX_memset(ext2_block_buffer, 0, fsinfo->s_buff_size);
+      for(segment_index=0, segment_offset = 0; segment_index < fsinfo->s_buff_per_block;
+            segment_index++, segment_offset += fsinfo->s_buff_size)
       {
-         return -1;
+         /* write contents of buffer to the segment */
+         ret = ext2_device_buf_write(bdev, (uint8_t *)ext2_block_buffer,
+                                    block_offset + segment_offset,
+                                    fsinfo->s_buff_size);
+         if(ret)
+         {
+            return -1;
+         }
       }
-      ciaaPOSIX_memset(block_buffer, 0, fsinfo->s_block_size);
-      ret = ext2_device_buf_write(bdev, (uint8_t *)block_buffer, new_block<<(10+fsinfo->e2sb.s_log_block_size),
-                                    fsinfo->s_block_size);
-      if(ret)
-      {
-         ciaaPOSIX_free(block_buffer);
-         return -1;
-      }
-      ciaaPOSIX_free(block_buffer);
    }
 
    return 0;
@@ -2472,10 +2466,11 @@ static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *dev
 /* TODO: Only searches a block in the current file group. Should check in all groups */
 static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block)
 {
+   /* Search a group with free inode. Retrieve the free inode number */
+   /* TODO: Slow allocation primitive. Should optimize */
    int ret;
-   uint32_t i, j;
-   uint32_t b;
-   uint8_t *bitmap_buffer;
+   uint32_t i,j,b, block_offset;
+   uint16_t group_index, segment_index, segment_offset;
 
    ciaaDevices_deviceType const *bdev;
    ext2_file_info_t *finfo;
@@ -2484,74 +2479,96 @@ static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block)
    bdev = node->fs_info.device;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
    fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   *block = 0;
 
-   /* Alloc memory of the size of a block */
-   bitmap_buffer = (uint8_t *) ciaaPOSIX_malloc(fsinfo->s_block_size);
-   if(NULL == bitmap_buffer)
+   /* Search a group with a free block, starting from the group of this file */
+   for(group_index = finfo->f_group, i=0; i < fsinfo->s_groups_count;
+         group_index = (group_index + 1) % fsinfo->s_groups_count)
    {
-      *block = 0;
+      if(fsinfo->e2fs_gd[group_index].free_inodes_count)
+         break;
+   }
+   ASSERT_MSG(group_index<fsinfo->s_groups_count, "ext2_alloc_block_bit(): No group with free blocks");
+   if(i >= fsinfo->s_groups_count)
+   {
+      /* All gd indicate that the group is full. No block available */
       return -1;
    }
-
-   /* Read bitmap from disk to the bitmap buffer */
-   ret = ext2_device_buf_read(bdev, (uint8_t *)bitmap_buffer,
-                              fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size,
-                              fsinfo->s_block_size);
-   if(ret)
+   block_offset = (fsinfo->e2fs_gd[group_index].block_bitmap)<<(10+fsinfo->e2sb.s_log_block_size);
+   for(segment_index=0, segment_offset = 0; segment_index < fsinfo->s_buff_per_block;
+         segment_index++, segment_offset += fsinfo->s_buff_size)
    {
-      *block = 0;
-      ciaaPOSIX_free(bitmap_buffer);
-      return -1;
-   }
-   /* Search a free bit in bitmap
-    * First search for a non 0xFF byte, then find out which is the first zero bit in that byte
-    */
-   for(i = 0; i<fsinfo->s_block_size && bitmap_buffer[i] == 0xFF; i++);
-   if(i >= fsinfo->s_block_size)
-   {
-      /* No free blocks in this group */
-      *block = 0;
-      return -1;
-   }
-   /* Find free bit inside found byte */
-   for(j=0; j<8; j++)
-   {
-      if(!(bitmap_buffer[i] & (1<<j)))
+      /* Read node bitmap to bitmap_buffer */
+      ret = ext2_device_buf_read(bdev, (uint8_t *)ext2_block_buffer,
+                                 block_offset + segment_offset,
+                                 fsinfo->s_buff_size);
+      if(ret)
       {
-         bitmap_buffer[i] |= (1<<j);
-         b = 8*i + j;
+         return -1;
+      }
+      /* Search for a free byte in bitmap, which means, bit whose value is 0 */
+      /* First search a byte whose value is not FF, which means, it contains a 0 bit */
+      for(i = 0; i<fsinfo->s_buff_size && 0XFFU == ext2_block_buffer[i]; i++);
+      ASSERT_MSG(i<fsinfo->s_buff_size, "ext2_alloc_inode_bit(): No free byte. Descriptor error");
+      if(i >= fsinfo->s_buff_size)
+      {
+         /* No free bit found in this block segment. Continue with next segment */
+         continue;
+      }
+      /* Found byte with free bit in bitmap. The block segment that contains this byte is stored
+       * in ext2_block_buffer. The byte position in the segment is i. The segment offset is segment_offset
+       */
+      break;
+   }
+   if(segment_index >= fsinfo->s_buff_per_block)
+   {
+      /* No free bit found in bitmap
+       * Metadata inconsistency error. Group descriptor shows that there is a free bit available
+       */
+      return -1;
+   }
+
+   /* Find free bit inside the found byte */
+   for(j = 0; j < 8; j++)
+   {
+      if(!(ext2_block_buffer[i] & (1<<j)))
+      {
+         ext2_block_buffer[i] |= (1<<j);
+         b = 8*i + j;   /* Bit offset inside segment */
          break;
       }
    }
-   if(8 == j)
+   ASSERT_MSG(j < 8, "ext2_alloc_inode_bit(): No free bit in selected byte. Inconsistency error");
+   if(j >= 8)
    {
-      *block = 0;
       return -1;   /* Should never happen */
    }
-   /* Write modified bitmap to disk again */
-   ret = ext2_device_buf_write(bdev, (uint8_t *)bitmap_buffer,
-                              fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size,
-                              fsinfo->s_block_size);
+   /* Write modified bitmap to disk */
+   ret = ext2_device_buf_write(bdev, (uint8_t *)ext2_block_buffer,
+                              block_offset + segment_offset,
+                              fsinfo->s_buff_size);
    if(ret)
    {
-      ciaaPOSIX_free(bitmap_buffer);
-      *block = 0;
       return -1;
    }
-   *block = fsinfo->e2sb.s_first_data_block + fsinfo->e2sb.s_blocks_per_group*finfo->f_group + b;
-   fsinfo->e2fs_gd[finfo->f_group].free_blocks_count--;
+   /* segment_offset*8 + n is the free block number relative to the current group.
+    * Must calculate absolute inode number
+    */
+   *block = fsinfo->e2sb.s_first_data_block + fsinfo->e2sb.s_blocks_per_group*group_index + (segment_offset<<3) + b;
+   /* Refresh in-memory bookkeeping info. The caller should write it to disk */
+   fsinfo->e2fs_gd[group_index].free_blocks_count--;
    fsinfo->e2sb.s_free_blocks_count--;
-   ciaaPOSIX_free(bitmap_buffer);
+
    return 0;
 }
 
 /* Dealloc given block */
 /* Modifies bookkeeping info */
-static int ext2_dealloc_block_bit(vnode_t * node, uint32_t block)
+static int ext2_dealloc_block_bit(vnode_t *node, uint32_t block)
 {
    int ret;
-   uint32_t b;
-   uint8_t *bitmap_buffer;
+   uint32_t bitmap_offset, b, block_group;
+   uint8_t bitmap_byte;
 
    ciaaDevices_deviceType const *bdev;
    ext2_file_info_t *finfo;
@@ -2561,39 +2578,30 @@ static int ext2_dealloc_block_bit(vnode_t * node, uint32_t block)
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
    fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
 
-   /* Alloc memory for a block */
-   bitmap_buffer = (uint8_t *) ciaaPOSIX_malloc(fsinfo->s_block_size);
-   ASSERT_MSG(NULL != bitmap_buffer, "ext2_dealloc_block_bit(): ciaaPOSIX_malloc() failed");
-   if(NULL == bitmap_buffer)
-   {
-      return -1;
-   }
-
-   /* Read bitmap from disk */
-   ret = ext2_device_buf_read(bdev, (uint8_t *)bitmap_buffer,
-                              fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size,
-                              fsinfo->s_block_size);
+   /* n is the inode number relative to current group, so its the bit offset in inode bitmap */
+   /* n>>3 (n/8) is then the byte offset in the bitmap where the bit of current node resides */
+   //b = block - fsinfo->e2sb.s_first_data_block - (fsinfo->e2sb.s_blocks_per_group*finfo->f_group);
+   block_group = (block - fsinfo->e2sb.s_first_data_block) / fsinfo->e2sb.s_blocks_per_group;
+   b = (block - block - fsinfo->e2sb.s_first_data_block) % fsinfo->e2sb.s_blocks_per_group;
+   /* Read bitmap to bitmap_buffer */
+   bitmap_offset = (fsinfo->e2fs_gd[block_group].block_bitmap)<<(10+fsinfo->e2sb.s_log_block_size);
+   ret = ext2_device_buf_read(bdev, (uint8_t *)&bitmap_byte, bitmap_offset + (b>>3), sizeof(uint8_t));
    if(ret)
    {
-      ciaaPOSIX_free(bitmap_buffer);
       return -1;
    }
-
-   b = block - fsinfo->e2sb.s_first_data_block - (fsinfo->e2sb.s_blocks_per_group*finfo->f_group);
-   clrbit(bitmap_buffer, b);
-
-   /* Write modified bitmap to disk */
-   ret = ext2_device_buf_write(bdev, (uint8_t *)bitmap_buffer,
-                              fsinfo->e2fs_gd[finfo->f_group].block_bitmap * fsinfo->s_block_size,
-                              fsinfo->s_block_size);
+   /* Clear bit from target byte */
+   bitmap_byte &= (uint8_t)~(1<<(b&0x07));
+   /* Write modified bitmap byte to disk */
+   ret = ext2_device_buf_write(bdev, (uint8_t *)&bitmap_byte, bitmap_offset + (b>>3), sizeof(uint8_t));
    if(ret)
    {
-      ciaaPOSIX_free(bitmap_buffer);
       return -1;
    }
-   fsinfo->e2fs_gd[finfo->f_group].free_blocks_count++;
+   /* Refresh on-memory bookkeeping info. Caller should write them to disk */
+   fsinfo->e2fs_gd[block_group].free_blocks_count++;
    fsinfo->e2sb.s_free_blocks_count++;
-   ciaaPOSIX_free(bitmap_buffer);
+
    return 0;
 }
 
@@ -2607,7 +2615,7 @@ Ejemplo: Tengo solo los entries . y ..
 .:4 2 1 1 1 3; ..:4 2 1 1 2 2
 0 a 11 (12); 12 a 21 (12); 22 a 2047 (2024)
 
-La estructura ext2_direntry soporta nombres de hasta EXT2_MAXNAMELEN bytes. Podria guardar el entry anterior y tenerlo de backup por si el entry actual no puede ser completamente leido. 
+La estructura ext2_direntry soporta nombres de hasta EXT2_MAXNAMELEN bytes. Podria guardar el entry anterior y tenerlo de backup por si el entry actual no puede ser completamente leido.
 Podria implementar una funcion del estilo ext2_get_next_entry(ext2_direntry_t *, )
 
 Podria utilizar un buffer circular.

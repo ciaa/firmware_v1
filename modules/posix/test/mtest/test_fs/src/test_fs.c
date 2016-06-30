@@ -203,7 +203,6 @@ TASK(InitTask)
    /* format */
    ret = ciaaFS_format("/dev/block/fd/0", "EXT2");
    ASSERT_MSG(-1 < ret, "Problem formatting device");
-
    ASSERT_SEQ(1);
    /* mount */
    ret = ciaaFS_mount("/dev/block/fd/0", "/mount/ext2", "EXT2");

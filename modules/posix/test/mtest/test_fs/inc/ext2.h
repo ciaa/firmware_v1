@@ -288,6 +288,8 @@ typedef struct ext2_fs_info
    uint32_t   s_desc_per_block;     /* Number of group descriptors per block */
    uint32_t   s_groups_count;       /* Number of groups in the fs */
    uint8_t    sectors_in_block;     /* Sector is 512 bytes long */
+   uint16_t   s_buff_size;           /* Size of the block chunks to be read in buffer */
+   uint8_t    s_buff_per_block;      /* How much chunks per block */
 } ext2_fs_info_t;
 
 /** \brief ext2 file info
