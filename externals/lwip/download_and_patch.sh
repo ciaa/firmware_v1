@@ -7,6 +7,7 @@ fi
 
 
 ROOT_DIR=$1
+# TODO maybe validate ROOT_DIR
 OLD_DIR=$PWD
 ROOT_EXAMPLE="out/download/lpcopen_2_16/lwip_tcpecho"
 LWIPDIR="externals/lwip" 
@@ -41,11 +42,10 @@ mkdir -p examples/blinking_lwip/inc/
 cp -rf $ROOT_EXAMPLE/example/inc/*.h examples/blinking_lwip/inc/
 cp -rf $ROOT_EXAMPLE/example/src/*.h examples/blinking_lwip/inc/
 
-
-patch -p1 < $LWIPDIR/patches/0001-remove-board-h.patch
-patch -p1 < $LWIPDIR/patches/0002-lpc-head.patch
-patch -p1 < $LWIPDIR/patches/0003-lpc18xx_43xx_emac.patch
-patch -p1 < $LWIPDIR/patches/0004-lpc_phy.patch
+patch -p1 < $LWIPDIR/patches/0001_remove-board-h.patch
+patch -p1 < $LWIPDIR/patches/0002_lpc-head.patch
+patch -p1 < $LWIPDIR/patches/0003_lpc18xx_43xx_emac.patch
+patch -p1 < $LWIPDIR/patches/0004_lpc_phy.patch
 patch -p1 < $LWIPDIR/patches/0005_lpc18xx_systick_arch.patch
 patch -p1 < $LWIPDIR/patches/0006_lpc_18xx43xx_emac_config.patch
 patch -p1 < $LWIPDIR/patches/0007_lwipopts_sample.patch
