@@ -16,6 +16,11 @@ cd $ROOT_DIR # voy al raiz
 # TODO tal vez descargar en algún lugar de out/
 mkdir -p out/download/lpcopen_2_16
 
+cat > out/download/.gitignore << EOF
+# Ignore everything in this directory
+*
+EOF
+
 wget -c -Oout/download/lpcopen_2_16_lpcxpresso_nxp_lpcxpresso_4337.zip \
 	http://cache.nxp.com/files/microcontrollers/software/LPCWare/lpcopen_2_16_lpcxpresso_nxp_lpcxpresso_4337.zip
 

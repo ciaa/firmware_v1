@@ -884,6 +884,8 @@ endif
 	@rm -rf $(OBJ_DIR)$(DS)*
 	@echo Removing oil configuration files
 	@rm -rf $(ETC_DIR)$(DS)*
+	@echo Removing Download files
+	@rm -rf $(OUT_DIR)$(DS)download
 
 clean_rtostests:
 	@echo Removing RTOS Test generated project files
