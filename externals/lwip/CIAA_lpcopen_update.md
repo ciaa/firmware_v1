@@ -13,9 +13,7 @@ The script may be called typing `bash download_and_patch.sh root_firmware_dir` a
 
 ## Copied files
 
-The files `lwip_tcpecho/example/inc/lpc_18xx43xx_emac_config.h` and `lwip_tcpecho/example/inc/lwipopts.h` has been copied to `examples/blinking_lwip/inc` directory.
-
-The files `lpc_board_nxp_lpcxpresso_4337/inc/lpc_phy.h` and `lpc_board_nxp_lpcxpresso_4337/src/lpc_phy_smsc87x0.c` has been copied to `externals/lwip/inc/arch/`
+See the script sourcecode and its comments.
 
 ## Patchs
 
@@ -23,6 +21,6 @@ see `patches/`
 
 ## Updates
 
-After update lpcopen pay attention to the patches and apply them. Test before mmaking a merge request.
+After update lpcopen pay attention to the patches and apply them. Test before commiting. The script has its own comments for better understanding.
 
 Keep mak dir as cames inside `externals/lwip`.
