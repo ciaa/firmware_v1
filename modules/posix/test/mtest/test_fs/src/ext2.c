@@ -248,6 +248,15 @@ static int ext2_read_inode(vnode_t *dest_node, uint32_t inumber);
  **/
 static int ext2_write_inode(vnode_t *dest_node);
 
+/** \brief read from disk a group descriptor to memory
+ **
+ ** \param[in] node node of file which resides in the mount. Can be any node
+ ** \param[in] ngroup number of the group descriptor to be read
+ ** \param[out] gdp pointer to the on-memory descriptor struct to be filled
+ ** \return -1 if an error occurs, in other case 0
+ **/
+static int ext2_get_groupdesc(vnode_t *node, uint16_t ngroup, ext2_gd_t *gdp);
+
 /** \brief search an entry in a directory by its fields
  **
  ** \param[in] dir_node directory in which to look for the entry
@@ -2195,7 +2204,7 @@ static int ext2_delete_directory_file(vnode_t *parent_node, vnode_t *node)
 static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
 {
    /* Search a group with free inode. Retrieve the free inode number */
-   /* TODO: Slow allocation primitive. Should optimize */
+   /* TODO: Slow allocation algorithm. Should optimize */
    int ret;
    uint32_t i,j,n, block_offset;
    uint16_t group_index, segment_index, segment_offset;
@@ -2926,6 +2935,24 @@ static ssize_t ext2_device_buf_write(ciaaDevices_deviceType const * const device
       return -1;
    }
 
+   return 0;
+}
+
+/* For a max partition size of 4GB, there is a maximum of 512 groups */
+static int ext2_get_groupdesc(vnode_t *node, uint16_t ngroup, ext2_gd_t *gdp)
+{
+   ciaaDevices_deviceType const *bdev;
+   ext2_fs_info_t *fsinfo;
+   int ret;
+
+   bdev = node->fs_info.device;
+   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+
+   ret = ext2_device_buf_read(bdev, (uint8_t *)gdp, EXT2_GDOFF+ ngroup * sizeof(ext2_gd_t), sizeof(ext2_gd_t));
+   if(ret)
+   {
+      return -1;
+   }
    return 0;
 }
 
