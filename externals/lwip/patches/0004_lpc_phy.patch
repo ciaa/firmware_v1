@@ -1,8 +1,8 @@
 Function prototype for a MS delay function.
 ===================================================================
-diff -uNr lwip/externals/lwip/cortexM4/lpc43xx/lpc4337/inc/arch/lpc_phy.h lwip-ciaa/externals/lwip-ciaa/cortexM4/lpc43xx/lpc4337/inc/arch/lpc_phy.h
---- lwip/externals/lwip/cortexM4/lpc43xx/lpc4337/inc/arch/lpc_phy.h	2014-02-06 08:00:40.000000000 -0300
-+++ lwip-ciaa/externals/lwip/cortexM4/lpc43xx/lpc4337/inc/arch/lpc_phy.h	2016-06-27 23:10:50.867287885 -0300
+diff -uNr lwip/externals/lwip/cortexM4/lpc43xx/lpc4337/inc/lpc_phy.h lwip-ciaa/externals/lwip-ciaa/cortexM4/lpc43xx/lpc4337/inc/lpc_phy.h
+--- lwip/externals/lwip/cortexM4/lpc43xx/lpc4337/inc/lpc_phy.h	2014-02-06 08:00:40.000000000 -0300
++++ lwip-ciaa/externals/lwip/cortexM4/lpc43xx/lpc4337/inc/lpc_phy.h	2016-06-27 23:10:50.867287885 -0300
 @@ -68,6 +68,12 @@
  uint32_t lpcPHYStsPoll(void);
  

@@ -43,7 +43,7 @@
 #include "arch/lpc18xx_43xx_emac.h"
 
 #include "chip.h"
-#include "arch/lpc_phy.h"
+#include "lpc_phy.h"
 
 #include <string.h>
 
