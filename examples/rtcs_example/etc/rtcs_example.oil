@@ -1,4 +1,4 @@
-/* Copyright 2015,Diego Ezequiel Vommaro                                        */
+/* Copyright 2015, 2016 Diego Ezequiel Vommaro                                  */
 /* Copyright 2015, ACSE & CADIEEL                                               */
 /*    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/ */
 /*    CADIEEL: http://www.cadieel.org.ar                                        */
@@ -61,7 +61,7 @@ OSEK OSEK {
 
    APPMODE = AppMode1;
 
-   TASK MainTask {
+   TASK InitTask {
       PRIORITY = 1;
       ACTIVATION = 1;
       AUTOSTART = TRUE {
@@ -73,4 +73,73 @@ OSEK OSEK {
       RESOURCE = POSIXR;
       EVENT = POSIXE;
    }
+
+   TASK ControlTask {
+      PRIORITY = 10;
+      ACTIVATION = 1;
+      STACK = 512;
+      TYPE = EXTENDED;
+      SCHEDULE = FULL;
+      RESOURCE = POSIXR;
+      EVENT = POSIXE;
+   }
+
+   ALARM ActivateControlTask {
+      COUNTER = SoftwareCounter;
+      ACTION = ACTIVATETASK {
+         TASK = ControlTask;
+      }
+   }
+
+   COUNTER HardwareCounter {
+      MAXALLOWEDVALUE = 100;
+      TICKSPERBASE = 1;
+      MINCYCLE = 1;
+      TYPE = HARDWARE;
+      COUNTER = HWCOUNTER0;
+   };
+
+   COUNTER SoftwareCounter {
+      MAXALLOWEDVALUE = 1000;
+      TICKSPERBASE = 1;
+      MINCYCLE = 1;
+      TYPE = SOFTWARE;
+   };
+
+   ALARM IncrementSWCounter {
+      COUNTER = HardwareCounter;
+      ACTION = INCREMENT {
+         COUNTER = SoftwareCounter;
+      };
+      AUTOSTART = TRUE {
+         APPMODE = AppMode1;
+         ALARMTIME = 1;
+         CYCLETIME = 1;
+      };
+   };
+
+   ISR UART0_IRQHandler {
+      INTERRUPT = UART0;
+      CATEGORY = 2;
+      PRIORITY = 0;
+   };
+
+   ISR UART2_IRQHandler {
+      INTERRUPT = UART2;
+      CATEGORY = 2;
+      PRIORITY = 0;
+   };
+
+   ISR UART3_IRQHandler {
+      INTERRUPT = UART3;
+      CATEGORY = 2;
+      PRIORITY = 0;
+   };
+
+   ISR DMA_IRQHandler {
+      INTERRUPT = DMA;
+      CATEGORY = 2;
+      PRIORITY = 0;
+   }
+
 };

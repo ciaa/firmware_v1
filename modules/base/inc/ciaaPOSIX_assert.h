@@ -60,13 +60,13 @@ extern "C" {
       while(1==1);                                                         \
    }
 
-#if 1
+/* UNITY_EXCLUDE_STDINT_H macro is used in Unit Test Enviroment */
+#ifdef CIAA_UNIT_TEST
+   void ciaaPOSIX_assert(int expr);
+#else
 #define ciaaPOSIX_assert(expr)                                             \
    ciaaPOSIX__assert(__FILE__, __LINE__, (expr))
-#else
-#define ciaaPOSIX_assert(expr)
 #endif
-
 
 /*==================[typedef]================================================*/
 

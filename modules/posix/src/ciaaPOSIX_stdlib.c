@@ -52,11 +52,10 @@
 /*==================[macros and definitions]=================================*/
 
 #ifndef CIAA_HEAP_MEM_SIZE
-//#error CIAA_HEAP_MEM_SIZE should be defined within the project makefile ./projects/project_name/mak/Makefile
-#define  CIAA_HEAP_MEM_SIZE 10000
+#define CIAA_HEAP_MEM_SIZE 20000
 #endif
+ 
 
-//TODO: move these definitions to the same makefile where CIAA_HEAP_MEM_SIZE is defined.
 #define CIAA_POSIX_STDLIB_AVAILABLE 1
 #define CIAA_POSIX_STDLIB_USED      0
 

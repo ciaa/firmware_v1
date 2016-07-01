@@ -1,0 +1,33 @@
+- Mantener dentro de lpwip el directorio mak correspondiente a CIAA FW al actualizar
+- El lpc_18xx43xx_emac_config.h va dentro del /inc del ejemplo
+- Se quita el #include "board.h" del archivo lpc18xx_43xx_emac.c y se definen dentro del lpc_18xx43xx_emac_config.h del ejemplo los defines involucrados
+         /* Build for RMII interface */
+         #define USE_RMII
+         #define BOARD_ENET_PHY_ADDR	0x00
+- Dentro del archivo lpc se realizan los siguientes cambios
+
+      void OSEK_ISR_ETH_IRQHandler(void)
+         en L812 aprox, en lugar de
+      void ETH_IRQHandler(void)
+
+      Agrego en L867 aprox
+      /* Returns the MAC address assigned to this board */
+      void Board_ENET_GetMacADDR(uint8_t *mcaddr)
+      {
+         /* TODO FIXME!! Get MAC address from I2C memory!! */
+         uint8_t boardmac[] = {0x00, 0x60, 0x37, 0x12, 0x34, 0x56};
+
+         memcpy(mcaddr, boardmac, 6);
+      }
+      
+- Se cambia el #include "lpc_phy.h" por #include "arch/lpc_phy.h" del archivo lpc18xx_43xx_emac.c
+- Copiar el archivo lpc_board_nxp_lpcxpresso_4337/inc/lpc_phy.h dentro de lwip/inc/arch/
+- Copiar lo siguiente dentro de lpc_phy.h
+            /**
+            * @brief Function prototype for a MS delay function. Board layers or example code may
+            *        define this function as needed.
+            */
+            typedef void (*p_msDelay_func_t)(uint32_t);
+
+- Copiar el archivo lpc_board_nxp_lpcxpresso_4337/src/lpc_phy_smsc87x0.c dentro de lwip/src/arch/
+- Se cambia el #include "lpc_phy.h" por #include "arch/lpc_phy.h" del archivo lpc_phy_smsc87x0.c

@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2016, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,18 +31,19 @@
  *
  */
 
-/** \brief Short description of this file
+/** \brief Math Library sources
  **
- ** Long description of this file
+ ** This library provides a Maths functionalities
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup Libs CIAA Libraries
  ** @{ */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stdlib.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -56,6 +58,36 @@
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
+extern int8_t ciaaLibs_getFirstNotSetBit(uint32_t value)
+{
+   uint32_t mask = 0xffffffffu;
+   bool found = false;
+   uint8_t searchSize = 16;
+   uint8_t searchPos = 0;
+
+   if (mask != value) {
+      while(false == found)
+      {
+         /* check if one or more bits are 0 */
+         if (((mask >> (32-searchSize)) << searchPos) !=
+               (value & ((mask >> (32-searchSize)) << searchPos))) {
+            if (1 != searchSize) {
+               searchSize >>= 1;
+            } else {
+               found = true;
+            }
+         } else {
+            searchPos += searchSize;
+         }
+      }
+   }
+
+   if (false == found) {
+      searchPos = -1;
+   }
+
+   return searchPos;
+}
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

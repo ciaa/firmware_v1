@@ -1,4 +1,10 @@
+# remove this line when the generator gets stable
+#
+#   -and -not -wholename "./out/*" \
+#
+
 TRAILING=$(find . -type f \
+   -and -not -wholename "./out/*" \
    -and -not -wholename "./.git*" \
    -and -not -wholename "./externals*" \
    -and -not -name "*.png" \

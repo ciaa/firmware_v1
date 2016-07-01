@@ -51,6 +51,9 @@
 #include "ciaaDriverFlash.h"
 #include "ciaaDriverAio.h"
 #include "ciaaDriverDio.h"
+#ifdef CIAA_CFG_NET_IP
+#include "ciaaDriverEth.h"
+#endif
 
 #include "ciaaPOSIX_stdlib.h"
 
@@ -84,10 +87,10 @@ void ciaak_start(void)
    /* init drivers */
    ciaaDriverUart_init();
    ciaaDriverFlash_init();
-
-   /* ciaaDioDevices_init(); */
+#ifdef CIAA_CFG_NET_IP
+   ciaaDriverEth_init();
+#endif
    ciaaDriverDio_init();
-
    ciaaDriverAio_init();
 }
 
