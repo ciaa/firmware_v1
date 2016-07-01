@@ -212,10 +212,10 @@ endif
 
 ###############################################################################
 # Code sanity chech and fix in every compilation
-ifeq ($(CODE_SANITY),CHECK)
 ifeq ($(CODE_SANITY),FIX)
 CHECK_AND_FIX_CODE += fix_code_sanity
 else
+ifeq ($(CODE_SANITY),CHECK)
 CHECK_AND_FIX_CODE += code_sanity
 endif
 endif
@@ -892,7 +892,7 @@ info:
 
 ###############################################################################
 # clean
-.PHONY: clean generate all run multicore code_sanity
+.PHONY: clean generate all run multicore code_sanity fix_code_sanity
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
