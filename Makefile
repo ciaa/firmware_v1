@@ -603,11 +603,13 @@ ifneq ($(FTDI_KEXT),)
 endif
 
 reload:
-ifneq ($(FTDI_KEXT),)
 	@echo ===============================================================================
 	@echo ' '
 	@echo Reloading FTDI OSX drivers
+ifneq ($(strip $(FTDI_KEXT)),)
 	$(foreach DRIVER, $(FTDI_KEXT), sudo kextload -b $(DRIVER) )
+else
+	sudo kextload -b com.apple.driver.AppleUSBFTDI
 endif
 
 ###############################################################################
@@ -885,7 +887,7 @@ info:
 
 ###############################################################################
 # clean
-.PHONY: clean generate all run multicore
+.PHONY: clean generate all run multicore unload reload
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
