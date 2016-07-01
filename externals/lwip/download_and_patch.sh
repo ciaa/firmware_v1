@@ -50,13 +50,13 @@ cp -rf $ROOT_EXAMPLE/lwip/src/netif $LWIPDIR/src/
 cp -rf $ROOT_EXAMPLE/lwip/src/FILES $LWIPDIR/src/
 
 # Arch Files
-cp -rf $ROOT_EXAMPLE/lwip/inc/arch $LWIPDIR/inc/
+cp -rf $ROOT_EXAMPLE/lwip/inc/arch $LWIPDIR/cortexM4/lpc43xx/lpc4337/inc/
 cp -rf $ROOT_EXAMPLE/../lpc_board_nxp_lpcxpresso_4337/inc/lpc_phy.h \
-	$LWIPDIR/inc/arch/
+	$LWIPDIR/cortexM4/lpc43xx/lpc4337/inc/arch/
 
-cp -rf $ROOT_EXAMPLE/lwip/src/arch $LWIPDIR/src/
+cp -rf $ROOT_EXAMPLE/lwip/src/arch $LWIPDIR/cortexM4/lpc43xx/lpc4337/src/
 cp -rf $ROOT_EXAMPLE/../lpc_board_nxp_lpcxpresso_4337/src/lpc_phy_smsc87x0.c \
-	$LWIPDIR/src/arch/
+	$LWIPDIR/cortexM4/lpc43xx/lpc4337/src/arch/
 
 # Needed files for blinking_lwip example
 mkdir -p examples/blinking_lwip/inc/
