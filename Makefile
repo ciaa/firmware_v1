@@ -113,8 +113,7 @@ CPUTYPE        ?= k60_120
 CPU            ?= mk60fx512vlq15
 COMPILER       ?= gcc
 endif
-
-
+ 
 # Default values for msp_exp430f5529
 ifeq ($(BOARD), msp_exp430f5529)
 ARCH           ?= msp430
@@ -632,6 +631,9 @@ else
 	@echo ===============================================================================
 	@echo Run RTOS Generator
 	@echo ' '
+	@echo CPU: $(CPU)
+	@echo CPUTYPE: $(CPUTYPE)
+	@echo ARCH: $(ARCH)
 	php modules$(DS)tools$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
 		-c $(OIL_4_GEN) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
