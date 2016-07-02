@@ -214,7 +214,7 @@ endif
 # get root dir
 ROOT_DIR := .
 # out dir
-OUT_DIR   = $(ROOT_DIR)$(DS)out
+OUT_DIR = $(PROJECT_PATH)$(DS)out
 # object dir
 OBJ_DIR  = $(OUT_DIR)$(DS)obj
 # lib dir
@@ -291,6 +291,7 @@ DIRS := $(sort $(dir $(wildcard modules$(DS)*$(DS))))
 ALL_MODS := $(subst modules, , $(DIRS))
 ALL_MODS := $(subst $(DS), , $(ALL_MODS))
 
+CEEDLING_OUT_DIR = $(OUT_DIR)$(DS)ceedling
 MOCKS_OUT_DIR = $(OUT_DIR)$(DS)ceedling$(DS)mocks
 RUNNERS_OUT_DIR = $(OUT_DIR)$(DS)ceedling$(DS)runners
 
@@ -340,7 +341,7 @@ MTEST_SRC_FILES = $($(tst_mod)_PATH)$(DS)test$(DS)utest$(DS)src$(DS)test_$(tst_f
 
 UNITY_INC = externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src                     \
             externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src                     \
-            out$(DS)ceedling$(DS)mocks                                              \
+            $(MOCKS_OUT_DIR)                                              \
             $(foreach mod,$($(tst_mod)_TST_MOD),$($(mod)_INC_PATH))                 \
             $($(tst_mod)_TST_INC_PATH)                                              \
 $($(tst_mod)_INC_PATH)
@@ -350,9 +351,9 @@ UNITY_SRC = modules$(DS)$(tst_mod)$(DS)test$(DS)utest$(DS)src$(DS)test_$(tst_fil
             modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c                         \
             externals$(DS)ceedling$(DS)vendor$(DS)unity$(DS)src$(DS)unity.c          \
             externals$(DS)ceedling$(DS)vendor$(DS)cmock$(DS)src$(DS)cmock.c          \
-            $(foreach file,$(filter-out $(tst_file).c,$(notdir $($(tst_mod)_SRC_FILES))), out$(DS)ceedling$(DS)mocks$(DS)mock_$(file)) \
-            $(foreach mods,$($(tst_mod)_TST_MOD), $(foreach files, $(notdir $($(mods)_SRC_FILES)), out$(DS)ceedling$(DS)mocks$(DS)mock_$(files))) \
-            $(foreach tst_mocks, $($(tst_mod)_TST_MOCKS), out$(DS)ceedling$(DS)mocks$(DS)mock_$(tst_mocks))
+            $(foreach file,$(filter-out $(tst_file).c,$(notdir $($(tst_mod)_SRC_FILES))), $(MOCKS_OUT_DIR)$(DS)mock_$(file)) \
+            $(foreach mods,$($(tst_mod)_TST_MOD), $(foreach files, $(notdir $($(mods)_SRC_FILES)), $(MOCKS_OUT_DIR)$(DS)mock_$(files))) \
+            $(foreach tst_mocks, $($(tst_mod)_TST_MOCKS), $(MOCKS_OUT_DIR)$(DS)mock_$(tst_mocks))
 # Needed Unity Obj files
 UNITY_OBJ = $(notdir $(UNITY_SRC:.c=.o))
 # Add the search patterns
@@ -376,7 +377,7 @@ tst_link: $(UNITY_OBJ)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Linking Test
-	gcc $(addprefix $(OBJ_DIR)$(DS),$(UNITY_OBJ)) -lgcov -o out$(DS)bin$(DS)$(tst_file).bin
+	gcc $(addprefix $(OBJ_DIR)$(DS),$(UNITY_OBJ)) -lgcov -o $(BIN_DIR)$(DS)$(tst_file).bin
 
 # rule for tst_<mod>_<file>
 tst_$(tst_mod)_$(tst_file): $(RUNNERS_OUT_DIR)$(DS)$(notdir $(MTEST_SRC_FILES:.c=_Runner.c)) tst_link
@@ -386,7 +387,7 @@ tst_$(tst_mod)_$(tst_file): $(RUNNERS_OUT_DIR)$(DS)$(notdir $(MTEST_SRC_FILES:.c
 	@echo === CEEDLING START ====
 	$(BIN_DIR)$(DS)$(tst_file).bin
 	@echo === CEEDLING END ===
-	gcov -abclu modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c -o out$(DS)obj$(DS)
+	gcov -abclu modules$(DS)$(tst_mod)$(DS)src$(DS)$(tst_file).c -o $(OBJ_DIR)$(DS)
 
 # rule for tst_<mod>
 tst_$(tst_mod)_all:
@@ -408,7 +409,7 @@ tst_$(tst_mod):
 #	@echo Testing the module $(tst_mod)
 #	@$(MULTILINE_ECHO) "Testing following .c Files: \n $(foreach src, $($(tst_mod)_SRC_FILES),     $(src)\n)"
 #	@$(MULTILINE_ECHO) "Following Unity Test found: \n $(foreach src, $(MTEST_SRC_FILES),     $(src)\n)"
-#	out/bin/test.bin
+#	$(BIN_DIR)$(DS)test.bin
 
 endif
 
@@ -864,27 +865,38 @@ info:
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
+	@mkdir -p $(LIB_DIR) 
 ifneq ($(KEEP_BIN), 1)
 	@echo Removing bin files
 	@rm -rf $(BIN_DIR)$(DS)*
+	@mkdir -p $(BIN_DIR)
 endif
 	@echo Removing RTOS generated files
 	@rm -rf $(GEN_DIR)$(DS)*
+	@mkdir -p $(GEN_DIR)
+	@mkdir -p $(CEEDLING_OUT_DIR)
 	@echo Removing mocks
 	@rm -rf $(MOCKS_OUT_DIR)$(DS)*
+	@mkdir -p $(MOCKS_OUT_DIR)
 	@echo Removing Unity Runners files
 	@rm -rf $(RUNNERS_OUT_DIR)$(DS)*
+	@mkdir -p $(RUNNERS_OUT_DIR)
 	@echo Removing doxygen files
 	@rm -rf $(OUT_DIR)$(DS)doc$(DS)*
+	@mkdir -p $(OUT_DIR)$(DS)doc
 	@echo Removing ci outputs
 	@rm -rf $(OUT_DIR)$(DS)ci$(DS)*
+	@mkdir -p $(OUT_DIR)$(DS)ci
 	@echo Removing coverage
 	@rm -rf $(OUT_DIR)$(DS)coverage$(DS)*
+	@mkdir -p $(OUT_DIR)$(DS)coverage
 	@echo Removing object files
 	@rm -rf $(OBJ_DIR)$(DS)*
+	@mkdir -p $(OBJ_DIR)
 	@echo Removing oil configuration files
 	@rm -rf $(ETC_DIR)$(DS)*
-
+	@mkdir -p $(ETC_DIR)
+   
 clean_rtostests:
 	@echo Removing RTOS Test generated project files
 	@rm -rf $(RTOS_TEST_GEN_DIR)$(DS)*
@@ -983,11 +995,11 @@ ifeq ($(CPUTYPE),lpc43xx)
 	@echo "*******************************************"
 	@echo "*** Generating Cortex-M0 application... ***"
 	@echo "*******************************************"
-	make ARCH=cortexM0 OUT_DIR=out/cortexM0 MCORE=1 generate
+	make ARCH=cortexM0 OUT_DIR=$(OUT_DIR)$(DS)cortexM0 MCORE=1 generate
 	@echo "*******************************************"
 	@echo "*** Generating Cortex-M4 application... ***"
 	@echo "*******************************************"
-	make ARCH=cortexM4 OUT_DIR=out/cortexM4 MCORE=0 generate
+	make ARCH=cortexM4 OUT_DIR=$(OUT_DIR)$(DS)cortexM4 MCORE=0 generate
 else
 	@echo '$(CPUTYPE) not supported for multicore.'
 endif
@@ -999,11 +1011,11 @@ ifeq ($(CPUTYPE),lpc43xx)
 	@echo "***************************************"
 	@echo "*** Making Cortex-M0 application... ***"
 	@echo "***************************************"
-	make ARCH=cortexM0 OUT_DIR=out/cortexM0
+	make ARCH=cortexM0 OUT_DIR=$(OUT_DIR)$(DS)cortexM0
 	@echo "***************************************"
 	@echo "*** Making Cortex-M4 application... ***"
 	@echo "***************************************"
-	make ARCH=cortexM4 OUT_DIR=out/cortexM4
+	make ARCH=cortexM4 OUT_DIR=$(OUT_DIR)$(DS)cortexM4
 else
 	@echo '$(CPUTYPE) not supported for multicore.'
 endif
@@ -1015,11 +1027,11 @@ ifeq ($(CPUTYPE),lpc43xx)
 	@echo "********************************************"
 	@echo "*** Downloading Cortex-M4 application... ***"
 	@echo "********************************************"
-	make ARCH=cortexM4 OUT_DIR=out/cortexM4 download
+	make ARCH=cortexM4 OUT_DIR=$(OUT_DIR)$(DS)cortexM4 download
 	@echo "********************************************"
 	@echo "*** Downloading Cortex-M0 application... ***"
 	@echo "********************************************"
-	make ARCH=cortexM0 OUT_DIR=out/cortexM0 download
+	make ARCH=cortexM0 OUT_DIR=$(OUT_DIR)$(DS)cortexM0 download
 else
 	@echo '$(CPUTYPE) not supported for multicore.'
 endif
@@ -1031,11 +1043,11 @@ ifeq ($(CPUTYPE),lpc43xx)
 	@echo "********************************************"
 	@echo "*** Cleaning Cortex-M4 application... ***"
 	@echo "********************************************"
-	make ARCH=cortexM4 OUT_DIR=out/cortexM4 clean
+	make ARCH=cortexM4 OUT_DIR=$(OUT_DIR)$(DS)cortexM4 clean
 	@echo "********************************************"
 	@echo "*** Cleaning Cortex-M0 application... ***"
 	@echo "********************************************"
-	make ARCH=cortexM0 OUT_DIR=out/cortexM0 clean
+	make ARCH=cortexM0 OUT_DIR=$(OUT_DIR)$(DS)cortexM0 clean
 else
 	@echo '$(CPUTYPE) not supported for multicore.'
 endif
