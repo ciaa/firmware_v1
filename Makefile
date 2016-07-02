@@ -195,6 +195,11 @@ END_GROUP         = -Xlinker --end-group
 endif
 ifeq ($(UNAME_S),Darwin)
 # MACOS
+# Determine wich FTDI Drivers are loaded
+ifeq ($(FTDI_KEXT),)
+FTDI_KEXT := $(shell kextstat | grep -o com.apple.driver.AppleUSBFTDI )
+FTDI_KEXT += $(shell kextstat | grep -o com.FTDI.driver.FTDIUSBSerialDriver )
+endif
 # Compile in 32 bits mode
 ifeq ($(ARCH),x86)
 CFLAGS            += -m32 -Wno-typedef-redefinition
@@ -594,9 +599,30 @@ doxygen:
 	doxygen modules$(DS)tools$(DS)doxygen$(DS)doxygen.cnf
 
 ###############################################################################
+# Unload and reload OSX FTDI drivers
+unload:
+ifneq ($(FTDI_KEXT),)
+	@echo ===============================================================================
+	@echo =$(FTDI_KEXT)=
+	@echo ' '
+	@echo Unloading FTDI OSX drivers
+	$(foreach DRIVER, $(FTDI_KEXT), sudo kextunload -b $(DRIVER) )
+endif
+
+reload:
+	@echo ===============================================================================
+	@echo ' '
+	@echo Reloading FTDI OSX drivers
+ifneq ($(strip $(FTDI_KEXT)),)
+	$(foreach DRIVER, $(FTDI_KEXT), sudo kextload -b $(DRIVER) )
+else
+	sudo kextload -b com.apple.driver.AppleUSBFTDI
+endif
+
+###############################################################################
 # openocd
 include modules$(DS)tools$(DS)openocd$(DS)mak$(DS)Makefile
-openocd:
+openocd: unload
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
@@ -615,6 +641,7 @@ else
 endif
 endif
 endif
+	@make reload FTDI_KEXT=$(FTDI_KEXT)
 
 ###############################################################################
 # Take make arguments into MAKE_ARGS variable
@@ -624,7 +651,7 @@ $(eval $(MAKE_ARGS):;@:)
 
 ###############################################################################
 # erase memory, syntax: erase [FLASH|QSPI]
-erase:
+erase: unload
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
@@ -648,15 +675,19 @@ ifeq ($(words $(MAKE_ARGS)),1)
 ifeq ($(CPUTYPE),k60_120)
 	@echo 'Not supported on Kinetis processors'
 else
+ifeq ($(word 1, $(MAKE_ARGS)),FLASH)
 	@echo ===============================================================================
 	@echo Starting OpenOCD and erasing all...
 	@echo "(after downloading a new firmware please do a hardware reset!)"
 	@echo ' '
-ifeq ($(word 1, $(MAKE_ARGS)),FLASH)
-	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
 else
 ifeq ($(word 1, $(MAKE_ARGS)),QSPI)
-	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_QSPI_BANK) 0 last" -c "shutdown"
+	@echo ===============================================================================
+	@echo Starting OpenOCD and erasing all...
+	@echo "(after downloading a new firmware please do a hardware reset!)"
+	@echo ' '
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_QSPI_BANK) 0 last" -c "shutdown"
 else
 	@echo 'Error...unknown memory type'
 endif
@@ -669,9 +700,11 @@ endif
 endif
 endif
 endif
+	@make reload FTDI_KEXT=$(FTDI_KEXT)
+
 ###############################################################################
 # Download to target, syntax download [file]
-download:
+download: unload
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
@@ -700,6 +733,7 @@ endif
 endif
 endif
 endif
+	@make reload FTDI_KEXT=$(FTDI_KEXT)
 
 ###############################################################################
 # version
@@ -860,7 +894,7 @@ info:
 
 ###############################################################################
 # clean
-.PHONY: clean generate all run multicore
+.PHONY: clean generate all run multicore unload reload
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
