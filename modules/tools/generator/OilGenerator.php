@@ -336,16 +336,16 @@ class OilGenerator
    {
       list($helperName,$helperClassName)=$this->getNames($file);
 
-      $this->log->info("   helper file       : $file");
-      $this->log->info("   helper name       : $helperName");
-      $this->log->info("   helper class name : $helperClassName");
-
       if ( class_exists($helperClassName))
       {
          $this->log->warning("   class '$helperClassName' already exists, not loading again");
       }
       else
       {
+         $this->log->info("   helper file       : $file");
+         $this->log->info("   helper name       : $helperName");
+         $this->log->info("   helper class name : $helperClassName");
+
          $this->log->info("   loading...");
 
          if (! @include_once($file) )
