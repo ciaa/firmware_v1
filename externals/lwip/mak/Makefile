@@ -38,11 +38,11 @@ LIBS 				    += ext_lwip
 # library path
 ext_lwip_PATH 	     = $(ROOT_DIR)$(DS)externals$(DS)lwip
 # library source path
-ext_lwip_SRC_PATH   = $(ext_lwip_PATH)$(DS)src
+ext_lwip_SRC_PATH   = $(ext_lwip_PATH)$(DS)lwip_src$(DS)src
    
 # library include path
-ext_lwip_INC_PATH   = $(ext_lwip_PATH)$(DS)inc \
-	$(ext_lwip_PATH)$(DS)inc$(DS)ipv4 \
+ext_lwip_INC_PATH   = $(ext_lwip_PATH)$(DS)lwip_src$(DS)src$(DS)include \
+	$(ext_lwip_PATH)$(DS)lwip_src$(DS)src$(DS)include$(DS)ipv4 \
 	$(ext_lwip_PATH)$(DS)$(ARCH)$(DS)inc \
 	$(ext_lwip_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc \
 	$(ext_lwip_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
