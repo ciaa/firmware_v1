@@ -610,6 +610,7 @@ ifneq ($(FTDI_KEXT),)
 endif
 
 reload:
+ifeq ($(UNAME_S),Darwin)
 	@echo ===============================================================================
 	@echo ' '
 	@echo Reloading FTDI OSX drivers
@@ -617,6 +618,7 @@ ifneq ($(strip $(FTDI_KEXT)),)
 	$(foreach DRIVER, $(FTDI_KEXT), sudo kextload -b $(DRIVER) )
 else
 	sudo kextload -b com.apple.driver.AppleUSBFTDI
+endif
 endif
 
 ###############################################################################
