@@ -1,4 +1,4 @@
-/* Copyright 2015, ...
+/* Copyright 2016, Franco Bucafusco
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,14 +31,30 @@
  *
  */
 
+/** \brief CIAA UART Driver for MSP430F5529
+ **
+ ** Implements the UART Driver for MSP430F5529
+ **
+ **/
+
+/** \addtogroup CIAA_Firmware CIAA Firmware
+ ** @{ */
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup UART UART Drivers
+ ** @{ */
 /*==================[inclusions]=============================================*/
 #include "ciaaDriverUart.h"
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_stdio.h"
+#include "msp430.h"
 #include "os.h"
 
 /*==================[macros and definitions]=================================*/
 
+/*
+still not implemented
+*/
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -56,7 +72,18 @@ void ciaaDriverUart_init(void)
 }
 
 /*==================[interrupt handlers]=====================================*/
+ISR(USCI_A0_VECTOR)
+{
+/*
+still not implemented
+*/
 
+}
+
+ISR(USCI_A1_VECTOR)
+{
+
+}
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
