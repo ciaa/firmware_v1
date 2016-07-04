@@ -34,27 +34,36 @@
 #
 ###############################################################################
 # library
-LIBS 				    += ext_lwip
+LIBS                += ext_lwip
 # library path
 ext_lwip_PATH 	     = $(ROOT_DIR)$(DS)externals$(DS)lwip
 # library source path
 ext_lwip_SRC_PATH   = $(ext_lwip_PATH)$(DS)lwip_src$(DS)src
    
 # library include path
+# LWIP
 ext_lwip_INC_PATH   = $(ext_lwip_PATH)$(DS)lwip_src$(DS)src$(DS)include \
-	$(ext_lwip_PATH)$(DS)lwip_src$(DS)src$(DS)include$(DS)ipv4 \
-	$(ext_lwip_PATH)$(DS)$(ARCH)$(DS)inc \
+	$(ext_lwip_PATH)$(DS)lwip_src$(DS)src$(DS)include$(DS)ipv4
+# IPv6 Not yet tested, not implemented
+# ext_lwip_INC_PATH  += $(ext_lwip_PATH)$(DS)lwip_src$(DS)src$(DS)include$(DS)ipv6
+# arch's Drivers
+ext_lwip_INC_PATH   += $(ext_lwip_PATH)$(DS)$(ARCH)$(DS)inc \
 	$(ext_lwip_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc \
 	$(ext_lwip_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc
 
 # library source files
+# LWIP
 ext_lwip_SRC_FILES += $(wildcard $(ext_lwip_SRC_PATH)$(DS)*.c)	\
    $(wildcard $(ext_lwip_SRC_PATH)$(DS)api$(DS)*.c) \
    $(wildcard $(ext_lwip_SRC_PATH)$(DS)core$(DS)*.c)   \
    $(wildcard $(ext_lwip_SRC_PATH)$(DS)core$(DS)ipv4$(DS)*.c)   \
    $(wildcard $(ext_lwip_SRC_PATH)$(DS)core$(DS)snmp$(DS)*.c)   \
    $(wildcard $(ext_lwip_SRC_PATH)$(DS)netif$(DS)*.c)
-
+# IPv6 Not yet tested, not implemented
+# ext_lwip_SRC_FILES += $(wildcard $(ext_lwip_SRC_PATH)$(DS)core$(DS)ipv6$(DS)*.c)
+# LWIP'  NON TESTED code
+# ext_lwip_SRC_FILES += $(wildcard $(ext_lwip_SRC_PATH)$(DS)netif$(DS)ppp$(DS)*.c)
+# arch's drivers
 ext_lwip_SRC_FILES    += $(wildcard $(ext_lwip_PATH)$(DS)$(ARCH)$(DS)src$(DS)*.c)
 ext_lwip_SRC_FILES    += $(wildcard $(ext_lwip_PATH)$(DS)$(ARCH)$(DS)src$(DS)arch$(DS)*.c)
 ext_lwip_SRC_FILES    += $(wildcard $(ext_lwip_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)
