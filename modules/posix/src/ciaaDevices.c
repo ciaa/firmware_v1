@@ -41,6 +41,7 @@
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
+ ** @{ */
 /*==================[inclusions]=============================================*/
 #include "ciaaDevices.h"
 #include "ciaaPOSIX_stdlib.h"
