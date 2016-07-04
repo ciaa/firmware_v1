@@ -34,20 +34,6 @@ wget -c -O $DOWNLOAD_DIR/$LPCOPEN_ZIP $LPCOPEN_URL
 # Unzip LPCOpen
 unzip -q $DOWNLOAD_DIR/$LPCOPEN_ZIP  -d $UNZIPPED_DIR/
 
-# Create destination dirs
-mkdir -p $LWIPDIR/src/ $LWIPDIR/inc/
-
-# Copy and/or overwrite LWIP sourcecode provided by LPC
-# Haders
-cp -rf $ROOT_EXAMPLE/lwip/inc/ipv4 $LWIPDIR/inc/
-cp -rf $ROOT_EXAMPLE/lwip/inc/lwip $LWIPDIR/inc/
-cp -rf $ROOT_EXAMPLE/lwip/inc/netif $LWIPDIR/inc/
-cp -rf $ROOT_EXAMPLE/lwip/inc/posix $LWIPDIR/inc/
-# Sourcecode
-cp -rf $ROOT_EXAMPLE/lwip/src/api $LWIPDIR/src/
-cp -rf $ROOT_EXAMPLE/lwip/src/core $LWIPDIR/src/
-cp -rf $ROOT_EXAMPLE/lwip/src/netif $LWIPDIR/src/
-cp -rf $ROOT_EXAMPLE/lwip/src/FILES $LWIPDIR/src/
 
 # Arch Files
 cp -rf $ROOT_EXAMPLE/lwip/inc/arch $LWIPDIR/cortexM4/lpc43xx/lpc4337/inc/
