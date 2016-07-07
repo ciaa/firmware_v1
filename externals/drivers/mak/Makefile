@@ -45,12 +45,12 @@ ext_drivers_PATH 	     = $(ROOT_DIR)$(DS)externals$(DS)drivers
 ext_drivers_SRC_PATH   = $(ext_drivers_PATH)$(DS)src
 
 # library include path
-ext_drivers_INC_PATH   = $(ext_drivers_PATH)$(DS)inc		    	      \
-	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)inc							      \
-	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)						   \
-	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc			   \
+ext_drivers_INC_PATH   = $(ext_drivers_PATH)$(DS)inc		    	      	\
+	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)inc					\
+	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)				\
+	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc			\
 	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)inc$(DS)device	\
-	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc \
+	$(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)inc 	\
 
 # library source files
 ext_drivers_SRC_FILES += $(wildcard $(ext_drivers_SRC_PATH)$(DS)*.c)					        \
@@ -59,5 +59,4 @@ ext_drivers_SRC_FILES += $(wildcard $(ext_drivers_SRC_PATH)$(DS)*.c)					       
 	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.c)					\
 	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)src$(DS)*.S) 					\
 	$(wildcard $(ext_drivers_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)src$(DS)*.c)
-
-
+	

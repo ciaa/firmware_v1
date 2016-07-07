@@ -57,4 +57,4 @@ MODS ?= modules$(DS)posix           \
         modules$(DS)libs
 
 # configuration for the system
-CFLAGS += -D CIAA_HEAP_MEM_SIZE=200
+CFLAGS += -DCIAA_HEAP_MEM_SIZE=200

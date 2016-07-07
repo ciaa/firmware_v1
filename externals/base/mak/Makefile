@@ -34,13 +34,11 @@
 ###############################################################################
 # library
 LIBS                 += ext_base
-
 # library path
 ext_base_PATH         = $(ROOT_DIR)$(DS)externals$(DS)base
 
 # library source path
 ext_base_SRC_PATH     = $(ext_base_PATH)$(DS)src
-
 # library include path
 ext_base_INC_PATH     = $(ext_base_PATH)$(DS)inc                    \
    $(ext_base_PATH)$(DS)$(ARCH)$(DS)inc                             \

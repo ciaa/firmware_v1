@@ -57,12 +57,7 @@ MODS ?= modules$(DS)posix           \
         modules$(DS)drivers         \
         modules$(DS)rtos            \
         modules$(DS)libs
-		  # \
-		  #externals$(DS)drivers
-
-
-#system configurations
 
 
 # configuration for the system
-CFLAGS += -D CIAA_HEAP_MEM_SIZE=200
+CFLAGS += -DCIAA_HEAP_MEM_SIZE=200

@@ -1,6 +1,7 @@
 ###############################################################################
 #
-# Copyright 2016, Franco Bucafusco (BuckLabs)
+# Copyright 2016, Franco Bucafusco
+# All Rights Reserved
 #
 # This file is part of CIAA Firmware.
 #

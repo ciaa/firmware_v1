@@ -53,7 +53,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
- * JuCe         Juan Cecconi 
+ * JuCe         Juan Cecconi
  */
 
 /*
@@ -94,7 +94,7 @@ foreach ($dios as $count=>$dio) {
       print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " called " . $pin . " */\n";
       print "#define " . $pin . " " . $count . "\n";
    }
-   print "\n";   
+   print "\n";
    print "/** \brief Dio Pins count */\n";
    print "#define DIO_PINS_COUNT " . count($pins) . "U\n\n";
 

@@ -56,7 +56,7 @@ void unused_irq()
 {
     /* Do something. */;
 }
-       
+
 /*
 __attribute__( (__interrupt_vec__(PORT1_VECTOR)))
 port1_isr (void)

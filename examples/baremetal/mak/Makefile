@@ -35,16 +35,12 @@
 ###############################################################################
 # Project Name: based on Project Path and used to define OSEK configuration file
 PROJECT_NAME               = $(lastword $(subst $(DS), , $(PROJECT_PATH)))
-
 # Project path
 # Defined $(PROJECT_PATH) in makefile.mine
-
 # source path
 $(PROJECT_NAME)_SRC_PATH  += $(PROJECT_PATH)$(DS)src
-
 # include path
 INC_FILES            += $(PROJECT_PATH)$(DS)inc
-
 # library source files
 SRC_FILES            += $(wildcard $($(PROJECT_NAME)_SRC_PATH)$(DS)*.c)
 # Modules needed for this example

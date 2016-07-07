@@ -123,3 +123,4 @@ extern ciaaDevices_deviceType * ciaaDevices_getDevice(char const * const path)
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
+

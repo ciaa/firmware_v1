@@ -73,7 +73,7 @@
 extern IO_ErrorType Dio_InitSync(void * address)
 {
    IO_ErrorType ret;
-   
+
    ret = Dio_InitSync_Arch(address);
    return ret;
 }

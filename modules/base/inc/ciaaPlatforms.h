@@ -1,4 +1,4 @@
-/* Copyright 2016, Franco Bucafusco (BuckLabs)
+/* Copyright 2016, Franco Bucafusco
  * Copyright 2014, ACSE & CADIEEL
  *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
  *    CADIEEL: http://www.cadieel.org.ar
@@ -218,3 +218,4 @@ extern "C" {
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef CIAAPLATFORMS_H */
+

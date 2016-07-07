@@ -3,7 +3,7 @@
 # Copyright 2014, 2015, Mariano Cerdeiro
 # Copyright 2014, 2015, 2016, Juan Cecconi (Numetron, UTN-FRBA)
 # Copyright 2014, 2015, Esteban Volentini (LabMicro, UNT)
-# Copyright 2016, 		Franco Bucafusco (BuckLabs)
+# Copyright 2016,       Franco Bucafusco
 # All rights reserved
 #
 # This file is part of CIAA Firmware.
@@ -113,7 +113,7 @@ CPUTYPE        ?= k60_120
 CPU            ?= mk60fx512vlq15
 COMPILER       ?= gcc
 endif
- 
+
 # Default values for msp_exp430f5529
 ifeq ($(BOARD), msp_exp430f5529)
 ARCH           ?= msp430
@@ -529,7 +529,7 @@ $(RUNNERS_OUT_DIR)$(DS)test_%_Runner.c : test_%.c
 	@echo ===============================================================================
 	@echo Generate OIL File $(ETC_DIR)$(DS)$(notdir $@) from $^
 	@echo ' '
-	$(CC) -E -x c++ -Imodules$(DS)base$(DS)inc -DBOARD=$(BOARD) -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) $^ | grep -v "^#.*"  > $(ETC_DIR)$(DS)$(notdir $@)
+	$(CC) -E -x c++ -Imodules$(DS)base$(DS)inc -DBOARD=$(BOARD) -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) $^ | grep -v "^#.*" > $(ETC_DIR)$(DS)$(notdir $@)
 
 ###############################################################################
 
@@ -620,6 +620,13 @@ generate : gen.intermediate
 $(rtos_GENERATED_FILES) : gen.intermediate
 .INTERMEDIATE: gen.intermediate
 gen.intermediate : $(OIL_4_GEN_DEP)
+
+	@echo ===============================================================================
+	@echo OIL_FILES: $(OIL_FILES)
+	@echo POIL_FILES: $(POIL_FILES)
+	@echo OIL_4_GEN: $(OIL_4_GEN)
+	@echo rtos_GEN_FILES: $(rtos_GEN_FILES)
+
 ifneq ($(strip $(OIL_FILES) $(POIL_FILES)),)
 ifdef MCORE
 	@echo "*** Generating OSEK using multicore options! ***"
@@ -631,9 +638,10 @@ else
 	@echo ===============================================================================
 	@echo Run RTOS Generator
 	@echo ' '
-	@echo CPU: $(CPU)
+	@echo CPU: 		$(CPU)
 	@echo CPUTYPE: $(CPUTYPE)
-	@echo ARCH: $(ARCH)
+	@echo ARCH: 	$(ARCH)
+	@echo ' '
 	php modules$(DS)tools$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
 		-c $(OIL_4_GEN) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
@@ -959,10 +967,10 @@ info:
 	@echo libraries..........: $(LIBS)
 	@echo libraries with srcs: $(LIBS_WITH_SRC)
 	@echo RTOS config........: $(POIL_FILES) $(OIL_FILES)
-	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
-	@echo Lib Src Files......: $(LIBS_SRC_FILES)
-	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)
-	@echo Project Src Path...: $($(PROJECT_NAME)_SRC_PATH)
+#	@echo Lib Src dirs.......: $(LIBS_SRC_DIRS)
+#	@echo Lib Src Files......: $(LIBS_SRC_FILES)
+#	@echo Lib Obj Files......: $(LIBS_OBJ_FILES)
+#	@echo Project Src Path...: $($(PROJECT_NAME)_SRC_PATH)
 	@echo Includes...........: $(INCLUDE)
 	@echo use make info_\<mod\>: to get information of a specific module. eg: make info_posix
 	@echo "+-----------------------------------------------------------------------------+"

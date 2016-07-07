@@ -1,4 +1,4 @@
-/* Copyright 2016, Franco Bucafusco (BuckLabs)
+/* Copyright 2016, Franco Bucafusco
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -78,4 +78,3 @@ typedef struct _ciaaDriverDio_dioType
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef CIAADRIVERDIO_INTERNAL_H */
-

@@ -53,7 +53,7 @@
  * Initials     Name
  * ---------------------------
  * MaCe         Mariano Cerdeiro
- * JuCe         Juan Cecconi 
+ * JuCe         Juan Cecconi
  * JMC          Juan Manuel Cruz
  */
 
@@ -82,8 +82,8 @@ extern "C" {
    print "/** \brief Dio Pins count */\n";
    $dios = $config->getList("/DIL", "DIO");
    if(count($dios) == 0){
-         print "#define DIO_PINS_COUNT 0U\n\n";      
-         print "#define DIO_PORTS_COUNT 0U\n\n";      
+         print "#define DIO_PINS_COUNT 0U\n\n";
+         print "#define DIO_PORTS_COUNT 0U\n\n";
    }
    else{
       foreach ($dios as $count=>$dio) {
@@ -92,14 +92,14 @@ extern "C" {
          }
          $pins = $config->getList("/DIL/" . $dio, "PIN");
          print "#define DIO_PINS_COUNT " . count($pins) . "U\n\n";
-        
+
          foreach($pins as $count=>$pin) {
             $pin_port = $config->getValue("/DIL/" . $dio . "/" . $pin, "PORT");
             $pin_pin = $config->getValue("/DIL/" . $dio . "/" . $pin, "PIN");
             print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " called " . $pin . " */\n";
             print "#define " . $pin . " " . $count . "\n";
          }
-         
+
          $ports = $config->getList("/DIL/" . $dio, "PORT");
          print "\n";
          print "/** \brief Dio Ports count */\n";
@@ -115,7 +115,7 @@ extern "C" {
             switch ($port_size) {
                case "IO_PORT_SIZE_8":
                   $gpio_size += 8;
-                  break;         
+                  break;
                case "IO_PORT_SIZE_16":
                   $gpio_size += 16;
                   break;

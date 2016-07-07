@@ -118,14 +118,14 @@ foreach ($dios as $count=>$dio) {
          default:
             $this->log->error("The pin $pin hasn't a defined 'inverted' configuration!");
             break;
-      }      
+      }
       print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " called " . $pin . " */\n";
       print "{ 0x" . $pin_port . ", 0x" . $pin_pin . ", (" . $pin_flags . ")},\n";
    }
    print "}\n";
-   print ", 0 /* foo var */\n";   
+   print ", 0 /* foo var */\n";
    print "};\n";
-}    
+}
 ?>
 
 /*==================[external functions declaration]=========================*/

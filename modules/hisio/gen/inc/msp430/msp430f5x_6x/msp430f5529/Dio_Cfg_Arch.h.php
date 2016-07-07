@@ -48,17 +48,7 @@
 /** \addtogroup HISIO HisIO Module
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * FBUC         Franco Bucafusco
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20160423 v0.0.1 FBUC initial version
- */
+ 
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"

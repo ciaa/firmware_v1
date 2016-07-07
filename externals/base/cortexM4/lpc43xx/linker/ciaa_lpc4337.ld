@@ -14,7 +14,8 @@ INCLUDE "externals/base/cortexM4/lpc43xx/linker/ciaa_lpc4337_mem.ld"
 ENTRY(ResetISR)
 
 SECTIONS
-{ 
+{
+    
     .text_Flash2 : ALIGN(4)
     {
        FILL(0xff)
