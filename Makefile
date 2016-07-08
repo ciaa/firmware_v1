@@ -739,6 +739,7 @@ endif
 endif
 endif
 endif
+	@make reload FTDI_KEXT=$(FTDI_KEXT)
 
 ###############################################################################
 # Take make arguments into MAKE_ARGS variable
@@ -847,6 +848,7 @@ endif
 endif
 endif
 endif
+	@make reload FTDI_KEXT=$(FTDI_KEXT)
 
 ###############################################################################
 # version

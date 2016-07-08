@@ -1,0 +1,24 @@
+lwipopts.h for example
+===================================================================
+diff -urN lwip/examples/blinking_lwip/inc/lwipopts.h lwip-ciaa/examples/blinking_lwip/inc/lwipopts.h
+--- lwip/examples/blinking_lwip/inc/lwipopts.h	2014-12-04 16:51:24.000000000 -0300
++++ lwip-ciaa/examples/blinking_lwip/inc/lwipopts.h	2016-06-28 13:55:28.313520407 -0300
+@@ -77,7 +77,7 @@
+ #define LWIP_RAW                        1
+ 
+ /* DHCP is ok, UDP is required with DHCP */
+-#define LWIP_DHCP                       1
++#define LWIP_DHCP                       0
+ #define LWIP_UDP                        1
+ 
+ /* Hostname can be used */
+@@ -116,6 +116,8 @@
+ #define MEMP_MEM_MALLOC                 1
+ 
+ /* Needed for malloc/free */
+-#include <stdlib.h>
++#include "ciaaPOSIX_stdlib.h"
++#define malloc ciaaPOSIX_malloc
++#define free ciaaPOSIX_free
+ 
+ #endif /* __LWIPOPTS_H_ */
