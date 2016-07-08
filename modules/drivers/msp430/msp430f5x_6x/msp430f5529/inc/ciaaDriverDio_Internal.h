@@ -57,7 +57,6 @@ extern "C" {
 /*==================[typedef]================================================*/
 /** \brief Dio Type */
 
-
 typedef struct _ciaaDriverDio_dioType
 {
 	uint32_t port;

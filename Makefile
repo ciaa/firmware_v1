@@ -630,9 +630,9 @@ gen.intermediate : $(OIL_4_GEN_DEP)
 ifneq ($(strip $(OIL_FILES) $(POIL_FILES)),)
 ifdef MCORE
 	@echo "*** Generating OSEK using multicore options! ***"
-	php modules$(DS)tools$(DS)generator$(DS)generator.php --cmdline -l -v \
-		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DMCORE=$(MCORE) \
-		-c $(OIL_FILES) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
+   php modules$(DS)tools$(DS)generator$(DS)generator.php --cmdline -l -v        \
+      -DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DMCORE=$(MCORE)         \
+      -c $(OIL_FILES) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 else
 	@echo ' '
 	@echo ===============================================================================
@@ -660,12 +660,12 @@ doxygen:
 	doxygen modules$(DS)tools$(DS)doxygen$(DS)doxygen.cnf
 
 ###############################################################################
-# openocd inclusion
+# debug server inclusion
 ifeq ($(ARCH),x86)
 
 else
 ifeq ($(ARCH),msp430)
-
+include modules$(DS)tools$(DS)mspdebug$(DS)mak$(DS)Makefile
 else
 # if CPU is not entered shows an error
 ifeq ($(CPU),)
@@ -681,15 +681,19 @@ endif
 endif
 
 ###############################################################################
-# openocd rule
-openocd:
+# debug server rule
+debugserver:
 
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
-	@echo ERROR: You can not start openocd in Windows nor Linux
+	@echo ERROR: There is no need of starting a debug server in Windows nor Linux
 else
 ifeq ($(ARCH),msp430)
-	@echo ERROR: MSP430 does not support OpenOCD, use mspdebug instead.
+	@echo ===============================================================================
+	@echo Starting mspdebug...
+	@echo ' '
+
+	$(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(MSPDEBUG_OPTIONS)
 else
 # if CPU is not entered shows an error
 ifeq ($(CPU),)
@@ -706,36 +710,6 @@ endif
 endif
 endif
 endif
-
-
-###############################################################################
-# mspdebug inclusion
-ifeq ($(ARCH),msp430)
-include modules$(DS)tools$(DS)mspdebug$(DS)mak$(DS)Makefile
-endif
-
-###############################################################################
-# mspdebug rule
-mspdebug:
-
-ifneq ($(ARCH),msp430)
-	@echo ERROR: mspdebug only works on MSP430 architecture.
-else
-# if CPU is not entered shows an error
-ifeq ($(CPU),)
-	@echo ERROR: The CPU variable of your makefile is empty.
-else
-ifeq ($(MSPDEBUG_CFG),)
-	@echo ERROR: Your CPU: $(CPU) may not be supported...
-else
-	@echo ===============================================================================
-	@echo Starting mspdebug...
-	@echo ' '
-	$(MSPDEBUG_BIN) $(MSPDEBUG_FLAGS)
-endif
-endif
-endif
-
 
 ###############################################################################
 # Take make arguments into MAKE_ARGS variable
