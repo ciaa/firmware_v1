@@ -81,7 +81,7 @@ static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
 /*==================[internal data definition]===============================*/
 static ciaaPOSIX_counter_t ciaaPOSIX_next_to_wake = {0, 0};
 static ciaaPOSIX_counter_t ciaaPOSIX_counter = {0, 0};
-static ciaaPOSIX_counter_t ciaaPOSIX_sleeps[TASKS_COUNT]={0, 0};
+static ciaaPOSIX_counter_t ciaaPOSIX_sleeps[TASKS_COUNT] = {0};
 
 /*==================[external data definition]===============================*/
 
