@@ -79,6 +79,7 @@ TASK PeriodicTask {
     STACK = 2048;
     TYPE = BASIC;
     SCHEDULE = FULL;
+    RESOURCE = POSIXR;
 }
 
 TASK BlinkTask {
