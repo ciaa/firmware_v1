@@ -715,103 +715,30 @@ $(eval $(MAKE_ARGS):;@:)
 ###############################################################################
 # erase memory, syntax: erase [FLASH|QSPI]
 erase: unload
-# if windows or posix shows an error
-ifeq ($(ARCH),x86)
-	@echo ERROR: You can not start openocd in Windows nor Linux
-else
-ifeq ($(ARCH),msp430)
-	@echo ===============================================================================
-	@echo Starting mspdebug and erasing...
 
-	$(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(FLASH_ERASE_COMMAND)
+ifeq ($(ERASE_CMD),)
+	@echo ERROR: Your CPU: $(CPU) or ARCH: $(ARCH) may not be supported...
 else
-# if CPU is not entered shows an error
-ifeq ($(CPU),)
-	@echo ERROR: The CPU variable of your makefile is empty.
-else
-ifeq ($(OPENOCD_CFG),)
-	@echo ERROR: Your CPU: $(CPU) may not be supported...
-else
-ifeq ($(words $(MAKE_ARGS)),0)
-# command line: make erase
 	@echo ===============================================================================
-	@echo Starting OpenOCD and erasing all...
-	@echo "(after downloading a new firmware please do a hardware reset!)"
+	@echo Starting $(DEBUG_SERVER_NAME) and erasing...
+	@echo $(MESSAGE)
 	@echo ' '
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(MASS_ERASE_COMMAND)" -c "shutdown"
-else
-ifeq ($(words $(MAKE_ARGS)),1)
-ifeq ($(CPUTYPE),k60_120)
-	@echo 'Not supported on Kinetis processors'
-else
-ifeq ($(word 1, $(MAKE_ARGS)),FLASH)
-	@echo ===============================================================================
-	@echo Starting OpenOCD and erasing all...
-	@echo "(after downloading a new firmware please do a hardware reset!)"
-	@echo ' '
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
+	$(ERASE_CMD)
+endif
+
 	@make reload FTDI_KEXT=$(FTDI_KEXT)
-else
-ifeq ($(word 1, $(MAKE_ARGS)),QSPI)
-	@echo ===============================================================================
-	@echo Starting OpenOCD and erasing all...
-	@echo "(after downloading a new firmware please do a hardware reset!)"
-	@echo ' '
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_QSPI_BANK) 0 last" -c "shutdown"
-	@make reload FTDI_KEXT=$(FTDI_KEXT)
-else
-	@echo 'Error...unknown memory type'
-endif
-endif
-endif
-else
-	@echo 'Error...unknown arguments'
-endif
-endif
-endif
-endif
-endif
-endif
 
 ###############################################################################
 # Download to target, syntax download [file]
 download: unload
-# if windows or posix shows an error
-ifeq ($(ARCH),x86)
-	@echo ERROR: You can not start openocd in Windows nor Linux
-else
-ifeq ($(ARCH),msp430)
-	@echo ===============================================================================
-	@echo Starting mspdebug and downloading...
-	@echo
-	$(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(FLASH_WRITE_COMMAND)
-else
-# if CPU is not entered shows an error
-ifeq ($(CPU),)
-	@echo ERROR: The CPU variable of your makefile is empty.
-else
-ifeq ( $(OPENOCD_CFG), )
-	@echo ERROR: Your CPU: $(CPU) may not be supported...
+
+ifeq ($(DOWNLOAD_CMD),)
+	@echo ERROR: Your CPU: $(CPU) or ARCH: $(ARCH) may not be supported...
 else
 	@echo ===============================================================================
-	@echo Starting OpenOCD and downloading...
+	@echo Starting $(DEBUG_SERVER_NAME) and downloading...
 	@echo ' '
-ifeq ($(words $(MAKE_ARGS)),0)
-# command line: make download
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
-else
-ifeq ($(words $(MAKE_ARGS)),1)
-# command line: make download [File]
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 1,$(MAKE_ARGS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
-	@make reload FTDI_KEXT=$(FTDI_KEXT)
-else
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 1,$(MAKE_ARGS)) $(TARGET_DOWNLOAD_$(word 2,$(MAKE_ARGS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
-	@make reload FTDI_KEXT=$(FTDI_KEXT)
-endif
-endif
-endif
-endif
-endif
+	$(DOWNLOAD_CMD)
 endif
 
 	@make reload FTDI_KEXT=$(FTDI_KEXT)

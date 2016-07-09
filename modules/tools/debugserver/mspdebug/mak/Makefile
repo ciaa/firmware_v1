@@ -1,6 +1,7 @@
 ###############################################################################
 #
 # Copyright 2016, Franco Bucafusco
+#
 # All Rights Reserved
 #
 # This file is part of CIAA Firmware.
@@ -33,7 +34,7 @@
 #
 ###############################################################################
 # mspdebug path
-MSPDEBUG_PATH 		   	= $(ROOT_DIR)$(DS)modules$(DS)tools$(DS)mspdebug
+MSPDEBUG_PATH 		   	= $(ROOT_DIR)$(DS)modules$(DS)tools$(DS)debugserver$(DS)mspdebug
 
 # mspdebug bin file
 MSPDEBUG_BIN 		   	= mspdebug
@@ -45,10 +46,16 @@ MSPDEBUG_OPTIONS		= -v 3300
 endif
 
 # mspdebug dependent makefile
--include $(MSPDEBUG_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Makefile
+include .$(DS)$(MSPDEBUG_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Makefile
 
 # mspdebug name
 DEBUG_SERVER_NAME    = mspdebug
 
 # mspdebug debugserver command
 DEBUG_SERVER_CMD     = $(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(MSPDEBUG_OPTIONS)
+
+# mspdebug erase command
+ERASE_CMD            = $(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(FLASH_ERASE_COMMAND)
+
+# mspdebug download command
+DOWNLOAD_CMD         = $(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(FLASH_WRITE_COMMAND)

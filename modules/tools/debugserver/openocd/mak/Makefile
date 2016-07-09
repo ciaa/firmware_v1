@@ -3,6 +3,8 @@
 # Copyright 2014, Mariano Cerdeiro
 # Copyright 2014, Juan Cecconi
 #
+# All Rights Reserved
+#
 # This file is part of CIAA Firmware.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,7 +35,7 @@
 #
 ###############################################################################
 # openocd path
-OPENOCD_PATH 		   = $(ROOT_DIR)$(DS)modules$(DS)tools$(DS)openocd
+OPENOCD_PATH 		   = $(ROOT_DIR)$(DS)modules$(DS)tools$(DS)debugserver$(DS)openocd
 
 # openocd bin file
 OPENOCD_BIN 		   = openocd
@@ -42,10 +44,48 @@ OPENOCD_BIN 		   = openocd
 OPENOCD_FLAGS 		   = -f $(OPENOCD_CFG)
 
 # openocd dependent makefile
--include $(OPENOCD_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Makefile
+include $(OPENOCD_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Makefile
 
 # openocd name
 DEBUG_SERVER_NAME    = OpenOCD
 
 # openocd debugserver command
 DEBUG_SERVER_CMD     = $(OPENOCD_BIN) $(OPENOCD_FLAGS)
+
+# openocd erase command
+ifeq ($(words $(MAKE_ARGS)),0)
+ERASE_CMD            = $(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(MASS_ERASE_COMMAND)" -c "shutdown"
+MESSAGE	             = "(after downloading a new firmware please do a hardware reset!)"
+else
+
+ifeq ($(CPUTYPE),k60_120)
+#not supported
+else
+
+ifeq ($(word 1, $(MAKE_ARGS)),FLASH)
+ERASE_CMD            = $(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
+MESSAGE	            = "(after downloading a new firmware please do a hardware reset!)"
+else
+
+ifeq ($(word 1, $(MAKE_ARGS)),QSPI)
+ERASE_CMD            = $(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_QSPI_BANK) 0 last" -c "shutdown"
+MESSAGE	            = "(after downloading a new firmware please do a hardware reset!)"
+else
+#error
+endif #ifeq ($(word 1, $(MAKE_ARGS)),QSPI)
+endif #ifeq ($(word 1, $(MAKE_ARGS)),FLASH)
+endif #ifeq ($(CPUTYPE),k60_120)
+endif #($(words $(MAKE_ARGS)),0)
+
+# openocd download command
+ifeq ($(words $(MAKE_ARGS)),0)
+DOWNLOAD_CMD 			= $(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(TARGET_NAME).$(TARGET_DOWNLOAD_EXTENSION) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+else
+
+ifeq ($(words $(MAKE_ARGS)),1)
+DOWNLOAD_CMD 			= $(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 1,$(MAKE_ARGS)) $(TARGET_DOWNLOAD_FLASH_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+else
+DOWNLOAD_CMD 			= $(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_WRITE_COMMAND) $(word 1,$(MAKE_ARGS)) $(TARGET_DOWNLOAD_$(word 2,$(MAKE_ARGS))_BASE_ADDR) $(TARGET_DOWNLOAD_EXTENSION)" -c "reset run" -c "shutdown"
+endif #($(words $(MAKE_ARGS)),1)
+
+endif #($(words $(MAKE_ARGS)),0)

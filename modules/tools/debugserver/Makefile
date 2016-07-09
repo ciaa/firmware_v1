@@ -32,7 +32,6 @@
 #
 ###############################################################################
 
-
 ifeq ($(ARCH),cortexM4)
 include modules$(DS)tools$(DS)debugserver$(DS)openocd$(DS)mak$(DS)Makefile
 else
