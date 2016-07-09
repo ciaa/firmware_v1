@@ -687,58 +687,23 @@ else
 endif
 endif
 
-
 ###############################################################################
 # debug server inclusion
-ifeq ($(ARCH),x86)
-
-else
-ifeq ($(ARCH),msp430)
-include modules$(DS)tools$(DS)mspdebug$(DS)mak$(DS)Makefile
-else
-# if CPU is not entered shows an error
-ifeq ($(CPU),)
-
-else
-ifeq ($(OPENOCD_CFG),)
-
-else
-include modules$(DS)tools$(DS)openocd$(DS)mak$(DS)Makefile
-endif
-endif
-endif
-endif
+include modules$(DS)tools$(DS)debugserver$(DS)Makefile
 
 ###############################################################################
 # debug server rule
 debugserver: unload
 
-# if windows or posix shows an error
-ifeq ($(ARCH),x86)
-	@echo ERROR: There is no need of starting a debug server in Windows nor Linux
-else
-ifeq ($(ARCH),msp430)
-	@echo ===============================================================================
-	@echo Starting mspdebug...
-	@echo ' '
-	$(MSPDEBUG_BIN) $(MSPDEBUG_PROTOCOL) $(MSPDEBUG_OPTIONS)
-else
-# if CPU is not entered shows an error
-ifeq ($(CPU),)
-	@echo ERROR: The CPU variable of your makefile is empty.
-else
-ifeq ($(OPENOCD_CFG),)
-	@echo ERROR: Your CPU: $(CPU) may not be supported...
+ifeq ($(DEBUG_SERVER_CMD),)
+	@echo ERROR: Your CPU: $(CPU) or ARCH: $(ARCH) may not be supported...
 else
 	@echo ===============================================================================
-	@echo Starting OpenOCD...
+	@echo Starting $(DEBUG_SERVER_NAME)...
 	@echo ' '
-	$(OPENOCD_BIN) $(OPENOCD_FLAGS)
-	@make reload FTDI_KEXT=$(FTDI_KEXT)
+	$(DEBUG_SERVER_CMD)
 endif
-endif
-endif
-endif
+
 	@make reload FTDI_KEXT=$(FTDI_KEXT)
 
 ###############################################################################
@@ -848,6 +813,7 @@ endif
 endif
 endif
 endif
+
 	@make reload FTDI_KEXT=$(FTDI_KEXT)
 
 ###############################################################################
@@ -911,7 +877,7 @@ help:
 	@echo "+-----------------------------------------------------------------------------+"
 	@echo "run.........................: execute the binary file (Win/Posix only)"
 	@echo debug.......................: starts gdb for debug Win/Posix or target
-	@echo openocd.....................: starts openocd for $(ARCH)
+	@echo debugserver.................: starts the debug server for $(ARCH) ($(DEBUG_SERVER_NAME))
 	@echo "download [file] [FLASH|QSPI]: download .bin firmware file to the target"
 	@echo "erase [FLASH|QSPI]..........: erase all the flash"
 	@echo "+-----------------------------------------------------------------------------+"

@@ -43,3 +43,9 @@ OPENOCD_FLAGS 		   = -f $(OPENOCD_CFG)
 
 # openocd dependent makefile
 -include $(OPENOCD_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Makefile
+
+# openocd name
+DEBUG_SERVER_NAME    = OpenOCD
+
+# openocd debugserver command
+DEBUG_SERVER_CMD     = $(OPENOCD_BIN) $(OPENOCD_FLAGS)
