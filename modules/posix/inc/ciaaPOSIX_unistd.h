@@ -45,11 +45,9 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stddef.h"
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_unistd_nonstd.h"
-#if (x86 == ARCH)
-#include "sys/types.h"
-#endif
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -65,7 +63,7 @@ extern "C" {
  ** 1000000.
  **
  **/
-#if (x86 != ARCH)
+#if ( !defined(_USECONDS_T_DECLARED) && !defined(__useconds_t_defined) )
 typedef uint32_t useconds_t;
 #endif
 /*==================[external data declaration]==============================*/
