@@ -63,7 +63,7 @@ extern "C" {
  ** 1000000.
  **
  **/
-#if ( !defined(_USECONDS_T_DECLARED) && !defined(__useconds_t_defined) )
+#if ( !defined(_USECONDS_T_DECLARED) && !defined(__CYGWIN__) )
 typedef uint32_t useconds_t;
 #endif
 /*==================[external data declaration]==============================*/
