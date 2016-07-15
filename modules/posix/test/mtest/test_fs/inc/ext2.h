@@ -68,8 +68,11 @@
 
 /*==================[macros]=================================================*/
 
+/** \brief Maximum quantity of simultaneous mounts */
 #define EXT2_MAX_MOUNTS 32
+/** \brief Size of array ext2_block_buffer defined in ext2.c. Its used to read and write portions of blocks */
 #define EXT2_BLOCK_BUFFER_SIZE 1024
+/** \brief ext2_block_buffer */
 #define EXT2_PATH_MAX 50
 
 /** \brief Blank block size */
@@ -147,6 +150,10 @@
 #define roundup(x, y)  ((((x)+((y)-1))/(y))*(y))
 /* Rounddown x to the nearest y multiple */
 #define rounddown(x,y) (((x)/(y))*(y))
+
+/* Misc macros */
+/* Check if power of 2 */
+#define is_powerof2(x) (( (x) != 0 ) && !( (x) & ( (x) - 1)))
 
 /*==================[typedef]================================================*/
 
@@ -280,7 +287,6 @@ typedef struct ext2_inode
 typedef struct ext2_fs_info
 {
    ext2_superblock_t e2sb;
-   ext2_gd_t  *e2fs_gd;             /* Group descripors */
    uint32_t   s_block_size;         /* Block size in bytes. */
    uint32_t   s_inodes_per_block;   /* Number of inodes per block */
    uint32_t   s_itb_per_group;      /* Number of inode table blocks per group */
@@ -304,6 +310,13 @@ typedef struct ext2_file_info
    uint32_t            f_pointer;   /* Local seek pointer */
    uint32_t            f_inumber;   /* Inode number */
 } ext2_file_info_t;
+
+typedef struct ext2_format_param
+{
+   uint32_t partition_size;
+   uint16_t block_size; /* Valid block_size values are 1024, 2048 and 4096 bytes per block */
+   uint8_t block_node_factor; /* blocks/nodes. Default is 4 */
+} ext2_format_param_t;
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/

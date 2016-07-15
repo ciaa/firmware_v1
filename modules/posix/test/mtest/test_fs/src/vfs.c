@@ -288,7 +288,7 @@ static vnode_t *vfs_node_alloc(const char *name, size_t name_len)
    {
       return NULL;
    }
-   ASSERT_MSG(*name && name_len <= FS_NAME_MAX, "\tvfs_node_alloc(): !(*name) || name_len > FS_NAME_MAX failed");
+   ASSERT_MSG((*name) && (name_len <= FS_NAME_MAX), "\tvfs_node_alloc(): !(*name) || name_len > FS_NAME_MAX failed");
    if (!(*name) || name_len > FS_NAME_MAX)
    {
       return NULL;
@@ -720,7 +720,7 @@ extern int ciaaFS_init(void)
  *
  *
  */
-extern int ciaaFS_format(const char *device_path, const char *fs_type)
+extern int ciaaFS_format(const char *device_path, const char *fs_type, void *param)
 {
    vnode_t *devnode;
    char *devpath;
@@ -752,7 +752,7 @@ extern int ciaaFS_format(const char *device_path, const char *fs_type)
    }
 
    /* Llamo a la funcion de bajo nivel */
-   ret = fs_driver->driver_op->fs_format(devnode);
+   ret = fs_driver->driver_op->fs_format(devnode, param);
    ASSERT_MSG(0 == ret, "format(): Lower layer format failed");
    if(ret)
    {

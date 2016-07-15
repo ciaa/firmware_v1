@@ -147,7 +147,7 @@ typedef   int (*fs_init_t)(void *par);
 /** \brief Formats the device according to the file system specifications
  **
  **/
-typedef   int (*fs_format_t)(vnode_t *dev_node);
+typedef   int (*fs_format_t)(vnode_t *dev_node, void *param);
 
 /** \brief Mount  a formatted device on a root directory
  **
@@ -355,7 +355,7 @@ extern int ciaaFS_init(void);
  **               PSEUDOFS:
  ** \return -1 if an error occurs, 0 if success
  **/
-extern int ciaaFS_format(const char *device_path, const char *fs_type);
+extern int ciaaFS_format(const char *device_path, const char *fs_type, void *param);
 
 /** \brief mount a filesystem
  **

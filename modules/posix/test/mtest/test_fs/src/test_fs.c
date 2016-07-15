@@ -181,6 +181,7 @@ TASK(InitTask)
    int32_t j;
    int32_t fd0, fd1, fd2, fd3;
    uint8_t buffer[TEST_BUFFER_SIZE];
+   ext2_format_param_t format_parameters;
 
    int32_t ret;
    uint32_t lret;
@@ -201,13 +202,16 @@ TASK(InitTask)
     */
    ASSERT_SEQ(0);
    /* format */
-   ret = ciaaFS_format("/dev/block/fd/0", "EXT2");
+   format_parameters.partition_size = 1048576;
+   format_parameters.block_size = 1024;
+   format_parameters.block_node_factor = 4;
+   ret = ciaaFS_format("/dev/block/fd/0", "EXT2", &format_parameters);
    ASSERT_MSG(-1 < ret, "Problem formatting device");
    ASSERT_SEQ(1);
+   while(1);
    /* mount */
    ret = ciaaFS_mount("/dev/block/fd/0", "/mount/ext2", "EXT2");
    ASSERT_MSG(-1 < ret, "Problem mounting directory");
-
    ASSERT_SEQ(2);
    /* Show actual vfs tree */
    ret=vfs_print_tree();
