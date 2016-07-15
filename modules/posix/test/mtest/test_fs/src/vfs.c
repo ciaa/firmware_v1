@@ -255,7 +255,7 @@ static int vfs_get_mntpt_path_rec(vnode_t *node, char *path, uint16_t *len_p)
 {
    uint16_t name_len;
    int ret;
-   if(false == node->n_info.is_mount_dir)
+   if(false == node->f_info.is_mount_dir)
    {
       ret = vfs_get_mntpt_path_rec(node->parent_node, path, len_p);
       if(ret)
@@ -372,7 +372,7 @@ static int vfs_inode_reserve(const char *path, vnode_t **inode_p)
          return 0;
       }
       /* Must go onto the next iteration. Created node is directory by default */
-      child->n_info.type = VFS_FTDIR;
+      child->f_info.type = VFS_FTDIR;
    }
 }
 
@@ -669,8 +669,8 @@ extern int ciaaFS_init(void)
    {
       return -1;
    }
-   vfs_root_inode->n_info.is_mount_dir = true;
-   vfs_root_inode->n_info.type = VFS_FTDIR;
+   vfs_root_inode->f_info.is_mount_dir = true;
+   vfs_root_inode->f_info.type = VFS_FTDIR;
    vfs_root_inode->f_info.file_name[0] = '\0';
    ret = file_descriptor_table_init();
    ASSERT_MSG(-1 != ret, "vfs_init(): file_descriptor_table_init() failed");
@@ -687,7 +687,7 @@ extern int ciaaFS_init(void)
       return -1;
    }
 
-   aux_inode->n_info.type = VFS_FTBLK;
+   aux_inode->f_info.type = VFS_FTBLK;
    aux_inode->fs_info.device = ciaaDevices_getDevice("/dev/block/fd/0");
    ASSERT_MSG(NULL != aux_inode->fs_info.device, "vfs_init(): vfs_get_driver() failed");
    if(NULL == aux_inode->fs_info.device)
@@ -744,8 +744,8 @@ extern int ciaaFS_format(const char *device_path, const char *fs_type, void *par
       return -1;
    }
 
-   ASSERT_MSG(VFS_FTBLK == devnode->n_info.type, "format(): Target file not a device");
-   if(VFS_FTBLK != devnode->n_info.type)
+   ASSERT_MSG(VFS_FTBLK == devnode->f_info.type, "format(): Target file not a device");
+   if(VFS_FTBLK != devnode->f_info.type)
    {
       /* El supuesto nodo device no es device */
       return -1;
@@ -793,8 +793,8 @@ extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type)
       /* The device node doesnt exist */
       return -1;
    }
-   ASSERT_MSG(VFS_FTBLK == devnode->n_info.type, "mount(): Device node not valid");
-   if(VFS_FTBLK != devnode->n_info.type)
+   ASSERT_MSG(VFS_FTBLK == devnode->f_info.type, "mount(): Device node not valid");
+   if(VFS_FTBLK != devnode->f_info.type)
    {
       /* Not a device node */
       return -1;
@@ -809,7 +809,7 @@ extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type)
    /* Fill the target directory vnode fields */
    targetnode->fs_info.drv = fs_driver;
    targetnode->fs_info.device = devnode->fs_info.device;
-   targetnode->n_info.is_mount_dir = true;
+   targetnode->f_info.is_mount_dir = true;
    /* Call the lower layer method */
    ret = fs_driver->driver_op->fs_mount(devnode, targetnode);
    ASSERT_MSG(0 == ret, "mount(): Lower layer mount failed");
@@ -840,8 +840,8 @@ extern int ciaaFS_umount(const char *target_path)
       /* The device node doesnt exist */
       return -1;
    }
-   ASSERT_MSG(true == targetnode->n_info.is_mount_dir, "umount(): Target not a mountpoint");
-   if(true != targetnode->n_info.is_mount_dir)
+   ASSERT_MSG(true == targetnode->f_info.is_mount_dir, "umount(): Target not a mountpoint");
+   if(true != targetnode->f_info.is_mount_dir)
    {
       /* Not a mountpoint */
       return -1;
@@ -882,7 +882,7 @@ extern int ciaaFS_mkdir(const char *dir_path, mode_t mode)
       return -1;
    }
    /* Fill the vnode fields */
-   dir_inode_p->n_info.type = VFS_FTDIR;
+   dir_inode_p->f_info.type = VFS_FTDIR;
    parent_inode_p = dir_inode_p->parent_node;
    ret = (dir_inode_p->fs_info).drv->driver_op->fs_create_node(parent_inode_p, dir_inode_p);
    if(ret)
@@ -947,7 +947,7 @@ extern int ciaaFS_open(const char *path, int flags) {
             /* Error when allocating node */
             return -1;
          }
-         target_inode->n_info.type = VFS_FTREG;
+         target_inode->f_info.type = VFS_FTREG;
          /* Create node in lower layer */
          parent_inode = target_inode->parent_node;
          ret = target_inode->fs_info.drv->driver_op->fs_create_node(parent_inode, target_inode);
@@ -974,7 +974,7 @@ extern int ciaaFS_open(const char *path, int flags) {
          return -1;
       }
       /* TODO: Contemplate more cases of filetypes */
-      if(VFS_FTDIR == target_inode->n_info.type || VFS_FTUNKNOWN == target_inode->n_info.type)
+      if(VFS_FTDIR == target_inode->f_info.type || VFS_FTUNKNOWN == target_inode->f_info.type)
       {
          return -1;
       }
@@ -1133,8 +1133,8 @@ extern int ciaaFS_unlink(const char *path)
       /* File not found */
       return -1;
    }
-   ASSERT_MSG(VFS_FTREG == target_inode->n_info.type, "unlink(): not a regular file");
-   if(VFS_FTREG != target_inode->n_info.type)
+   ASSERT_MSG(VFS_FTREG == target_inode->f_info.type, "unlink(): not a regular file");
+   if(VFS_FTREG != target_inode->f_info.type)
    {
       /* Not a regular file, can not unlink */
       return -1;

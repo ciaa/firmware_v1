@@ -209,19 +209,6 @@ typedef struct filesystem_driver
    const fsdriver_operations_t *driver_op;
 } filesystem_driver_t;
 
-/** \brief VFS metadata information
- **
- ** Contains upper layer node information, independent of the lower layer
- **
- **/
-typedef struct node_info
-{
-   node_type_t type;
-   bool        is_mount_dir;
-   void        *down_layer_info; /* on-memory metadata information */
-} node_info_t;
-
-
 /** \brief VFS file system information
  **
  ** Contains upper layer file system information, independent of the lower layer
@@ -242,6 +229,8 @@ typedef struct filesystem_info
  **/
 typedef struct file_info
 {
+   node_type_t type;
+   bool        is_mount_dir;
    char     file_name[FS_NAME_MAX + 1];
    uint8_t  file_namlen;
    uint32_t file_pointer;
@@ -260,7 +249,6 @@ struct vfs_node
    struct vfs_node   *sibling_node;  /* Link to same level inode */
    struct vfs_node   *child_node;    /* Link to lower level inode */
 
-   node_info_t       n_info;
    filesystem_info_t fs_info;
    file_info_t       f_info;
 };

@@ -60,7 +60,7 @@
 TODO:
 -Try to implement everything with static memory. Exceptions can occur
 -Optimize algorithms in speed and memory usage
--Add new fields to finfo, fsinfo and ninfo, as they help to avoid calculating every time a function is called
+-Add new fields to finfo and fsinfo, as they help to avoid calculating every time a function is called
 -Implement error codes. By now when an error is found, -1 is returned. No matter which error was produced
 -Fix "addtogroup" description from doxygen
 -Add more comments
@@ -850,8 +850,8 @@ static int ext2_format(vnode_t *dev_node, void *param)
    uint8_t   aux_byte;
 
    bdev = dev_node->fs_info.device;
-   ASSERT_MSG(dev_node->n_info.type == VFS_FTBLK, "ext2_format(): not a block device");
-   if(dev_node->n_info.type != VFS_FTBLK)
+   ASSERT_MSG(dev_node->f_info.type == VFS_FTBLK, "ext2_format(): not a block device");
+   if(dev_node->f_info.type != VFS_FTBLK)
    {
       return -1;   /* Only a device can be formatted. This is not a device node */
    }
@@ -1288,11 +1288,11 @@ static int ext2_create_node(vnode_t *parent_node, vnode_t *child_node)
    int ret;
 
    /* Node creation depends on the file type. A directory needs to have 2 default directories after creation */
-   if(VFS_FTDIR == child_node->n_info.type)
+   if(VFS_FTDIR == child_node->f_info.type)
    {
       ret = ext2_create_directory_file(parent_node, child_node);
    }
-   else if(VFS_FTREG == child_node->n_info.type)
+   else if(VFS_FTREG == child_node->f_info.type)
    {
       ret = ext2_create_regular_file(parent_node,child_node);
    }
@@ -1309,12 +1309,12 @@ static int ext2_delete_node(vnode_t *parent_node, vnode_t *child_node)
 {
    int ret;
 
-   if(VFS_FTDIR == child_node->n_info.type)
+   if(VFS_FTDIR == child_node->f_info.type)
    {
       ret = ext2_delete_directory_file(parent_node, child_node);
       ASSERT_MSG(-1 < ret, "ext2_delete_node(): ext2_delete_directory_file() failed");
    }
-   else if(VFS_FTREG == child_node->n_info.type)
+   else if(VFS_FTREG == child_node->f_info.type)
    {
       ret = ext2_delete_regular_file(parent_node,child_node);
       ASSERT_MSG(-1 < ret, "ext2_delete_node(): ext2_delete_regular_file() failed");
@@ -1350,7 +1350,7 @@ static int ext2_umount(vnode_t *root)
       /* Cant delete root */
       return -1;
    }
-   if(VFS_FTDIR == root->n_info.type)
+   if(VFS_FTDIR == root->f_info.type)
    {
       /* Recursively delete all subtrees under this subroot */
       ret = ext2_umount_subtree_rec(root->child_node);
@@ -1398,7 +1398,7 @@ static int ext2_umount_subtree_rec(vnode_t *root)
       return -1;
    }
    snode = root->sibling_node;
-   if(VFS_FTDIR == root->n_info.type)
+   if(VFS_FTDIR == root->f_info.type)
    {
       ret = ext2_umount_subtree_rec(root->child_node);
       if(ret)
