@@ -505,10 +505,6 @@ CIAALIBS_POOLDECLARE(ext2_finfo_pool, ext2_file_info_t, VFS_NODES_MAX)
 /** \brief file metadata information memory pool
  *
  */
-CIAALIBS_POOLDECLARE(ext2_ninfo_pool, ext2_inode_t, VFS_NODES_MAX)
-/** \brief filesystem metadata information memory pool
- *
- */
 CIAALIBS_POOLDECLARE(ext2_fsinfo_pool, ext2_fs_info_t, EXT2_MAX_MOUNTS)
 
 /** \brief Buffer used to read and write portions of blocks
@@ -624,16 +620,14 @@ static int ext2_read_inode(vnode_t *dest_node, uint32_t inumber)
    ext2_gd_t gd;
 
    ciaaDevices_deviceType const *bdev;
-   ext2_inode_t * ninfo;
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
    bdev = dest_node->fs_info.device;
-   ninfo = (ext2_inode_t *)dest_node->n_info.down_layer_info;
    finfo = (ext2_file_info_t *)dest_node->f_info.down_layer_info;
    fsinfo = (ext2_fs_info_t *)dest_node->fs_info.down_layer_info;
 
-   if(NULL == fsinfo || NULL == finfo || NULL == ninfo || NULL == bdev)
+   if(NULL == fsinfo || NULL == finfo || NULL == bdev)
    {
       return -1;
    }
@@ -657,7 +651,7 @@ static int ext2_read_inode(vnode_t *dest_node, uint32_t inumber)
    inode_offset = EXT2_SBOFF + (gd.inode_table-1)*(fsinfo->s_block_size) +
          ((inumber-1)%fsinfo->e2sb.s_inodes_per_group)*(fsinfo->e2sb.s_inode_size);
 
-   ret = ext2_device_buf_read(bdev, (uint8_t *)ninfo, inode_offset, sizeof(ext2_inode_t));
+   ret = ext2_device_buf_read(bdev, (uint8_t *)&(finfo->f_di), inode_offset, sizeof(ext2_inode_t));
    if(ret)
    {
       return -1;
@@ -665,8 +659,7 @@ static int ext2_read_inode(vnode_t *dest_node, uint32_t inumber)
 
    finfo->f_inumber = inumber;
    finfo->f_group = inode_group;
-   ciaaPOSIX_memcpy(&(finfo->f_di), ninfo, sizeof(ext2_inode_t));
-   print_inode(dest_node->n_info.down_layer_info);
+   print_inode(&(finfo->f_di));
    return 0;
 }
 
@@ -1249,7 +1242,6 @@ static int ext2_mount(vnode_t *dev_node, vnode_t *dest_node)
 {
    int ret;
    ciaaDevices_deviceType const *bdev;
-   ext2_inode_t * ninfo;
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
@@ -1260,12 +1252,6 @@ static int ext2_mount(vnode_t *dev_node, vnode_t *dest_node)
    finfo=dest_node->f_info.down_layer_info = (ext2_file_info_t *) ciaaLibs_poolBufLock(&ext2_finfo_pool);
    ASSERT_MSG(NULL != finfo, "ext2_mount(): Mem error, could not alloc finfo");
    if(NULL == finfo)
-   {
-      return -1;
-   }
-   ninfo=dest_node->n_info.down_layer_info = (ext2_inode_t *) ciaaLibs_poolBufLock(&ext2_ninfo_pool);
-   ASSERT_MSG(NULL != ninfo, "ext2_mount(): Mem error, could not alloc ninfo");
-   if(NULL == ninfo)
    {
       return -1;
    }
@@ -1373,16 +1359,6 @@ static int ext2_umount(vnode_t *root)
          return -1;
       }
    }
-   if(NULL != root->n_info.down_layer_info)
-   {
-      ret = ciaaLibs_poolBufFree(&ext2_ninfo_pool, root->n_info.down_layer_info);
-      ASSERT_MSG(1 == ret, "vfs_node_free(): ciaaLibs_poolBufFree() failed");
-      if(1 != ret)
-      {
-         return -1;
-      }
-      root->n_info.down_layer_info = NULL;
-   }
    if(NULL != root->f_info.down_layer_info)
    {
       ret = ciaaLibs_poolBufFree(&ext2_finfo_pool, root->f_info.down_layer_info);
@@ -1391,7 +1367,7 @@ static int ext2_umount(vnode_t *root)
       {
          return -1;
       }
-      root->n_info.down_layer_info = NULL;
+      root->f_info.down_layer_info = NULL;
    }
    if(NULL != root->fs_info.down_layer_info)
    {
@@ -1401,7 +1377,7 @@ static int ext2_umount(vnode_t *root)
       {
          return -1;
       }
-      root->n_info.down_layer_info = NULL;
+      root->fs_info.down_layer_info = NULL;
    }
    /* Unlink subroot and delete it */
    ret = vfs_delete_child(root);
@@ -1431,16 +1407,6 @@ static int ext2_umount_subtree_rec(vnode_t *root)
       }
    }
 
-   if(NULL != root->n_info.down_layer_info)
-   {
-      ret = ciaaLibs_poolBufFree(&ext2_ninfo_pool, root->n_info.down_layer_info);
-      ASSERT_MSG(1 == ret, "vfs_node_free(): ciaaLibs_poolBufFree() failed");
-      if(1 != ret)
-      {
-         return -1;
-      }
-      root->n_info.down_layer_info = NULL;
-   }
    if(NULL != root->f_info.down_layer_info)
    {
       ret = ciaaLibs_poolBufFree(&ext2_finfo_pool, root->f_info.down_layer_info);
@@ -1449,7 +1415,7 @@ static int ext2_umount_subtree_rec(vnode_t *root)
       {
          return -1;
       }
-      root->n_info.down_layer_info = NULL;
+      root->f_info.down_layer_info = NULL;
    }
    ret = vfs_node_free(root);
    if(ret)
@@ -1470,20 +1436,18 @@ static size_t ext2_file_write(file_desc_t *desc, void *buf, size_t size)
 
    vnode_t *node;
    ciaaDevices_deviceType const *bdev;
-   ext2_inode_t * ninfo;
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
    node = desc->node;
    bdev = node->fs_info.device;
-   ninfo = (ext2_inode_t *)node->n_info.down_layer_info;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
    fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
 
    uint32_t total_read_size, buf_pos, remaining_write_size, device_block;
    uint32_t write_size, write_offset;
 
-   if(NULL == ninfo || NULL == finfo || NULL == fsinfo)
+   if(NULL == finfo || NULL == fsinfo)
    {
       return 0;
    }
@@ -1836,10 +1800,7 @@ static int ext2_mount_load_rec(vnode_t *dir_node)
          /* Alloc and initialize the file low level information */
          child_node->f_info.down_layer_info = (ext2_file_info_t *) ciaaLibs_poolBufLock(&ext2_finfo_pool);
          ASSERT_MSG(NULL != child_node->f_info.down_layer_info, "ext2_mount_load_rec(): Mem error, could not alloc finfo");
-         child_node->n_info.down_layer_info = (ext2_inode_t *) ciaaLibs_poolBufLock(&ext2_ninfo_pool);
-         ASSERT_MSG(NULL != child_node->n_info.down_layer_info, "ext2_mount_load_rec(): Mem error, could not alloc ninfo");
-         if(NULL == child_node->f_info.down_layer_info || NULL == child_node->fs_info.down_layer_info
-            || NULL == child_node->n_info.down_layer_info)   //FIXME
+         if(NULL == child_node->f_info.down_layer_info || NULL == child_node->fs_info.down_layer_info)   //FIXME
          {
             return -1;
          }
@@ -1907,10 +1868,8 @@ static int ext2_create_regular_file(vnode_t *parent_node, vnode_t *node)
    int ret;
    uint32_t new_inumber, aux;
 
-   ext2_inode_t * ninfo;
    ext2_file_info_t *finfo, *parent_finfo;
 
-   ninfo = (ext2_inode_t *)node->n_info.down_layer_info;
    parent_finfo = (ext2_file_info_t *)parent_node->f_info.down_layer_info;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
 
@@ -1922,15 +1881,6 @@ static int ext2_create_regular_file(vnode_t *parent_node, vnode_t *node)
    }
    ciaaPOSIX_memset((void *)finfo, 0, sizeof(ext2_file_info_t));
    node->f_info.down_layer_info = (void *)finfo;
-
-   ninfo = (ext2_inode_t *) ciaaLibs_poolBufLock(&ext2_ninfo_pool);
-   ASSERT_MSG(NULL != ninfo, "ext2_create_regular_file(): Mem error");
-   if(NULL == ninfo)
-   {
-      return -1;
-   }
-   ciaaPOSIX_memset((void *)ninfo, 0, sizeof(ext2_inode_t));
-   node->n_info.down_layer_info = (void *)ninfo;
 
    /* Reserve a inode bit. This function modifies bookkeeping info on memory */
    ret = ext2_alloc_inode_bit(node, &new_inumber);
@@ -2063,16 +2013,6 @@ static int ext2_delete_regular_file(vnode_t *parent_node, vnode_t *node)
       return -1;
    }
    /* Free low level data from the deleted file */
-   if(NULL != node->n_info.down_layer_info)
-   {
-      ret = ciaaLibs_poolBufFree(&ext2_ninfo_pool, node->n_info.down_layer_info);
-      ASSERT_MSG(1 == ret, "vfs_node_free(): ciaaLibs_poolBufFree() failed");
-      if(1 != ret)
-      {
-         return -1;
-      }
-      node->n_info.down_layer_info = NULL;
-   }
    if(NULL != node->f_info.down_layer_info)
    {
       ret = ciaaLibs_poolBufFree(&ext2_finfo_pool, node->f_info.down_layer_info);
@@ -2081,7 +2021,7 @@ static int ext2_delete_regular_file(vnode_t *parent_node, vnode_t *node)
       {
          return -1;
       }
-      node->n_info.down_layer_info = NULL;
+      node->f_info.down_layer_info = NULL;
    }
    return 0;
 }
@@ -2103,10 +2043,8 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
    int ret;
    uint32_t new_inumber, aux;
 
-   ext2_inode_t * ninfo;
    ext2_file_info_t *finfo, *parent_finfo;
 
-   ninfo = (ext2_inode_t *)node->n_info.down_layer_info;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
    parent_finfo = (ext2_file_info_t *)parent_node->f_info.down_layer_info;
 
@@ -2118,15 +2056,6 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
    }
    ciaaPOSIX_memset((void *)finfo, 0, sizeof(ext2_file_info_t));
    node->f_info.down_layer_info = (void *)finfo;
-
-   ninfo = (ext2_inode_t *) ciaaLibs_poolBufLock(&ext2_ninfo_pool);
-   ASSERT_MSG(NULL != ninfo, "ext2_create_regular_file(): Mem error");
-   if(NULL == ninfo)
-   {
-      return -1;
-   }
-   ciaaPOSIX_memset((void *)ninfo, 0, sizeof(ext2_inode_t));
-   node->n_info.down_layer_info = (void *)ninfo;
 
    ret = ext2_alloc_inode_bit(node, &new_inumber);
    if(ret)
@@ -2270,16 +2199,6 @@ static int ext2_delete_directory_file(vnode_t *parent_node, vnode_t *node)
       return -1;
    }
    /* Free low level info */
-   if(NULL != node->n_info.down_layer_info)
-   {
-      ret = ciaaLibs_poolBufFree(&ext2_ninfo_pool, node->n_info.down_layer_info);
-      ASSERT_MSG(1 == ret, "vfs_node_free(): ciaaLibs_poolBufFree() failed");
-      if(1 != ret)
-      {
-         return -1;
-      }
-      node->n_info.down_layer_info = NULL;
-   }
    if(NULL != node->f_info.down_layer_info)
    {
       ret = ciaaLibs_poolBufFree(&ext2_finfo_pool, node->f_info.down_layer_info);
@@ -2288,7 +2207,7 @@ static int ext2_delete_directory_file(vnode_t *parent_node, vnode_t *node)
       {
          return -1;
       }
-      node->n_info.down_layer_info = NULL;
+      node->f_info.down_layer_info = NULL;
    }
    return 0;
 }
