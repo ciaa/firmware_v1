@@ -64,6 +64,9 @@ TODO:
 -Implement error codes. By now when an error is found, -1 is returned. No matter which error was produced
 -Fix "addtogroup" description from doxygen
 -Add more comments
+-Optimize space by allocating minimal memory for non open files, and allocating structures only for open files.
+For example, make f_di field in ext2_file_info a pointer, and alloc structure only for open files.
+
 
 FIXME:
 -Try to call return only once for every function. Use an auxiliary variable
@@ -641,16 +644,13 @@ static int ext2_read_inode(vnode_t *dest_node, uint32_t inumber)
    inode_group = (inumber-1)/fsinfo->e2sb.s_inodes_per_group;
    /* (inumber-1) because we start counting from 1 */
    /* Calculate in which group is the target inode to be found */
-
    ret = ext2_get_groupdesc(dest_node, inode_group, &gd);
    if(ret)
    {
       return -1;
    }
-
-   inode_offset = EXT2_SBOFF + (gd.inode_table-1)*(fsinfo->s_block_size) +
+   inode_offset = (gd.inode_table)*(fsinfo->s_block_size) +
          ((inumber-1)%fsinfo->e2sb.s_inodes_per_group)*(fsinfo->e2sb.s_inode_size);
-
    ret = ext2_device_buf_read(bdev, (uint8_t *)&(finfo->f_di), inode_offset, sizeof(ext2_inode_t));
    if(ret)
    {
@@ -862,33 +862,30 @@ static int ext2_format(vnode_t *dev_node, void *param)
    {
       return -1;
    }
-   ciaaPOSIX_printf("ext2_format(): Parameters: partsize:%lu blocksize:%lu factor:%i\n",
-                     format_parameters.partition_size, format_parameters.block_size,
-                     format_parameters.block_node_factor);
-
    if(param == NULL)
    {
       format_parameters.partition_size = blockInfo.lastPosition;
-      format_parameters.block_size = 1024;
-      format_parameters.block_node_factor = 4;
+      format_parameters.block_size = EXT2_MIN_BLOCKSIZE;
+      format_parameters.block_node_factor = EXT2_DEFAULT_BLOCKNODE_FACTOR;
    }
    else
    {
       ciaaPOSIX_memcpy((void *)&format_parameters, (void *)param, sizeof(ext2_format_param_t));
-      if(format_parameters.block_size < 1024)
-         format_parameters.block_size = 1024;
-      if(format_parameters.block_size > 4096)
-         format_parameters.block_size = 4096;
+      if(format_parameters.block_size < EXT2_MIN_BLOCKSIZE)
+         format_parameters.block_size = EXT2_MIN_BLOCKSIZE;
+      if(format_parameters.block_size > EXT2_MAX_BLOCKSIZE)
+         format_parameters.block_size = EXT2_MAX_BLOCKSIZE;
       if(!(is_powerof2(format_parameters.block_size)))
          return -1;
       if(!(format_parameters.block_node_factor >= 2 && format_parameters.block_node_factor <= 10))
-         format_parameters.block_node_factor = 4;
+         format_parameters.block_node_factor = EXT2_DEFAULT_BLOCKNODE_FACTOR;
       inodes_per_group = (format_parameters.block_size * 8) / format_parameters.block_node_factor;
       inodeblocks_per_group = howmany(128 * inodes_per_group, format_parameters.block_size);
       minmetablocks_per_group = 1 /*Superblock*/ + 1 /*gd block*/ + 1 /*Block bitmap*/ +
                                  1 /*Inode bimap*/ + inodeblocks_per_group + 2 /*At least 2 data blocks*/;
       format_parameters.partition_size = blockInfo.lastPosition;
    }
+
    ASSERT_MSG(blockInfo.lastPosition >= minmetablocks_per_group, "ext2_format(): Device size is too small");
    if(blockInfo.lastPosition < minmetablocks_per_group)
    {
@@ -899,7 +896,7 @@ static int ext2_format(vnode_t *dev_node, void *param)
    /* Initialize default ext2 superblock contents */
    ciaaPOSIX_memset((uint8_t *)&superblock, 0, sizeof(ext2_superblock_t));
 
-   for(i=0, aux=1024; aux < format_parameters.block_size; i++, aux = 1024 << i);   /* blocksize log2 */
+   for(i = 0, aux = 1024; aux < format_parameters.block_size; i++, aux = 1024 << i);   /* blocksize log2 */
    superblock.s_log_block_size = i;
    superblock.s_log_frag_size = superblock.s_log_block_size;
    superblock.s_first_data_block = (format_parameters.block_size > EXT2_SBOFF) ? 0 : 1;  /* First Data Block */
@@ -908,7 +905,7 @@ static int ext2_format(vnode_t *dev_node, void *param)
    superblock.s_wtime = 0;             /* Last write time */
    superblock.s_mnt_count = 0;            /* Current mount count */
    superblock.s_max_mnt_count = -1;        /* Max mount count */
-   superblock.s_magic = 0xEF53U;                /* Magic number */
+   superblock.s_magic = EXT2_MAGIC;                /* Magic number */
    superblock.s_state = 1;                /* File system state. EXT2_VALID_FS */
    superblock.s_errors = 1;               /* Behaviour when detecting errors. EXT2_ERRORS_CONTINUE */
    superblock.s_lastcheck = 0;         /* time of last check */
@@ -940,7 +937,7 @@ static int ext2_format(vnode_t *dev_node, void *param)
    /* Total blocks */
    superblock.s_blocks_count = format_parameters.partition_size / format_parameters.block_size;
    /* (block/node) factor = 4 */
-   superblock.s_inodes_count = superblock.s_blocks_count / 4;
+   superblock.s_inodes_count = superblock.s_blocks_count / format_parameters.block_node_factor;
    /* Reserved blocks count */
    superblock.s_r_blocks_count = 0;
    /* Number of block groups */
@@ -1002,12 +999,12 @@ static int ext2_format(vnode_t *dev_node, void *param)
       gd_buffer.inode_table = block_offset;
       if(group_index == ngroups-1)
          gd_buffer.free_blocks_count = nblocks_last_group -
-                                                      minmetablocks_per_group /*Overhead*/;
+                                                      nblocks_group_overhead /*Overhead*/;
       else if(group_index == 0)
          /* Reserve a block for root entries */
-         gd_buffer.free_blocks_count = superblock.s_blocks_per_group - minmetablocks_per_group - 1;
+         gd_buffer.free_blocks_count = superblock.s_blocks_per_group - nblocks_group_overhead - 1;
       else
-         gd_buffer.free_blocks_count = superblock.s_blocks_per_group - minmetablocks_per_group /*Overhead*/;
+         gd_buffer.free_blocks_count = superblock.s_blocks_per_group - nblocks_group_overhead /*Overhead*/;
       free_blocks_count += gd_buffer.free_blocks_count;
       if(group_index == 0)
          gd_buffer.free_inodes_count = superblock.s_inodes_per_group - EXT2_RESERVED_INODES;
@@ -1176,16 +1173,16 @@ static int ext2_format(vnode_t *dev_node, void *param)
 
    node.i_mode = 040755;
    node.i_uid = node.i_gid = 1000;
-   node.i_size = 1024;
+   node.i_size = format_parameters.block_size;
    node.i_atime = node.i_ctime = node.i_mtime = 0;
    node.i_dtime = 0;
    node.i_links_count = 2;
-   node.i_blocks = 2;
+   node.i_blocks = format_parameters.block_size / 512;
 
    /* Reserve free block in first group for root directory data */
    /* The block was already reserved when setting block bitmap bits. Its the first block after overhead blocks */
    /* This block will be assigned to node.i_block[0] */
-   node.i_block[0] = nblocks_group_overhead + 1;
+   node.i_block[0] = nblocks_group_overhead;
 
    /* Fill root inode */
    ret = ext2_device_buf_memset(bdev, 0, gd_buffer.inode_table * format_parameters.block_size +
@@ -1202,8 +1199,6 @@ static int ext2_format(vnode_t *dev_node, void *param)
    {
       return -1;
    }
-   ciaaPOSIX_printf("ext2_format(): Root node offset: %lu\n", gd_buffer.inode_table * format_parameters.block_size +
-                               superblock.s_inode_size);
 
    /* Create root entry */
 
@@ -1223,7 +1218,7 @@ static int ext2_format(vnode_t *dev_node, void *param)
 
    /* Parent entry */
    ext2_dir_entry_buffer.inode = 2;
-   ext2_dir_entry_buffer.rec_len = 1012;
+   ext2_dir_entry_buffer.rec_len = format_parameters.block_size - 12;
    ext2_dir_entry_buffer.name_len = 2;
    ext2_dir_entry_buffer.file_type = 2;
    ciaaPOSIX_strcpy(ext2_dir_entry_buffer.name, "..");
@@ -1275,7 +1270,7 @@ static int ext2_mount(vnode_t *dev_node, vnode_t *dest_node)
    fsinfo->sectors_in_block = fsinfo->s_block_size >> 9;   /* s_block_size/512 */
    fsinfo->s_inodes_per_block = (fsinfo->s_block_size)/(fsinfo->e2sb.s_inode_size);
    /* Size of the block chunks to be read in buffer */
-   fsinfo->s_buff_size = EXT2_BLOCK_BUFFER_SIZE > fsinfo->s_block_size ? EXT2_BLOCK_BUFFER_SIZE : fsinfo->s_block_size;
+   fsinfo->s_buff_size = (EXT2_BLOCK_BUFFER_SIZE < fsinfo->s_block_size) ? EXT2_BLOCK_BUFFER_SIZE : fsinfo->s_block_size;
    fsinfo->s_buff_per_block = fsinfo->s_block_size / fsinfo->s_buff_size;      /* How much chunks per block */
 
    ret = ext2_mount_load(dest_node);
@@ -1462,8 +1457,8 @@ static size_t ext2_file_write(file_desc_t *desc, void *buf, size_t size)
       /* #bytes to write to current block */
       write_size = fsinfo->s_block_size - write_offset;
       /* remaining bytes to write less than block size */
-      if (write_size > total_read_size)
-         write_size = total_read_size;
+      if (write_size > remaining_write_size)
+         write_size = remaining_write_size;
       /* map file block to disk block */
       ret = ext2_file_map_alloc(node, finfo->f_pointer >> (10+fsinfo->e2sb.s_log_block_size), &device_block);
       if(ret)
@@ -1743,7 +1738,6 @@ static int ext2_mount_load_rec(vnode_t *dir_node)
       {
          return -1;
       }
-      ciaaPOSIX_printf("ext2_mount_load_rec(): Reading block #%lu\n", data_block);
       /* block_offset points to the first byte address of the current block */
       block_offset = data_block<<(10+fsinfo->e2sb.s_log_block_size);
       /* entry pointer iterates sequentially over the entries until it reaches the end of the block */
@@ -1757,7 +1751,7 @@ static int ext2_mount_load_rec(vnode_t *dir_node)
          {
             return -1;
          }
-         if(0 >= ext2_dir_entry_buffer.rec_len)
+         if(8 >= ext2_dir_entry_buffer.rec_len)
          {
             ciaaPOSIX_printf("ext2_mount_load_rec():\trec_len of entry in offset %lu is corrupt\n", entry_pointer);
             break;
@@ -1881,7 +1875,6 @@ static int ext2_create_regular_file(vnode_t *parent_node, vnode_t *node)
    }
    ciaaPOSIX_memset((void *)finfo, 0, sizeof(ext2_file_info_t));
    node->f_info.down_layer_info = (void *)finfo;
-
    /* Reserve a inode bit. This function modifies bookkeeping info on memory */
    ret = ext2_alloc_inode_bit(node, &new_inumber);
    ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_alloc_inode_bit() failed");
@@ -1890,7 +1883,7 @@ static int ext2_create_regular_file(vnode_t *parent_node, vnode_t *node)
       return -1;
    }
    /* Reserve a data block for the new node. This function modifies node on memory */
-   ret = ext2_file_map_alloc(node, 0, &aux);
+   ret = ext2_file_map_alloc(node, 0, &aux);  //FIXME: Error with 4096 blocksize
    ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_file_map_alloc() failed");
    if(ret)
    {
@@ -1913,7 +1906,6 @@ static int ext2_create_regular_file(vnode_t *parent_node, vnode_t *node)
 
    /* The new node is referred by the father. Increment link count */
    finfo->f_di.i_links_count++;
-   parent_finfo->f_di.i_links_count++;
    /* Write inode in its disk position */
    ret = ext2_write_inode(node);
    ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_write_inode() failed");
@@ -2069,7 +2061,7 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
    }
    /* mkdir creates dirs with 0755 access */
    /* Fill inode fields */
-   finfo->f_di.i_mode = 0x41FF;
+   finfo->f_di.i_mode = 0x41FD;
    finfo->f_di.i_uid = 0;
    finfo->f_di.i_atime = 0;
    finfo->f_di.i_ctime = 0;
@@ -2241,7 +2233,10 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
          return -1;
       }
       if(gd.free_inodes_count)
+      {
+         ciaaPOSIX_printf("ext2_alloc_inode_bit(): Free group found, group %i\n", group_index);
          break;
+      }
    }
    ASSERT_MSG(group_index<fsinfo->s_groups_count, "ext2_alloc_inode_bit(): No group with free inodes");
    if(group_index >= fsinfo->s_groups_count)
@@ -2250,6 +2245,8 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
       return -1;
    }
    block_offset = (gd.inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size);
+   ciaaPOSIX_printf("ext2_alloc_inode_bit(): Search free inode in bitmap in block %lu, offset %lu\n",
+                     gd.inode_bitmap, block_offset);
    for(segment_index=0, segment_offset = 0; segment_index < fsinfo->s_buff_per_block;
          segment_index++, segment_offset += fsinfo->s_buff_size)
    {
@@ -2275,6 +2272,7 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
        */
       break;
    }
+   ASSERT_MSG(segment_index < fsinfo->s_buff_per_block, "ext2_alloc_inode_bit(): No free bit in bitmap");
    if(segment_index >= fsinfo->s_buff_per_block)
    {
       /* No free bit found in bitmap
@@ -2282,7 +2280,12 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
        */
       return -1;
    }
-
+   ciaaPOSIX_printf("ext2_alloc_inode_bit(): Attempting to write %lu bytes at offset %lu\n",
+                     fsinfo->s_buff_size, block_offset + segment_offset);
+   ret = ext2_device_buf_write(bdev, (uint8_t *)ext2_block_buffer,
+                              block_offset + segment_offset,
+                              fsinfo->s_buff_size);
+   /* Found byte with free bit in block located in block_offset, offset (segment_offset + i) */
    /* Find free bit inside the found byte */
    for(j = 0; j < 8; j++)
    {
@@ -2302,10 +2305,13 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
     * Must calculate absolute inode number
     */
    *new_inumber_p = group_index * fsinfo->e2sb.s_inodes_per_group + (segment_offset<<3) + n + 1;
+   ciaaPOSIX_printf("ext2_alloc_inode_bit(): Node found %lu\n", *new_inumber_p);
+   ciaaPOSIX_printf("ext2_alloc_inode_bit(): Now write segment back in offset %lu\n", block_offset + segment_offset);
    /* Write modified bitmap to disk */
    ret = ext2_device_buf_write(bdev, (uint8_t *)ext2_block_buffer,
                               block_offset + segment_offset,
                               fsinfo->s_buff_size);
+   ASSERT_MSG(ret >= 0, "ext2_alloc_inode_bit(): ext2_device_buf_write() failed");
    if(ret)
    {
       return -1;
@@ -2314,6 +2320,7 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
    fsinfo->e2sb.s_free_inodes_count--;
    gd.free_inodes_count--;
    ret = ext2_set_groupdesc(node, group_index, &gd);
+   ASSERT_MSG(ret >= 0, "ext2_alloc_inode_bit(): ext2_set_groupdesc() failed");
    if(ret)
    {
       return -1;
@@ -2380,6 +2387,7 @@ static int ext2_dealloc_inode_bit(vnode_t *node)
 
 /* TODO: Validate arguments */
 /*FIXME: Borro el bloque determinado por el numero contenido en new_block. Pero new_block puede no estar inicializado */
+/*FIXME: Designed only for 1024 bytes block. Fix for the general case*/
 static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *device_block_p)
 {
    int ret;
@@ -2397,6 +2405,7 @@ static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *dev
 
    if(NULL == device_block_p)
       return -1;
+   ciaaPOSIX_printf("ext2_file_map_alloc(): Called with argument %lu\n", file_block);
    flag_new_block = 0;   /* To tell if a new file block is being allocated */
    *device_block_p = 0;
    block_pos = file_block;
@@ -2426,7 +2435,7 @@ static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *dev
        * EXT2_DIR_BLOCK+(1<<shift_single_block_level)+(1<<2*(shift_single_block_level))+(1<<3*(shift_single_block_level))-1
        */
       /* Wanto to calculate shift_block_level */
-      shift_single_block_level = 8;   /* 1<<8 == 256. 256 entries each block */
+      shift_single_block_level = fsinfo->e2sb.s_log_block_size - 2;   /* log(block_size/4). How much 4 byte entries in 1 block */
       block_pos -= N_DIRECT_BLOCKS;
       for (   shift_block_level=0, block_level=1;
          block_pos >= (int32_t)1<<(shift_single_block_level+shift_block_level);
@@ -2486,6 +2495,7 @@ static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *dev
    }
    if(1 == flag_new_block)
    {
+      ciaaPOSIX_printf("ext2_file_map_alloc(): New block allocated. Delete contents of block %lu\n", new_block);
       /* Erase the contents of the new reserved block */
       block_offset = new_block<<(10+fsinfo->e2sb.s_log_block_size);
       ciaaPOSIX_memset(ext2_block_buffer, 0, fsinfo->s_buff_size);
@@ -2502,7 +2512,6 @@ static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *dev
          }
       }
    }
-
    return 0;
 }
 
@@ -2719,13 +2728,13 @@ static int ext2_dir_add_entry(vnode_t *node, uint32_t ino, char *name, uint16_t 
    new_entry_size = DENTRY_MIN_SIZE + namlen;
    /* Align required_space to 4 bytes. Directory entry rule */
    new_entry_size += (new_entry_size & 0x03) ? (4 - (new_entry_size & 0x03)) : 0;
-
    /* size must be multiple of block size. Dont consider special cases */
    /* jump from block to block in every iteration */
    for(file_pointer = 0; file_pointer < finfo->f_di.i_size; file_pointer += fsinfo->s_block_size)
    {
       /* Map file block to disk block. Result in data_block */
       ret = ext2_file_map_alloc(node, file_pointer>>(10+fsinfo->e2sb.s_log_block_size), &data_block);
+      ASSERT_MSG(0 == ret, "ext2_dir_add_entry(): ext2_file_map_alloc() failed");
       if(ret)
       {
          return -1;
@@ -2741,6 +2750,17 @@ static int ext2_dir_add_entry(vnode_t *node, uint32_t ino, char *name, uint16_t 
          {
             return -1;
          }
+
+         if(8 >= ext2_dir_entry_buffer.rec_len)
+         {
+            return -1;
+         }
+         if(((ext2_dir_entry_buffer.rec_len - 8) < ext2_dir_entry_buffer.name_len) ||
+            (EXT2_MAXNAMELEN < ext2_dir_entry_buffer.name_len))
+         {
+            return -1; /* Directory corrupt */
+         }
+
          if (0 == ext2_dir_entry_buffer.inode)
          {
             /* Free entry found. Check if it has space for the new entry */
@@ -2937,7 +2957,8 @@ static int ext2_fsinfo_flush(vnode_t *node)
 
    for(group_index = 0; group_index<(fsinfo->s_groups_count); group_index++)
    {
-      group_offset = EXT2_SBOFF + fsinfo->e2sb.s_blocks_per_group * fsinfo->s_block_size * group_index;
+      group_offset = fsinfo->e2sb.s_first_data_block +
+                     fsinfo->e2sb.s_blocks_per_group * fsinfo->s_block_size * group_index;
       /* If the block size is 1024, block 0 is boot block, block 1 is superblock. Blocks 1 to 8192 are group 1 blocks
        * Boot block dont count as group 1 block
        */
@@ -3017,11 +3038,15 @@ static int ext2_device_buf_memset(ciaaDevices_deviceType const * const device, u
 static int ext2_get_groupdesc(vnode_t *node, uint16_t ngroup, ext2_gd_t *gdp)
 {
    ciaaDevices_deviceType const *bdev;
+   ext2_fs_info_t *fsinfo;
+   uint32_t offset;
    int ret;
 
    bdev = node->fs_info.device;
+   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
 
-   ret = ext2_device_buf_read(bdev, (uint8_t *)gdp, EXT2_GDOFF+ ngroup * sizeof(ext2_gd_t), sizeof(ext2_gd_t));
+   offset = (fsinfo->e2sb.s_first_data_block + 1) * fsinfo->s_block_size + ngroup * sizeof(ext2_gd_t);
+   ret = ext2_device_buf_read(bdev, (uint8_t *)gdp, offset, sizeof(ext2_gd_t));
    if(ret)
    {
       return -1;
@@ -3042,9 +3067,10 @@ static int ext2_set_groupdesc(vnode_t *node, uint16_t ngroup, ext2_gd_t *gdp)
 
    for(group_index = 0; group_index<(fsinfo->s_groups_count); group_index++)
    {
-      group_offset = EXT2_SBOFF + fsinfo->e2sb.s_blocks_per_group * fsinfo->s_block_size * group_index;
+      group_offset = fsinfo->e2sb.s_first_data_block +
+                     fsinfo->e2sb.s_blocks_per_group * fsinfo->s_block_size * group_index;
       ret = ext2_device_buf_write(bdev, (uint8_t *)gdp,
-                                    group_offset + EXT2_SBSIZE + ngroup * sizeof(ext2_gd_t), sizeof(ext2_gd_t));
+                                    group_offset + fsinfo->s_block_size + ngroup * sizeof(ext2_gd_t), sizeof(ext2_gd_t));
       if(ret)
       {
          return -1;
