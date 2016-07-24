@@ -137,6 +137,11 @@
 #define DENTRY_TOTAL_SIZE(d) (  DENTRY_USED_SIZE(d) + ( (DENTRY_USED_SIZE(d) & 0x03) ? \
                              (4 - (DENTRY_USED_SIZE(d) & 0x03)) : 0 )  )
 
+/* Format parameters constants */
+#define EXT2_MIN_BLOCKSIZE 1024
+#define EXT2_MAX_BLOCKSIZE 4096
+#define EXT2_DEFAULT_BLOCKNODE_FACTOR 4
+
 /* Bitmap handle macros */
 /* Set the bit i from array */
 #define setbit(array,i)   ((array)[(i)>>3] |= 1<<((i)&0x07))
@@ -154,6 +159,8 @@
 /* Misc macros */
 /* Check if power of 2 */
 #define is_powerof2(x) (( (x) != 0 ) && !( (x) & ( (x) - 1)))
+
+
 
 /*==================[typedef]================================================*/
 
@@ -213,11 +220,11 @@ typedef struct ext2sb
    uint32_t   s_feature_ro_compat;     /* 100: readonly-compatible feature set */
    uint8_t    s_uuid[16];              /* 104: 128-bit uuid for volume */
    char       s_volume_name[16];       /* 120: volume name string */
-   uint8_t    s_last_mounted[64];      /* 136: path of directory where last mounted */
-   uint32_t   s_algo_bitmap;           /* 200: For data compression. Unused feature in this implementation */
-   uint8_t    s_prealloc_blocks;       /* 204: # of blocks to preallocate when creating regular file */
-   uint8_t    s_prealloc_dir_blocks;   /* 205: # of blocks to preallocate when creating directory */
-   uint8_t    s_alignment[2];          /* 206: 4 byte alignment */
+   //uint8_t    s_last_mounted[64];      /* 136: path of directory where last mounted */
+   //uint32_t   s_algo_bitmap;           /* 200: For data compression. Unused feature in this implementation */
+   //uint8_t    s_prealloc_blocks;       /* 204: # of blocks to preallocate when creating regular file */
+   //uint8_t    s_prealloc_dir_blocks;   /* 205: # of blocks to preallocate when creating directory */
+   //uint8_t    s_alignment[2];          /* 206: 4 byte alignment */
    //uint8_t    padding[816];            /* 208: Not used fields from here on. Padding */
 } ext2_superblock_t;
 
