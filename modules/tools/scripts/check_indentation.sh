@@ -6,7 +6,8 @@ INDENT=$( egrep --with-filename --line-number --recursive \
    -ve "^( {3})+" \
    -ve "^$" \
    -ve "^[a-zA-Z0-9]+" \
-   -ve "^[_-#}{?<\$\.]+" \
+   -ve "^_" \
+   -ve "^[-#}{?<\$\.]+" \
    -ve "^ *\*" \
    -ve "^ */" \
    --include="*.c" \
