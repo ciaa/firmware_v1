@@ -83,8 +83,6 @@
 #define   EXT2_BBOFF     0
 /** \brief Superblock offset */
 #define   EXT2_SBOFF      (EXT2_BBOFF + EXT2_BBSIZE)
-/** \brief Group descriptor offset */
-#define EXT2_GDOFF        (EXT2_SBOFF + EXT2_SBSIZE)
 
 /** \brief ext2fs magic number */
 #define EXT2_MAGIC  0xef53U
@@ -312,10 +310,11 @@ typedef struct ext2_fs_info
  **/
 typedef struct ext2_file_info
 {
-   ext2_inode_t        f_di;        /* Copy of on-disk inode */
+   //ext2_inode_t        *pinode;        /* Copy of on-disk inode */
    uint16_t            f_group;     /* Block group number in which the node resides */
    uint32_t            f_pointer;   /* Local seek pointer */
    uint32_t            f_inumber;   /* Inode number */
+   uint32_t            f_size;
 } ext2_file_info_t;
 
 typedef struct ext2_format_param
