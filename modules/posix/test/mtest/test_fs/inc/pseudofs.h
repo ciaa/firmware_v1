@@ -67,17 +67,9 @@
 
 /*==================[macros]=================================================*/
 
-#define PSEUDOFS_MIN_ALLOC_SIZE 512
+#define PSEUDOFS_FILE_ALLOC_SIZE 1024
 
 /*==================[typedef]================================================*/
-
-/** \brief pseudofs file metadata info
- **
- **/
-typedef struct pseudofs_node_info
-{
-   int dummy;
-} pseudofs_node_info_t;
 
 /** \brief pseudofs file system info
  **
@@ -94,9 +86,9 @@ typedef struct pseudofs_file_info
 {
    uint16_t index;   /* number of file in FS */
    uint32_t file_size;
-   uint32_t alloc_size;
+   uint32_t alloc_size; /* byte count of the reserved space for this file */
    uint32_t pointer;   /* address of the current data in bytes */
-   uint8_t *data;
+   uint8_t *data; /* pointer to reserved space */
 } pseudofs_file_info_t;
 
 /*==================[external data declaration]==============================*/
