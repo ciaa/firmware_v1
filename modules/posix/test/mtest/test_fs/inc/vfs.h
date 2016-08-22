@@ -76,7 +76,7 @@
 /** \brief Max length of an absolute path string */
 #define FS_PATH_MAX 256
 /** \brief Max files open simultaneously */
-#define FILE_DESC_MAX 16
+#define FILE_DESC_MAX 32
 
 
 /* open flag settings for open() (and related APIs) */
@@ -219,6 +219,7 @@ typedef struct filesystem_info
    filesystem_driver_t          *drv; /* file system driver */
    ciaaDevices_deviceType const *device; /* device where this fs resides */
    void                         *down_layer_info; /* file system on-memory information */
+   uint8_t ref_count;
 } filesystem_info_t;
 
 
@@ -235,6 +236,7 @@ typedef struct file_info
    uint8_t  file_namlen;
    uint32_t file_pointer;
    uint32_t file_size;
+   uint8_t ref_count;
    void     *down_layer_info;
 } file_info_t;
 
