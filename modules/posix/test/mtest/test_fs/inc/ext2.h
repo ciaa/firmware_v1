@@ -60,7 +60,7 @@
  * -----------------------------------------------------------
  * 20160101 v0.0.1 MZ Initial version
  */
-
+vfs.h: Add ref_count field to fs info structure to prevent unmounting a fs still in use. Add ref_count field to file info structure to prevent unmounting a file still in use. Set FILE_DESC_MAX to 32 to match pool min elements.
 /*==================[inclusions]=============================================*/
 
 #include "ciaaPOSIX_stdint.h"
