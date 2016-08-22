@@ -64,10 +64,21 @@
 #include "ciaaPOSIX_stdbool.h"
 #include "pseudofs.h"
 #include "vfs.h"
+#include "ciaaLibs_PoolBuf.h"
 
 /*==================[macros and definitions]=================================*/
 
 /*==================[internal data declaration]==============================*/
+
+/** \brief fs information structure memory pool
+ *
+ */
+CIAALIBS_POOLDECLARE(pseudofs_fsinfo_pool, pseudofs_fs_info_t, 32)   //FIXME: Should be 1
+
+/** \brief file information structure memory pool
+ *
+ */
+CIAALIBS_POOLDECLARE(pseudofs_finfo_pool, pseudofs_file_info_t, VFS_NODES_MAX)
 
 /*==================[external functions declaration]=========================*/
 
@@ -151,7 +162,7 @@ static int pseudofs_truncate(vnode_t *node, size_t size);
  ** \param[in] dev_node node of the device to be formatted
  ** \return -1 if an error occurs, in other case 0
  **/
-static int pseudofs_format(vnode_t *dev_node);
+static int pseudofs_format(vnode_t *dev_node, void *param);
 
 /** \brief mount a disk to a directory node
  **
@@ -210,7 +221,7 @@ static int pseudofs_open(file_desc_t *file_desc)
    pseudofs_file_info_t *file_info;
 
    file_info = (pseudofs_file_info_t *)file_desc->node->f_info.down_layer_info;
-   file_info->pointer = file_desc->cursor;
+   file_info->pointer = 0;
 
    return 0;
 }
@@ -228,46 +239,38 @@ static size_t pseudofs_read(file_desc_t *desc, void *buf, size_t size)
 
    file_info = (pseudofs_file_info_t *) desc->node->f_info.down_layer_info;
    data = file_info->data;
+   file_info->pointer = desc->cursor;
 
-   if((file_info->pointer + size) <= file_info->file_size)
+   if((file_info->pointer + size) >= file_info->file_size)
       size = file_info->file_size - file_info->pointer;
 
-   ciaaPOSIX_memcpy((uint8_t *)buf, data, size);
+   ciaaPOSIX_memcpy((uint8_t *)buf, data + file_info->pointer, size);
 
    return size;
 }
 
+/* FIXME: node->f_info.file_size not set */
 static size_t pseudofs_write(file_desc_t *desc, void *buf, size_t size)
 {
-   uint8_t *new_data;
-   pseudofs_file_info_t *file_info;
-   uint32_t new_size;
+   pseudofs_file_info_t *finfo;
 
-   file_info = (pseudofs_file_info_t *) desc->node->f_info.down_layer_info;
+   finfo = (pseudofs_file_info_t *) desc->node->f_info.down_layer_info;
+   finfo->pointer = desc->cursor;
 
-   file_info->pointer = desc->cursor;
-
-   if(file_info->pointer + size >= file_info->alloc_size)
+   if(finfo->pointer + size <= finfo->alloc_size)
    {
-      for(new_size = 0x01; new_size <= (file_info->pointer + size););
-      {
-         new_size = new_size<<1;
-      }
-      new_data = (uint8_t *) ciaaPOSIX_malloc(new_size);
-      if(new_data == NULL)
-         return 0;
-      ciaaPOSIX_memcpy(new_data, file_info->data, file_info->file_size);
-      ciaaPOSIX_free(file_info->data);
-      file_info->data = new_data;
-      file_info->alloc_size = new_size;
+      size = finfo->alloc_size - finfo->pointer;
    }
-
-   ciaaPOSIX_memcpy(file_info->data + file_info->pointer, (uint8_t *) buf, size);
-   file_info->pointer += size;
-   desc->cursor = file_info->pointer;
-
-   if(file_info->pointer + size >= file_info->file_size)
-      file_info->file_size = file_info->pointer + size;
+   //finfo->alloc_size = 2, finfo->pointer = 1, finfo->alloc_size - finfo->pointer = 1
+   //finfo->pointer == finfo->alloc_size ---> FULL. finfo->pointer < finfo->alloc_size
+   ciaaPOSIX_memcpy(finfo->data + finfo->pointer, (uint8_t *) buf, size);
+   finfo->pointer += size;
+   if(finfo->pointer >= finfo->file_size)
+   {
+      finfo->file_size = finfo->pointer;
+      desc->node->f_info.file_size = finfo->file_size;
+   }
+   desc->cursor = finfo->pointer;
 
    return size;
 }
@@ -286,24 +289,32 @@ static int pseudofs_create(vnode_t *parent_node, vnode_t *child_node)
 {
    pseudofs_file_info_t *file_info;
 
-   file_info = (pseudofs_file_info_t *) ciaaPOSIX_malloc(sizeof(pseudofs_file_info_t));
-   if(NULL == file_info)
+   /* If the node to be created is a directory, all information needed is contained in the vfs layer node.
+    * If the new node is a regular file, a metadata structure and file data memory must be allocated.
+    */
+   if(VFS_FTREG == child_node->f_info.type)
    {
-      return -1;
+      /* Alloc a new file metadata structure */
+      file_info = (pseudofs_file_info_t *) ciaaLibs_poolBufLock(&pseudofs_finfo_pool);
+      if(NULL == file_info)
+      {
+         return -1;
+      }
+      /* Clear new file info */
+      ciaaPOSIX_memset(file_info, 0, sizeof(pseudofs_file_info_t));
+      /* Alloc fixed mem size for file data */
+      file_info->data = (uint8_t *) ciaaPOSIX_malloc(PSEUDOFS_FILE_ALLOC_SIZE);
+      if(NULL == file_info->data)
+      {
+         ciaaLibs_poolBufFree(&pseudofs_finfo_pool, file_info);
+         child_node->f_info.down_layer_info = NULL;
+         return -1;
+      }
+      /* Clear data memory */
+      ciaaPOSIX_memset(file_info->data, 0, PSEUDOFS_FILE_ALLOC_SIZE);
+      file_info->alloc_size = PSEUDOFS_FILE_ALLOC_SIZE;
+      child_node->f_info.down_layer_info = file_info;
    }
-   ciaaPOSIX_memset(file_info, 0, sizeof(pseudofs_file_info_t));
-   file_info->data = (uint8_t *) ciaaPOSIX_malloc(PSEUDOFS_MIN_ALLOC_SIZE);
-   if(NULL == file_info->data)
-   {
-      ciaaPOSIX_free(file_info);
-      child_node->f_info.down_layer_info = NULL;
-      return -1;
-   }
-   file_info->alloc_size = PSEUDOFS_MIN_ALLOC_SIZE;
-   child_node->f_info.down_layer_info = file_info;
-
-   ciaaPOSIX_memcpy(child_node->fs_info.down_layer_info, parent_node->fs_info.down_layer_info,
-         sizeof(pseudofs_fs_info_t));
 
    return 0;
 }
@@ -312,11 +323,15 @@ static int pseudofs_delete(vnode_t *parent_node, vnode_t *child_node)
 {
    pseudofs_file_info_t *file_info;
 
-   file_info = (pseudofs_file_info_t *) child_node->f_info.down_layer_info;
-   ciaaPOSIX_free(file_info->data);
-   ciaaPOSIX_free(child_node->f_info.down_layer_info);
-   child_node->f_info.down_layer_info = NULL;
-
+   if(VFS_FTREG == child_node->f_info.type)
+   {
+      file_info = (pseudofs_file_info_t *) child_node->f_info.down_layer_info;
+      ciaaPOSIX_free(file_info->data);
+      file_info->data = NULL;
+      ciaaPOSIX_free(child_node->f_info.down_layer_info);
+      ciaaLibs_poolBufFree(&pseudofs_finfo_pool, file_info);
+      child_node->f_info.down_layer_info = NULL;
+   }
    return 0;
 }
 
@@ -324,13 +339,19 @@ static int pseudofs_truncate(vnode_t *node, size_t size)
 {
    pseudofs_file_info_t *file_info;
 
+   file_info = (pseudofs_file_info_t *) node->f_info.down_layer_info;
+
+   if(size > file_info->alloc_size)
+   {
+      return -1;
+   }
    file_info = node->f_info.down_layer_info;
    file_info->file_size = size;
 
    return 0;
 }
 
-static int pseudofs_format(vnode_t *dev_node)
+static int pseudofs_format(vnode_t *dev_node, void *param)
 {
    return 0;
 }
@@ -341,15 +362,14 @@ static int pseudofs_mount(vnode_t *device_node, vnode_t *dest_dir)
    pseudofs_file_info_t *file_info;
    pseudofs_fs_info_t *fs_info;
 
-   fs_info = (pseudofs_fs_info_t *) ciaaPOSIX_malloc(sizeof(pseudofs_fs_info_t));
-   if(NULL == fs_info)
+   file_info = (pseudofs_file_info_t *) ciaaLibs_poolBufLock(&pseudofs_finfo_pool);
+   if(NULL == file_info)
    {
       return -1;
    }
-   file_info = (pseudofs_file_info_t *) ciaaPOSIX_malloc(sizeof(pseudofs_file_info_t));
-   if(NULL == file_info)
+   fs_info = (pseudofs_fs_info_t *) ciaaLibs_poolBufLock(&pseudofs_fsinfo_pool);
+   if(NULL == fs_info)
    {
-      ciaaPOSIX_free(fs_info);
       return -1;
    }
 
