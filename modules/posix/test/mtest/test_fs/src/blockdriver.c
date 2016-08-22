@@ -108,7 +108,6 @@ static size_t blockdriver_write(file_desc_t *file, void *buf, size_t size);
 
 static int blockdriver_open(file_desc_t *file)
 {
-   file->node->f_info.file_pointer = 0;
    return 0;
 }
 
@@ -123,7 +122,7 @@ static size_t blockdriver_read(file_desc_t *file, void *buf, size_t size)
    ciaaDevices_deviceType const *device;
    size_t ret;
 
-   pointer = file->node->f_info.file_pointer;
+   pointer = file->cursor;
    device = file->node->fs_info.device;
    ret = ciaaBlockDevices_lseek(device, pointer, SEEK_SET);
    if(ret!=pointer)
@@ -133,7 +132,7 @@ static size_t blockdriver_read(file_desc_t *file, void *buf, size_t size)
    }
 
    ret = ciaaBlockDevices_read(device, (uint8_t *)buf, size);
-   file->node->f_info.file_pointer += ret;
+   file->cursor += ret;
    return ret;
 }
 
@@ -143,7 +142,7 @@ static size_t blockdriver_write(file_desc_t *file, void *buf, size_t size)
    ciaaDevices_deviceType const *device;
    size_t ret;
 
-   pointer = file->node->f_info.file_pointer;
+   pointer = file->cursor;
    device = file->node->fs_info.device;
    ret = ciaaBlockDevices_lseek(device, pointer, SEEK_SET);
    if(ret != pointer)
@@ -152,7 +151,7 @@ static size_t blockdriver_write(file_desc_t *file, void *buf, size_t size)
       return 0;
    }
    ret = ciaaBlockDevices_write(device, (uint8_t *)buf, size);
-   file->node->f_info.file_pointer += ret;
+   file->cursor += ret;
    return ret;
 }
 
