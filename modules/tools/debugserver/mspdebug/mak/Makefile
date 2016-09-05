@@ -46,7 +46,7 @@ MSPDEBUG_OPTIONS		= -v 3300
 endif
 
 # mspdebug dependent makefile
-include .$(DS)$(MSPDEBUG_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Makefile
+include $(MSPDEBUG_PATH)$(DS)mak$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)Makefile
 
 # mspdebug name
 DEBUG_SERVER_NAME    = mspdebug

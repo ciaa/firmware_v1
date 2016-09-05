@@ -48,7 +48,6 @@
 /** \addtogroup HISIO HisIO Module
  ** @{ */
 
- 
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
@@ -66,96 +65,109 @@ extern "C" {
    print "/** \brief DIO Configuration\n";
    print " **\n";
    print " **/\n";
-   print "/** \brief Dio Pins count */\n";
-   $dios = $config->getList("/DIL", "DIO");
-   if(count($dios) == 0)
+
+   #get global configurations for all the DIO drivers
+   $DILS =  $this->config->getList("", "DIL");
+   $dio_use_error_hook =  $this->config->getValue("/" . $DILS[0] , "ERRORHOOK");
+   if( $dio_use_error_hook== "TRUE")
    {
-         print "#define DIO_PINS_COUNT 0U\n\n";
-         print "#define DIO_PORTS_COUNT 0U\n\n";
+      print "#define HISIO_DIO_ERRORHOOK  HISIO_ENABLE\n\n";
+   }
+   else {
+      print "#define HISIO_DIO_ERRORHOOK  HISIO_DISABLE\n\n";
+   }
+
+   #for each configuration
+   $dios =  $this->config->getList( "/".$DILS[0] , "DIO" );
+   $dios_count = count($dios);
+   print "/** \brief Dio Configurations count */\n";
+   print "#define DIO_CONFIGS_COUNT " . $dios_count . "U\n\n";
+
+   if( $dios_count == 0)
+   {
+         print "#define DIO_PINS_COUNT    0U\n\n";
+         print "#define DIO_PORTS_COUNT   0U\n\n";
    }
    else
    {
+      print "/** \brief Dio Channel (pins) count */\n";
+
       foreach ($dios as $count=>$dio)
       {
          if ($count != 0)
          {
             $this->error("Maximal one configuration is supported.");
          }
-         $pins = $config->getList("/DIL/" . $dio, "PIN");
+         $pins =  $this->config->getList( "/".$DILS[0]."/".$dio , "PIN" );
          print "#define DIO_PINS_COUNT " . count($pins) . "U\n\n";
+
+         print "/* CHANNEL SETTINGS FOR DIO CONFIGURATION ($dio)*/\n\n";
 
          foreach($pins as $count=>$pin)
          {
-            $pin_port = $config->getValue("/DIL/" . $dio . "/" . $pin, "PORT");
-            $pin_pin = $config->getValue("/DIL/" . $dio . "/" . $pin, "PIN");
+            $pin_port =  $this->config->getValue("/".$DILS[0]."/" . $dio . "/" . $pin, "PORT");
+            $pin_pin =  $this->config->getValue("/".$DILS[0]."/" . $dio . "/" . $pin, "PIN");
             print "/** \brief Port: " . $pin_port . " Pin: " . $pin_pin . " called " . $pin . " */\n";
             print "#define " . $pin . " " . $count . "\n";
          }
 
-         $ports = $config->getList("/DIL/" . $dio, "PORT");
+         $ports =  $this->config->getList("/".$DILS[0]."/" . $dio, "PORT");
          print "\n";
          print "/** \brief Dio Ports count */\n";
          print "#define DIO_PORTS_COUNT " . count($ports) . "U\n\n";
 
-         $gpio_size = 0;
-         foreach($ports as $count=>$port)
-         {
-            $port_port = $config->getValue("/DIL/" . $dio . "/" . $port, "PORT");
-            print "/** \brief Port: " . $port_port. " called " . $port . " */\n";
-            print "#define " . $port . " " . $count . "\n";
+      #   $gpio_size = 0;
 
-            $port_size = $config->getValue("/DIL/" . $dio . "/" . $port, "SIZE");
-            switch ($port_size) {
-               case "IO_PORT_SIZE_8":
-                  $gpio_size += 8;
-                  break;
-               case "IO_PORT_SIZE_16":
-                  $gpio_size += 16;
-                  break;
-               case "IO_PORT_SIZE_32":
-                  $gpio_size += 32;
-                  break;
-               default:
-                 $this->log->error("The port $port hasn't a defined size!");
-                  break;
-            }
-         }
-         print "\n";
-         print "/** \brief Gpio: " . $gpio_size. " pins */\n";
-         print "#define DIO_GPIOS_COUNT " . $gpio_size . "U\n";
-         print "\n";
+      #   foreach($ports as $count=>$port)
+      #   {
+      #      $port_port =  $this->config->getValue("/".$DILS[0]."/" . $dio . "/" . $port, "PORT");
+      #      print "/** \brief Port: " . $port_port. " called " . $port . " */\n";
+
+      #      print "#define " . $port . " " . $count . "\n";
+      #      $port_size =  $this->config->getValue("/".$DILS[0]."/" . $dio . "/" . $port, "SIZE");
+      #      switch ($port_size) {
+      #         case "IO_PORT_SIZE_8":
+      #            $gpio_size += 8;
+      #            break;
+      #         case "IO_PORT_SIZE_16":
+      #            $gpio_size += 16;
+      #            break;
+      #         case "IO_PORT_SIZE_32":
+      #            $gpio_size += 32;
+      #            break;
+      #         default:
+      #           $this->log->error("The port $port hasn't a defined size!");
+      #            break;
+      #      }
+      #   }
+      #   print "\n";
+      #   print "/** \brief Gpio: " . $gpio_size. " pins */\n";
+      #   print "#define DIO_GPIOS_COUNT " . $gpio_size . "U\n";
+      #   print "\n";
       }
    }
 ?>
 
 /*==================[typedef]================================================*/
-typedef struct {
-   uint8_t Port;
-   uint8_t Pin;
-   uint8_t GPIO_Port;
-   uint8_t GPIO_Pin;
-   uint8_t GPIO_Func;
-   uint32_t Flags; /* Inverted, Direction, I/O, etc */
+typedef struct
+{
+   uint8_t  Port;    /* number of port */
+   uint8_t  PinMask; /* mask within a port */
+   uint16_t Flags;   /* Inverted, Direction, I/O, etc . Its defined as 16 bit value for aligment issues (faster and less code) */
 } Dio_PinConfigType;
 
-typedef struct {
-   uint8_t Port;
-   uint8_t Size; /* 8, 16, 32 */
-   uint32_t Mask;
-   uint32_t Flags; /* Inverted, Direction, I/O, etc */
+typedef struct
+{
+   uint8_t  Port;
+   //uint8_t  Size; /* 8, 16, 32 */
+   //uint16_t Mask;
+   //uint32_t Flags; /* Inverted, Direction, I/O, etc */
 } Dio_PortConfigType;
 
-typedef struct {
-   uint8_t Port;
-   uint8_t Pin;
-   uint8_t GPIO_Func;
-} Dio_PinMuxConfigType;
-
-typedef struct {
-   Dio_PinConfigType Pins[DIO_PINS_COUNT];
-   Dio_PortConfigType Ports[DIO_PORTS_COUNT];
-   Dio_PinMuxConfigType Gpios[DIO_GPIOS_COUNT];
-   uint8_t foo;
+typedef struct
+{
+   Dio_PinConfigType    Pins[DIO_PINS_COUNT];
+   Dio_PortConfigType   Ports[DIO_PORTS_COUNT];
 } Dio_ConfigType;
 
 /*==================[external data declaration]==============================*/
@@ -164,13 +176,21 @@ typedef struct {
  ** Contents the Dio Config settings
  **/
 <?php
-foreach ($dios as $count=>$dio) {
+foreach ($dios as $count=>$dio)
+{
    print "/** \brief Configration of Dio Driver: " . $dio . " */\n";
    print "extern const Dio_ConfigType Dio_Config;\n";
 }
 ?>
 
 /*==================[external functions declaration]=========================*/
+<?php
+if( $dio_use_error_hook== "TRUE")
+{
+   /* */
+   print "void Dio_ErrorHook(IO_DeviceType device, IO_ErrorType error);\n";
+}
+?>
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

@@ -76,12 +76,15 @@ extern "C" {
 #ifndef IO_E_OK
 #define IO_E_OK                  0
 #endif
+
 #ifndef IO_E_BUSY
 #define IO_E_BUSY                1
 #endif
+
 #ifndef IO_E_UNKNOWN_MODE
 #define IO_E_UNKNOWN_MODE        2
 #endif
+
 #define IO_E_FCN_SUSPENDED       16
 #define IO_E_PARAM_IGNORED       17
 #define IO_E_INVALID_CHANNEL_ID  18
@@ -90,22 +93,46 @@ extern "C" {
 #define IO_E_INVALID_POSITION    21
 #define IO_E_INVALID_NOTIF_TYPE  22
 
+
+/*
+Programming Interface Constraits
+Ref: API IO Driver v 2.1.3
+     5.1.4.4
+*/
 #define IO_HIGH                  1
 #define IO_LOW                   0
+
+#define IO_INVALID               2
+
+/*
+Notification Types
+Ref: API IO Driver v 2.1.3
+     5.1.4.3
+*/
+#define IO_N_RISING_EDGE         0
+#define IO_N_FALLING_EDGE        1
+#define IO_N_THRESHOLD_1         2
+#define IO_N_THRESHOLD_2         3
+#define IO_N_CAPTURE             4
+#define IO_N_ALL                 5
+
 /*==================[typedef]================================================*/
 typedef uint8_t IO_ErrorType;
+typedef uint8_t IO_DeviceType;
 
-#if IO_PORT_SIZE == IO_PORT_SIZE_8
-typedef uint8_t IO_ValueType;
-#elif IO_PORT_SIZE == IO_PORT_SIZE_16
+/*
+IO_ValueType definition : fixed sive: 16 bit unsigned value
+Ref: API IO Driver v 2.1.3
+     5.1.5
+*/
 typedef uint16_t IO_ValueType;
-#elif IO_PORT_SIZE == IO_PORT_SIZE_32
-typedef uint32_t IO_ValueType;
-#else
-#error Not supported IO_PORT_SIZE has been defined
-#endif
 
-typedef int IO_ChannelType;
+/*
+IO_ChannelType definition : fixed sive: 16 bit unsigned value
+Ref: API IO Driver v 2.1.3
+     5.1.5
+*/
+typedef uint16_t IO_ChannelType;
 
 typedef int IO_ModeType;
 
@@ -121,4 +148,3 @@ typedef int IO_ModeType;
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef IODRIVER_BASE_H */
-

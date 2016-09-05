@@ -44,27 +44,23 @@
 /** \addtogroup HISIO HisIO Module
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20151222 v0.0.1 MaCe initial version
- */
 
 /*==================[inclusions]=============================================*/
 <?php
-if ( $config->getCount("/DIL", "DIO") > 0) {
+
+$DILS = $this->config->getList("", "DIL");
+
+
+if (  $this->config->getCount("/".$DILS[0], "DIO") > 0)
+{
    print "#include \"Dio_Cfg.h\"          /* Include Dio Driver */\n";
 }
-if ( $config->getCount("/DIL", "PWM") > 0) {
+if (  $this->config->getCount("/".$DILS[0], "PWM") > 0)
+{
    print "#include \"Pwm_Cfg.h\"          /* Include Pwm Driver */\n";
 }
-if ( $config->getCount("/DIL", "PWD") > 0) {
+if (  $this->config->getCount("/".$DILS[0], "PWD") > 0)
+{
    print "#include \"Pwd_Cfg.h\"          /* Include Pwd Driver */\n";
 }
 ?>
@@ -90,4 +86,3 @@ extern "C" {
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef IODRIVER_CFG_H */
-

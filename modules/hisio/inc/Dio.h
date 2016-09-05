@@ -44,18 +44,6 @@
 /** \addtogroup HISIO HisIO Module
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * JMC          Juan Manuel Cruz
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20151222 v0.0.1 MaCe initial version
- */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
@@ -177,4 +165,3 @@ extern void Dio_SetPortMaskedSync(IO_ChannelType channel, IO_ValueType value, IO
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef DIO_H */
-

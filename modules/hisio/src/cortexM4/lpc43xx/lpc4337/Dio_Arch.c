@@ -43,19 +43,6 @@
 /** \addtogroup HISIO HisIO Module
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * JuCe         Juan Cecconi
- * JMC          Juan Manuel Cruz
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20160111 v0.0.1 JuCe initial version
- */
 
 /*==================[inclusions]=============================================*/
 #include "IODriver_Base.h"
@@ -168,4 +155,3 @@ extern void Dio_SetPortMaskedSync_Arch(IO_ChannelType channel, IO_ValueType valu
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

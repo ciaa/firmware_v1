@@ -49,18 +49,6 @@
 /** \addtogroup HISIO HisIO Module
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * JuCe         Juan Cecconi
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20151222 v0.0.1 MaCe initial version
- */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"

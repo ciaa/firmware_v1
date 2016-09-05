@@ -44,17 +44,7 @@
 /** \addtogroup HISIO HisIO Module
  ** @{ */
 
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- */
 
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20151222 v0.0.1 MaCe initial version
- */
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
@@ -100,4 +90,3 @@ extern "C" {
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef IODRIVER_INT_H */
-

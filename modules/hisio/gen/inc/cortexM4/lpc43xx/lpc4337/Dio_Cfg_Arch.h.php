@@ -48,21 +48,7 @@
  ** @{ */
 /** \addtogroup HISIO HisIO Module
  ** @{ */
-
-/*
- * Initials     Name
- * ---------------------------
- * MaCe         Mariano Cerdeiro
- * JuCe         Juan Cecconi
- * JMC          Juan Manuel Cruz
- */
-
-/*
- * modification history (new versions first)
- * -----------------------------------------------------------
- * 20151222 v0.0.1 MaCe initial version
- */
-
+ 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
 #include "chip.h"
@@ -187,4 +173,3 @@ foreach ($dios as $count=>$dio) {
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef DIO_CFG_ARCH_H */
-

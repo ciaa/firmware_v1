@@ -78,13 +78,7 @@
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
-#include "msp430.h"
 
-
-void __attribute__((constructor))myctor()
-{
-  WDTCTL = WDTPW | WDTHOLD;		// Stop watchdog timer
-}
 
 /*==================[internal data definition]===============================*/
 
@@ -148,6 +142,13 @@ void ErrorHook(void)
     ShutdownOS(0);
 }
 
+/*
+HISIO Dio Driver Error Callback.
+*/
+void Dio_ErrorHook(IO_DeviceType device, IO_ErrorType error)
+{
+
+}
 /** \brief Initial task
  *
  * This task is started automatically in the application mode 1.
@@ -160,8 +161,8 @@ TASK(InitTask)
     /* print message (only on x86) */
     ciaaPOSIX_printf("Init Task...\n");
 
-    /* open CIAA digital outputs */
-    fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
+    /* Open the HISIO DIO Driver */
+    Dio_InitSync(0);
 
     /* activate periodic task:
      *  - for the first time after 350 ticks (350 ms)
@@ -182,14 +183,9 @@ TASK(InitTask)
 TASK(PeriodicTask)
 {
     uint8_t outputs;
-
-    /* write blinking message */
-    ciaaPOSIX_printf("Blinking\n");
-
+ 
     /* blink output */
-    ciaaPOSIX_read(fd_out, &outputs, 1);
-    outputs ^= 0x20;
-    ciaaPOSIX_write(fd_out, &outputs, 1);
+    Dio_ToggleSync( LED1 );
 
     /* terminate task */
     TerminateTask();

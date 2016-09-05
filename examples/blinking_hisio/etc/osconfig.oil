@@ -97,4 +97,5 @@ OSEK OSEK {
       COUNTER = HWCOUNTER0;
    };
 
+
 };
