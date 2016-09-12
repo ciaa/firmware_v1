@@ -72,11 +72,13 @@
 /** \brief Max in-memory vnodes allowed */
 #define VFS_NODES_MAX 32
 /** \brief Max length of a filename */
-#define FS_NAME_MAX 30
+#define FS_NAME_MAX 15
 /** \brief Max length of an absolute path string */
 #define FS_PATH_MAX 256
 /** \brief Max files open simultaneously */
-#define FILE_DESC_MAX 32
+#define VFS_DESC_MAX 32
+/** \brief Max simultaneous mounts */
+#define VFS_MOUNT_MAX 32
 
 
 /* open flag settings for open() (and related APIs) */
@@ -234,7 +236,6 @@ typedef struct file_info
    bool        is_mount_dir;
    char     file_name[FS_NAME_MAX + 1];
    uint8_t  file_namlen;
-   uint32_t file_pointer;
    uint32_t file_size;
    uint8_t ref_count;
    void     *down_layer_info;
@@ -251,7 +252,7 @@ struct vfs_node
    struct vfs_node   *sibling_node;  /* Link to same level inode */
    struct vfs_node   *child_node;    /* Link to lower level inode */
 
-   filesystem_info_t fs_info;
+   filesystem_info_t *fs_info;
    file_info_t       f_info;
 };
 
@@ -274,7 +275,7 @@ typedef struct file_desc
  **/
 typedef struct file_descriptor_table
 {
-   file_desc_t *table[FILE_DESC_MAX];
+   file_desc_t *table[VFS_DESC_MAX];
    size_t      n_busy_desc;
 } file_descriptor_table_t;
 

@@ -104,6 +104,30 @@ static size_t blockdriver_read(file_desc_t *file, void *buf, size_t size);
  **/
 static size_t blockdriver_write(file_desc_t *file, void *buf, size_t size);
 
+/** \brief truncate given file data
+ ** TODO
+ ** \param[in] node
+ ** \param[in] length
+ ** \return -1 if an error occurs, in other case 0
+ **/
+static int blockdriver_truncate(vnode_t *node, size_t size);
+
+/** \brief create a new file
+ **
+ ** \param[in] parent_node parent of the new node
+ ** \param[in] child_node node to be created in disk
+ ** \return -1 if an error occurs, in other case 0
+ **/
+static int blockdriver_create(vnode_t *parent_node, vnode_t *child_node);
+
+/** \brief delete given file
+ **
+ ** \param[in] parent_node parent of the node to be deleted
+ ** \param[in] child_node node to be erased in disk
+ ** \return -1 if an error occurs, in other case 0
+ **/
+static int blockdriver_delete(vnode_t *parent_node, vnode_t *child_node);
+
 /*==================[internal functions definition]==========================*/
 
 static int blockdriver_open(file_desc_t *file)
@@ -123,11 +147,10 @@ static size_t blockdriver_read(file_desc_t *file, void *buf, size_t size)
    size_t ret;
 
    pointer = file->cursor;
-   device = file->node->fs_info.device;
+   device = file->node->fs_info->device;
    ret = ciaaBlockDevices_lseek(device, pointer, SEEK_SET);
    if(ret!=pointer)
    {
-      ciaaPOSIX_printf("ext2_get_superblock: Fallo seek\n");
       return 0;
    }
 
@@ -143,16 +166,20 @@ static size_t blockdriver_write(file_desc_t *file, void *buf, size_t size)
    size_t ret;
 
    pointer = file->cursor;
-   device = file->node->fs_info.device;
+   device = file->node->fs_info->device;
    ret = ciaaBlockDevices_lseek(device, pointer, SEEK_SET);
    if(ret != pointer)
    {
-      ciaaPOSIX_printf("ext2_get_superblock: Fallo seek\n");
       return 0;
    }
    ret = ciaaBlockDevices_write(device, (uint8_t *)buf, size);
    file->cursor += ret;
    return ret;
+}
+
+static int blockdriver_truncate(vnode_t *node, size_t size)
+{
+   return 0;
 }
 
 /** \brief throw a command to the file
@@ -166,9 +193,24 @@ static int blockdriver_ioctl(file_desc_t *file, int request)
    ciaaDevices_deviceType const *device;
    size_t ret;
 
-   device = file->node->fs_info.device;
+   device = file->node->fs_info->device;
    ret = ciaaBlockDevices_ioctl(device, request, NULL);
    return ret;
+}
+
+static int blockdriver_init(void * parameter)
+{
+   return 0;
+}
+
+static int blockdriver_create(vnode_t *parent_node, vnode_t *child_node)
+{
+   return 0;
+}
+
+static int blockdriver_delete(vnode_t *parent_node, vnode_t *child_node)
+{
+   return 0;
 }
 
 /*==================[internal data definition]===============================*/
@@ -181,12 +223,12 @@ static fsdriver_operations_t blockdriver_operations =
    blockdriver_write,
    blockdriver_ioctl,
 
+   blockdriver_init,
    NULL,
    NULL,
-   NULL,
-   NULL,
-   NULL,
-   NULL,
+   blockdriver_create,
+   blockdriver_delete,
+   blockdriver_truncate,
    NULL
 };
 

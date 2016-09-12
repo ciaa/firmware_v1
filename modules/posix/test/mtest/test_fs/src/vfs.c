@@ -66,6 +66,11 @@ TODO:
 -Implement a default root filesystem, to create files in ram
 */
 
+/*
+FIXME:
+-Modify blockdevice driver. Create all device vnodes in directory /dev. /dev is then a mountpoint
+*/
+
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaBlockDevices.h"
@@ -184,6 +189,16 @@ static int file_desc_destroy(file_desc_t *file_desc);
  **/
 static file_desc_t *file_desc_get(uint16_t index);
 
+/** \brief create a block device vnode
+ **
+ ** FIXME: Interaction between vfs and ciaaBlockDevices. Should plan more carefully
+ **
+ ** \param[in] path destination path of the blockdevice node
+ ** \param[in] devname name of the blockdevice
+ ** \return -1 if an error occurs, in other case 0
+ **/
+static int vfs_create_blockdevice(const char *path, const char *devname);
+
 /*==================[internal data definition]===============================*/
 
 /** \brief Root inode
@@ -232,7 +247,12 @@ CIAALIBS_POOLDECLARE(vfs_vnode_pool, vnode_t, VFS_NODES_MAX)
 /** \brief file descriptor memory pool
  *
  */
-CIAALIBS_POOLDECLARE(vfs_fdesc_pool, file_desc_t, 32)
+CIAALIBS_POOLDECLARE(vfs_fdesc_pool, file_desc_t, VFS_DESC_MAX)
+
+/** \brief fsinfo memory pool
+ *
+ */
+CIAALIBS_POOLDECLARE(vfs_fsinfo_pool, filesystem_info_t, VFS_MOUNT_MAX)
 
 /*==================[external data definition]===============================*/
 
@@ -490,17 +510,17 @@ static file_desc_t *file_desc_create(vnode_t *node)
    file_desc_t *file;
    uint16_t i;
 
-   if(file_desc_tab_p->n_busy_desc >= FILE_DESC_MAX)
+   if(file_desc_tab_p->n_busy_desc >= VFS_DESC_MAX)
       return NULL;
 
-   for(i=0; i<FILE_DESC_MAX; i++)
+   for(i=0; i<VFS_DESC_MAX; i++)
    {
       if(NULL == file_desc_tab_p->table[i])
          break;
    }
 
    /* Ahora i es el indice del primer file_desc desocupado en la tabla */
-   if(FILE_DESC_MAX == i)   /* No hay file_desc libres */
+   if(VFS_DESC_MAX == i)   /* No hay file_desc libres */
       return NULL;
    /* Allocate new descriptor */
    file = (file_desc_t *) ciaaLibs_poolBufLock(&vfs_fdesc_pool);
@@ -539,7 +559,7 @@ static int file_desc_destroy(file_desc_t *file_desc)
 file_desc_t *file_desc_get(uint16_t index)
 {
 
-   if(index >= FILE_DESC_MAX)
+   if(index >= VFS_DESC_MAX)
       return NULL;
 
    return file_desc_tab_p->table[index];
@@ -595,8 +615,8 @@ extern vnode_t *vfs_create_child(vnode_t *parent, const char *name, size_t namel
    child->sibling_node = parent->child_node;
    parent->child_node = child;
    child->parent_node = parent;
-   /* Copio la informacion de filesystem. No hago copia nueva, solo apunto a lo del padre */
-   ciaaPOSIX_memcpy(&(child->fs_info), &(parent->fs_info), sizeof(filesystem_info_t));
+   /* Copy parents fs info. Child belongs to same mountpoint */
+   child->fs_info = parent->fs_info;
    child->f_info.file_name[namelen] = '\0';
    child->f_info.down_layer_info = NULL;
    return child;
@@ -664,7 +684,7 @@ extern int vfs_delete_child(vnode_t *child)
 }
 
 /* TODO: Find out when the last node is reached. Fill the last node with blockdevice info */
-static int vfs_create_blockdevice(const char *path)
+static int vfs_create_blockdevice(const char *path, const char *devname)
 {
    int ret;
    vnode_t *inode, *child;
@@ -702,7 +722,6 @@ static int vfs_create_blockdevice(const char *path)
       {
          return -1;
       }
-      ciaaPOSIX_printf("vfs_create_blockdevice(): Created %.*s\n",p_end-p_start, p_start);
       inode=child;
       for(p_start=p_end; *p_start == '/'; p_start++);
       /* When the loop finishes, p_start points to the first character after '/' */
@@ -713,35 +732,39 @@ static int vfs_create_blockdevice(const char *path)
           * Low layer op depends on vnode fields. Must set vnode fields before lower layer op.
           */
          /* Last node found is the requested node */
+         /* Blockdevice has its own driver. FIXME: Should have a single predefined directory for devices as mountpoint? */
+         child->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
+         ASSERT_MSG(NULL != child->fs_info, "ciaaFS_init(): Could not create mountpoint fsinfo");
+         if (NULL == child->fs_info)
+         {
+            return -1;
+         }
          /* Get device */
-         child->fs_info.device = ciaaDevices_getDevice("/dev/block/fd/0");
-         ASSERT_MSG(NULL != child->fs_info.device, "vfs_create_blockdevice(): ciaaDevices_getDevice() failed");
-         if(NULL == child->fs_info.device)
+         child->fs_info->device = ciaaDevices_getDevice(devname);
+         ASSERT_MSG(NULL != child->fs_info->device, "vfs_create_blockdevice(): ciaaDevices_getDevice() failed");
+         if(NULL == child->fs_info->device)
          {
             return -1;
          }
          /* Open device */
-         device = (child->fs_info.device)->open("/dev/block/fd/0", child->fs_info.device, ciaaPOSIX_O_RDWR);
+         device = child->fs_info->device->open(devname, child->fs_info->device, ciaaPOSIX_O_RDWR);
          ASSERT_MSG(NULL != device, "vfs_create_blockdevice(): Lower layer device open failed");
          if(NULL == device)
          {
             return -1;
          }
-         child->fs_info.device = device;
+         child->fs_info->device = device;
          /* Get the fs ops to handle block devices */
-         child->fs_info.drv = vfs_get_driver("BLOCKDEV");
-         ASSERT_MSG(NULL != child->fs_info.drv , "vfs_create_blockdevice(): vfs_get_driver() failed");
-         ASSERT_MSG(NULL != (child->fs_info).drv->driver_op , "vfs_create_blockdevice(): vfs_get_driver() failed");
-         if(NULL == child->fs_info.drv || NULL == (child->fs_info).drv->driver_op)
+         child->fs_info->drv = vfs_get_driver("BLOCKDEV");
+         ASSERT_MSG(NULL != child->fs_info->drv , "vfs_create_blockdevice(): vfs_get_driver() failed");
+         if(NULL == child->fs_info->drv || NULL == child->fs_info->drv->driver_op)
          {
             return -1;
          }
          /* Set the inode type */
          child->f_info.type = VFS_FTBLK;
-         ciaaPOSIX_printf("vfs_create_blockdevice(): Checkpoint\n");
-         ASSERT_MSG(NULL != child->parent_node , "vfs_create_blockdevice(): Invalid child");
          /* Call the lower layer node creation function */
-         ret = (child->parent_node->fs_info).drv->driver_op->fs_create_node(child->parent_node, child);
+         ret = child->parent_node->fs_info->drv->driver_op->fs_create_node(child->parent_node, child); /* FIXME */
          ASSERT_MSG(0 <= ret, "vfs_create_blockdevice(): fs_create_node() failed");
          if(0 > ret)
          {
@@ -753,7 +776,7 @@ static int vfs_create_blockdevice(const char *path)
       /* Must go onto the next iteration. Created node is directory by default */
       /* Fill the vnode fields */
       child->f_info.type = VFS_FTDIR;
-      ret = (child->parent_node->fs_info).drv->driver_op->fs_create_node(child->parent_node, child);
+      ret = child->parent_node->fs_info->drv->driver_op->fs_create_node(child->parent_node, child);
       ASSERT_MSG(0 <= ret, "vfs_create_blockdevice(): fs_create_node() failed");
       if(0 > ret)
       {
@@ -765,13 +788,13 @@ static int vfs_create_blockdevice(const char *path)
    return 0;
 }
 
-
 extern int ciaaFS_init(void)
 {
+   vnode_t *node;
    int ret;
 
    /* Create root node */
-   vfs_root_inode = (vnode_t *) ciaaLibs_poolBufLock(&vfs_vnode_pool);;
+   vfs_root_inode = (vnode_t *) ciaaLibs_poolBufLock(&vfs_vnode_pool);
    if(NULL == vfs_root_inode)
    {
       return -1;
@@ -779,16 +802,49 @@ extern int ciaaFS_init(void)
    vfs_root_inode->f_info.is_mount_dir = true;
    vfs_root_inode->f_info.type = VFS_FTDIR;
    vfs_root_inode->f_info.file_name[0] = '\0'; /* Special name for root */
+   /* Reserve mem for root mountpoint information */
+   vfs_root_inode->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
+   ASSERT_MSG(NULL != vfs_root_inode->fs_info, "ciaaFS_init(): Could not create mountpoint fsinfo");
+   if (NULL == vfs_root_inode->fs_info)
+   {
+      return -1;
+   }
    /* Driver for simple ram fs */
-   vfs_root_inode->fs_info.drv = vfs_get_driver("pseudofs");
-   ASSERT_MSG(NULL != vfs_root_inode->fs_info.drv, "ciaaFS_init(): vfs_get_driver() failed");
-   if(NULL == vfs_root_inode->fs_info.drv)
+   vfs_root_inode->fs_info->drv = vfs_get_driver("pseudofs");
+   ASSERT_MSG(NULL != vfs_root_inode->fs_info->drv, "ciaaFS_init(): vfs_get_driver() failed");
+   if(NULL == vfs_root_inode->fs_info->drv)
    {
       return -1;
    }
 
    /* Create device files */
-   ret = vfs_create_blockdevice("/dev/block/fd/0"); /* Flash device */
+   /* Reserve empty vnode for /dev directory */
+   ret = vfs_inode_reserve("/dev", &node);
+   if(0 > ret)
+   {
+      /* Directory already exists or path is invalid */
+      return -1;
+   }
+   node->f_info.type = VFS_FTDIR;
+   /* Reserve mem for the new mountpoint information */
+   node->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
+   ASSERT_MSG(NULL != node->fs_info, "ciaaFS_init(): Could not create dev mountpoint fsinfo");
+   if (NULL == node->fs_info)
+   {
+      return -1;
+   }
+   /* Clear new structure */
+   ciaaPOSIX_memset(node->fs_info, 0, sizeof(filesystem_info_t));
+   node->fs_info->drv = vfs_get_driver("BLOCKDEV");
+   ASSERT_MSG(NULL != node->fs_info->drv, "ciaaFS_init(): vfs_get_driver() failed");
+   if (NULL == node->fs_info)
+   {
+      return -1;
+   }
+   node->fs_info->device = NULL;
+   node->fs_info->down_layer_info = NULL;
+
+   ret = vfs_create_blockdevice("/dev/block/fd/0", "/dev/block/fd/0"); /* Flash device */
    ASSERT_MSG(0 <= ret, "ciaaFS_init(): failed to create flash device node");
    if(0 > ret)
    {
@@ -866,6 +922,7 @@ extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type)
    vnode_t *targetnode, *devnode;
 
    tpath = target_path;
+   /* Reserve vnode for the mountpoint */
    ret = vfs_inode_reserve(tpath, &targetnode);
    ASSERT_MSG(0 == ret, "mount(): vfs_inode_reserve() failed creating target node");
    if(ret)
@@ -876,6 +933,16 @@ extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type)
        */
       return -1;
    }
+   /* Reserve mem for the new mountpoint information */
+   targetnode->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
+   ASSERT_MSG(NULL != targetnode->fs_info, "ciaaFS_mount(): Could not create mountpoint fsinfo");
+   if (NULL == targetnode->fs_info)
+   {
+      return -1;
+   }
+   /* Clear new structure */
+   ciaaPOSIX_memset(targetnode->fs_info, 0, sizeof(filesystem_info_t));
+   /* Search vnode of device to be mounted */
    devpath = device_path;
    ret = vfs_inode_search(&devpath, &devnode);
    ASSERT_MSG(0 == ret, "mount(): vfs_inode_search() failed. Device doesnt exist");
@@ -884,12 +951,14 @@ extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type)
       /* The device node doesnt exist */
       return -1;
    }
+   /* Path found. Is it a device node? */
    ASSERT_MSG(VFS_FTBLK == devnode->f_info.type, "mount(): Device node not valid");
    if(VFS_FTBLK != devnode->f_info.type)
    {
       /* Not a device node */
       return -1;
    }
+   /* Bind driver to mountpoint */
    fs_driver = vfs_get_driver(fs_type);
    ASSERT_MSG(NULL != fs_driver, "mount(): Device node not valid");
    if(NULL == fs_driver)
@@ -898,8 +967,8 @@ extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type)
       return -1;
    }
    /* Fill the target directory vnode fields */
-   targetnode->fs_info.drv = fs_driver;
-   targetnode->fs_info.device = devnode->fs_info.device;
+   targetnode->fs_info->drv = fs_driver;
+   targetnode->fs_info->device = devnode->fs_info->device;
    targetnode->f_info.is_mount_dir = true;
    /* Call the lower layer method */
    ret = fs_driver->driver_op->fs_mount(devnode, targetnode);
@@ -937,9 +1006,14 @@ extern int ciaaFS_umount(const char *target_path)
       /* Not a mountpoint */
       return -1;
    }
-
+   /* Files under this mount still in use. Close them before umount */
+   ASSERT_MSG(0 == targetnode->fs_info->ref_count, "umount(): Mountpoint still in use, cant umount");
+   if(0 != targetnode->fs_info->ref_count)
+   {
+      return -1;
+   }
    /* Call the lower layer method */
-   fs_driver = targetnode->fs_info.drv;
+   fs_driver = targetnode->fs_info->drv;
    if(NULL == fs_driver->driver_op->fs_umount)
    {
       /* method not supported */
@@ -952,6 +1026,21 @@ extern int ciaaFS_umount(const char *target_path)
       /* Lower layer mount failed */
       return -1;
    }
+   /* Free mountpoint information structure */
+   ret = ciaaLibs_poolBufFree(&vfs_fsinfo_pool, targetnode->fs_info);
+   ASSERT_MSG(1 == ret, "ciaaFS_umount(): ciaaLibs_poolBufFree() failed");
+   if(1 != ret)
+   {
+      return -1;
+   }
+   /* Delete mountpoint vnode */
+   ret = vfs_delete_child(targetnode);
+   ASSERT_MSG(0 == ret, "ciaaFS_umount(): vfs_delete_child() failed");
+   if(ret)
+   {
+      return -1;
+   }
+
    return 0;
 }
 
@@ -974,7 +1063,7 @@ extern int ciaaFS_mkdir(const char *dir_path, mode_t mode)
    }
    /* Fill the vnode fields */
    dir_inode_p->f_info.type = VFS_FTDIR;
-   ret = (dir_inode_p->fs_info).drv->driver_op->fs_create_node(dir_inode_p->parent_node, dir_inode_p);
+   ret = dir_inode_p->fs_info->drv->driver_op->fs_create_node(dir_inode_p->parent_node, dir_inode_p);
    if(ret)
    {
       /* Could not create lower layer node. Handle the issue */
@@ -1022,7 +1111,7 @@ extern int ciaaFS_rmdir(const char *dir_path)
       return -1;
    }
    /* Check FS driver */
-   driver = target_inode->fs_info.drv;
+   driver = target_inode->fs_info->drv;
    ASSERT_MSG(NULL != driver, "ciaaFS_rmdir(): driver not available");
    if(NULL == driver)
    {
@@ -1086,7 +1175,7 @@ extern int ciaaFS_open(const char *path, int flags) {
          target_inode->f_info.type = VFS_FTREG;
          /* Create node in lower layer */
          parent_inode = target_inode->parent_node;
-         ret = target_inode->fs_info.drv->driver_op->fs_create_node(parent_inode, target_inode);
+         ret = target_inode->fs_info->drv->driver_op->fs_create_node(parent_inode, target_inode);
          ASSERT_MSG(ret>=0, "open(): fs_create_node() failed");
          if(ret)
          {
@@ -1123,7 +1212,7 @@ extern int ciaaFS_open(const char *path, int flags) {
       return -1;
    }
    fd = file->index;
-   ret = file->node->fs_info.drv->driver_op->file_open(file);
+   ret = file->node->fs_info->drv->driver_op->file_open(file);
    ASSERT_MSG(ret >= 0, "open(): file_open() failed");
    if(ret)
    {
@@ -1131,7 +1220,7 @@ extern int ciaaFS_open(const char *path, int flags) {
       return -1;
    }
 
-   file->node->fs_info.ref_count++;
+   file->node->fs_info->ref_count++;
    file->node->f_info.ref_count++;
    return fd;
 }
@@ -1155,7 +1244,7 @@ extern int ciaaFS_close(int fd)
    {
       return -1;
    }
-   file->node->fs_info.ref_count--;
+   file->node->fs_info->ref_count--;
    file->node->f_info.ref_count--;
 
    return 0;
@@ -1176,15 +1265,14 @@ extern ssize_t ciaaFS_read(int fd, void *buf, size_t nbytes)
    }
 
    /* Verify that the lower layer driver implements the read operation */
-   ASSERT_MSG(NULL != file->node->fs_info.drv->driver_op->file_read, "read(): read op not available");
-   if(NULL == file->node->fs_info.drv->driver_op->file_read)
+   ASSERT_MSG(NULL != file->node->fs_info->drv->driver_op->file_read, "read(): read op not available");
+   if(NULL == file->node->fs_info->drv->driver_op->file_read)
    {
       /* Driver doesnt support read */
       return 1;
    }
    /* Lower layer read operation */
-   ret = file->node->fs_info.drv->driver_op->file_read(file, buf, nbytes);
-   ciaaPOSIX_printf("ciaaFS_read(): Expected to read %	lu bytes, read %lu bytes\n", nbytes, ret);
+   ret = file->node->fs_info->drv->driver_op->file_read(file, buf, nbytes);
    ASSERT_MSG(ret == nbytes, "read(): file_read() failed");
    if(ret != nbytes)
    {
@@ -1208,13 +1296,13 @@ extern ssize_t ciaaFS_write(int fd, void *buf, size_t nbytes)
    }
 
    /* Verify that the lower layer driver implements the write operation */
-   if(NULL == file->node->fs_info.drv->driver_op->file_write)
+   if(NULL == file->node->fs_info->drv->driver_op->file_write)
    {
       /* Driver doesnt support write */
       return 1;
    }
    /* Lower layer write operation */
-   ret = file->node->fs_info.drv->driver_op->file_write(file, buf, nbytes);
+   ret = file->node->fs_info->drv->driver_op->file_write(file, buf, nbytes);
    ASSERT_MSG(ret == nbytes, "write(): file_write() failed");
    if(ret!=nbytes)
    {
@@ -1287,7 +1375,7 @@ extern int ciaaFS_unlink(const char *path)
       /* Node still in use. Dont delete */
       return -1;
    }
-   driver = target_inode->fs_info.drv;
+   driver = target_inode->fs_info->drv;
    ASSERT_MSG(NULL != driver, "unlink(): driver not available");
    if(NULL == driver)
    {

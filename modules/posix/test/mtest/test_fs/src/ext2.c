@@ -525,7 +525,7 @@ CIAALIBS_POOLDECLARE(ext2_fsinfo_pool, ext2_fs_info_t, EXT2_MAX_MOUNTS)
 /** \brief physical node memory pool
  *
  */
-CIAALIBS_POOLDECLARE(ext2_inode_pool, ext2_inode_t, FILE_DESC_MAX)
+//CIAALIBS_POOLDECLARE(ext2_inode_pool, ext2_inode_t, VFS_DESC_MAX)
 
 /** \brief Buffer used to read and write portions of blocks
  *
@@ -656,9 +656,9 @@ static int ext2_read_inode(vnode_t *dest_node, uint32_t inumber)
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
-   bdev = dest_node->fs_info.device;
+   bdev = dest_node->fs_info->device;
    finfo = (ext2_file_info_t *)dest_node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)dest_node->fs_info.down_layer_info;
+   fsinfo = (ext2_fs_info_t *)dest_node->fs_info->down_layer_info;
 
    if(NULL == fsinfo || NULL == finfo || NULL == bdev)
    {
@@ -674,7 +674,7 @@ static int ext2_read_inode(vnode_t *dest_node, uint32_t inumber)
    inode_group = (inumber-1)/fsinfo->e2sb.s_inodes_per_group;
    /* (inumber-1) because we start counting from 1 */
    /* Calculate in which group is the target inode to be found */
-   ret = ext2_get_groupdesc(&(dest_node->fs_info), inode_group, &gd);
+   ret = ext2_get_groupdesc(dest_node->fs_info, inode_group, &gd);
    if(ret)
    {
       return -1;
@@ -711,9 +711,9 @@ static int ext2_search_directory(vnode_t *node, char *name, uint16_t namlen, uin
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
-   bdev = node->fs_info.device;
+   bdev = node->fs_info->device;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
 
    if(NULL == inumber_p)
       *inumber_p = 0;
@@ -872,7 +872,7 @@ static int ext2_format(vnode_t *dev_node, void *param)
    //uint8_t    s_buff_per_block;      /* How much chunks per block */
    uint8_t   aux_byte;
 
-   bdev = dev_node->fs_info.device;
+   bdev = dev_node->fs_info->device;
    ASSERT_MSG(dev_node->f_info.type == VFS_FTBLK, "ext2_format(): not a block device");
    if(dev_node->f_info.type != VFS_FTBLK)
    {
@@ -1252,9 +1252,11 @@ static int ext2_format(vnode_t *dev_node, void *param)
    {
       return -1;
    }
+
    return 0;
 }
 
+/* Set root info in mountpoint */
 /* Preconditions: dest_node is allocated in vfs */
 static int ext2_mount(vnode_t *dev_node, vnode_t *dest_node)
 {
@@ -1273,14 +1275,14 @@ static int ext2_mount(vnode_t *dev_node, vnode_t *dest_node)
    {
       return -1;
    }
-   fsinfo=dest_node->fs_info.down_layer_info = (ext2_fs_info_t *) ciaaLibs_poolBufLock(&ext2_fsinfo_pool);
+   fsinfo=dest_node->fs_info->down_layer_info = (ext2_fs_info_t *) ciaaLibs_poolBufLock(&ext2_fsinfo_pool);
    ASSERT_MSG(NULL != fsinfo, "ext2_mount(): Mem error, could not alloc fsinfo");
    if(NULL == fsinfo)
    {
       return -1;
    }
    /* Load file system information to memory */
-   bdev = dest_node->fs_info.device;
+   bdev = dest_node->fs_info->device;
    ret = ext2_get_superblock(bdev, &(fsinfo->e2sb));
    ASSERT_MSG(ret>=0, "ext2_mount(): Could not get superblock");
    if(ret)
@@ -1387,15 +1389,15 @@ static int ext2_umount(vnode_t *root)
       }
       root->f_info.down_layer_info = NULL;
    }
-   if(NULL != root->fs_info.down_layer_info)
+   if(NULL != root->fs_info->down_layer_info)
    {
-      ret = ciaaLibs_poolBufFree(&ext2_fsinfo_pool, root->fs_info.down_layer_info);
+      ret = ciaaLibs_poolBufFree(&ext2_fsinfo_pool, root->fs_info->down_layer_info);
       ASSERT_MSG(1 == ret, "vfs_node_free(): ciaaLibs_poolBufFree() failed");
       if(1 != ret)
       {
          return -1;
       }
-      root->fs_info.down_layer_info = NULL;
+      root->fs_info->down_layer_info = NULL;
    }
    /* Unlink subroot and delete it */
    ret = vfs_delete_child(root);
@@ -1459,9 +1461,9 @@ static size_t ext2_file_write(file_desc_t *desc, void *buf, size_t size)
    ext2_fs_info_t *fsinfo;
 
    node = desc->node;
-   bdev = node->fs_info.device;
+   bdev = node->fs_info->device;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
 
    uint32_t buf_pos, remaining_write_size, device_block;
    uint32_t write_size, write_offset;
@@ -1510,13 +1512,13 @@ static size_t ext2_file_write(file_desc_t *desc, void *buf, size_t size)
     */
    /* Refresh inode in disk */
    pinode = &ext2_node_buffer;
-   ret = ext2_get_inode(&(node->fs_info), finfo->f_inumber, pinode);
+   ret = ext2_get_inode(node->fs_info, finfo->f_inumber, pinode);
    if(0 > ret)
    {
       return -1;
    }
    pinode->i_size = finfo->f_size;
-   ret = ext2_set_inode(&(node->fs_info), finfo->f_inumber, pinode);
+   ret = ext2_set_inode(node->fs_info, finfo->f_inumber, pinode);
    if(0 > ret)
    {
       return -1;
@@ -1545,9 +1547,9 @@ static int ext2_buf_read_file(vnode_t * dest_node, uint8_t *buf, uint32_t size, 
    ext2_fs_info_t *fsinfo;
    ciaaDevices_deviceType const *device;
 
-   fsinfo = dest_node->fs_info.down_layer_info;
+   fsinfo = dest_node->fs_info->down_layer_info;
    finfo = dest_node->f_info.down_layer_info;
-   device = dest_node->fs_info.device;
+   device = dest_node->fs_info->device;
 
    block_size = fsinfo->s_block_size;
    block_shift = (uint16_t)fsinfo->e2sb.s_log_block_size + 10;
@@ -1634,12 +1636,12 @@ static int ext2_block_map(vnode_t * dest_node, uint32_t file_block, uint32_t *de
    ciaaDevices_deviceType const *device;
    ext2_inode_t *pinode;
 
-   device = dest_node->fs_info.device;
-   fsinfo = dest_node->fs_info.down_layer_info;
+   device = dest_node->fs_info->device;
+   fsinfo = dest_node->fs_info->down_layer_info;
    finfo = dest_node->f_info.down_layer_info;
    n_entries_per_block = fsinfo->s_block_size / sizeof(uint32_t);
 
-   ret = ext2_get_inode(&(dest_node->fs_info), finfo->f_inumber, &ext2_node_buffer);
+   ret = ext2_get_inode(dest_node->fs_info, finfo->f_inumber, &ext2_node_buffer);
    if(0 > ret)
    {
       return -1;
@@ -1765,9 +1767,9 @@ static int ext2_mount_load_rec(vnode_t *dir_node)
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
-   bdev = dir_node->fs_info.device;
+   bdev = dir_node->fs_info->device;
    finfo = (ext2_file_info_t *)dir_node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)dir_node->fs_info.down_layer_info;
+   fsinfo = (ext2_fs_info_t *)dir_node->fs_info->down_layer_info;
 
    /* size must be multiple of block size. Dont consider special cases */
    /* jump from block to block in every iteration */
@@ -1787,6 +1789,7 @@ static int ext2_mount_load_rec(vnode_t *dir_node)
             entry_pointer += ext2_dir_entry_buffer.rec_len)
       {
          /* Read entry fields, except for the name. 8 bytes in total */
+         
          ret = ext2_device_buf_read(bdev, (uint8_t *)&ext2_dir_entry_buffer, block_offset + entry_pointer, 8);
          ASSERT_MSG(0 == ret, "ext2_mount_load_rec(): ext2_device_buf_read() failed");
          if(ret)
@@ -1807,6 +1810,8 @@ static int ext2_mount_load_rec(vnode_t *dir_node)
             continue; /* Directory corrupt */
          }
          /* Read the name of the entry */
+         ret = ext2_device_buf_read(bdev, (uint8_t *)ext2_dir_entry_buffer.name, block_offset + entry_pointer + 8,
+                                    ext2_dir_entry_buffer.name_len);
          ASSERT_MSG(0 == ret, "ext2_mount_load_rec(): ext2_device_buf_read() failed");
          if(ret)
          {
@@ -1826,7 +1831,7 @@ static int ext2_mount_load_rec(vnode_t *dir_node)
          /* Alloc and initialize the file low level information */
          child_node->f_info.down_layer_info = (ext2_file_info_t *) ciaaLibs_poolBufLock(&ext2_finfo_pool);
          ASSERT_MSG(NULL != child_node->f_info.down_layer_info, "ext2_mount_load_rec(): Mem error, could not alloc finfo");
-         if(NULL == child_node->f_info.down_layer_info || NULL == child_node->fs_info.down_layer_info)   //FIXME
+         if(NULL == child_node->f_info.down_layer_info || NULL == child_node->fs_info->down_layer_info)   //FIXME
          {
             return -1;
          }
@@ -1921,7 +1926,7 @@ static int ext2_create_regular_file(vnode_t *parent_node, vnode_t *node)
    /* The new node is referred by the father. Increment link count */
    pinode->i_links_count = 1;
    /* Write inode in its disk position */
-   ret = ext2_set_inode(&(node->fs_info), new_inumber, pinode);
+   ret = ext2_set_inode(node->fs_info, new_inumber, pinode);
    ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_set_inode() failed");
    if(0 > ret)
    {
@@ -1965,7 +1970,7 @@ static int ext2_delete_regular_file(vnode_t *parent_node, vnode_t *node)
 
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
    parent_finfo = (ext2_file_info_t *)parent_node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
 
    file_blocks = finfo->f_size >> (10+fsinfo->e2sb.s_log_block_size);
    /* dealloc all data block of file */
@@ -2000,14 +2005,14 @@ static int ext2_delete_regular_file(vnode_t *parent_node, vnode_t *node)
    }
    /* Modify parent inode fields */
    pinode = &ext2_node_buffer;
-   ret = ext2_get_inode(&(parent_node->fs_info), parent_finfo->f_inumber, pinode);
+   ret = ext2_get_inode(parent_node->fs_info, parent_finfo->f_inumber, pinode);
    ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_get_inode() failed");
    if(0 > ret)
    {
       return -1;
    }
    pinode->i_links_count--;
-   ret = ext2_set_inode(&(parent_node->fs_info), parent_finfo->f_inumber, pinode);
+   ret = ext2_set_inode(parent_node->fs_info, parent_finfo->f_inumber, pinode);
    ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_set_inode() failed");
    if(0 > ret)
    {
@@ -2015,7 +2020,7 @@ static int ext2_delete_regular_file(vnode_t *parent_node, vnode_t *node)
    }
    /* Erase on-disk node, which means, clear all bits in its memory space */
    ciaaPOSIX_memset(pinode, 0, sizeof(ext2_inode_t));
-   ret = ext2_set_inode(&(node->fs_info), finfo->f_inumber, pinode); /* FIXME: invalid data */
+   ret = ext2_set_inode(node->fs_info, finfo->f_inumber, pinode); /* FIXME: invalid data */
    ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_set_inode() failed");
    if(0 > ret)
    {
@@ -2089,7 +2094,7 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
    pinode->i_ctime = 0;
    pinode->i_flags = 0;
    pinode->i_links_count = 2;
-   ret = ext2_set_inode(&(node->fs_info), new_inumber, pinode);
+   ret = ext2_set_inode(node->fs_info, new_inumber, pinode);
    if(0 > ret)
    {
       return -1;
@@ -2118,25 +2123,25 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
    }
 
    /* Modify the parent inode fields */
-   ret = ext2_get_inode(&(node->fs_info), parent_finfo->f_inumber, pinode);
+   ret = ext2_get_inode(node->fs_info, parent_finfo->f_inumber, pinode);
    if(0 > ret)
    {
       return -1;
    }
    pinode->i_links_count++;
-   ret = ext2_set_inode(&(node->fs_info), parent_finfo->f_inumber, pinode);
+   ret = ext2_set_inode(node->fs_info, parent_finfo->f_inumber, pinode);
    if(0 > ret)
    {
       return -1;
    }
    /* Refresh used dir count in on-memory group descriptor */
-   ret = ext2_get_groupdesc(&(parent_node->fs_info), finfo->f_group, &gd);
+   ret = ext2_get_groupdesc(parent_node->fs_info, finfo->f_group, &gd);
    if(ret)
    {
       return -1;
    }
    gd.used_dirs_count++;
-   ret = ext2_set_groupdesc(&(parent_node->fs_info), finfo->f_group, &gd);
+   ret = ext2_set_groupdesc(parent_node->fs_info, finfo->f_group, &gd);
    if(ret)
    {
       return -1;
@@ -2161,7 +2166,7 @@ static int ext2_delete_directory_file(vnode_t *parent_node, vnode_t *node)
 
    parent_finfo = (ext2_file_info_t *)parent_node->f_info.down_layer_info;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
 
    ret = ext2_dir_delete_entry(node, ".", 1);
    if(ret)
@@ -2203,20 +2208,20 @@ static int ext2_delete_directory_file(vnode_t *parent_node, vnode_t *node)
 
    /* Modify the parent inode fields */
    pinode = &ext2_node_buffer;
-   ret = ext2_get_inode(&(node->fs_info), parent_finfo->f_inumber, pinode);
+   ret = ext2_get_inode(node->fs_info, parent_finfo->f_inumber, pinode);
    if(0 > ret)
    {
       return -1;
    }
    pinode->i_links_count--;
-   ret = ext2_set_inode(&(node->fs_info), parent_finfo->f_inumber, pinode);
+   ret = ext2_set_inode(node->fs_info, parent_finfo->f_inumber, pinode);
    if(0 > ret)
    {
       return -1;
    }
    /* Erase node by writing 0 in its space */
    ciaaPOSIX_memset(pinode, 0, sizeof(ext2_inode_t));   //FIXME: Should erase 128 bits, size that appears in superblock, not struct
-   ret = ext2_set_inode(&(node->fs_info), finfo->f_inumber, pinode);
+   ret = ext2_set_inode(node->fs_info, finfo->f_inumber, pinode);
    if(0 > ret)
    {
       return -1;
@@ -2257,14 +2262,14 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
-   bdev = node->fs_info.device;
+   bdev = node->fs_info->device;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
 
    /* Search a group with a free inode */
    for(group_index = 0; group_index < fsinfo->s_groups_count; group_index++)
    {
-      ret = ext2_get_groupdesc(&(node->fs_info), group_index, &gd);
+      ret = ext2_get_groupdesc(node->fs_info, group_index, &gd);
       if(ret)
       {
          return -1;
@@ -2349,7 +2354,7 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
    /* Refresh in-memory bookkeeping info. The caller should write it to disk */
    fsinfo->e2sb.s_free_inodes_count--;
    gd.free_inodes_count--;
-   ret = ext2_set_groupdesc(&(node->fs_info), group_index, &gd);
+   ret = ext2_set_groupdesc(node->fs_info, group_index, &gd);
    ASSERT_MSG(ret >= 0, "ext2_alloc_inode_bit(): ext2_set_groupdesc() failed");
    if(ret)
    {
@@ -2373,11 +2378,11 @@ static int ext2_dealloc_inode_bit(vnode_t *node)
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
-   bdev = node->fs_info.device;
+   bdev = node->fs_info->device;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
 
-   ret = ext2_get_groupdesc(&(node->fs_info), finfo->f_group, &gd);
+   ret = ext2_get_groupdesc(node->fs_info, finfo->f_group, &gd);
    if(ret)
    {
       return -1;
@@ -2404,12 +2409,11 @@ static int ext2_dealloc_inode_bit(vnode_t *node)
    fsinfo->e2sb.s_free_inodes_count++;
    gd.free_inodes_count++;
    //fsinfo->e2fs_gd[finfo->f_group].used_dirs_count++; /* Caller knows whether this is a regfile or directory */
-   ret = ext2_set_groupdesc(&(node->fs_info), finfo->f_group, &gd);
+   ret = ext2_set_groupdesc(node->fs_info, finfo->f_group, &gd);
    if(ret)
    {
       return -1;
    }
-   //finfo->f_inumber = 0;
 
    return 0;
 }
@@ -2429,15 +2433,15 @@ static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *dev
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
-   bdev = node->fs_info.device;
+   bdev = node->fs_info->device;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
 
    if(NULL == device_block_p)
       return -1;
 
    pinode = &ext2_node_buffer;
-   ret = ext2_get_inode(&(node->fs_info), finfo->f_inumber, pinode);
+   ret = ext2_get_inode(node->fs_info, finfo->f_inumber, pinode);
    if(0 > ret)
    {
       return -1;
@@ -2540,7 +2544,7 @@ static int ext2_file_map_alloc(vnode_t *node, uint32_t file_block, uint32_t *dev
          return -1;
       }
    }
-   ret = ext2_set_inode(&(node->fs_info), finfo->f_inumber, pinode);
+   ret = ext2_set_inode(node->fs_info, finfo->f_inumber, pinode);
    if(0 > ret)
    {
       return -1;
@@ -2565,16 +2569,16 @@ static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block)
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
-   bdev = node->fs_info.device;
+   bdev = node->fs_info->device;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
    *block = 0;
 
    /* Search a group with a free block, starting from the group of this file */
    for(group_index = finfo->f_group, i=0; i < fsinfo->s_groups_count;
          group_index = (group_index + 1) % fsinfo->s_groups_count)
    {
-      ret = ext2_get_groupdesc(&(node->fs_info), group_index, &gd);
+      ret = ext2_get_groupdesc(node->fs_info, group_index, &gd);
       if(ret)
       {
          return -1;
@@ -2651,7 +2655,7 @@ static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block)
    *block = fsinfo->e2sb.s_first_data_block + fsinfo->e2sb.s_blocks_per_group*group_index + (segment_offset<<3) + b;
    /* Refresh in-memory bookkeeping info. The caller should write it to disk */
    gd.free_blocks_count--;
-   ret = ext2_set_groupdesc(&(node->fs_info), group_index, &gd);
+   ret = ext2_set_groupdesc(node->fs_info, group_index, &gd);
    if(ret)
    {
       return -1;
@@ -2673,15 +2677,15 @@ static int ext2_dealloc_block_bit(vnode_t *node, uint32_t block)
    ciaaDevices_deviceType const *bdev;
    ext2_fs_info_t *fsinfo;
 
-   bdev = node->fs_info.device;
-   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   bdev = node->fs_info->device;
+   fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
 
    /* b is the inode number relative to current group, so its the bit offset in inode bitmap */
    /* b>>3 (b/8) is then the byte offset in the bitmap where the bit of current node resides */
    //b = block - fsinfo->e2sb.s_first_data_block - (fsinfo->e2sb.s_blocks_per_group*finfo->f_group);
    block_group = (block - fsinfo->e2sb.s_first_data_block) / fsinfo->e2sb.s_blocks_per_group;
    b = (block - fsinfo->e2sb.s_first_data_block) % fsinfo->e2sb.s_blocks_per_group;
-   ret = ext2_get_groupdesc(&(node->fs_info), block_group, &gd);
+   ret = ext2_get_groupdesc(node->fs_info, block_group, &gd);
    if(ret)
    {
       return -1;
@@ -2703,7 +2707,7 @@ static int ext2_dealloc_block_bit(vnode_t *node, uint32_t block)
    }
    /* Refresh on-memory bookkeeping info. Caller should write them to disk */
    gd.free_blocks_count++;
-   ret = ext2_set_groupdesc(&(node->fs_info), block_group, &gd);
+   ret = ext2_set_groupdesc(node->fs_info, block_group, &gd);
    if(ret)
    {
       return -1;
@@ -2754,9 +2758,9 @@ static int ext2_dir_add_entry(vnode_t *node, uint32_t ino, char *name, uint16_t 
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
-   bdev = node->fs_info.device;
+   bdev = node->fs_info->device;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
    ext2_dir_entry_buffer_p = &ext2_dir_entry_buffer;
 
    new_entry_size = DENTRY_MIN_SIZE + namlen;
@@ -2849,7 +2853,7 @@ static int ext2_dir_add_entry(vnode_t *node, uint32_t ino, char *name, uint16_t 
          return -1;
       }
       /* New directory size adds 1 block */
-      ret = ext2_get_inode(&(node->fs_info), finfo->f_inumber, &ext2_node_buffer);
+      ret = ext2_get_inode(node->fs_info, finfo->f_inumber, &ext2_node_buffer);
       ASSERT_MSG(0 == ret, "ext2_dir_add_entry(): ext2_get_inode() failed");
       if(ret)
       {
@@ -2857,7 +2861,7 @@ static int ext2_dir_add_entry(vnode_t *node, uint32_t ino, char *name, uint16_t 
       }
       ext2_node_buffer.i_size += fsinfo->s_block_size;
       finfo->f_size += ext2_node_buffer.i_size;
-      ret = ext2_set_inode(&(node->fs_info), finfo->f_inumber, &ext2_node_buffer);
+      ret = ext2_set_inode(node->fs_info, finfo->f_inumber, &ext2_node_buffer);
       ASSERT_MSG(0 == ret, "ext2_dir_add_entry(): ext2_set_inode() failed");
       if(ret)
       {
@@ -2900,9 +2904,9 @@ static int ext2_dir_delete_entry(vnode_t *node, char *name, uint16_t namlen)
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
-   bdev = node->fs_info.device;
+   bdev = node->fs_info->device;
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
-   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
 
    /* size must be multiple of block size. Dont consider special cases */
    /* jump from block to block in every iteration */
@@ -3005,8 +3009,8 @@ static int ext2_fsinfo_flush(vnode_t *node)
    ciaaDevices_deviceType const *bdev;
    ext2_fs_info_t *fsinfo;
 
-   bdev = node->fs_info.device;
-   fsinfo = (ext2_fs_info_t *)node->fs_info.down_layer_info;
+   bdev = node->fs_info->device;
+   fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
 
    for(group_index = 0; group_index<(fsinfo->s_groups_count); group_index++)
    {

@@ -60,7 +60,7 @@
  * -----------------------------------------------------------
  * 20160101 v0.0.1 MZ Initial version
  */
-vfs.h: Add ref_count field to fs info structure to prevent unmounting a fs still in use. Add ref_count field to file info structure to prevent unmounting a file still in use. Set FILE_DESC_MAX to 32 to match pool min elements.
+
 /*==================[inclusions]=============================================*/
 
 #include "ciaaPOSIX_stdint.h"
@@ -306,7 +306,7 @@ typedef struct ext2_fs_info
 /** \brief ext2 file info
  **
  ** ext2 file information
- **
+ ** TODO: Is it necessary to keep f_pointer? f_group (can be calculated from f_inumber)? f_size (already in upper layer)?
  **/
 typedef struct ext2_file_info
 {

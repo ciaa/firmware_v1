@@ -373,7 +373,7 @@ static int pseudofs_mount(vnode_t *device_node, vnode_t *dest_dir)
       return -1;
    }
 
-   dest_dir->fs_info.down_layer_info = fs_info;
+   dest_dir->fs_info->down_layer_info = fs_info;
    dest_dir->f_info.down_layer_info = file_info;
 
    return 0;
