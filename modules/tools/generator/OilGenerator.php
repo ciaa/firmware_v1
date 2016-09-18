@@ -342,7 +342,7 @@ class OilGenerator
 
       if ( class_exists($helperClassName))
       {
-         $this->log->warning("   class '$helperClassName' already exists, not loading again");
+         $this->log->info("   class '$helperClassName' already exists, not loading again");
       }
       else
       {
