@@ -989,7 +989,7 @@ extern void GPIO_selectInterruptEdge(uint8_t selectedPort,
                                      uint16_t selectedPins,
                                      uint8_t edgeSelect);
 
-extern void GPIO_GetInterruptEdge(uint8_t selectedPort, uint16_t selectedPins );
+extern uint8_t GPIO_GetInterruptEdge(uint8_t selectedPort, uint16_t selectedPins );
 
 //*****************************************************************************
 //

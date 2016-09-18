@@ -485,7 +485,7 @@ void GPIO_selectInterruptEdge(uint8_t selectedPort,
 }
 
 
-void GPIO_GetInterruptEdge(uint8_t selectedPort, uint16_t selectedPins )
+uint8_t GPIO_GetInterruptEdge(uint8_t selectedPort, uint16_t selectedPins )
 {
 	uint16_t baseAddress = GPIO_PORT_TO_BASE[selectedPort];
 
