@@ -484,6 +484,44 @@ void GPIO_selectInterruptEdge(uint8_t selectedPort,
 	}
 }
 
+
+void GPIO_GetInterruptEdge(uint8_t selectedPort, uint16_t selectedPins )
+{
+	uint16_t baseAddress = GPIO_PORT_TO_BASE[selectedPort];
+
+#ifndef NDEBUG
+	if(baseAddress == 0xFFFF)
+	{
+		return;
+	}
+#endif
+
+	// Shift by 8 if port is even (upper 8-bits)
+	if((selectedPort & 1) ^ 1)
+	{
+		selectedPins <<= 8;
+	}
+
+	if(GPIO_LOW_TO_HIGH_TRANSITION == edgeSelect)
+	{
+		HWREG16(baseAddress + OFS_PAIES) &= ~selectedPins;
+	}
+	else
+	{
+		HWREG16(baseAddress + OFS_PAIES) |= selectedPins;
+	}
+
+   if( HWREG16(baseAddress + OFS_PAIES) | selectedPins )
+   {
+      return GPIO_LOW_TO_HIGH_TRANSITION;
+   }
+   else
+   {
+      return GPIO_HIGH_TO_LOW_TRANSITION;
+   }
+}
+
+
 void GPIO_setDriveStrength(uint8_t selectedPort,
                            uint16_t selectedPins,
                            uint8_t driveStrength)

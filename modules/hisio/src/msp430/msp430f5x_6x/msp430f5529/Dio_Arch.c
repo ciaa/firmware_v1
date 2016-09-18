@@ -48,6 +48,7 @@
 #include "IODriver_Base.h"
 #include "Dio_Cfg.h"
 #include "msp430.h"
+#include "driverlib.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -91,7 +92,7 @@ extern IO_ErrorType Dio_InitSync_Arch(void * address)
 
 #endif
 
-return IO_E_OK;
+   return IO_E_OK;
 }
 
 
@@ -200,7 +201,7 @@ Ref: API IO Driver v 2.1.3
 */
 extern IO_ValueType Dio_GetPortSync_Arch(IO_ChannelType port)
 {
-	IO_ValueType rv;
+	IO_ValueType rv = 0;
 	IO_ValueType rv_tmp;
 	uint8_t channel;
 
@@ -209,8 +210,6 @@ extern IO_ValueType Dio_GetPortSync_Arch(IO_ChannelType port)
 	if( DIO_PORTS_COUNT>port )
 #endif
 	{
-		rv = 0;
-
 		for( channel=0; channel<DIO_PINS_COUNT; channel++ )
 		{
 			/* validate that the port requested is configured within any DIO channel*/
@@ -224,20 +223,19 @@ extern IO_ValueType Dio_GetPortSync_Arch(IO_ChannelType port)
 					rv |= Dio_Config.Pins[channel].PinMask;
 				}
 			}
-		}
-#if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
-		else
-		{
+
+#if( ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED )
+         else
+		   {
 #ifdef HISIO_DIO_ENABLE_ERRORHOOK
-			//call the error hook with IO_E_INVALID_CHANNEL_ID
+			   //call the error hook with IO_E_INVALID_CHANNEL_ID
 #endif
-			rv = 0;  /* the standard doesn't say anything about the return value in case or error.*/
-		}
+			   rv = 0;  /* the standard doesn't say anything about the return value in case or error.*/
+		   }
 #endif
-
-		return rv;
+      }
 	}
-
+   return rv;
 }
 
 extern void Dio_SetPortSync_Arch(IO_ChannelType port, IO_ValueType value)
@@ -288,6 +286,106 @@ extern void Dio_SetPortMaskedSync_Arch(IO_ChannelType port, IO_ValueType value, 
    Dio_SetPortSync_Arch(  port , value&mask );
 }
 
-	/** @} doxygen end group definition */
-	/** @} doxygen end group definition */
-	/*==================[end of file]============================================*/
+/*
+support function for Dio_EnableNotification_Arch and Dio_DisableNotification_Arch
+*/
+extern void Dio_ChangeNotification_Arch( IO_ChannelType channel, IO_ValueType notifType , IO_ValueType enable )
+{
+/*   void GPIO_disableInterrupt(uint8_t selectedPort,
+                              uint16_t selectedPins)
+*/
+#if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
+	if(DIO_PINS_COUNT > channel && (Dio_Config.Pins[channel].Flags & (DIO_CONFIG_PIN_DIRECTION_INPUT | DIO_CONFIG_PIN_ENABLE_NOTIFICATION)))
+#endif
+	{
+      if( notifType == IO_N_RISING_EDGE )
+      {
+         GPIO_selectInterruptEdge( Dio_Config.Pins[channel].Port ,  Dio_Config.Pins[channel].PinMask ,  GPIO_LOW_TO_HIGH_TRANSITION );
+      }
+      if( notifType == IO_N_FALLING_EDGE )
+      {
+         GPIO_selectInterruptEdge( Dio_Config.Pins[channel].Port ,  Dio_Config.Pins[channel].PinMask ,  GPIO_HIGH_TO_LOW_TRANSITION );
+      }
+      if( notifType == IO_N_ALL )
+      {
+         //msp430 hasn't the ability of detecting both directions
+         //report the error code IO_E_INVALID_NOTIF_TYPE
+         return;
+      }
+
+      if( enable )
+      {
+         GPIO_clearInterrupt( Dio_Config.Pins[channel].Port ,  Dio_Config.Pins[channel].PinMask );
+         GPIO_enableInterrupt( Dio_Config.Pins[channel].Port , Dio_Config.Pins[channel].PinMask );
+      }
+      else
+      {
+         GPIO_disableInterrupt( Dio_Config.Pins[channel].Port , Dio_Config.Pins[channel].PinMask );
+      }
+   }
+	else
+	{
+#ifdef HISIO_DIO_ENABLE_ERRORHOOK
+		//call the error hook with   IO_E_INVALID_CHANNEL_ID
+#endif
+	}
+}
+
+/*
+
+Implementation for MSP430
+Ref: API IO Driver v 2.1.3
+     5.2.3.1.1
+*/
+extern void Dio_EnableNotification_Arch( IO_ChannelType channel, IO_ValueType notifType )
+{
+    Dio_ChangeNotification_Arch( channel, notifType , 1 );
+}
+
+/*
+
+Implementation for MSP430
+Ref: API IO Driver v 2.1.3
+     5.2.3.1.2
+*/
+extern void Dio_DisableNotification_Arch( IO_ChannelType channel, IO_ValueType notifType )
+{
+     Dio_ChangeNotification_Arch( channel, notifType , 0 );
+}
+
+
+/*
+this function returns  the Dio_Config index (channelnel number), given the number of the port, and the number of the pin (0 to 7)
+*/
+extern unsigned char Dio_FindChannel_Arch( uint8_t  Port, uint8_t  PinNro  )
+{
+   unsigned char channel;
+   for( channel=0 ; channel<DIO_PINS_COUNT ; channel++ )
+   {
+      if( Dio_Config.Pins[channel].Port == Port && Dio_Config.Pins[channel].PinMask == 1<<PinNro )
+      {
+         return channel;
+      }
+   }
+
+   return channel; //
+}
+
+/*
+returns the configured edge of the IRQ for a Port and pin nro
+*/
+extern IO_ValueType Dio_GetEdge_Arch( uint8_t  Port, uint8_t  PinNro  )
+{
+   if( GPIO_GetInterruptEdge( Port , PinNro )==GPIO_HIGH_TO_LOW_TRANSITION )
+   {
+      return IO_N_FALLING_EDGE;
+   }
+   else
+   {
+      return IO_N_RISING_EDGE;
+   }
+}
+
+/** @} doxygen end group definition */
+/** @} doxygen end group definition */
+/*==================[end of file]============================================*/

@@ -989,6 +989,8 @@ extern void GPIO_selectInterruptEdge(uint8_t selectedPort,
                                      uint16_t selectedPins,
                                      uint8_t edgeSelect);
 
+extern void GPIO_GetInterruptEdge(uint8_t selectedPort, uint16_t selectedPins );
+
 //*****************************************************************************
 //
 //! \brief This function sets the drive strength for the selected port pin.

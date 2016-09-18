@@ -47,9 +47,8 @@
  ** @{ */
 
 
-
-
 /*==================[inclusions]=============================================*/
+#include "IODriver_Base.h"
 #include "Dio_Cfg.h"
 #include "Dio_Cfg_Arch.h"
 
@@ -69,6 +68,8 @@
 
 #require_once './modules/hisio/gen/helpers/cortexM4/lpc43xx/lpc4337/hisio.php';
 #$MyHisio = new Hisio();
+$this->loadHelper("modules/rtos/gen/ginc/Platform.php");
+$intList = $this->helper->platform->getInterruptHandlerList();
 
 #get global configurations for all the DIO drivers
 $DILS =  $this->config->getList("", "DIL");
@@ -102,7 +103,7 @@ foreach ($dios as $count=>$dio)
 
    foreach($pins as $count=>$pin)
    {
-      print "pins " . $pin;
+      #print "pins " . $pin ."\n";
       $pin_port         = $this->config->getValue("/".$DILS[0]."/" . $dio . "/" . $pin, "PORT");
       $pin_pin          = $this->config->getValue("/".$DILS[0]."/" . $dio . "/" . $pin, "PIN");
       $pin_direction    = $this->config->getValue("/".$DILS[0]."/" . $dio . "/" . $pin, "DIRECTION");
@@ -146,11 +147,10 @@ foreach ($dios as $count=>$dio)
                $pin_flags = $pin_flags . " | DIO_CONFIG_PIN_ENABLE_NOTIFICATION";
 
                #we add the port to the array that later has to implement the gpio interrupt handler
-         #      array_push( $pin_port , $port_array_wnotification );
-       $port_array_wnotification[$pin] =   "PORT" . $pin_port ;
+               $port_array_wnotification[$pin] =   "PORT" . $pin_port ;
 
-               print "port ".$pin_port. " ";
-               print "arr". $port_array_wnotification[$pin_port] ."";
+            #   print "port ".$pin_port. "\n";
+            #   print "arr" . $port_array_wnotification[$pin_port] . "\n";
             }
             else
             {
@@ -169,8 +169,9 @@ foreach ($dios as $count=>$dio)
 
 
 #print_r(array_values($port_array_wnotification));
-$port_array_wnotification=array_unique($port_array_wnotification);
-#print_r(array_values($port_array_wnotification);
+   #removing duplicates (ie: PORT1, PORT1, PORT2 ---> PORT1, PORT2 )
+   $port_array_wnotification=array_unique($port_array_wnotification);
+
    print "   },\n";
 
    $ports =  $this->config->getList("/".$DILS[0]."/" . $dio, "PORT");
@@ -180,58 +181,7 @@ $port_array_wnotification=array_unique($port_array_wnotification);
    foreach($ports as $count=>$port)
    {
       $port_port =  $this->config->getValue("/".$DILS[0]."/" . $dio . "/" . $port, "PORT");
-   /*      $port_mask =  $this->config->getValue("/".$DILS[0]."/" . $dio . "/" . $port, "MASK");
-      $port_size =  $this->config->getValue("/".$DILS[0]."/" . $dio . "/" . $port, "SIZE");
 
-      switch ($port_size)
-      {
-         case "IO_PORT_SIZE_8":
-            $port_size = "8";
-            $port_flags = "DIO_CONFIG_PORT_SIZE_8";
-            break;
-         case "IO_PORT_SIZE_16":
-            $port_size = "16";
-            $port_flags = "DIO_CONFIG_PORT_SIZE_16";
-            break;
-         case "IO_PORT_SIZE_32":
-            $port_size = "32";
-            $port_flags = "DIO_CONFIG_PORT_SIZE_32";
-            break;
-         default:
-           $this->log->error("The port $port hasn't a defined size!");
-            break;
-      }*/
-      /*
-      $port_direction =  $this->config->getValue("/".$DILS[0]."/" . $dio . "/" . $port, "DIRECTION");
-      switch ($port_direction)
-      {
-         case "IO_INPUT":
-            $port_flags = $port_flags . " | DIO_CONFIG_PORT_DIRECTION_INPUT";
-            break;
-         case "IO_OUTPUT_INIT_LOW":
-            $port_flags = $port_flags . " | DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_LOW";
-            break;
-         case "IO_OUTPUT_INIT_HIGH":
-            $port_flags = $port_flags . " | DIO_CONFIG_PORT_DIRECTION_OUTPUT_INIT_HIGH";
-            break;
-         default:
-           $this->log->error("The port $port hasn't a defined direction!");
-            break;
-      }*/
-      /*$port_inverted =  $this->config->getValue("/".$DILS[0]."/" . $dio . "/" . $port, "INVERTED");
-      switch ($port_inverted)
-      {
-         case "TRUE":
-            $port_flags = $port_flags . " | DIO_CONFIG_PORT_INVERTED";
-            break;
-         case "FALSE":
-            break;
-         default:
-            $this->log->error("The port $port hasn't a defined 'inverted' configuration!");
-            break;
-      }*/
-      //print "      /** \brief Port: " . $port_port . " , size: " . $port_size . " , maks: 0x" . $port_mask . " , called " . $port . " */\n";
-      //print "      { " . $port_port . ", " . $port_size . ", 0x" . $port_mask . ", ("  . $port_flags . ")},\n";
       print "      /** \brief Port: " . $port_port . " , called " . $port . " */\n";
       print "      { " . $port_port . " },\n";
    }
@@ -244,28 +194,46 @@ $port_array_wnotification=array_unique($port_array_wnotification);
    print "\n";
 
    #CREATION OF ALL IRQ VECTORS FOR ALL IO NOTIFICATIONS
-   foreach($port_array_wnotification as $count=>$port)
+   foreach($port_array_wnotification as $channel=>$port)
    {
       #msp430 HAS ONLY GPIO INTERRUPT CAPABILITY IN PORT 1 AND 2.
       #TODO: validate this when analizing the NOTIFICATION property of each channel
 
-      if( $port == "PORT1")
+      $key = array_search($port, $intList);
+
+//      if( $port == "PORT1")
+   //   {
+
+ //print "".$key ."\n";
+
+      $port_N = 0;
+
+      if( $port=="PORT1")
       {
-         print "ISR(PORT1_VECTOR)\n";
-         print "{\n";
-         print "   uint16_t interrupt_source = GetPendingIRQ_Arch( uint16_t irQ_number );\n";
-         print "   interrupt_source = (interrupt_source-2)/2; /* with the source we calculate the bit corresponding the source of interrupt.*/\n";
-//obtener que flanco de irq salto
-         print "   Dio_Notification(  ,   );\n";
-         print "}\n\n";
+        $port_N = 1;
+      }
+      if( $port=="PORT2")
+      {
+        $port_N = 2;
       }
 
-      if( $port == "PORT2")
+      if( $port_N>0 )
       {
-         print "ISR(PORT2_VECTOR)\n";
-         print "{v";
+         print "ISR(".$port.")\n";//_VECTOR
+         print "{\n";
+         print "   uint16_t interrupt_source = GetPendingIRQ_Arch( ".$key." );\n";
 
+         print "   uint8_t channel = Dio_FindChannel_Arch( ".$port_N.", interrupt_source  );\n";
+
+         print "   Dio_Notification( channel ,  Dio_GetEdge_Arch( ".$port_N." , interrupt_source  ) );\n";
          print "}\n\n";
+
+      }
+      else
+      {
+         //TODO: this should be rised as an generation error.
+         //print "#error MSP430 has only 2 IO port with interrupt capability. Remove NOTIFICATION=TRUE from Input PINS assigned to $port from DIL file";
+               trigger_error("===== DIL ERROR: MSP430 has only 2 IO port with interrupt capability. Remove NOTIFICATION=TRUE from Input PINS assigned to ".$port." from DIL file\n", E_USER_ERROR);
       }
    }
 }

@@ -83,7 +83,7 @@ extern "C" {
    print "/** \brief Dio Configurations count */\n";
    print "#define DIO_CONFIGS_COUNT " . $dios_count . "U\n\n";
 
-   if( $dios_count == 0)
+   if( $dios_count == 0 )
    {
          print "#define DIO_PINS_COUNT    0U\n\n";
          print "#define DIO_PORTS_COUNT   0U\n\n";

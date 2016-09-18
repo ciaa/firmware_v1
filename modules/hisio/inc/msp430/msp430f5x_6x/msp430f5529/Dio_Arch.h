@@ -45,7 +45,7 @@
 /** \addtogroup HISIO HisIO Module
  ** @{ */
 
- 
+
 /*==================[inclusions]=============================================*/
 
 /*==================[cplusplus]==============================================*/
@@ -75,6 +75,9 @@ extern IO_ValueType Dio_GetSync_Arch(IO_ChannelType channel);
 /** \brief
  **/
 extern void Dio_ToggleSync_Arch(IO_ChannelType channel);
+
+extern unsigned char Dio_FindChannel_Arch( uint8_t  Port, uint8_t  PinNro  );
+extern IO_ValueType Dio_GetEdge_Arch( uint8_t  Port, uint8_t  PinNro  );
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

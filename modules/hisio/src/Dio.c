@@ -122,7 +122,7 @@ Ref: API IO Driver v 2.1.3
 */
 extern IO_ValueType Dio_GetPortSync(IO_ChannelType port)
 {
-   return Dio_GetPortSync_Arch(IO_ChannelType port);
+   return Dio_GetPortSync_Arch(port );
 }
 
 /*
@@ -146,6 +146,32 @@ extern void Dio_SetPortMaskedSync(IO_ChannelType port, IO_ValueType value, IO_Va
 {
    Dio_SetPortMaskedSync_Arch( port,  value,  mask);
 }
+
+
+/*
+This function enables the notification of the given type for a specific channel. Per default
+the notifications are enabled. This function is only available if the notifications in the
+configuration tool are activated.
+Ref: API IO Driver v 2.1.3
+     5.2.3.1.1
+*/
+extern void Dio_EnableNotification( IO_ChannelType channel, IO_ValueType notifType )
+{
+    Dio_EnableNotification_Arch( channel, notifType );
+}
+
+/*
+This function disables the notification of the given type for a specific channel. Per default
+the notifications are enabled. This function is only available if the notifications in the
+configuration tool are activated.
+Ref: API IO Driver v 2.1.3
+     5.2.3.1.2
+*/
+extern void Dio_DisableNotification( IO_ChannelType channel, IO_ValueType notifType )
+{
+     Dio_DisableNotification_Arch( channel, notifType );
+}
+
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
