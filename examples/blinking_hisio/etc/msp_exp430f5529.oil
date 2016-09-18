@@ -95,7 +95,7 @@ DIL DIO_DIL {
 
       #definition of bus1: all inputs defined for the key of exp-430f5529 board
       PORT BUS1 {
-         PORT         = 1; 
+         PORT         = 1;
       }
 
       #definition of bus1: all outputs defined for the leds 2 and 3 of exp-430f5529 board
@@ -105,10 +105,12 @@ DIL DIO_DIL {
    }
 };
 
+#PORT1_VECTOR
 #IT ADDS THE IRQ HANDLER FOR NOTIFICATIONS
+#FOR HISIO, THE NAME OF THE OBJECT SHOULD BE CALLED THE SAME AS THE "INTERRUPT" ATTRIBUTE
 OSEK OSEK {
-      ISR PORT2_VECTOR {
-         INTERRUPT   = PORT2;
+      ISR  PORT1 {
+         INTERRUPT   = PORT1;
          CATEGORY    = 2;
          PRIORITY    = 0;
       };

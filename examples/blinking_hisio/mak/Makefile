@@ -54,15 +54,9 @@ POIL_FILES        	+= $(if $(findstring .oil, $(OIL_FILES)),,$(PROJECT_PATH)$(DS
 # modules needed for this example
 MODS ?= modules$(DS)hisio           \
         modules$(DS)ciaak           \
-        modules$(DS)drivers         \
-        modules$(DS)rtos            \
-        modules$(DS)libs
-		  # \
-		  #externals$(DS)drivers
-
+        modules$(DS)rtos             
 
 #system configurations
-
 
 # configuration for the system
 CFLAGS += -D CIAA_HEAP_MEM_SIZE=200

@@ -502,15 +502,6 @@ uint8_t GPIO_GetInterruptEdge(uint8_t selectedPort, uint16_t selectedPins )
 		selectedPins <<= 8;
 	}
 
-	if(GPIO_LOW_TO_HIGH_TRANSITION == edgeSelect)
-	{
-		HWREG16(baseAddress + OFS_PAIES) &= ~selectedPins;
-	}
-	else
-	{
-		HWREG16(baseAddress + OFS_PAIES) |= selectedPins;
-	}
-
    if( HWREG16(baseAddress + OFS_PAIES) | selectedPins )
    {
       return GPIO_LOW_TO_HIGH_TRANSITION;

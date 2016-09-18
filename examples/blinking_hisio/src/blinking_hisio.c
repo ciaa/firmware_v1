@@ -68,10 +68,12 @@
 
 /*==================[inclusions]=============================================*/
 #include "os.h"               /* <= operating system header */
-#include "ciaaPOSIX_stdio.h"  /* <= device handler header */
-#include "ciaaPOSIX_string.h" /* <= string header */
+//#include "stdio.h"
+//#include "ciaaPOSIX_stdio.h"  /* <= device handler header */
+//#include "ciaaPOSIX_string.h" /* <= string header */
 #include "ciaak.h"            /* <= ciaa kernel header */
 #include "blinking.h"         /* <= own header */
+#include "IODriver.h"         /* <= own header */
 
 /*==================[macros and definitions]=================================*/
 
@@ -105,9 +107,6 @@ static int32_t fd_out;
  */
 int main(void)
 {
-
-
-
     /* Starts the operating system in the Application Mode 1 */
     /* This example has only one Application Mode */
     StartOS(AppMode1);
@@ -137,9 +136,9 @@ int main(void)
  */
 void ErrorHook(void)
 {
-     ciaaPOSIX_printf("ErrorHook was called\n");
-     ciaaPOSIX_printf("Service: %d, P1: %d, P2: %d, P3: %d, RET: %d\n", OSErrorGetServiceId(), OSErrorGetParam1(), OSErrorGetParam2(), OSErrorGetParam3(), OSErrorGetRet());
-    ShutdownOS(0);
+   //ciaaPOSIX_printf("ErrorHook was called\n");
+   //ciaaPOSIX_printf("Service: %d, P1: %d, P2: %d, P3: %d, RET: %d\n", OSErrorGetServiceId(), OSErrorGetParam1(), OSErrorGetParam2(), OSErrorGetParam3(), OSErrorGetRet());
+   ShutdownOS(0);
 }
 
 /*
@@ -149,6 +148,15 @@ void Dio_ErrorHook(IO_DeviceType device, IO_ErrorType error)
 {
 
 }
+
+/*
+HISIO DIO Notification callback
+*/
+void Dio_Notification(IO_ChannelType channel, IO_ValueType notifType)
+{
+
+}
+
 /** \brief Initial task
  *
  * This task is started automatically in the application mode 1.
@@ -159,10 +167,10 @@ TASK(InitTask)
     ciaak_start();
 
     /* print message (only on x86) */
-    ciaaPOSIX_printf("Init Task...\n");
+    //ciaaPOSIX_printf("Init Task...\n");
 
     /* Open the HISIO DIO Driver */
-    Dio_InitSync(0);
+   // Dio_InitSync(0);
 
     /* activate periodic task:
      *  - for the first time after 350 ticks (350 ms)
@@ -183,7 +191,7 @@ TASK(InitTask)
 TASK(PeriodicTask)
 {
     uint8_t outputs;
- 
+
     /* blink output */
     Dio_ToggleSync( LED1 );
 

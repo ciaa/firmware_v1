@@ -47,3 +47,7 @@ posix_SRC_PATH 	= $(posix_PATH)$(DS)src
 posix_INC_PATH 	= $(posix_PATH)$(DS)inc
 # library source files
 posix_SRC_FILES 	= $(wildcard $(posix_SRC_PATH)$(DS)*.c)
+
+
+# Enable this feature in the ciaak
+CFLAGS += -DCIAA_CFG_POSIX

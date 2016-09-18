@@ -43,7 +43,10 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaak.h"
+
 /* TODO configuration dependent includes */
+
+#ifdef CIAA_CFG_POSIX
 #include "ciaaDevices.h"
 #include "ciaaSerialDevices.h"
 #include "ciaaBlockDevices.h"
@@ -51,11 +54,16 @@
 #include "ciaaDriverFlash.h"
 #include "ciaaDriverAio.h"
 #include "ciaaDriverDio.h"
+#include "ciaaPOSIX_stdlib.h"
+#endif
+
+#ifdef CIAA_CFG_HISIO
+
+#endif
+
 #ifdef CIAA_CFG_NET_IP
 #include "ciaaDriverEth.h"
 #endif
-
-#include "ciaaPOSIX_stdlib.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -73,6 +81,7 @@
 void ciaak_start(void)
 {
    /* init stdlib */
+#ifdef CIAA_CFG_POSIX
    /* ATTENTION: ciaaPOSIX_stdlib_init has to be done before to any call to
     * ciaaPOSIX_malloc or ciaak_malloc */
    ciaaPOSIX_stdlib_init();
@@ -87,12 +96,23 @@ void ciaak_start(void)
    /* init drivers */
    ciaaDriverUart_init();
    ciaaDriverFlash_init();
+   ciaaDriverDio_init();
+   ciaaDriverAio_init();
+#endif
+
+#ifdef CIAA_CFG_HISIO
+#if (HISIO_DIO_ENABLE == HISIO_TRUE)
+   Dio_InitSync(0);
+#endif
+#endif
+
 #ifdef CIAA_CFG_NET_IP
    ciaaDriverEth_init();
 #endif
-   ciaaDriverDio_init();
-   ciaaDriverAio_init();
+
 }
+
+#ifdef CIAA_CFG_POSIX
 
 void *ciaak_malloc(size_t size)
 {
@@ -112,7 +132,8 @@ void *ciaak_malloc(size_t size)
    return ret;
 }
 
+#endif
+
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-

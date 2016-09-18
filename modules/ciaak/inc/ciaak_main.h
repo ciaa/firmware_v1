@@ -46,8 +46,12 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
+#ifdef CIAA_CFG_POSIX
 #include "ciaaPOSIX_stdio.h"
 #include "ciaaPOSIX_stddef.h"
+#endif
+
+#include "stdlib.h"
 
 /*==================[cplusplus]=*============================================*/
 #ifdef __cplusplus

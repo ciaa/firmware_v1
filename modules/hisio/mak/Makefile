@@ -50,17 +50,22 @@ hisio_INC_PATH 	= $(hisio_PATH)$(DS)inc                                         
                     $(GEN_DIR)$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)
 
 # library source files
-hisio_SRC_FILES 	= $(wildcard $(hisio_SRC_PATH)$(DS)*.c)                            \
-                    $(wildcard $(hisio_SRC_PATH)$(DS)$(ARCH)$(DS)*.c)                \
-                    $(wildcard $(hisio_SRC_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)*.c) \
-                    $(wildcard $(hisio_SRC_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.c)  \
-                    $(wildcard $(GEN_DIR)$(DS)src$(DS)*.c)                                       \
-                    $(wildcard $(GEN_DIR)$(DS)src$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.c)
+hisio_SRC_FILES  =  $(wildcard $(hisio_SRC_PATH)$(DS)*.c)
+hisio_SRC_FILES +=  $(wildcard $(hisio_SRC_PATH)$(DS)$(ARCH)$(DS)*.c)
+hisio_SRC_FILES +=  $(wildcard $(hisio_SRC_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)*.c)
+hisio_SRC_FILES +=  $(wildcard $(hisio_SRC_PATH)$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.c)
+hisio_SRC_FILES +=  $(wildcard $(GEN_DIR)$(DS)src$(DS)*.c)
+hisio_SRC_FILES +=  $(wildcard $(GEN_DIR)$(DS)src$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.c)
 
 # files to be generated
 # TODO see https://github.com/ciaa/Firmware/issues/277
 rtos_GEN_FILES += $(wildcard $(hisio_PATH)$(DS)gen$(DS)inc$(DS)*.php)	\
                   $(wildcard $(hisio_PATH)$(DS)gen$(DS)inc$(DS)$(ARCH)$(DS)*.php)      \
                   $(wildcard $(hisio_PATH)$(DS)gen$(DS)src$(DS)$(ARCH)$(DS)*.php)      \
-						$(wildcard $(hisio_PATH)$(DS)gen$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.php)      \
+                  $(wildcard $(hisio_PATH)$(DS)gen$(DS)inc$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.php)      \
                   $(wildcard $(hisio_PATH)$(DS)gen$(DS)src$(DS)$(ARCH)$(DS)$(CPUTYPE)$(DS)$(CPU)$(DS)*.php)
+
+include externals$(DS)drivers$(DS)mak$(DS)Makefile
+
+# Enable this feature in the ciaak
+CFLAGS += -DCIAA_CFG_HISIO

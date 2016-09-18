@@ -48,6 +48,7 @@
 
 
 /*==================[inclusions]=============================================*/
+#include "os.h"
 #include "IODriver_Base.h"
 #include "Dio_Cfg.h"
 #include "Dio_Cfg_Arch.h"
@@ -217,23 +218,22 @@ foreach ($dios as $count=>$dio)
         $port_N = 2;
       }
 
-      if( $port_N>0 )
+      if( $port_N > 0 )
       {
          print "ISR(".$port.")\n";//_VECTOR
          print "{\n";
          print "   uint16_t interrupt_source = GetPendingIRQ_Arch( ".$key." );\n";
 
-         print "   uint8_t channel = Dio_FindChannel_Arch( ".$port_N.", interrupt_source  );\n";
+         print "   uint8_t channel = Dio_FindChannel_Arch( ".$port_N." , interrupt_source  );\n";
 
          print "   Dio_Notification( channel ,  Dio_GetEdge_Arch( ".$port_N." , interrupt_source  ) );\n";
          print "}\n\n";
-
       }
       else
       {
          //TODO: this should be rised as an generation error.
          //print "#error MSP430 has only 2 IO port with interrupt capability. Remove NOTIFICATION=TRUE from Input PINS assigned to $port from DIL file";
-               trigger_error("===== DIL ERROR: MSP430 has only 2 IO port with interrupt capability. Remove NOTIFICATION=TRUE from Input PINS assigned to ".$port." from DIL file\n", E_USER_ERROR);
+         trigger_error("===== DIL ERROR: MSP430 has only 2 IO port with interrupt capability. Remove NOTIFICATION=TRUE from Input PINS assigned to ".$port." from DIL file\n", E_USER_ERROR);
       }
    }
 }
