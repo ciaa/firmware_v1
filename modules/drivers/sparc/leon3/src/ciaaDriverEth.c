@@ -75,6 +75,11 @@
 void ciaaDriverEth_init(void)
 {
 
+}
+
+
+void ciaaDriverEth_mainFunction(void)
+{
 
 }
 

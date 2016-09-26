@@ -46,6 +46,7 @@
 
 #include "ciaaDriverAio.h"
 #include "ciaaDriverAio_Internal.h"
+#include "ciaaPOSIX_stdlib.h"
 
 
 /*==================[macros and definitions]=================================*/
@@ -72,9 +73,34 @@
 /*==================[external functions definition]==========================*/
 
 
+extern ciaaDevices_deviceType * ciaaDriverAio_open(char const * path,
+      ciaaDevices_deviceType * device, uint8_t const oflag)
+{
+   return NULL;
+}
+
+extern int32_t ciaaDriverAio_close(ciaaDevices_deviceType const * const device)
+{
+   return 0;
+}
+
+extern int32_t ciaaDriverAio_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
+{
+   return -1;
+}
+
+extern ssize_t ciaaDriverAio_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t const size)
+{
+   return -1;
+}
+
+extern ssize_t ciaaDriverAio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
+{
+   return -1;
+}
+
 void ciaaDriverAio_init(void)
 {
-
 
 }
 
