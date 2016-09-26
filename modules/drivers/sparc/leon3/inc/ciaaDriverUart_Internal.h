@@ -53,6 +53,24 @@
 /*==================[typedef]================================================*/
 
 
+typedef struct {
+
+   /* Core configuration */
+   grDeviceAddress baseAddress;
+   uint32 irq;
+   uint32 hasFIFOs;
+
+   /* UART configuration */
+   uint32 numberOfStopBits; /* Valid values: 1 or 2 */
+   uint32 flowControl;
+   uint32 useParity;
+   uint32 useOddParity;
+   uint32 loopbackEnabled;
+   uint32 externalClkEnabled;
+
+} sparcDriverUartInfoType;
+
+
 /*==================[external data declaration]==============================*/
 
 

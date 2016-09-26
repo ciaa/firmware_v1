@@ -47,11 +47,17 @@
 #include "ciaaDriverUart.h"
 #include "ciaaDriverUart_Internal.h"
 #include "ciaaPOSIX_stdint.h"
+#include "grlib.h"
 
 /*==================[macros and definitions]=================================*/
 
 
+#define SPARC_MAX_UART_COUNT      4
+
+
 /*==================[internal data declaration]==============================*/
+
+
 
 
 /*==================[internal functions declaration]=========================*/
@@ -60,10 +66,114 @@
 /*==================[internal data definition]===============================*/
 
 
+sparcDriverUartInfoType sparcDriverUartInfo[SPARC_MAX_UART_COUNT];
+
+
+uint32 sparcDriverUartCount;
+
+
 /*==================[external data definition]===============================*/
 
 
 /*==================[internal functions definition]==========================*/
+
+
+void sparcDriverUartDetectCoreConfiguration()
+{
+   grDeviceRegisterValue controlRegisterValue;
+   grPlugAndPlayAPBDeviceTableEntryType apbUartInfo;
+   uint32 deviceIndex;
+
+   /* Detect the number of UARTs available, and the base address of each
+    * using the AMBA PnP system. */
+   sparcDriverUartCount = 0;
+   while ((sparcDriverUartCount< SPARC_MAX_UART_COUNT)
+         && (grWalkPlugAndPlayAPBDeviceTable(GRLIB_PNP_VENDOR_ID_GAISLER_RESEARCH, GRLIB_PNP_DEVICE_ID_APBUART, &apbUartInfo, sparcDriverUartCount) >= 0))
+   {
+      sparcDriverUartInfo[sparcDriverUartCount].baseAddress = apbUartInfo.address;
+      sparcDriverUartInfo[sparcDriverUartCount].irq         = apbUartInfo.irq;
+
+      /* Detect the presence of FIFOS on this UART */
+      controlRegisterValue = grRegisterRead(apbUartInfo.address, GRLIB_APBUART_CONTROL_REGISTER);
+      if (controlRegisterValue & GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_FA)
+      {
+         sparcDriverUartInfo[sparcDriverUartCount].hasFIFOs = 1;
+      } else {
+         sparcDriverUartInfo[sparcDriverUartCount].hasFIFOs = 0;
+      }
+
+      sparcDriverUartCount++;
+   }
+}
+
+
+void sparcDriverReprogramControlRegister(uint32 uartIndex)
+{
+   grDeviceRegisterValue controlRegisterValue;
+
+   sparcAssert(sparcDriverUartInfo[uartIndex].numberOfStopBits >= 1, "Invalid configuration");
+   sparcAssert(sparcDriverUartInfo[uartIndex].numberOfStopBits <= 2, "Invalid configuration");
+   sparcAssert(sparcDriverUartInfo[uartIndex].flowControl <= 1, "Invalid configuration");
+   sparcAssert(sparcDriverUartInfo[uartIndex].useParity <= 1, "Invalid configuration");
+   sparcAssert(sparcDriverUartInfo[uartIndex].useOddParity <= 1, "Invalid configuration");
+   sparcAssert(sparcDriverUartInfo[uartIndex].loopbackEnabled <= 1, "Invalid configuration");
+   sparcAssert(sparcDriverUartInfo[uartIndex].externalClkEnabled <= 1, "Invalid configuration");
+
+   controlRegisterValue = 0;
+
+   /* Set user configuration flags */
+   if (sparcDriverUartInfo[uartIndex].numberOfStopBits == 2)   controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_NS;
+   if (sparcDriverUartInfo[uartIndex].flowControl == 1)        controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_FL;
+   if (sparcDriverUartInfo[uartIndex].useParity == 1)          controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_PE;
+   if (sparcDriverUartInfo[uartIndex].useOddParity == 1)       controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_PS;
+   if (sparcDriverUartInfo[uartIndex].loopbackEnabled == 1)    controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_LB;
+   if (sparcDriverUartInfo[uartIndex].externalClkEnabled == 1) controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_EC;
+
+   /* Set other configuration flags */
+
+   // controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_SI; /* Transmitter shift empty interrupt enable */
+   // controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_BI; /* Break interrupt enable */
+   // controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_DB; /* FIFO debug mode enable */
+
+   if (sparcDriverUartInfo[uartIndex].hasFIFOs == 1)
+   {
+      // controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_TI; /* Transmitter interrupt enable */
+      // controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_RI; /* Receiver interrupt enable */
+      controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_DI; /* Delayed interrupt enable */
+      controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_RF; /* Receiver FIFO interrupt enable */
+      // controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_TF; /* Transmitter FIFO interrupt enable */
+   } else {
+      controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_TI; /* Transmitter interrupt enable */
+      controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_RI; /* Receiver interrupt enable */
+      // controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_DI; /* Delayed interrupt enable */
+      // controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_RF; /* Receiver FIFO interrupt enable */
+      // controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_TF; /* Transmitter FIFO interrupt enable */
+   }
+
+   controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_TE; /* Transmitter enable */
+   controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_RE; /* Receiver enable */
+
+   grRegisterWrite(sparcDriverUartInfo[uartIndex].baseAddress, GRLIB_APBUART_CONTROL_REGISTER, controlRegisterValue);
+}
+
+
+void sparcDriverUartConfigureUarts()
+{
+   uint32 uartIndex;
+
+   for (uartIndex = 0; uartIndex < sparcDriverUartCount; uartIndex++)
+   {
+      /* Set the initial configuration */
+      sparcDriverUartInfo[uartIndex].numberOfStopBits   = 1;
+      sparcDriverUartInfo[uartIndex].flowControl        = 0;
+      sparcDriverUartInfo[uartIndex].useParity          = 0;
+      sparcDriverUartInfo[uartIndex].useOddParity       = 0;
+      sparcDriverUartInfo[uartIndex].loopbackEnabled    = 0;
+      sparcDriverUartInfo[uartIndex].externalClkEnabled = 0;
+
+      sparcDriverReprogramControlRegister(uartIndex);
+   }
+}
 
 
 /*==================[external functions definition]==========================*/
@@ -112,7 +222,11 @@ extern ssize_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
 
 void ciaaDriverUart_init(void)
 {
+   /* Read important UART configuration data */
+   sparcDriverUartDetectCoreConfiguration();
 
+   /* Set the baseline configuration of each of the UARTS */
+   sparcDriverUartConfigureUarts();
 
 }
 
