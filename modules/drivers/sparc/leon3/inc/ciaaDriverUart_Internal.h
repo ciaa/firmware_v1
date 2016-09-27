@@ -50,6 +50,9 @@
 /*==================[macros]=================================================*/
 
 
+#define SPARC_DRIVER_DEFAULT_BAUDRATE 38400
+
+
 /*==================[typedef]================================================*/
 
 
@@ -67,6 +70,11 @@ typedef struct {
    uint32 useOddParity;
    uint32 loopbackEnabled;
    uint32 externalClkEnabled;
+
+   uint32 externalClkFrequency; /* Units is Hz */
+
+   /* Baudrate configuration */
+   uint32 baudRate;
 
 } sparcDriverUartInfoType;
 

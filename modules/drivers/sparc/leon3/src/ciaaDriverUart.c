@@ -157,6 +157,34 @@ void sparcDriverReprogramControlRegister(uint32 uartIndex)
 }
 
 
+void sparcDriverSetBaudRate(uint32 uartIndex)
+{
+   uint32 quotientNumerator, quotientDenominator;
+   uint32 scalerInputClockFrequency;
+   uint32 clockCyclesPerScalerTick;
+   grDeviceRegisterValue scalerRegisterValue;
+
+   scalerInputClockFrequency = grGetSystemClockFrequencyValue();
+
+   if (sparcDriverUartInfo[uartIndex].externalClkEnabled != 0)
+   {
+      scalerInputClockFrequency = sparcDriverUartInfo[uartIndex].externalClkFrequency;
+   }
+
+   /* calculate the quotient, doing rounding */
+   quotientNumerator        = scalerInputClockFrequency;
+   quotientDenominator      = sparcDriverUartInfo[uartIndex].baudRate * 8;
+   clockCyclesPerScalerTick = (quotientNumerator + (quotientDenominator / 2)) / quotientDenominator;
+
+   /* Substract 1 from the reload value before writing to the scaler reload
+      register, because the scaler reload happens when the scaler underflows,
+      not when its value reaches 0 */
+   scalerRegisterValue = clockCyclesPerScalerTick - 1;
+
+   grRegisterWrite(sparcDriverUartInfo[uartIndex].baseAddress, GRLIB_APBUART_SCALER_REGISTER, scalerRegisterValue);
+}
+
+
 void sparcDriverUartConfigureUarts()
 {
    uint32 uartIndex;
@@ -169,9 +197,14 @@ void sparcDriverUartConfigureUarts()
       sparcDriverUartInfo[uartIndex].useParity          = 0;
       sparcDriverUartInfo[uartIndex].useOddParity       = 0;
       sparcDriverUartInfo[uartIndex].loopbackEnabled    = 0;
-      sparcDriverUartInfo[uartIndex].externalClkEnabled = 0;
+
+      sparcDriverUartInfo[uartIndex].externalClkEnabled   = 0;
+      sparcDriverUartInfo[uartIndex].externalClkFrequency = 40000000; /* some value */
+
+      sparcDriverUartInfo[uartIndex].baudRate           = SPARC_DRIVER_DEFAULT_BAUDRATE;
 
       sparcDriverReprogramControlRegister(uartIndex);
+      sparcDriverSetBaudrate(uartIndex);
    }
 }
 
