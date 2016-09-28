@@ -52,9 +52,20 @@
 
 #define SPARC_DRIVER_DEFAULT_BAUDRATE 38400
 
+#define SPARC_DRIVER_QUEUE_LENGHT 32
+
 
 /*==================[typedef]================================================*/
 
+
+typedef struct {
+
+   uint8 buffer[SPARC_DRIVER_QUEUE_LENGHT];
+
+   uint32 head;
+   uint32 tail;
+
+} sparcDriverUartQueueType;
 
 typedef struct {
 
@@ -74,7 +85,16 @@ typedef struct {
    uint32 externalClkFrequency; /* Units is Hz */
 
    /* Baudrate configuration */
-   uint32 baudRate;
+   uint32 baudrate;
+
+   /* device state configuration */
+   uint32 deviceIsOpened;
+
+   /* rx and tx data queues */
+   sparcDriverUartQueueType rxQueue;
+   sparcDriverUartQueueType txQueue;
+
+   ciaaDevices_deviceType deviceDataStructure;
 
 } sparcDriverUartInfoType;
 
