@@ -82,10 +82,13 @@ typedef struct {
    uint32 loopbackEnabled;
    uint32 externalClkEnabled;
 
-   uint32 externalClkFrequency; /* Units is Hz */
+   /* Interrupts configuration */
+   uint32 txInterruptEnabled;
+   uint32 rxInterruptEnabled;
 
    /* Baudrate configuration */
    uint32 baudrate;
+   uint32 externalClkFrequency; /* Units is Hz */
 
    /* device state configuration */
    uint32 deviceIsOpened;
