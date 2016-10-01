@@ -48,6 +48,7 @@
 
 
 #include "stdint.h"
+#include "ciaaDriverUart.h"
 
 
 /*==================[macros]=================================================*/
