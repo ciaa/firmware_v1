@@ -60,10 +60,12 @@
 
 typedef struct {
 
-   uint8 buffer[SPARC_DRIVER_QUEUE_LENGHT];
+   uint8_t buffer[SPARC_DRIVER_QUEUE_LENGHT];
 
-   uint32 head;
-   uint32 tail;
+   uint32_t head;
+   uint32_t tail;
+
+   uint32_t count;
 
 } sparcDriverUartQueueType;
 
@@ -71,31 +73,29 @@ typedef struct {
 
    /* Core configuration */
    grDeviceAddress baseAddress;
-   uint32 irq;
-   uint32 hasFIFOs;
+   uint32_t irq;
+   uint32_t hasFIFOs;
 
    /* UART configuration */
-   uint32 numberOfStopBits; /* Valid values: 1 or 2 */
-   uint32 flowControl;
-   uint32 useParity;
-   uint32 useOddParity;
-   uint32 loopbackEnabled;
-   uint32 externalClkEnabled;
+   uint32_t numberOfStopBits; /* Valid values: 1 or 2 */
+   uint32_t flowControl;
+   uint32_t useParity;
+   uint32_t useOddParity;
+   uint32_t loopbackEnabled;
+   uint32_t externalClkEnabled;
 
    /* Interrupts configuration */
-   uint32 txInterruptEnabled;
-   uint32 rxInterruptEnabled;
+   uint32_t txInterruptEnabled;
+   uint32_t rxInterruptEnabled;
 
    /* Baudrate configuration */
-   uint32 baudrate;
-   uint32 externalClkFrequency; /* Units is Hz */
+   uint32_t baudrate;
 
    /* device state configuration */
-   uint32 deviceIsOpened;
+   uint32_t deviceIsOpened;
 
    /* rx and tx data queues */
    sparcDriverUartQueueType rxQueue;
-   sparcDriverUartQueueType txQueue;
 
    ciaaDevices_deviceType deviceDataStructure;
 

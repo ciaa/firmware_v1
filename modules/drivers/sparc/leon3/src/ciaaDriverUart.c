@@ -86,16 +86,31 @@ uint32 sparcDriverUartCount;
 /*==================[internal functions definition]==========================*/
 
 
+void sparcDriverUartRxIndication(ciaaDevices_deviceType const * const device, uint32_t const nbyte)
+{
+   /* receive the data and forward to upper layer */
+   ciaaSerialDevices_rxIndication(device->upLayer, nbyte);
+}
+
+
+void sparcDriverUartTxIndication(ciaaDevices_deviceType const * const device)
+{
+   /* receive the data and forward to upper layer */
+   ciaaSerialDevices_txConfirmation(device->upLayer, 1 );
+}
+
+
 void sparcDriverUartInitQueue(sparcDriverUartQueueType *queue)
 {
-   queue->head = 0;
-   queue->tail = 0;
+   queue->head  = 0;
+   queue->tail  = 0;
+   queue->count = 0;
 }
 
 
 sint32 sparcDriverUartQueueIsEmpty(sparcDriverUartQueueType *queue)
 {
-   sint32 queueIsEmptyAnswer;
+   int32_t queueIsEmptyAnswer;
 
    queueIsEmptyAnswer = 1;
 
@@ -110,8 +125,8 @@ sint32 sparcDriverUartQueueIsEmpty(sparcDriverUartQueueType *queue)
 
 sint32 sparcDriverUartQueueIsFull(sparcDriverUartQueueType *queue)
 {
-   sint32 queueIsFullAnswer;
-   uint32 nextTail;
+   int32_t queueIsFullAnswer;
+   uint32_t nextTail;
 
    queueIsFullAnswer = 0;
 
@@ -134,9 +149,9 @@ sint32 sparcDriverUartQueueIsFull(sparcDriverUartQueueType *queue)
 }
 
 
-void sparcDriverUartQueuePush(sparcDriverUartQueueType *queue, uint8 dataItem)
+void sparcDriverUartQueuePush(sparcDriverUartQueueType *queue, uint8_t dataItem)
 {
-   uint32 nextTail;
+   uint32_t nextTail;
 
    /* Determine if we have the space. In doing so
     * avoid doing division, because we might not
@@ -154,15 +169,16 @@ void sparcDriverUartQueuePush(sparcDriverUartQueueType *queue, uint8 dataItem)
        * the current next pointer value is the index of that position. */
       queue->buffer[queue->tail] = dataItem;
 
-      /* Update the tail of the queue */
+      /* Update the tail of the queue and the byte count */
       queue->tail = nextTail;
+      queue->count++;
    }
 }
 
 
-sint32 sparcDriverUartQueuePop(sparcDriverUartQueueType *queue, uint8 *dataItemPtr)
+int32_t sparcDriverUartQueuePop(sparcDriverUartQueueType *queue, uint8_t *dataItemPtr)
 {
-   sint32 returnValue;
+   int32_t returnValue;
 
    returnValue = -1;
 
@@ -179,17 +195,25 @@ sint32 sparcDriverUartQueuePop(sparcDriverUartQueueType *queue, uint8 *dataItemP
       {
          queue->head -= SPARC_DRIVER_QUEUE_LENGHT;
       }
+
+      /* Update the byte count */
+      queue->count--;
    }
 
    return returnValue;
 }
 
 
+uint32_t sparcDriverUartQueueByteCount(sparcDriverUartQueueType *queue)
+{
+   return queue->count;
+}
+
 void sparcDriverUartDetectCoreConfiguration()
 {
    grDeviceRegisterValue controlRegisterValue;
    grPlugAndPlayAPBDeviceTableEntryType apbUartInfo;
-   uint32 deviceIndex;
+   uint32_t deviceIndex;
 
    /* Detect the number of UARTs available, and the base address of each
     * using the AMBA PnP system. */
@@ -301,9 +325,9 @@ void sparcDriverUpdateControlRegister(sparcDriverUartInfoType *uartDataStructPtr
 
 void sparcDriverUpdateScalerRegister(sparcDriverUartInfoType *uartDataStructPtr)
 {
-   uint32 quotientNumerator, quotientDenominator;
-   uint32 scalerInputClockFrequency;
-   uint32 clockCyclesPerScalerTick;
+   uint32_t quotientNumerator, quotientDenominator;
+   uint32_t scalerInputClockFrequency;
+   uint32_t clockCyclesPerScalerTick;
    grDeviceRegisterValue scalerRegisterValue;
 
    scalerInputClockFrequency = grGetSystemClockFrequencyValue();
@@ -313,7 +337,7 @@ void sparcDriverUpdateScalerRegister(sparcDriverUartInfoType *uartDataStructPtr)
    quotientDenominator      = uartDataStructPtr->baudrate * 8;
    clockCyclesPerScalerTick = (quotientNumerator + (quotientDenominator / 2)) / quotientDenominator;
 
-   /* Substract 1 from the reload value before writing to the scaler reload
+   /* Subtract 1 from the reload value before writing to the scaler reload
       register, because the scaler reload happens when the scaler underflows,
       not when its value reaches 0 */
    scalerRegisterValue = clockCyclesPerScalerTick - 1;
@@ -351,6 +375,60 @@ void sparcDriverDisableTxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
    uartDataStructPtr->txInterruptEnabled = 0;
 
    sparcDriverUpdateControlRegister(uartDataStructPtr);
+}
+
+
+int32_t sparcDriverRxBufferIsEmpty(sparcDriverUartInfoType *uartDataStructPtr)
+{
+   grDeviceRegisterValue statusRegisterValue;
+   int32_t retValue;
+
+   retValue = 0;
+
+   statusRegisterValue = grRegisterRead(uartDataStructPtr->baseAddress, GRLIB_APBUART_STATUS_REGISTER);
+
+   if ((statusRegisterValue & GRLIB_FLAG_MASK_APBUART_STATUS_REGISTER_DR) != 0)
+   {
+      /* Not empty, data ready */
+      retValue = 0;
+   } else {
+      /* Empty, no data on the holding/FIFO register */
+      retValue = 1;
+   }
+
+   return retValue;
+}
+
+
+int32_t sparcDriverTxBufferIsFull(sparcDriverUartInfoType *uartDataStructPtr)
+{
+   grDeviceRegisterValue statusRegisterValue;
+   int32_t isFull;
+
+   isFull = 0;
+
+   statusRegisterValue = grRegisterRead(uartDataStructPtr->baseAddress, GRLIB_APBUART_STATUS_REGISTER);
+
+   if (uartDataStructPtr->hasFIFOs == 0)
+   {
+      /* No FIFOs, just a single transmitter holding register.
+       * Therefore if not empty, is full. */
+      if ((statusRegisterValue & GRLIB_FLAG_MASK_APBUART_STATUS_REGISTER_TE) == 0)
+      {
+         isFull = 1;
+      }
+
+   } else {
+
+      /* FIFOs available.
+       * The TE flag is useless here. Check the FIFO status bits. */
+      if ((statusRegisterValue & GRLIB_FLAG_MASK_APBUART_STATUS_REGISTER_TF) != 0)
+      {
+         isFull = 1;
+      }
+   }
+
+   return isFull;
 }
 
 
@@ -394,9 +472,9 @@ void sparcDriverKickstartTxInterrupts(sparcDriverUartInfoType *uartDataStructPtr
 }
 
 
-sint32 sparcDriverSetBaudrate(sparcDriverUartInfoType *uartDataStructPtr, uint32 ciaaBaudrate)
+int32_t sparcDriverSetBaudrate(sparcDriverUartInfoType *uartDataStructPtr, uint32_t ciaaBaudrate)
 {
-   sint32 retValue;
+   int32_t retValue;
 
    retValue = -1;
 
@@ -429,11 +507,9 @@ sint32 sparcDriverSetBaudrate(sparcDriverUartInfoType *uartDataStructPtr, uint32
 }
 
 
-
-
 void sparcDriverUartInitializeControlStructures()
 {
-   uint32 uartIndex;
+   uint32_t uartIndex;
 
    for (uartIndex = 0; uartIndex < sparcDriverUartCount; uartIndex++)
    {
@@ -445,7 +521,6 @@ void sparcDriverUartInitializeControlStructures()
       sparcDriverUartInfo[uartIndex].loopbackEnabled       = 0;
 
       sparcDriverUartInfo[uartIndex].externalClkEnabled    = 0;
-      sparcDriverUartInfo[uartIndex].externalClkFrequency  = 40000000; /* some value */
 
       sparcDriverUartInfo[uartIndex].baudrate              = SPARC_DRIVER_DEFAULT_BAUDRATE;
 
@@ -476,7 +551,6 @@ void sparcDriverUartInitializeControlStructures()
       sparcDriverUartInfo[uartIndex].deviceIsOpened = 0;
 
       /* initialize the queues */
-      sparcDriverUartInitQueue(&sparcDriverUartInfo[uartIndex].txQueue);
       sparcDriverUartInitQueue(&sparcDriverUartInfo[uartIndex].rxQueue);
    }
 }
@@ -484,7 +558,7 @@ void sparcDriverUartInitializeControlStructures()
 
 void sparcDriverUartInitializeHardware()
 {
-   uint32 uartIndex;
+   uint32_t uartIndex;
 
    for (uartIndex = 0; uartIndex < sparcDriverUartCount; uartIndex++)
    {
@@ -496,7 +570,7 @@ void sparcDriverUartInitializeHardware()
 
 void sparcDriverUartRegisterDrivers()
 {
-   sint32 uartIndex;
+   int32_t uartIndex;
 
    for(uartIndex = 0; uartIndex < sparcDriverUartCount; uartIndex++)
    {
@@ -507,47 +581,34 @@ void sparcDriverUartRegisterDrivers()
 
 void sparcDriverServiceDevice(sparcDriverUartInfoType *uartDataStructPtr)
 {
-   grDeviceRegisterValue statusRegisterValue;
-
    sparcAssert(uartDataStructPtr->deviceDataStructure->upLayer != NULL, "Missing information from the upper layer");
 
-   statusRegisterValue = grRegisterRead(uartDataStructPtr->baseAddress, GRLIB_APBUART_STATUS_REGISTER);
-
-   if ((statusRegisterValue & GRLIB_FLAG_MASK_APBUART_STATUS_REGISTER_DR) != 0)
+   if (sparcDriverRxBufferIsEmpty(uartDataStructPtr) != 0)
    {
-      do
+      while ( (sparcDriverRxBufferIsEmpty(uartDataStructPtr) == 0) && (sparcDriverUartQueueIsFull(&uartDataStructPtr->rxQueue) == 0) )
       {
-         if ((statusRegisterValue & GRLIB_FLAG_MASK_APBUART_STATUS_REGISTER_DR) != 0)
-         {
-            sparcDriverUartQueuePush(&uartDataStructPtr->rxQueue, grRegisterRead(uartDataStructPtr->baseAddress, GRLIB_APBUART_DATA_REGISTER));
-         }
+         sparcDriverUartQueuePush(&uartDataStructPtr->rxQueue, grRegisterRead(uartDataStructPtr->baseAddress, GRLIB_APBUART_DATA_REGISTER));
+      }
 
-         statusRegisterValue = grRegisterRead(uartDataStructPtr->baseAddress, GRLIB_APBUART_STATUS_REGISTER);
-
-      } while ( ((statusRegisterValue & GRLIB_FLAG_MASK_APBUART_STATUS_REGISTER_DR) != 0)
-            && (sparcDriverUartQueueIsFull(&uartDataStructPtr->rxQueue) == 0) );
-
-      ciaaSerialDevices_rxConfirmation(uartDataStructPtr->deviceDataStructure->upLayer, sparcDriverUartQueueByteCount(&uartDataStructPtr->rxQueue));
+      sparcDriverUartRxIndication(uartDataStructPtr->deviceDataStructure, sparcDriverUartQueueByteCount(&uartDataStructPtr->rxQueue));
    }
 
    if ( (uartDataStructPtr->txInterruptEnabled != 0)
-         && ((statusRegisterValue & GRLIB_FLAG_MASK_APBUART_STATUS_REGISTER_TF) == 0) )
+         && (sparcDriverTxBufferIsFull(uartDataStructPtr) == 0) )
    {
       /* Call the POSIX layer to fill the output buffer */
-      ciaaSerialDevices_txConfirmation(uartDataStructPtr->deviceDataStructure->upLayer, 1 );
+      sparcDriverUartTxIndication(uartDataStructPtr->deviceDataStructure, 1 );
 
-      /* Check again the status register, we want to check if the POSIX layer had
-       * enough bytes to fill the output buffer. */
-      statusRegisterValue = grRegisterRead(uartDataStructPtr->baseAddress, GRLIB_APBUART_STATUS_REGISTER);
+      /* Check if there are still more bytes pending to be sent.
+       * In order to do that we check whether POSIX actually filled
+       * the transmitter output buffers. */
 
-      if ((statusRegisterValue & GRLIB_FLAG_MASK_APBUART_STATUS_REGISTER_TF) == 0)
+      if (sparcDriverTxBufferIsFull(uartDataStructPtr) == 0)
       {
-         /* The buffer is not full, POSIX did not fill it. Thats because there are no more bytes
-          * to send. Disable the transmission interrupt. */
+         /* There's empty space on the transmitter buffers, end of transmission. */
          sparcDriverDisableTxInterrupts(uartDataStructPtr);
       }
    }
-
 }
 
 
@@ -564,7 +625,6 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevic
     * the queues are flushed */
    if (deviceControlStructurePtr->deviceIsOpened == 0)
    {
-      sparcDriverUartInitQueue(&deviceControlStructurePtr->txQueue);
       sparcDriverUartInitQueue(&deviceControlStructurePtr->rxQueue);
    }
 
@@ -637,34 +697,42 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
 extern ssize_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t const size)
 {
    sparcDriverUartInfoType *deviceControlStructurePtr;
-   int32_t ret;
-
-   ret = -1;
-
-   FILL THE VOIDS
+   int32_t newByte;
+   int32_t bytesRead;
 
    deviceControlStructurePtr = (sparcDriverUartInfoType *)device->layer;
 
-   return ret;
+   bytesRead = 0;
+
+   while ( (bytesRead < size) &&
+         ((newByte = sparcDriverUartQueuePop(&deviceControlStructurePtr->rxQueue)) >= 0) )
+   {
+
+      buffer[bytesRead] = (uint8_t)newByte;
+      bytesRead++;
+
+   }
+
+   return bytesRead;
 }
 
 
 extern ssize_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
 {
    sparcDriverUartInfoType *deviceControlStructurePtr;
-   int32_t ret;
+   int32_t byteCount;
 
-   ret = -1;
-
-   /* enter critical */
-
-   FILL THE VOIDS
+   byteCount = 0;
 
    deviceControlStructurePtr = (sparcDriverUartInfoType *)device->layer;
 
-   /* exit critical */
+   while ((byteCount < size) && (sparcDriverTxBufferIsFull(deviceControlStructurePtr) == 0))
+   {
+      grRegisterWrite(deviceControlStructurePtr->baseAddress, GRLIB_APBUART_DATA_REGISTER, buffer[byteCount]);
+      byteCount++;
+   }
 
-   return ret;
+   return byteCount;
 }
 
 
@@ -687,35 +755,17 @@ void ciaaDriverUart_init(void)
 /*==================[interrupt handlers]=====================================*/
 
 
-ISR(UART0_IRQHandler)
+/*
+ * It is assumed that all the APBUARTs share a single IRQ number
+ * */
+ISR(UART_IRQHandler)
 {
-   sint32 uartIndex;
+   int32_t uartIndex;
 
    for(uartIndex = 0; uartIndex < sparcDriverUartCount; uartIndex++)
    {
       sparcDriverServiceDevice(&sparcDriverUartInfo[uartIndex].deviceDataStructure);
    }
-}
-
-
-ISR(UART1_IRQHandler)
-{
-
-
-}
-
-
-ISR(UART2_IRQHandler)
-{
-
-
-}
-
-
-ISR(UART3_IRQHandler)
-{
-
-
 }
 
 
