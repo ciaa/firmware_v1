@@ -67,8 +67,8 @@ extern "C" {
 #elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
 #include "stdint.h"
 #elif (sparc == ARCH)
-/* There seems to be no stddef.h within the header set of the gaisler RCC compiler */
-typedef unsigned int size_t
+/* There seems to be no stddef.h within the header set of the gaisler BCC compiler */
+typedef unsigned int size_t;
 #else
 #error Missing stdio type definition for this ARCH/CPUTYPE/CPU
 #endif
