@@ -308,11 +308,6 @@ void sparcDriverUpdateScalerRegister(sparcDriverUartInfoType *uartDataStructPtr)
 
    scalerInputClockFrequency = grGetSystemClockFrequencyValue();
 
-   if (uartDataStructPtr->externalClkEnabled != 0)
-   {
-      scalerInputClockFrequency = uartDataStructPtr->externalClkFrequency;
-   }
-
    /* calculate the quotient, doing rounding */
    quotientNumerator        = scalerInputClockFrequency;
    quotientDenominator      = uartDataStructPtr->baudrate * 8;
