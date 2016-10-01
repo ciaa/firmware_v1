@@ -58,6 +58,8 @@
 #include "stdint.h"
 #elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
 #include "stdint.h"
+#elif (sparc == ARCH)
+#include "stdint.h"
 #else
 #error Missing stdio type definition for this ARCH/CPUTYPE/CPU
 #endif

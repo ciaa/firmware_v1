@@ -80,6 +80,9 @@ extern "C" {
 #define mips                  3
 /** \brief ARCH cortexM0 */
 #define cortexM0              4
+/** \brief ARCH sparc */
+#define sparc                 5
+
 
 /****** CPUTYPE macro definitions ******/
 /*** CPUTYPES for ARCH=x86 ***/
@@ -98,6 +101,10 @@ extern "C" {
 /*** CPUTYPES for ARCH=mips ***/
 #define pic32                 1
 
+/*** CPUTYPES for ARCH=sparc ***/
+#define leon3                 1
+
+
 /****** CPU macro definitions ******/
 /*** CPU for ARCH=x86 CPUTYPE=ia32 ***/
 
@@ -111,6 +118,10 @@ extern "C" {
 
 /*** CPU for ARCH=mips CPUTYPE=pic32 ***/
 #define pic32mz               3
+
+/*** CPU for ARCH=sparc CPUTYPE=leon3 ***/
+#define leon3nfp              4
+
 
 /****** BOARDS macro definitions ******/
 /*** BOARD for ARCH=x86 CPUTYPE=ia32 ***/
@@ -130,6 +141,9 @@ extern "C" {
 
 /*** BOARD for ARCH=mips CPUTYPE=pic32 ***/
 #define ciaa_pic              6
+
+/*** BOARD for ARCH=sparc CPUTYPE=leon3nfp ***/
+#define ciaa_leon3_nfp        7
 
 /****** CIAAPLATFORM_REGLENGTH ******/
 /** \brief definition of the lenght of the register */
@@ -167,6 +181,9 @@ extern "C" {
 #elif ( ( ARCH == mips ) && \
         ( CPUTYPE == pic32 ) && \
         ( CPU == pic32mz ) )
+#elif ( ( ARCH == sparc ) && \
+        ( CPUTYPE == leon3 ) && \
+        ( CPU == leon3nfp ) )
 #else
 #error the entered architecture is not supported... :(
 #endif

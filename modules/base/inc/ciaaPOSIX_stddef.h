@@ -66,6 +66,8 @@ extern "C" {
 #include "sys/types.h"
 #elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
 #include "stdint.h"
+#elif (sparc == ARCH)
+#include "stddef.h"
 #else
 #error Missing stdio type definition for this ARCH/CPUTYPE/CPU
 #endif
