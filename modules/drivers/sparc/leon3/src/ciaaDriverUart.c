@@ -47,6 +47,8 @@
 #include "ciaaDriverUart.h"
 #include "ciaaDriverUart_Internal.h"
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_stddef.h"
+#include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_ioctl_serial.h"
 
