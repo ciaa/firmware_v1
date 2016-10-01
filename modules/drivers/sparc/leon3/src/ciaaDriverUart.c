@@ -55,7 +55,7 @@
 /*==================[macros and definitions]=================================*/
 
 
-#define SPARC_MAX_UART_COUNT      4
+#define SPARC_DRIVER_UART_MAX_DEVICE_COUNT      4
 
 #define SPARC_DRIVER_UART_NOMINAL_DEVICE_NAME_STRING "uart/X"
 #define SPARC_DRIVER_UART_NOMINAL_DEVICE_NAME_STRLEN 6
@@ -64,18 +64,15 @@
 /*==================[internal data declaration]==============================*/
 
 
-
-
 /*==================[internal functions declaration]=========================*/
 
 
 /*==================[internal data definition]===============================*/
 
 
-char sparcStaticUartDeviceNamesBuffer[(SPARC_DRIVER_UART_NOMINAL_DEVICE_NAME_STRLEN+1) * SPARC_MAX_UART_COUNT];
+char sparcStaticUartDeviceNamesBuffer[(SPARC_DRIVER_UART_NOMINAL_DEVICE_NAME_STRLEN+1) * SPARC_DRIVER_UART_MAX_DEVICE_COUNT];
 
-sparcDriverUartInfoType sparcDriverUartInfo[SPARC_MAX_UART_COUNT];
-
+sparcDriverUartInfoType sparcDriverUartInfo[SPARC_DRIVER_UART_MAX_DEVICE_COUNT];
 
 uint32 sparcDriverUartCount;
 
@@ -108,7 +105,7 @@ void sparcDriverUartInitQueue(sparcDriverUartQueueType *queue)
 }
 
 
-sint32 sparcDriverUartQueueIsEmpty(sparcDriverUartQueueType *queue)
+int32_t sparcDriverUartQueueIsEmpty(sparcDriverUartQueueType *queue)
 {
    int32_t queueIsEmptyAnswer;
 
@@ -123,24 +120,14 @@ sint32 sparcDriverUartQueueIsEmpty(sparcDriverUartQueueType *queue)
 }
 
 
-sint32 sparcDriverUartQueueIsFull(sparcDriverUartQueueType *queue)
+int32_t sparcDriverUartQueueIsFull(sparcDriverUartQueueType *queue)
 {
    int32_t queueIsFullAnswer;
    uint32_t nextTail;
 
    queueIsFullAnswer = 0;
 
-   /* Determine if we have the space. In doing so
-    * avoid doing division, because we might not
-    * have the hardware resources to do it fast
-    * (sparc mul/div instructions might be disabled)*/
-   nextTail = queue->tail + 1;
-   if (nextTail >= SPARC_DRIVER_QUEUE_LENGHT)
-   {
-      nextTail -= SPARC_DRIVER_QUEUE_LENGHT;
-   }
-
-   if (queue->head == nextTail)
+   if (queue->count == SPARC_DRIVER_UART_QUEUE_LENGHT)
    {
       queueIsFullAnswer = 1;
    }
@@ -153,20 +140,21 @@ void sparcDriverUartQueuePush(sparcDriverUartQueueType *queue, uint8_t dataItem)
 {
    uint32_t nextTail;
 
-   /* Determine if we have the space. In doing so
-    * avoid doing division, because we might not
-    * have the hardware resources to do it fast
-    * (sparc mul/div instructions might be disabled)*/
-   nextTail = queue->tail + 1;
-   if (nextTail >= SPARC_DRIVER_QUEUE_LENGHT)
-   {
-      nextTail -= SPARC_DRIVER_QUEUE_LENGHT;
-   }
-
-   if (queue->head != nextTail)
+   if (queue->count < SPARC_DRIVER_UART_QUEUE_LENGHT)
    {
       /* the is at least one available space on the circular buffer.
        * the current next pointer value is the index of that position. */
+
+      /* Calculate the new tail pointer. In doing so
+       * avoid doing division, because we might not
+       * have the hardware resources to do it fast
+       * (sparc mul/div instructions might be disabled)*/
+      nextTail = queue->tail + 1;
+      if (nextTail >= SPARC_DRIVER_UART_QUEUE_LENGHT)
+      {
+         nextTail -= SPARC_DRIVER_UART_QUEUE_LENGHT;
+      }
+
       queue->buffer[queue->tail] = dataItem;
 
       /* Update the tail of the queue and the byte count */
@@ -182,18 +170,19 @@ int32_t sparcDriverUartQueuePop(sparcDriverUartQueueType *queue, uint8_t *dataIt
 
    returnValue = -1;
 
-   if (queue->head != queue->tail)
+   if (queue->count > 0)
    {
       /* there is at least one element on the queue */
       returnValue = 0;
 
       *dataItemPtr = queue->buffer[queue->head];
 
-      /* Avoid doing divisions, look elsewhere for the reason */
+      /* Avoid doing divisions, look in sparcDriverUartQueuePush() for
+       * the reason */
       queue->head++;
-      if (queue->head >= SPARC_DRIVER_QUEUE_LENGHT)
+      if (queue->head >= SPARC_DRIVER_UART_QUEUE_LENGHT)
       {
-         queue->head -= SPARC_DRIVER_QUEUE_LENGHT;
+         queue->head -= SPARC_DRIVER_UART_QUEUE_LENGHT;
       }
 
       /* Update the byte count */
@@ -217,8 +206,10 @@ void sparcDriverUartDetectCoreConfiguration()
 
    /* Detect the number of UARTs available, and the base address of each
     * using the AMBA PnP system. */
+
    sparcDriverUartCount = 0;
-   while ((sparcDriverUartCount< SPARC_MAX_UART_COUNT)
+
+   while ((sparcDriverUartCount < SPARC_DRIVER_UART_MAX_DEVICE_COUNT)
          && (grWalkPlugAndPlayAPBDeviceTable(GRLIB_PNP_VENDOR_ID_GAISLER_RESEARCH, GRLIB_PNP_DEVICE_ID_APBUART, &apbUartInfo, sparcDriverUartCount) >= 0))
    {
       sparcDriverUartInfo[sparcDriverUartCount].baseAddress = apbUartInfo.address;
@@ -226,6 +217,7 @@ void sparcDriverUartDetectCoreConfiguration()
 
       /* Detect the presence of FIFOS on this UART */
       controlRegisterValue = grRegisterRead(apbUartInfo.address, GRLIB_APBUART_CONTROL_REGISTER);
+
       if (controlRegisterValue & GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_FA)
       {
          sparcDriverUartInfo[sparcDriverUartCount].hasFIFOs = 1;
@@ -249,10 +241,10 @@ void sparcDriverUpdateControlRegister(sparcDriverUartInfoType *uartDataStructPtr
     * */
    sparcAssert(uartDataStructPtr->numberOfStopBits >= 1, "Invalid configuration");
    sparcAssert(uartDataStructPtr->numberOfStopBits <= 2, "Invalid configuration");
-   sparcAssert(uartDataStructPtr->flowControl <= 1, "Invalid configuration");
+   sparcAssert(uartDataStructPtr->enableFlowControl <= 1, "Invalid configuration");
    sparcAssert(uartDataStructPtr->useParity <= 1, "Invalid configuration");
    sparcAssert(uartDataStructPtr->useOddParity <= 1, "Invalid configuration");
-   sparcAssert(uartDataStructPtr->loopbackEnabled <= 1, "Invalid configuration");
+   sparcAssert(uartDataStructPtr->enableLoopback <= 1, "Invalid configuration");
    sparcAssert(uartDataStructPtr->externalClkEnabled <= 1, "Invalid configuration");
    sparcAssert(uartDataStructPtr->txInterruptEnabled <= 1, "Invalid configuration");
    sparcAssert(uartDataStructPtr->rxInterruptEnabled <= 1, "Invalid configuration");
@@ -261,10 +253,10 @@ void sparcDriverUpdateControlRegister(sparcDriverUartInfoType *uartDataStructPtr
     * Set user configuration flags
     * */
    if (uartDataStructPtr->numberOfStopBits == 2)   controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_NS;
-   if (uartDataStructPtr->flowControl == 1)        controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_FL;
+   if (uartDataStructPtr->enableFlowControl == 1)  controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_FL;
    if (uartDataStructPtr->useParity == 1)          controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_PE;
    if (uartDataStructPtr->useOddParity == 1)       controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_PS;
-   if (uartDataStructPtr->loopbackEnabled == 1)    controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_LB;
+   if (uartDataStructPtr->enableLoopback == 1)     controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_LB;
    if (uartDataStructPtr->externalClkEnabled == 1) controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_EC;
 
    /*
@@ -277,18 +269,14 @@ void sparcDriverUpdateControlRegister(sparcDriverUartInfoType *uartDataStructPtr
 
    if (uartDataStructPtr->hasFIFOs == 1)
    {
-      /*
-       * Tx Interrupts
-       * */
+      /* TX Interrupts */
       if (uartDataStructPtr->txInterruptEnabled == 1)
       {
          /* Generate tx interrupts whenever the FIFO is at least half empty */
          controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_TF; /* Transmitter FIFO interrupt enable */
       }
 
-      /*
-       * Rx Interrupts
-       * */
+      /* RX Interrupts */
       if (uartDataStructPtr->rxInterruptEnabled == 1)
       {
          /* Generate rx interrupts whenever the FIFO is at least half full, or if it is less than half full but no new characters have been
@@ -300,18 +288,14 @@ void sparcDriverUpdateControlRegister(sparcDriverUartInfoType *uartDataStructPtr
 
    } else {
 
-      /*
-       * Tx Interrupts
-       * */
+      /* TX Interrupts */
       if (uartDataStructPtr->txInterruptEnabled == 1)
       {
          /* Generate tx interrupts whenever the holding register goes from full to empty */
          controlRegisterValue |= GRLIB_FLAG_MASK_APBUART_CONTROL_REGISTER_TI; /* Transmitter interrupt enable */
       }
 
-      /*
-       * Rx Interrupts
-       * */
+      /* RX Interrupts */
       if (uartDataStructPtr->rxInterruptEnabled)
       {
          /* Generate rx interrupts whenever the holding register goes from empty to occupied */
@@ -323,7 +307,7 @@ void sparcDriverUpdateControlRegister(sparcDriverUartInfoType *uartDataStructPtr
 }
 
 
-void sparcDriverUpdateScalerRegister(sparcDriverUartInfoType *uartDataStructPtr)
+void sparcDriverUartUpdateScalerRegister(sparcDriverUartInfoType *uartDataStructPtr)
 {
    uint32_t quotientNumerator, quotientDenominator;
    uint32_t scalerInputClockFrequency;
@@ -346,7 +330,7 @@ void sparcDriverUpdateScalerRegister(sparcDriverUartInfoType *uartDataStructPtr)
 }
 
 
-void sparcDriverEnableRxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
+void sparcDriverUartEnableRxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
 {
    uartDataStructPtr->rxInterruptEnabled = 1;
 
@@ -354,7 +338,7 @@ void sparcDriverEnableRxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
 }
 
 
-void sparcDriverDisableRxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
+void sparcDriverUartDisableRxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
 {
    uartDataStructPtr->rxInterruptEnabled = 0;
 
@@ -362,7 +346,7 @@ void sparcDriverDisableRxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
 }
 
 
-void sparcDriverEnableTxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
+void sparcDriverUartEnableTxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
 {
    uartDataStructPtr->txInterruptEnabled = 1;
 
@@ -370,7 +354,7 @@ void sparcDriverEnableTxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
 }
 
 
-void sparcDriverDisableTxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
+void sparcDriverUartDisableTxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
 {
    uartDataStructPtr->txInterruptEnabled = 0;
 
@@ -378,7 +362,7 @@ void sparcDriverDisableTxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
 }
 
 
-int32_t sparcDriverRxBufferIsEmpty(sparcDriverUartInfoType *uartDataStructPtr)
+int32_t sparcDriverUartRxBufferIsEmpty(sparcDriverUartInfoType *uartDataStructPtr)
 {
    grDeviceRegisterValue statusRegisterValue;
    int32_t retValue;
@@ -391,7 +375,9 @@ int32_t sparcDriverRxBufferIsEmpty(sparcDriverUartInfoType *uartDataStructPtr)
    {
       /* Not empty, data ready */
       retValue = 0;
+
    } else {
+
       /* Empty, no data on the holding/FIFO register */
       retValue = 1;
    }
@@ -400,7 +386,7 @@ int32_t sparcDriverRxBufferIsEmpty(sparcDriverUartInfoType *uartDataStructPtr)
 }
 
 
-int32_t sparcDriverTxBufferIsFull(sparcDriverUartInfoType *uartDataStructPtr)
+int32_t sparcDriverUartTxBufferIsFull(sparcDriverUartInfoType *uartDataStructPtr)
 {
    grDeviceRegisterValue statusRegisterValue;
    int32_t isFull;
@@ -412,7 +398,7 @@ int32_t sparcDriverTxBufferIsFull(sparcDriverUartInfoType *uartDataStructPtr)
    if (uartDataStructPtr->hasFIFOs == 0)
    {
       /* No FIFOs, just a single transmitter holding register.
-       * Therefore if not empty, is full. */
+       * Therefore if not empty, then it is full. */
       if ((statusRegisterValue & GRLIB_FLAG_MASK_APBUART_STATUS_REGISTER_TE) == 0)
       {
          isFull = 1;
@@ -432,7 +418,7 @@ int32_t sparcDriverTxBufferIsFull(sparcDriverUartInfoType *uartDataStructPtr)
 }
 
 
-void sparcDriverKickstartTxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
+void sparcDriverUartKickstartTxInterrupts(sparcDriverUartInfoType *uartDataStructPtr)
 {
 
    if (uartDataStructPtr->hasFIFOs == 1)
@@ -450,29 +436,27 @@ void sparcDriverKickstartTxInterrupts(sparcDriverUartInfoType *uartDataStructPtr
    } else {
 
       /*
-       * Now here we are in some deep shit.
-       *
        * The standard transmitter interrupt of the APBUART core is not a level interrupt,
        * but is only emitted when the holding register transitions from being full to empty.
        *
        * That means that in order for the transmission to start it is no enough to enable the
-       * transmission interrupt, we must also manually load the holding register with the
+       * transmission interrupts, but we must also manually load the holding register with the
        * first byte or otherwise no further interrupts will ever be generated and nothing
        * will be transmitted.
        *
        * */
 
-      /* If interrupts are already enabled, no kickstart is needed because the
-       * next transmitter interrupt will send the data anyway. */
+      /* If interrupts are already enabled, no kickstart is needed because there
+       * already is a transmission underway */
       if (uartDataStructPtr->txInterruptEnabled == 0)
       {
-         ciaaSerialDevices_txConfirmation(uartDataStructPtr->deviceDataStructure, 1);
+         sparcDriverUartTxIndication(uartDataStructPtr);
       }
    }
 }
 
 
-int32_t sparcDriverSetBaudrate(sparcDriverUartInfoType *uartDataStructPtr, uint32_t ciaaBaudrate)
+int32_t sparcDriverUartSetBaudrate(sparcDriverUartInfoType *uartDataStructPtr, uint32_t ciaaBaudrate)
 {
    int32_t retValue;
 
@@ -500,14 +484,14 @@ int32_t sparcDriverSetBaudrate(sparcDriverUartInfoType *uartDataStructPtr, uint3
 
    if (retValue == 0)
    {
-      sparcDriverUpdateScalerRegister(uartDataStructPtr);
+      sparcDriverUartUpdateScalerRegister(uartDataStructPtr);
    }
 
    return retValue;
 }
 
 
-void sparcDriverUartInitializeControlStructures()
+void sparcDriverUartInitializeDeviceConfiguration()
 {
    uint32_t uartIndex;
 
@@ -515,14 +499,14 @@ void sparcDriverUartInitializeControlStructures()
    {
       /* Set the initial configuration */
       sparcDriverUartInfo[uartIndex].numberOfStopBits      = 1;
-      sparcDriverUartInfo[uartIndex].flowControl           = 0;
+      sparcDriverUartInfo[uartIndex].enableFlowControl     = 0;
       sparcDriverUartInfo[uartIndex].useParity             = 0;
       sparcDriverUartInfo[uartIndex].useOddParity          = 0;
-      sparcDriverUartInfo[uartIndex].loopbackEnabled       = 0;
+      sparcDriverUartInfo[uartIndex].enableLoopback        = 0;
 
       sparcDriverUartInfo[uartIndex].externalClkEnabled    = 0;
 
-      sparcDriverUartInfo[uartIndex].baudrate              = SPARC_DRIVER_DEFAULT_BAUDRATE;
+      sparcDriverUartInfo[uartIndex].baudrate              = SPARC_DRIVER_UART_DEFAULT_BAUDRATE;
 
       sparcDriverUartInfo[uartIndex].txInterruptEnabled    = 0;
       sparcDriverUartInfo[uartIndex].rxInterruptEnabled    = 0;
@@ -543,12 +527,12 @@ void sparcDriverUartInitializeControlStructures()
       sparcDriverUartInfo[uartIndex].deviceDataStructure.write   = ciaaDriverUart_write;
       sparcDriverUartInfo[uartIndex].deviceDataStructure.ioctl   = ciaaDriverUart_ioctl;
       sparcDriverUartInfo[uartIndex].deviceDataStructure.lseek   = NULL;
-      sparcDriverUartInfo[uartIndex].deviceDataStructure.upLayer = NULL; /** <= upper layer data */
+      sparcDriverUartInfo[uartIndex].deviceDataStructure.upLayer = NULL; /** <= upper layer data, will be set upon registration */
       sparcDriverUartInfo[uartIndex].deviceDataStructure.layer   = (void *)&sparcDriverUartInfo[uartIndex]; /** <= this layer's data */
-      sparcDriverUartInfo[uartIndex].deviceDataStructure.loLayer = (void *)uartIndex; /** <= lower layer data */
+      sparcDriverUartInfo[uartIndex].deviceDataStructure.loLayer = (void *)NULL; /** <= lower layer data, not used here */
 
       /* initially all the devices are closed */
-      sparcDriverUartInfo[uartIndex].deviceIsOpened = 0;
+      sparcDriverUartInfo[uartIndex].deviceIsOpen = 0;
 
       /* initialize the queues */
       sparcDriverUartInitQueue(&sparcDriverUartInfo[uartIndex].rxQueue);
@@ -562,7 +546,7 @@ void sparcDriverUartInitializeHardware()
 
    for (uartIndex = 0; uartIndex < sparcDriverUartCount; uartIndex++)
    {
-      sparcDriverUpdateScalerRegister(&sparcDriverUartInfo[uartIndex]);
+      sparcDriverUartUpdateScalerRegister(&sparcDriverUartInfo[uartIndex]);
       sparcDriverUpdateControlRegister(&sparcDriverUartInfo[uartIndex]);
    }
 }
@@ -579,13 +563,28 @@ void sparcDriverUartRegisterDrivers()
 }
 
 
-void sparcDriverServiceDevice(sparcDriverUartInfoType *uartDataStructPtr)
+void sparcDriverUartStartInterrupts()
+{
+   uint32_t uartIndex;
+
+   for (uartIndex = 0; uartIndex < sparcDriverUartCount; uartIndex++)
+   {
+      /* rx interrupts are on at all times */
+      sparcDriverUartEnableRxInterrupts(&sparcDriverUartInfo[uartIndex]);
+
+      /* tx interrupts are only enabled on demand when there is
+       * a pending transmission */
+   }
+}
+
+
+void sparcDriverUartServiceDeviceInterrupt(sparcDriverUartInfoType *uartDataStructPtr)
 {
    sparcAssert(uartDataStructPtr->deviceDataStructure->upLayer != NULL, "Missing information from the upper layer");
 
-   if (sparcDriverRxBufferIsEmpty(uartDataStructPtr) != 0)
+   if (sparcDriverUartRxBufferIsEmpty(uartDataStructPtr) == 0)
    {
-      while ( (sparcDriverRxBufferIsEmpty(uartDataStructPtr) == 0) && (sparcDriverUartQueueIsFull(&uartDataStructPtr->rxQueue) == 0) )
+      while ( (sparcDriverUartRxBufferIsEmpty(uartDataStructPtr) == 0) && (sparcDriverUartQueueIsFull(&uartDataStructPtr->rxQueue) == 0) )
       {
          sparcDriverUartQueuePush(&uartDataStructPtr->rxQueue, grRegisterRead(uartDataStructPtr->baseAddress, GRLIB_APBUART_DATA_REGISTER));
       }
@@ -594,7 +593,7 @@ void sparcDriverServiceDevice(sparcDriverUartInfoType *uartDataStructPtr)
    }
 
    if ( (uartDataStructPtr->txInterruptEnabled != 0)
-         && (sparcDriverTxBufferIsFull(uartDataStructPtr) == 0) )
+         && (sparcDriverUartTxBufferIsFull(uartDataStructPtr) == 0) )
    {
       /* Call the POSIX layer to fill the output buffer */
       sparcDriverUartTxIndication(uartDataStructPtr->deviceDataStructure, 1 );
@@ -603,10 +602,10 @@ void sparcDriverServiceDevice(sparcDriverUartInfoType *uartDataStructPtr)
        * In order to do that we check whether POSIX actually filled
        * the transmitter output buffers. */
 
-      if (sparcDriverTxBufferIsFull(uartDataStructPtr) == 0)
+      if (sparcDriverUartTxBufferIsFull(uartDataStructPtr) == 0)
       {
          /* There's empty space on the transmitter buffers, end of transmission. */
-         sparcDriverDisableTxInterrupts(uartDataStructPtr);
+         sparcDriverUartDisableTxInterrupts(uartDataStructPtr);
       }
    }
 }
@@ -623,12 +622,12 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevic
 
    /* if this is the first nested open of the device, make sure
     * the queues are flushed */
-   if (deviceControlStructurePtr->deviceIsOpened == 0)
+   if (deviceControlStructurePtr->deviceIsOpen == 0)
    {
       sparcDriverUartInitQueue(&deviceControlStructurePtr->rxQueue);
    }
 
-   deviceControlStructurePtr->deviceIsOpened++;
+   deviceControlStructurePtr->deviceIsOpen++;
 
    return device;
 }
@@ -640,9 +639,9 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 
    deviceControlStructurePtr = (sparcDriverUartInfoType *)device->layer;
 
-   if (deviceControlStructurePtr->deviceIsOpened != 0)
+   if (deviceControlStructurePtr->deviceIsOpen != 0)
    {
-      deviceControlStructurePtr->deviceIsOpened--;
+      deviceControlStructurePtr->deviceIsOpen--;
    }
 
    return 0;
@@ -661,32 +660,40 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
    switch(request)
    {
    case ciaaPOSIX_IOCTL_STARTTX:
-      sparcDriverKickstartTxInterrupts(deviceControlStructurePtr);
+
+      sparcDriverUartKickstartTxInterrupts(deviceControlStructurePtr);
       returnValue = 0;
+
       break;
 
    case ciaaPOSIX_IOCTL_SET_BAUDRATE:
-      returnValue = sparcDriverSetBaudrate(deviceControlStructurePtr, (int32_t)param);
+
+      returnValue = sparcDriverUartSetBaudrate(deviceControlStructurePtr, (int32_t)param);
+
       break;
 
    case ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT:
+
       if((bool)(intptr_t)param == false)
       {
-         sparcDriverDisableTxInterrupts(deviceControlStructurePtr);
+         sparcDriverUartDisableTxInterrupts(deviceControlStructurePtr);
       } else {
-         sparcDriverEnableTxInterrupts(deviceControlStructurePtr);
+         sparcDriverUartEnableTxInterrupts(deviceControlStructurePtr);
       }
       returnValue = 0;
+
       break;
 
    case ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT:
+
       if((bool)(intptr_t)param == false)
       {
-         sparcDriverDisableRxInterrupts(deviceControlStructurePtr);
+         sparcDriverUartDisableRxInterrupts(deviceControlStructurePtr);
       } else {
-         sparcDriverEnableRxInterrupts(deviceControlStructurePtr);
+         sparcDriverUartEnableRxInterrupts(deviceControlStructurePtr);
       }
       returnValue = 0;
+
       break;
    }
 
@@ -697,18 +704,17 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
 extern ssize_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t const size)
 {
    sparcDriverUartInfoType *deviceControlStructurePtr;
-   int32_t newByte;
    int32_t bytesRead;
+   uint8_t newByte;
 
    deviceControlStructurePtr = (sparcDriverUartInfoType *)device->layer;
 
    bytesRead = 0;
 
-   while ( (bytesRead < size) &&
-         ((newByte = sparcDriverUartQueuePop(&deviceControlStructurePtr->rxQueue)) >= 0) )
+   while ((bytesRead < size) && (sparcDriverUartQueuePop(&deviceControlStructurePtr->rxQueue, &newByte) >= 0))
    {
 
-      buffer[bytesRead] = (uint8_t)newByte;
+      buffer[bytesRead] = newByte;
       bytesRead++;
 
    }
@@ -726,7 +732,7 @@ extern ssize_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
 
    deviceControlStructurePtr = (sparcDriverUartInfoType *)device->layer;
 
-   while ((byteCount < size) && (sparcDriverTxBufferIsFull(deviceControlStructurePtr) == 0))
+   while ((byteCount < size) && (sparcDriverUartTxBufferIsFull(deviceControlStructurePtr) == 0))
    {
       grRegisterWrite(deviceControlStructurePtr->baseAddress, GRLIB_APBUART_DATA_REGISTER, buffer[byteCount]);
       byteCount++;
@@ -742,13 +748,16 @@ void ciaaDriverUart_init(void)
    sparcDriverUartDetectCoreConfiguration();
 
    /* Set the baseline configuration of each of the UARTS */
-   sparcDriverUartInitializeControlStructures();
+   sparcDriverUartInitializeDeviceConfiguration();
 
    /* Configure the initial baud rate, stop bits, etc. */
    sparcDriverUartInitializeHardware();
 
    /* Add drivers to the system */
    sparcDriverUartRegisterDrivers();
+
+   /* Start interrupt generation */
+   sparcDriverUartStartInterrupts();
 }
 
 
@@ -764,7 +773,7 @@ ISR(UART_IRQHandler)
 
    for(uartIndex = 0; uartIndex < sparcDriverUartCount; uartIndex++)
    {
-      sparcDriverServiceDevice(&sparcDriverUartInfo[uartIndex].deviceDataStructure);
+      sparcDriverUartServiceDeviceInterrupt(&sparcDriverUartInfo[uartIndex].deviceDataStructure);
    }
 }
 

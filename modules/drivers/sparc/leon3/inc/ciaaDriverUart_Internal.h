@@ -47,12 +47,15 @@
 /*==================[inclusions]=============================================*/
 
 
+#include "stdint.h"
+
+
 /*==================[macros]=================================================*/
 
 
-#define SPARC_DRIVER_DEFAULT_BAUDRATE 38400
+#define SPARC_DRIVER_UART_DEFAULT_BAUDRATE 38400
 
-#define SPARC_DRIVER_QUEUE_LENGHT 32
+#define SPARC_DRIVER_UART_QUEUE_LENGHT 32
 
 
 /*==================[typedef]================================================*/
@@ -60,7 +63,7 @@
 
 typedef struct {
 
-   uint8_t buffer[SPARC_DRIVER_QUEUE_LENGHT];
+   uint8_t buffer[SPARC_DRIVER_UART_QUEUE_LENGHT];
 
    uint32_t head;
    uint32_t tail;
@@ -68,6 +71,7 @@ typedef struct {
    uint32_t count;
 
 } sparcDriverUartQueueType;
+
 
 typedef struct {
 
@@ -78,10 +82,10 @@ typedef struct {
 
    /* UART configuration */
    uint32_t numberOfStopBits; /* Valid values: 1 or 2 */
-   uint32_t flowControl;
+   uint32_t enableFlowControl;
    uint32_t useParity;
    uint32_t useOddParity;
-   uint32_t loopbackEnabled;
+   uint32_t enableLoopback;
    uint32_t externalClkEnabled;
 
    /* Interrupts configuration */
@@ -92,7 +96,7 @@ typedef struct {
    uint32_t baudrate;
 
    /* device state configuration */
-   uint32_t deviceIsOpened;
+   uint32_t deviceIsOpen;
 
    /* rx and tx data queues */
    sparcDriverUartQueueType rxQueue;
