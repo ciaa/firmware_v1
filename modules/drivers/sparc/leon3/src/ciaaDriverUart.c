@@ -51,6 +51,7 @@
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_ioctl_serial.h"
+#include "os.h"
 
 #include "grlib.h"
 
@@ -61,6 +62,9 @@
 
 #define SPARC_DRIVER_UART_NOMINAL_DEVICE_NAME_STRING "uart/X"
 #define SPARC_DRIVER_UART_NOMINAL_DEVICE_NAME_STRLEN 6
+
+#define SPARC_DRIVER_UART_ENTER_CRITICAL() { DisableAllInterrupts(); }
+#define SPARC_DRIVER_UART_EXIT_CRITICAL()  { ResumeAllInterrupts();  }
 
 
 /*==================[internal data declaration]==============================*/
@@ -584,6 +588,8 @@ void sparcDriverUartServiceDeviceInterrupt(sparcDriverUartInfoType *uartDataStru
 {
    sparcAssert(uartDataStructPtr->deviceDataStructure->upLayer != NULL, "Missing information from the upper layer");
 
+   SPARC_DRIVER_UART_ENTER_CRITICAL();
+
    if (sparcDriverUartRxBufferIsEmpty(uartDataStructPtr) == 0)
    {
       while ( (sparcDriverUartRxBufferIsEmpty(uartDataStructPtr) == 0) && (sparcDriverUartQueueIsFull(&uartDataStructPtr->rxQueue) == 0) )
@@ -610,6 +616,8 @@ void sparcDriverUartServiceDeviceInterrupt(sparcDriverUartInfoType *uartDataStru
          sparcDriverUartDisableTxInterrupts(uartDataStructPtr);
       }
    }
+
+   SPARC_DRIVER_UART_EXIT_CRITICAL();
 }
 
 
@@ -622,6 +630,8 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevic
 
    deviceControlStructurePtr = (sparcDriverUartInfoType *)device->layer;
 
+   SPARC_DRIVER_UART_ENTER_CRITICAL();
+
    /* if this is the first nested open of the device, make sure
     * the queues are flushed */
    if (deviceControlStructurePtr->deviceIsOpen == 0)
@@ -630,6 +640,8 @@ extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevic
    }
 
    deviceControlStructurePtr->deviceIsOpen++;
+
+   SPARC_DRIVER_UART_EXIT_CRITICAL();
 
    return device;
 }
@@ -641,10 +653,14 @@ extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
 
    deviceControlStructurePtr = (sparcDriverUartInfoType *)device->layer;
 
+   SPARC_DRIVER_UART_ENTER_CRITICAL();
+
    if (deviceControlStructurePtr->deviceIsOpen != 0)
    {
       deviceControlStructurePtr->deviceIsOpen--;
    }
+
+   SPARC_DRIVER_UART_EXIT_CRITICAL();
 
    return 0;
 }
@@ -663,19 +679,24 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
    {
    case ciaaPOSIX_IOCTL_STARTTX:
 
+      SPARC_DRIVER_UART_ENTER_CRITICAL();
       sparcDriverUartKickstartTxInterrupts(deviceControlStructurePtr);
       returnValue = 0;
+      SPARC_DRIVER_UART_EXIT_CRITICAL();
 
       break;
 
    case ciaaPOSIX_IOCTL_SET_BAUDRATE:
 
+      SPARC_DRIVER_UART_ENTER_CRITICAL();
       returnValue = sparcDriverUartSetBaudrate(deviceControlStructurePtr, (int32_t)param);
+      SPARC_DRIVER_UART_EXIT_CRITICAL();
 
       break;
 
    case ciaaPOSIX_IOCTL_SET_ENABLE_TX_INTERRUPT:
 
+      SPARC_DRIVER_UART_ENTER_CRITICAL();
       if((bool)(intptr_t)param == false)
       {
          sparcDriverUartDisableTxInterrupts(deviceControlStructurePtr);
@@ -683,11 +704,13 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
          sparcDriverUartEnableTxInterrupts(deviceControlStructurePtr);
       }
       returnValue = 0;
+      SPARC_DRIVER_UART_EXIT_CRITICAL();
 
       break;
 
    case ciaaPOSIX_IOCTL_SET_ENABLE_RX_INTERRUPT:
 
+      SPARC_DRIVER_UART_ENTER_CRITICAL();
       if((bool)(intptr_t)param == false)
       {
          sparcDriverUartDisableRxInterrupts(deviceControlStructurePtr);
@@ -695,6 +718,7 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
          sparcDriverUartEnableRxInterrupts(deviceControlStructurePtr);
       }
       returnValue = 0;
+      SPARC_DRIVER_UART_EXIT_CRITICAL();
 
       break;
    }
@@ -713,6 +737,8 @@ extern ssize_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
 
    bytesRead = 0;
 
+   SPARC_DRIVER_UART_ENTER_CRITICAL();
+
    while ((bytesRead < size) && (sparcDriverUartQueuePop(&deviceControlStructurePtr->rxQueue, &newByte) >= 0))
    {
 
@@ -720,6 +746,8 @@ extern ssize_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, 
       bytesRead++;
 
    }
+
+   SPARC_DRIVER_UART_EXIT_CRITICAL();
 
    return bytesRead;
 }
@@ -734,11 +762,15 @@ extern ssize_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device,
 
    deviceControlStructurePtr = (sparcDriverUartInfoType *)device->layer;
 
+   SPARC_DRIVER_UART_ENTER_CRITICAL();
+
    while ((byteCount < size) && (sparcDriverUartTxBufferIsFull(deviceControlStructurePtr) == 0))
    {
       grRegisterWrite(deviceControlStructurePtr->baseAddress, GRLIB_APBUART_DATA_REGISTER, buffer[byteCount]);
       byteCount++;
    }
+
+   SPARC_DRIVER_UART_EXIT_CRITICAL();
 
    return byteCount;
 }
