@@ -41,9 +41,9 @@ AS = sparc-elf-as
 GDB = sparc-elf-gdb
 NM = sparc-elf-nm
 # COMPILER AND LINKER OPTIONS
-AFLAGS += -mcpu=v8
-CFLAGS += -c -Wall -fmessage-length=0 -msoft-float -mcpu=v8 -O2 
-LFLAGS += $(LINKSCRIPT) -msoft-float -mcpu=v8 
+AFLAGS += --warn -g -mcpu=v8
+CFLAGS += -g -O0 -c -Wall -fmessage-length=0 -msoft-float -mcpu=v8
+LFLAGS += -g -O0 $(LINKSCRIPT) -msoft-float -mcpu=v8 
 # Optional POST BUILD
 # No post-build for Gaisler leon3.
 ## POST_BUILD += arm-none-eabi-objcopy -v -O binary $(LD_TARGET) $(TARGET_NAME).bin

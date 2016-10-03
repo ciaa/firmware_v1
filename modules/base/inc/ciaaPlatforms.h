@@ -143,7 +143,7 @@ extern "C" {
 #define ciaa_pic              6
 
 /*** BOARD for ARCH=sparc CPUTYPE=leon3nfp ***/
-#define ciaa_leon3_nfp        7
+#define ciaa_leon3_fpga_nfp   7
 
 /****** CIAAPLATFORM_REGLENGTH ******/
 /** \brief definition of the lenght of the register */
