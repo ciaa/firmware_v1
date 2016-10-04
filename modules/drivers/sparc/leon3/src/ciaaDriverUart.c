@@ -805,7 +805,7 @@ ISR(UART_IRQHandler)
 
    for(uartIndex = 0; uartIndex < sparcDriverUartCount; uartIndex++)
    {
-      sparcDriverUartServiceDeviceInterrupt(&sparcDriverUartInfo[uartIndex].deviceDataStructure);
+      sparcDriverUartServiceDeviceInterrupt(&sparcDriverUartInfo[uartIndex]);
    }
 }
 
