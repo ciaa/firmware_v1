@@ -81,7 +81,7 @@ extern "C" {
 /** \brief ARCH cortexM0 */
 #define cortexM0              4
 /** \brief ARCH sparc */
-#define sparc                 5
+#define sparcV8               5
 
 
 /****** CPUTYPE macro definitions ******/

@@ -52,8 +52,8 @@
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_ioctl_serial.h"
 #include "os.h"
-
 #include "grlib.h"
+#include "sparcsyscalls.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -99,7 +99,7 @@ void sparcDriverUartRxIndication(ciaaDevices_deviceType const * const device, ui
 void sparcDriverUartTxIndication(ciaaDevices_deviceType const * const device)
 {
    /* receive the data and forward to upper layer */
-   ciaaSerialDevices_txConfirmation(device->upLayer, 1 );
+   ciaaSerialDevices_txConfirmation(device->upLayer, 1);
 }
 
 
@@ -129,7 +129,6 @@ int32_t sparcDriverUartQueueIsEmpty(sparcDriverUartQueueType *queue)
 int32_t sparcDriverUartQueueIsFull(sparcDriverUartQueueType *queue)
 {
    int32_t queueIsFullAnswer;
-   uint32_t nextTail;
 
    queueIsFullAnswer = 0;
 
@@ -208,7 +207,6 @@ void sparcDriverUartDetectCoreConfiguration()
 {
    grDeviceRegisterValue controlRegisterValue;
    grPlugAndPlayAPBDeviceTableEntryType apbUartInfo;
-   uint32_t deviceIndex;
 
    /* Detect the number of UARTs available, and the base address of each
     * using the AMBA PnP system. */
@@ -456,7 +454,7 @@ void sparcDriverUartKickstartTxInterrupts(sparcDriverUartInfoType *uartDataStruc
        * already is a transmission underway */
       if (uartDataStructPtr->txInterruptEnabled == 0)
       {
-         sparcDriverUartTxIndication(uartDataStructPtr);
+         sparcDriverUartTxIndication(&uartDataStructPtr->deviceDataStructure);
       }
    }
 }
@@ -500,6 +498,7 @@ int32_t sparcDriverUartSetBaudrate(sparcDriverUartInfoType *uartDataStructPtr, u
 void sparcDriverUartInitializeDeviceConfiguration()
 {
    uint32_t uartIndex;
+   char *devicePathString;
 
    for (uartIndex = 0; uartIndex < sparcDriverUartCount; uartIndex++)
    {
@@ -517,16 +516,15 @@ void sparcDriverUartInitializeDeviceConfiguration()
       sparcDriverUartInfo[uartIndex].txInterruptEnabled    = 0;
       sparcDriverUartInfo[uartIndex].rxInterruptEnabled    = 0;
 
-      sparcDriverUartInfo[uartIndex].deviceDataStructure.path =
-            sparcStaticUartDeviceNamesBuffer + uartIndex * (SPARC_DRIVER_UART_NOMINAL_DEVICE_NAME_STRLEN + 1);
+      devicePathString = sparcStaticUartDeviceNamesBuffer + uartIndex * (SPARC_DRIVER_UART_NOMINAL_DEVICE_NAME_STRLEN + 1);
 
-      ciaaPOSIX_strcpy(sparcDriverUartInfo[uartIndex].deviceDataStructure.path, SPARC_DRIVER_UART_NOMINAL_DEVICE_NAME_STRING);
+      ciaaPOSIX_strcpy(devicePathString, SPARC_DRIVER_UART_NOMINAL_DEVICE_NAME_STRING);
 
       /* Clearly, this naming scheme only works if sparcDriverUartCount < 10 */
       sparcAssert(uartIndex < 10, "Modify the device naming scheme!");
-      sparcDriverUartInfo[uartIndex].deviceDataStructure.path[SPARC_DRIVER_UART_NOMINAL_DEVICE_NAME_STRLEN - 1] =
-            '0' + uartIndex;
+      devicePathString[SPARC_DRIVER_UART_NOMINAL_DEVICE_NAME_STRLEN - 1] = '0' + uartIndex;
 
+      sparcDriverUartInfo[uartIndex].deviceDataStructure.path    = devicePathString;
       sparcDriverUartInfo[uartIndex].deviceDataStructure.open    = ciaaDriverUart_open;
       sparcDriverUartInfo[uartIndex].deviceDataStructure.close   = ciaaDriverUart_close;
       sparcDriverUartInfo[uartIndex].deviceDataStructure.read    = ciaaDriverUart_read;
@@ -586,7 +584,7 @@ void sparcDriverUartStartInterrupts()
 
 void sparcDriverUartServiceDeviceInterrupt(sparcDriverUartInfoType *uartDataStructPtr)
 {
-   sparcAssert(uartDataStructPtr->deviceDataStructure->upLayer != NULL, "Missing information from the upper layer");
+   sparcAssert(uartDataStructPtr->deviceDataStructure.upLayer != NULL, "Missing information from the upper layer");
 
    SPARC_DRIVER_UART_ENTER_CRITICAL();
 
@@ -597,14 +595,14 @@ void sparcDriverUartServiceDeviceInterrupt(sparcDriverUartInfoType *uartDataStru
          sparcDriverUartQueuePush(&uartDataStructPtr->rxQueue, grRegisterRead(uartDataStructPtr->baseAddress, GRLIB_APBUART_DATA_REGISTER));
       }
 
-      sparcDriverUartRxIndication(uartDataStructPtr->deviceDataStructure, sparcDriverUartQueueByteCount(&uartDataStructPtr->rxQueue));
+      sparcDriverUartRxIndication(&uartDataStructPtr->deviceDataStructure, sparcDriverUartQueueByteCount(&uartDataStructPtr->rxQueue));
    }
 
    if ( (uartDataStructPtr->txInterruptEnabled != 0)
          && (sparcDriverUartTxBufferIsFull(uartDataStructPtr) == 0) )
    {
       /* Call the POSIX layer to fill the output buffer */
-      sparcDriverUartTxIndication(uartDataStructPtr->deviceDataStructure, 1 );
+      sparcDriverUartTxIndication(&uartDataStructPtr->deviceDataStructure);
 
       /* Check if there are still more bytes pending to be sent.
        * In order to do that we check whether POSIX actually filled

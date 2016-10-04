@@ -47,8 +47,9 @@
 /*==================[inclusions]=============================================*/
 
 
-#include "stdint.h"
+#include "ciaaPOSIX_stdint.h"
 #include "ciaaDriverUart.h"
+#include "grlib.h"
 
 
 /*==================[macros]=================================================*/
