@@ -93,90 +93,90 @@ foreach ($controllers as $controller)
 <?php
    /* system configuration if the system is "CONTROL_SYSTEM" and observer is "NONE" */
    if ($system_type == "CONTROL_SYSTEM" && $observer_type == "NONE"): ?>
-<?    ?>float r_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float x_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float e_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float y_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float u_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>];
-<?    ?>float k_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "K_MATRIX")?>};
-<?    ?>Rtcs_ext_matrix_t matrix_array_<?=$count;?>[6];
-<?    ?>Rtcs_statefeedback_data_t controller_<?=$count;?> = {CONTROL_SYSTEM, NONE, <?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, r_data_<?=$count?>, x_data_<?=$count?>, 0, e_data_<?=$count;?>, u_data_<?=$count;?>, y_data_<?=$count;?>, k_data_<?=$count;?>, 0, 0, 0, 0, 0, 0, 0, &matrix_array_<?=$count;?>[0], &matrix_array_<?=$count?>[1], 0, &matrix_array_<?=$count?>[2], &matrix_array_<?=$count?>[3], &matrix_array_<?=$count?>[4], &matrix_array_<?=$count?>[5], 0, 0, 0, 0, 0, 0, 0, <?=$this->config->getValue("/RTCS/" . $controller, "SEND_FUNCTION")?>, Rtcs_ControlSystemEffort, Rtcs_NoneObserver};
+<?php    ?>float r_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float x_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float e_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float y_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float u_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>];
+<?php    ?>float k_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "K_MATRIX")?>};
+<?php    ?>Rtcs_ext_matrix_t matrix_array_<?=$count;?>[6];
+<?php    ?>Rtcs_statefeedback_data_t controller_<?=$count;?> = {CONTROL_SYSTEM, NONE, <?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, r_data_<?=$count?>, x_data_<?=$count?>, 0, e_data_<?=$count;?>, u_data_<?=$count;?>, y_data_<?=$count;?>, k_data_<?=$count;?>, 0, 0, 0, 0, 0, 0, 0, &matrix_array_<?=$count;?>[0], &matrix_array_<?=$count?>[1], 0, &matrix_array_<?=$count?>[2], &matrix_array_<?=$count?>[3], &matrix_array_<?=$count?>[4], &matrix_array_<?=$count?>[5], 0, 0, 0, 0, 0, 0, 0, <?=$this->config->getValue("/RTCS/" . $controller, "SEND_FUNCTION")?>, Rtcs_ControlSystemEffort, Rtcs_NoneObserver};
 <?php endif
 
    ?>
 <?php
    /* system configuration if the system is "CONTROL_SYSTEM" and observer is "FULL" */
    if ($system_type == "CONTROL_SYSTEM" && $observer_type == "FULL"): ?>
-<?    ?>float r_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float x_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float xo_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float e_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float u_y_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?> + <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>];
-<?    ?>float k_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "K_MATRIX")?>};
-<?    ?>float mf_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "FUND_MATRIX")?>};
-<?    ?>float mt_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "TRAN_MATRIX")?>};
-<?    ?>Rtcs_ext_matrix_t matrix_array_<?=$count;?>[10];
-<?    ?>Rtcs_statefeedback_data_t controller_<?=$count;?> = {CONTROL_SYSTEM, FULL, <?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>, r_data_<?=$count?>, x_data_<?=$count?>, xo_data_<?=$count;?>, e_data_<?=$count;?>, u_y_data_<?=$count;?>, &(u_y_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>]),k_data_<?=$count;?>, u_y_data_<?=$count;?>, 0, 0, 0, mf_data_<?=$count;?>, mt_data_<?=$count;?>, 0, &matrix_array_<?=$count;?>[0], &matrix_array_<?=$count?>[1], &matrix_array_<?=$count?>[2], &matrix_array_<?=$count?>[3], &matrix_array_<?=$count?>[4], &matrix_array_<?=$count?>[5], &matrix_array_<?=$count?>[6], &matrix_array_<?=$count?>[7], 0, 0, 0, &matrix_array_<?=$count?>[8], &matrix_array_<?=$count?>[9], 0, <?=$this->config->getValue("/RTCS/" . $controller, "SEND_FUNCTION")?>, Rtcs_ControlSystemEffort, Rtcs_FullObserver};
+<?php    ?>float r_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float x_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float xo_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float e_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float u_y_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?> + <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>];
+<?php    ?>float k_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "K_MATRIX")?>};
+<?php    ?>float mf_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "FUND_MATRIX")?>};
+<?php    ?>float mt_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "TRAN_MATRIX")?>};
+<?php    ?>Rtcs_ext_matrix_t matrix_array_<?=$count;?>[10];
+<?php    ?>Rtcs_statefeedback_data_t controller_<?=$count;?> = {CONTROL_SYSTEM, FULL, <?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>, r_data_<?=$count?>, x_data_<?=$count?>, xo_data_<?=$count;?>, e_data_<?=$count;?>, u_y_data_<?=$count;?>, &(u_y_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>]),k_data_<?=$count;?>, u_y_data_<?=$count;?>, 0, 0, 0, mf_data_<?=$count;?>, mt_data_<?=$count;?>, 0, &matrix_array_<?=$count;?>[0], &matrix_array_<?=$count?>[1], &matrix_array_<?=$count?>[2], &matrix_array_<?=$count?>[3], &matrix_array_<?=$count?>[4], &matrix_array_<?=$count?>[5], &matrix_array_<?=$count?>[6], &matrix_array_<?=$count?>[7], 0, 0, 0, &matrix_array_<?=$count?>[8], &matrix_array_<?=$count?>[9], 0, <?=$this->config->getValue("/RTCS/" . $controller, "SEND_FUNCTION")?>, Rtcs_ControlSystemEffort, Rtcs_FullObserver};
 <?php endif
 
    ?>
 <?php
    /* system configuration if the system is "CONTROL_SYSTEM" and observer is "REDUCED" */
    if ($system_type == "CONTROL_SYSTEM" && $observer_type == "REDUCED"): ?>
-<?    ?>float r_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float x_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float xo_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?> - <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>];
-<?    ?>float e_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float y_u_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?> + <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>];
-<?    ?>float k_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "K_MATRIX")?>};
-<?    ?>float l_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?> - <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "L_MATRIX")?>};
-<?    ?>float mf_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "FUND_MATRIX")?>};
-<?    ?>float mt_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "TRAN_MATRIX")?>};
-<?    ?>float xo_aux_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?> - <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>];
-<?    ?>Rtcs_ext_matrix_t matrix_array_<?=$count;?>[12];
-<?    ?>Rtcs_statefeedback_data_t controller_<?=$count;?> = {CONTROL_SYSTEM, REDUCED, <?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>, r_data_<?=$count?>, x_data_<?=$count?>, xo_data_<?=$count;?>, e_data_<?=$count;?>, &(y_u_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>]), y_u_data_<?=$count;?>,k_data_<?=$count;?>, y_u_data_<?=$count;?>, 0, 0, l_data_<?=$count;?>, mf_data_<?=$count;?>, mt_data_<?=$count;?>, xo_aux_data_<?=$count;?>, &matrix_array_<?=$count;?>[0], &matrix_array_<?=$count?>[1], &matrix_array_<?=$count?>[2], &matrix_array_<?=$count?>[3], &matrix_array_<?=$count?>[4], &matrix_array_<?=$count?>[5], &matrix_array_<?=$count?>[6], &matrix_array_<?=$count?>[7], 0, 0, &matrix_array_<?=$count?>[8], &matrix_array_<?=$count?>[9], &matrix_array_<?=$count?>[10], &matrix_array_<?=$count?>[11], <?=$this->config->getValue("/RTCS/" . $controller, "SEND_FUNCTION")?>, Rtcs_ControlSystemEffort, Rtcs_ReducedObserver};
+<?php    ?>float r_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float x_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float xo_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?> - <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>];
+<?php    ?>float e_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float y_u_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?> + <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>];
+<?php    ?>float k_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "K_MATRIX")?>};
+<?php    ?>float l_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?> - <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "L_MATRIX")?>};
+<?php    ?>float mf_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "FUND_MATRIX")?>};
+<?php    ?>float mt_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "TRAN_MATRIX")?>};
+<?php    ?>float xo_aux_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?> - <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>];
+<?php    ?>Rtcs_ext_matrix_t matrix_array_<?=$count;?>[12];
+<?php    ?>Rtcs_statefeedback_data_t controller_<?=$count;?> = {CONTROL_SYSTEM, REDUCED, <?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>, r_data_<?=$count?>, x_data_<?=$count?>, xo_data_<?=$count;?>, e_data_<?=$count;?>, &(y_u_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>]), y_u_data_<?=$count;?>,k_data_<?=$count;?>, y_u_data_<?=$count;?>, 0, 0, l_data_<?=$count;?>, mf_data_<?=$count;?>, mt_data_<?=$count;?>, xo_aux_data_<?=$count;?>, &matrix_array_<?=$count;?>[0], &matrix_array_<?=$count?>[1], &matrix_array_<?=$count?>[2], &matrix_array_<?=$count?>[3], &matrix_array_<?=$count?>[4], &matrix_array_<?=$count?>[5], &matrix_array_<?=$count?>[6], &matrix_array_<?=$count?>[7], 0, 0, &matrix_array_<?=$count?>[8], &matrix_array_<?=$count?>[9], &matrix_array_<?=$count?>[10], &matrix_array_<?=$count?>[11], <?=$this->config->getValue("/RTCS/" . $controller, "SEND_FUNCTION")?>, Rtcs_ControlSystemEffort, Rtcs_ReducedObserver};
 <?php endif
 
    ?>
 <?php
    /* system configuration if the system is "REGULATOR" and observer is "NONE" */
    if ($system_type == "REGULATOR" && $observer_type == "NONE"): ?>
-<?    ?>float x_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float y_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float u_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>];
-<?    ?>float k_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "K_MATRIX")?>};
-<?    ?>Rtcs_ext_matrix_t matrix_array_<?=$count;?>[4];
-<?    ?>Rtcs_statefeedback_data_t controller_<?=$count;?> = {REGULATOR, NONE, <?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>, 0, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, 0, <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, 0, x_data_<?=$count?>, 0, 0, u_data_<?=$count;?>, y_data_<?=$count;?>, k_data_<?=$count;?>, 0, 0, 0, 0, 0, 0, 0, 0, &matrix_array_<?=$count?>[0], 0, 0, &matrix_array_<?=$count?>[1], &matrix_array_<?=$count?>[2], &matrix_array_<?=$count?>[3], 0, 0, 0, 0, 0, 0, 0, <?=$this->config->getValue("/RTCS/" . $controller, "SEND_FUNCTION")?>, Rtcs_RegulatorControlEffort, Rtcs_NoneObserver};
+<?php    ?>float x_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float y_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float u_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>];
+<?php    ?>float k_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "K_MATRIX")?>};
+<?php    ?>Rtcs_ext_matrix_t matrix_array_<?=$count;?>[4];
+<?php    ?>Rtcs_statefeedback_data_t controller_<?=$count;?> = {REGULATOR, NONE, <?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>, 0, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, 0, <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, 0, x_data_<?=$count?>, 0, 0, u_data_<?=$count;?>, y_data_<?=$count;?>, k_data_<?=$count;?>, 0, 0, 0, 0, 0, 0, 0, 0, &matrix_array_<?=$count?>[0], 0, 0, &matrix_array_<?=$count?>[1], &matrix_array_<?=$count?>[2], &matrix_array_<?=$count?>[3], 0, 0, 0, 0, 0, 0, 0, <?=$this->config->getValue("/RTCS/" . $controller, "SEND_FUNCTION")?>, Rtcs_RegulatorControlEffort, Rtcs_NoneObserver};
 <?php endif
 
    ?>
 <?php
    /* system configuration if the system is "REGULATOR" and observer is "FULL" */
 if ($system_type == "REGULATOR" && $observer_type == "FULL"): ?>
-<?    ?>float x_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float xo_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float u_y_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?> + <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>];
-<?    ?>float k_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "K_MATRIX")?>};
-<?    ?>float mf_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "FUND_MATRIX")?>};
-<?    ?>float mt_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "TRAN_MATRIX")?>};
-<?    ?>Rtcs_ext_matrix_t matrix_array_<?=$count;?>[8];
-<?    ?>Rtcs_statefeedback_data_t controller_<?=$count;?> = {REGULATOR, FULL, <?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>, 0, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, 0, <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>, 0, x_data_<?=$count?>, xo_data_<?=$count;?>, 0, u_y_data_<?=$count;?>, &(u_y_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>]),k_data_<?=$count;?>, u_y_data_<?=$count;?>, 0, 0, 0, mf_data_<?=$count;?>, mt_data_<?=$count;?>, 0, 0, &matrix_array_<?=$count?>[0], &matrix_array_<?=$count?>[1], 0, &matrix_array_<?=$count?>[2], &matrix_array_<?=$count?>[3], &matrix_array_<?=$count?>[4], &matrix_array_<?=$count?>[5], 0, 0, 0, &matrix_array_<?=$count?>[6], &matrix_array_<?=$count?>[7], 0, <?=$this->config->getValue("/RTCS/" . $controller, "SEND_FUNCTION")?>, Rtcs_RegulatorControlEffort, Rtcs_FullObserver};
+<?php    ?>float x_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float xo_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float u_y_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?> + <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>];
+<?php    ?>float k_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "K_MATRIX")?>};
+<?php    ?>float mf_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "FUND_MATRIX")?>};
+<?php    ?>float mt_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "TRAN_MATRIX")?>};
+<?php    ?>Rtcs_ext_matrix_t matrix_array_<?=$count;?>[8];
+<?php    ?>Rtcs_statefeedback_data_t controller_<?=$count;?> = {REGULATOR, FULL, <?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>, 0, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, 0, <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>, 0, x_data_<?=$count?>, xo_data_<?=$count;?>, 0, u_y_data_<?=$count;?>, &(u_y_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>]),k_data_<?=$count;?>, u_y_data_<?=$count;?>, 0, 0, 0, mf_data_<?=$count;?>, mt_data_<?=$count;?>, 0, 0, &matrix_array_<?=$count?>[0], &matrix_array_<?=$count?>[1], 0, &matrix_array_<?=$count?>[2], &matrix_array_<?=$count?>[3], &matrix_array_<?=$count?>[4], &matrix_array_<?=$count?>[5], 0, 0, 0, &matrix_array_<?=$count?>[6], &matrix_array_<?=$count?>[7], 0, <?=$this->config->getValue("/RTCS/" . $controller, "SEND_FUNCTION")?>, Rtcs_RegulatorControlEffort, Rtcs_FullObserver};
 <?php endif
 
    ?>
 <?php
    /* system configuration if the system is "REGULATOR" and observer is "REDUCED" */
    if ($system_type == "REGULATOR" && $observer_type == "REDUCED"): ?>
-<?    ?>float x_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
-<?    ?>float xo_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?> - <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>];
-<?    ?>float y_u_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?> + <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>];
-<?    ?>float k_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "K_MATRIX")?>};
-<?    ?>float l_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?> - <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "L_MATRIX")?>};
-<?    ?>float mf_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "FUND_MATRIX")?>};
-<?    ?>float mt_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "TRAN_MATRIX")?>};
-<?    ?>float xo_aux_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?> - <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>];
-<?    ?>Rtcs_ext_matrix_t matrix_array_<?=$count;?>[10];
-<?    ?>Rtcs_statefeedback_data_t controller_<?=$count;?> = {REGULATOR, REDUCED, <?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>, 0, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, 0, <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>, 0, x_data_<?=$count?>, xo_data_<?=$count;?>, 0, &(y_u_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>]), y_u_data_<?=$count;?>,k_data_<?=$count;?>, y_u_data_<?=$count;?>, 0, 0, l_data_<?=$count;?>, mf_data_<?=$count;?>, mt_data_<?=$count;?>, xo_aux_data_<?=$count;?>, 0, &matrix_array_<?=$count?>[0], &matrix_array_<?=$count?>[1], 0, &matrix_array_<?=$count?>[2], &matrix_array_<?=$count?>[3], &matrix_array_<?=$count?>[4], &matrix_array_<?=$count?>[5], 0, 0, &matrix_array_<?=$count?>[6], &matrix_array_<?=$count?>[7], &matrix_array_<?=$count?>[8], &matrix_array_<?=$count?>[9], <?=$this->config->getValue("/RTCS/" . $controller, "SEND_FUNCTION")?>, Rtcs_RegulatorControlEffort, Rtcs_ReducedObserver};
+<?php    ?>float x_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>];
+<?php    ?>float xo_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?> - <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>];
+<?php    ?>float y_u_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?> + <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>];
+<?php    ?>float k_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "K_MATRIX")?>};
+<?php    ?>float l_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?> - <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>] = {<?=$this->config->getValue("/RTCS/" . $controller, "L_MATRIX")?>};
+<?php    ?>float mf_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "FUND_MATRIX")?>};
+<?php    ?>float mt_data_<?=$count;?>[] = {<?=$this->config->getValue("/RTCS/" . $controller, "TRAN_MATRIX")?>};
+<?php    ?>float xo_aux_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?> - <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>];
+<?php    ?>Rtcs_ext_matrix_t matrix_array_<?=$count;?>[10];
+<?php    ?>Rtcs_statefeedback_data_t controller_<?=$count;?> = {REGULATOR, REDUCED, <?=$this->config->getValue("/RTCS/" . $controller, "PERIOD")?>, 0, <?=$this->config->getValue("/RTCS/" . $controller, "X_SIZE")?>, 0, <?=$this->config->getValue("/RTCS/" . $controller, "U_SIZE")?>, <?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>, 0, x_data_<?=$count?>, xo_data_<?=$count;?>, 0, &(y_u_data_<?=$count;?>[<?=$this->config->getValue("/RTCS/" . $controller, "Y_SIZE")?>]), y_u_data_<?=$count;?>,k_data_<?=$count;?>, y_u_data_<?=$count;?>, 0, 0, l_data_<?=$count;?>, mf_data_<?=$count;?>, mt_data_<?=$count;?>, xo_aux_data_<?=$count;?>, 0, &matrix_array_<?=$count?>[0], &matrix_array_<?=$count?>[1], 0, &matrix_array_<?=$count?>[2], &matrix_array_<?=$count?>[3], &matrix_array_<?=$count?>[4], &matrix_array_<?=$count?>[5], 0, 0, &matrix_array_<?=$count?>[6], &matrix_array_<?=$count?>[7], &matrix_array_<?=$count?>[8], &matrix_array_<?=$count?>[9], <?=$this->config->getValue("/RTCS/" . $controller, "SEND_FUNCTION")?>, Rtcs_RegulatorControlEffort, Rtcs_ReducedObserver};
 <?php endif
 
    ?>
