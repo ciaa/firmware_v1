@@ -1,8 +1,12 @@
 # LWIP for Computadora Industrial Abierta Argentina
 
-This LWIP hace been downloade from [LPCOpen v2.16 LPCXpresso](http://cache.nxp.com/files/microcontrollers/software/LPCWare/lpcopen_2_16_lpcxpresso_nxp_lpcxpresso_4337.zip) an then patched.
+LWIP drivers has been downloaded from [LPCOpen v2.16 LPCXpresso](http://cache.nxp.com/files/microcontrollers/software/LPCWare/lpcopen_2_16_lpcxpresso_nxp_lpcxpresso_4337.zip) an then patched.
 
-The LPCOpen v2.16 LPCXpresso can be download from [LPCOPEN-SOFTWARE-FOR-LPC43XX: LPCOpen Software Development Platform LPC43XX](http://www.nxp.com/products/microcontrollers-and-processors/arm-processors/lpc-cortex-m-mcus/lpc-cortex-m3/lpc1800-cortex-m3/lpcopen-software-development-platform-lpc43xx:LPCOPEN-SOFTWARE-FOR-LPC43XX?code=LPCOPEN-SOFTWARE-FOR-LPC43XX&nodeId=0150522FC850404BF04A3A&fpsp=1&tab=Design_Tools_Tab)
+The LPCOpen v2.16 LPCXpresso can be downloaded from [LPCOPEN-SOFTWARE-FOR-LPC43XX: LPCOpen Software Development Platform LPC43XX](http://www.nxp.com/products/microcontrollers-and-processors/arm-processors/lpc-cortex-m-mcus/lpc-cortex-m3/lpc1800-cortex-m3/lpcopen-software-development-platform-lpc43xx:LPCOPEN-SOFTWARE-FOR-LPC43XX?code=LPCOPEN-SOFTWARE-FOR-LPC43XX&nodeId=0150522FC850404BF04A3A&fpsp=1&tab=Design_Tools_Tab)
+
+LWIP is a submodule from official repository.
+
+At the moment IPv6 and ppp files has not been tested. Only LWIP version 1.4.1 runs without problems.
 
 The copyright for each file taken is wrote in the sourcecode file.
 

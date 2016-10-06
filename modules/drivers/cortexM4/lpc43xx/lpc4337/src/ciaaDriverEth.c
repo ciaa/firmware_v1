@@ -50,7 +50,7 @@
 #include "chip.h"
 
 /** from LWIP */
-#include "arch/lpc_phy.h"
+#include "lpc_phy.h"
 #include "arch/lpc18xx_43xx_emac.h"
 #include "arch/lpc_arch.h"
 #include "netif/etharp.h"
