@@ -51,7 +51,7 @@ DIL DIO_DIL {
 
    DIO exp-430f5529_config {
 
-      #CHANNEL NAMED "LED1" CONFIGURATION FOR: Led1 of exp-430f5529 board
+      /*CHANNEL NAMED "LED1" CONFIGURATION FOR: Led1 of exp-430f5529 board*/
       PIN LED1 {
          PORT        = 1;
          PIN         = 0;
@@ -59,7 +59,7 @@ DIL DIO_DIL {
          INVERTED    = FALSE;
       }
 
-      #CHANNEL NAMED "LED2" CONFIGURATION FOR: Led2 for exp-430f5529 board
+      /*CHANNEL NAMED "LED2" CONFIGURATION FOR: Led2 for exp-430f5529 board*/
       PIN LED2 {
          PORT        = 8;
          PIN         = 1;
@@ -67,7 +67,7 @@ DIL DIO_DIL {
          INVERTED    = FALSE;
       }
 
-      #CHANNEL NAMED "LED2" CONFIGURATION FOR: Led3 for exp-430f5529 board
+      /*CHANNEL NAMED "LED2" CONFIGURATION FOR: Led3 for exp-430f5529 board*/
       PIN LED3 {
          PORT        = 8;
          PIN         = 3;
@@ -75,7 +75,7 @@ DIL DIO_DIL {
          INVERTED    = FALSE;
       }
 
-      #CHANNEL NAMED "KEY1" CONFIGURATION FOR:  key 1 (s1) for exp-430f5529 board
+      /*CHANNEL NAMED "KEY1" CONFIGURATION FOR:  key 1 (s1) for exp-430f5529 board*/
       PIN KEY1 {
          PORT        = 1;
          PIN         = 7;
@@ -84,7 +84,7 @@ DIL DIO_DIL {
          NOTIFICATION = TRUE;
       }
 
-      # CHANNEL NAMED "KEY2" CONFIGURATION FOR:  key 2 (s2) for exp-430f5529 board
+      /*CHANNEL NAMED "KEY2" CONFIGURATION FOR:  key 2 (s2) for exp-430f5529 board*/
       PIN KEY2 {
          PORT        = 1;
          PIN         = 2;
@@ -93,21 +93,21 @@ DIL DIO_DIL {
          NOTIFICATION = TRUE;
       }
 
-      #definition of bus1: all inputs defined for the key of exp-430f5529 board
+      /*definition of bus1: all inputs defined for the key of exp-430f5529 board*/
       PORT BUS1 {
          PORT         = 1;
       }
 
-      #definition of bus1: all outputs defined for the leds 2 and 3 of exp-430f5529 board
+      /*definition of bus1: all outputs defined for the leds 2 and 3 of exp-430f5529 board*/
       PORT BUS8 {
          PORT         = 8;
       }
    }
 };
 
-#PORT1_VECTOR
-#IT ADDS THE IRQ HANDLER FOR NOTIFICATIONS
-#FOR HISIO, THE NAME OF THE OBJECT SHOULD BE CALLED THE SAME AS THE "INTERRUPT" ATTRIBUTE
+/*PORT1_VECTOR*/
+/*IT ADDS THE IRQ HANDLER FOR NOTIFICATIONS*/
+/*FOR HISIO, THE NAME OF THE OBJECT SHOULD BE CALLED THE SAME AS THE "INTERRUPT" ATTRIBUTE*/
 OSEK OSEK {
       ISR  PORT1 {
          INTERRUPT   = PORT1;

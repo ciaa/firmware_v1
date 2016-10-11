@@ -70,25 +70,25 @@ This function initialises the DIO driver for MSP430.
 extern IO_ErrorType Dio_InitSync_Arch(void * address)
 {
 #if( DIO_PINS_COUNT != 0 )
-	uint16_t i;
+   uint16_t i;
 
-	for( i=0 ; i < DIO_PINS_COUNT ; i++ )
-	{
-		if( Dio_Config.Pins[i].Flags & DIO_CONFIG_PIN_DIRECTION_INPUT )
-		{
-			GPIO_setAsInputPin( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
-		}
-		else if( Dio_Config.Pins[i].Flags & DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW )
-		{
-			GPIO_setOutputLowOnPin( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
-			GPIO_setAsOutputPin( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
-		}
-		else if( Dio_Config.Pins[i].Flags & DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH )
-		{
-			GPIO_setOutputHighOnPin( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
-			GPIO_setAsOutputPin( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
-		}
-	}
+   for( i=0 ; i < DIO_PINS_COUNT ; i++ )
+   {
+      if( Dio_Config.Pins[i].Flags & DIO_CONFIG_PIN_DIRECTION_INPUT )
+      {
+         GPIO_setAsInputPin( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
+      }
+      else if( Dio_Config.Pins[i].Flags & DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW )
+      {
+         GPIO_setOutputLowOnPin( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
+         GPIO_setAsOutputPin( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
+      }
+      else if( Dio_Config.Pins[i].Flags & DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH )
+      {
+         GPIO_setOutputHighOnPin( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
+         GPIO_setAsOutputPin( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
+      }
+   }
 
 #endif
 
@@ -103,31 +103,31 @@ the current level. Implementation for MSP430.
 */
 extern IO_ValueType Dio_GetSync_Arch(IO_ChannelType channel)
 {
-	IO_ValueType rv;
+   IO_ValueType rv;
 
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
-	if( DIO_PINS_COUNT > channel )
+   if( DIO_PINS_COUNT > channel )
 #endif
-	{
-		rv = (IO_ValueType) GPIO_getInputPinValue( Dio_Config.Pins[channel].Port , Dio_Config.Pins[channel].PinMask ); /* Get this value */
+   {
+      rv = (IO_ValueType) GPIO_getInputPinValue( Dio_Config.Pins[channel].Port , Dio_Config.Pins[channel].PinMask ); /* Get this value */
 
-		if( Dio_Config.Pins[channel].Flags & DIO_CONFIG_PIN_INVERTED)
-		{
-			rv = !rv;
-		}
-	}
+      if( Dio_Config.Pins[channel].Flags & DIO_CONFIG_PIN_INVERTED)
+      {
+         rv = !rv;
+      }
+   }
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
-	else
-	{
+   else
+   {
 #ifdef HISIO_DIO_ENABLE_ERRORHOOK
-		//call the error hook with IO_E_INVALID_CHANNEL_ID
+      //call the error hook with IO_E_INVALID_CHANNEL_ID
 #endif
 
-		rv = IO_INVALID;
-	}
+      rv = IO_INVALID;
+   }
 #endif
 
-	return rv;
+   return rv;
 }
 #endif
 
@@ -141,30 +141,30 @@ Ref: API IO Driver v 2.1.3
 extern void Dio_SetSync_Arch(IO_ChannelType channel, IO_ValueType value)
 {
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
-	if( DIO_PINS_COUNT > channel && (Dio_Config.Pins[channel].Flags & (DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW | DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH)) )
+   if( DIO_PINS_COUNT > channel && (Dio_Config.Pins[channel].Flags & (DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW | DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH)) )
 #endif
-	{
-		if(Dio_Config.Pins[channel].Flags & DIO_CONFIG_PIN_INVERTED)
-		{
-			value = !value;
-		}
+   {
+      if(Dio_Config.Pins[channel].Flags & DIO_CONFIG_PIN_INVERTED)
+      {
+         value = !value;
+      }
 
-		if( value!=0)
-		{
-			GPIO_setOutputLowOnPin( Dio_Config.Pins[channel].Port , Dio_Config.Pins[channel].PinMask ) ;
-		}
-		else
-		{
-			GPIO_setOutputHighOnPin( Dio_Config.Pins[channel].Port , Dio_Config.Pins[channel].PinMask ) ;
-		}
-	}
+      if( value!=0)
+      {
+         GPIO_setOutputLowOnPin( Dio_Config.Pins[channel].Port , Dio_Config.Pins[channel].PinMask ) ;
+      }
+      else
+      {
+         GPIO_setOutputHighOnPin( Dio_Config.Pins[channel].Port , Dio_Config.Pins[channel].PinMask ) ;
+      }
+   }
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
-	else
-	{
+   else
+   {
 #ifdef HISIO_DIO_ENABLE_ERRORHOOK
-		//call the error hook with IO_E_INVALID_VALUE or IO_E_INVALID_CHANNEL_ID
+      //call the error hook with IO_E_INVALID_VALUE or IO_E_INVALID_CHANNEL_ID
 #endif
-	}
+   }
 #endif
 
 }
@@ -179,17 +179,17 @@ Implementation for MSP430
 extern void Dio_ToggleSync_Arch(IO_ChannelType channel )
 {
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
-	if(DIO_PINS_COUNT > channel && (Dio_Config.Pins[channel].Flags & (DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW | DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH)))
+   if(DIO_PINS_COUNT > channel && (Dio_Config.Pins[channel].Flags & (DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW | DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH)))
 #endif
-	{
-		GPIO_toggleOutputOnPin( Dio_Config.Pins[channel].Port , Dio_Config.Pins[channel].PinMask );
-	}
-	else
-	{
+   {
+      GPIO_toggleOutputOnPin( Dio_Config.Pins[channel].Port , Dio_Config.Pins[channel].PinMask );
+   }
+   else
+   {
 #ifdef HISIO_DIO_ENABLE_ERRORHOOK
-		//call the error hook with   IO_E_INVALID_CHANNEL_ID
+      //call the error hook with   IO_E_INVALID_CHANNEL_ID
 #endif
-	}
+   }
 }
 #endif
 
@@ -201,75 +201,75 @@ Ref: API IO Driver v 2.1.3
 */
 extern IO_ValueType Dio_GetPortSync_Arch(IO_ChannelType port)
 {
-	IO_ValueType rv = 0;
-	IO_ValueType rv_tmp;
-	uint8_t channel;
+   IO_ValueType rv = 0;
+   IO_ValueType rv_tmp;
+   uint8_t channel;
 
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
-	/* check if the requested port is configured */
-	if( DIO_PORTS_COUNT>port )
+   /* check if the requested port is configured */
+   if( DIO_PORTS_COUNT>port )
 #endif
-	{
-		for( channel=0; channel<DIO_PINS_COUNT; channel++ )
-		{
-			/* validate that the port requested is configured within any DIO channel*/
-			if( Dio_Config.Ports[port].Port == Dio_Config.Pins[channel].Port )
-			{
-				rv_tmp = Dio_GetSync_Arch( channel );
-				/* rv_tmp can be IO_HIGH or IO_LOW */
+   {
+      for( channel=0; channel<DIO_PINS_COUNT; channel++ )
+      {
+         /* validate that the port requested is configured within any DIO channel*/
+         if( Dio_Config.Ports[port].Port == Dio_Config.Pins[channel].Port )
+         {
+            rv_tmp = Dio_GetSync_Arch( channel );
+            /* rv_tmp can be IO_HIGH or IO_LOW */
 
-				if( IO_HIGH == rv_tmp )
-				{
-					rv |= Dio_Config.Pins[channel].PinMask;
-				}
-			}
+            if( IO_HIGH == rv_tmp )
+            {
+               rv |= Dio_Config.Pins[channel].PinMask;
+            }
+         }
 
 #if( ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED )
          else
-		   {
+         {
 #ifdef HISIO_DIO_ENABLE_ERRORHOOK
-			   //call the error hook with IO_E_INVALID_CHANNEL_ID
+            //call the error hook with IO_E_INVALID_CHANNEL_ID
 #endif
-			   rv = 0;  /* the standard doesn't say anything about the return value in case or error.*/
-		   }
+            rv = 0;  /* the standard doesn't say anything about the return value in case or error.*/
+         }
 #endif
       }
-	}
+   }
    return rv;
 }
 
 extern void Dio_SetPortSync_Arch(IO_ChannelType port, IO_ValueType value)
 {
    IO_ValueType rv;
-	IO_ValueType rv_tmp;
-	uint8_t channel;
+   IO_ValueType rv_tmp;
+   uint8_t channel;
 
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
-	/* check if the requested port is configured */
-	if( DIO_PORTS_COUNT>port )
+   /* check if the requested port is configured */
+   if( DIO_PORTS_COUNT>port )
 #endif
-	{
-		for( channel=0; channel<DIO_PINS_COUNT; channel++ )
-		{
-			/* validate that the port requested is configured within any DIO channel*/
-			if( Dio_Config.Ports[port].Port == Dio_Config.Pins[channel].Port  )
-			{
+   {
+      for( channel=0; channel<DIO_PINS_COUNT; channel++ )
+      {
+         /* validate that the port requested is configured within any DIO channel*/
+         if( Dio_Config.Ports[port].Port == Dio_Config.Pins[channel].Port  )
+         {
             rv_tmp = value&Dio_Config.Pins[channel].PinMask;
 
             if( Dio_Config.Pins[channel].Flags & (DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW | DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH) )
             {
                Dio_SetSync_Arch( channel , rv_tmp?IO_HIGH:IO_LOW    );
             }
-			}
-		}
+         }
+      }
    }
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
-	else
-	{
+   else
+   {
 #ifdef HISIO_DIO_ENABLE_ERRORHOOK
-      			//call the error hook with IO_E_INVALID_CHANNEL_ID
+      //call the error hook with IO_E_INVALID_CHANNEL_ID
 #endif
-   	rv = 0;  /* the standard doesn't say anything about the return value in case or error.*/
+      rv = 0;  /* the standard doesn't say anything about the return value in case or error.*/
    }
 #endif
 }
@@ -283,7 +283,7 @@ Ref: API IO Driver v 2.1.3
 */
 extern void Dio_SetPortMaskedSync_Arch(IO_ChannelType port, IO_ValueType value, IO_ValueType mask)
 {
-   Dio_SetPortSync_Arch(  port , value&mask );
+   Dio_SetPortSync_Arch( port , value&mask );
 }
 
 /*
@@ -291,13 +291,10 @@ support function for Dio_EnableNotification_Arch and Dio_DisableNotification_Arc
 */
 extern void Dio_ChangeNotification_Arch( IO_ChannelType channel, IO_ValueType notifType , IO_ValueType enable )
 {
-/*   void GPIO_disableInterrupt(uint8_t selectedPort,
-                              uint16_t selectedPins)
-*/
 #if (ERROR_CHECKING_TYPE == ERROR_CHECKING_EXTENDED)
-	if(DIO_PINS_COUNT > channel && (Dio_Config.Pins[channel].Flags & (DIO_CONFIG_PIN_DIRECTION_INPUT | DIO_CONFIG_PIN_ENABLE_NOTIFICATION)))
+   if(DIO_PINS_COUNT > channel && (Dio_Config.Pins[channel].Flags & (DIO_CONFIG_PIN_DIRECTION_INPUT | DIO_CONFIG_PIN_ENABLE_NOTIFICATION)))
 #endif
-	{
+   {
       if( notifType == IO_N_RISING_EDGE )
       {
          GPIO_selectInterruptEdge( Dio_Config.Pins[channel].Port ,  Dio_Config.Pins[channel].PinMask ,  GPIO_LOW_TO_HIGH_TRANSITION );
@@ -323,12 +320,12 @@ extern void Dio_ChangeNotification_Arch( IO_ChannelType channel, IO_ValueType no
          GPIO_disableInterrupt( Dio_Config.Pins[channel].Port , Dio_Config.Pins[channel].PinMask );
       }
    }
-	else
-	{
+   else
+   {
 #ifdef HISIO_DIO_ENABLE_ERRORHOOK
-		//call the error hook with   IO_E_INVALID_CHANNEL_ID
+      //call the error hook with   IO_E_INVALID_CHANNEL_ID
 #endif
-	}
+   }
 }
 
 /*
@@ -339,7 +336,7 @@ Ref: API IO Driver v 2.1.3
 */
 extern void Dio_EnableNotification_Arch( IO_ChannelType channel, IO_ValueType notifType )
 {
-    Dio_ChangeNotification_Arch( channel, notifType , 1 );
+   Dio_ChangeNotification_Arch( channel, notifType , 1 );
 }
 
 /*
@@ -350,7 +347,7 @@ Ref: API IO Driver v 2.1.3
 */
 extern void Dio_DisableNotification_Arch( IO_ChannelType channel, IO_ValueType notifType )
 {
-     Dio_ChangeNotification_Arch( channel, notifType , 0 );
+   Dio_ChangeNotification_Arch( channel, notifType , 0 );
 }
 
 
