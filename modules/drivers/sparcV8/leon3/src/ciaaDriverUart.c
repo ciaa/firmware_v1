@@ -671,13 +671,12 @@ extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device,
 
    deviceControlStructurePtr = (sparcDriverUartInfoType *)device->layer;
 
-   returnValue = -1;
-
    switch(request)
    {
    case ciaaPOSIX_IOCTL_STARTTX:
 
       SPARC_DRIVER_UART_ENTER_CRITICAL();
+      sparcDriverUartEnableTxInterrupts(deviceControlStructurePtr);
       sparcDriverUartKickstartTxInterrupts(deviceControlStructurePtr);
       returnValue = 0;
       SPARC_DRIVER_UART_EXIT_CRITICAL();
