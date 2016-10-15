@@ -63,7 +63,7 @@
 # +--------------+---------------+----------------+--------------+---------------+
 # | mips         | pic32         | pic32mz        | gcc          | ciaa_pic      |
 # +--------------+---------------+----------------+--------------+---------------+
-# | sparc        | leon3         | leon3nfp       | gcc          | leon3_fpga_nfp|
+# | sparcV8      | leon3         | leon3nfp       | gcc          | leon3_fpga_nfp|
 # +--------------+---------------+----------------+--------------+---------------+
 #
 # Default values for ciaa_sim_ia64
@@ -110,7 +110,7 @@ COMPILER       ?= gcc
 endif
 # Default values for leon3_fpga
 ifeq ($(BOARD),leon3_fpga_nfp)
-ARCH           ?= sparc
+ARCH           ?= sparcV8
 CPUTYPE        ?= leon3
 CPU            ?= leon3nfp
 COMPILER       ?= gcc

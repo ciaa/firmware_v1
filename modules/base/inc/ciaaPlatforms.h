@@ -80,7 +80,7 @@ extern "C" {
 #define mips                  3
 /** \brief ARCH cortexM0 */
 #define cortexM0              4
-/** \brief ARCH sparc */
+/** \brief ARCH sparcV8 */
 #define sparcV8               5
 
 
@@ -101,7 +101,7 @@ extern "C" {
 /*** CPUTYPES for ARCH=mips ***/
 #define pic32                 1
 
-/*** CPUTYPES for ARCH=sparc ***/
+/*** CPUTYPES for ARCH=sparcV8 ***/
 #define leon3                 1
 
 
@@ -119,7 +119,7 @@ extern "C" {
 /*** CPU for ARCH=mips CPUTYPE=pic32 ***/
 #define pic32mz               3
 
-/*** CPU for ARCH=sparc CPUTYPE=leon3 ***/
+/*** CPU for ARCH=sparcV8 CPUTYPE=leon3 ***/
 #define leon3nfp              4
 
 
@@ -142,7 +142,7 @@ extern "C" {
 /*** BOARD for ARCH=mips CPUTYPE=pic32 ***/
 #define ciaa_pic              6
 
-/*** BOARD for ARCH=sparc CPUTYPE=leon3nfp ***/
+/*** BOARD for ARCH=sparcV8 CPUTYPE=leon3nfp ***/
 #define ciaa_leon3_fpga_nfp   7
 
 /****** CIAAPLATFORM_REGLENGTH ******/
@@ -181,7 +181,7 @@ extern "C" {
 #elif ( ( ARCH == mips ) && \
         ( CPUTYPE == pic32 ) && \
         ( CPU == pic32mz ) )
-#elif ( ( ARCH == sparc ) && \
+#elif ( ( ARCH == sparcV8 ) && \
         ( CPUTYPE == leon3 ) && \
         ( CPU == leon3nfp ) )
 #else
