@@ -44,10 +44,12 @@ NM = sparc-elf-nm
 AFLAGS += --warn -g -mcpu=v8
 CFLAGS += -g -O0 -c -Wall -fmessage-length=0 -msoft-float -mcpu=v8
 LFLAGS += -g -O0 $(LINKSCRIPT) -msoft-float -mcpu=v8 
+
 # Optional POST BUILD
-# No post-build for Gaisler leon3.
-## POST_BUILD += arm-none-eabi-objcopy -v -O binary $(LD_TARGET) $(TARGET_NAME).bin
+# No post-build for SPARC
 
 # define linker extension
 LD_EXTENSION                = exe
 
+# GDB flags
+GDB_FLAGS		    = $(LD_TARGET) -ex "target extended-remote 127.0.0.1:2222"
