@@ -152,9 +152,12 @@ void Dio_ErrorHook(IO_DeviceType device, IO_ErrorType error)
 /*
 HISIO DIO Notification callback
 */
-void Dio_Notification(IO_ChannelType channel, IO_ValueType notifType)
+void Dio_Notification( IO_ChannelType channel , IO_ValueType notifType )
 {
-
+   if( channel == KEY1 )
+   {
+      Dio_ToggleSync( LED2 );
+   }
 }
 
 /** \brief Initial task
@@ -166,11 +169,10 @@ TASK(InitTask)
     /* init CIAA kernel and devices */
     ciaak_start();
 
-    /* print message (only on x86) */
-    //ciaaPOSIX_printf("Init Task...\n");
-
     /* Open the HISIO DIO Driver */
-   // Dio_InitSync(0);
+    Dio_InitSync(0);
+
+    Dio_EnableNotification( KEY1, IO_N_FALLING_EDGE );
 
     /* activate periodic task:
      *  - for the first time after 350 ticks (350 ms)

@@ -159,13 +159,12 @@ extern "C" {
 #endif //ARCH == x86
 
 #if (ARCH == msp430)
-#if (  CPUTYPE == msp430  )
 #define CIAAPLATFORM_REGLENGTH      16
-#endif
-#if (  CPUTYPE == msp430x  )
-#define CIAAPLATFORM_REGLENGTH      32
-#endif
 #endif //ARCH == msp430
+
+#if (ARCH == msp430x)
+#define CIAAPLATFORM_REGLENGTH      32
+#endif //ARCH == msp430x
 
 /****** CIAAPLATFORM_ENDIANESS ******/
 #define CIAAPLATFORM_BIGENDIAN      0
@@ -218,4 +217,3 @@ extern "C" {
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef CIAAPLATFORMS_H */
-

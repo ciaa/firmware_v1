@@ -1,7 +1,4 @@
-/* Copyright 2014, Daniel Cohen
- * Copyright 2014, Esteban Volentini
- * Copyright 2014, Matias Giori
- * Copyright 2014, Franco Salinas
+/* Copyright 2016 Franco Bucafusco
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.

@@ -46,7 +46,12 @@
 
 /* TODO configuration dependent includes */
 
-#ifdef CIAA_CFG_POSIX
+ 
+
+
+#ifdef CIAA_CFG_HISIO
+
+#else
 #include "ciaaDevices.h"
 #include "ciaaSerialDevices.h"
 #include "ciaaBlockDevices.h"
@@ -55,9 +60,6 @@
 #include "ciaaDriverAio.h"
 #include "ciaaDriverDio.h"
 #include "ciaaPOSIX_stdlib.h"
-#endif
-
-#ifdef CIAA_CFG_HISIO
 
 #endif
 

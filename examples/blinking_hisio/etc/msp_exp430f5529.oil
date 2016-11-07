@@ -70,7 +70,7 @@ DIL DIO_DIL {
       /*CHANNEL NAMED "LED2" CONFIGURATION FOR: Led3 for exp-430f5529 board*/
       PIN LED3 {
          PORT        = 8;
-         PIN         = 3;
+         PIN         = 2;
          DIRECTION   = IO_OUTPUT_INIT_LOW;
          INVERTED    = FALSE;
       }
@@ -86,11 +86,11 @@ DIL DIO_DIL {
 
       /*CHANNEL NAMED "KEY2" CONFIGURATION FOR:  key 2 (s2) for exp-430f5529 board*/
       PIN KEY2 {
-         PORT        = 1;
+         PORT        = 2;
          PIN         = 2;
          DIRECTION   = IO_INPUT;
          INVERTED    = FALSE;
-         NOTIFICATION = TRUE;
+         NOTIFICATION = FALSE;
       }
 
       /*definition of bus1: all inputs defined for the key of exp-430f5529 board*/

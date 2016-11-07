@@ -55,7 +55,7 @@ extern "C" {
 
 /*==================[macros]=================================================*/
 /* Position of the state bit that indicates if the task is sleeping or not*/
-#define STATE_BIT 31
+#define STATE_BIT (CIAAPLATFORM_REGLENGTH-1)
 
 /* Bit mask used to set and reset sleeping state */
 #define SLEEPING_STATE_MASK (1 << STATE_BIT)
@@ -125,4 +125,3 @@ typedef struct ciaaPOSIX_counter_type
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
 #endif /* #ifndef CIAAPOSIX_UNISTD_INTERNAL_H */
-
