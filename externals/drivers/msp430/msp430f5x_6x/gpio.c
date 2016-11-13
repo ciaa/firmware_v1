@@ -272,6 +272,9 @@ void GPIO_setOutputLowOnPin(uint8_t selectedPort,
 	HWREG16(baseAddress + OFS_PAOUT) &= ~selectedPins;
 }
 
+/**
+
+*/
 void GPIO_toggleOutputOnPin(uint8_t selectedPort,
                             uint16_t selectedPins)
 {
@@ -504,11 +507,11 @@ uint8_t GPIO_GetInterruptEdge(uint8_t selectedPort, uint16_t selectedPins )
 
    if( HWREG16(baseAddress + OFS_PAIES) | selectedPins )
    {
-      return GPIO_LOW_TO_HIGH_TRANSITION;
+      return GPIO_HIGH_TO_LOW_TRANSITION;
    }
    else
    {
-      return GPIO_HIGH_TO_LOW_TRANSITION;
+      return GPIO_LOW_TO_HIGH_TRANSITION;
    }
 }
 

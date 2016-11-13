@@ -76,7 +76,20 @@ extern IO_ErrorType Dio_InitSync_Arch(void * address)
    {
       if( Dio_Config.Pins[i].Flags & DIO_CONFIG_PIN_DIRECTION_INPUT )
       {
-         GPIO_setAsInputPin( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
+         if( Dio_Config.Pins[i].Flags & DIO_CONFIG_PIN_DIRECTION_INPUT_PULLEDUP )
+         {
+             GPIO_setAsInputPinWithPullUpResistor( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
+         }
+         else
+         if( Dio_Config.Pins[i].Flags & DIO_CONFIG_PIN_DIRECTION_INPUT_PULLEDDOWN )
+         {
+             GPIO_setAsInputPinWithPullDownResistor( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
+         }
+         else
+         {
+            GPIO_setAsInputPin( Dio_Config.Pins[i].Port , Dio_Config.Pins[i].PinMask );
+         }
+
       }
       else if( Dio_Config.Pins[i].Flags & DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW )
       {
@@ -329,7 +342,6 @@ extern void Dio_ChangeNotification_Arch( IO_ChannelType channel, IO_ValueType no
 }
 
 /*
-
 Implementation for MSP430
 Ref: API IO Driver v 2.1.3
      5.2.3.1.1
@@ -340,7 +352,6 @@ extern void Dio_EnableNotification_Arch( IO_ChannelType channel, IO_ValueType no
 }
 
 /*
-
 Implementation for MSP430
 Ref: API IO Driver v 2.1.3
      5.2.3.1.2
@@ -352,7 +363,7 @@ extern void Dio_DisableNotification_Arch( IO_ChannelType channel, IO_ValueType n
 
 
 /*
-this function returns  the Dio_Config index (channelnel number), given the number of the port, and the number of the pin (0 to 7)
+this function returns  the Dio_Config index (channel number), given the number of the port, and the number of the pin (0 to 7)
 */
 extern unsigned char Dio_FindChannel_Arch( uint8_t  Port, uint8_t  PinNro  )
 {
@@ -365,7 +376,7 @@ extern unsigned char Dio_FindChannel_Arch( uint8_t  Port, uint8_t  PinNro  )
       }
    }
 
-   return channel; //
+   return channel; //it returns DIO_PINS_COUNT in case of error.
 }
 
 /*
@@ -373,7 +384,7 @@ returns the configured edge of the IRQ for a Port and pin nro
 */
 extern IO_ValueType Dio_GetEdge_Arch( uint8_t  Port, uint8_t  PinNro  )
 {
-   if( GPIO_GetInterruptEdge( Port , PinNro )==GPIO_HIGH_TO_LOW_TRANSITION )
+   if( GPIO_GetInterruptEdge( Port , PinNro ) == GPIO_HIGH_TO_LOW_TRANSITION )
    {
       return IO_N_FALLING_EDGE;
    }

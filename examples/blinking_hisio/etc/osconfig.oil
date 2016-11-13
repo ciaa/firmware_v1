@@ -54,8 +54,7 @@ OSEK OSEK {
       MEMMAP = FALSE;
    };
 
-   RESOURCE = POSIXR;
-   EVENT    = POSIXE;
+   EVENT    = EVENTO_KEY2;
 
    APPMODE  = AppMode1;
 
@@ -68,18 +67,23 @@ OSEK OSEK {
       STACK = 512;
       TYPE = EXTENDED;
       SCHEDULE = NON;
-      RESOURCE = POSIXR;
-      EVENT = POSIXE;
    }
 
    TASK PeriodicTask {
       PRIORITY = 2;
       ACTIVATION = 1;
       STACK = 512;
+      TYPE = BASIC;
+      SCHEDULE = NON;
+   }
+
+   TASK TaskLed3Toggle {
+      PRIORITY = 2;
+      ACTIVATION = 1;
+      STACK = 256;
       TYPE = EXTENDED;
       SCHEDULE = NON;
-      RESOURCE = POSIXR;
-      EVENT = POSIXE;
+      EVENT    = EVENTO_KEY2;
    }
 
    ALARM ActivatePeriodicTask {

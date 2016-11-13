@@ -84,12 +84,6 @@
 
 /*==================[internal data definition]===============================*/
 
-/** \brief File descriptor for digital output ports
- *
- * Device path /dev/dio/out/0
- */
-static int32_t fd_out;
-
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
@@ -146,7 +140,7 @@ HISIO Dio Driver Error Callback.
 */
 void Dio_ErrorHook(IO_DeviceType device, IO_ErrorType error)
 {
-
+   ShutdownOS(0);
 }
 
 /*
@@ -157,6 +151,11 @@ void Dio_Notification( IO_ChannelType channel , IO_ValueType notifType )
    if( channel == KEY1 )
    {
       Dio_ToggleSync( LED2 );
+   }
+
+   if( channel == KEY2 )
+   {
+      SetEvent( TaskLed3Toggle , EVENTO_KEY2 );
    }
 }
 
@@ -172,13 +171,17 @@ TASK(InitTask)
     /* Open the HISIO DIO Driver */
     Dio_InitSync(0);
 
-    Dio_EnableNotification( KEY1, IO_N_FALLING_EDGE );
+    /* Enable notifications for both keys */
+    Dio_EnableNotification( KEY1 , IO_N_FALLING_EDGE );
+    Dio_EnableNotification( KEY2 , IO_N_FALLING_EDGE );
 
     /* activate periodic task:
      *  - for the first time after 350 ticks (350 ms)
      *  - and then every 250 ticks (250 ms)
      */
     SetRelAlarm(ActivatePeriodicTask, 350, 250);
+
+    ActivateTask( TaskLed3Toggle );
 
     /* terminate task */
     TerminateTask();
@@ -192,13 +195,27 @@ TASK(InitTask)
  */
 TASK(PeriodicTask)
 {
-    uint8_t outputs;
-
     /* blink output */
     Dio_ToggleSync( LED1 );
 
     /* terminate task */
     TerminateTask();
+}
+
+TASK( TaskLed3Toggle )
+{
+   while(1)
+   {
+         /* wait the signal from KEY2 notification*/
+         WaitEvent( EVENTO_KEY2 );
+         ClearEvent( EVENTO_KEY2 );
+
+         /* blink output */
+         Dio_ToggleSync( LED3 );
+   }
+
+   /* terminate task */
+   TerminateTask();
 }
 
 /** @} doxygen end group definition */

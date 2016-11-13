@@ -61,36 +61,36 @@ DIL DIO_DIL {
 
       /*CHANNEL NAMED "LED2" CONFIGURATION FOR: Led2 for exp-430f5529 board*/
       PIN LED2 {
-         PORT        = 8;
-         PIN         = 1;
-         DIRECTION   = IO_OUTPUT_INIT_LOW;
-         INVERTED    = FALSE;
+         PORT         = 8;
+         PIN          = 1;
+         DIRECTION    = IO_OUTPUT_INIT_LOW;
+         INVERTED     = FALSE;
       }
 
       /*CHANNEL NAMED "LED2" CONFIGURATION FOR: Led3 for exp-430f5529 board*/
       PIN LED3 {
-         PORT        = 8;
-         PIN         = 2;
-         DIRECTION   = IO_OUTPUT_INIT_LOW;
-         INVERTED    = FALSE;
+         PORT         = 8;
+         PIN          = 2;
+         DIRECTION    = IO_OUTPUT_INIT_LOW;
+         INVERTED     = FALSE;
       }
 
       /*CHANNEL NAMED "KEY1" CONFIGURATION FOR:  key 1 (s1) for exp-430f5529 board*/
       PIN KEY1 {
-         PORT        = 1;
-         PIN         = 7;
-         DIRECTION   = IO_INPUT;
-         INVERTED    = FALSE;
+         PORT         = 1;
+         PIN          = 7;
+         DIRECTION    = IO_INPUT_PULLEDUP;
+         INVERTED     = FALSE;
          NOTIFICATION = TRUE;
       }
 
       /*CHANNEL NAMED "KEY2" CONFIGURATION FOR:  key 2 (s2) for exp-430f5529 board*/
       PIN KEY2 {
-         PORT        = 2;
-         PIN         = 2;
-         DIRECTION   = IO_INPUT;
-         INVERTED    = FALSE;
-         NOTIFICATION = FALSE;
+         PORT         = 2;
+         PIN          = 2;
+         DIRECTION    = IO_INPUT_PULLEDUP;
+         INVERTED     = FALSE;
+         NOTIFICATION = TRUE;
       }
 
       /*definition of bus1: all inputs defined for the key of exp-430f5529 board*/
@@ -111,6 +111,11 @@ DIL DIO_DIL {
 OSEK OSEK {
       ISR  PORT1 {
          INTERRUPT   = PORT1;
+         CATEGORY    = 2;
+         PRIORITY    = 0;
+      };
+      ISR  PORT2 {
+         INTERRUPT   = PORT2;
          CATEGORY    = 2;
          PRIORITY    = 0;
       };

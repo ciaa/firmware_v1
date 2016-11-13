@@ -115,6 +115,12 @@ foreach ($dios as $count=>$dio)
          case "IO_INPUT":
             $pin_flags = "DIO_CONFIG_PIN_DIRECTION_INPUT";
             break;
+         case "IO_INPUT_PULLEDUP":
+            $pin_flags = "DIO_CONFIG_PIN_DIRECTION_INPUT | DIO_CONFIG_PIN_DIRECTION_INPUT_PULLEDUP";
+            break;
+         case "IO_INPUT_PULLEDDOWN":
+            $pin_flags = "DIO_CONFIG_PIN_DIRECTION_INPUT | DIO_CONFIG_PIN_DIRECTION_INPUT_PULLEDDOWN";
+            break;
          case "IO_OUTPUT_INIT_LOW":
             $pin_flags = "DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_LOW";
             break;
@@ -122,7 +128,7 @@ foreach ($dios as $count=>$dio)
             $pin_flags = "DIO_CONFIG_PIN_DIRECTION_OUTPUT_INIT_HIGH";
             break;
          default:
-           $this->log->error("The pin $pin hasn't a defined direction!");
+            $this->log->error("The pin $pin hasn't a defined direction!");
             break;
       }
 
@@ -143,7 +149,7 @@ foreach ($dios as $count=>$dio)
       switch ($pin_notification)
       {
          case "TRUE":
-            if( $pin_direction=="IO_INPUT" )
+            if( $pin_direction=="IO_INPUT" || $pin_direction=="IO_INPUT_PULLEDUP"  || $pin_direction=="IO_INPUT_PULLEDDOWN" )
             {
                $pin_flags = $pin_flags . " | DIO_CONFIG_PIN_ENABLE_NOTIFICATION";
 
@@ -222,10 +228,14 @@ foreach ($dios as $count=>$dio)
       {
          print "ISR(".$port.")\n";//_VECTOR
          print "{\n";
+
+         print "   /* clear de pending IFG flag from P".$port_N."IFG register and return the pin number that triggered the handler*/\n";
          print "   uint16_t interrupt_source = GetPendingIRQ_Arch( ".$key." );\n";
 
+         print "   /* get the channel number from the port and the pin */\n";
          print "   uint8_t channel = Dio_FindChannel_Arch( ".$port_N." , interrupt_source  );\n";
 
+         print "   /* get the configured edge for that port and pin and then trigger the user callback */\n";
          print "   Dio_Notification( channel ,  Dio_GetEdge_Arch( ".$port_N." , interrupt_source  ) );\n";
          print "}\n\n";
       }

@@ -43,7 +43,7 @@ NM 	= msp430-elf-nm
 OBJD 	= msp430-elf-objdump
 
 # COMPILER AND LINKER OPTIONS
-#AFLAGS += -ggdb3 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb
+AFLAGS +=  -Wall -mmcu=$(CPU) -I.  # -ggdb  -msmall -D_GNU_ASSEMBLER_
 CFLAGS += -c -Wall -g3 -O0 -gdwarf-2 -ggdb -mmcu=$(CPU) -msmall
 LFLAGS += $(LINKSCRIPT)  -mmcu=$(CPU) -Wl,-Map="$(TARGET_NAME).map" -Wl,--gc-sections
 

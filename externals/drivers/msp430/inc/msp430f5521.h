@@ -1650,25 +1650,6 @@ sfrb(PAIFG_H , PAIFG_+1);
 sfrw(PAIFG, PAIFG_);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #define P1IV_                 0x020E    /* Port 1 Interrupt Vector Word */
 sfrw(P1IV, P1IV_);
 #define P2IV_                 0x021E    /* Port 2 Interrupt Vector Word */
@@ -5354,4 +5335,3 @@ sfrw(WDTCTL, WDTCTL_);
 #endif /* extern "C" */
 
 #endif /* #ifndef __MSP430F5521 */
-
