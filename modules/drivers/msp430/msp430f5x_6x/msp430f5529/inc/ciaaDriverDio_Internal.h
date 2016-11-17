@@ -59,8 +59,8 @@ extern "C" {
 
 typedef struct _ciaaDriverDio_dioType
 {
-	uint32_t port;
-	uint32_t pin;
+   uint32_t port;
+   uint32_t pin;
 } ciaaDriverDio_dioType;
 
 

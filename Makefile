@@ -1097,6 +1097,6 @@ endif
 # generate dissasembly and other files
 dis:
 	@echo "*** Generating dissasembly ***"
-	$(OBJD) -D  -S $(LD_TARGET) > "$(subst .out,,$(LD_TARGET))_DIS.TXT"
+	$(OBJD) -d  -S $(LD_TARGET) > "$(subst .out,,$(LD_TARGET))_DIS.TXT"
 	@echo "*** Generating sections file ***"
 	$(OBJD) -h $(LD_TARGET) > "$(subst .out,,$(LD_TARGET))_SEC.TXT"

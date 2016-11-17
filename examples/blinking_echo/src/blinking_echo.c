@@ -75,6 +75,18 @@
 
 /*==================[macros and definitions]=================================*/
 
+#if( ARCH == msp430 )
+#define DEV_UART_1   "/dev/serial/uart/1"	//USB
+#define DEV_UART_2   "/dev/serial/uart/0"
+#define BAUDRATE     (ciaaBAUDRATE_9600 / 100 )
+#else
+#define DEV_UART_1   "/dev/serial/uart/1"
+#define DEV_UART_2   "/dev/serial/uart/2"
+#define BAUDRATE     ciaaBAUDRATE_115200
+#endif
+
+
+
 /*==================[internal data declaration]==============================*/
 
 /*==================[internal functions declaration]=========================*/
@@ -176,13 +188,13 @@ TASK(InitTask)
    fd_out = ciaaPOSIX_open("/dev/dio/out/0", ciaaPOSIX_O_RDWR);
 
    /* open UART connected to USB bridge (FT2232) */
-   fd_uart1 = ciaaPOSIX_open("/dev/serial/uart/1", ciaaPOSIX_O_RDWR);
+   fd_uart1 = ciaaPOSIX_open( DEV_UART_1 , ciaaPOSIX_O_RDWR);
 
    /* open UART connected to RS232 connector */
-   fd_uart2 = ciaaPOSIX_open("/dev/serial/uart/2", ciaaPOSIX_O_RDWR);
+   fd_uart2 = ciaaPOSIX_open( DEV_UART_2 , ciaaPOSIX_O_RDWR);
 
    /* change baud rate for uart usb */
-   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *)ciaaBAUDRATE_115200);
+   ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_BAUDRATE, (void *) BAUDRATE );
 
    /* change FIFO TRIGGER LEVEL for uart usb */
    ciaaPOSIX_ioctl(fd_uart1, ciaaPOSIX_IOCTL_SET_FIFO_TRIGGER_LEVEL, (void *)ciaaFIFO_TRIGGER_LEVEL3);
@@ -281,4 +293,3 @@ TASK(PeriodicTask)
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-
