@@ -282,11 +282,11 @@ static int32_t ciaa_lpc4337_readPins(int32_t pinCount, uint8_t * buffer, size_t 
    ciaaPOSIX_memset(buffer, 0, count);
    for(i = 0, j = 0; (i < pinCount) && (j < count); i++)
    {
+      buffer[j] |= readFunction(i) << (i - 8 * j);
       if((i > 0) && ((i & 0x07)==0))
       {
          j++;
       }
-      buffer[j] |= readFunction(i) << (i - 8 * j);
    }
    return count;
 }
@@ -349,11 +349,11 @@ extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, 
          /* set outputs according to bits defined in user buffer */
          for(i = 0, j = 0; (i < ciaaDriverDio_OutputCount) && (j < size); i++)
          {
+            ciaa_lpc4337_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
             if( (i > 0) && ((i & 0x07) == 0) )
             {
                j++;
             }
-            ciaa_lpc4337_writeOutput(i, buffer[j] & (1 << (i - 8 * j)));
          }
          if((ciaaDriverDio_OutputCount & 0x07) != 0)
          {
