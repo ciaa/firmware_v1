@@ -49,6 +49,7 @@
 #include "ciaaPOSIX_stdlib.h"
 #include "ciaaPOSIX_assert.h"
 #include "Os_Internal.h"
+#include "ciaaPOSIX_unistd_nonstd.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -120,12 +121,11 @@ extern uint32_t ciaaPOSIX_sem_waitfor(sem_t * const sem, uint32_t timeout)
       timeout = 1000 * timeout;
 
       /* calculate how many main function cycles shall be sleep */
-      toSleep = (useconds + (CIAAPOSIX_MAINFUNCTION_PERIODUS-1))
+      toSleep = (timeout + (CIAAPOSIX_MAINFUNCTION_PERIODUS-1))
                 / CIAAPOSIX_MAINFUNCTION_PERIODUS;
 
-      /* call sleep algorithm but avoid the call to WaitEvent,
-       * therefore the second parameter is set to false */
-      ciaaPOSIX_sleepAlgorithm(toSleep, false);
+      /* call sleep algorithm */
+      ciaaPOSIX_sleepAlgorithm(toSleep);
 
       ReleaseResource(POSIXR);
       WaitEvent(POSIXE);

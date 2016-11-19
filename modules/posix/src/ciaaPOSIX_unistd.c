@@ -48,8 +48,6 @@
 #include "Os_Internal.h"
 
 /*==================[macros and definitions]=================================*/
-#define CIAAPOSIX_MAINFUNCTION_PERIODUS 10000
-
 #define CIAAPOSIX_MAINFUNCTION_PERIODMS ((CIAAPOSIX_MAINFUNCTION_PERIODUS)/1000)
 
 #define SLEEP_TIME_TO_COUNTS (1000 / CIAAPOSIX_MAINFUNCTION_PERIODMS)

@@ -53,6 +53,9 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+#define CIAAPOSIX_MAINFUNCTION_PERIODUS 10000
+
+#define CIAAPOSIX_TIMEOUT               0xFFFFFFFFU
 
 /*==================[typedef]================================================*/
 
@@ -71,7 +74,14 @@ extern "C" {
  **/
 extern void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
 
-extern uint32_t ciaaPOSIX_sleepRemove(void)
+/** \brief ciaaPOSIX_sleepRemove
+ **
+ ** Remove our task of the sleeping ones.
+ **
+ ** \returns rest time before expiration in counts of calls to
+ **          ciaaPOSIX_sleepMainFunction.
+ **/
+extern uint32_t ciaaPOSIX_sleepRemove(void);
 
 /** \brief ciaaPOSIX sleep main function
  **
