@@ -12,5 +12,5 @@ or clone using:
 
 <h2>Project Information</h2>
 
- * The microcontroller used is MSP460F5529
+ * The microcontroller used is MSP430F5529
  * If you found a bug please report it to: https://github.com/fbucafusco/fw_on_msp430/issues. Also bugs found in submodules like rtos and modbus shall be reported to the master project.
