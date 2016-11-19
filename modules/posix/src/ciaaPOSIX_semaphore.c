@@ -99,6 +99,62 @@ extern int8_t ciaaPOSIX_sem_wait(sem_t * const sem)
    return 0;
 }
 
+/** INFO: this interface is an extension */
+extern uint32_t ciaaPOSIX_sem_waitfor(sem_t * const sem, uint32_t timeout)
+{
+   uint32_t retVal = 0;
+   uint32_t toSleep;
+   TaskType taskID;
+
+   ciaaPOSIX_assert(255 > sem->counter);
+   GetTaskID(&taskID);
+
+   GetResource(POSIXR);
+   sem->counter++;
+   if (1 == sem->counter) {
+      ReleaseResource(POSIXR);
+   } else {
+      ciaaPOSIX_semVar[taskID] = sem;
+
+      /* convert the timout from milliseconds to micro seconds */
+      timeout = 1000 * timeout;
+
+      /* calculate how many main function cycles shall be sleep */
+      toSleep = (useconds + (CIAAPOSIX_MAINFUNCTION_PERIODUS-1))
+                / CIAAPOSIX_MAINFUNCTION_PERIODUS;
+
+      /* call sleep algorithm but avoid the call to WaitEvent,
+       * therefore the second parameter is set to false */
+      ciaaPOSIX_sleepAlgorithm(toSleep, false);
+
+      ReleaseResource(POSIXR);
+      WaitEvent(POSIXE);
+      ClearEvent(POSIXE);
+
+      /* we are awake, there are to options, or a timeout wake us or we
+       * have the semaphore let check that */
+      GetResource(POSIXR);
+
+      /* if our task ID is still in the list we had a timeout */
+      if (ciaaPOSIX_semVar[taskID] == sem) {
+         /* remove our task of the waiting list */
+         ciaaPOSIX_semVar[taskID] = NULL;
+
+         /* indicate that a timeout occurred */
+         retVal = CIAAPOSIX_TIMEOUT;
+      } else {
+         /* timeout does not occur, we have to remove our task of the timeout list
+          * and indicate the elapsed time */
+
+      }
+
+      ReleaseResource(POSIXR);
+   }
+
+   return retVal;
+
+}
+
 extern int8_t ciaaPOSIX_sem_post(sem_t * const sem)
 {
    TaskType taskID;
@@ -114,7 +170,7 @@ extern int8_t ciaaPOSIX_sem_post(sem_t * const sem)
    if (0 == sem->counter) {
       ReleaseResource(POSIXR);
    } else {
-      /* other task is also wairing and shall be activated */
+      /* other task is also waiting and shall be activated */
       /* TODO here is a lot of work to do, this can be imporved a lot,
        * e.g. here we are freeing the next task by id but not by priority
        * so this make generate conflicts, neither is we have a first come

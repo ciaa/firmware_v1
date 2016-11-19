@@ -1,5 +1,5 @@
 /* Copyright 2016, Mariano Cerdeiro
- * Copyright 2016, Diego Ezequiel Vommaro 
+ * Copyright 2016, Diego Ezequiel Vommaro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -69,14 +69,6 @@ static ciaaPOSIX_counter_t ciaaPOSIX_counter;
 static ciaaPOSIX_counter_t ciaaPOSIX_sleeps[];
 
 /*==================[internal functions declaration]=========================*/
-/** \brief ciaaPOSIX_sleepAlgorithm
- **
- ** Sleeps the current task and reload the global counter if required
- **
- ** \param[in] toSleep counts to sleep the execution of the calling task.
- **
- **/
-static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
 
 /*==================[internal data definition]===============================*/
 static ciaaPOSIX_counter_t ciaaPOSIX_next_to_wake = {0, 0};
@@ -86,7 +78,64 @@ static ciaaPOSIX_counter_t ciaaPOSIX_sleeps[TASKS_COUNT] = {{0}};
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
+
+/*==================[external functions definition]==========================*/
+extern uint32_t ciaaPOSIX_sleep(uint32_t seconds)
+{
+   uint32_t toSleep;
+
+   /* ensure that the seconds can be stored in 10ms counts */
+   ciaaPOSIX_assert((uint32_t)MAX_SECONDS > seconds);
+
+   /* store the sleep time in 10ms counts */
+   toSleep = seconds * SLEEP_TIME_TO_COUNTS;
+
+   GetResource(POSIXR);
+   /* sleep time processing*/
+   ciaaPOSIX_sleepAlgorithm(toSleep);
+   ReleaseResource(POSIXR);
+
+   WaitEvent(POSIXR);
+   ClearEvent(POSIXR);
+
+   return 0;
+}
+
+extern int32_t ciaaPOSIX_usleep(useconds_t useconds)
+{
+   int32_t ret = 0;
+   uint32_t toSleep;
+
+#if (CIAAPOSIX_DEBUG == CIAAPOSIX_ENABLE)
+   if (1000000 <= useconds)
+   {
+      ret = -1;
+   }
+   else
+#endif
+   {
+      if(MAX_USECONDS > useconds)
+      {
+         /* calculate how many main function cycles shall be sleep */
+         toSleep = (useconds + (CIAAPOSIX_MAINFUNCTION_PERIODUS-1))
+         / CIAAPOSIX_MAINFUNCTION_PERIODUS;
+
+         /* sleep time processing */
+         ciaaPOSIX_sleepAlgorithm(toSleep);
+
+         WaitEvent(POSIXR);
+         ClearEvent(POSIXR);
+      }
+      else
+      {
+         ret = -1;
+      }
+   }
+
+   return ret;
+}
+
+extern void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
 {
    TaskType taskID;
 
@@ -114,64 +163,26 @@ static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
 
    /* Store counts */
    ciaaPOSIX_sleeps[taskID].counter = (toSleep + ciaaPOSIX_counter.counter);
-
-   /* wait for the posix event */
-   WaitEvent(POSIXE);
-   ClearEvent(POSIXE);
 }
 
-/*==================[external functions definition]==========================*/
-extern uint32_t ciaaPOSIX_sleep(uint32_t seconds)
+extern uint32_t ciaaPOSIX_sleepRemove(void)
 {
-   uint32_t toSleep;
+   TaskType taskID;
 
-   /* ensure that the seconds can be stored in 10ms counts */
-   ciaaPOSIX_assert((uint32_t)MAX_SECONDS > seconds);
+   GetTaskID(&taskID);
 
-   /* store the sleep time in 10ms counts */
-   toSleep = seconds * SLEEP_TIME_TO_COUNTS;
+   /* remove sleeping state for this task */
+   ciaaPOSIX_sleeps[taskID].isCounting = 0;
 
-   /* sleep time processing*/
-   ciaaPOSIX_sleepAlgorithm(toSleep);
-
-   return 0;
-}
-
-extern int32_t ciaaPOSIX_usleep(useconds_t useconds)
-{
-   int32_t ret = 0;
-   uint32_t toSleep;
-
-#if (CIAAPOSIX_DEBUG == CIAAPOSIX_ENABLE)
-   if (1000000 <= useconds)
-   {
-      ret = -1;
-   }
-   else
-#endif
-   {
-      if(MAX_USECONDS > useconds)
-      {
-         /* calculate how many main function cycles shall be sleep */
-         toSleep = (useconds + (CIAAPOSIX_MAINFUNCTION_PERIODUS-1))
-         / CIAAPOSIX_MAINFUNCTION_PERIODUS;
-
-         /* sleep time processing */
-         ciaaPOSIX_sleepAlgorithm(toSleep);
-      }
-      else
-      {
-         ret = -1;
-      }
-   }
-
-   return ret;
+   return ciaaPOSIX_sleeps[taskID].counter;
 }
 
 extern void ciaaPOSIX_sleepMainFunction(void)
 {
    uint32_t taskID;
    uint32_t aux_distance = MAX_COUNTS;
+
+   GetResource(POSIXR);
 
    /* Are there sleeping tasks? */
    if(ciaaPOSIX_counter.isCounting)
@@ -210,6 +221,8 @@ extern void ciaaPOSIX_sleepMainFunction(void)
          }
       }
    }
+
+   ReleaseResource(POSIXR);
 
 } /* end of ciaaPOSIX_sleepMainFunction */
 

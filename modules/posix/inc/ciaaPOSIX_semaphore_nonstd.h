@@ -1,4 +1,4 @@
-/* Copyright 2016, Diego Ezequiel Vommaro
+/* Copyright 2016, Mariano Cerdeiro
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -31,11 +31,11 @@
  *
  */
 
-#ifndef CIAAPOSIX_UNISTD_NONSTD_H
-#define CIAAPOSIX_UNISTD_NONSTD_H
-/** \brief ciaa POSIX unistd non standard header file
+#ifndef CIAAPOSIX_SEMAPHORE_NONSTD_H
+#define CIAAPOSIX_SEMAPHORE_NONSTD_H
+/** \brief POSIX non standard extension of semaphore
  **
- ** ciaa POSIX unistd non standard header file
+ ** POSIX non standard extension of semaphore header file
  **
  **/
 
@@ -46,6 +46,7 @@
 
 /*==================[inclusions]=============================================*/
 #include "ciaaPOSIX_stdint.h"
+#include "ciaaPOSIX_semaphore.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -59,27 +60,22 @@ extern "C" {
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief ciaaPOSIX_sleepAlgorithm
+/** \brief Waits for a sempahore with timeout
  **
- ** Sleeps the current task and reload the global counter if required
+ ** Waits for the sempahore sem for a defined amount of milliseconds
  **
- ** \param[in] toSleep counts of calls to ciaaPOSIX_sleepMainFunction
- **            to sleep the calling task
+ ** \param[inout] sem sempahore to wait for
+ ** \param[in] timeout timout in milliseconds to wait for this semaphore
+ ** \return the amount of milliseconds waited for the semaphore or
+ **         CIAAPOSIX_TIMEOUT if a timeout occurs.
  **
+ ** \remakrs Is of semaphores is discourages in an OSEK environment. In an
+ **          OSEK-OS environment is better to use GetResource and
+ **          ReleaseResource interfaces.
  **
- ** \remarks shall be called with POSIXR ocupides since access global variables
+ ** \remarks Never use this interface from interrupt context.
  **/
-extern void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
-
-extern uint32_t ciaaPOSIX_sleepRemove(void)
-
-/** \brief ciaaPOSIX sleep main function
- **
- ** Sleep main funciton, this function shall be called every
- ** CIAAPOSIX_MAINFUNCTION_PERIODUS micro seconds.
- **
- **/
-extern void ciaaPOSIX_sleepMainFunction(void);
+extern uint32_t ciaaPOSIX_sem_waitfor(sem_t * const sem, uint32_t timeout);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
@@ -88,5 +84,6 @@ extern void ciaaPOSIX_sleepMainFunction(void);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_UNISTD_NONSTD_H */
+#endif /* #ifndef CIAAPOSIX_SEMAPHORE_NONSTD_H */
+
 
