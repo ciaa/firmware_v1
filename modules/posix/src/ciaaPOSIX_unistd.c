@@ -48,13 +48,6 @@
 #include "Os_Internal.h"
 
 /*==================[macros and definitions]=================================*/
-#define CIAAPOSIX_MAINFUNCTION_PERIODMS ((CIAAPOSIX_MAINFUNCTION_PERIODUS)/1000)
-
-#define SLEEP_TIME_TO_COUNTS (1000 / CIAAPOSIX_MAINFUNCTION_PERIODMS)
-
-#define MAX_SECONDS (MAX_COUNTS / SLEEP_TIME_TO_COUNTS)
-
-#define MAX_USECONDS (UINT32_MAX - (CIAAPOSIX_MAINFUNCTION_PERIODUS-2))
 
 /*==================[internal data declaration]==============================*/
 /** \brief Remaining counts to wake up the next task */
@@ -90,7 +83,7 @@ extern uint32_t ciaaPOSIX_sleep(uint32_t seconds)
 
    GetResource(POSIXR);
    /* sleep time processing*/
-   ciaaPOSIX_sleepAlgorithm(toSleep);
+   ciaaPOSIX_sleepAddTask(toSleep);
    ReleaseResource(POSIXR);
 
    WaitEvent(POSIXR);
@@ -115,11 +108,11 @@ extern int32_t ciaaPOSIX_usleep(useconds_t useconds)
       if(MAX_USECONDS > useconds)
       {
          /* calculate how many main function cycles shall be sleep */
-         toSleep = (useconds + (CIAAPOSIX_MAINFUNCTION_PERIODUS-1))
-         / CIAAPOSIX_MAINFUNCTION_PERIODUS;
+         toSleep = (useconds + (CIAAPOSIX_SLEEP_TICK-1))
+         / CIAAPOSIX_SLEEP_TICK;
 
          /* sleep time processing */
-         ciaaPOSIX_sleepAlgorithm(toSleep);
+         ciaaPOSIX_sleepAddTask(toSleep);
 
          WaitEvent(POSIXR);
          ClearEvent(POSIXR);
@@ -133,7 +126,7 @@ extern int32_t ciaaPOSIX_usleep(useconds_t useconds)
    return ret;
 }
 
-extern void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
+extern void ciaaPOSIX_sleepAddTask(uint32_t toSleep)
 {
    TaskType taskID;
 
@@ -163,7 +156,7 @@ extern void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep)
    ciaaPOSIX_sleeps[taskID].counter = (toSleep + ciaaPOSIX_counter.counter);
 }
 
-extern uint32_t ciaaPOSIX_sleepRemove(void)
+extern uint32_t ciaaPOSIX_sleepRemTask(void)
 {
    TaskType taskID;
 
@@ -175,7 +168,7 @@ extern uint32_t ciaaPOSIX_sleepRemove(void)
    return ciaaPOSIX_sleeps[taskID].counter;
 }
 
-extern void ciaaPOSIX_sleepMainFunction(void)
+extern void ciaaPOSIX_sleepTick(void)
 {
    uint32_t taskID;
    uint32_t aux_distance = MAX_COUNTS;

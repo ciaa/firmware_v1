@@ -54,6 +54,18 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
+/* milisecond tick definition */
+#define CIAAPOSIX_SLEEP_TICK_MS ((CIAAPOSIX_SLEEP_TICK)/1000)
+
+/* sleep counts definition. They are 1000 counts per milisecond tick */
+#define SLEEP_TIME_TO_COUNTS (1000 / CIAAPOSIX_SLEEP_TICK_MS)
+
+/* maximum quantity of second supported */
+#define MAX_SECONDS (MAX_COUNTS / SLEEP_TIME_TO_COUNTS)
+
+/* maximum quantity of usecond supported */
+#define MAX_USECONDS (UINT32_MAX - (CIAAPOSIX_SLEEP_TICK-2))
+
 /* Position of the state bit that indicates if the task is sleeping or not*/
 #define STATE_BIT 31
 
@@ -116,6 +128,26 @@ typedef struct ciaaPOSIX_counter_type
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
+/** \brief ciaaPOSIX_sleepAddTask
+ **
+ ** Add our task to sleeping list and reload the global counter if required
+ **
+ ** \param[in] toSleep counts of calls to ciaaPOSIX_sleepMainFunction
+ **            to sleep the calling task
+ **
+ **
+ ** \remarks shall be called with POSIXR ocupides since access global variables
+ **/
+extern void ciaaPOSIX_sleepAddTask(uint32_t toSleep);
+
+/** \brief ciaaPOSIX_sleepRemTask
+ **
+ ** Remove our task of the sleeping ones.
+ **
+ ** \returns rest time before expiration in counts of calls to
+ **          ciaaPOSIX_sleepMainFunction.
+ **/
+extern uint32_t ciaaPOSIX_sleepRemTask(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

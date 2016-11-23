@@ -53,43 +53,21 @@ extern "C" {
 #endif
 
 /*==================[macros]=================================================*/
-#define CIAAPOSIX_MAINFUNCTION_PERIODUS 10000
+#define CIAAPOSIX_SLEEP_TICK  10000
 
-#define CIAAPOSIX_TIMEOUT               0xFFFFFFFFU
+#define CIAAPOSIX_TIMEOUT     0xFFFFFFFFU
 
 /*==================[typedef]================================================*/
 
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/
-/** \brief ciaaPOSIX_sleepAlgorithm
+/** \brief ciaaPOSIX sleep tick function
  **
- ** Sleeps the current task and reload the global counter if required
- **
- ** \param[in] toSleep counts of calls to ciaaPOSIX_sleepMainFunction
- **            to sleep the calling task
- **
- **
- ** \remarks shall be called with POSIXR ocupides since access global variables
- **/
-extern void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
-
-/** \brief ciaaPOSIX_sleepRemove
- **
- ** Remove our task of the sleeping ones.
- **
- ** \returns rest time before expiration in counts of calls to
- **          ciaaPOSIX_sleepMainFunction.
- **/
-extern uint32_t ciaaPOSIX_sleepRemove(void);
-
-/** \brief ciaaPOSIX sleep main function
- **
- ** Sleep main funciton, this function shall be called every
- ** CIAAPOSIX_MAINFUNCTION_PERIODUS micro seconds.
+ ** this function shall be called every CIAAPOSIX_SLEEP_TICK micro seconds.
  **
  **/
-extern void ciaaPOSIX_sleepMainFunction(void);
+extern void ciaaPOSIX_sleepTick(void);
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus

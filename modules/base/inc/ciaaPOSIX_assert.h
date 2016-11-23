@@ -60,7 +60,7 @@ extern "C" {
       while(1==1);                                                         \
    }
 
-/* UNITY_EXCLUDE_STDINT_H macro is used in Unit Test Enviroment */
+/* CIAA_UNIT_TEST macro is used in Unit Test Enviroment */
 #ifdef CIAA_UNIT_TEST
    void ciaaPOSIX_assert(int expr);
 #else

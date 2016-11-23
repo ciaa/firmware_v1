@@ -50,16 +50,7 @@
 #include "Os_Internal.h"
 
 /*==================[macros and definitions]=================================*/
-#define CIAAPOSIX_MAINFUNCTION_PERIODUS 10000
-
-#define CIAAPOSIX_MAINFUNCTION_PERIODMS ((CIAAPOSIX_MAINFUNCTION_PERIODUS)/1000)
-
-#define SLEEP_TIME_TO_COUNTS (1000 / CIAAPOSIX_MAINFUNCTION_PERIODMS)
-
-#define MAX_SECONDS (MAX_COUNTS / SLEEP_TIME_TO_COUNTS)
-
-#define MAX_USECONDS (UINT32_MAX - (CIAAPOSIX_MAINFUNCTION_PERIODUS-2))
-
+/* Limit for testing avoiding test times too long */
 #define MAX_SECONDS_FOR_THIS_TEST 1000
 
 /*==================[internal data declaration]==============================*/
@@ -69,7 +60,11 @@
 /*==================[internal data definition]===============================*/
 
 /*==================[external data definition]===============================*/
-TaskType MyGetTaskIDTaskID;
+TaskType MyGetTaskIDTaskID = 0;
+EventMaskType WaitEvent_ev = 0;
+EventMaskType ClearEvent_ev = 0;
+EventMaskType SetEvent_ev = 0;
+
 bool WaitEvent_flag = false;
 bool ClearEvent_flag = false;
 bool SetEvent_flag = false;
@@ -91,14 +86,18 @@ StatusType MyGetTaskID(TaskRefType TaskID, int cmock_num_calls)
 
 StatusType WaitEvent_stub(EventMaskType Mask, int cmock_num_calls)
 {
-   WaitEvent_flag = true;
+   WaitEvent_ev = Mask;
 }
 
 StatusType ClearEvent_stub(EventMaskType Mask, int cmock_num_calls)
 {
-   ClearEvent_flag = true;
+   /* ClearEvent is seted if WaitEvent was called before */
+   if(POSIXE == WaitEvent_ev)
+   {
+      ClearEvent_ev = POSIXE;
+   }
 
-   ciaaPOSIX_sleepsTest[MyGetTaskIDTaskID] = true;
+//   ciaaPOSIX_sleepsTest[MyGetTaskIDTaskID] = true;
 }
 
 StatusType SetEvent_stub(TaskType TaskID, EventMaskType Mask, int cmock_num_calls)
@@ -125,7 +124,16 @@ void setUp(void) {
 
    int i;
 
+   /* setUp auxiliar information */
+   WaitEvent_ev = 0;
+   ClearEvent_ev = 0;
+
    SetEvent_StubWithCallback(SetEvent_stub);
+   
+   TaskType MyGetTaskIDTaskID = 0;
+   EventMaskType WaitEvent_ev = 0;
+   EventMaskType ClearEvent_ev = 0;
+   EventMaskType SetEvent_ev = 0;
 
    WaitEvent_flag = false;
    ClearEvent_flag = false;
@@ -141,7 +149,7 @@ void setUp(void) {
    /* Wake up the tasks */
    for(i = 0; i < (MAX_SECONDS_FOR_THIS_TEST * SLEEP_TIME_TO_COUNTS); i++)
    {
-      ciaaPOSIX_sleepMainFunction();
+     // ciaaPOSIX_sleepTick();
    }
 }
 
@@ -152,6 +160,94 @@ void setUp(void) {
  **/
 void tearDown(void) {
 }
+
+/** \brief test case for test doubles
+ **
+ ** The WaitEvent stub intercepts information about event to wait
+ **
+ ** \remarks The focus here is on test doubles and the setUp function
+ **/
+void test_ciaaPOSIX_unistd_testDoubles_01(void)
+{
+   /* Internal data */
+   EventMaskType WaitEvent_ev_setUp = WaitEvent_ev;
+
+   /* Set SetEvent stub */
+   WaitEvent_StubWithCallback(WaitEvent_stub);
+
+   /* Functions to test */
+   WaitEvent(POSIXE);
+
+   /* ASSERTs */
+   /* The setUp event is zero */
+   TEST_ASSERT_EQUAL_INT(0, WaitEvent_ev_setUp);
+   /* Then, the waiting event is a POSIX event */
+   TEST_ASSERT_EQUAL_INT(POSIXE, WaitEvent_ev);
+}
+
+/** \brief test case for test doubles
+ **
+ ** The ClearEvent stub intercepts information about event to clear
+ ** and verify the correct sequence of excecution (Wait and then Clear)
+ **
+ ** \remarks The focus here is on test doubles and the setUp function
+ **/
+void test_ciaaPOSIX_unistd_testDoubles_02(void)
+{
+   /* Internal data */
+   EventMaskType WaitEvent_ev_setUp = WaitEvent_ev;
+   EventMaskType ClearEvent_ev_setUp = ClearEvent_ev;
+   EventMaskType ClearEvent_ev_incorrect = 0;
+
+   /* Set SetEvent stub */
+   WaitEvent_StubWithCallback(WaitEvent_stub);
+   ClearEvent_StubWithCallback(ClearEvent_stub);
+
+   /* Functions to test. Incorrect sequence */
+   ClearEvent(POSIXE);
+   ClearEvent_ev_incorrect = ClearEvent_ev;
+
+   /* Function to test. Correct sequence */
+   WaitEvent(POSIXE);
+   ClearEvent(POSIXE);
+
+   /* ASSERTs */
+   /* The setUp events are zero */
+   TEST_ASSERT_EQUAL_INT(0, WaitEvent_ev_setUp);
+   TEST_ASSERT_EQUAL_INT(0, ClearEvent_ev_setUp);
+   /* The event of incorrect sequence is zero*/
+   TEST_ASSERT_EQUAL_INT(0, ClearEvent_ev_incorrect);
+   /* Then, the waiting and clear events are POSIX events */
+   TEST_ASSERT_EQUAL_INT(POSIXE, WaitEvent_ev);
+   TEST_ASSERT_EQUAL_INT(POSIXE, ClearEvent_ev);
+}
+
+/** \brief test ciaaPOSIX_sleepAddTask
+ **
+ ** There are no sleeping functions
+ **
+ **/
+void test_ciaaPOSIX_sleepAddTask_01(void)
+{
+   /* Internal data */
+   ciaaPOSIX_counter_t next_to_weak;
+   ciaaPOSIX_counter_t counter;
+   ciaaPOSIX_counter_t sleeping_list[TASKS_COUNT];
+   ciaaPOSIX_counter_t expected_next_to_weak;
+   ciaaPOSIX_counter_t expected_counter;
+   ciaaPOSIX_counter_t expected_sleeping_list[TASKS_COUNT];
+
+   /* Ignoring resource functions */
+   GetResource_IgnoreAndReturn(1);
+   ReleaseResource_IgnoreAndReturn(1);
+
+   /* Call function to test */
+   ciaaPOSIX_sleepAddTask(100);
+
+   /* ASSERTs */
+
+}
+
 
 /** \brief test ciaaPOSIX_sleep
  **
@@ -461,17 +557,17 @@ void test_ciaaPOSIX_usleep_02(void) {
    TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 }
 
-/** \brief test ciaaPOSIX_sleepMainFunction
+/** \brief test ciaaPOSIX_sleepTick
  **
  ** there are not sleeping function, so nothing must be changed
  **
  **/
-void test_ciaaPOSIX_sleepMainFunction_01(void) {
+void test_ciaaPOSIX_sleepTick_01(void) {
 
    SetEvent_StubWithCallback(SetEvent_stub);
 
    /* Call function to test */
-   ciaaPOSIX_sleepMainFunction();
+   ciaaPOSIX_sleepTick();
 
    /* There are not sleeping tasks */
    TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[0]);
@@ -479,12 +575,12 @@ void test_ciaaPOSIX_sleepMainFunction_01(void) {
    TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 }
 
-/** \brief test ciaaPOSIX_sleepMainFunction
+/** \brief test ciaaPOSIX_sleepTick
  **
  ** there is a sleeping function, so the counter must be incremented
  **
  **/
-void test_ciaaPOSIX_sleepMainFunction_02(void) {
+void test_ciaaPOSIX_sleepTick_02(void) {
    /* Internal data */
    uint32_t ret;
 
@@ -501,7 +597,7 @@ void test_ciaaPOSIX_sleepMainFunction_02(void) {
    ret = ciaaPOSIX_sleep(1);
 
    /* Call function to test */
-   ciaaPOSIX_sleepMainFunction();
+   ciaaPOSIX_sleepTick();
 
    /* ASSERTs */
    /* return OK */
@@ -513,12 +609,12 @@ void test_ciaaPOSIX_sleepMainFunction_02(void) {
    TEST_ASSERT_FALSE(ciaaPOSIX_sleepsTest[2]);
 }
 
-/** \brief test ciaaPOSIX_sleepMainFunction
+/** \brief test ciaaPOSIX_sleepTick
  **
  ** There are sleeping two tasks, and then, one wakes up
  **
  **/
-void test_ciaaPOSIX_sleepMainFunction_03(void) {
+void test_ciaaPOSIX_sleepTick_03(void) {
    /* Internal data */
    uint32_t ret, i;
 
@@ -559,7 +655,7 @@ void test_ciaaPOSIX_sleepMainFunction_03(void) {
    /* Call function to test */
    for(i = 0; i < (1 * SLEEP_TIME_TO_COUNTS); i++)
    {
-      ciaaPOSIX_sleepMainFunction();
+      ciaaPOSIX_sleepTick();
    }
 
    /* ASSERTs */
@@ -572,12 +668,12 @@ void test_ciaaPOSIX_sleepMainFunction_03(void) {
    TEST_ASSERT_TRUE(SetEvent_flag);
 }
 
-/** \brief test ciaaPOSIX_sleepMainFunction
+/** \brief test ciaaPOSIX_sleepTick
  **
  ** There are sleeping one task, and then, It wakes up
  **
  **/
-void test_ciaaPOSIX_sleepMainFunction_04(void) {
+void test_ciaaPOSIX_sleepTick_04(void) {
    /* Internal data */
    uint32_t ret, i;
 
@@ -605,7 +701,7 @@ void test_ciaaPOSIX_sleepMainFunction_04(void) {
    /* Call function to test */
    for(i = 0; i < (2 * SLEEP_TIME_TO_COUNTS); i++)
    {
-      ciaaPOSIX_sleepMainFunction();
+      ciaaPOSIX_sleepTick();
    }
 
    /* ASSERTs */
@@ -619,12 +715,12 @@ void test_ciaaPOSIX_sleepMainFunction_04(void) {
    TEST_ASSERT_TRUE(SetEvent_flag);
 }
 
-/** \brief test ciaaPOSIX_sleepMainFunction
+/** \brief test ciaaPOSIX_sleepTick
  **
  ** There are sleeping three tasks, and then, one wakes up
  **
  **/
-void test_ciaaPOSIX_sleepMainFunction_05(void) {
+void test_ciaaPOSIX_sleepTick_05(void) {
    /* Internal data */
    uint32_t ret, i;
 
@@ -660,7 +756,7 @@ void test_ciaaPOSIX_sleepMainFunction_05(void) {
    /* Call function to test */
    for(i = 0; i < (1 * SLEEP_TIME_TO_COUNTS); i++)
    {
-      ciaaPOSIX_sleepMainFunction();
+      ciaaPOSIX_sleepTick();
    }
 
    /* ASSERTs */
