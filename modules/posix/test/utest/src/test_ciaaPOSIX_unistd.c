@@ -77,7 +77,7 @@ char const * const ciaaPOSIX_assert_msg = \
 /*==================[internal functions definition]==========================*/
 
 /*==================[external functions definition]==========================*/
-StatusType MyGetTaskID(TaskRefType TaskID, int cmock_num_calls)
+StatusType GetTaskID_stub(TaskRefType TaskID, int cmock_num_calls)
 {
    (void)cmock_num_calls;
    *TaskID = MyGetTaskIDTaskID;
@@ -127,13 +127,11 @@ void setUp(void) {
    /* setUp auxiliar information */
    WaitEvent_ev = 0;
    ClearEvent_ev = 0;
+   MyGetTaskIDTaskID = 0;
 
    SetEvent_StubWithCallback(SetEvent_stub);
    
-   TaskType MyGetTaskIDTaskID = 0;
-   EventMaskType WaitEvent_ev = 0;
-   EventMaskType ClearEvent_ev = 0;
-   EventMaskType SetEvent_ev = 0;
+   SetEvent_ev = 0;
 
    WaitEvent_flag = false;
    ClearEvent_flag = false;
@@ -222,6 +220,45 @@ void test_ciaaPOSIX_unistd_testDoubles_02(void)
    TEST_ASSERT_EQUAL_INT(POSIXE, ClearEvent_ev);
 }
 
+/** \brief test case for test doubles
+ **
+ ** The GetTaskId stub provides an indirect input that drive the code
+ ** under test. In this case, It provides the task ID configured by
+ ** the test case.
+ **
+ ** \remarks The focus here is on test doubles and the setUp function
+ **/
+void test_ciaaPOSIX_unistd_testDoubles_03(void)
+{
+   /* Internal data */
+   TaskType MyGetTaskIDTaskID_prev;
+   TaskType MyGetTaskIDTaskID_tst;
+   StatusType ret1, ret2, ret3;
+
+   /* Set GetTaskID stub */
+   GetTaskID_StubWithCallback(GetTaskID_stub);
+
+   /* Internal data initialization */
+   ret1 = GetTaskID(&MyGetTaskIDTaskID_prev);
+   ret2 = GetTaskID(&MyGetTaskIDTaskID_tst);
+
+   /* Set indirect input */
+   MyGetTaskIDTaskID = 3;
+
+   /* Function to test. TaskId as an indirect input */
+   ret3 = GetTaskID(&MyGetTaskIDTaskID_tst);
+
+   /* ASSERTs */
+   /* Initial values */
+   TEST_ASSERT_EQUAL_INT(0, MyGetTaskIDTaskID_prev);
+   /* Return values of this stub */
+   TEST_ASSERT_EQUAL_INT(E_OK, ret1);
+   TEST_ASSERT_EQUAL_INT(E_OK, ret2);
+   TEST_ASSERT_EQUAL_INT(E_OK, ret3);
+   /* Correct value to the indirect input */
+   TEST_ASSERT_EQUAL_INT(3, MyGetTaskIDTaskID_tst);
+}
+
 /** \brief test ciaaPOSIX_sleepAddTask
  **
  ** There are no sleeping functions
@@ -260,7 +297,7 @@ void test_ciaaPOSIX_sleep_01(void) {
    int ret;
 
    /* Set behaivor and stubs */
-   GetTaskID_StubWithCallback(MyGetTaskID);
+   GetTaskID_StubWithCallback(GetTaskID_stub);
    ciaaPOSIX_printf_IgnoreAndReturn(-1);
    WaitEvent_StubWithCallback(WaitEvent_stub);
    ClearEvent_StubWithCallback(ClearEvent_stub);
@@ -303,7 +340,7 @@ void test_ciaaPOSIX_sleep_02(void) {
    int ret;
 
    /* Set behaivor and stubs */
-   GetTaskID_StubWithCallback(MyGetTaskID);
+   GetTaskID_StubWithCallback(GetTaskID_stub);
    ciaaPOSIX_printf_IgnoreAndReturn(-1);
    WaitEvent_StubWithCallback(WaitEvent_stub);
    ClearEvent_StubWithCallback(ClearEvent_stub);
@@ -370,7 +407,7 @@ void test_ciaaPOSIX_sleep_03(void) {
    int ret;
 
    /* Set behaivor and stubs */
-   GetTaskID_StubWithCallback(MyGetTaskID);
+   GetTaskID_StubWithCallback(GetTaskID_stub);
    ciaaPOSIX_printf_IgnoreAndReturn(-1);
    WaitEvent_StubWithCallback(WaitEvent_stub);
    ClearEvent_StubWithCallback(ClearEvent_stub);
@@ -436,7 +473,7 @@ void test_ciaaPOSIX_sleep_04(void) {
    int ret;
 
    /* Set behaivor and stubs */
-   GetTaskID_StubWithCallback(MyGetTaskID);
+   GetTaskID_StubWithCallback(GetTaskID_stub);
    ciaaPOSIX_printf_IgnoreAndReturn(-1);
    WaitEvent_StubWithCallback(WaitEvent_stub);
    ClearEvent_StubWithCallback(ClearEvent_stub);
@@ -476,7 +513,7 @@ void test_ciaaPOSIX_usleep_01(void) {
    int ret;
 
    /* Set behaivor and stubs */
-   GetTaskID_StubWithCallback(MyGetTaskID);
+   GetTaskID_StubWithCallback(GetTaskID_stub);
    ciaaPOSIX_printf_IgnoreAndReturn(-1);
    WaitEvent_StubWithCallback(WaitEvent_stub);
    ClearEvent_StubWithCallback(ClearEvent_stub);
@@ -517,7 +554,7 @@ void test_ciaaPOSIX_usleep_02(void) {
    int ret;
 
    /* Set behaivor and stubs */
-   GetTaskID_StubWithCallback(MyGetTaskID);
+   GetTaskID_StubWithCallback(GetTaskID_stub);
    ciaaPOSIX_printf_IgnoreAndReturn(-1);
    WaitEvent_StubWithCallback(WaitEvent_stub);
    ClearEvent_StubWithCallback(ClearEvent_stub);
@@ -585,7 +622,7 @@ void test_ciaaPOSIX_sleepTick_02(void) {
    uint32_t ret;
 
    /* Set behaivor and stubs */
-   GetTaskID_StubWithCallback(MyGetTaskID);
+   GetTaskID_StubWithCallback(GetTaskID_stub);
    ciaaPOSIX_printf_IgnoreAndReturn(-1);
    WaitEvent_StubWithCallback(WaitEvent_stub);
    ClearEvent_StubWithCallback(ClearEvent_stub);
@@ -619,7 +656,7 @@ void test_ciaaPOSIX_sleepTick_03(void) {
    uint32_t ret, i;
 
    /* Set behaivor and stubs */
-   GetTaskID_StubWithCallback(MyGetTaskID);
+   GetTaskID_StubWithCallback(GetTaskID_stub);
    ciaaPOSIX_printf_IgnoreAndReturn(-1);
    WaitEvent_StubWithCallback(WaitEvent_stub);
    ClearEvent_StubWithCallback(ClearEvent_stub);
@@ -678,7 +715,7 @@ void test_ciaaPOSIX_sleepTick_04(void) {
    uint32_t ret, i;
 
    /* Set behaivor and stubs */
-   GetTaskID_StubWithCallback(MyGetTaskID);
+   GetTaskID_StubWithCallback(GetTaskID_stub);
    ciaaPOSIX_printf_IgnoreAndReturn(-1);
    WaitEvent_StubWithCallback(WaitEvent_stub);
    ClearEvent_StubWithCallback(ClearEvent_stub);
@@ -725,7 +762,7 @@ void test_ciaaPOSIX_sleepTick_05(void) {
    uint32_t ret, i;
 
    /* Set behaivor and stubs */
-   GetTaskID_StubWithCallback(MyGetTaskID);
+   GetTaskID_StubWithCallback(GetTaskID_stub);
    ciaaPOSIX_printf_IgnoreAndReturn(-1);
    WaitEvent_StubWithCallback(WaitEvent_stub);
    ClearEvent_StubWithCallback(ClearEvent_stub);
