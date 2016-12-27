@@ -79,7 +79,7 @@ OSEK OSEK {
       RESOURCE = POSIXR;
       EVENT = POSIXE;
    }
-   
+
    TASK OutputTask {
       PRIORITY = 2;
       ACTIVATION = 1;

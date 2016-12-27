@@ -40,6 +40,7 @@
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
 /** \addtogroup POSIX POSIX Implementation
+ ** @{ */
 /*==================[inclusions]=============================================*/
 #include "ciaak.h"            /* <= ciaa kernel header */
 #include "ciaaPlatforms.h"

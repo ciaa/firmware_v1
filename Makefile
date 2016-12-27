@@ -204,6 +204,11 @@ END_GROUP         = -Xlinker --end-group
 endif
 ifeq ($(UNAME_S),Darwin)
 # MACOS
+# Determine wich FTDI Drivers are loaded
+ifeq ($(FTDI_KEXT),)
+FTDI_KEXT := $(shell kextstat | grep -o com.apple.driver.AppleUSBFTDI )
+FTDI_KEXT += $(shell kextstat | grep -o com.FTDI.driver.FTDIUSBSerialDriver )
+endif
 # Compile in 32 bits mode
 ifeq ($(ARCH),x86)
 CFLAGS            += -m32 -Wno-typedef-redefinition
@@ -445,7 +450,7 @@ code_sanity:
 osek_oil_gen_tst:
 PWD =$(shell pwd)
 SHUNIT = $(PWD)$(DS)externals$(DS)shunit$(DS)shunit2.sh
-TESTS = $(PWD)$(DS)modules$(DS)rtos$(DS)generator$(DS)tests$(DS)ftest
+TESTS = $(PWD)$(DS)modules$(DS)tools$(DS)generator$(DS)tests$(DS)ftest
 FIXTURES = $(TESTS)$(DS)fixtures
 EXPECTED = $(TESTS)$(DS)expected
 TMP = $(TESTS)$(DS)tmp
@@ -453,7 +458,7 @@ osek_oil_gen_tst: code_sanity
 	@echo ' '
 	@echo ===============================================================================
 	@echo Unit testing the module rtos_gen
-	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)rtos$(DS)generator$(DS)tests$(DS)utest$(DS)
+	php externals$(DS)phpunit$(DS)phpunit.phar modules$(DS)tools$(DS)generator$(DS)tests$(DS)utest$(DS)
 	@echo ' '
 	@echo ===============================================================================
 	@echo Functional testing the module rtos_gen
@@ -577,7 +582,7 @@ gen.intermediate : $(OIL_4_GEN_DEP)
 ifneq ($(strip $(OIL_FILES) $(POIL_FILES)),)
 ifdef MCORE
 	@echo "*** Generating OSEK using multicore options! ***"
-	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
+	php modules$(DS)tools$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) -DMCORE=$(MCORE) \
 		-c $(OIL_FILES) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 else
@@ -585,7 +590,7 @@ else
 	@echo ===============================================================================
 	@echo Run RTOS Generator
 	@echo ' '
-	php modules$(DS)rtos$(DS)generator$(DS)generator.php --cmdline -l -v \
+	php modules$(DS)tools$(DS)generator$(DS)generator.php --cmdline -l -v \
 		-DARCH=$(ARCH) -DCPUTYPE=$(CPUTYPE) -DCPU=$(CPU) \
 		-c $(OIL_4_GEN) -t $(foreach TMP, $(rtos_GEN_FILES), $(TMP)) -o $(GEN_DIR)
 endif
@@ -603,9 +608,32 @@ doxygen:
 	doxygen modules$(DS)tools$(DS)doxygen$(DS)doxygen.cnf
 
 ###############################################################################
+# Unload and reload OSX FTDI drivers
+unload:
+ifneq ($(FTDI_KEXT),)
+	@echo ===============================================================================
+	@echo =$(FTDI_KEXT)=
+	@echo ' '
+	@echo Unloading FTDI OSX drivers
+	$(foreach DRIVER, $(FTDI_KEXT), sudo kextunload -b $(DRIVER) )
+endif
+
+reload:
+ifeq ($(UNAME_S),Darwin)
+	@echo ===============================================================================
+	@echo ' '
+	@echo Reloading FTDI OSX drivers
+ifneq ($(strip $(FTDI_KEXT)),)
+	$(foreach DRIVER, $(FTDI_KEXT), sudo kextload -b $(DRIVER) )
+else
+	sudo kextload -b com.apple.driver.AppleUSBFTDI
+endif
+endif
+
+###############################################################################
 # openocd
 include modules$(DS)tools$(DS)openocd$(DS)mak$(DS)Makefile
-openocd:
+openocd: unload
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
@@ -624,6 +652,7 @@ else
 endif
 endif
 endif
+	@make reload FTDI_KEXT=$(FTDI_KEXT)
 
 ###############################################################################
 # Take make arguments into MAKE_ARGS variable
@@ -633,7 +662,7 @@ $(eval $(MAKE_ARGS):;@:)
 
 ###############################################################################
 # erase memory, syntax: erase [FLASH|QSPI]
-erase:
+erase: unload
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
@@ -657,15 +686,19 @@ ifeq ($(words $(MAKE_ARGS)),1)
 ifeq ($(CPUTYPE),k60_120)
 	@echo 'Not supported on Kinetis processors'
 else
+ifeq ($(word 1, $(MAKE_ARGS)),FLASH)
 	@echo ===============================================================================
 	@echo Starting OpenOCD and erasing all...
 	@echo "(after downloading a new firmware please do a hardware reset!)"
 	@echo ' '
-ifeq ($(word 1, $(MAKE_ARGS)),FLASH)
-	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_FLASH_BANK) 0 last" -c "shutdown"
 else
 ifeq ($(word 1, $(MAKE_ARGS)),QSPI)
-	-$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_QSPI_BANK) 0 last" -c "shutdown"
+	@echo ===============================================================================
+	@echo Starting OpenOCD and erasing all...
+	@echo "(after downloading a new firmware please do a hardware reset!)"
+	@echo ' '
+	$(OPENOCD_BIN) $(OPENOCD_FLAGS) -c "init" -c "halt 0" -c "$(FLASH_ERASE_COMMAND) $(TARGET_DOWNLOAD_QSPI_BANK) 0 last" -c "shutdown"
 else
 	@echo 'Error...unknown memory type'
 endif
@@ -678,9 +711,11 @@ endif
 endif
 endif
 endif
+	@make reload FTDI_KEXT=$(FTDI_KEXT)
+
 ###############################################################################
 # Download to target, syntax download [file]
-download:
+download: unload
 # if windows or posix shows an error
 ifeq ($(ARCH),x86)
 	@echo ERROR: You can not start openocd in Windows nor Linux
@@ -709,6 +744,7 @@ endif
 endif
 endif
 endif
+	@make reload FTDI_KEXT=$(FTDI_KEXT)
 
 ###############################################################################
 # version
@@ -869,7 +905,7 @@ info:
 
 ###############################################################################
 # clean
-.PHONY: clean generate all run multicore
+.PHONY: clean generate all run multicore unload reload
 clean:
 	@echo Removing libraries
 	@rm -rf $(LIB_DIR)$(DS)*
@@ -893,6 +929,8 @@ endif
 	@rm -rf $(OBJ_DIR)$(DS)*
 	@echo Removing oil configuration files
 	@rm -rf $(ETC_DIR)$(DS)*
+	@echo Removing Download files
+	@rm -rf $(OUT_DIR)$(DS)download
 
 clean_rtostests:
 	@echo Removing RTOS Test generated project files

@@ -4,3 +4,6 @@
 [submodule "modules/modbus"]
 	path = modules/modbus
 	url = https://github.com/ciaa/firmware.modules.modbus.git
+[submodule "externals/lwip/lwip_src"]
+	path = externals/lwip/lwip_src
+	url = git://git.savannah.nongnu.org/lwip.git

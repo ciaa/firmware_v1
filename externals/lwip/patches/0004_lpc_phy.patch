@@ -1,0 +1,18 @@
+Function prototype for a MS delay function.
+===================================================================
+diff -uNr lwip/externals/lwip/cortexM4/lpc43xx/lpc4337/inc/lpc_phy.h lwip-ciaa/externals/lwip-ciaa/cortexM4/lpc43xx/lpc4337/inc/lpc_phy.h
+--- lwip/externals/lwip/cortexM4/lpc43xx/lpc4337/inc/lpc_phy.h	2014-02-06 08:00:40.000000000 -0300
++++ lwip-ciaa/externals/lwip/cortexM4/lpc43xx/lpc4337/inc/lpc_phy.h	2016-06-27 23:10:50.867287885 -0300
+@@ -68,6 +68,12 @@
+ uint32_t lpcPHYStsPoll(void);
+ 
+ /**
++ * @brief Function prototype for a MS delay function. Board layers or example code may
++ *        define this function as needed.
++ */
++typedef void (*p_msDelay_func_t)(uint32_t);
++
++/**
+  * @brief	Initialize the PHY
+  * @param	rmii			: Initializes PHY for RMII mode if true, MII if false
+  * @param	pDelayMsFunc	: Delay function (in mS) used for this driver

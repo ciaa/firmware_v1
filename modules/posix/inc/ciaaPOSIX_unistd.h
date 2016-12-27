@@ -45,6 +45,7 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
+#include "ciaaPOSIX_stddef.h"
 #include "ciaaPOSIX_stdint.h"
 #include "ciaaPOSIX_unistd_nonstd.h"
 
@@ -62,8 +63,9 @@ extern "C" {
  ** 1000000.
  **
  **/
+#if ( !defined(_USECONDS_T_DECLARED) && !defined(__CYGWIN__) )
 typedef uint32_t useconds_t;
-
+#endif
 /*==================[external data declaration]==============================*/
 
 /*==================[external functions declaration]=========================*/

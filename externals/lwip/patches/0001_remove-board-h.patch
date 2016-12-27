@@ -1,0 +1,24 @@
+Remove #include "board.h" from headers
+===================================================================
+diff -uNr lwip/cortexM4/lpc43xx/lpc4337/inc/lpc_phy.h lwip-ciaa/cortexM4/lpc43xx/lpc4337/inc/lpc_phy.h
+--- lwip/externals/lwip/cortexM4/lpc43xx/lpc4337/inc/lpc_phy.h	2014-02-06 08:00:40.000000000 -0300
++++ lwip-ciaa/externals/lwip/cortexM4/lpc43xx/lpc4337/inc/lpc_phy.h	2016-06-27 23:10:50.867287885 -0300
+@@ -32,7 +32,6 @@
+ #ifndef __LPC_PHY_H_
+ #define __LPC_PHY_H_
+ 
+-#include "board.h"
+ #include "chip.h"
+ 
+ #ifdef __cplusplus
+--- lwip/externals/lwip/cortexM4/lpc43xx/lpc4337/src/arch/lpc18xx_43xx_emac.c	2014-12-04 16:51:28.000000000 -0300
++++ lwip-ciaa/externals/lwip/cortexM4/lpc43xx/lpc4337/src/arch/lpc18xx_43xx_emac.c	2016-06-27 23:10:36.503288364 -0300
+@@ -43,8 +43,7 @@
+ #include "arch/lpc18xx_43xx_emac.h"
+ 
+ #include "chip.h"
+-#include "board.h"
+ #include "lpc_phy.h"
+ 
+ #include <string.h>
+ 

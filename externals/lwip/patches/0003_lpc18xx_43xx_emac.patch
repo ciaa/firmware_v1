@@ -1,0 +1,30 @@
+IRQ Handler and MAC address
+===================================================================
+diff -uNr lwip/cortexM4/lpc43xx/lpc4337/src/arch/lpc18xx_43xx_emac.c lwip-ciaa/cortexM4/lpc43xx/lpc4337/src/arch/lpc18xx_43xx_emac.c
+--- lwip/externals/lwip/cortexM4/lpc43xx/lpc4337/src/arch/lpc18xx_43xx_emac.c	2014-12-04 16:51:28.000000000 -0300
++++ lwip-ciaa/externals/lwip/cortexM4/lpc43xx/lpc4337/src/arch/lpc18xx_43xx_emac.c	2016-06-27 23:10:36.503288364 -0300
+@@ -809,7 +809,7 @@
+  * @note	This function handles the transmit, receive, and error interrupt of
+  * the LPC118xx/43xx. This is meant to be used when NO_SYS=0.
+  */
+-void ETH_IRQHandler(void)
++void OSEK_ISR_ETH_IRQHandler(void)
+ {
+ #if NO_SYS == 1
+ 	/* Interrupts are not used without an RTOS */
+@@ -865,6 +865,15 @@
+ 	}
+ }
+ 
++/* Returns the MAC address assigned to this board */
++void Board_ENET_GetMacADDR(uint8_t *mcaddr)
++{
++   /* TODO FIXME!! Get MAC address from I2C memory!! */
++	uint8_t boardmac[] = {0x00, 0x60, 0x37, 0x12, 0x34, 0x56};
++
++	memcpy(mcaddr, boardmac, 6);
++}
++
+ /* LWIP 18xx/43xx EMAC initialization function */
+ err_t lpc_enetif_init(struct netif *netif)
+ {

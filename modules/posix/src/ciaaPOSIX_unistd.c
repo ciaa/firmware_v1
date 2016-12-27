@@ -81,7 +81,7 @@ static void ciaaPOSIX_sleepAlgorithm(uint32_t toSleep);
 /*==================[internal data definition]===============================*/
 static ciaaPOSIX_counter_t ciaaPOSIX_next_to_wake = {0, 0};
 static ciaaPOSIX_counter_t ciaaPOSIX_counter = {0, 0};
-static ciaaPOSIX_counter_t ciaaPOSIX_sleeps[TASKS_COUNT]={0, 0};
+static ciaaPOSIX_counter_t ciaaPOSIX_sleeps[TASKS_COUNT] = {{0}};
 
 /*==================[external data definition]===============================*/
 
@@ -143,7 +143,7 @@ extern int32_t ciaaPOSIX_usleep(useconds_t useconds)
    uint32_t toSleep;
 
 #if (CIAAPOSIX_DEBUG == CIAAPOSIX_ENABLE)
-   if (1000000 >= useconds)
+   if (1000000 <= useconds)
    {
       ret = -1;
    }
