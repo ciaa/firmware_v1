@@ -311,7 +311,7 @@ typedef struct ext2_fs_info
 typedef struct ext2_file_info
 {
    //ext2_inode_t        *pinode;        /* Copy of on-disk inode */
-   uint16_t            f_group;     /* Block group number in which the node resides */
+   //uint16_t            f_group;     /* Block group number in which the node resides */
    uint32_t            f_pointer;   /* Local seek pointer */
    uint32_t            f_inumber;   /* Inode number */
    uint32_t            f_size;

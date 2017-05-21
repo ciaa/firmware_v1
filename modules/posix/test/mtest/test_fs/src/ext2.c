@@ -86,7 +86,7 @@ FIXME:
 -For example, dont use uint32_t when only uint16_t is needed.
 -Put variables in order for good alignment. First uint32_t, then uint16_t, etc.
 -Block alloc does not delete block contents. Set them to 0
-
+-In ext2_format(), if format_parameters.partition_size == 16K then inodes_per_block == 0 then error
 */
 
 /*==================[inclusions]=============================================*/
@@ -688,7 +688,6 @@ static int ext2_read_inode(vnode_t *dest_node, uint32_t inumber)
    }
 
    finfo->f_inumber = inumber;
-   finfo->f_group = inode_group;
    finfo->f_size = ext2_node_buffer.i_size;
    print_inode(&ext2_node_buffer);
    return 0;
@@ -902,6 +901,7 @@ static int ext2_format(vnode_t *dev_node, void *param)
          return -1;
       if(!(format_parameters.block_node_factor >= 2 && format_parameters.block_node_factor <= 10))
          format_parameters.block_node_factor = EXT2_DEFAULT_BLOCKNODE_FACTOR;
+      /* Calculate to check if user parameters are correct */
       inodes_per_group = (format_parameters.block_size * 8) / format_parameters.block_node_factor;
       inodeblocks_per_group = howmany(128 * inodes_per_group, format_parameters.block_size);
       minmetablocks_per_group = 1 /*Superblock*/ + 1 /*gd block*/ + 1 /*Block bitmap*/ +
@@ -994,7 +994,23 @@ static int ext2_format(vnode_t *dev_node, void *param)
       nblocks_gd = howmany(sizeof(ext2_gd_t)*ngroups, format_parameters.block_size);
       inodes_per_group = superblock.s_inodes_count / ngroups;
    }
-
+#ifdef 0
+   ciaaPOSIX_printf("ext2_format(): values:\n\tformat_parameters.block_size: \
+                     %d\n\tformat_parameters.partition_size:\
+                     %d\n\tsuperblock.s_blocks_count: %d\n\tsuperblock.s_inodes_count: %d\n\tngroups:%d\n\t\
+                     nblocks_gd: %d\n\tinodes_per_group: %d\n\tinodeblocks_per_group: %d\n\t\
+                     minmetablocks_per_group: %d\n",
+                     format_parameters.block_size,
+                     format_parameters.partition_size,
+                     superblock.s_blocks_count,
+                     superblock.s_inodes_count,
+                     ngroups,
+                     nblocks_gd,
+                     inodes_per_group,
+                     inodeblocks_per_group,
+                     minmetablocks_per_group);
+#endif
+   ASSERT_MSG(inodes_per_group > 0, "ext2_format(): inodes_per_group == 0. Error");
    /* The number of nodes in a group must be multiple of 8 */
    superblock.s_inodes_per_group = rounddown(inodes_per_group, 8);
    /* Total node count in disk */
@@ -1290,6 +1306,7 @@ static int ext2_mount(vnode_t *dev_node, vnode_t *dest_node)
       return -1;
    }
    /* Calculate the number of group descriptors from the superblock info */
+   ASSERT_MSG(fsinfo->e2sb.s_inodes_per_group>0, "ext2_mount(): s_inodes_per_group zero. Error");
    fsinfo->s_groups_count = (fsinfo->e2sb.s_inodes_count)/(fsinfo->e2sb.s_inodes_per_group);
    fsinfo->s_block_size = 1024 << fsinfo->e2sb.s_log_block_size;
    fsinfo->sectors_in_block = fsinfo->s_block_size >> 9;   /* s_block_size/512 */
@@ -2064,8 +2081,10 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
    ext2_gd_t gd;
    int ret;
    uint32_t new_inumber, aux;
+   uint16_t inode_group;
    ext2_inode_t *pinode=NULL;
    ext2_file_info_t *finfo, *parent_finfo;
+   ext2_fs_info_t *fsinfo;
 
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
    parent_finfo = (ext2_file_info_t *)parent_node->f_info.down_layer_info;
@@ -2078,6 +2097,7 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
    }
    ciaaPOSIX_memset((void *)finfo, 0, sizeof(ext2_file_info_t));
    node->f_info.down_layer_info = (void *)finfo;
+   fsinfo = (ext2_fs_info_t *) parent_node->fs_info->down_layer_info;
 
    ret = ext2_alloc_inode_bit(node, &new_inumber);
    if(ret)
@@ -2134,14 +2154,16 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
    {
       return -1;
    }
+   /* Calculate the inode group */
+   inode_group = (finfo->f_inumber-1)/fsinfo->e2sb.s_inodes_per_group;
    /* Refresh used dir count in on-memory group descriptor */
-   ret = ext2_get_groupdesc(parent_node->fs_info, finfo->f_group, &gd);
+   ret = ext2_get_groupdesc(parent_node->fs_info, inode_group, &gd);
    if(ret)
    {
       return -1;
    }
    gd.used_dirs_count++;
-   ret = ext2_set_groupdesc(parent_node->fs_info, finfo->f_group, &gd);
+   ret = ext2_set_groupdesc(parent_node->fs_info, inode_group, &gd);
    if(ret)
    {
       return -1;
@@ -2361,7 +2383,6 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
       return -1;
    }
    //fsinfo->e2fs_gd[group_index].used_dirs_count++; /* Caller knows if this is a dir or not. Leave unmodified */
-   finfo->f_group = group_index;
    finfo->f_inumber = *new_inumber_p;
 
    return 0;
@@ -2372,6 +2393,7 @@ static int ext2_dealloc_inode_bit(vnode_t *node)
    ext2_gd_t gd;
    int ret;
    uint32_t bitmap_offset, n;
+   uint16_t inode_group;
    uint8_t bitmap_byte;
 
    ciaaDevices_deviceType const *bdev;
@@ -2382,14 +2404,16 @@ static int ext2_dealloc_inode_bit(vnode_t *node)
    finfo = (ext2_file_info_t *)node->f_info.down_layer_info;
    fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
 
-   ret = ext2_get_groupdesc(node->fs_info, finfo->f_group, &gd);
+   /* Calculate the device inode position with help of on-memory file info*/
+   inode_group = (finfo->f_inumber-1)/fsinfo->e2sb.s_inodes_per_group;
+   ret = ext2_get_groupdesc(node->fs_info, inode_group, &gd);
    if(ret)
    {
       return -1;
    }
    /* n is the inode number relative to current group, so its the bit offset in inode bitmap */
    /* n>>3 (n/8) is then the byte offset in the bitmap where the bit of current node resides */
-   n = finfo->f_inumber - (finfo->f_group * fsinfo->e2sb.s_inodes_per_group) - 1;
+   n = finfo->f_inumber - (inode_group * fsinfo->e2sb.s_inodes_per_group) - 1;
    /* Read bitmap to bitmap_buffer */
    bitmap_offset = (gd.inode_bitmap)<<(10+fsinfo->e2sb.s_log_block_size);
    ret = ext2_device_buf_read(bdev, (uint8_t *)&bitmap_byte, bitmap_offset + (n>>3), sizeof(uint8_t));
@@ -2408,8 +2432,8 @@ static int ext2_dealloc_inode_bit(vnode_t *node)
    /* Refresh on-memory bookkeeping info. Caller should write them to disk */
    fsinfo->e2sb.s_free_inodes_count++;
    gd.free_inodes_count++;
-   //fsinfo->e2fs_gd[finfo->f_group].used_dirs_count++; /* Caller knows whether this is a regfile or directory */
-   ret = ext2_set_groupdesc(node->fs_info, finfo->f_group, &gd);
+   //fsinfo->e2fs_gd[inode_group].used_dirs_count++; /* Caller knows whether this is a regfile or directory */
+   ret = ext2_set_groupdesc(node->fs_info, inode_group, &gd);
    if(ret)
    {
       return -1;
@@ -2564,6 +2588,7 @@ static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block)
    int ret;
    uint32_t i,j,b, block_offset;
    uint16_t group_index, segment_index, segment_offset;
+   uint16_t inode_group;
 
    ciaaDevices_deviceType const *bdev;
    ext2_file_info_t *finfo;
@@ -2574,8 +2599,10 @@ static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block)
    fsinfo = (ext2_fs_info_t *)node->fs_info->down_layer_info;
    *block = 0;
 
+   /* Calculate the device inode position with help of on-memory file info*/
+   inode_group = (finfo->f_inumber - 1)/fsinfo->e2sb.s_inodes_per_group;
    /* Search a group with a free block, starting from the group of this file */
-   for(group_index = finfo->f_group, i=0; i < fsinfo->s_groups_count;
+   for(group_index = inode_group, i=0; i < fsinfo->s_groups_count;
          group_index = (group_index + 1) % fsinfo->s_groups_count)
    {
       ret = ext2_get_groupdesc(node->fs_info, group_index, &gd);
