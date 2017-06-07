@@ -201,7 +201,7 @@ TASK(InitTask)
    ASSERT_SEQ(0);
    /* format */
    /* Set ext2 format parameters */
-   format_parameters.partition_size = 1048576;
+   format_parameters.partition_size = 8*1024*1024;
    format_parameters.block_size = 2048;
    format_parameters.block_node_factor = 4;
    ret = ciaaFS_format("/dev/block/fd/0", "EXT2", &format_parameters);
@@ -217,7 +217,6 @@ TASK(InitTask)
 
    ret = ciaaFS_mount("/dev/block/fd/0", "/mount/ext2", "EXT2");
    ASSERT_MSG(-1 < ret, "Problem mounting directory");
-
    ASSERT_SEQ(3);
 
    ret = ciaaFS_mkdir("/mount/ext2/dir0", 0);

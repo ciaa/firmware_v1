@@ -79,10 +79,14 @@ FIXME:
 #include "ciaaPOSIX_stdbool.h"
 #include "vfs.h"
 #include "ciaaLibs_PoolBuf.h"
+#include "tlsf.h"
 
 /*==================[macros and definitions]=================================*/
 
 #define ASSERT_MSG(cond, msg) assert_msg((cond), (msg), __FILE__, __LINE__)
+
+/* Define 8K arena for FS */
+#define FS_ARENA_MEMORY (128 * 1024)
 
 /*==================[internal data declaration]==============================*/
 
@@ -254,7 +258,16 @@ CIAALIBS_POOLDECLARE(vfs_fdesc_pool, file_desc_t, VFS_DESC_MAX)
  */
 CIAALIBS_POOLDECLARE(vfs_fsinfo_pool, filesystem_info_t, VFS_MOUNT_MAX)
 
+/** \brief use uint32_t to align to 32 bits
+ *
+ */
+uint32_t fs_arena_area[FS_ARENA_MEMORY/sizeof(uint32_t)];
+
 /*==================[external data definition]===============================*/
+/** \brief memory pool handle
+ *
+ */
+tlsf_t fs_mem_handle;
 
 /*==================[internal functions definition]==========================*/
 
@@ -313,12 +326,16 @@ static vnode_t *vfs_node_alloc(const char *name, size_t name_len)
    {
       return NULL;
    }
-   new_node = (vnode_t *) ciaaLibs_poolBufLock(&vfs_vnode_pool);
+
+   //new_node = (vnode_t *) ciaaLibs_poolBufLock(&vfs_vnode_pool);
+   ciaaPOSIX_printf("ciaaFS_init(): tlsf_malloc %d\n", sizeof(vnode_t));
+   new_node = (vnode_t *) tlsf_malloc(fs_mem_handle, sizeof(vnode_t));
    ASSERT_MSG(NULL != new_node, "\tvfs_node_alloc(): !(*name) || name_len > FS_NAME_MAX failed");
    if (NULL == new_node)
    {
       return NULL;
    }
+   //tlsf_debug_print(fs_mem_handle);
    ciaaPOSIX_memset(new_node, 0, sizeof(vnode_t));
    ciaaPOSIX_strncpy(new_node->f_info.file_name, name, name_len);
    new_node->f_info.file_name[name_len] = '\0';
@@ -334,12 +351,13 @@ extern int vfs_node_free(vnode_t *node)
    if(NULL != node)
    {
       //ciaaPOSIX_memset(node, 0, sizeof(vnode_t));
-      ret = ciaaLibs_poolBufFree(&vfs_vnode_pool, node);
-      ASSERT_MSG(1 == ret, "vfs_node_free(): ciaaLibs_poolBufFree() failed");
-      if(1 != ret)
-      {
-         return -1;
-      }
+      //ret = ciaaLibs_poolBufFree(&vfs_vnode_pool, node);
+      tlsf_free(fs_mem_handle, (void *)node);
+      //ASSERT_MSG(1 == ret, "vfs_node_free(): ciaaLibs_poolBufFree() failed");
+      //if(1 != ret)
+      //{
+      //   return -1;
+      //}
    }
    return 0;
 }
@@ -523,9 +541,11 @@ static file_desc_t *file_desc_create(vnode_t *node)
    if(VFS_DESC_MAX == i)   /* No hay file_desc libres */
       return NULL;
    /* Allocate new descriptor */
-   file = (file_desc_t *) ciaaLibs_poolBufLock(&vfs_fdesc_pool);
+   //file = (file_desc_t *) ciaaLibs_poolBufLock(&vfs_fdesc_pool);
+   file = (file_desc_t *) tlsf_malloc(fs_mem_handle, sizeof(file_desc_t));
    if(NULL == file)
       return NULL;
+   //tlsf_debug_print(fs_mem_handle);
    ciaaPOSIX_memset(file, 0, sizeof(file_desc_t));
    file->node = node;
 
@@ -544,12 +564,13 @@ static int file_desc_destroy(file_desc_t *file_desc)
    int ret;
 
    index = file_desc->index;
-   ret = ciaaLibs_poolBufFree(&vfs_fdesc_pool, file_desc_tab_p->table[index]);
-   ASSERT_MSG(1 == ret, "\tfile_desc_destroy(): ciaaLibs_poolBufFree() failed");
-   if(ret != 1)
-   {
-      return -1;
-   }
+   //ret = ciaaLibs_poolBufFree(&vfs_fdesc_pool, file_desc_tab_p->table[index]);
+   tlsf_free(fs_mem_handle, (void *)file_desc_tab_p->table[index]);
+   //ASSERT_MSG(1 == ret, "\tfile_desc_destroy(): ciaaLibs_poolBufFree() failed");
+   //if(ret != 1)
+   //{
+   //   return -1;
+   //}
    file_desc_tab_p->table[index] = NULL;
    if(file_desc_tab_p->n_busy_desc)
       file_desc_tab_p->n_busy_desc--;
@@ -580,7 +601,7 @@ static int vfs_print_tree_rec(vnode_t *node, int level)
    }
    for(i=0; i<level; i++)
       ciaaPOSIX_printf("---");
-   ciaaPOSIX_printf("%s\n",node->f_info.file_name);
+   ciaaPOSIX_printf("%s: address: %p child: %p \n",node->f_info.file_name, node, node->child_node);
 
    ret=vfs_print_tree_rec(node->child_node, level+1);
    if(ret)
@@ -733,12 +754,14 @@ static int vfs_create_blockdevice(const char *path, const char *devname)
           */
          /* Last node found is the requested node */
          /* Blockdevice has its own driver. FIXME: Should have a single predefined directory for devices as mountpoint? */
-         child->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
+         //child->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
+         child->fs_info = (filesystem_info_t *) tlsf_malloc(fs_mem_handle, sizeof(filesystem_info_t));
          ASSERT_MSG(NULL != child->fs_info, "ciaaFS_init(): Could not create mountpoint fsinfo");
          if (NULL == child->fs_info)
          {
             return -1;
          }
+         //tlsf_debug_print(fs_mem_handle);
          /* Get device */
          child->fs_info->device = ciaaDevices_getDevice(devname);
          ASSERT_MSG(NULL != child->fs_info->device, "vfs_create_blockdevice(): ciaaDevices_getDevice() failed");
@@ -792,23 +815,41 @@ extern int ciaaFS_init(void)
 {
    vnode_t *node;
    int ret;
+   size_t i;
+
+   ciaaPOSIX_memset(fs_arena_area, 0, sizeof(fs_arena_area));
+   ciaaPOSIX_printf("ciaaFS_init(): Init memory pool with size %d\n", sizeof(fs_arena_area));
+   fs_mem_handle = tlsf_create_with_pool((void *)fs_arena_area, sizeof(fs_arena_area));
+   ASSERT_MSG(0 != fs_mem_handle, "ciaaFS_init(): Could not init memory pool");
+   if (0 == fs_mem_handle)
+   {
+      return -1;
+   }
 
    /* Create root node */
-   vfs_root_inode = (vnode_t *) ciaaLibs_poolBufLock(&vfs_vnode_pool);
+   //vfs_root_inode = (vnode_t *) ciaaLibs_poolBufLock(&vfs_vnode_pool);
+   ciaaPOSIX_printf("ciaaFS_init(): tlsf_malloc %d\n", sizeof(vnode_t));
+   vfs_root_inode = (vnode_t *) tlsf_malloc(fs_mem_handle, sizeof(vnode_t));
+   ASSERT_MSG(NULL != vfs_root_inode, "ciaaFS_init(): mem error");
    if(NULL == vfs_root_inode)
    {
       return -1;
    }
+   //tlsf_debug_print(fs_mem_handle);
+   vfs_root_inode->parent_node = NULL;
+   vfs_root_inode->sibling_node = NULL;
    vfs_root_inode->f_info.is_mount_dir = true;
    vfs_root_inode->f_info.type = VFS_FTDIR;
    vfs_root_inode->f_info.file_name[0] = '\0'; /* Special name for root */
    /* Reserve mem for root mountpoint information */
-   vfs_root_inode->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
+   //vfs_root_inode->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
+   vfs_root_inode->fs_info = (filesystem_info_t *) tlsf_malloc(fs_mem_handle, sizeof(filesystem_info_t));
    ASSERT_MSG(NULL != vfs_root_inode->fs_info, "ciaaFS_init(): Could not create mountpoint fsinfo");
    if (NULL == vfs_root_inode->fs_info)
    {
       return -1;
    }
+   //tlsf_debug_print(fs_mem_handle);
    /* Driver for simple ram fs */
    vfs_root_inode->fs_info->drv = vfs_get_driver("pseudofs");
    ASSERT_MSG(NULL != vfs_root_inode->fs_info->drv, "ciaaFS_init(): vfs_get_driver() failed");
@@ -827,12 +868,14 @@ extern int ciaaFS_init(void)
    }
    node->f_info.type = VFS_FTDIR;
    /* Reserve mem for the new mountpoint information */
-   node->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
+   //node->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
+   node->fs_info = (filesystem_info_t *) tlsf_malloc(fs_mem_handle, sizeof(filesystem_info_t));
    ASSERT_MSG(NULL != node->fs_info, "ciaaFS_init(): Could not create dev mountpoint fsinfo");
    if (NULL == node->fs_info)
    {
       return -1;
    }
+   //tlsf_debug_print(fs_mem_handle);
    /* Clear new structure */
    ciaaPOSIX_memset(node->fs_info, 0, sizeof(filesystem_info_t));
    node->fs_info->drv = vfs_get_driver("BLOCKDEV");
@@ -934,12 +977,14 @@ extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type)
       return -1;
    }
    /* Reserve mem for the new mountpoint information */
-   targetnode->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
+   //targetnode->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
+   targetnode->fs_info = (filesystem_info_t *) tlsf_malloc(fs_mem_handle, sizeof(filesystem_info_t));
    ASSERT_MSG(NULL != targetnode->fs_info, "ciaaFS_mount(): Could not create mountpoint fsinfo");
    if (NULL == targetnode->fs_info)
    {
       return -1;
    }
+   //tlsf_debug_print(fs_mem_handle);
    /* Clear new structure */
    ciaaPOSIX_memset(targetnode->fs_info, 0, sizeof(filesystem_info_t));
    /* Search vnode of device to be mounted */
@@ -1027,12 +1072,13 @@ extern int ciaaFS_umount(const char *target_path)
       return -1;
    }
    /* Free mountpoint information structure */
-   ret = ciaaLibs_poolBufFree(&vfs_fsinfo_pool, targetnode->fs_info);
-   ASSERT_MSG(1 == ret, "ciaaFS_umount(): ciaaLibs_poolBufFree() failed");
-   if(1 != ret)
-   {
-      return -1;
-   }
+   //ret = ciaaLibs_poolBufFree(&vfs_fsinfo_pool, targetnode->fs_info);
+   tlsf_free(fs_mem_handle, (void *)targetnode->fs_info);
+   //ASSERT_MSG(1 == ret, "ciaaFS_umount(): ciaaLibs_poolBufFree() failed");
+   //if(1 != ret)
+   //{
+   //   return -1;
+   //}
    /* Delete mountpoint vnode */
    ret = vfs_delete_child(targetnode);
    ASSERT_MSG(0 == ret, "ciaaFS_umount(): vfs_delete_child() failed");

@@ -65,6 +65,7 @@
 #include "pseudofs.h"
 #include "vfs.h"
 #include "ciaaLibs_PoolBuf.h"
+#include "tlsf.h"
 
 /*==================[macros and definitions]=================================*/
 
@@ -295,7 +296,8 @@ static int pseudofs_create(vnode_t *parent_node, vnode_t *child_node)
    if(VFS_FTREG == child_node->f_info.type)
    {
       /* Alloc a new file metadata structure */
-      file_info = (pseudofs_file_info_t *) ciaaLibs_poolBufLock(&pseudofs_finfo_pool);
+      //file_info = (pseudofs_file_info_t *) ciaaLibs_poolBufLock(&pseudofs_finfo_pool);
+      file_info = (pseudofs_file_info_t *) tlsf_malloc(fs_mem_handle, sizeof(pseudofs_file_info_t));
       if(NULL == file_info)
       {
          return -1;
@@ -306,7 +308,8 @@ static int pseudofs_create(vnode_t *parent_node, vnode_t *child_node)
       file_info->data = (uint8_t *) ciaaPOSIX_malloc(PSEUDOFS_FILE_ALLOC_SIZE);
       if(NULL == file_info->data)
       {
-         ciaaLibs_poolBufFree(&pseudofs_finfo_pool, file_info);
+         //ciaaLibs_poolBufFree(&pseudofs_finfo_pool, file_info);
+         tlsf_free(fs_mem_handle, (void *)file_info);
          child_node->f_info.down_layer_info = NULL;
          return -1;
       }
@@ -329,7 +332,8 @@ static int pseudofs_delete(vnode_t *parent_node, vnode_t *child_node)
       ciaaPOSIX_free(file_info->data);
       file_info->data = NULL;
       ciaaPOSIX_free(child_node->f_info.down_layer_info);
-      ciaaLibs_poolBufFree(&pseudofs_finfo_pool, file_info);
+      //ciaaLibs_poolBufFree(&pseudofs_finfo_pool, file_info);
+      tlsf_free(fs_mem_handle, (void *)file_info);
       child_node->f_info.down_layer_info = NULL;
    }
    return 0;
@@ -362,12 +366,14 @@ static int pseudofs_mount(vnode_t *device_node, vnode_t *dest_dir)
    pseudofs_file_info_t *file_info;
    pseudofs_fs_info_t *fs_info;
 
-   file_info = (pseudofs_file_info_t *) ciaaLibs_poolBufLock(&pseudofs_finfo_pool);
+   //file_info = (pseudofs_file_info_t *) ciaaLibs_poolBufLock(&pseudofs_finfo_pool);
+   file_info = (pseudofs_file_info_t *) tlsf_malloc(fs_mem_handle, sizeof(pseudofs_file_info_t));
    if(NULL == file_info)
    {
       return -1;
    }
-   fs_info = (pseudofs_fs_info_t *) ciaaLibs_poolBufLock(&pseudofs_fsinfo_pool);
+   //fs_info = (pseudofs_fs_info_t *) ciaaLibs_poolBufLock(&pseudofs_fsinfo_pool);
+   fs_info = (pseudofs_fs_info_t *) tlsf_malloc(fs_mem_handle, sizeof(pseudofs_fs_info_t));
    if(NULL == fs_info)
    {
       return -1;

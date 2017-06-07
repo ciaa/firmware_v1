@@ -66,6 +66,7 @@
 #include "ciaaPOSIX_stdio.h"     /* <= device handler header */
 #include "ciaaPOSIX_stdbool.h"
 #include "ciaaBlockDevices.h"
+#include "tlsf.h"
 
 /*==================[macros]=================================================*/
 
@@ -282,6 +283,11 @@ typedef struct file_descriptor_table
 
 
 /*==================[external data declaration]==============================*/
+/** \brief memory pool handle
+ *
+ */
+extern tlsf_t fs_mem_handle;
+
 /*==================[external functions declaration]=========================*/
 
 /** \brief Create a new child
