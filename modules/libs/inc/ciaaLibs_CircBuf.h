@@ -1,4 +1,5 @@
-/* Copyright 2014, Mariano Cerdeiro
+/* Copyright 2014, 2016, Mariano Cerdeiro
+ * All rights reserved.
  *
  * This file is part of CIAA Firmware.
  *
@@ -30,8 +31,8 @@
  *
  */
 
-#ifndef _CIAALIBS_CIRCBUF_H_
-#define _CIAALIBS_CIRCBUF_H_
+#ifndef CIAALIBS_CIRCBUF_H
+#define CIAALIBS_CIRCBUF_H
 /** \brief Circula Buffer Library header
  **
  ** This library provides a circular buffer
@@ -256,5 +257,5 @@ extern size_t ciaaLibs_circBufGet(ciaaLibs_CircBufType * cbuf, void * data, size
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef _CIAALIBS_CIRCBUF_H_ */
+#endif /* #ifndef CIAALIBS_CIRCBUF_H */
 
