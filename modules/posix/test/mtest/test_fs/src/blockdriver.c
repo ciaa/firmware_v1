@@ -66,6 +66,9 @@
 #include "ciaaBlockDevices.h"
 #include "vfs.h"
 #include "blockdriver.h"
+#include "ooc.h"
+#include "device_x86.h"
+#include "blockDevice_x86.h"
 
 /*==================[macros and definitions]=================================*/
 /*==================[internal data declaration]==============================*/
@@ -142,38 +145,49 @@ static int blockdriver_close(file_desc_t *file)
 
 static size_t blockdriver_read(file_desc_t *file, void *buf, size_t size)
 {
+   size_t ret = -1;
    uint32_t pointer;
-   ciaaDevices_deviceType const *device;
-   size_t ret;
+   Device dev;
+   BlockDevice bdev;
 
-   pointer = file->cursor;
-   device = file->node->fs_info->device;
-   ret = ciaaBlockDevices_lseek(device, pointer, SEEK_SET);
-   if(ret!=pointer)
+   dev = (Device) file->node->fs_info->device;
+   bdev = ooc_get_interface((Object) dev, BlockDevice);
+   if(bdev)
    {
-      return 0;
+      pointer = file->cursor;
+      if(bdev->lseek((Object) dev, pointer, SEEK_SET) == pointer)
+      {
+         if(bdev->read((Object) dev, (uint8_t *)buf, size) == 0)
+         {
+            file->cursor += size;
+            ret = 0;
+         }
+      }
    }
-
-   ret = ciaaBlockDevices_read(device, (uint8_t *)buf, size);
-   file->cursor += ret;
    return ret;
 }
 
 static size_t blockdriver_write(file_desc_t *file, void *buf, size_t size)
 {
+   size_t ret = -1;
    uint32_t pointer;
-   ciaaDevices_deviceType const *device;
-   size_t ret;
+   Device dev;
+   BlockDevice bdev;
 
-   pointer = file->cursor;
-   device = file->node->fs_info->device;
-   ret = ciaaBlockDevices_lseek(device, pointer, SEEK_SET);
-   if(ret != pointer)
+   dev = (Device) file->node->fs_info->device;
+   bdev = ooc_get_interface((Object) dev, BlockDevice);
+   if(bdev)
    {
-      return 0;
+      pointer = file->cursor;
+      if(bdev->lseek((Object) dev, pointer, SEEK_SET) == pointer)
+      {
+         if(bdev->write((Object) dev, (uint8_t *)buf, size) == 0)
+         {
+            file->cursor += size;
+            ret = 0;
+         }
+      }
    }
-   ret = ciaaBlockDevices_write(device, (uint8_t *)buf, size);
-   file->cursor += ret;
    return ret;
 }
 
@@ -190,11 +204,8 @@ static int blockdriver_truncate(vnode_t *node, size_t size)
  **/
 static int blockdriver_ioctl(file_desc_t *file, int request)
 {
-   ciaaDevices_deviceType const *device;
-   size_t ret;
+   size_t ret = -1;
 
-   device = file->node->fs_info->device;
-   ret = ciaaBlockDevices_ioctl(device, request, NULL);
    return ret;
 }
 

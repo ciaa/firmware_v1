@@ -172,7 +172,9 @@ static int32_t ciaaDriverFlash_blockWrite(uint32_t address, uint8_t const * cons
    }
    return data_index;
 }
+
 /*==================[external functions definition]==========================*/
+
 extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
 {
    ciaaDriverFlash_flashType * flash = device->layer;

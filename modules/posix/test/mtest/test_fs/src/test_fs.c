@@ -68,7 +68,7 @@
 #include "ext2.h"
 
 /*==================[macros and definitions]=================================*/
-#define ASSERT(cond) assert((cond), __FILE__, __LINE__)
+#define ASSERT(cond) assert_fs((cond), __FILE__, __LINE__)
 #define ASSERT_MSG(cond, msg) assert_msg((cond), (msg), __FILE__, __LINE__)
 #define ASSERT_SEQ(seq) assert_seq((seq), __FILE__, __LINE__)
 
@@ -87,7 +87,7 @@ uint8_t buffer[TEST_BUFFER_SIZE];
 /*==================[external data definition]===============================*/
 
 /*==================[internal functions definition]==========================*/
-static void assert(int cond, char * file, int line)
+static void assert_fs(int cond, char * file, int line)
 {
    if (cond)
    {
@@ -177,7 +177,6 @@ void ErrorHook(void)
 TASK(InitTask)
 {
 
-   int32_t j;
    int32_t fd0, fd1, fd2, fd3;
    uint8_t buffer[TEST_BUFFER_SIZE];
    ext2_format_param_t format_parameters;
@@ -201,12 +200,12 @@ TASK(InitTask)
    ASSERT_SEQ(0);
    /* format */
    /* Set ext2 format parameters */
-   format_parameters.partition_size = 8*1024*1024;
-   format_parameters.block_size = 2048;
+   format_parameters.partition_size = 1*1024*1024;
+   format_parameters.block_size = 1024;
    format_parameters.block_node_factor = 4;
-   ret = ciaaFS_format("/dev/block/fd/0", "EXT2", &format_parameters);
+   ret = ciaaFS_format("/dev/block/mmc0", "EXT2", NULL);
    ASSERT_MSG(-1 < ret, "Problem formatting device");
-
+   while(1);
    ASSERT_SEQ(1);
 
    /* mount */
@@ -215,7 +214,7 @@ TASK(InitTask)
 
    ASSERT_SEQ(2);
 
-   ret = ciaaFS_mount("/dev/block/fd/0", "/mount/ext2", "EXT2");
+   ret = ciaaFS_mount("/dev/block/mmc0", "/mount/ext2", "EXT2");
    ASSERT_MSG(-1 < ret, "Problem mounting directory");
    ASSERT_SEQ(3);
 
@@ -363,6 +362,101 @@ static int test_check_buffer(uint8_t *buffer, uint16_t size)
    }
    return 0;
 }
+
+/*
+// mmc_blkdev.h
+#include "blkdev.h"
+
+typedef struct {
+   BlockDev_t base;
+   SPI *iface;
+} MmcBlkDev_t;
+
+extern int MmcBlkDevInitWithSPI(MmcBlkDev_t *_this, SPI *iface);
+
+// ext2fs.h
+
+#include <vfs.h>
+
+typedef struct {
+  FileSystem_t base;
+  ... mas info de ext2 ...
+} EXT2FS_t;
+
+extern int EXT2FSInit(EXT2FS_t *fs, BlockDev_t *dev);
+
+// main.c
+#include <vfs.h>
+#include <spi.h>
+#include <mmc_blkdev.h>
+#include <ext2fs.h>
+
+int main() {
+  MMCBlkDev_t mmc0;
+  EXT2FS_t fs;
+  VFSFile_t file;
+  MmcBlkDevInitWithSPI(&mmc0, SPI0, 5000000);
+  FatFSInit(&fs, (BlockDev_t*) &mmc0);
+  vfs_mount("/mmc0", &fs);
+  if (vfs_open("/mmc0/file1.txt", &file, VFS_READONLY) == -1) {
+    // ERROR
+  } else {
+    size_t readed = vfs_read(&file, buffer, len);
+    vfs_write(&file, buffer, readed);
+    vfs_close(&file);
+  }
+}
+
+FatFSInit(&fs, (BlockDev_t*) &mmc0);
+
+struct filesystem {
+	struct fs_driver *drv;    			// file system driver
+	struct block_dev *bdev;   			// block device, where is this file system
+	void             *fsi;    			// file system information (extended information)
+
+	const struct kfile_operations *file_op;
+};
+
+struct vfs_node
+{
+   struct vfs_node   *parent_node;
+   struct vfs_node   *sibling_node;
+   struct vfs_node   *child_node;
+
+   filesystem_info_t *fs_info;
+   file_info_t       f_info;
+};
+
+
+
+int main() {
+  MMCBlkDev_t mmc0;
+  MMCSPI_t mmc0
+  EXT2FS_t fs;
+  VFSFile_t file;
+  MmcBlkDevInitWithSPI(&mmc0, SPI0, 5000000);
+  FatFSInit(&fs, (BlockDev_t*) &mmc0);
+  vfs_mount("/mmc0", &fs);
+  if (vfs_open("/mmc0/file1.txt", &file, VFS_READONLY) == -1) {
+    // ERROR
+  } else {
+    size_t readed = vfs_read(&file, buffer, len);
+    vfs_write(&file, buffer, readed);
+    vfs_close(&file);
+  }
+}
+
+ciaaFS_init()
+{
+mmc0 = MMCSPI_new(SPI0);
+mmc0->init();
+fs = filesystem_new();
+vfs_mount("/mmc0", fs);
+}
+
+
+
+*/
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

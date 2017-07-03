@@ -67,6 +67,8 @@
 #include "ciaaPOSIX_stdbool.h"
 #include "ciaaBlockDevices.h"
 #include "tlsf.h"
+#include "blockDevice_x86.h"
+#include "device_x86.h"
 
 /*==================[macros]=================================================*/
 
@@ -220,7 +222,7 @@ typedef struct filesystem_driver
 typedef struct filesystem_info
 {
    filesystem_driver_t          *drv; /* file system driver */
-   ciaaDevices_deviceType const *device; /* device where this fs resides */
+   Device device; /* Block device */
    void                         *down_layer_info; /* file system on-memory information */
    uint8_t ref_count;
 } filesystem_info_t;

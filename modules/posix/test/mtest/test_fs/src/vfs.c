@@ -78,15 +78,18 @@ FIXME:
 #include "ciaaPOSIX_string.h"
 #include "ciaaPOSIX_stdbool.h"
 #include "vfs.h"
-#include "ciaaLibs_PoolBuf.h"
+//#include "ciaaLibs_PoolBuf.h"
 #include "tlsf.h"
+#include "ooc.h"
+#include "device_x86.h"
+#include "mmcSPI_x86.h"
 
 /*==================[macros and definitions]=================================*/
 
 #define ASSERT_MSG(cond, msg) assert_msg((cond), (msg), __FILE__, __LINE__)
 
 /* Define 8K arena for FS */
-#define FS_ARENA_MEMORY (128 * 1024)
+#define FS_ARENA_MEMORY (1024 * 1024)
 
 /*==================[internal data declaration]==============================*/
 
@@ -201,7 +204,7 @@ static file_desc_t *file_desc_get(uint16_t index);
  ** \param[in] devname name of the blockdevice
  ** \return -1 if an error occurs, in other case 0
  **/
-static int vfs_create_blockdevice(const char *path, const char *devname);
+static int vfs_create_blockdevice(const char *path, Device dev);
 
 /*==================[internal data definition]===============================*/
 
@@ -243,22 +246,7 @@ static filesystem_driver_t *vfs_fsdriver_table[] =
 static file_descriptor_table_t _f_tab;
 static file_descriptor_table_t *file_desc_tab_p = &_f_tab;
 
-/** \brief vnode memory pool
- *
- */
-CIAALIBS_POOLDECLARE(vfs_vnode_pool, vnode_t, VFS_NODES_MAX)
-
-/** \brief file descriptor memory pool
- *
- */
-CIAALIBS_POOLDECLARE(vfs_fdesc_pool, file_desc_t, VFS_DESC_MAX)
-
-/** \brief fsinfo memory pool
- *
- */
-CIAALIBS_POOLDECLARE(vfs_fsinfo_pool, filesystem_info_t, VFS_MOUNT_MAX)
-
-/** \brief use uint32_t to align to 32 bits
+/** \brief tlsf dynamic memory pool. Use uint32_t to align to 32 bits
  *
  */
 uint32_t fs_arena_area[FS_ARENA_MEMORY/sizeof(uint32_t)];
@@ -327,7 +315,6 @@ static vnode_t *vfs_node_alloc(const char *name, size_t name_len)
       return NULL;
    }
 
-   //new_node = (vnode_t *) ciaaLibs_poolBufLock(&vfs_vnode_pool);
    ciaaPOSIX_printf("ciaaFS_init(): tlsf_malloc %d\n", sizeof(vnode_t));
    new_node = (vnode_t *) tlsf_malloc(fs_mem_handle, sizeof(vnode_t));
    ASSERT_MSG(NULL != new_node, "\tvfs_node_alloc(): !(*name) || name_len > FS_NAME_MAX failed");
@@ -351,7 +338,6 @@ extern int vfs_node_free(vnode_t *node)
    if(NULL != node)
    {
       //ciaaPOSIX_memset(node, 0, sizeof(vnode_t));
-      //ret = ciaaLibs_poolBufFree(&vfs_vnode_pool, node);
       tlsf_free(fs_mem_handle, (void *)node);
       //ASSERT_MSG(1 == ret, "vfs_node_free(): ciaaLibs_poolBufFree() failed");
       //if(1 != ret)
@@ -541,11 +527,9 @@ static file_desc_t *file_desc_create(vnode_t *node)
    if(VFS_DESC_MAX == i)   /* No hay file_desc libres */
       return NULL;
    /* Allocate new descriptor */
-   //file = (file_desc_t *) ciaaLibs_poolBufLock(&vfs_fdesc_pool);
    file = (file_desc_t *) tlsf_malloc(fs_mem_handle, sizeof(file_desc_t));
    if(NULL == file)
       return NULL;
-   //tlsf_debug_print(fs_mem_handle);
    ciaaPOSIX_memset(file, 0, sizeof(file_desc_t));
    file->node = node;
 
@@ -564,7 +548,6 @@ static int file_desc_destroy(file_desc_t *file_desc)
    int ret;
 
    index = file_desc->index;
-   //ret = ciaaLibs_poolBufFree(&vfs_fdesc_pool, file_desc_tab_p->table[index]);
    tlsf_free(fs_mem_handle, (void *)file_desc_tab_p->table[index]);
    //ASSERT_MSG(1 == ret, "\tfile_desc_destroy(): ciaaLibs_poolBufFree() failed");
    //if(ret != 1)
@@ -704,13 +687,11 @@ extern int vfs_delete_child(vnode_t *child)
    return 0;
 }
 
-/* TODO: Find out when the last node is reached. Fill the last node with blockdevice info */
-static int vfs_create_blockdevice(const char *path, const char *devname)
+static int vfs_create_blockdevice(const char *path, Device dev)
 {
    int ret;
    vnode_t *inode, *child;
    char *p_start, *p_end, *aux_path;
-   ciaaDevices_deviceType * device;
 
    aux_path = (char *)path;
    ret=vfs_inode_search(&aux_path, &inode);
@@ -754,29 +735,14 @@ static int vfs_create_blockdevice(const char *path, const char *devname)
           */
          /* Last node found is the requested node */
          /* Blockdevice has its own driver. FIXME: Should have a single predefined directory for devices as mountpoint? */
-         //child->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
          child->fs_info = (filesystem_info_t *) tlsf_malloc(fs_mem_handle, sizeof(filesystem_info_t));
          ASSERT_MSG(NULL != child->fs_info, "ciaaFS_init(): Could not create mountpoint fsinfo");
          if (NULL == child->fs_info)
          {
             return -1;
          }
-         //tlsf_debug_print(fs_mem_handle);
          /* Get device */
-         child->fs_info->device = ciaaDevices_getDevice(devname);
-         ASSERT_MSG(NULL != child->fs_info->device, "vfs_create_blockdevice(): ciaaDevices_getDevice() failed");
-         if(NULL == child->fs_info->device)
-         {
-            return -1;
-         }
-         /* Open device */
-         device = child->fs_info->device->open(devname, child->fs_info->device, ciaaPOSIX_O_RDWR);
-         ASSERT_MSG(NULL != device, "vfs_create_blockdevice(): Lower layer device open failed");
-         if(NULL == device)
-         {
-            return -1;
-         }
-         child->fs_info->device = device;
+         child->fs_info->device = dev;
          /* Get the fs ops to handle block devices */
          child->fs_info->drv = vfs_get_driver("BLOCKDEV");
          ASSERT_MSG(NULL != child->fs_info->drv , "vfs_create_blockdevice(): vfs_get_driver() failed");
@@ -786,14 +752,6 @@ static int vfs_create_blockdevice(const char *path, const char *devname)
          }
          /* Set the inode type */
          child->f_info.type = VFS_FTBLK;
-         /* Call the lower layer node creation function */
-         ret = child->parent_node->fs_info->drv->driver_op->fs_create_node(child->parent_node, child); /* FIXME */
-         ASSERT_MSG(0 <= ret, "vfs_create_blockdevice(): fs_create_node() failed");
-         if(0 > ret)
-         {
-            /* Could not create lower layer node. Handle the issue */
-            return -1;
-         }
          return 0;
       }
       /* Must go onto the next iteration. Created node is directory by default */
@@ -809,13 +767,17 @@ static int vfs_create_blockdevice(const char *path, const char *devname)
    }
    /* Create a block device in tree. dev_path is the path to the file */
    return 0;
+
 }
 
 extern int ciaaFS_init(void)
 {
    vnode_t *node;
    int ret;
-   size_t i;
+   MmcSPI mmc0;
+
+   //ooc_init_class(Exception);
+   ooc_init_class(MmcSPI);
 
    ciaaPOSIX_memset(fs_arena_area, 0, sizeof(fs_arena_area));
    ciaaPOSIX_printf("ciaaFS_init(): Init memory pool with size %d\n", sizeof(fs_arena_area));
@@ -827,7 +789,6 @@ extern int ciaaFS_init(void)
    }
 
    /* Create root node */
-   //vfs_root_inode = (vnode_t *) ciaaLibs_poolBufLock(&vfs_vnode_pool);
    ciaaPOSIX_printf("ciaaFS_init(): tlsf_malloc %d\n", sizeof(vnode_t));
    vfs_root_inode = (vnode_t *) tlsf_malloc(fs_mem_handle, sizeof(vnode_t));
    ASSERT_MSG(NULL != vfs_root_inode, "ciaaFS_init(): mem error");
@@ -842,7 +803,6 @@ extern int ciaaFS_init(void)
    vfs_root_inode->f_info.type = VFS_FTDIR;
    vfs_root_inode->f_info.file_name[0] = '\0'; /* Special name for root */
    /* Reserve mem for root mountpoint information */
-   //vfs_root_inode->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
    vfs_root_inode->fs_info = (filesystem_info_t *) tlsf_malloc(fs_mem_handle, sizeof(filesystem_info_t));
    ASSERT_MSG(NULL != vfs_root_inode->fs_info, "ciaaFS_init(): Could not create mountpoint fsinfo");
    if (NULL == vfs_root_inode->fs_info)
@@ -868,7 +828,6 @@ extern int ciaaFS_init(void)
    }
    node->f_info.type = VFS_FTDIR;
    /* Reserve mem for the new mountpoint information */
-   //node->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
    node->fs_info = (filesystem_info_t *) tlsf_malloc(fs_mem_handle, sizeof(filesystem_info_t));
    ASSERT_MSG(NULL != node->fs_info, "ciaaFS_init(): Could not create dev mountpoint fsinfo");
    if (NULL == node->fs_info)
@@ -887,9 +846,16 @@ extern int ciaaFS_init(void)
    node->fs_info->device = NULL;
    node->fs_info->down_layer_info = NULL;
 
-   ret = vfs_create_blockdevice("/dev/block/fd/0", "/dev/block/fd/0"); /* Flash device */
-   ASSERT_MSG(0 <= ret, "ciaaFS_init(): failed to create flash device node");
-   if(0 > ret)
+   mmc0 = mmcSPI_new();
+
+   ASSERT_MSG(mmc0, "ciaaFS_init(): mmcSPI_new() failed");
+   ASSERT_MSG(mmcSPI_init(mmc0) == 0, "ciaaFS_init(): mmcSPI_init() failed");
+   
+   if(mmc0)
+   {
+      ret = vfs_create_blockdevice("/dev/block/mmc0", (Device)mmc0); /* SD device */
+   }
+   else
    {
       return -1;
    }
@@ -977,7 +943,6 @@ extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type)
       return -1;
    }
    /* Reserve mem for the new mountpoint information */
-   //targetnode->fs_info = (filesystem_info_t *) ciaaLibs_poolBufLock(&vfs_fsinfo_pool);
    targetnode->fs_info = (filesystem_info_t *) tlsf_malloc(fs_mem_handle, sizeof(filesystem_info_t));
    ASSERT_MSG(NULL != targetnode->fs_info, "ciaaFS_mount(): Could not create mountpoint fsinfo");
    if (NULL == targetnode->fs_info)
@@ -1072,7 +1037,6 @@ extern int ciaaFS_umount(const char *target_path)
       return -1;
    }
    /* Free mountpoint information structure */
-   //ret = ciaaLibs_poolBufFree(&vfs_fsinfo_pool, targetnode->fs_info);
    tlsf_free(fs_mem_handle, (void *)targetnode->fs_info);
    //ASSERT_MSG(1 == ret, "ciaaFS_umount(): ciaaLibs_poolBufFree() failed");
    //if(1 != ret)
@@ -1451,6 +1415,23 @@ extern int ciaaFS_unlink(const char *path)
    }
    return 0;
 }
+
+/*
+MmcBlkDevInitWithSPI(&mmc0, SPI0, 5000000);
+
+SPI0 ya lo inicializastes antes con la frecuencia de trabajo, o lo inicializa sola la capa de blockdev de MMC ya que debe hacer scaling de frecuencia (creo que eso es para tier2, y no me pondria a trabajar en esa feature hasta que no estemos leyendo bloques de una SD a travez de SPI)
+
+Se puede castear?
+int format(BlockDev_t *dev, fs_t *fs, void *param)
+
+mmc0_blockdev = ooc_get_interface( (Object) mmc0 );
+     
+if( drawable )
+drawable->rotate( (Object) self );
+
+int format(mmc0_blockdev, ext2_fs, void *param)
+Nada que decir, el format es correto
+*/
 
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
