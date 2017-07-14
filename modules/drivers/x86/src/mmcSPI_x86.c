@@ -256,8 +256,8 @@ int mmcSPI_singleBlockRead(MmcSPI self, uint8_t *readBlock, uint32_t sector)
    if(NULL != self->storage && sector < self->nsectors)
    {
       offset = sector * self->block_size;
+      ciaaPOSIX_printf("mmcSPI_singleBlockRead(): Read block in offset %d\n", offset);
       rewind(self->storage);
-      //ciaaPOSIX_printf("mmcSPI_singleBlockRead(): Before fseek\n");
       if (0 == fseek(self->storage, offset, SEEK_SET))
       {
          //ciaaPOSIX_printf("mmcSPI_singleBlockRead(): Before fread. Read %d bytes\n", self->block_size);
@@ -276,7 +276,7 @@ int mmcSPI_singleBlockRead(MmcSPI self, uint8_t *readBlock, uint32_t sector)
 
       }
    }
-
+   fflush(self->storage);
    return ret;
 }
 
@@ -291,6 +291,7 @@ int mmcSPI_singleBlockWrite(MmcSPI self, const uint8_t *writeBlock, uint32_t sec
       rewind(self->storage);
       if (0 == fseek(self->storage, offset, SEEK_SET))
       {
+         ciaaPOSIX_printf("mmcSPI_singleBlockWrite(): offset: %d\n", offset);
          if(fwrite(writeBlock, 1, self->block_size, self->storage) == self->block_size)
          {
             ret = 0;
@@ -305,7 +306,8 @@ int mmcSPI_singleBlockWrite(MmcSPI self, const uint8_t *writeBlock, uint32_t sec
 
       }
    }
-
+   rewind(self->storage);
+   fflush(self->storage);
    return ret;
 }
 
@@ -329,7 +331,8 @@ int mmcSPI_blockErase(MmcSPI self, uint32_t start, uint32_t end)
          ret = 0;
       }
    }
-
+   fflush(self->storage);
+   rewind(self->storage);
    return ret;
 }
 
@@ -342,18 +345,20 @@ uint32_t mmcSPI_getSize(MmcSPI self)
 static ssize_t mmcSPI_read(MmcSPI self, uint8_t * const buf, size_t const nbyte)
 {
    ssize_t ret = -1;
-   size_t bytes_left, bytes_read, i, sector;
+   size_t bytes_left, bytes_read, i, sector, position, bytes_offset;
    assert(ooc_isInstanceOf(self, MmcSPI));
 
-   i=0; bytes_left = nbyte; sector = self->position / self->block_size;
+   i=0; bytes_left = nbyte; sector = self->position / self->block_size; position = self->position;
    while(bytes_left)
    {
-      bytes_read = (bytes_left % self->block_size) == 0 ? self->block_size : (bytes_left % self->block_size);
+      bytes_offset = position % self->block_size;
+      bytes_read = (bytes_left > (self->block_size - bytes_offset)) ? (self->block_size - bytes_offset) : bytes_left;
       if(mmcSPI_singleBlockRead(self, self->block_buf, sector) == 0)
       {
-         ciaaPOSIX_memcpy(buf + i, self->block_buf, bytes_read);
+         ciaaPOSIX_memcpy(buf + i, self->block_buf + bytes_offset, bytes_read);
          bytes_left -= bytes_read;
          i += bytes_read;
+         position += bytes_read;
          sector++;
       }
       else
@@ -377,19 +382,20 @@ static ssize_t mmcSPI_read(MmcSPI self, uint8_t * const buf, size_t const nbyte)
 static ssize_t mmcSPI_write(MmcSPI self, uint8_t const * const buf, size_t const nbyte)
 {
    ssize_t ret = -1;
-   size_t bytes_left, bytes_write, i, sector;
+   size_t bytes_left, bytes_write, i, sector, position, bytes_offset;
    assert(ooc_isInstanceOf(self, MmcSPI));
 
-   i=0; bytes_left = nbyte; sector = self->position / self->block_size;
+   i=0; bytes_left = nbyte; sector = self->position / self->block_size; position = self->position;
    while(bytes_left)
    {
-      bytes_write = (bytes_left % self->block_size) == 0 ? self->block_size : (bytes_left % self->block_size);
+      bytes_offset = position % self->block_size;
+      bytes_write = bytes_left > (self->block_size - bytes_offset) ? (self->block_size - bytes_offset) : bytes_left;
       //ciaaPOSIX_printf("mmcSPI_write(): bytes_left: %d bytes_write: %d sector: %d\n",
       //                  bytes_left, bytes_write, sector);
       if(mmcSPI_singleBlockRead(self, self->block_buf, sector) == 0)
       {
          //ciaaPOSIX_printf("mmcSPI_write(): Block readed, now copy new data\n");
-         ciaaPOSIX_memcpy(self->block_buf, buf + i, bytes_write);
+         ciaaPOSIX_memcpy(self->block_buf + bytes_offset, buf + i, bytes_write);
          //ciaaPOSIX_printf("mmcSPI_write(): Data copied. Now write back\n");
          if(mmcSPI_singleBlockWrite(self, self->block_buf, sector) == 0)
          {

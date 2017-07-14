@@ -205,7 +205,7 @@ TASK(InitTask)
    format_parameters.block_node_factor = 4;
    ret = ciaaFS_format("/dev/block/mmc0", "EXT2", NULL);
    ASSERT_MSG(-1 < ret, "Problem formatting device");
-   while(1);
+
    ASSERT_SEQ(1);
 
    /* mount */
@@ -216,19 +216,22 @@ TASK(InitTask)
 
    ret = ciaaFS_mount("/dev/block/mmc0", "/mount/ext2", "EXT2");
    ASSERT_MSG(-1 < ret, "Problem mounting directory");
+
    ASSERT_SEQ(3);
 
    ret = ciaaFS_mkdir("/mount/ext2/dir0", 0);
    ASSERT_MSG(-1 < ret, "Trying to create /mount/ext2/dir0 failed");
+   //while(1);
    ret = ciaaFS_mkdir("/mount/ext2/dir1", 0);
    ASSERT_MSG(-1 < ret, "Trying to create /mount/ext2/dir1 failed");
+   //while(1);
    ret = ciaaFS_mkdir("/mount/ext2/dir2", 0);
    ASSERT_MSG(-1 < ret, "Trying to create /mount/ext2/dir2 failed");
    ret = ciaaFS_mkdir("/mount/ext2/dir2/dir3", 0);
    ASSERT_MSG(-1 < ret, "Trying to create /mount/ext2/dir2/dir3 failed");
 
    ASSERT_SEQ(4);
-
+   //while(1);
    /* Show actual vfs tree */
    ret=vfs_print_tree();
 

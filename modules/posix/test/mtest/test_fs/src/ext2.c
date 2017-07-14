@@ -643,7 +643,6 @@ static int ext2_read_inode(vnode_t *dest_node, uint32_t inumber)
    ext2_file_info_t *finfo;
    ext2_fs_info_t *fsinfo;
 
-   ciaaPOSIX_printf("ext2_read_inode(): Enter\n");
    dev = dest_node->fs_info->device;
    finfo = (ext2_file_info_t *)dest_node->f_info.down_layer_info;
    fsinfo = (ext2_fs_info_t *)dest_node->fs_info->down_layer_info;
@@ -678,7 +677,6 @@ static int ext2_read_inode(vnode_t *dest_node, uint32_t inumber)
    finfo->f_inumber = inumber;
    finfo->f_size = ext2_node_buffer.i_size;
    print_inode(&ext2_node_buffer);
-   ciaaPOSIX_printf("ext2_read_inode(): Success\n");
    return 0;
 }
 
@@ -891,16 +889,19 @@ static int ext2_format(vnode_t *dev_node, void *param)
          return -1;
       if(!(format_parameters.block_node_factor >= 2 && format_parameters.block_node_factor <= 10))
          format_parameters.block_node_factor = EXT2_DEFAULT_BLOCKNODE_FACTOR;
-      /* Calculate to check if user parameters are correct */
-      inodes_per_group = (format_parameters.block_size * 8) / format_parameters.block_node_factor;
-      inodeblocks_per_group = howmany(128 * inodes_per_group, format_parameters.block_size);
-      minmetablocks_per_group = 1 /*Superblock*/ + 1 /*gd block*/ + 1 /*Block bitmap*/ +
-                                 1 /*Inode bimap*/ + inodeblocks_per_group + 2 /*At least 2 data blocks*/;
       format_parameters.partition_size = blockInfo.num * blockInfo.size;
    }
 
-   ciaaPOSIX_printf("ext2_format(): format_parameters.partition_size: %d ;minmetablocks_per_group: %d\n",
-                     format_parameters.partition_size, minmetablocks_per_group);
+   /* Calculate to check if user parameters are correct */
+   inodes_per_group = (format_parameters.block_size * 8) / format_parameters.block_node_factor;
+   inodeblocks_per_group = howmany(128 * inodes_per_group, format_parameters.block_size);
+   minmetablocks_per_group = 1 /*Superblock*/ + 1 /*gd block*/ + 1 /*Block bitmap*/ +
+                              1 /*Inode bimap*/ + inodeblocks_per_group + 2 /*At least 2 data blocks*/;
+
+   ciaaPOSIX_printf("ext2_format(): format_parameters.partition_size: %d; format_parameters.block_node_factor: %d;"\
+                    "format_parameters.block_size: %d\n",
+                     format_parameters.partition_size, format_parameters.block_node_factor,
+                     format_parameters.block_size);
    ASSERT_MSG(format_parameters.partition_size >= minmetablocks_per_group, "ext2_format(): Device size is too small");
    if(format_parameters.partition_size < minmetablocks_per_group)
    {
@@ -1012,6 +1013,14 @@ static int ext2_format(vnode_t *dev_node, void *param)
    /* Overhead blocks per group */
    nblocks_group_overhead = 1/*Superblock*/ + nblocks_gd + 1 /*Blockbitmap*/+ 1 /*Inodebitmap*/+
                               inodeblocks_per_group;
+
+   ciaaPOSIX_printf("ext2_format(): superblock.s_inodes_per_group: %d; superblock.s_inodes_count: %d; "\
+                    "inodeblocks_per_group: %d; nblocks_group_overhead: %d; nblocks_last_group: %d; "\
+                    "nblocks_gd: %d; inodes_per_group: %d\n",
+                     superblock.s_inodes_per_group, superblock.s_inodes_count,
+                     inodeblocks_per_group, nblocks_group_overhead, nblocks_last_group,
+                     nblocks_gd, inodes_per_group);
+
    /* Size of the block chunks to be read in buffer */
    //s_buff_size = (EXT2_BLOCK_BUFFER_SIZE > format_parameters.block_size) ? EXT2_BLOCK_BUFFER_SIZE : format_parameters.block_size;
    //s_buff_per_block = format_parameters.block_size / s_buff_size;      /* How much chunks per block */
@@ -1040,8 +1049,10 @@ static int ext2_format(vnode_t *dev_node, void *param)
          gd_buffer.free_inodes_count = superblock.s_inodes_per_group - EXT2_RESERVED_INODES;
       else
          gd_buffer.free_inodes_count = superblock.s_inodes_per_group;
-      ciaaPOSIX_printf("ext2_format(): superblock.s_inodes_count: %d ngroups: %d inodes_per_group: %d free_inodes_count: %d\n",
-                        superblock.s_inodes_count, ngroups, inodes_per_group, gd_buffer.free_inodes_count);
+      ciaaPOSIX_printf("ext2_format(): superblock.s_inodes_count: %d ngroups: %d inodes_per_group: %d free_inodes_count: %d "\
+                       "gd_buffer.free_blocks_count: %d\n",
+                        superblock.s_inodes_count, ngroups, inodes_per_group, gd_buffer.free_inodes_count, 
+                        gd_buffer.free_blocks_count);
       free_inodes_count += gd_buffer.free_inodes_count;
       gd_buffer.used_dirs_count = (group_index == 0) ? 1 : 0; /* Consider the root dir */
       /* Write data to every group in the partition */
@@ -1103,6 +1114,7 @@ static int ext2_format(vnode_t *dev_node, void *param)
 
 
       /*** INODE BITMAP ***/
+
       /* The root inode is already considered in the reserved inodes */
       block_offset = gd_buffer.inode_bitmap * format_parameters.block_size;
       /* Inodes are all free at the beginning. Alloc special nodes later */
@@ -1114,6 +1126,9 @@ static int ext2_format(vnode_t *dev_node, void *param)
          return -1;
       }
       /* Set the last bits representing non-existent inodes */
+      ciaaPOSIX_printf("ext2_format(): INODE BITMAP: Set bits offset: %d quant: %d\n",
+                        block_offset + superblock.s_inodes_per_group/8,
+                        format_parameters.block_size - superblock.s_inodes_per_group/8);
       ret = ext2_device_buf_memset(dev, 0xFF, block_offset + superblock.s_inodes_per_group/8,
                                     format_parameters.block_size - superblock.s_inodes_per_group/8);
       ASSERT_MSG(ret >= 0, "ext2_format(): ext2_device_buf_memset() failed");
@@ -1810,8 +1825,8 @@ static int ext2_mount_load_rec(vnode_t *dir_node)
          {
             return -1;
          }
-         ciaaPOSIX_printf("ext2_mount_load_rec():Current entry: %.*s\n", ext2_dir_entry_buffer.name_len,
-                           ext2_dir_entry_buffer.name);
+         //ciaaPOSIX_printf("ext2_mount_load_rec():Current entry: %.*s\n", ext2_dir_entry_buffer.name_len,
+         //                  ext2_dir_entry_buffer.name);
          if(!ciaaPOSIX_strncmp(ext2_dir_entry_buffer.name, ".", 1) || !ciaaPOSIX_strncmp(ext2_dir_entry_buffer.name, "..", 2))
          {
             continue;
@@ -2069,10 +2084,10 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
    ciaaPOSIX_memset((void *)finfo, 0, sizeof(ext2_file_info_t));
    node->f_info.down_layer_info = (void *)finfo;
    fsinfo = (ext2_fs_info_t *) parent_node->fs_info->down_layer_info;
-
    ret = ext2_alloc_inode_bit(node, &new_inumber);
    if(ret)
    {
+      while(1);
       return -1;
    }
    /* mkdir creates dirs with 0755 access */
@@ -2097,17 +2112,20 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
    }
    /* Add the default entries: . and .. */
    ret = ext2_dir_add_entry(node, new_inumber, ".", 1, EXT2_FT_DIR);
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_dir_add_entry() failed");
    if(ret)
    {
       return -1;
    }
    ret = ext2_dir_add_entry(node, parent_finfo->f_inumber, "..", 2, EXT2_FT_DIR);
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_dir_add_entry() failed");
    if(ret)
    {
       return -1;
    }
    /* Add new entry to parent directory data */
    ret = ext2_dir_add_entry(parent_node, new_inumber, node->f_info.file_name, node->f_info.file_namlen, EXT2_FT_DIR);
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_dir_add_entry() failed");
    if(ret)
    {
       return -1;
@@ -2115,12 +2133,14 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
 
    /* Modify the parent inode fields */
    ret = ext2_get_inode(node->fs_info, parent_finfo->f_inumber, pinode);
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_get_inode() failed");
    if(0 > ret)
    {
       return -1;
    }
    pinode->i_links_count++;
    ret = ext2_set_inode(node->fs_info, parent_finfo->f_inumber, pinode);
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_set_inode() failed");
    if(0 > ret)
    {
       return -1;
@@ -2129,18 +2149,22 @@ static int ext2_create_directory_file(vnode_t *parent_node, vnode_t *node)
    inode_group = (finfo->f_inumber-1)/fsinfo->e2sb.s_inodes_per_group;
    /* Refresh used dir count in on-memory group descriptor */
    ret = ext2_get_groupdesc(parent_node->fs_info, inode_group, &gd);
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_get_groupdesc() failed");
    if(ret)
    {
       return -1;
    }
    gd.used_dirs_count++;
    ret = ext2_set_groupdesc(parent_node->fs_info, inode_group, &gd);
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_set_groupdesc() failed");
    if(ret)
    {
       return -1;
    }
+   //while(1);
    /* Write sb and gd changes to disk */
    ret = ext2_fsinfo_flush(node);
+   ASSERT_MSG(0 == ret, "ext2_create_regular_file(): ext2_fsinfo_flush() failed");
    if(ret)
    {
       return -1;
@@ -2262,11 +2286,17 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
       {
          return -1;
       }
+      ciaaPOSIX_printf("ext2_alloc_inode_bit(): block_bitmap: %d inode_bitmap: %d "\
+                       "inode_table: %d free_blocks_count: %d free_inodes_count: %d "\
+                       "used_dirs_count: %d\n",
+                        gd.block_bitmap, gd.inode_bitmap, gd.inode_table,
+                        gd.free_blocks_count, gd.free_inodes_count, gd.used_dirs_count);
       if(gd.free_inodes_count)
       {
          break;
       }
    }
+   ciaaPOSIX_printf("ext2_alloc_inode_bit(): group_index: %d s_groups_count: %d\n", group_index, fsinfo->s_groups_count);
    ASSERT_MSG(group_index<fsinfo->s_groups_count, "ext2_alloc_inode_bit(): No group with free inodes");
    if(group_index >= fsinfo->s_groups_count)
    {
@@ -2343,6 +2373,7 @@ static int ext2_alloc_inode_bit(vnode_t *node, uint32_t *new_inumber_p)
    fsinfo->e2sb.s_free_inodes_count--;
    gd.free_inodes_count--;
    ret = ext2_set_groupdesc(node->fs_info, group_index, &gd);
+   //while(1);
    ASSERT_MSG(ret >= 0, "ext2_alloc_inode_bit(): ext2_set_groupdesc() failed");
    if(ret)
    {
@@ -2653,6 +2684,7 @@ static int ext2_alloc_block_bit(vnode_t * node, uint32_t *block)
    {
       return -1;
    }
+   //while(1);
    fsinfo->e2sb.s_free_blocks_count--;
 
    return 0;
@@ -2871,12 +2903,14 @@ static int ext2_dir_add_entry(vnode_t *node, uint32_t ino, char *name, uint16_t 
    ext2_dir_entry_buffer.name_len = namlen;
    /* Write the new entry to disk */
    ret = ext2_device_buf_write(dev, (uint8_t *)&ext2_dir_entry_buffer, block_offset + entry_pointer, 8);
+   ASSERT_MSG(0 == ret, "ext2_dir_add_entry(): ext2_device_buf_write() failed");
    if(ret)
    {
       return -1;
    }
    /* write the entry name to disk*/
    ret = ext2_device_buf_write(dev, (uint8_t *)name, block_offset + entry_pointer + 8, ext2_dir_entry_buffer.name_len);
+   ASSERT_MSG(0 == ret, "ext2_dir_add_entry(): ext2_device_buf_write() failed");
    if(ret)
    {
       return -1;
@@ -3007,14 +3041,13 @@ static int ext2_fsinfo_flush(vnode_t *node)
 
    for(group_index = 0; group_index<(fsinfo->s_groups_count); group_index++)
    {
-      group_offset = fsinfo->e2sb.s_first_data_block +
-                     fsinfo->e2sb.s_blocks_per_group * fsinfo->s_block_size * group_index;
+      group_offset = fsinfo->e2sb.s_blocks_per_group * fsinfo->s_block_size * group_index;
       /* If the block size is 1024, block 0 is boot block, block 1 is superblock. Blocks 1 to 8192 are group 1 blocks
        * Boot block dont count as group 1 block
        */
-      if(0 == group_index)
+      if(1024 != fsinfo->s_block_size && 0 == group_index)
       {
-         group_offset += EXT2_SBOFF;
+         group_offset = EXT2_SBOFF;
       }
       ret = ext2_device_buf_write(dev, (uint8_t *)&(fsinfo->e2sb), group_offset, sizeof(ext2_superblock_t));
       if(ret)
@@ -3061,16 +3094,6 @@ static ssize_t ext2_device_buf_write(Device dev, uint8_t * const buf, off_t cons
       return -1;
    }
 
-   ret = bdev->lseek((Object)dev, 0, SEEK_SET);
-   if(ret!=0)
-   {
-      return -1;
-   }
-   ret = bdev->lseek((Object)dev, offset, SEEK_SET);
-   if(ret!=offset)
-   {
-      return -1;
-   }
    ret = bdev->lseek((Object)dev, offset, SEEK_SET);
    if(ret!=offset)
    {
@@ -3121,6 +3144,7 @@ static int ext2_get_groupdesc(filesystem_info_t *fs_info, uint16_t ngroup, ext2_
    fsinfo = (ext2_fs_info_t *)fs_info->down_layer_info;
 
    offset = (fsinfo->e2sb.s_first_data_block + 1) * fsinfo->s_block_size + ngroup * sizeof(ext2_gd_t);
+   ciaaPOSIX_printf("ext2_get_groupdesc(): Read in offset %d\n", offset);
    ret = ext2_device_buf_read(dev, (uint8_t *)gdp, offset, sizeof(ext2_gd_t));
    if(ret)
    {
@@ -3140,10 +3164,14 @@ static int ext2_set_groupdesc(filesystem_info_t *fs_info, uint16_t ngroup, ext2_
    dev = fs_info->device;
    fsinfo = (ext2_fs_info_t *)fs_info->down_layer_info;
 
+   ciaaPOSIX_printf("ext2_set_groupdesc(): Enter with e2sb.s_first_data_block: %d ngroup: %d; "\
+                    "s_groups_count: %d; e2sb.s_blocks_per_group: %d\n",
+                     fsinfo->e2sb.s_first_data_block, ngroup, fsinfo->s_groups_count, fsinfo->e2sb.s_blocks_per_group);
    for(group_index = 0; group_index<(fsinfo->s_groups_count); group_index++)
    {
-      group_offset = fsinfo->e2sb.s_first_data_block +
+      group_offset = fsinfo->e2sb.s_first_data_block * fsinfo->s_block_size +
                      fsinfo->e2sb.s_blocks_per_group * fsinfo->s_block_size * group_index;
+      ciaaPOSIX_printf("ext2_set_groupdesc(): group_offset: %d\n", group_offset);
       ret = ext2_device_buf_write(dev, (uint8_t *)gdp,
                                     group_offset + fsinfo->s_block_size + ngroup * sizeof(ext2_gd_t), sizeof(ext2_gd_t));
       if(ret)

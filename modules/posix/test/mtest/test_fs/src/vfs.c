@@ -315,7 +315,6 @@ static vnode_t *vfs_node_alloc(const char *name, size_t name_len)
       return NULL;
    }
 
-   ciaaPOSIX_printf("ciaaFS_init(): tlsf_malloc %d\n", sizeof(vnode_t));
    new_node = (vnode_t *) tlsf_malloc(fs_mem_handle, sizeof(vnode_t));
    ASSERT_MSG(NULL != new_node, "\tvfs_node_alloc(): !(*name) || name_len > FS_NAME_MAX failed");
    if (NULL == new_node)
@@ -549,11 +548,6 @@ static int file_desc_destroy(file_desc_t *file_desc)
 
    index = file_desc->index;
    tlsf_free(fs_mem_handle, (void *)file_desc_tab_p->table[index]);
-   //ASSERT_MSG(1 == ret, "\tfile_desc_destroy(): ciaaLibs_poolBufFree() failed");
-   //if(ret != 1)
-   //{
-   //   return -1;
-   //}
    file_desc_tab_p->table[index] = NULL;
    if(file_desc_tab_p->n_busy_desc)
       file_desc_tab_p->n_busy_desc--;
@@ -780,7 +774,6 @@ extern int ciaaFS_init(void)
    ooc_init_class(MmcSPI);
 
    ciaaPOSIX_memset(fs_arena_area, 0, sizeof(fs_arena_area));
-   ciaaPOSIX_printf("ciaaFS_init(): Init memory pool with size %d\n", sizeof(fs_arena_area));
    fs_mem_handle = tlsf_create_with_pool((void *)fs_arena_area, sizeof(fs_arena_area));
    ASSERT_MSG(0 != fs_mem_handle, "ciaaFS_init(): Could not init memory pool");
    if (0 == fs_mem_handle)
@@ -789,7 +782,6 @@ extern int ciaaFS_init(void)
    }
 
    /* Create root node */
-   ciaaPOSIX_printf("ciaaFS_init(): tlsf_malloc %d\n", sizeof(vnode_t));
    vfs_root_inode = (vnode_t *) tlsf_malloc(fs_mem_handle, sizeof(vnode_t));
    ASSERT_MSG(NULL != vfs_root_inode, "ciaaFS_init(): mem error");
    if(NULL == vfs_root_inode)
@@ -821,6 +813,7 @@ extern int ciaaFS_init(void)
    /* Create device files */
    /* Reserve empty vnode for /dev directory */
    ret = vfs_inode_reserve("/dev", &node);
+   ASSERT_MSG(0 == ret, "ciaaFS_init(): Could not reserve dev node");
    if(0 > ret)
    {
       /* Directory already exists or path is invalid */
@@ -885,7 +878,7 @@ extern int ciaaFS_format(const char *device_path, const char *fs_type, void *par
 
    devpath = (char *)device_path;
    ret = vfs_inode_search(&devpath, &devnode);
-   ASSERT_MSG(0 == ret, "mount(): format() failed. Device doesnt exist");
+   ASSERT_MSG(0 == ret, "ciaaFS_format(): format() failed. Device doesnt exist");
    if(ret)
    {
       /* El nodo del device no existe */
@@ -1230,6 +1223,8 @@ extern int ciaaFS_open(const char *path, int flags) {
       return -1;
    }
 
+   ciaaPOSIX_printf("ciaaFS_open(): fd: %d filename: %.*s refcount: %d\n", fd, file->node->f_info.file_namlen,
+                     file->node->f_info.file_name, file->node->f_info.ref_count);
    file->node->fs_info->ref_count++;
    file->node->f_info.ref_count++;
    return fd;
@@ -1237,6 +1232,7 @@ extern int ciaaFS_open(const char *path, int flags) {
 
 extern int ciaaFS_close(int fd)
 {
+   vnode_t *node;
    file_desc_t *file;
    ssize_t ret;
 
@@ -1248,14 +1244,19 @@ extern int ciaaFS_close(int fd)
       /* Invalid file descriptor */
       return -1;
    }
-   ret = file_desc_destroy(file);
+   //ciaaPOSIX_printf("ciaaFS_close(): filename: %.*s refcount: %d\n",file->node->f_info.file_namlen,
+   //                  file->node->f_info.file_name, file->node->f_info.ref_count);
+   node = file->node;
+   ret = file_desc_destroy(file); //Aca hay un problema. FIXME. Cambia la info del nodo
    ASSERT_MSG(0 == ret, "ciaaFS_close(): file_desc_destroy() failed");
    if(ret)
    {
       return -1;
    }
-   file->node->fs_info->ref_count--;
-   file->node->f_info.ref_count--;
+   //ciaaPOSIX_printf("ciaaFS_close(): fd: %d filename: %.*s refcount: %d\n", fd, file->node->f_info.file_namlen,
+   //                  file->node->f_info.file_name, file->node->f_info.ref_count);
+   node->fs_info->ref_count--;
+   node->f_info.ref_count--;
 
    return 0;
 }
@@ -1286,6 +1287,7 @@ extern ssize_t ciaaFS_read(int fd, void *buf, size_t nbytes)
    ASSERT_MSG(ret == nbytes, "read(): file_read() failed");
    if(ret != nbytes)
    {
+      ciaaPOSIX_printf("ciaaFS_read(): Expected to read %d, readed %d\n", nbytes, ret);
       /* TODO: Set ERROR to show that could not read nbytes */
    }
    return ret;
@@ -1379,6 +1381,8 @@ extern int ciaaFS_unlink(const char *path)
       /* Not a regular file, can not unlink */
       return -1;
    }
+   ciaaPOSIX_printf("unlink(): file_name: %.*s refcount: %d\n", target_inode->f_info.file_namlen,
+                     target_inode->f_info.file_name, target_inode->f_info.ref_count);
    ASSERT_MSG(0 == target_inode->f_info.ref_count, "unlink(): Node still in use. Cant unlink");
    if(0 != target_inode->f_info.ref_count)
    {

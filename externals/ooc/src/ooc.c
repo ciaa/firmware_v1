@@ -26,6 +26,7 @@
 #include "ooc.h"
 
 #include "exception.h"
+#include "tlsf.h"
 
 /** @file ooc.h
  * @brief Object Oriented C - macros and definitions.
@@ -596,8 +597,8 @@ ooc_malloc( size_t size )
 {
 	void * allocated;
 
-	allocated = malloc( size );
-
+	//allocated = malloc( size );
+	allocated = tlsf_malloc(fs_mem_handle, size);
 	if( allocated == NULL )
 		ooc_throw( exception_new( err_out_of_memory ) );
 
@@ -622,7 +623,8 @@ ooc_realloc( void *ptr, size_t size )
 {
 	void * allocated;
 
-	allocated = realloc( ptr, size );
+	//allocated = realloc( ptr, size );
+	allocated = tlsf_realloc(fs_mem_handle, ptr, size);
 
 	if( allocated == NULL )
 		ooc_throw( exception_new( err_out_of_memory ) );
@@ -657,7 +659,8 @@ void
 ooc_free( void * mem )
 {
 	if( mem )
-		free( mem );
+		//free( mem );
+		tlsf_free(fs_mem_handle, mem);
 }
 
 void
@@ -670,7 +673,8 @@ ooc_free_and_null( void ** mem )
 	/* Thread safe release of the memory while "nulling" the memory pointer */
 	mem_ptr = ooc_ptr_read_and_null( mem );
 	if( mem_ptr )
-		free( mem_ptr );
+		//free( mem_ptr );
+		tlsf_free(fs_mem_handle, mem_ptr);
 }
 
 #endif /* OOC_NO_DYNAMIC_MEM */

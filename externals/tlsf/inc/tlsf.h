@@ -82,6 +82,7 @@ void tlsf_walk_pool(pool_t pool, tlsf_walker walker, void* user);
 /* Returns nonzero if any internal consistency check fails. */
 int tlsf_check(tlsf_t tlsf);
 int tlsf_check_pool(pool_t pool);
+void tlsf_debug_print(tlsf_t tlsf);
 
 #if defined(__cplusplus)
 };

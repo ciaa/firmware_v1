@@ -27,6 +27,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include "tlsf.h"
 
 #ifdef COMPILING_OOC_C
 #include <stddef.h>
@@ -54,6 +55,7 @@
 #define NO_INLINE
 
 #define OOC_NO_THREADS
+extern tlsf_t fs_mem_handle;
 
 /* Threadless implementation */
 
