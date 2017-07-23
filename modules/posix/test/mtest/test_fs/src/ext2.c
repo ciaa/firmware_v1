@@ -407,7 +407,7 @@ static int ext2_init(void *par);
  ** \param[in] dev_node node of the device to be formatted
  ** \return -1 if an error occurs, in other case 0
  **/
-static int ext2_format(vnode_t *dev_node, void *param);
+static int ext2_format(filesystem_info_t *fs, void *param);
 
 /** \brief mount a disk to a directory node
  **
@@ -415,7 +415,7 @@ static int ext2_format(vnode_t *dev_node, void *param);
  ** \param[in] dest_node rooot directory of the new mount
  ** \return -1 if an error occurs, in other case 0
  **/
-static int ext2_mount(vnode_t *dev_node, vnode_t *dest_node);
+static int ext2_mount(filesystem_info_t *fs, vnode_t *dest_node);
 
 /** \brief create a new file
  **
@@ -807,10 +807,13 @@ static int ext2_file_close(file_desc_t *file)
 
 static size_t ext2_file_read(file_desc_t *file, void *buf, size_t size)
 {
+   ext2_file_info_t *finfo;
    uint32_t read_size;
    int ret;
 
    /*TODO: Validate file->cursor */
+   finfo = file->node->f_info.down_layer_info;
+   finfo->f_pointer = file->cursor;
    ret = ext2_buf_read_file(file->node, (uint8_t *)buf, size, &read_size);
    ASSERT_MSG(0 == ret, "ext2_file_read(): ext2_buf_read_file() failed");
    if(ret)
@@ -831,7 +834,7 @@ static int ext2_init(void *par)
    return 0;
 }
 
-static int ext2_format(vnode_t *dev_node, void *param)
+static int ext2_format(filesystem_info_t *fs, void *param)
 {
    int ret;
    Device dev;
@@ -853,13 +856,7 @@ static int ext2_format(vnode_t *dev_node, void *param)
    //uint8_t    s_buff_per_block;      /* How much chunks per block */
    uint8_t   aux_byte;
 
-   dev = dev_node->fs_info->device;
-   ASSERT_MSG(dev_node->f_info.type == VFS_FTBLK, "ext2_format(): not a block device");
-   if(dev_node->f_info.type != VFS_FTBLK)
-   {
-      return -1;   /* Only a device can be formatted. This is not a device node */
-   }
-
+   dev = fs->device;
    bdev = ooc_get_interface((Object)dev, BlockDevice);
    ASSERT_MSG(bdev != NULL, "ext2_format(): dev parameter not a block device");
    if(bdev == NULL)
@@ -1051,7 +1048,7 @@ static int ext2_format(vnode_t *dev_node, void *param)
          gd_buffer.free_inodes_count = superblock.s_inodes_per_group;
       ciaaPOSIX_printf("ext2_format(): superblock.s_inodes_count: %d ngroups: %d inodes_per_group: %d free_inodes_count: %d "\
                        "gd_buffer.free_blocks_count: %d\n",
-                        superblock.s_inodes_count, ngroups, inodes_per_group, gd_buffer.free_inodes_count, 
+                        superblock.s_inodes_count, ngroups, inodes_per_group, gd_buffer.free_inodes_count,
                         gd_buffer.free_blocks_count);
       free_inodes_count += gd_buffer.free_inodes_count;
       gd_buffer.used_dirs_count = (group_index == 0) ? 1 : 0; /* Consider the root dir */
@@ -1280,7 +1277,7 @@ static int ext2_format(vnode_t *dev_node, void *param)
 
 /* Set root info in mountpoint */
 /* Preconditions: dest_node is allocated in vfs */
-static int ext2_mount(vnode_t *dev_node, vnode_t *dest_node)
+static int ext2_mount(filesystem_info_t *fs, vnode_t *dest_node)
 {
    int ret;
    Device dev;
@@ -3063,7 +3060,7 @@ static ssize_t ext2_device_buf_read(Device dev, uint8_t * const buf, off_t const
 {
    ssize_t ret;
    BlockDevice bdev = ooc_get_interface((Object) dev, BlockDevice);
-     
+
    if(!bdev)
    {
       return -1;

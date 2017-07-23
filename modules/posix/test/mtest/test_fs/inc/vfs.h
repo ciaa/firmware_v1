@@ -149,15 +149,16 @@ typedef   int    (*file_ioctl_t)(file_desc_t *desc, int request);
  **/
 typedef   int (*fs_init_t)(void *par);
 
+typedef struct filesystem_info filesystem_info_t;
 /** \brief Formats the device according to the file system specifications
  **
  **/
-typedef   int (*fs_format_t)(vnode_t *dev_node, void *param);
+typedef   int (*fs_format_t)(filesystem_info_t *fs, void *param);
 
 /** \brief Mount  a formatted device on a root directory
  **
  **/
-typedef   int (*fs_mount_t)(vnode_t *dev_node, vnode_t *dest_node);
+typedef   int (*fs_mount_t)(filesystem_info_t *fs, vnode_t *dest_node);
 
 /** \brief Create a new file in parent_node directory
  **
@@ -305,6 +306,18 @@ extern tlsf_t fs_mem_handle;
  **/
 extern vnode_t *vfs_create_child(vnode_t *parent, const char *name, size_t namelen, mode_t mode);
 
+/** \brief Create a new file system
+ **
+ ** Dynamically alloc a new filesystem object given the device and the fs driver functions.
+ **
+ ** \param[in] dev device of the filesystem
+ ** \param[in] drv filesystem driver function collection
+ ** \param[out] fs pointer to the new filesystem
+ ** \return 0 if success, else -1
+ **
+ **/
+extern int filesystem_create(filesystem_info_t **fs, Device dev, filesystem_driver_t *drv);
+
 /** \brief Unlink a node and delete it from vfs
  **
  ** This function may be used in other modules. Must be extern
@@ -341,7 +354,7 @@ extern int vfs_print_tree(void);
  **
  ** \return -1 if an error occurs, 0 if success
  **/
-extern int ciaaFS_init(void);
+extern int vfs_init(void);
 
 /** \brief format a device
  **
@@ -354,7 +367,7 @@ extern int ciaaFS_init(void);
  **               PSEUDOFS:
  ** \return -1 if an error occurs, 0 if success
  **/
-extern int ciaaFS_format(const char *device_path, const char *fs_type, void *param);
+extern int vfs_format(filesystem_info_t **fs, void *param);
 
 /** \brief mount a filesystem
  **
@@ -368,7 +381,7 @@ extern int ciaaFS_format(const char *device_path, const char *fs_type, void *par
  **               PSEUDOFS:
  ** \return -1 if an error occurs, 0 if success
  **/
-extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type);
+extern int vfs_mount(char *target_path, filesystem_info_t **fs);
 
 /** \brief umount a filesystem
  **
@@ -377,7 +390,7 @@ extern int ciaaFS_mount(char *device_path,  char *target_path, char *fs_type);
  ** \param[in] target_path path of the file system to be unmounted
  ** \return -1 if an error occurs, 0 if success
  **/
-extern int ciaaFS_umount(const char *target_path);
+extern int vfs_umount(const char *target_path);
 
 /** \brief Create a new directory
  **
@@ -387,7 +400,7 @@ extern int ciaaFS_umount(const char *target_path);
  ** \param[in] modedevice device to be opened
  ** \return -1 if an error occurs, 0 if success
  **/
-extern int ciaaFS_mkdir(const char *dir_path, mode_t mode);
+extern int vfs_mkdir(const char *dir_path, mode_t mode);
 
 /** \brief Open a file
  **
@@ -406,7 +419,7 @@ extern int ciaaFS_mkdir(const char *dir_path, mode_t mode);
  **          read, write, seek may produce
  **          unexpected behaviors.
  **/
-extern int ciaaFS_open(const char *path, int flags);
+extern int vfs_open(const char *path, file_desc_t **file, int flags);
 
 /** \brief Deletes the file in the path given
  **
@@ -415,7 +428,7 @@ extern int ciaaFS_open(const char *path, int flags);
  ** \return    -1 if failed, 0 if success.
  **
  **/
-extern int ciaaFS_unlink(const char *path);
+extern int vfs_unlink(const char *path);
 
 /** \brief Close a file descriptor
  **
@@ -430,7 +443,7 @@ extern int ciaaFS_unlink(const char *path);
  **          specific file descriptor the caller has to wait until return before
  **          calling other of this function using the same file handler.
  **/
-extern int ciaaFS_close(int fd);
+extern int vfs_close(file_desc_t **file);
 
 /** \brief Reads from a file descriptor
  **
@@ -448,7 +461,7 @@ extern int ciaaFS_close(int fd);
  **          specific file descriptor the caller has to wait until return before
  **          calling other of this function using the same file handler.
  **/
-extern ssize_t ciaaFS_read(int fd, void *buf, size_t nbytes);
+extern ssize_t vfs_read(file_desc_t **file, void *buf, size_t nbytes);
 
 /** \brief Writes to a file descriptor
  **
@@ -468,7 +481,7 @@ extern ssize_t ciaaFS_read(int fd, void *buf, size_t nbytes);
  **          specific file descriptor the caller has to wait until return before
  **          calling other of this function using the same file handler.
  **/
-extern ssize_t ciaaFS_write(int fd, void *buf, size_t nbytes);
+extern ssize_t vfs_write(file_desc_t **file, void *buf, size_t nbytes);
 
 /** \brief Seek into a file descriptor
  **
@@ -495,7 +508,7 @@ extern ssize_t ciaaFS_write(int fd, void *buf, size_t nbytes);
  **          specific file descriptor the caller has to wait until return before
  **          calling other of this function using the same file handler.
  **/
-extern ssize_t ciaaFS_lseek(int fd, ssize_t offset, int whence);
+extern ssize_t vfs_lseek(file_desc_t **file, ssize_t offset, int whence);
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */

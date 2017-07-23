@@ -66,6 +66,9 @@
 #include "ciaaBlockDevices.h"
 #include "test_fs.h"  /* <= own header */
 #include "ext2.h"
+#include "ooc.h"
+#include "device_x86.h"
+#include "mmcSPI_x86.h"
 
 /*==================[macros and definitions]=================================*/
 #define ASSERT(cond) assert_fs((cond), __FILE__, __LINE__)
@@ -75,6 +78,13 @@
 #define TEST_BUFFER_SIZE 1024
 
 /*==================[internal data declaration]==============================*/
+
+/** \brief Filesystem drivers declaration
+ *
+ * Here are the drivers defined in the lower layer file system implementations (in ext2.c, fat.c, etc.)
+ *
+ */
+extern filesystem_driver_t ext2_driver;
 
 /*==================[internal functions declaration]=========================*/
 static void test_fill_buffer(uint8_t *buffer, uint16_t size);
@@ -176,8 +186,10 @@ void ErrorHook(void)
 
 TASK(InitTask)
 {
+   MmcSPI mmc0;
+   filesystem_info_t *fs;
+   file_desc_t *file0, *file1, *file2, *file3;
 
-   int32_t fd0, fd1, fd2, fd3;
    uint8_t buffer[TEST_BUFFER_SIZE];
    ext2_format_param_t format_parameters;
 
@@ -186,48 +198,61 @@ TASK(InitTask)
 
    /* init CIAA kernel and devices */
    ciaak_start();
-   ret=ciaaFS_init();
+   ret=vfs_init();
    ASSERT_MSG(-1 != ret, "VFS initialization failed");
    /* print message (only on x86) */
    ciaaPOSIX_printf("Init Task...\n");
 
    /* Basic test
-    * This secuence test the basic operation of flash device.
+    * This secuence test the basic operation of MMC device.
     * Open the device, get info block, erase a block and verify or cleared,
     * write a block, read this block and verify the data read is same as writed
     * finally close the device
     */
    ASSERT_SEQ(0);
+
+   /* Create device and initialize it */
+   ooc_init_class(MmcSPI);
+   mmc0 = mmcSPI_new();
+   ASSERT_MSG(NULL != mmc0, "Problem creating mmc0");
+   ret = mmcSPI_init(mmc0);
+   ASSERT_MSG(NULL != mmc0, "Problem initializing mmc0");
+
+   /* Create file system object with device and fs driver */
+   ret = filesystem_create(&fs, (Device) mmc0, &ext2_driver);
+   ASSERT_MSG(-1 < ret, "Problem creating fs");
+
    /* format */
    /* Set ext2 format parameters */
    format_parameters.partition_size = 1*1024*1024;
    format_parameters.block_size = 1024;
    format_parameters.block_node_factor = 4;
-   ret = ciaaFS_format("/dev/block/mmc0", "EXT2", NULL);
+
+   ret = vfs_format(&fs, NULL);
    ASSERT_MSG(-1 < ret, "Problem formatting device");
 
    ASSERT_SEQ(1);
 
    /* mount */
-   ret = ciaaFS_mkdir("/mount", 0);
+   ret = vfs_mkdir("/mount", 0);
    ASSERT_MSG(-1 < ret, "Trying to create /mount failed");
 
    ASSERT_SEQ(2);
 
-   ret = ciaaFS_mount("/dev/block/mmc0", "/mount/ext2", "EXT2");
+   ret = vfs_mount("/mount/ext2", &fs);
    ASSERT_MSG(-1 < ret, "Problem mounting directory");
 
    ASSERT_SEQ(3);
 
-   ret = ciaaFS_mkdir("/mount/ext2/dir0", 0);
+   ret = vfs_mkdir("/mount/ext2/dir0", 0);
    ASSERT_MSG(-1 < ret, "Trying to create /mount/ext2/dir0 failed");
    //while(1);
-   ret = ciaaFS_mkdir("/mount/ext2/dir1", 0);
+   ret = vfs_mkdir("/mount/ext2/dir1", 0);
    ASSERT_MSG(-1 < ret, "Trying to create /mount/ext2/dir1 failed");
    //while(1);
-   ret = ciaaFS_mkdir("/mount/ext2/dir2", 0);
+   ret = vfs_mkdir("/mount/ext2/dir2", 0);
    ASSERT_MSG(-1 < ret, "Trying to create /mount/ext2/dir2 failed");
-   ret = ciaaFS_mkdir("/mount/ext2/dir2/dir3", 0);
+   ret = vfs_mkdir("/mount/ext2/dir2/dir3", 0);
    ASSERT_MSG(-1 < ret, "Trying to create /mount/ext2/dir2/dir3 failed");
 
    ASSERT_SEQ(4);
@@ -237,81 +262,82 @@ TASK(InitTask)
 
    ASSERT_SEQ(5);
    /* Fixme: Duplicated file in ext2. Error not handled */
-   fd0 = ciaaFS_open("/mount/ext2/file0", VFS_O_CREAT);
-   ciaaPOSIX_printf("fd0: %d\n", fd0);
-   ASSERT_MSG(-1 < fd0, "Trying to open file0 failed");
-   fd1 = ciaaFS_open("/mount/ext2/file1", VFS_O_CREAT);
-   ciaaPOSIX_printf("fd1: %d\n", fd1);
-   ASSERT_MSG(-1 < fd1, "Trying to open file1 failed");
+   ret = vfs_open("/mount/ext2/file0", &file0, VFS_O_CREAT);
+   ASSERT_MSG(-1 < ret, "Trying to open file0 failed");
+   ret = vfs_open("/mount/ext2/file1", &file1, VFS_O_CREAT);
+   ASSERT_MSG(-1 < ret, "Trying to open file1 failed");
    ret=vfs_print_tree();
 
    ASSERT_SEQ(6);
 
-   fd2 = ciaaFS_open("/mount/ext2/dir2/file2", VFS_O_CREAT);
-   ASSERT_MSG(-1 < fd2, "Trying to open file2 failed");
-   fd3 = ciaaFS_open("/mount/ext2/dir2/file3", VFS_O_CREAT);
-   ASSERT_MSG(-1 < fd3, "Trying to open file3 failed");
-   ret = ciaaFS_close(fd0);
+   ret = vfs_open("/mount/ext2/dir2/file2", &file2, VFS_O_CREAT);
+   ASSERT_MSG(-1 < ret, "Trying to open file2 failed");
+   ret = vfs_open("/mount/ext2/dir2/file3", &file3, VFS_O_CREAT);
+   ASSERT_MSG(-1 < ret, "Trying to open file3 failed");
+   ret = vfs_close(&file0);
    ASSERT_MSG(-1 < ret, "Trying to close /mount/ext2/file0 failed");
-   ret = ciaaFS_close(fd1);
+   ret = vfs_close(&file1);
    ASSERT_MSG(-1 < ret, "Trying to close /mount/ext2/file1 failed");
-   ret = ciaaFS_close(fd2);
+   ret = vfs_close(&file2);
    ASSERT_MSG(-1 < ret, "Trying to close /mount/ext2/dir2/file2 failed");
-   ret = ciaaFS_close(fd3);
+   ret = vfs_close(&file3);
    ASSERT_MSG(-1 < ret, "Trying to close /mount/ext2/dir2/file3 failed");
 
    ASSERT_SEQ(7);
 
-   fd0 = ciaaFS_open("/mount/ext2/file0", 0);
-   ASSERT_MSG(-1 < fd0, "Trying to open file0 for read failed");
+   ret = vfs_open("/mount/ext2/file0", &file0, 0);
+   ASSERT_MSG(-1 < ret, "Trying to open file0 for read failed");
    test_fill_buffer(buffer, TEST_BUFFER_SIZE);
-   lret = ciaaFS_write(fd0, buffer, TEST_BUFFER_SIZE);
+   lret = vfs_write(&file0, buffer, TEST_BUFFER_SIZE);
    ASSERT_MSG(lret==TEST_BUFFER_SIZE, "Trying to write to file0 failed");
-   ret = ciaaFS_close(fd0);
+   ret = vfs_close(&file0);
    ASSERT_MSG(-1 < ret, "Trying to close /mount/ext2/file0 failed");
-   fd0 = ciaaFS_open("/mount/ext2/file0", 0);
-   ASSERT_MSG(-1 < fd0, "Trying to open file0 for read failed");
+   ret = vfs_open("/mount/ext2/file0", &file0, 0);
+   ASSERT_MSG(-1 < ret, "Trying to open file0 for read failed");
    ciaaPOSIX_memset(buffer, 0, TEST_BUFFER_SIZE);
-   lret = ciaaFS_read(fd0, buffer, TEST_BUFFER_SIZE);
+   lret = vfs_read(&file0, buffer, TEST_BUFFER_SIZE);
+   ciaaPOSIX_printf("test_fs.c: Expect to read %d readed %d\n", TEST_BUFFER_SIZE, lret);
    ASSERT_MSG(lret==TEST_BUFFER_SIZE, "Trying to read file0 failed");
    ret = test_check_buffer(buffer, TEST_BUFFER_SIZE);
    ASSERT_MSG(lret==TEST_BUFFER_SIZE, "read data corrupt");
-   lret = ciaaFS_read(fd0, buffer, TEST_BUFFER_SIZE);
+   lret = vfs_read(&file0, buffer, TEST_BUFFER_SIZE);
    ASSERT_MSG(lret==0, "Read beyond file0 limits. Implementation error");
 
    ASSERT_SEQ(8);
 
    ret=vfs_print_tree();
-   ret = ciaaFS_close(fd0);
-   ASSERT_MSG(0 == ret, "Trying to close fd0 failed");
-   ret = ciaaFS_unlink("/mount/ext2/dir2/file2"); /* FIXME: Causes file0 to become bad type. /mount/ext2 entry corrupted */
+   ret = vfs_close(&file0);
+   ASSERT_MSG(0 == ret, "Trying to close file0 failed");
+   ret = vfs_unlink("/mount/ext2/dir2/file2"); /* FIXME: Causes file0 to become bad type. /mount/ext2 entry corrupted */
                                                   /* Root entries in block 12 */
    ASSERT_MSG(-1 < ret, "Trying to unlink file2 failed");
-   ret = ciaaFS_unlink("/mount/ext2/dir2/file3");
+   ret = vfs_unlink("/mount/ext2/dir2/file3");
    ASSERT_MSG(-1 < ret, "Trying to unlink file3 failed");
-   fd0 = ciaaFS_open("/mount/ext2/dir2/file4", VFS_O_CREAT);
-   ASSERT_MSG(-1 < fd0, "Trying to create file4 failed");
-   fd1 = ciaaFS_open("/mount/ext2/dir2/file5", VFS_O_CREAT);
-   ASSERT_MSG(-1 < fd1, "Trying to create file5 failed");
+   ret = vfs_open("/mount/ext2/dir2/file4", &file0, VFS_O_CREAT);
+   ASSERT_MSG(-1 < ret, "Trying to create file4 failed");
+   ret = vfs_open("/mount/ext2/dir2/file5", &file1, VFS_O_CREAT);
+   ASSERT_MSG(-1 < ret, "Trying to create file5 failed");
+   ret = vfs_close(&file1);
    ret=vfs_print_tree();
 
    ASSERT_SEQ(9);
 
-   fd3 = ciaaFS_open("/mount/ramfile0", VFS_O_CREAT);
-   ASSERT_MSG(-1 < fd3, "Trying to create ramfile0 for read failed");
+   ret = vfs_open("/mount/ext2/dir2/file5", &file3, VFS_O_CREAT);
+   ASSERT_MSG(-1 < ret, "Trying to create file5 for read failed");
    test_fill_buffer(buffer, TEST_BUFFER_SIZE);
-   lret = ciaaFS_write(fd3, buffer, TEST_BUFFER_SIZE);
+   lret = vfs_write(&file3, buffer, TEST_BUFFER_SIZE);
    ASSERT_MSG(lret == TEST_BUFFER_SIZE, "Trying to write to ramfile0 failed");
    ciaaPOSIX_memset(buffer, 0, TEST_BUFFER_SIZE);
-   lret = ciaaFS_lseek(fd3, 0, SEEK_SET);
-   ASSERT_MSG(lret == 0, "Trying to set ramfile0 position failed");
-   ciaaPOSIX_printf("ciaaFS_lseek: Expected to return %lu, actually return %lu\n", 0, lret);
-   lret = ciaaFS_read(fd3, buffer, TEST_BUFFER_SIZE);
-   ASSERT_MSG(lret == TEST_BUFFER_SIZE, "Trying to read ramfile0 failed");
-   ciaaPOSIX_printf("ciaaFS_read: Expected to return %lu, actually return %lu\n", TEST_BUFFER_SIZE, lret);
+   lret = vfs_lseek(&file3, 0, SEEK_SET);
+   ASSERT_MSG(lret == 0, "Trying to set file5 position failed");
+   ciaaPOSIX_printf("vfs_lseek: Expected to return %lu, actually return %lu\n", 0, lret);
+   lret = vfs_read(&file3, buffer, TEST_BUFFER_SIZE); //Lee 0 en vez de 1024
+   ciaaPOSIX_printf("test_fs.c: Expect to read %d readed %d\n", TEST_BUFFER_SIZE, lret);
+   ASSERT_MSG(lret == TEST_BUFFER_SIZE, "Trying to read file5 failed");
+   ciaaPOSIX_printf("vfs_read: Expected to return %lu, actually return %lu\n", TEST_BUFFER_SIZE, lret);
    ret = test_check_buffer(buffer, TEST_BUFFER_SIZE);
    ciaaPOSIX_printf("%s\n", buffer);
-   ret = ciaaFS_close(fd3);
+   ret = vfs_close(&file3);
 
    ShutdownOS(E_OK);
 
@@ -388,26 +414,41 @@ typedef struct {
 
 extern int EXT2FSInit(EXT2FS_t *fs, BlockDev_t *dev);
 
-// main.c
-#include <vfs.h>
-#include <spi.h>
-#include <mmc_blkdev.h>
-#include <ext2fs.h>
 
-int main() {
-  MMCBlkDev_t mmc0;
-  EXT2FS_t fs;
-  VFSFile_t file;
-  MmcBlkDevInitWithSPI(&mmc0, SPI0, 5000000);
-  FatFSInit(&fs, (BlockDev_t*) &mmc0);
-  vfs_mount("/mmc0", &fs);
-  if (vfs_open("/mmc0/file1.txt", &file, VFS_READONLY) == -1) {
-    // ERROR
-  } else {
-    size_t readed = vfs_read(&file, buffer, len);
-    vfs_write(&file, buffer, readed);
-    vfs_close(&file);
-  }
+int main()
+{
+   MmcSPI mmc0;
+   filesystem_info_t *fs;
+   file_desc_t *file;
+
+   ooc_init_class(MmcSPI);
+   if(NULL == mmc0 = mmcSPI_new(SPI0))
+   {
+      //ERROR
+   }
+   if(0 > mmcSPI_init((Device) mmc0))
+   {
+      //ERROR
+   }
+
+   if(0 > filesystem_create(&fs, (Device) mmc0, &ext2_driver))
+   {
+      //ERROR
+   }
+   if(0 > vfs_mount("/mmc0", &fs))
+   {
+      //ERROR
+   }
+   if (0 > vfs_open("/mmc0/file1.txt", &file, VFS_READONLY))
+   {
+      // ERROR
+   }
+   else
+   {
+      size_t readed = vfs_read(&file, buffer, len);
+      vfs_write(&file, buffer, readed);
+      vfs_close(&file);
+   }
 }
 
 FatFSInit(&fs, (BlockDev_t*) &mmc0);
@@ -430,8 +471,6 @@ struct vfs_node
    file_info_t       f_info;
 };
 
-
-
 int main() {
   MMCBlkDev_t mmc0;
   MMCSPI_t mmc0
@@ -449,15 +488,13 @@ int main() {
   }
 }
 
-ciaaFS_init()
+vfs_init()
 {
 mmc0 = MMCSPI_new(SPI0);
 mmc0->init();
 fs = filesystem_new();
 vfs_mount("/mmc0", fs);
 }
-
-
 
 */
 /** @} doxygen end group definition */

@@ -201,16 +201,16 @@ int mmcSPI_init(MmcSPI self)
 {
    int ret = -1;
 
+   self->block_size = MMC_SPI_BLOCKSIZE;
+   self->nsectors = MMC_SPI_BLOCKCOUNT;
    self->storage = fopen(self->filename,"r+b");
    if (self->storage == NULL)
    {
       perror("SD emulation file not exists: ");
       self->storage = fopen(self->filename,"w+b");
+
       if (self->storage != NULL)
-      {
-         self->block_size = MMC_SPI_BLOCKSIZE;
-         self->nsectors = MMC_SPI_BLOCKCOUNT;
-         
+      {  
          if(mmcSPI_blockErase(self, 0, self->nsectors - 1) == 0) //FIXME
          {
             ciaaPOSIX_printf("mmcSPI_init(): mmcSPI_blockErase() successful\n");
