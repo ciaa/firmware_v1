@@ -56,7 +56,7 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "blockDevice_x86.h"
+#include "blockDevice.h"
 
 /*==================[macros and definitions]=================================*/
 

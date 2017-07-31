@@ -67,8 +67,8 @@
 #include "test_fs.h"  /* <= own header */
 #include "ext2.h"
 #include "ooc.h"
-#include "device_x86.h"
-#include "mmcSPI_x86.h"
+#include "device.h"
+#include "mmcSPI.h"
 
 /*==================[macros and definitions]=================================*/
 #define ASSERT(cond) assert_fs((cond), __FILE__, __LINE__)

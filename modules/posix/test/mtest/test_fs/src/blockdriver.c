@@ -67,8 +67,8 @@
 #include "vfs.h"
 #include "blockdriver.h"
 #include "ooc.h"
-#include "device_x86.h"
-#include "blockDevice_x86.h"
+#include "device.h"
+#include "blockDevice.h"
 
 /*==================[macros and definitions]=================================*/
 /*==================[internal data declaration]==============================*/

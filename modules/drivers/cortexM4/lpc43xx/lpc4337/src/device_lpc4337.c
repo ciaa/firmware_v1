@@ -57,7 +57,7 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "device_lpc4337.h"
+#include "device.h"
 #include "implement/device_impl_lpc4337.h"
 
 /*==================[macros and definitions]=================================*/

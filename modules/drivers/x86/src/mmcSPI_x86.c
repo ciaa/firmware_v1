@@ -57,9 +57,9 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "device_x86.h"
+#include "device.h"
 #include "implement/device_impl_x86.h"
-#include "mmcSPI_x86.h"
+#include "mmcSPI.h"
 #include "implement/mmcSPI_impl_x86.h"
 #include "ciaaPOSIX_string.h"
 #include <stdio.h>

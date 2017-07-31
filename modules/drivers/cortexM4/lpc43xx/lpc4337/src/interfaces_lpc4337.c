@@ -56,7 +56,7 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "blockDevice_lpc4337.h"
+#include "blockDevice.h"
 
 /*==================[macros and definitions]=================================*/
 

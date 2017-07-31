@@ -57,17 +57,16 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "device_lpc4337.h"
-#include "implement/device_impl_lpc4337.h"
-#include "mmcSPI_lpc4337.h"
-#include "implement/mmcSPI_impl_lpc4337.h"
 #include "ciaaPOSIX_string.h"
+#include "diskio.h"
+#include "chip.h"
+#include "device.h"
+#include "implement/device_impl_lpc4337.h"
+#include "mmcSPI.h"
+#include "implement/mmcSPI_impl_lpc4337.h"
 
 /*==================[macros and definitions]=================================*/
-/** Define filename to simulate card data */
-#define MMC_SPI_X86_FILENAME "MMCSPI.BIN"
 #define MMC_SPI_BLOCKSIZE 512
-#define MMC_SPI_BLOCKCOUNT 2048
 
 /*==================[internal data definition]===============================*/
 
@@ -197,7 +196,18 @@ int mmcSPI_init(MmcSPI self)
 {
    int ret = -1;
    DSTATUS stat;
-   uint32_t buff;
+
+   /* Set up clock and power for SSP1 module */
+   /* Configure SSP1 pins */
+   Chip_SCU_PinMuxSet(0xf, 4, (SCU_MODE_PULLUP | SCU_MODE_FUNC0)); /* CLK0 */
+   Chip_SCU_PinMuxSet(0x1, 3, (SCU_MODE_PULLUP | SCU_MODE_INBUFF_EN | SCU_MODE_ZIF_DIS | SCU_MODE_FUNC5)); /* MISO1 */
+   Chip_SCU_PinMuxSet(0x1, 4, (SCU_MODE_PULLUP | SCU_MODE_FUNC5)); /* MOSI1 */
+
+   Chip_SCU_PinMuxSet(0x6, 1, (SCU_MODE_PULLUP | SCU_MODE_FUNC0)); /* CS1 configured as GPIO */
+   Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, 3, 0);
+
+   Chip_SSP_Init(LPC_SSP1);
+   Chip_SSP_Enable(LPC_SSP1);
 
    stat = disk_initialize(0);
    if(0 == (stat & STA_NOINIT))

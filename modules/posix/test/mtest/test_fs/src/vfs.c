@@ -80,7 +80,7 @@ FIXME:
 #include "vfs.h"
 #include "tlsf.h"
 #include "ooc.h"
-#include "device_x86.h"
+#include "device.h"
 
 /*==================[macros and definitions]=================================*/
 

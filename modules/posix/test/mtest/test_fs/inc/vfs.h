@@ -67,8 +67,8 @@
 #include "ciaaPOSIX_stdbool.h"
 #include "ciaaBlockDevices.h"
 #include "tlsf.h"
-#include "blockDevice_x86.h"
-#include "device_x86.h"
+#include "blockDevice.h"
+#include "device.h"
 
 /*==================[macros]=================================================*/
 

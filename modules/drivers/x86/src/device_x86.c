@@ -57,7 +57,7 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "device_x86.h"
+#include "device.h"
 #include "implement/device_impl_x86.h"
 
 /*==================[macros and definitions]=================================*/

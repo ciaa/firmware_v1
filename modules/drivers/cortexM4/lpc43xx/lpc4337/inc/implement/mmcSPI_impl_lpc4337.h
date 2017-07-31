@@ -64,8 +64,7 @@
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "implement/device_impl_x86.h"
-#include <stdio.h>
+#include "implement/device_impl_lpc4337.h"
 
 /*==================[cplusplus]==============================================*/
 #ifdef __cplusplus
