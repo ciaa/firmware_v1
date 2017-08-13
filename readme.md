@@ -11,7 +11,7 @@ In this project we are using git submodules, if you use "download zip" link from
 github it will NOT download the git submodules :(. Please download the releases
 or clone using:
 
-<b>git clone <i>--recursive</i> https://github.com/ciaa/firmware_v1.git</b>
+<b>git clone <i>--recursive</i> https://github.com/ciaa/Firmware.git</b>
 
 <h2>Project Information</h2>
 
