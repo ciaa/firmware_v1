@@ -6,4 +6,4 @@
 	url = https://github.com/ciaa/firmware.modules.modbus.git
 [submodule "externals/lwip/lwip_src"]
 	path = externals/lwip/lwip_src
-	url = https://git.savannah.nongnu.org/git/lwip.git/
+	url = https://git.savannah.nongnu.org/git/lwip.git
