@@ -1,7 +1,9 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, 2015, Mariano Cerdeiro
+/* Copyright 2014, Daniel Cohen
+ * Copyright 2014, Esteban Volentini
+ * Copyright 2014, Matias Giori
+ * Copyright 2014, Franco Salinas
+ * Copyright 2017, Gerardo Puga
+ *
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,65 +36,105 @@
  *
  */
 
-#ifndef CIAAPOSIX_STDDEF_H
-#define CIAAPOSIX_STDDEF_H
-/** \brief Short description of this file
+/** \brief CIAA Flash Driver for LPC4337
  **
- ** Long description of this file
+ ** Implements the Flash Driver for LPC4337
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup Flash Flash Drivers
  ** @{ */
 
+
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaPlatforms.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-#if (x86 == ARCH)
-#include "stddef.h"
-#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-      ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) || \
-      ( (cortexM4 == ARCH) && (lpc5410x == CPUTYPE) ) )
-#include "stddef.h"
-#elif ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) )
-#include "stddef.h"
-#include "sys/types.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "stdint.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
-/*==================[macros]=================================================*/
 
-/*==================[typedef]================================================*/
-/*@ -warnposixheaders @*/
-#if ( (x86 == ARCH) || (cortexM4 == ARCH) )
-#include "sys/types.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "sys/types.h"
-#if 0
-#include "stddef.h"
-#endif
-#endif
-/*@ =warnposixheaders @*/
+#include "ciaaDriverFlash.h"
 
-/*==================[external data declaration]==============================*/
 
-/*==================[external functions declaration]=========================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[macros and definitions]=================================*/
+
+
+
+/*==================[internal data declaration]==============================*/
+
+
+
+/*==================[internal functions declaration]=========================*/
+
+
+
+/*==================[internal data definition]===============================*/
+
+
+
+/*==================[external data definition]===============================*/
+
+
+
+/*==================[internal functions definition]==========================*/
+
+
+
+/*==================[external functions definition]==========================*/
+
+
+
+extern ciaaDevices_deviceType * ciaaDriverFlash_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
+{
+   return device;
 }
-#endif
+
+
+extern int32_t ciaaDriverFlash_close(ciaaDevices_deviceType const * const device)
+{
+   return -1;
+}
+
+
+extern int32_t ciaaDriverFlash_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
+{
+   int32_t ret = -1;
+
+   return ret;
+}
+
+
+extern ssize_t ciaaDriverFlash_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t const size)
+{
+   ssize_t ret = -1;
+
+   return ret;
+}
+
+
+extern ssize_t ciaaDriverFlash_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
+{
+   ssize_t ret = -1;
+
+   return ret;
+}
+
+
+void ciaaDriverFlash_init(void)
+{
+
+}
+
+
+
+/*==================[interrupt handlers]=====================================*/
+
+
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_STDDEF_H */
+

@@ -1,7 +1,6 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, 2015, Mariano Cerdeiro
+/* Copyright 2016, Mariano cerdeiro
+ * Copyright 2017, Gerardo Puga
+ *
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,65 +33,78 @@
  *
  */
 
-#ifndef CIAAPOSIX_STDDEF_H
-#define CIAAPOSIX_STDDEF_H
-/** \brief Short description of this file
+/** \brief CIAA Eth Driver for LPC4337
  **
- ** Long description of this file
+ ** Implements the Eth Driver for LPC4337
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup ETH Eth Drivers
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaPlatforms.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-#if (x86 == ARCH)
-#include "stddef.h"
-#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-      ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) || \
-      ( (cortexM4 == ARCH) && (lpc5410x == CPUTYPE) ) )
-#include "stddef.h"
-#elif ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) )
-#include "stddef.h"
-#include "sys/types.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "stdint.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
-/*==================[macros]=================================================*/
 
-/*==================[typedef]================================================*/
-/*@ -warnposixheaders @*/
-#if ( (x86 == ARCH) || (cortexM4 == ARCH) )
-#include "sys/types.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "sys/types.h"
-#if 0
-#include "stddef.h"
-#endif
-#endif
-/*@ =warnposixheaders @*/
+#ifdef CIAA_CFG_NET_IP
+#include "ciaaDriverEth.h"
 
-/*==================[external data declaration]==============================*/
 
-/*==================[external functions declaration]=========================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[macros and definitions]=================================*/
+
+
+
+/*==================[internal data declaration]==============================*/
+
+
+
+
+/*==================[internal functions declaration]=========================*/
+
+
+
+/*==================[internal data definition]===============================*/
+
+
+
+/*==================[external data definition]===============================*/
+
+
+
+/*==================[internal functions definition]==========================*/
+
+
+
+/*==================[external functions definition]==========================*/
+
+
+
+void ciaaDriverEth_init(void)
+{
+   /* TBD */
 }
-#endif
+
+
+
+/*==================[interrupt handlers]=====================================*/
+
+
+
+
+#else /* #ifdef CIAA_CFG_NET_IP */
+
+/* some C compilers may have problems by compiling an empty file, this is not
+ * allowed in the standard */
+typedef unsigned char dummy;
+#endif /* #ifdef CIAA_CFG_NET_IP */
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_STDDEF_H */
+
