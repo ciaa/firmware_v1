@@ -1,7 +1,5 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, 2015, Mariano Cerdeiro
+/* Copyright 2017, Gerardo Puga
+ *
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,65 +32,98 @@
  *
  */
 
-#ifndef CIAAPOSIX_STDDEF_H
-#define CIAAPOSIX_STDDEF_H
-/** \brief Short description of this file
+/** \brief CIAA UART Driver for LPC54102
  **
- ** Long description of this file
+ ** Implements the UART Driver for LPC54102
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup Template Template to start a new module
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup UART UART Drivers
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPOSIX_stdint.h"
-#include "ciaaPlatforms.h"
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-#if (x86 == ARCH)
-#include "stddef.h"
-#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-      ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) || \
-      ( (cortexM4 == ARCH) && (lpc5410x == CPUTYPE) ) )
-#include "stddef.h"
-#elif ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) )
-#include "stddef.h"
-#include "sys/types.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "stdint.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
-/*==================[macros]=================================================*/
 
-/*==================[typedef]================================================*/
-/*@ -warnposixheaders @*/
-#if ( (x86 == ARCH) || (cortexM4 == ARCH) )
-#include "sys/types.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "sys/types.h"
-#if 0
-#include "stddef.h"
-#endif
-#endif
-/*@ =warnposixheaders @*/
+#include "ciaaDriverUart.h"
 
-/*==================[external data declaration]==============================*/
 
-/*==================[external functions declaration]=========================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[macros and definitions]=================================*/
+
+
+
+/*==================[internal data declaration]==============================*/
+
+
+
+/*==================[internal functions declaration]=========================*/
+
+
+
+/*==================[internal data definition]===============================*/
+
+
+
+/*==================[external data definition]===============================*/
+
+
+
+/*==================[internal functions definition]==========================*/
+
+
+
+/*==================[external functions definition]==========================*/
+
+
+
+extern ciaaDevices_deviceType * ciaaDriverUart_open(char const * path, ciaaDevices_deviceType * device, uint8_t const oflag)
+{
+   return device;
 }
-#endif
+
+
+extern int32_t ciaaDriverUart_close(ciaaDevices_deviceType const * const device)
+{
+   return 0;
+}
+
+
+extern int32_t ciaaDriverUart_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
+{
+   return -1;
+}
+
+
+extern ssize_t ciaaDriverUart_read(ciaaDevices_deviceType const * const device, uint8_t* buffer, size_t const size)
+{
+   return -1;
+}
+
+
+extern ssize_t ciaaDriverUart_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
+{
+   return -1;
+}
+
+
+void ciaaDriverUart_init(void)
+{
+
+}
+
+
+
+/*==================[interrupt handlers]=====================================*/
+
+
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_STDDEF_H */
+

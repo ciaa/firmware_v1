@@ -59,6 +59,7 @@
 # +--------------+---------------+----------------+--------------+---------------+
 # | cortexM4     | lpc43xx       | lpc4337        | gcc          | edu_ciaa_nxp  |
 # |              |               |                |              | ciaa_nxp      |
+# |              | lpc5410x      | lpc54102       | gcc          | pico_ciaa     |
 # |              | k60_120       | mk60fx512vlq15 | gcc          | ciaa_fsl      |
 # +--------------+---------------+----------------+--------------+---------------+
 # | mips         | pic32         | pic32mz        | gcc          | ciaa_pic      |
@@ -97,6 +98,13 @@ ifeq ($(BOARD),ciaa_nxp)
 ARCH           ?= cortexM4
 CPUTYPE        ?= lpc43xx
 CPU            ?= lpc4337
+COMPILER       ?= gcc
+endif
+# Default values for pico_ciaa
+ifeq ($(BOARD),pico_ciaa)
+ARCH           ?= cortexM4
+CPUTYPE        ?= lpc5410x
+CPU            ?= lpc54102
 COMPILER       ?= gcc
 endif
 # Default values for ciaa_fsl
