@@ -1,7 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, 2015, Mariano Cerdeiro
+/* Copyright 2016, Gerardo Puga
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,55 +31,36 @@
  *
  */
 
-#ifndef CIAAPOSIX_STDINT_H
-#define CIAAPOSIX_STDINT_H
-/** \brief POSIX stdin
- **
- ** POSIX stdin header file
+#ifndef _CIAADRIVERDIO_INTERNAL_H_
+#define _CIAADRIVERDIO_INTERNAL_H_
+/** \brief Internal Header file of SPARC/LEON3 DIO Driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup DIO DIO Drivers
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPlatforms.h"
 
-#if (x86 == ARCH)
-#include "stdint.h"
-#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (lpc5410x == CPUTYPE) ) || \
-        ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) ) )
-#include "stdint.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "stdint.h"
-#elif (sparcV8 == ARCH)
-#include "stdint.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
 /*==================[macros]=================================================*/
+
 
 /*==================[typedef]================================================*/
 
+
 /*==================[external data declaration]==============================*/
+
 
 /*==================[external functions declaration]=========================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_STDINT_H */
-
+#endif /* _CIAADRIVERDIO_INTERNAL_H_ */

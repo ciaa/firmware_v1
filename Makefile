@@ -64,6 +64,8 @@
 # +--------------+---------------+----------------+--------------+---------------+
 # | mips         | pic32         | pic32mz        | gcc          | ciaa_pic      |
 # +--------------+---------------+----------------+--------------+---------------+
+# | sparcV8      | leon3         | leon3nfp       | gcc          | leon3_fpga_nfp|
+# +--------------+---------------+----------------+--------------+---------------+
 #
 # Default values for ciaa_sim_ia64
 ifeq ($(BOARD),ciaa_sim_ia64)
@@ -112,6 +114,13 @@ ifeq ($(BOARD),ciaa_fsl)
 ARCH           ?= cortexM4
 CPUTYPE        ?= k60_120
 CPU            ?= mk60fx512vlq15
+COMPILER       ?= gcc
+endif
+# Default values for leon3_fpga
+ifeq ($(BOARD),leon3_fpga_nfp)
+ARCH           ?= sparcV8
+CPUTYPE        ?= leon3
+CPU            ?= leon3nfp
 COMPILER       ?= gcc
 endif
 # Default values in other case

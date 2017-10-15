@@ -124,6 +124,12 @@ void *ciaaPOSIX_malloc(size_t size)
    char *result = NULL;
    ciaaPOSIX_chunk_header *chunk_header = first_chunk_header;
 
+#if (sparcV8 == ARCH)
+       /* SPARC doesn't support unaligned memory accesses, so round the block
+        * size to the next 32-bits address multiple */
+       size = (size + 0x03) & ~(0x03);
+#endif
+
    /* enter critical section */
    ciaaPOSIX_sem_wait(&ciaaPOSIX_stdlib_sem);
    while(chunk_header)
