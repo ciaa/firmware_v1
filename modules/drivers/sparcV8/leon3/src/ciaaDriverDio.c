@@ -1,7 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, 2015, Mariano Cerdeiro
+/* Copyright 2016, Gerardo Puga
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,55 +31,85 @@
  *
  */
 
-#ifndef CIAAPOSIX_STDINT_H
-#define CIAAPOSIX_STDINT_H
-/** \brief POSIX stdin
- **
- ** POSIX stdin header file
- **
+/** \brief CIAA DIO Driver for the SPARC/LEON3 architecture
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup DIO DIO Drivers
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPlatforms.h"
 
-#if (x86 == ARCH)
-#include "stdint.h"
-#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (lpc5410x == CPUTYPE) ) || \
-        ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) ) )
-#include "stdint.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "stdint.h"
-#elif (sparcV8 == ARCH)
-#include "stdint.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
-/*==================[macros]=================================================*/
+#include "ciaaDriverDio.h"
+#include "ciaaDriverDio_Internal.h"
+#include "ciaaPOSIX_stdlib.h"
 
-/*==================[typedef]================================================*/
 
-/*==================[external data declaration]==============================*/
+/*==================[macros and definitions]=================================*/
 
-/*==================[external functions declaration]=========================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
+/*==================[internal data declaration]==============================*/
+
+
+/*==================[internal functions declaration]=========================*/
+
+
+/*==================[internal data definition]===============================*/
+
+
+/*==================[external data definition]===============================*/
+
+
+/*==================[internal functions definition]==========================*/
+
+
+/*==================[external functions definition]==========================*/
+
+
+extern ciaaDevices_deviceType * ciaaDriverDio_open(char const * path,
+      ciaaDevices_deviceType * device, uint8_t const oflag)
+{
+   return NULL;
 }
-#endif
+
+
+extern int32_t ciaaDriverDio_close(ciaaDevices_deviceType const * const device)
+{
+   return 0;
+}
+
+
+extern int32_t ciaaDriverDio_ioctl(ciaaDevices_deviceType const * const device, int32_t const request, void * param)
+{
+   return -1;
+}
+
+
+extern ssize_t ciaaDriverDio_read(ciaaDevices_deviceType const * const device, uint8_t * buffer, size_t size)
+{
+   return -1;
+}
+
+
+extern ssize_t ciaaDriverDio_write(ciaaDevices_deviceType const * const device, uint8_t const * const buffer, size_t const size)
+{
+   return -1;
+}
+
+
+void ciaaDriverDio_init(void)
+{
+
+}
+
+
+/*==================[interrupt handlers]=====================================*/
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_STDINT_H */
-

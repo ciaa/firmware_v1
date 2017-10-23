@@ -1,7 +1,4 @@
-/* Copyright 2014, ACSE & CADIEEL
- *    ACSE   : http://www.sase.com.ar/asociacion-civil-sistemas-embebidos/ciaa/
- *    CADIEEL: http://www.cadieel.org.ar
- * Copyright 2014, 2015, Mariano Cerdeiro
+/* Copyright 2016, Gerardo Puga
  * All rights reserved.
  *
  * This file is part of CIAA Firmware.
@@ -34,55 +31,91 @@
  *
  */
 
-#ifndef CIAAPOSIX_STDINT_H
-#define CIAAPOSIX_STDINT_H
-/** \brief POSIX stdin
- **
- ** POSIX stdin header file
+#ifndef _CIAADRIVERUART_INTERNAL_H_
+#define _CIAADRIVERUART_INTERNAL_H_
+/** \brief Internal Header file of SPARC/LEON3 UART Driver
  **
  **/
 
 /** \addtogroup CIAA_Firmware CIAA Firmware
  ** @{ */
-/** \addtogroup POSIX POSIX Implementation
+/** \addtogroup Drivers CIAA Drivers
+ ** @{ */
+/** \addtogroup UART UART Drivers
  ** @{ */
 
 /*==================[inclusions]=============================================*/
-#include "ciaaPlatforms.h"
 
-#if (x86 == ARCH)
-#include "stdint.h"
-#elif ( ( (cortexM4 == ARCH) && (lpc43xx == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (k60_120 == CPUTYPE) ) || \
-        ( (cortexM4 == ARCH) && (lpc5410x == CPUTYPE) ) || \
-        ( (cortexM0 == ARCH) && (lpc43xx == CPUTYPE) ) )
-#include "stdint.h"
-#elif ( (mips == ARCH) && (pic32 == CPUTYPE) )
-#include "stdint.h"
-#elif (sparcV8 == ARCH)
-#include "stdint.h"
-#else
-#error Missing stdio type definition for this ARCH/CPUTYPE/CPU
-#endif
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "ciaaPOSIX_stdint.h"
+#include "ciaaDriverUart.h"
+#include "grlib.h"
+
+
 /*==================[macros]=================================================*/
+
+
+#define SPARC_DRIVER_UART_DEFAULT_BAUDRATE 38400
+
+#define SPARC_DRIVER_UART_QUEUE_LENGHT 32
+
 
 /*==================[typedef]================================================*/
 
+
+typedef struct {
+
+   uint8_t buffer[SPARC_DRIVER_UART_QUEUE_LENGHT];
+
+   uint32_t head;
+   uint32_t tail;
+
+   uint32_t count;
+
+} sparcDriverUartQueueType;
+
+
+typedef struct {
+
+   /* Core configuration */
+   grDeviceAddress baseAddress;
+   uint32_t irq;
+   uint32_t hasFIFOs;
+
+   /* UART configuration */
+   uint32_t numberOfStopBits; /* Valid values: 1 or 2 */
+   uint32_t enableFlowControl;
+   uint32_t useParity;
+   uint32_t useOddParity;
+   uint32_t enableLoopback;
+   uint32_t externalClkEnabled;
+
+   /* Interrupts configuration */
+   uint32_t txInterruptEnabled;
+   uint32_t rxInterruptEnabled;
+
+   /* Baudrate configuration */
+   uint32_t baudrate;
+
+   /* device state configuration */
+   uint32_t deviceIsOpen;
+
+   /* rx and tx data queues */
+   sparcDriverUartQueueType rxQueue;
+
+   ciaaDevices_deviceType deviceDataStructure;
+
+} sparcDriverUartInfoType;
+
+
 /*==================[external data declaration]==============================*/
+
 
 /*==================[external functions declaration]=========================*/
 
-/*==================[cplusplus]==============================================*/
-#ifdef __cplusplus
-}
-#endif
+
+/** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /** @} doxygen end group definition */
 /*==================[end of file]============================================*/
-#endif /* #ifndef CIAAPOSIX_STDINT_H */
-
+#endif /* _CIAADRIVERUART_INTERNAL_H_ */

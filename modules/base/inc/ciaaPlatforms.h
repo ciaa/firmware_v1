@@ -94,6 +94,8 @@ extern "C" {
 #define mips                  3
 /** \brief ARCH cortexM0 */
 #define cortexM0              4
+/** \brief ARCH sparcV8 */
+#define sparcV8               5
 
 
 
@@ -115,6 +117,9 @@ extern "C" {
 /*** CPUTYPES for ARCH=mips ***/
 #define pic32                 6
 
+/*** CPUTYPES for ARCH=sparcV8 ***/
+#define leon3                 7
+
 
 
 /****** CPU macro definitions ******/
@@ -133,6 +138,9 @@ extern "C" {
 
 /*** CPU for ARCH=cortexM4 or ARCH=cortexM0 and CPUTYPE=lpc5410x ***/
 #define lpc54102              4
+
+/*** CPU for ARCH=sparcV8 CPUTYPE=leon3 ***/
+#define leon3nfp              5
 
 
 
@@ -157,6 +165,10 @@ extern "C" {
 
 /*** BOARD for ARCH=cortexM4 CPUTYPE=lpc5410x ***/
 #define pico_ciaa             7
+
+/*** BOARD for ARCH=sparcV8 CPUTYPE=leon3nfp ***/
+#define ciaa_leon3_fpga_nfp   8
+
 
 
 /****** CIAAPLATFORM_REGLENGTH ******/
@@ -200,6 +212,9 @@ extern "C" {
 #elif ( ( ARCH == cortexM4 ) && \
         ( CPUTYPE == lpc5410x ) && \
         ( CPU == lpc54102 ) )
+#elif ( ( ARCH == sparcV8 ) && \
+        ( CPUTYPE == leon3 ) && \
+        ( CPU == leon3nfp ) )
 #else
 #error the entered architecture is not supported... :(
 #endif
