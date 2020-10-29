@@ -1,17 +1,23 @@
 <h1>Readme</h1>
 
-This is the root directory of the CIAA Firmware Project
+This is the root directory of the CIAA Firmware Project [![GitHub issues](https://img.shields.io/github/issues/ciaa/firmware_v1)](https://github.com/badges/shields/issues).
 
 <h2>Quality report</h2>
-Travis: [![Build Status](https://travis-ci.org/ciaa/Firmware.svg?branch=master)](https://travis-ci.org/ciaa/Firmware) Drone: [![Build Status](https://drone.io/github.com/ciaa/Firmware/status.png)](https://drone.io/github.com/ciaa/Firmware/latest) Coverity: <a href="https://scan.coverity.com/projects/ciaa-firmware"> <img alt="Coverity Scan Build Status" src="https://scan.coverity.com/projects/6097/badge.svg"/></a> CircleCI: [![Build Status](https://circleci.com/gh/ciaa/Firmware/tree/master.svg?style=shield)](https://circleci.com/gh/ciaa/Firmware) Issue: [![Issue status](http://issuestats.com/github/ciaa/Firmware/badge/issue)](http://issuestats.com/github/ciaa/Firmware)
 
-<h2>Important</h2>
+| CI       |  Status |
+|:--------:|:------------------------------------------:|
+| Travis   | [![Build Status](https://travis-ci.org/ciaa/firmware_v1.svg?branch=master)](https://travis-ci.org/github/ciaa/firmware_v1)   |
+| Coverity | [![Build Status](https://scan.coverity.com/projects/6097/badge.svg)](https://scan.coverity.com/projects/ciaa-firmware)       |
+|  Drone   | [![Build Status](https://drone.io/github.com/ciaa/Firmware/status.png)](https://drone.io/github.com/ciaa/Firmware/latest)    |
+| CircleCI | [![Build Status](https://circleci.com/gh/ciaa/Firmware/tree/master.svg?style=shield)](https://circleci.com/gh/ciaa/Firmware) |
 
 In this project we are using git submodules, if you use "download zip" link from
 github it will NOT download the git submodules :(. Please download the releases
 or clone using:
 
-<b>git clone <i>--recursive</i> https://github.com/ciaa/Firmware.git</b>
+```command
+git clone --recursive https://github.com/ciaa/Firmware.git
+```
 
 <h2>Project Information</h2>
 
